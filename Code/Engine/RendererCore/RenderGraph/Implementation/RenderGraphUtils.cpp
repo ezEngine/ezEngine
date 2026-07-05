@@ -8,7 +8,36 @@
 #include <RendererFoundation/Descriptors/Enumerations.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
-#include <RendererFoundation/Shader/ShaderUtils.h>
+#include <Foundation/Configuration/Startup.h>
+
+namespace
+{
+  static ezShaderResourceHandle g_hDownscaleShader;
+}
+
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderGraphUtils)
+
+BEGIN_SUBSYSTEM_DEPENDENCIES
+  "Foundation",
+  "Core",
+  "ResourceManager",
+  "RenderGraphManager"
+END_SUBSYSTEM_DEPENDENCIES
+
+ON_HIGHLEVELSYSTEMS_STARTUP
+{
+  g_hDownscaleShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Downscale.ezShader");
+  EZ_ASSERT_DEV(g_hDownscaleShader.IsValid(), "Could not load Downscale shader.");
+}
+
+ON_HIGHLEVELSYSTEMS_SHUTDOWN
+{
+  g_hDownscaleShader.Invalidate();
+}
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezRenderGraphTextureHandle ezRenderGraphUtils::GenerateMipMaps(ezGALTextureHandle hTexture, ezGALTextureRange range, ezRenderGraph& ref_renderGraph)
 {
@@ -35,9 +64,6 @@ ezRenderGraphTextureHandle ezRenderGraphUtils::GenerateMipMaps(ezGALTextureHandl
   if (range.m_uiMipLevels <= 1)
     return hGraphTexture;
 
-  ezShaderResourceHandle hDownscaleShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Downscale.ezShader");
-  EZ_ASSERT_DEV(hDownscaleShader.IsValid(), "Could not load Downscale shader.");
-
   static ezHashedString sCameraMode = ezMakeHashedString("CAMERA_MODE");
   static ezHashedString sPerspective = ezMakeHashedString("CAMERA_MODE_PERSPECTIVE");
 
@@ -60,11 +86,11 @@ ezRenderGraphTextureHandle ezRenderGraphUtils::GenerateMipMaps(ezGALTextureHandl
       pass.ReadTexture(hGraphTexture, sourceRange, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
       pass.AddColorTarget(hGraphTexture, targetRange, {}, {}, ezGALResourceFormat::Invalid, ezGALTextureType::Texture2DArray);
       pass.HasSideEffects();
-      pass.SetExecuteCallback([hGraphTexture, sourceRange, hDownscaleShader](const ezRenderGraphContext& context)
+      pass.SetExecuteCallback([hGraphTexture, sourceRange](const ezRenderGraphContext& context)
         {
           ezRenderContext* pRenderContext = context.GetRenderContext();
           pRenderContext->SetShaderPermutationVariable(sCameraMode, sPerspective);
-          pRenderContext->BindShader(hDownscaleShader);
+          pRenderContext->BindShader(g_hDownscaleShader);
 
           ezBindGroupBuilder& bindGroup = pRenderContext->GetBindGroup();
           bindGroup.BindTexture("Input", context.ResolveTexture(hGraphTexture), sourceRange, ezGALResourceFormat::Invalid, ezGALTextureType::Texture2DArray);
