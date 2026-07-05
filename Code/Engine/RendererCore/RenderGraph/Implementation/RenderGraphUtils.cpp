@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/Configuration/Startup.h>
 #include <RendererCore/RenderContext/BindGroupBuilder.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderGraph/RenderGraph.h>
@@ -8,7 +9,6 @@
 #include <RendererFoundation/Descriptors/Enumerations.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
-#include <Foundation/Configuration/Startup.h>
 
 namespace
 {
