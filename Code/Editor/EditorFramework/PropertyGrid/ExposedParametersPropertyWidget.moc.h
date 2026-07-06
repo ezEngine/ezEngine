@@ -83,6 +83,7 @@ protected:
   virtual void UpdateElement(ezUInt32 index) override;
   virtual void UpdatePropertyMetaState() override;
   virtual void GetRequiredElements(ezDynamicArray<ezVariant>& out_keys) const override;
+  virtual void DoPrepareToDie() override;
 
 private:
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);

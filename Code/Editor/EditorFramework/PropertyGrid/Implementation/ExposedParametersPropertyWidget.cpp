@@ -569,6 +569,15 @@ void ezQtExposedParametersPropertyWidget::GetRequiredElements(ezDynamicArray<ezV
   }
 }
 
+void ezQtExposedParametersPropertyWidget::DoPrepareToDie()
+{
+  ezQtPropertyStandardTypeContainerWidget::DoPrepareToDie();
+  if (m_pTypeWidget)
+  {
+    m_pTypeWidget->PrepareToDie();
+  }
+}
+
 void ezQtExposedParametersPropertyWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   if (IsUndead())
