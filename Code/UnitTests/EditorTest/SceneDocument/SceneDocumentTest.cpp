@@ -6,6 +6,7 @@
 #include <EditorFramework/DragDrop/DragDropHandler.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorFramework/Object/ObjectPropertyPath.h>
+#include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
 #include <EditorPluginScene/Panels/LayerPanel/LayerAdapter.moc.h>
 #include <EditorPluginScene/Scene/LayerDocument.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
@@ -15,7 +16,6 @@
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <RendererCore/Lights/SphereReflectionProbeComponent.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
 
 #include <QMimeData>
 
