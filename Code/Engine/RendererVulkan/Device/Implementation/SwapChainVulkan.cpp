@@ -10,6 +10,7 @@
 #include <RendererVulkan/Device/SwapChainVulkan.h>
 #include <RendererVulkan/Pools/SemaphorePoolVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
+#include <RendererVulkan/Utils/BarrierUtilsVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
@@ -136,6 +137,14 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
 #endif
 
   m_RenderTargets.m_hRTs[0] = m_SwapChainTextures[m_uiCurrentSwapChainImage];
+  if (!m_DefaultLayoutApplied.IsBitSet(m_uiCurrentSwapChainImage))
+  {
+    m_DefaultLayoutApplied.SetBit(m_uiCurrentSwapChainImage);
+    ezBarrierUtilsVulkan barriers(*pVulkanDevice, pVulkanDevice->GetCurrentCommandBuffer());
+    const ezGALTextureVulkan* pTexture = static_cast<const ezGALTextureVulkan*>(pVulkanDevice->GetTexture(m_SwapChainTextures[m_uiCurrentSwapChainImage]));
+
+    barriers.TextureBarrier(pTexture->GetImage(), pTexture->GetFullRange(), ezGALResourceState::Unknown, pTexture->GetDescription().GetDefaultState());
+  }
   pVulkanDevice->AddWaitSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeWaitSemaphore(m_CurrentPipelineImageAvailableSemaphore, vk::PipelineStageFlagBits::eColorAttachmentOutput));
   pVulkanDevice->ReclaimLater(m_CurrentPipelineImageAvailableSemaphore);
 }
@@ -418,6 +427,7 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
     TexDesc.m_ResourceAccess.m_bImmutable = false;
     m_SwapChainTextures.PushBack(m_pVulkanDevice->CreateTextureInternal(TexDesc, ezArrayPtr<ezGALSystemMemoryDescription>()));
   }
+  m_DefaultLayoutApplied.SetCount(uiSwapChainImages, false);
   m_CurrentSize = ezSizeU32(swapChainCreateInfo.imageExtent.width, swapChainCreateInfo.imageExtent.height);
   m_RenderTargets.m_hRTs[0] = m_SwapChainTextures[0];
 
@@ -433,6 +443,7 @@ void ezGALSwapChainVulkan::DestroySwapChainInternal(ezGALDeviceVulkan* pVulkanDe
     pVulkanDevice->DestroyTexture(m_SwapChainTextures[i]);
   }
   m_SwapChainTextures.Clear();
+  m_DefaultLayoutApplied.Clear();
 
   for (vk::Semaphore& sem : m_ImageRenderFinishedSemaphores)
   {

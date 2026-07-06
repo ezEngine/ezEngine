@@ -104,6 +104,7 @@ ezResult ezGraphicsTest::CreateRenderer(ezGALDevice*& out_pDevice)
   // Create a device
   {
     ezGALDeviceCreationDescription DeviceInit;
+    DeviceInit.m_bDebugDevice = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-debugdevice", false);
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     DeviceInit.m_bDebugDevice = true;
 #endif

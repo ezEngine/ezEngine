@@ -153,7 +153,7 @@ jobs:
           export VK_ICD_FILENAMES=/usr/local/share/vulkan/icd.d/lvp_icd.x86_64.json
         fi
         sudo sysctl -w kernel.yama.ptrace_scope=0 # Required for shared texture access
-        ./Output/Bin/LinuxNinjaGccDev64/RendererTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/RendererTest
+        ./Output/Bin/LinuxNinjaGccDev64/RendererTest -debugdevice -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/RendererTest
 
   - task: Bash@3
     displayName: EditorTest
@@ -179,7 +179,7 @@ jobs:
           export DISPLAY=:1
           export VK_ICD_FILENAMES=/usr/local/share/vulkan/icd.d/lvp_icd.x86_64.json
         fi
-        ./Output/Bin/LinuxNinjaGccDev64/GameEngineTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/GameEngineTest
+        ./Output/Bin/LinuxNinjaGccDev64/GameEngineTest -debugdevice -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/GameEngineTest
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'

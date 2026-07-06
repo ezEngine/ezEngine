@@ -1,6 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/Algorithm/HashingUtils.h>
+#include <Foundation/Memory/FrameAllocator.h>
 #include <RendererCore/RenderGraph/RenderGraphResourceAllocator.h>
 
 ezRenderGraphResourceAllocator::ezRenderGraphResourceAllocator(ezRenderGraphResourcePool* pPool)
@@ -12,6 +13,18 @@ ezRenderGraphResourceAllocator::ezRenderGraphResourceAllocator(ezRenderGraphReso
 ezRenderGraphResourceAllocator::~ezRenderGraphResourceAllocator()
 {
   FreeResources();
+}
+
+ezRenderGraphResourceAllocator::TextureGroup::TextureGroup()
+  : m_All(ezFrameAllocator::GetCurrentAllocator())
+  , m_Available(ezFrameAllocator::GetCurrentAllocator())
+{
+}
+
+ezRenderGraphResourceAllocator::BufferGroup::BufferGroup()
+  : m_All(ezFrameAllocator::GetCurrentAllocator())
+  , m_Available(ezFrameAllocator::GetCurrentAllocator())
+{
 }
 
 ezRenderGraphResourceAllocator::ezRenderGraphResourceAllocator(ezRenderGraphResourceAllocator&& rhs) noexcept

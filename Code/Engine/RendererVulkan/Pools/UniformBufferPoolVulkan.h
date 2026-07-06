@@ -44,6 +44,7 @@ private:
   {
     UniformBufferPool(ezUInt32 uiAlignment, ezUInt32 uiTotalSize);
     ~UniformBufferPool();
+    ezResult CanAllocate(ezUInt32 uiSize) const { return m_Tracker.CanAllocate(uiSize); }
     ezResult Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame, ezUInt32& out_uiStartOffset, ezByteArrayPtr& out_allocation);
     void Free(ezUInt64 uiUpToFrame);
     void Submit(ezGALDeviceVulkan* pDevice, ezUInt64 uiFrame);

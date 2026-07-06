@@ -860,7 +860,7 @@ void ezRenderGraph::CullDeadPasses()
   }
 
   // Seed the alive set with passes that have side effects or write to imported resources.
-  ezHybridArray<ezUInt16, 16> stack;
+  ezHybridArray<ezUInt16, 16, ezTempAllocatorWrapper> stack;
   for (ezUInt16 i = 0; i < uiNumPasses; ++i)
   {
     const Pass& pass = m_Passes[i];

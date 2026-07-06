@@ -38,6 +38,7 @@ protected:
   vk::SwapchainKHR m_VulkanSwapChain;
   ezHybridArray<vk::Image, 4> m_SwapChainImages;
   ezHybridArray<ezGALTextureHandle, 4> m_SwapChainTextures;
+  ezHybridBitfield<32> m_DefaultLayoutApplied;
   ezUInt32 m_uiCurrentSwapChainImage = 0;
 
   vk::Semaphore m_CurrentPipelineImageAvailableSemaphore;

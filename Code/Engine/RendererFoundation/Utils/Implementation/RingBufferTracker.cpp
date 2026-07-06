@@ -10,6 +10,21 @@ ezRingBufferTracker::ezRingBufferTracker(ezUInt32 uiAlignment, ezUInt32 uiTotalS
   EZ_ASSERT_DEBUG(ezMath::IsPowerOf2(m_uiAlignment), "Non-power of two alignment not supported");
 }
 
+ezResult ezRingBufferTracker::CanAllocate(ezUInt32 uiSize) const
+{
+  uiSize = ezMemoryUtils::AlignSize(uiSize, m_uiAlignment);
+  if (m_uiFree < uiSize)
+    return EZ_FAILURE;
+
+  if (m_uiCurrentOffset + uiSize > m_uiTotalSize)
+  {
+    const ezUInt32 uiSkip = m_uiTotalSize - m_uiCurrentOffset;
+    if (m_uiFree - uiSkip < uiSize)
+      return EZ_FAILURE;
+  }
+  return EZ_SUCCESS;
+}
+
 ezResult ezRingBufferTracker::Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame, ezUInt32& out_uiAllocatedOffset)
 {
   uiSize = ezMemoryUtils::AlignSize(uiSize, m_uiAlignment);

@@ -25,6 +25,11 @@ public:
   /// \param uiTotalSize The size of the memory.
   ezRingBufferTracker(ezUInt32 uiAlignment, ezUInt32 uiTotalSize); // [tested]
 
+  // Checks whether a contiguous memory block of the given size can be allocated.
+  /// \param uiSize Size requested.
+  /// \return Returns EZ_FAILURE if not enough memory remains to fulfil the allocation.
+  ezResult CanAllocate(ezUInt32 uiSize) const; // [tested]
+
   /// Allocates memory of the given size.
   /// \param uiSize Size requested.
   /// \param uiCurrentFrame The current frame for which this allocation is tracked.

@@ -122,9 +122,9 @@ ezUniformBufferPoolVulkan::UniformBufferPool* ezUniformBufferPoolVulkan::GetFree
 {
   if (!m_FreePools.IsEmpty())
   {
-    // The back has the pool with the highest available memory. If this fails there is no point in checking other pools.
+    // The back has the pool with the highest available memory. If this fails, it is unlikely the other pools can allocate (could only happen due to fragmentation at the buffer wrap-around_.
     ezUniformBufferPoolVulkan::UniformBufferPool* pPool = m_FreePools.PeekBack();
-    if (pPool->GetFreeMemory() >= uiSize)
+    if (pPool->CanAllocate(uiSize).Succeeded())
     {
       m_FreePools.PopBack();
       return pPool;

@@ -205,7 +205,7 @@ void ezRenderGraphManager::ExecuteRenderGraphs(ezGALDevice* pDevice)
     for (auto pRenderGraph : s_ExecutingGraphs)
     {
       // Collect observers for this graph.
-      ezHybridArray<ezRenderGraphPassObserver*, 4> graphObservers;
+      ezHybridArray<ezRenderGraphPassObserver*, 4, ezTempAllocatorWrapper> graphObservers;
       for (auto* pObserver : s_ExecutingObservers)
       {
         if (pObserver->m_pGraph == pRenderGraph)
@@ -221,10 +221,10 @@ void ezRenderGraphManager::ExecuteRenderGraphs(ezGALDevice* pDevice)
 
 
 
-  ezHybridArray<ezGALTextureBarrier, 8> textureBarriers;
+  ezHybridArray<ezGALTextureBarrier, 8, ezTempAllocatorWrapper> textureBarriers;
   s_pStateTracker->RevertTextureState([&](const ezGALTextureBarrier& barrier)
     { textureBarriers.PushBack(barrier); });
-  ezHybridArray<ezGALBufferBarrier, 8> bufferBarriers;
+  ezHybridArray<ezGALBufferBarrier, 8, ezTempAllocatorWrapper> bufferBarriers;
   s_pStateTracker->RevertBufferState([&](const ezGALBufferBarrier& barrier)
     { bufferBarriers.PushBack(barrier); });
 
@@ -234,7 +234,7 @@ void ezRenderGraphManager::ExecuteRenderGraphs(ezGALDevice* pDevice)
   for (s_uiCurrentGraphIndex = 0; s_uiCurrentGraphIndex < s_ExecutingGraphs.GetCount(); ++s_uiCurrentGraphIndex)
   {
     // Collect valid observers for this graph.
-    ezHybridArray<ezRenderGraphPassObserver*, 4> graphObservers;
+    ezHybridArray<ezRenderGraphPassObserver*, 4, ezTempAllocatorWrapper> graphObservers;
     for (auto* pObserver : s_ExecutingObservers)
     {
       if (pObserver->m_bValid && pObserver->m_pGraph == s_ExecutingGraphs[s_uiCurrentGraphIndex])
@@ -274,7 +274,7 @@ void ezRenderGraphManager::GetExecutionSummary(ezRenderGraphInspectionSummary& o
 
   if (ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice())
   {
-    ezDynamicArray<ezGALSwapChainHandle> swapChains;
+    ezTempArray<ezGALSwapChainHandle> swapChains;
     pDevice->GetAllSwapChains(swapChains);
     out_summary.m_AvailableSwapChains.Reserve(swapChains.GetCount());
     for (ezGALSwapChainHandle hSwapChain : swapChains)
