@@ -25,6 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltHeightfieldColliderComponent, 2, ezComponentMode::
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
+    new ezHiddenAttribute(),
     new ezCategoryAttribute("Physics/Jolt/Actors"),
   }
   EZ_END_ATTRIBUTES;

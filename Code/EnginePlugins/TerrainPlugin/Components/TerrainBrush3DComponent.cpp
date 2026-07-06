@@ -19,8 +19,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezTerrainBrush3DComponent, 1, ezComponentMode::Static)
   {
     EZ_ENUM_ACCESSOR_PROPERTY("ModifyMode", ezTerrainModifyMode3D, GetModifyMode, SetModifyMode),
     EZ_ACCESSOR_PROPERTY("HalfSizeX", GetHalfSizeX, SetHalfSizeX)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("HalfSizeYBottom", GetHalfSizeYBottom, SetHalfSizeYBottom)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("HalfSizeYTop", GetHalfSizeYTop, SetHalfSizeYTop)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("HalfSizeYBottom", GetHalfSizeYBottom, SetHalfSizeYBottom)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("HalfSizeZ", GetHalfSizeZ, SetHalfSizeZ)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("InnerRadius", GetInnerRadius, SetInnerRadius)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("OuterRadius", GetOuterRadius, SetOuterRadius)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.0f, ezVariant())),
