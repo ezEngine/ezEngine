@@ -35,6 +35,7 @@ public:
 protected:
   virtual void Redraw(bool bRenderEditorGizmos) override;
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
+  virtual void SetViewProperties(ezView* pView) override;
   virtual ezViewHandle CreateView() override;
 
   void PickObjectAt(ezUInt16 x, ezUInt16 y);

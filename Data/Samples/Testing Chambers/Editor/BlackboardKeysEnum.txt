@@ -1,9 +1,9 @@
 Aim
+Fog.Color
+Fog.Density
 Health
 IsAlive
 Melee
-MoodColor
-MoodStrength
 MoveBackwards
 MoveForwards
 PlayHitReaction
@@ -13,6 +13,9 @@ RotateRight
 Shoot
 StrafeLeft
 StrafeRight
+TonemapPass.Contrast
+TonemapPass.MoodColor
+TonemapPass.MoodStrength
 TouchingGround
 Use
 Wave

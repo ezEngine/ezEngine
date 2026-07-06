@@ -1,12 +1,13 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <RendererCore/Lights/Implementation/ReflectionProbeUpdater.h>
-
-#include <Foundation/Math/Color16f.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Lights/Implementation/ReflectionPoolData.h>
+#include <RendererCore/Lights/Implementation/ReflectionProbeUpdater.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
+
+#include <Core/Utils/Blackboard.h>
+#include <Foundation/Math/Color16f.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
 
@@ -278,8 +279,7 @@ void ezReflectionProbeUpdater::ScheduleUpdateSteps()
   }
 }
 
-void ezReflectionProbeUpdater::CreateViews(
-  ezDynamicArray<ReflectionView>& views, ezUInt32 uiMaxRenderViews, const char* szNameSuffix, const char* szRenderPipelineResource)
+void ezReflectionProbeUpdater::CreateViews(ezDynamicArray<ReflectionView>& views, ezUInt32 uiMaxRenderViews, const char* szNameSuffix, const char* szRenderPipelineResource)
 {
   uiMaxRenderViews = ezMath::Max<ezUInt32>(uiMaxRenderViews, 1);
 
@@ -304,6 +304,9 @@ void ezReflectionProbeUpdater::CreateViews(
 
       renderView.m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90.0f, 0.1f, 100.0f);
       pView->SetCamera(&renderView.m_Camera);
+
+      sName.Append(" Blackboard");
+      pView->SetBlackboard(ezBlackboard::Create(sName));
     }
   }
   else if (uiMaxRenderViews < views.GetCount())
@@ -398,12 +401,11 @@ void ezReflectionProbeUpdater::AddViewToRender(const ProbeUpdateInfo::Step& step
       {
         renderTargets.m_hRTs[2] = updateInfo.m_TargetSlot.m_hIrradianceOutputTexture;
       }
-      pView->SetRenderPassProperty("ReflectionFilterPass", "DiffuseIntensity", updateInfo.m_desc.m_fDiffuseIntensity);
-      pView->SetRenderPassProperty("ReflectionFilterPass", "DiffuseSaturation", updateInfo.m_desc.m_fDiffuseSaturation);
-      pView->SetRenderPassProperty("ReflectionFilterPass", "SpecularIntensity", updateInfo.m_desc.m_fSpecularIntensity);
-      pView->SetRenderPassProperty("ReflectionFilterPass", "SpecularOutputIndex", updateInfo.m_TargetSlot.m_iSpecularOutputIndex);
-      pView->SetRenderPassProperty("ReflectionFilterPass", "IrradianceOutputIndex", updateInfo.m_TargetSlot.m_iIrradianceOutputIndex);
-
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ReflectionFilterPass.DiffuseIntensity"), updateInfo.m_desc.m_fDiffuseIntensity);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ReflectionFilterPass.DiffuseSaturation"), updateInfo.m_desc.m_fDiffuseSaturation);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ReflectionFilterPass.SpecularIntensity"), updateInfo.m_desc.m_fSpecularIntensity);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ReflectionFilterPass.SpecularOutputIndex"), updateInfo.m_TargetSlot.m_iSpecularOutputIndex);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ReflectionFilterPass.IrradianceOutputIndex"), updateInfo.m_TargetSlot.m_iIrradianceOutputIndex);
 
       ezGALTextureHandle hSourceTexture = updateInfo.m_hCubemap;
       if (updateInfo.m_desc.m_Mode == ezReflectionProbeMode::Static)
@@ -418,7 +420,7 @@ void ezReflectionProbeUpdater::AddViewToRender(const ProbeUpdateInfo::Step& step
           }
         }
       }
-      pView->SetRenderPassProperty("ReflectionFilterPass", "InputCubemap", hSourceTexture.GetInternalID().m_Data);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ReflectionFilterPass.InputCubemap"), hSourceTexture.GetInternalID().m_Data);
     }
     else
     {

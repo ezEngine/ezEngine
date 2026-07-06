@@ -21,14 +21,6 @@ void ezParticleViewContext::PositionThumbnailCamera(const ezBoundingBoxSphere& b
 
 ezViewHandle ezParticleViewContext::CreateView()
 {
-  ezView* pView = nullptr;
-  ezRenderWorld::CreateView("Particle Editor - View", pView);
-  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
-
-  pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
-
-  ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-  pView->SetWorld(pDocumentContext->GetWorld());
-  pView->SetCamera(&m_Camera);
+  ezView* pView = CreateDefaultView("Particle Editor - View");
   return pView->GetHandle();
 }

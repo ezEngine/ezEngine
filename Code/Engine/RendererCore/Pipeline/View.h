@@ -11,6 +11,7 @@
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
+class ezBlackboard;
 class ezFrustum;
 class ezWorld;
 class ezRenderPipeline;
@@ -25,6 +26,8 @@ private:
   /// \brief Use ezRenderLoop::CreateView to create a view.
   ezView();
   ~ezView();
+
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezView);
 
 public:
   ezViewHandle GetHandle() const;
@@ -133,15 +136,12 @@ public:
 
   void SetShaderPermutationVariable(const char* szName, const char* szValue);
 
-  void SetRenderPassProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value);
-  void SetExtractorProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value);
-
-  void ResetRenderPassProperties();
-  void ResetExtractorProperties();
-
-  void SetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value);
-  ezVariant GetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName);
-  bool IsRenderPassReadBackPropertyExisting(const char* szPassName, const char* szPropertyName) const;
+  /// \brief This blackboard can be used to set view specific render pipeline pass or extractor properties,
+  /// or to overwrite properties that are already set on the world blackboard.
+  ///
+  /// To set properties the blackboard entry name must be in the form of "PassName.PropertyName" or "ExtractorName.PropertyName".
+  void SetBlackboard(const ezSharedPtr<ezBlackboard>& pBlackboard);
+  const ezSharedPtr<ezBlackboard>& GetBlackboard() const;
 
   /// \brief Pushes the view and camera data into the extracted data of the pipeline.
   ///
@@ -194,33 +194,42 @@ private:
   ezDynamicArray<ezPermutationVar> m_PermutationVars;
   bool m_bPermutationVarsDirty = false;
 
-  void ApplyPermutationVars();
-
-  struct PropertyValue
-  {
-    ezString m_sObjectName;
-    ezString m_sPropertyName;
-    ezVariant m_DefaultValue;
-    ezVariant m_CurrentValue;
-    bool m_bIsValid;
-    bool m_bIsDirty;
-  };
-
-  void SetProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName, const ezVariant& value);
-  void SetReadBackProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName, const ezVariant& value);
-
   void ReadBackPassProperties();
 
-  void ResetAllPropertyStates(ezMap<ezString, PropertyValue>& map);
+  void ApplyPermutationVars();
+  void ApplyPropertiesFromBlackboard();
+  void UpdatePropertyMappings(const ezBlackboard& blackboard, ezUInt32 uiSourceIndex);
 
-  void ApplyRenderPassProperties();
-  void ApplyExtractorProperties();
+  ezSharedPtr<ezBlackboard> m_pWorldBlackboard;
+  ezSharedPtr<ezBlackboard> m_pViewBlackboard;
 
-  void ApplyProperty(ezReflectedClass* pObject, PropertyValue& data, const char* szTypeName);
+  enum SourceBlackboard : ezUInt8
+  {
+    World,
+    View,
 
-  ezMap<ezString, PropertyValue> m_PassProperties;
-  ezMap<ezString, PropertyValue> m_PassReadBackProperties;
-  ezMap<ezString, PropertyValue> m_ExtractorProperties;
+    COUNT
+  };
+
+  struct ChangeCounter
+  {
+    ezUInt32 m_uiStructure = 0;
+    ezUInt32 m_uiValue = 0;
+  };
+
+  ChangeCounter m_BlackboardChangeCounter[SourceBlackboard::COUNT] = {};
+
+  struct PropertyMapping
+  {
+    ezReflectedClass* m_pObject = nullptr;
+    const ezAbstractMemberProperty* m_pProperty = nullptr;
+    ezUInt32 m_uiChangeCounter = 0;
+    SourceBlackboard m_SourceIndex = SourceBlackboard::World;
+
+    ezVariant m_DefaultValue;
+  };
+
+  ezHashTable<ezHashedString, PropertyMapping> m_PropertyMappings;
 };
 
 #include <RendererCore/Pipeline/Implementation/View_inl.h>

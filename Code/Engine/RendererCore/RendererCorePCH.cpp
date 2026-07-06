@@ -40,6 +40,7 @@ EZ_STATICLINK_LIBRARY(RendererCore)
   EZ_STATICLINK_REFERENCE(RendererCore_BakedProbes_Implementation_ProbeTreeSectorResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_AlwaysVisibleComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_BeamComponent);
+  EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_BlackboardComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_CameraComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_FogComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_LensFlareComponent);
@@ -91,6 +92,7 @@ EZ_STATICLINK_LIBRARY(RendererCore)
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_MeshResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_SkinnedMeshRenderData);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_SplineMeshComponent);
+  EZ_STATICLINK_REFERENCE(RendererCore_Pipeline_Implementation_Declarations);
   EZ_STATICLINK_REFERENCE(RendererCore_Pipeline_Implementation_Extractor);
   EZ_STATICLINK_REFERENCE(RendererCore_Pipeline_Implementation_FrameDataProvider);
   EZ_STATICLINK_REFERENCE(RendererCore_Pipeline_Implementation_Passes_AOPass);
@@ -134,6 +136,7 @@ EZ_STATICLINK_LIBRARY(RendererCore)
   EZ_STATICLINK_REFERENCE(RendererCore_Pipeline_Implementation_ViewRenderMode);
   EZ_STATICLINK_REFERENCE(RendererCore_Rasterizer_Implementation_RasterizerView);
   EZ_STATICLINK_REFERENCE(RendererCore_RenderContext_Implementation_RenderContext);
+  EZ_STATICLINK_REFERENCE(RendererCore_RenderGraph_Implementation_RenderGraphManager);
   EZ_STATICLINK_REFERENCE(RendererCore_RenderWorld_Implementation_RenderWorld);
   EZ_STATICLINK_REFERENCE(RendererCore_ShaderCompiler_Implementation_ShaderCompiler);
   EZ_STATICLINK_REFERENCE(RendererCore_Shader_Implementation_ShaderPermutationResource);
@@ -142,6 +145,7 @@ EZ_STATICLINK_LIBRARY(RendererCore)
   EZ_STATICLINK_REFERENCE(RendererCore_Textures_Texture3DResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Textures_TextureCubeResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Textures_TextureLoader);
+  EZ_STATICLINK_REFERENCE(RendererCore_Utils_Implementation_BlackboardTemplateResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Utils_Implementation_CoreRenderProfile);
   EZ_STATICLINK_REFERENCE(RendererCore_Utils_Implementation_WorldGeoExtractionUtil);
 }

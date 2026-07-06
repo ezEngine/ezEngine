@@ -98,7 +98,6 @@
     <file>ezFollowSplineComponent.svg</file>
     <file>ezLocalBlackboardComponent.svg</file>
     <file>ezGlobalBlackboardComponent.svg</file>
-    <file>ezPostProcessingComponent.svg</file>
     <file>ezVolumeBoxComponent.svg</file>
     <file>ezVolumeSphereComponent.svg</file>
     <file>ezLodComponent.svg</file>
@@ -122,6 +121,7 @@
     <file>ezScriptComponent.svg</file>
     <file>ezThirdPersonViewComponent.svg</file>
     <file>ezLightShaftsComponent.svg</file>
+    <file>ezVolumeSamplerComponent.svg</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.svg</file>

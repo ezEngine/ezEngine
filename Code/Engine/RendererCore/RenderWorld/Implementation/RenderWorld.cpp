@@ -156,7 +156,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderWorld)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezViewHandle ezRenderWorld::CreateView(const char* szName, ezView*& out_pView)
+ezViewHandle ezRenderWorld::CreateView(ezStringView sName, ezView*& out_pView)
 {
   ezView* pView = EZ_DEFAULT_NEW(ezView);
 
@@ -165,7 +165,7 @@ ezViewHandle ezRenderWorld::CreateView(const char* szName, ezView*& out_pView)
     pView->m_InternalId = s_Views.Insert(pView);
   }
 
-  pView->SetName(szName);
+  pView->SetName(sName);
 
   pView->m_pRenderDataCache = EZ_NEW(s_pCacheAllocator, ezInternal::RenderDataCache, s_pCacheAllocator);
 

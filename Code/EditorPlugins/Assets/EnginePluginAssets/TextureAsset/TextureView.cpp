@@ -17,17 +17,11 @@ ezTextureViewContext::~ezTextureViewContext() = default;
 
 ezViewHandle ezTextureViewContext::CreateView()
 {
-  ezView* pView = nullptr;
-  ezRenderWorld::CreateView("Texture Editor - View", pView);
-  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
-
+  ezView* pView = CreateDefaultView("Texture Editor - View");
   pView->SetRenderPipelineResource(CreateDebugRenderPipeline());
-  pView->SetRenderPassProperty("DepthPrePass", "Active", false);
-  pView->SetRenderPassProperty("AOPass", "Active", false);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("DepthPrePass.Active"), false);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("AOPass.Active"), false);
 
-  ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-  pView->SetWorld(pDocumentContext->GetWorld());
-  pView->SetCamera(&m_Camera);
   return pView->GetHandle();
 }
 

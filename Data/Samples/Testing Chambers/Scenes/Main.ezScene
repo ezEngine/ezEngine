@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{1701179633138022225}
+		u4 %Hash{15844216438626553389}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -5613,11 +5613,12 @@ o
 {
 	Uuid %id{u4{5478034809674987399,4612189628925581404}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{2}
@@ -5714,20 +5715,6 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{14697461357033298823,4614707846192188290}}
-	s %t{"ezPostProcessingValueMapping"}
-	u3 %v{1}
-	p
-	{
-		Color %DefaultValue{f{0x0000803F,0x71A5C03E,0,0x0000803F}}
-		Time %InterpolationDuration{d{0x0000000000000040}}
-		HashedString %Property{s{"MoodColor"}}
-		HashedString %RenderPass{s{"TonemapPass"}}
-		HashedString %VolumeValue{s{"MoodColor"}}
 	}
 }
 o
@@ -6536,6 +6523,25 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{99346858464531378,4693595147337785391}}
+	s %t{"ezLocalBlackboardComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %BlackboardName{""}
+		VarArray %Entries
+		{
+			Uuid{u4{817612181633043878,5750228506484575517}}
+			Uuid{u4{18220394771658031491,4844633984354351979}}
+		}
+		b %SendEntryChangedMessage{0}
+		b %ShowDebugInfo{0}
+		s %Template{""}
 	}
 }
 o
@@ -7977,6 +7983,18 @@ o
 }
 o
 {
+	Uuid %id{u4{18220394771658031491,4844633984354351979}}
+	s %t{"ezBlackboardEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		f %InitialValue{0x0000A040}
+		HashedString %Name{s{"TonemapPass.MoodStrength"}}
+	}
+}
+o
+{
 	Uuid %id{u4{17297344411205605273,4845249955685249893}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -8475,11 +8493,12 @@ o
 {
 	Uuid %id{u4{15416684804433933185,4882811130761641720}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{"Camera"}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{-1}
@@ -9500,22 +9519,6 @@ o
 }
 o
 {
-	Uuid %id{u4{3632286616354147752,4993207729049940024}}
-	s %t{"ezPostProcessingComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Mappings
-		{
-			Uuid{u4{16570669015473823106,5528518874280039215}}
-			Uuid{u4{4097864705009347472,5017752797156897871}}
-		}
-		s %VolumeType{"GenericVolume"}
-	}
-}
-o
-{
 	Uuid %id{u4{12783667104142466697,4993600908907710306}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{7}
@@ -9836,20 +9839,6 @@ o
 }
 o
 {
-	Uuid %id{u4{4097864705009347472,5017752797156897871}}
-	s %t{"ezPostProcessingValueMapping"}
-	u3 %v{1}
-	p
-	{
-		f %DefaultValue{0x00008040}
-		Time %InterpolationDuration{d{0}}
-		HashedString %Property{s{"MoodStrength"}}
-		HashedString %RenderPass{s{"TonemapPass"}}
-		HashedString %VolumeValue{s{""}}
-	}
-}
-o
-{
 	Uuid %id{u4{674981289265289617,5018119732198729083}}
 	s %t{"ezDecalComponent"}
 	u3 %v{8}
@@ -10099,6 +10088,18 @@ o
 		b %Closed{0}
 		b %EditNodes{0}
 		s %Flags{""}
+	}
+}
+o
+{
+	Uuid %id{u4{11581885833089796518,5040758803811254181}}
+	s %t{"ezVolumeSamplerValue"}
+	u3 %v{1}
+	p
+	{
+		f %DefaultValue{0xCDCCCC3D}
+		Time %InterpolationDuration{d{0}}
+		HashedString %Name{s{"TonemapPass.Contrast"}}
 	}
 }
 o
@@ -10406,6 +10407,18 @@ o
 }
 o
 {
+	Uuid %id{u4{9572077330960294577,5060997298317261874}}
+	s %t{"ezVolumeSamplerValue"}
+	u3 %v{1}
+	p
+	{
+		f %DefaultValue{0x9A99993E}
+		Time %InterpolationDuration{d{0x0000000000000040}}
+		HashedString %Name{s{"TonemapPass.MoodStrength"}}
+	}
+}
+o
+{
 	Uuid %id{u4{13961182306600106429,5061741412022891812}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -10632,11 +10645,12 @@ o
 {
 	Uuid %id{u4{1418283826618176672,5076801571762739636}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{1}
@@ -12855,7 +12869,7 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{15416684804433933185,4882811130761641720}}
-			Uuid{u4{3632286616354147752,4993207729049940024}}
+			Uuid{u4{99346858464531378,4693595147337785391}}
 			Uuid{u4{10520240358678061731,5267623913918568667}}
 		}
 		s %GlobalKey{""}
@@ -14202,20 +14216,6 @@ o
 }
 o
 {
-	Uuid %id{u4{14861961278534461611,5429287421616888847}}
-	s %t{"ezPostProcessingValueMapping"}
-	u3 %v{1}
-	p
-	{
-		f %DefaultValue{0x9A99993E}
-		Time %InterpolationDuration{d{0x0000000000000040}}
-		HashedString %Property{s{"MoodStrength"}}
-		HashedString %RenderPass{s{"TonemapPass"}}
-		HashedString %VolumeValue{s{"MoodStrength"}}
-	}
-}
-o
-{
 	Uuid %id{u4{12726809291223100042,5435662050024184018}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -15365,16 +15365,14 @@ o
 }
 o
 {
-	Uuid %id{u4{16570669015473823106,5528518874280039215}}
-	s %t{"ezPostProcessingValueMapping"}
+	Uuid %id{u4{13082672763754932911,5529218080205743939}}
+	s %t{"ezVolumeSamplerValue"}
 	u3 %v{1}
 	p
 	{
-		Color %DefaultValue{f{0x0000803F,0,0,0x0000803F}}
-		Time %InterpolationDuration{d{0}}
-		HashedString %Property{s{"MoodColor"}}
-		HashedString %RenderPass{s{"TonemapPass"}}
-		HashedString %VolumeValue{s{""}}
+		Color %DefaultValue{f{0x0000803F,0x71A5C03E,0,0x0000803F}}
+		Time %InterpolationDuration{d{0x0000000000000040}}
+		HashedString %Name{s{"TonemapPass.MoodColor"}}
 	}
 }
 o
@@ -15959,18 +15957,21 @@ o
 o
 {
 	Uuid %id{u4{13733991660780769426,5585025714308045762}}
-	s %t{"ezPostProcessingComponent"}
-	u3 %v{1}
+	s %t{"ezVolumeSamplerComponent"}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		VarArray %Mappings
+		b %AttachToMainCamera{1}
+		HashedString %BlackboardName{s{""}}
+		VarArray %Values
 		{
-			Uuid{u4{14697461357033298823,4614707846192188290}}
-			Uuid{u4{14861961278534461611,5429287421616888847}}
-			Uuid{u4{4675024263073621918,5653410995292447235}}
+			Uuid{u4{13082672763754932911,5529218080205743939}}
+			Uuid{u4{9572077330960294577,5060997298317261874}}
+			Uuid{u4{11581885833089796518,5040758803811254181}}
 		}
 		s %VolumeType{"GenericVolume"}
+		b %WriteToBlackboard{1}
 	}
 }
 o
@@ -16081,11 +16082,12 @@ o
 {
 	Uuid %id{u4{9774989420760126652,5589607003139284145}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{3}
@@ -16670,20 +16672,6 @@ o
 }
 o
 {
-	Uuid %id{u4{4675024263073621918,5653410995292447235}}
-	s %t{"ezPostProcessingValueMapping"}
-	u3 %v{1}
-	p
-	{
-		f %DefaultValue{0xCDCCCC3D}
-		Time %InterpolationDuration{d{0}}
-		HashedString %Property{s{"Contrast"}}
-		HashedString %RenderPass{s{"TonemapPass"}}
-		HashedString %VolumeValue{s{""}}
-	}
-}
-o
-{
 	Uuid %id{u4{2416588784786102186,5655424767333039688}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -16819,11 +16807,12 @@ o
 {
 	Uuid %id{u4{3467050614111545759,5666533743106028128}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{4}
@@ -17673,6 +17662,18 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{817612181633043878,5750228506484575517}}
+	s %t{"ezBlackboardEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		Color %InitialValue{f{0xC392633B,0x6F31B73E,0xEF4E633F,0x0000803F}}
+		HashedString %Name{s{"TonemapPass.MoodColor"}}
 	}
 }
 o
@@ -23314,11 +23315,12 @@ o
 {
 	Uuid %id{u4{17968219547261488437,9900991000405380237}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{"Camera"}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{-1}
@@ -25280,11 +25282,12 @@ o
 {
 	Uuid %id{u4{2766165073420157724,10273546246953836382}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{"Camera"}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{-1}
@@ -42417,6 +42420,23 @@ o
 }
 o
 {
+	Uuid %id{u4{6161677211509627277,651371000033257414}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVolumeSamplerValue"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{18145823255500990886,658922949661762930}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -42637,23 +42657,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezReflectionProbeComponentBase"}
 		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{953262915051745881,2141373605625162620}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezPostProcessingComponent"}
-		u3 %TypeVersion{1}
 	}
 }
 o
@@ -43110,6 +43113,23 @@ o
 }
 o
 {
+	Uuid %id{u4{18348731351651790920,4897320743890407264}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezBlackboardComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezLocalBlackboardComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{5369702440952127279,5050526635734427603}}
 	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
@@ -43338,6 +43358,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezVarianceTypeBase"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10915434802948687564,6393886782732208983}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBlackboardComponent"}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -43900,7 +43937,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeVersion{10}
+		u3 %TypeVersion{11}
 	}
 }
 o
@@ -43975,6 +44012,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTransformManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4287215348751137938,10033073971716187673}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezBitflagsBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBlackboardEntryFlags"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -44291,23 +44345,6 @@ o
 		s %PluginName{"ezEditorPluginJolt"}
 		VarArray %Properties{}
 		s %TypeName{"ezJoltShapeBoxComponent"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{8020294172392148319,11291333729431531927}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{""}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezPostProcessingValueMapping"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -45024,6 +45061,23 @@ o
 }
 o
 {
+	Uuid %id{u4{48220615166662949,15649640188828373689}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBlackboardEntry"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{3369788742045435901,15982299255773008392}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -45293,6 +45347,23 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"TexCoordScale"}
 		s %Type{"ezVec2"}
+	}
+}
+o
+{
+	Uuid %id{u4{13100141249835514763,17498544913734763641}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVolumeSamplerComponent"}
+		u3 %TypeVersion{2}
 	}
 }
 o

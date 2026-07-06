@@ -484,6 +484,7 @@ bool ezRenderPipeline::AddRenderPasses(const ezViewData& viewData, const ezCamer
     EZ_ASSERT_DEBUG(data.m_Inputs.GetCount() == pPass->GetInputPins().GetCount(), "Input pin count missmatch!");
     EZ_ASSERT_DEBUG(data.m_Outputs.GetCount() == pPass->GetOutputPins().GetCount(), "Output pin count missmatch!");
 
+    inputs.Clear();
     inputs.SetCount(data.m_Inputs.GetCount());
     outputs.Clear();
     outputs.SetCount(data.m_Outputs.GetCount());

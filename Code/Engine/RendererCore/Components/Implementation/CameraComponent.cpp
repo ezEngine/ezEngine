@@ -3,6 +3,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <RendererCore/Components/BlackboardComponent.h>
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
@@ -149,7 +150,7 @@ void ezCameraComponentManager::OnCameraConfigsChanged(void* dummy)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 10, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 11, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -166,6 +167,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 10, ezComponentMode::Static)
     EZ_SET_MEMBER_PROPERTY("IncludeTags", m_IncludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
     EZ_SET_MEMBER_PROPERTY("ExcludeTags", m_ExcludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
     EZ_ACCESSOR_PROPERTY("CameraRenderPipeline", GetRenderPipelineEnum, SetRenderPipelineEnum)->AddAttributes(new ezDynamicStringEnumAttribute("CameraPipelines")),
+    EZ_ACCESSOR_PROPERTY("BlackboardName", GetBlackboardName, SetBlackboardName),
     EZ_ACCESSOR_PROPERTY("Aperture", GetAperture, SetAperture)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f, 32.0f), new ezSuffixAttribute(" f-stop(s)")),
     EZ_ACCESSOR_PROPERTY("ShutterTime", GetShutterTime, SetShutterTime)->AddAttributes(new ezDefaultValueAttribute(ezTime::MakeFromSeconds(1.0)), new ezClampValueAttribute(ezTime::MakeFromSeconds(1.0f / 100000.0f), ezTime::MakeFromSeconds(600.0f))),
     EZ_ACCESSOR_PROPERTY("ISO", GetISO, SetISO)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(50.0f, 64000.0f)),
@@ -226,6 +228,9 @@ void ezCameraComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 
   // Version 10
   s << m_bShowStats;
+
+  // Version 11
+  s << m_sBlackboardName;
 }
 
 void ezCameraComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -290,6 +295,11 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& inout_stream)
   if (uiVersion >= 10)
   {
     s >> m_bShowStats;
+  }
+
+  if (uiVersion >= 11)
+  {
+    s >> m_sBlackboardName;
   }
 
   MarkAsModified();
@@ -467,6 +477,11 @@ ezRenderPipelineResourceHandle ezCameraComponent::GetRenderPipeline() const
   return m_hCachedRenderPipeline;
 }
 
+ezSharedPtr<ezBlackboard> ezCameraComponent::GetBlackboard() const
+{
+  return m_pBlackboard;
+}
+
 ezViewHandle ezCameraComponent::GetRenderTargetView() const
 {
   return m_hRenderTargetView;
@@ -475,6 +490,21 @@ ezViewHandle ezCameraComponent::GetRenderTargetView() const
 const char* ezCameraComponent::GetRenderPipelineEnum() const
 {
   return m_sRenderPipeline.GetData();
+}
+
+void ezCameraComponent::SetBlackboardName(const char* szName)
+{
+  if (m_sBlackboardName == szName)
+    return;
+
+  m_sBlackboardName.Assign(szName);
+
+  if (IsActiveAndInitialized())
+  {
+    m_pBlackboard = ezBlackboardComponent::FindBlackboard(*GetOwner(), m_sBlackboardName);
+  }
+
+  MarkAsModified();
 }
 
 void ezCameraComponent::SetRenderPipelineEnum(const char* szFile)
@@ -574,6 +604,8 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
   {
     pView->SetRenderPipelineResource(m_hCachedRenderPipeline);
   }
+
+  pView->SetBlackboard(m_pBlackboard);
 }
 
 void ezCameraComponent::ResourceChangeEventHandler(const ezResourceEvent& e)
@@ -712,6 +744,8 @@ void ezCameraComponent::OnActivated()
   SUPER::OnActivated();
 
   ActivateRenderToTexture();
+
+  m_pBlackboard = ezBlackboardComponent::FindBlackboard(*GetOwner(), m_sBlackboardName);
 }
 
 void ezCameraComponent::OnDeactivated()

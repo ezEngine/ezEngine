@@ -79,7 +79,7 @@ public:
   /// which created the blackboard is already unloaded.
   ///
   /// See https://groups.google.com/g/microsoft.public.vc.language/c/atSh_2VSc2w/m/EgJ3r_7OzVUJ?pli=1
-  static ezSharedPtr<ezBlackboard> Create(ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  static ezSharedPtr<ezBlackboard> Create(const ezStringView& sName, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
 
   /// \brief Factory method to get access to a globally registered blackboard.
   ///

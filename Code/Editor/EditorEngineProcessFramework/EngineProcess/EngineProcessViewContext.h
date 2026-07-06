@@ -77,6 +77,7 @@ protected:
   void OnSwapChainChanged(ezGALSwapChainHandle hSwapChain, ezSizeU32 size);
 
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg);
+  virtual void SetViewProperties(ezView* pView);
 
   /// \brief Returns the handle to the default render pipeline.
   virtual ezRenderPipelineResourceHandle CreateDefaultRenderPipeline();
@@ -93,6 +94,8 @@ private:
   ezString m_sPendingScreenshotPath;
 
 protected:
+  ezView* CreateDefaultView(ezStringView sName);
+
   ezCamera m_Camera;
   ezViewHandle m_hView;
   ezUInt32 m_uiViewID;

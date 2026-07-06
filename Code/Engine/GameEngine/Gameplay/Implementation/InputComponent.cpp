@@ -5,8 +5,8 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <GameEngine/Gameplay/BlackboardComponent.h>
 #include <GameEngine/Gameplay/InputComponent.h>
+#include <RendererCore/Components/BlackboardComponent.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezInputMessageGranularity, 1)
@@ -84,7 +84,7 @@ void ezInputComponent::Update()
 
   ezMsgInputActionTriggered msg;
 
-  ezBlackboard* pBlackboard = m_bForwardToBlackboard ? ezBlackboardComponent::FindBlackboard(GetOwner()) : nullptr;
+  ezBlackboard* pBlackboard = m_bForwardToBlackboard ? ezBlackboardComponent::FindBlackboard(*GetOwner()) : nullptr;
 
   for (const ezString& actionName : AllActions)
   {

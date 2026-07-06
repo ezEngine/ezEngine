@@ -27,15 +27,7 @@ bool ezMeshViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
 
 ezViewHandle ezMeshViewContext::CreateView()
 {
-  ezView* pView = nullptr;
-  ezRenderWorld::CreateView("Mesh Editor - View", pView);
-  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
-
-  pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
-
-  ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-  pView->SetWorld(pDocumentContext->GetWorld());
-  pView->SetCamera(&m_Camera);
+  ezView* pView = CreateDefaultView("Mesh Editor - View");
   return pView->GetHandle();
 }
 
@@ -108,9 +100,9 @@ void ezMeshViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
     ezView* pView = nullptr;
     if (ezRenderWorld::TryGetView(m_hView, pView))
     {
-      pView->SetRenderPassProperty("EditorPickingPass", "Active", pMsg2->m_bUpdatePickingData);
-      pView->SetRenderPassProperty("EditorPickingPass", "PickSelected", pMsg2->m_bEnablePickingSelected);
-      pView->SetRenderPassProperty("EditorPickingPass", "PickTransparent", pMsg2->m_bEnablePickTransparent);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.Active"), pMsg2->m_bUpdatePickingData);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickSelected"), pMsg2->m_bEnablePickingSelected);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickTransparent"), pMsg2->m_bEnablePickTransparent);
     }
   }
   else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingMsgToEngine>())
@@ -129,19 +121,17 @@ void ezMeshViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
   if (!ezRenderWorld::TryGetView(m_hView, pView))
     return;
 
-  pView->SetRenderPassProperty("EditorPickingPass", "PickingPosition", ezVec2(x, y));
+  auto pBlackboard = pView->GetBlackboard();
+  pBlackboard->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickingPosition"), ezVec2(x, y));
 
-  if (!pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "PickedPosition"))
+  auto pPickedPositionEntry = pBlackboard->GetEntry("EditorPickingPass.PickedPosition");
+  if (pPickedPositionEntry == nullptr || pPickedPositionEntry->m_Value.IsA<ezVec3>() == false)
     return;
 
-  ezVariant varPickedPos = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedPosition");
-  if (!varPickedPos.IsA<ezVec3>())
-    return;
-
-  const ezUInt32 uiPickingID = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedID").ConvertTo<ezUInt32>();
-  res.m_vPickedNormal = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedNormal").ConvertTo<ezVec3>();
-  res.m_vPickingRayStartPosition = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedRayStartPosition").ConvertTo<ezVec3>();
-  res.m_vPickedPosition = varPickedPos.ConvertTo<ezVec3>();
+  const ezUInt32 uiPickingID = pBlackboard->GetEntryValue("EditorPickingPass.PickedID").ConvertTo<ezUInt32>();
+  res.m_vPickedNormal = pBlackboard->GetEntryValue("EditorPickingPass.PickedNormal").ConvertTo<ezVec3>();
+  res.m_vPickingRayStartPosition = pBlackboard->GetEntryValue("EditorPickingPass.PickedRayStartPosition").ConvertTo<ezVec3>();
+  res.m_vPickedPosition = pPickedPositionEntry->m_Value.ConvertTo<ezVec3>();
 
   // The component and object GUIDs are not available in the mesh preview since the objects
   // are not registered in the component picking map. Only the part index (material slot) is relevant here.

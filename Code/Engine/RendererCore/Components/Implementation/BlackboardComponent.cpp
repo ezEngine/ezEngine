@@ -6,11 +6,10 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/GraphPatch.h>
-#include <GameEngine/Gameplay/BlackboardComponent.h>
-#include <GameEngine/Utils/BlackboardTemplateResource.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/Utils/BlackboardTemplateResource.h>
 
 struct BCFlags
 {
@@ -112,11 +111,12 @@ ezBlackboardComponent::ezBlackboardComponent() = default;
 ezBlackboardComponent::~ezBlackboardComponent() = default;
 
 // static
-ezSharedPtr<ezBlackboard> ezBlackboardComponent::FindBlackboard(ezGameObject* pObject, ezStringView sBlackboardName /*= ezStringView()*/)
+ezSharedPtr<ezBlackboard> ezBlackboardComponent::FindBlackboard(ezGameObject& ref_searchObject, ezStringView sBlackboardName /*= ezStringView()*/)
 {
   const ezTempHashedString sBlackboardNameHashed(sBlackboardName);
 
   ezBlackboardComponent* pBlackboardComponent = nullptr;
+  ezGameObject* pObject = &ref_searchObject;
   while (pObject != nullptr)
   {
     if (pObject->TryGetComponentOfBaseType(pBlackboardComponent))
@@ -130,7 +130,11 @@ ezSharedPtr<ezBlackboard> ezBlackboardComponent::FindBlackboard(ezGameObject* pO
     pObject = pObject->GetParent();
   }
 
-  if (sBlackboardName.IsEmpty() == false)
+  if (sBlackboardName.IsEmpty())
+  {
+    return ref_searchObject.GetWorld()->GetBlackboard();
+  }
+  else
   {
     ezHashedString sHashedBlackboardName;
     sHashedBlackboardName.Assign(sBlackboardName);
@@ -226,7 +230,12 @@ ezVariant ezBlackboardComponent::GetEntryValue(const char* szName) const
 // static
 ezBlackboard* ezBlackboardComponent::Reflection_FindBlackboard(ezGameObject* pSearchObject, ezStringView sBlackboardName)
 {
-  return FindBlackboard(pSearchObject, sBlackboardName).Borrow();
+  if (pSearchObject != nullptr)
+  {
+    return FindBlackboard(*pSearchObject, sBlackboardName).Borrow();
+  }
+
+  return nullptr;
 }
 
 void ezBlackboardComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
@@ -289,7 +298,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezLocalBlackboardComponent::ezLocalBlackboardComponent()
 {
-  m_pBoard = ezBlackboard::Create();
+  m_pBoard = ezBlackboard::Create("");
 }
 
 ezLocalBlackboardComponent::ezLocalBlackboardComponent(ezLocalBlackboardComponent&& other) = default;
@@ -674,4 +683,4 @@ public:
 ezBlackboardComponent_2_3 g_ezBlackboardComponent_2_3;
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_BlackboardComponent);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_BlackboardComponent);

@@ -14,3 +14,5 @@ void ezRenderViewContext::UpdateViewport() const
   gc.ViewportSize = ezVec4(viewport.width, viewport.height, 1.0f / viewport.width, 1.0f / viewport.height);
   m_pRenderContext->GetCommandEncoder()->SetViewport(viewport);
 }
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Declarations);

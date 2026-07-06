@@ -351,12 +351,12 @@ void ezPickingRenderPass::ReadBackPropertiesSinglePick(ezView* pView)
   done:;
   }
 
-  pView->SetRenderPassReadBackProperty(GetName(), "PickedMatrix", m_mPickingInverseViewProjectionMatrix);
-  pView->SetRenderPassReadBackProperty(GetName(), "PickedID", uiPickID);
-  pView->SetRenderPassReadBackProperty(GetName(), "PickedDepth", m_PickingResultsDepth[uiIndex]);
-  pView->SetRenderPassReadBackProperty(GetName(), "PickedNormal", vNormal);
-  pView->SetRenderPassReadBackProperty(GetName(), "PickedRayStartPosition", vPickingRayStartPosition);
-  pView->SetRenderPassReadBackProperty(GetName(), "PickedPosition", vPickedPosition);
+  SetReadBackProperty(pView, "PickedMatrix", m_mPickingInverseViewProjectionMatrix);
+  SetReadBackProperty(pView, "PickedID", uiPickID);
+  SetReadBackProperty(pView, "PickedDepth", m_PickingResultsDepth[uiIndex]);
+  SetReadBackProperty(pView, "PickedNormal", vNormal);
+  SetReadBackProperty(pView, "PickedRayStartPosition", vPickingRayStartPosition);
+  SetReadBackProperty(pView, "PickedPosition", vPickedPosition);
 }
 
 void ezPickingRenderPass::ReadBackPropertiesMarqueePick(ezView* pView)
@@ -373,9 +373,11 @@ void ezPickingRenderPass::ReadBackPropertiesMarqueePick(ezView* pView)
     return;
   }
 
-  m_MarqueePickPosition0.Set(-1);
-  m_MarqueePickPosition1.Set(-1);
-  pView->SetRenderPassReadBackProperty(GetName(), "MarqueeActionID", m_uiMarqueeActionID);
+  // We must not reset the marquee pick positions here since the marquee action is active over multiple frames and the view only sets properties when they change.
+  // They are reseted manually by the editor when the marquee action is finished.
+  // m_MarqueePickPosition0.Set(-1);
+  // m_MarqueePickPosition1.Set(-1);
+  SetReadBackProperty(pView, "MarqueeResultActionID", m_uiMarqueeActionID);
 
   ezTempHybridArray<ezUInt32, 32> IDs;
   ezVariantArray resArray;
@@ -407,7 +409,7 @@ void ezPickingRenderPass::ReadBackPropertiesMarqueePick(ezView* pView)
     offset = (offset + 1) % 2;
   }
 
-  pView->SetRenderPassReadBackProperty(GetName(), "MarqueeResult", resArray);
+  SetReadBackProperty(pView, "MarqueeResult", resArray);
 }
 
 void ezPickingRenderPass::ProcessPickingRenderData(ezExtractedRenderData& extractedRenderData)

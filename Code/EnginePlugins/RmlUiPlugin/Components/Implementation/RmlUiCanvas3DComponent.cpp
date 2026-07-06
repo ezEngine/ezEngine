@@ -3,7 +3,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Math/Intersection.h>
-#include <GameEngine/Gameplay/BlackboardComponent.h>
+#include <RendererCore/Components/BlackboardComponent.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/MeshComponent.h>

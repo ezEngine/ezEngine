@@ -5,6 +5,7 @@
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
+class ezBlackboard;
 class ezView;
 struct ezResourceEvent;
 
@@ -114,12 +115,18 @@ public:
   /// \brief Returns the handle to the render pipeline that is in use.
   ezRenderPipelineResourceHandle GetRenderPipeline() const;
 
+  /// \brief Returns the blackboard that is in use.
+  ezSharedPtr<ezBlackboard> GetBlackboard() const;
+
   /// \brief Returns a handle to the view that the camera renders to.
   ezViewHandle GetRenderTargetView() const;
 
   /// \brief Sets the name of the render pipeline to use.
   void SetRenderPipelineEnum(const char* szFile);                           // [ property ]
   const char* GetRenderPipelineEnum() const;                                // [ property ]
+
+  void SetBlackboardName(const char* szName);                               // [ property ]
+  const char* GetBlackboardName() const { return m_sBlackboardName; }       // [ property ]
 
   void SetAperture(float fAperture);                                        // [ property ]
   float GetAperture() const { return m_fAperture; }                         // [ property ]
@@ -182,4 +189,7 @@ private:
   ezVec2 m_vRenderTargetRectSize = ezVec2(1.0f);
   ezCamera m_RenderTargetCamera;
   ezHashedString m_sRenderPipeline;
+  ezHashedString m_sBlackboardName;
+
+  ezSharedPtr<ezBlackboard> m_pBlackboard;
 };

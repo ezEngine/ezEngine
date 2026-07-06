@@ -1,9 +1,11 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/Utils/Blackboard.h>
 #include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/RendererRegistry.h>
+#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
@@ -103,6 +105,14 @@ void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& ren
       }
     }
   }
+}
+
+void ezRenderPipelinePass::SetReadBackProperty(ezView* pView, ezStringView sPropertyName, const ezVariant& value)
+{
+  ezStringBuilder sb = GetName();
+  sb.Append(".", sPropertyName);
+
+  pView->GetBlackboard()->SetEntryValue(sb, value);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelinePass);

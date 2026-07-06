@@ -1,7 +1,7 @@
-#include <GameEngine/GameEnginePCH.h>
+#include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/Utilities/AssetFileHeader.h>
-#include <GameEngine/Utils/BlackboardTemplateResource.h>
+#include <RendererCore/Utils/BlackboardTemplateResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBlackboardTemplateResource, 1, ezRTTIDefaultAllocator<ezBlackboardTemplateResource>)
@@ -94,4 +94,4 @@ ezResult ezBlackboardTemplateResourceDescriptor::Deserialize(ezStreamReader& ino
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Utils_Implementation_BlackboardTemplateResource);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Utils_Implementation_BlackboardTemplateResource);

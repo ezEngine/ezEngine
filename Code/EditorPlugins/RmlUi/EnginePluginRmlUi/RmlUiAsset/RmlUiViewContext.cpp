@@ -24,16 +24,7 @@ bool ezRmlUiViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds
 
 ezViewHandle ezRmlUiViewContext::CreateView()
 {
-  ezView* pView = nullptr;
-  ezRenderWorld::CreateView("Rml Ui Editor - View", pView);
-  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
-
-  pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
-
-  ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-  pView->SetWorld(pDocumentContext->GetWorld());
-  pView->SetCamera(&m_Camera);
-  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
+  ezView* pView = CreateDefaultView("Rml Ui Editor - View");
   return pView->GetHandle();
 }
 

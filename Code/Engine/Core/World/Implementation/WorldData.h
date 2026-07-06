@@ -204,6 +204,7 @@ namespace ezInternal
     ezUniquePtr<ezSpatialSystem> m_pSpatialSystem;
     ezSharedPtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;
     ezUniquePtr<ezTimeStepSmoothing> m_pTimeStepSmoothing;
+    ezSharedPtr<ezBlackboard> m_pBlackboard;
 
     ezClock m_Clock;
     ezRandom m_Random;

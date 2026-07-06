@@ -440,6 +440,16 @@ EZ_ALWAYS_INLINE ezRandom& ezWorld::GetRandomNumberGenerator()
   return m_Data.m_Random;
 }
 
+EZ_ALWAYS_INLINE const ezSharedPtr<ezBlackboard>& ezWorld::GetBlackboard()
+{
+  return m_Data.m_pBlackboard;
+}
+
+EZ_ALWAYS_INLINE ezSharedPtr<const ezBlackboard> ezWorld::GetBlackboard() const
+{
+  return m_Data.m_pBlackboard;
+}
+
 EZ_ALWAYS_INLINE ezAllocator* ezWorld::GetAllocator()
 {
   return &m_Data.m_Allocator;

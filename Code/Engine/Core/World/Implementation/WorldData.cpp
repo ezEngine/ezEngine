@@ -84,25 +84,48 @@ namespace ezInternal
     m_pDefaultInitBatch = pDefaultInitBatch;
     m_pCurrentInitBatch = pDefaultInitBatch;
 
-    m_pSpatialSystem = std::move(desc.m_pSpatialSystem);
-    m_pCoordinateSystemProvider = desc.m_pCoordinateSystemProvider;
-
-    if (m_pSpatialSystem == nullptr && desc.m_bAutoCreateSpatialSystem)
+    // Spatial system
     {
-      m_pSpatialSystem = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezSpatialSystem_RegularGrid);
+      m_pSpatialSystem = std::move(desc.m_pSpatialSystem);
+
+      if (m_pSpatialSystem == nullptr && desc.m_bAutoCreateSpatialSystem)
+      {
+        m_pSpatialSystem = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezSpatialSystem_RegularGrid);
+      }
     }
 
-    if (m_pCoordinateSystemProvider == nullptr)
+    // Coordinate system provider
     {
-      m_pCoordinateSystemProvider = EZ_NEW(&m_Allocator, DefaultCoordinateSystemProvider);
+      m_pCoordinateSystemProvider = desc.m_pCoordinateSystemProvider;
+
+      if (m_pCoordinateSystemProvider == nullptr)
+      {
+        m_pCoordinateSystemProvider = EZ_NEW(&m_Allocator, DefaultCoordinateSystemProvider);
+      }
     }
 
-    if (m_pTimeStepSmoothing == nullptr)
+    // Time step smoothing
     {
-      m_pTimeStepSmoothing = EZ_NEW(&m_Allocator, ezDefaultTimeStepSmoothing);
+      m_pTimeStepSmoothing = std::move(desc.m_pTimeStepSmoothing);
+
+      if (m_pTimeStepSmoothing == nullptr)
+      {
+        m_pTimeStepSmoothing = EZ_NEW(&m_Allocator, ezDefaultTimeStepSmoothing);
+      }
+
+      m_Clock.SetTimeStepSmoothing(m_pTimeStepSmoothing.Borrow());
     }
 
-    m_Clock.SetTimeStepSmoothing(m_pTimeStepSmoothing.Borrow());
+    // Blackboard
+    {
+      m_pBlackboard = std::move(desc.m_pBlackboard);
+
+      if (m_pBlackboard == nullptr)
+      {
+        // Can't use the world allocator here since blackboards use shared ownership and thus might outlive the world. Use the default allocator instead.
+        m_pBlackboard = ezBlackboard::Create(desc.m_sName);
+      }
+    }
 
     // BEGIN-DOCS-CODE-SNIPPET: resource-management-listen-all
     // Listening to all resource events

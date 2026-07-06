@@ -1,6 +1,7 @@
 #include <EnginePluginScene/EnginePluginScenePCH.h>
 
 #include <Core/Interfaces/SoundInterface.h>
+#include <Core/Utils/Blackboard.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
 #include <EnginePluginScene/SceneView/SceneView.h>
@@ -34,9 +35,9 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
     ezView* pView = nullptr;
     if (ezRenderWorld::TryGetView(m_hView, pView))
     {
-      pView->SetRenderPassProperty("EditorPickingPass", "Active", pMsg2->m_bUpdatePickingData);
-      pView->SetRenderPassProperty("EditorPickingPass", "PickSelected", pMsg2->m_bEnablePickingSelected);
-      pView->SetRenderPassProperty("EditorPickingPass", "PickTransparent", pMsg2->m_bEnablePickTransparent);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.Active"), pMsg2->m_bUpdatePickingData);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickSelected"), pMsg2->m_bEnablePickingSelected);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickTransparent"), pMsg2->m_bEnablePickTransparent);
     }
 
     if (pMsg2->m_iCameraMode == ezCameraMode::PerspectiveFixedFovX || pMsg2->m_iCameraMode == ezCameraMode::PerspectiveFixedFovY)
@@ -85,10 +86,10 @@ bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds
   if (ezRenderWorld::TryGetView(m_hView, pView))
   {
     pView->SetViewRenderMode(ezViewRenderMode::Default);
-    pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
-    pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
-    pView->SetExtractorProperty("EditorGridExtractor", "Active", false);
-    pView->SetRenderPassProperty("EditorPickingPass", "PickSelected", true);
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorSelectionPass.Active"), false);
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorShapeIconsExtractor.Active"), false);
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorGridExtractor.Active"), false);
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickSelected"), true);
   }
 
   EZ_LOCK(m_pSceneContext->GetWorld()->GetWriteMarker());
@@ -201,35 +202,27 @@ void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   {
     m_CullingCamera = m_Camera;
   }
+}
 
-  if (pView != nullptr)
-  {
-    pView->SetRenderPassProperty("EditorSelectionPass", "Active", m_pSceneContext->GetRenderSelectionOverlay());
-    pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", m_pSceneContext->GetRenderShapeIcons());
-  }
+void ezSceneViewContext::SetViewProperties(ezView* pView)
+{
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorSelectionPass.Active"), m_pSceneContext->GetRenderSelectionOverlay());
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorShapeIconsExtractor.Active"), m_pSceneContext->GetRenderShapeIcons());
 }
 
 ezViewHandle ezSceneViewContext::CreateView()
 {
-  ezView* pView = nullptr;
-  ezRenderWorld::CreateView("Editor - View", pView);
-
-  pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
+  ezView* pView = CreateDefaultView("Editor - View");
 
   ezVariant sceneContextVariant(m_pSceneContext);
-  pView->SetExtractorProperty("EditorSelectedObjectsExtractor", "SceneContext", sceneContextVariant);
-  pView->SetExtractorProperty("EditorShapeIconsExtractor", "SceneContext", sceneContextVariant);
-  pView->SetExtractorProperty("EditorGridExtractor", "SceneContext", sceneContextVariant);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorSelectedObjectsExtractor.SceneContext"), sceneContextVariant);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorShapeIconsExtractor.SceneContext"), sceneContextVariant);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorGridExtractor.SceneContext"), sceneContextVariant);
 
-  ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-  pView->SetWorld(pDocumentContext->GetWorld());
-  pView->SetCamera(&m_Camera);
   pView->SetCullingCamera(&m_CullingCamera);
-  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
-  const ezTag& tagHidden = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorHidden");
+  pView->m_ExcludeTags.SetByName("EditorHidden");
 
-  pView->m_ExcludeTags.Set(tagHidden);
   return pView->GetHandle();
 }
 
@@ -246,19 +239,17 @@ void ezSceneViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
   if (ezRenderWorld::TryGetView(m_hView, pView) == false)
     return;
 
-  pView->SetRenderPassProperty("EditorPickingPass", "PickingPosition", ezVec2(x, y));
+  auto pBlackboard = pView->GetBlackboard();
+  pBlackboard->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickingPosition"), ezVec2(x, y));
 
-  if (pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "PickedPosition") == false)
+  auto pPickedPositionEntry = pBlackboard->GetEntry("EditorPickingPass.PickedPosition");
+  if (pPickedPositionEntry == nullptr || pPickedPositionEntry->m_Value.IsA<ezVec3>() == false)
     return;
 
-  ezVariant varPickedPos = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedPosition");
-  if (varPickedPos.IsA<ezVec3>() == false)
-    return;
-
-  const ezUInt32 uiPickingID = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedID").ConvertTo<ezUInt32>();
-  res.m_vPickedNormal = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedNormal").ConvertTo<ezVec3>();
-  res.m_vPickingRayStartPosition = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedRayStartPosition").ConvertTo<ezVec3>();
-  res.m_vPickedPosition = varPickedPos.ConvertTo<ezVec3>();
+  const ezUInt32 uiPickingID = pBlackboard->GetEntryValue("EditorPickingPass.PickedID").ConvertTo<ezUInt32>();
+  res.m_vPickedNormal = pBlackboard->GetEntryValue("EditorPickingPass.PickedNormal").ConvertTo<ezVec3>();
+  res.m_vPickingRayStartPosition = pBlackboard->GetEntryValue("EditorPickingPass.PickedRayStartPosition").ConvertTo<ezVec3>();
+  res.m_vPickedPosition = pPickedPositionEntry->m_Value.ConvertTo<ezVec3>();
 
   EZ_ASSERT_DEBUG(!res.m_vPickedPosition.IsNaN(), "");
 
@@ -308,19 +299,21 @@ void ezSceneViewContext::MarqueePickObjects(const ezViewMarqueePickingMsgToEngin
   ezView* pView = nullptr;
   if (ezRenderWorld::TryGetView(m_hView, pView))
   {
-    pView->SetRenderPassProperty("EditorPickingPass", "MarqueePickPos0", ezVec2(pMsg->m_uiPickPosX0, pMsg->m_uiPickPosY0));
-    pView->SetRenderPassProperty("EditorPickingPass", "MarqueePickPos1", ezVec2(pMsg->m_uiPickPosX1, pMsg->m_uiPickPosY1));
-    pView->SetRenderPassProperty("EditorPickingPass", "MarqueeActionID", pMsg->m_uiActionIdentifier);
+    auto pBlackboard = pView->GetBlackboard();
+    pBlackboard->SetEntryValue(ezMakeHashedString("EditorPickingPass.MarqueePickPos0"), ezVec2(pMsg->m_uiPickPosX0, pMsg->m_uiPickPosY0));
+    pBlackboard->SetEntryValue(ezMakeHashedString("EditorPickingPass.MarqueePickPos1"), ezVec2(pMsg->m_uiPickPosX1, pMsg->m_uiPickPosY1));
+    pBlackboard->SetEntryValue(ezMakeHashedString("EditorPickingPass.MarqueeActionID"), pMsg->m_uiActionIdentifier);
 
     if (pMsg->m_uiWhatToDo == 0xFF)
       return;
 
-    if (!pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "MarqueeActionID") || pView->GetRenderPassReadBackProperty("EditorPickingPass", "MarqueeActionID").ConvertTo<ezUInt32>() != pMsg->m_uiActionIdentifier)
+    auto pMarqueeActionIDEntry = pBlackboard->GetEntry("EditorPickingPass.MarqueeResultActionID");
+    if (pMarqueeActionIDEntry == nullptr || pMarqueeActionIDEntry->m_Value.ConvertTo<ezUInt32>() != pMsg->m_uiActionIdentifier)
       return;
 
     res.m_uiActionIdentifier = pMsg->m_uiActionIdentifier;
 
-    ezVariant varMarquee = pView->GetRenderPassReadBackProperty("EditorPickingPass", "MarqueeResult");
+    ezVariant varMarquee = pBlackboard->GetEntryValue("EditorPickingPass.MarqueeResult");
 
     if (varMarquee.IsA<ezVariantArray>())
     {
@@ -351,6 +344,9 @@ void ezSceneViewContext::MarqueePickObjects(const ezViewMarqueePickingMsgToEngin
         }
       }
     }
+
+    pBlackboard->SetEntryValue(ezMakeHashedString("EditorPickingPass.MarqueePickPos0"), ezVec2(-1));
+    pBlackboard->SetEntryValue(ezMakeHashedString("EditorPickingPass.MarqueePickPos1"), ezVec2(-1));
   }
 
   if (res.m_uiActionIdentifier == 0)

@@ -20,15 +20,8 @@ void ezMaterialViewContext::PositionThumbnailCamera()
 
 ezViewHandle ezMaterialViewContext::CreateView()
 {
-  ezView* pView = nullptr;
-  ezRenderWorld::CreateView("Material Editor - View", pView);
-  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
-
-  pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
+  ezView* pView = CreateDefaultView("Material Editor - View");
   pView->SetShaderPermutationVariable("MATERIAL_PREVIEW", "TRUE");
 
-  ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-  pView->SetWorld(pDocumentContext->GetWorld());
-  pView->SetCamera(&m_Camera);
   return pView->GetHandle();
 }

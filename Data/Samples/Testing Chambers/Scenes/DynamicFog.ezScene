@@ -11,13 +11,12 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10095897394996261,10807132643521334864}}
-		u4 %Hash{1308155536299678652}
+		u4 %Hash{16238908030423963905}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
-			s{"{ 0f1377ce-df3d-4462-afab-c46a83f30fe5 }"}
 			s{"{ 8044a36f-e313-4204-973d-796231798973 }"}
 		}
 		VarArray %References
@@ -322,6 +321,18 @@ o
 }
 o
 {
+	Uuid %id{u4{18285774824101048718,4981098518272773809}}
+	s %t{"ezVolumeSamplerValue"}
+	u3 %v{1}
+	p
+	{
+		f %DefaultValue{0x0000803F}
+		Time %InterpolationDuration{d{0x0000000000001040}}
+		HashedString %Name{s{"Fog.Density"}}
+	}
+}
+o
+{
 	Uuid %id{u4{14759698950606529439,5010246369067048737}}
 	s %t{"ezDebugTextComponent"}
 	u3 %v{2}
@@ -402,8 +413,8 @@ o
 		s %Type{"GenericVolume"}
 		VarDict %Values
 		{
-			Color %FogColor{f{0x0000803F,0,0x281A393F,0x0000803F}}
-			f %FogDensity{0x00002041}
+			Color %Fog.Color{f{0x0000803F,0,0x281A393F,0x0000803F}}
+			f %Fog.Density{0x00002041}
 		}
 	}
 }
@@ -453,8 +464,26 @@ o
 	{
 		b %Active{1}
 		b %AttachToMainCamera{1}
-		VarArray %Values{}
+		HashedString %BlackboardName{s{""}}
+		VarArray %Values
+		{
+			Uuid{u4{14271653792640814260,5557241186579334633}}
+			Uuid{u4{18285774824101048718,4981098518272773809}}
+		}
 		s %VolumeType{"GenericVolume"}
+		b %WriteToBlackboard{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14271653792640814260,5557241186579334633}}
+	s %t{"ezVolumeSamplerValue"}
+	u3 %v{1}
+	p
+	{
+		Color %DefaultValue{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Time %InterpolationDuration{d{0x0000000000001040}}
+		HashedString %Name{s{"Fog.Color"}}
 	}
 }
 o
@@ -482,7 +511,6 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{630702243771808919,5458188388287656580}}
-			Uuid{u4{13008441079422031038,5725579884380016978}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0x00004040}}
@@ -492,22 +520,6 @@ o
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Fog Volume Sampler"}
 		VarArray %Tags{}
-	}
-}
-o
-{
-	Uuid %id{u4{13008441079422031038,5725579884380016978}}
-	s %t{"ezScriptComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		b %HandleGlobalEvents{0}
-		VarDict %Parameters{}
-		b %PassThroughUnhandledEvents{0}
-		s %ScriptClass{"{ 0f1377ce-df3d-4462-afab-c46a83f30fe5 }"}
-		Time %UpdateInterval{d{0}}
-		b %UpdateOnlyWhenSimulating{0}
 	}
 }
 o
@@ -825,11 +837,12 @@ o
 {
 	Uuid %id{u4{16504447139263351344,10521054769414384025}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{1}
@@ -959,7 +972,7 @@ o
 {
 	Uuid %id{u4{4911491837125017923,11108773884839775598}}
 	s %t{"ezDirectionalLightComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -973,7 +986,9 @@ o
 		f %NearPlaneOffset{0x0000C842}
 		u3 %NumCascades{2}
 		f %PenumbraSize{0xCDCC4C3D}
+		b %ScreenSpaceShadows{0}
 		f %SlopeBias{0x0000803E}
+		Angle %SourceAngle{f{0}}
 		f %SpecularMultiplier{0x0000803F}
 		f %SplitModeWeight{0x3333333F}
 		u3 %Temperature{6550}
@@ -1346,7 +1361,7 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezSettingsComponent"}
+		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezFogComponent"}
@@ -1508,23 +1523,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13180226495177211365,3486873224131216715}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEventMessageHandlerComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezScriptComponent"}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
 	Uuid %id{u4{17523044089822028024,3521005166208929094}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1576,23 +1574,6 @@ o
 }
 o
 {
-	Uuid %id{u4{5109955776826617296,6026817826851389185}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezEventMessageHandlerComponent"}
-		u3 %TypeVersion{3}
-	}
-}
-o
-{
 	Uuid %id{u4{18327411855245510474,6668321287849544166}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1605,6 +1586,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualizerAnchor"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14561188410025902030,6776644216668443091}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDirectionalLightVisualizerAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1741,7 +1739,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeVersion{10}
+		u3 %TypeVersion{11}
 	}
 }
 o
@@ -1775,7 +1773,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDirectionalLightComponent"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -1826,23 +1824,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettingsBase"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{14929650074649117491,12034915874076129355}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSettingsComponent"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1941,7 +1922,7 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezSettingsComponent"}
+		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAmbientLightComponent"}

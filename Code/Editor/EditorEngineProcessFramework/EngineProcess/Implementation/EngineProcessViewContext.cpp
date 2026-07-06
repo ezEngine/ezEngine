@@ -301,13 +301,19 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     pView->SetViewRenderMode(renderMode);
 
     bool bUseDepthPrePass = renderMode != ezViewRenderMode::WireframeColor && renderMode != ezViewRenderMode::WireframeMonochrome;
-    pView->SetRenderPassProperty("DepthPrePass", "Active", bUseDepthPrePass);
-    pView->SetRenderPassProperty("AOPass", "Active", bUseDepthPrePass); // Also disable SSAO to save some performance
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("DepthPrePass.Active"), bUseDepthPrePass);
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("AOPass.Active"), bUseDepthPrePass); // Also disable SSAO to save some performance
 
-    // by default this stuff is disabled, derived classes can enable it
-    pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
-    pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
+    SetViewProperties(pView);
   }
+}
+
+
+void ezEngineProcessViewContext::SetViewProperties(ezView* pView)
+{
+  // by default this stuff is disabled, derived classes can enable it
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorSelectionPass.Active"), false);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorShapeIconsExtractor.Active"), false);
 }
 
 ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultRenderPipeline()
@@ -318,6 +324,23 @@ ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultRenderPi
 ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDebugRenderPipeline()
 {
   return ezEditorEngineProcessApp::GetSingleton()->CreateDefaultDebugRenderPipeline();
+}
+
+ezView* ezEngineProcessViewContext::CreateDefaultView(ezStringView sName)
+{
+  ezView* pView = nullptr;
+  ezRenderWorld::CreateView(sName, pView);
+  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
+
+  pView->SetBlackboard(ezBlackboard::Create(sName));
+
+  pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
+
+  ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
+  pView->SetWorld(pDocumentContext->GetWorld());
+  pView->SetCamera(&m_Camera);
+
+  return pView;
 }
 
 void ezEngineProcessViewContext::DrawSimpleGrid() const

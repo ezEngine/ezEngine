@@ -1,5 +1,6 @@
 #include <EnginePluginScene/EnginePluginScenePCH.h>
 
+#include <Core/Utils/Blackboard.h>
 #include <EnginePluginScene/RenderPipeline/EditorSelectedObjectsExtractor.h>
 #include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Components/CameraComponent.h>
@@ -199,6 +200,8 @@ void ezEditorSelectedObjectsExtractor::UpdateRenderTargetCamera(const ezCameraCo
     auto hRenderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>("{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }");
     pRenderTargetView->SetRenderPipelineResource(hRenderPipeline);
   }
+
+  pRenderTargetView->SetBlackboard(pCamComp->GetBlackboard());
 
   const ezVec3 pos = pCamComp->GetOwner()->GetGlobalPosition();
   const ezVec3 dir = pCamComp->GetOwner()->GetGlobalDirForwards();

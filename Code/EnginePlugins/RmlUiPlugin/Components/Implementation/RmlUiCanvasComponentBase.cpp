@@ -2,7 +2,7 @@
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/Gameplay/BlackboardComponent.h>
+#include <RendererCore/Components/BlackboardComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RmlUiPlugin/Components/RmlUiCanvasComponentBase.h>
 #include <RmlUiPlugin/Implementation/BlackboardDataBinding.h>

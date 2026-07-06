@@ -11,13 +11,12 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16033299415433335720,5748835052109362040}}
-		u4 %Hash{6535120187432188945}
+		u4 %Hash{9548493028855714750}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
 			s{"{ 0af8fc54-92ce-464e-b825-661c83f34a3a }"}
-			s{"{ 0f1377ce-df3d-4462-afab-c46a83f30fe5 }"}
 			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 			s{"{ 2a5d16b1-6867-4b5b-89b2-8436f11381cb }"}
 			s{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
@@ -4864,8 +4863,14 @@ o
 	{
 		b %Active{1}
 		b %AttachToMainCamera{1}
-		VarArray %Values{}
+		HashedString %BlackboardName{s{""}}
+		VarArray %Values
+		{
+			Uuid{u4{16797695665291659140,5573455255342358792}}
+			Uuid{u4{1008357275944202409,5523148202805276762}}
+		}
 		s %VolumeType{"GenericVolume"}
+		b %WriteToBlackboard{1}
 	}
 }
 o
@@ -8217,11 +8222,12 @@ o
 {
 	Uuid %id{u4{4422148545074435217,4968287230133726663}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{0}
@@ -8995,25 +9001,6 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{18424144877312063132,5049693322631703209}}
-	s %t{"ezScriptComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		b %HandleGlobalEvents{0}
-		VarDict %Parameters
-		{
-			Time %InterpolationDuration{d{0}}
-		}
-		b %PassThroughUnhandledEvents{0}
-		s %ScriptClass{"{ 0f1377ce-df3d-4462-afab-c46a83f30fe5 }"}
-		Time %UpdateInterval{d{0}}
-		b %UpdateOnlyWhenSimulating{0}
 	}
 }
 o
@@ -9827,11 +9814,12 @@ o
 {
 	Uuid %id{u4{1570304231540940445,5155575222666521772}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{1}
@@ -12782,6 +12770,18 @@ o
 }
 o
 {
+	Uuid %id{u4{1008357275944202409,5523148202805276762}}
+	s %t{"ezVolumeSamplerValue"}
+	u3 %v{1}
+	p
+	{
+		f %DefaultValue{0x0000803F}
+		Time %InterpolationDuration{d{0}}
+		HashedString %Name{s{"Fog.Density"}}
+	}
+}
+o
+{
 	Uuid %id{u4{6756253625547428484,5523219146274973792}}
 	s %t{"ezJoltDynamicActorComponent"}
 	u3 %v{8}
@@ -12840,8 +12840,8 @@ o
 		s %Type{"GenericVolume"}
 		VarDict %Values
 		{
-			Color %FogColor{f{0x6416683D,0x94BEBD3D,0xA30E083E,0x0000803F}}
-			f %FogDensity{0x00002042}
+			Color %Fog.Color{f{0xFEE6653D,0xB395BE3D,0xA50E083E,0x0000803F}}
+			f %Fog.Density{0x00002042}
 		}
 	}
 }
@@ -13448,6 +13448,18 @@ o
 }
 o
 {
+	Uuid %id{u4{16797695665291659140,5573455255342358792}}
+	s %t{"ezVolumeSamplerValue"}
+	u3 %v{1}
+	p
+	{
+		Color %DefaultValue{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Time %InterpolationDuration{d{0}}
+		HashedString %Name{s{"Fog.Color"}}
+	}
+}
+o
+{
 	Uuid %id{u4{7002593235879701665,5575957606718680319}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -13764,7 +13776,6 @@ o
 		{
 			Uuid{u4{10138297956610252470,4731913511085823801}}
 			Uuid{u4{5044692545412340883,4624207426687530776}}
-			Uuid{u4{18424144877312063132,5049693322631703209}}
 		}
 		s %GlobalKey{"Fog"}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -41235,7 +41246,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeVersion{10}
+		u3 %TypeVersion{11}
 	}
 }
 o
