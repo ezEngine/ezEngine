@@ -547,12 +547,13 @@ void ezDebugRenderer::Draw2DLines(const ezDebugRendererContext& context, ezArray
   for (auto& line : lines)
   {
     const ezVec3* pPositions = &line.m_start;
+    const ezColor* pColors = &line.m_startColor;
 
     for (ezUInt32 i = 0; i < 2; ++i)
     {
       auto& vertex = data.m_line2DVertices.ExpandAndGetRef();
       vertex.m_position = pPositions[i];
-      vertex.m_color = color;
+      vertex.m_color = pColors[i] * color;
     }
   }
 }
