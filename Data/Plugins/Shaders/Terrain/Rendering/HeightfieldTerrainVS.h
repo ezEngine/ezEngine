@@ -61,17 +61,36 @@ VS_OUT FillHeightfieldTerrainVertexOutput(uint vertexID)
   const uint cellIndex = vertexID / 6;
   const uint vertInCell = vertexID % 6;
 
-  const uint cellX = cellIndex % GET_PUSH_CONSTANT(HeightfieldRenderConstants, CellsPerSide);
-  const uint cellY = cellIndex / GET_PUSH_CONSTANT(HeightfieldRenderConstants, CellsPerSide);
+  const uint renderCells = GET_PUSH_CONSTANT(HeightfieldRenderConstants, RenderCellsPerSide);
+  const int step = (int)GET_PUSH_CONSTANT(HeightfieldRenderConstants, VertexStep);
+  const int skirt = (int)GET_PUSH_CONSTANT(HeightfieldRenderConstants, SkirtCells);
+  const int cellsFull = (int)GET_PUSH_CONSTANT(HeightfieldRenderConstants, CellsPerSide);
+  const int pitch = (int)GET_PUSH_CONSTANT(HeightfieldRenderConstants, VertexIdxPitch);
 
-  // lx/ly: 0-based vertex coordinates within the render grid.
-  const uint lx = cellX + QuadOffsets[vertInCell].x;
-  const uint ly = cellY + QuadOffsets[vertInCell].y;
+  const uint cellX = cellIndex % renderCells;
+  const uint cellY = cellIndex / renderCells;
 
-  const uint idx = GET_PUSH_CONSTANT(HeightfieldRenderConstants, FirstVertexIdx) + ly * GET_PUSH_CONSTANT(HeightfieldRenderConstants, VertexIdxPitch) + lx;
+  // gx/gy: vertex coordinates within the rendered grid (0 .. renderCells), including skirt rings.
+  const uint gx = cellX + QuadOffsets[vertInCell].x;
+  const uint gy = cellY + QuadOffsets[vertInCell].y;
+
+  // Buffer coordinate relative to the inner-grid origin. Negative / beyond [0, cellsFull] means skirt,
+  // which reads into the 4-vertex border ring that the bake computed for normals.
+  const int bufX = ((int)gx - skirt) * step;
+  const int bufY = ((int)gy - skirt) * step;
+
+  const bool isSkirt = (bufX < 0) || (bufX > cellsFull) || (bufY < 0) || (bufY > cellsFull);
+
+  const int idx = (int)GET_PUSH_CONSTANT(HeightfieldRenderConstants, FirstVertexIdx) + bufY * pitch + bufX;
+
+  // Material/weight buffers are baked per full-resolution cell. Map this rendered cell to the covering
+  // full-resolution cell (clamped so skirt cells reuse the edge cell's material).
+  const int cellBufX = ((int)cellX - skirt) * step;
+  const int cellBufY = ((int)cellY - skirt) * step;
+  const uint fullCellIndex = (uint)(clamp(cellBufY, 0, cellsFull - 1) * cellsFull + clamp(cellBufX, 0, cellsFull - 1));
 
   // Read per-cell-corner weights (unique slot per corner per cell — no sharing between cells).
-  const uint vtxWeightPacked = TerrainWeights[cellIndex * 4u + CornerSlot[vertInCell]];
+  const uint vtxWeightPacked = TerrainWeights[fullCellIndex * 4u + CornerSlot[vertInCell]];
 
   // Carve sentinel: Step3 writes 0xFFFFFFFF for carved corners.
   // NaN position causes the spec to cull any triangle touching this vertex.
@@ -86,12 +105,66 @@ VS_OUT FillHeightfieldTerrainVertexOutput(uint vertexID)
   float h = TerrainHeights[idx];
   float3 localNormal = DecodeTerrainNormal(TerrainNormals[idx]);
 
+  // LOD fade: pull the vertices that vanish at the next-coarser level toward the position they
+  // interpolate to there. A vertex vanishes when its inner-grid index is odd along an axis; it then
+  // moves toward the average of its two (or four, at a diagonal) surviving neighbors. Skirt vertices
+  // are excluded — they read the outermost border ring and have no outer neighbor to sample.
+  // The normal is faded the same way: the coarse triangulation at fade=1 interpolates the normal
+  // linearly across the same neighbors, so the fine-grid normal at a vanishing vertex must be blended
+  // toward that average too, or lighting still shows the fine-grid bump at fade=1.
+  const float fade = GET_PUSH_CONSTANT(HeightfieldRenderConstants, LodFade);
+  if (fade > 0.0 && !isSkirt)
+  {
+    const int gvx = (int)gx - skirt;
+    const int gvy = (int)gy - skirt;
+    const bool ox = (gvx & 1) != 0;
+    const bool oy = (gvy & 1) != 0;
+    const int sx = step;
+    const int sp = step * pitch;
+
+    float targetH = h;
+    float3 targetN = localNormal;
+    if (ox && !oy)
+    {
+      targetH = 0.5 * (TerrainHeights[idx - sx] + TerrainHeights[idx + sx]);
+      targetN = 0.5 * (DecodeTerrainNormal(TerrainNormals[idx - sx]) + DecodeTerrainNormal(TerrainNormals[idx + sx]));
+    }
+    else if (!ox && oy)
+    {
+      targetH = 0.5 * (TerrainHeights[idx - sp] + TerrainHeights[idx + sp]);
+      targetN = 0.5 * (DecodeTerrainNormal(TerrainNormals[idx - sp]) + DecodeTerrainNormal(TerrainNormals[idx + sp]));
+    }
+    else if (ox && oy)
+    {
+      // The coarse quad is split TR-BL (see QuadOffsets/CornerSlot above), so the center vertex
+      // lies exactly on that diagonal in the coarser LOD — its true height/normal there is the
+      // average of the TR and BL corners only, not a bilinear blend of all 4 corners.
+      targetH = 0.5 * (TerrainHeights[idx + sx - sp] + TerrainHeights[idx - sx + sp]);
+      targetN = 0.5 * (DecodeTerrainNormal(TerrainNormals[idx + sx - sp]) + DecodeTerrainNormal(TerrainNormals[idx - sx + sp]));
+    }
+
+    h = lerp(h, targetH, fade);
+    localNormal = normalize(lerp(localNormal, targetN, fade));
+  }
+
+  // Skirt vertices keep their real height and normal but are pushed down to hide seams between patches.
+  // The border ring is always 4 full-resolution buffer units wide (SkirtCells * VertexStep == 4 at any
+  // LOD), so the ring distance can be measured directly in buffer units and stays comparable across LODs.
+  // Ramping the offset in with smoothstep (instead of jumping to -SkirtDepth on the first skirt vertex)
+  // avoids a visible crease at the patch edge.
+  const int distX = max(max(0, -bufX), bufX - cellsFull);
+  const int distY = max(max(0, -bufY), bufY - cellsFull);
+  const float ringT = saturate((float)max(distX, distY) / 4.0);
+  const float skirtFalloff = ringT * ringT * (3.0 - 2.0 * ringT);
+  const float zOffset = -GET_PUSH_CONSTANT(HeightfieldRenderConstants, SkirtDepth) * skirtFalloff;
+
   // Apply the object-to-world transform so the patch respects rotation and scale.
   const ezPerInstanceData instanceData = perInstanceData[GET_PUSH_CONSTANT(HeightfieldRenderConstants, InstanceDataOffset)];
   const float4x4 objectToWorld = TransformToMatrix(instanceData.ObjectToWorld);
   const float3x3 objectToWorldNormal = TransformToRotation(instanceData.ObjectToWorldNormal);
 
-  const float3 localPos = float3((float)lx * GET_PUSH_CONSTANT(HeightfieldRenderConstants, GridSpacing), (float)ly * GET_PUSH_CONSTANT(HeightfieldRenderConstants, GridSpacing), h);
+  const float gridSpacing = GET_PUSH_CONSTANT(HeightfieldRenderConstants, GridSpacing);
+  const float3 localPos = float3((float)bufX * gridSpacing, (float)bufY * gridSpacing, h + zOffset);
 
   // Analytical tangent for a heightfield: lies in the XZ plane, perpendicular to the normal.
   // Derived from dP/du = (GridSpacing, 0, dH/dx), orthogonalized: float3(n.z, 0, -n.x).
@@ -125,7 +198,7 @@ VS_OUT FillHeightfieldTerrainVertexOutput(uint vertexID)
   // DataOffsets.y: 4 cell-level material indices — identical for all 6 vertices of this cell.
   Output.DataOffsets = uint3(
     GET_PUSH_CONSTANT(HeightfieldRenderConstants, InstanceDataOffset),
-    TerrainCellMaterials[cellIndex],
+    TerrainCellMaterials[fullCellIndex],
     0u);
   return Output;
 }

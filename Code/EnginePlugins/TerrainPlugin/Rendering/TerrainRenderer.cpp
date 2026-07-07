@@ -57,20 +57,39 @@ void ezTerrainHeightfieldRenderer::RenderBatch(const ezRenderViewContext& render
       bindGroup.BindBuffer("perInstanceData", pInstanceDataBuffer->GetBufferForRendering());
     }
 
+    const ezUInt32 uiCellsFull = pRenderData->m_uiCellsPerSide;
+
     // +1 for vertex count (cells+1 vertices per side), +8 for 4-vertex border on each side.
-    const ezUInt32 uiStoredSize = pRenderData->m_uiCellsPerSide + 9;
+    const ezUInt32 uiStoredSize = uiCellsFull + 9;
+
+    // LOD: step over 2^LOD stored vertices between rendered corners. Reduce the step if it would not
+    // divide the grid evenly (keeps the reduced grid aligned to the full-resolution vertices).
+    ezUInt32 uiStep = 1u << ezMath::Min<ezUInt32>(pRenderData->m_uiLod, 2u);
+    while (uiStep > 1 && (uiCellsFull % uiStep) != 0)
+      uiStep >>= 1;
+
+    const ezUInt32 uiInnerCells = uiCellsFull / uiStep;
+
+    // The border ring is 4 stored vertices wide; at LOD step that maps to 4 / step skirt cells per side.
+    const ezUInt32 uiSkirtCells = pRenderData->m_bRenderSkirt ? (4u / uiStep) : 0u;
+    const ezUInt32 uiRenderCells = uiInnerCells + 2u * uiSkirtCells;
 
     HeightfieldRenderConstants constants;
     constants.GridSpacing = pRenderData->m_fGridSpacing;
     constants.FirstVertexIdx = 4 * uiStoredSize + 4; // skip 4 border rows and 4 border cols
     constants.VertexIdxPitch = uiStoredSize;
-    constants.CellsPerSide = pRenderData->m_uiCellsPerSide;
+    constants.CellsPerSide = uiCellsFull;
     constants.InstanceDataOffset = pRenderData->m_DataOffsets.m_uiInstance;
     constants.FallbackMaterialSlot = pRenderData->m_uiDefaultMaterialIndex;
+    constants.RenderCellsPerSide = uiRenderCells;
+    constants.VertexStep = uiStep;
+    constants.SkirtCells = uiSkirtCells;
+    constants.SkirtDepth = pRenderData->m_bRenderSkirt ? pRenderData->m_fSkirtDepth : 0.0f;
+    constants.LodFade = pRenderData->m_fLodFade;
     pContext->SetPushConstants("HeightfieldRenderConstants", constants);
 
     // No vertex buffer — SV_VertexID drives everything.
-    const ezUInt32 uiPrimitiveCount = pRenderData->m_uiCellsPerSide * pRenderData->m_uiCellsPerSide * 2;
+    const ezUInt32 uiPrimitiveCount = uiRenderCells * uiRenderCells * 2;
     pContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, uiPrimitiveCount);
 
     pContext->DrawMeshBuffer().IgnoreResult();

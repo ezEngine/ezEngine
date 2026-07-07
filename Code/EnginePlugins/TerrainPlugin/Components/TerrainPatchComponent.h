@@ -95,9 +95,17 @@ public:
   ezUInt8 GetBaseMaterialIndex() const { return m_uiBaseMaterialIndex; }            // [ property ]
   void SetBaseMaterialIndex(ezUInt8 uiIndex);                                       // [ property ]
 
-  const ezTagSet& GetTags() const { return m_Tags; }                                // [ property ]
-  void Reflection_SetTag(const char* szTagName);                                    // [ property ]
-  void Reflection_RemoveTag(const char* szTagName);                                 // [ property ]
+  /// Divides the target grid-cell coverage used for automatic LOD selection, i.e. scales the
+  /// distance at which this patch switches LODs. 1 = default distance, > 1 switches later (at a
+  /// greater distance), < 1 switches earlier (at a smaller distance).
+  /// 0 ("LOD Disabled") turns automatic LOD off entirely: the patch always renders at full
+  /// resolution and the skirt (only needed to hide seams against a coarser LOD neighbor) is off too.
+  float GetLodDistanceScale() const { return m_fLodDistanceScale; } // [ property ]
+  void SetLodDistanceScale(float fScale);                           // [ property ]
+
+  const ezTagSet& GetTags() const { return m_Tags; }                // [ property ]
+  void Reflection_SetTag(const char* szTagName);                    // [ property ]
+  void Reflection_RemoveTag(const char* szTagName);                 // [ property ]
 
   /// Per-material-index physics surface handles. Entry i is the surface used when dominant material index == i.
   ezUInt32 Surfaces_GetCount() const;
@@ -136,5 +144,6 @@ private:
   ezVec2 m_vImageOffset = ezVec2::MakeZero();
   ezVec2 m_vImageSize = ezVec2(1.0f);
   float m_fHeightScale = 32.0f;
+  float m_fLodDistanceScale = 1.0f;
   bool m_bHeightImageDirty = false; ///< Set when the image resource reloads
 };

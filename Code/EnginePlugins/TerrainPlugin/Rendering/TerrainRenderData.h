@@ -45,6 +45,18 @@ public:
 
   /// Material slot index (0–7) used as the implicit fallback layer when no explicit brush covers a vertex.
   ezUInt32 m_uiDefaultMaterialIndex = 0;
+
+  /// LOD level. 0 = full resolution; each level steps over 2^LOD stored vertices between rendered corners.
+  ezUInt8 m_uiLod = 0;
+
+  /// [0, 1] blend of the vertices that vanish at the next-coarser LOD toward their interpolated position.
+  float m_fLodFade = 0.0f;
+
+  /// When set, the 4-vertex border ring is rendered as a downward-offset skirt around the patch.
+  bool m_bRenderSkirt = false;
+
+  /// World-space downward offset applied to skirt vertices. Only used when m_bRenderSkirt is set.
+  float m_fSkirtDepth = 0.0f;
 };
 
 /// Render data for GPU-direct voxel mesh rendering.

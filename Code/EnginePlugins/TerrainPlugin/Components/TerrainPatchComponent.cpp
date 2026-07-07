@@ -17,8 +17,15 @@
 #include <TerrainPlugin/Rendering/TerrainRenderData.h>
 #include <TerrainPlugin/TerrainSystem.h>
 
+#include <Foundation/Configuration/CVar.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
+#include <RendererCore/Pipeline/View.h>
+
+ezCVarFloat cvar_TerrainLodTargetCoverage("Terrain.LodTargetCoverage", 0.005f, ezCVarFlags::Default,
+  "Target screen-space coverage (fraction of view height) of one terrain grid cell at which a patch switches to the next-coarser LOD.");
+
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezTerrainPatchComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezTerrainPatchComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -31,6 +38,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTerrainPatchComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("HeightImageSize", GetHeightImageSize, SetHeightImageSize)->AddAttributes(new ezDefaultValueAttribute(ezVec2(1.0f))),
     EZ_ACCESSOR_PROPERTY("HeightImageScale", GetHeightImageScale, SetHeightImageScale)->AddAttributes(new ezDefaultValueAttribute(32.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ENUM_ACCESSOR_PROPERTY("Collider", ezTerrainPatchColliderMode, GetCollider, SetCollider),
+    EZ_ACCESSOR_PROPERTY("LodDistanceScale", GetLodDistanceScale, SetLodDistanceScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant()), new ezMinValueTextAttribute("LOD Disabled")),
     EZ_ARRAY_ACCESSOR_PROPERTY("Surfaces", Surfaces_GetCount, Surfaces_GetValue, Surfaces_SetValue, Surfaces_Insert, Surfaces_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_SET_ACCESSOR_PROPERTY("TerrainTags", GetTags, Reflection_SetTag, Reflection_RemoveTag)->AddAttributes(new ezTagSetWidgetAttribute("Terrain")),
   }
@@ -55,6 +63,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezTerrainPatchComponent, 1, ezComponentMode::Static)
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
+
+constexpr float g_fSkirtDepth = 2.0f;
 
 ezTerrainPatchComponent::ezTerrainPatchComponent() = default;
 ezTerrainPatchComponent::~ezTerrainPatchComponent() = default;
@@ -126,6 +136,9 @@ void ezTerrainPatchComponent::SerializeComponent(ezWorldWriter& inout_stream) co
   s << m_vImageSize;
   s << m_fHeightScale;
   s << m_uiStableId;
+
+  // Version 2
+  s << m_fLodDistanceScale;
 }
 
 void ezTerrainPatchComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -153,6 +166,11 @@ void ezTerrainPatchComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_vImageSize;
   s >> m_fHeightScale;
   s >> m_uiStableId;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_fLodDistanceScale;
+  }
 }
 
 void ezTerrainPatchComponent::SetMaterial(const ezMaterialResourceHandle& hMaterial)
@@ -292,11 +310,37 @@ void ezTerrainPatchComponent::OnDeactivated()
 
 ezResult ezTerrainPatchComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
-  const ezVec3 vMin = ezVec3::MakeZero();
-  const ezVec3 vMax(m_fSize, m_fSize, m_fSize);
+  ezVec3 vMin = ezVec3::MakeZero();
+  ezVec3 vMax(m_fSize, m_fSize, m_fSize);
+
+  // The skirt extends the 4-vertex border ring outward and pulls those vertices down by SkirtDepth.
+  // LodDistanceScale == 0 ("LOD Disabled") turns the skirt off, so the bounds stay tight in that case.
+  if (m_fLodDistanceScale > 0.0f)
+  {
+    const float fSkirtWorld = 4.0f * (m_fSize / static_cast<float>(m_Resolution.GetValue()));
+    vMin.x -= fSkirtWorld;
+    vMin.y -= fSkirtWorld;
+    vMax.x += fSkirtWorld;
+    vMax.y += fSkirtWorld;
+    vMin.z -= g_fSkirtDepth;
+  }
 
   ref_bounds = ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(vMin, vMax));
   return EZ_SUCCESS;
+}
+
+static float CalculateGridCellScreenCoverage(const ezVec3& vWorldPos, float fGridSpacing, const ezCamera& camera)
+{
+  const ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(vWorldPos, fGridSpacing * 0.5f);
+
+  if (camera.IsPerspective())
+  {
+    return ezGraphicsUtils::CalculateSphereScreenCoverage(sphere, camera.GetCenterPosition(), camera.GetFovY(1.0f));
+  }
+  else
+  {
+    return ezGraphicsUtils::CalculateSphereScreenCoverage(sphere.m_fRadius, camera.GetDimensionY(1.0f));
+  }
 }
 
 void ezTerrainPatchComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
@@ -325,15 +369,45 @@ void ezTerrainPatchComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg
   pRenderData->m_hNormalBuffer = hNormalBuffer;
   pRenderData->m_hCellMaterialBuffer = hCellMaterialBuffer;
   pRenderData->m_hVertexWeightBuffer = hVertexWeightBuffer;
+  const float fGridSpacing = m_fSize / static_cast<float>(m_Resolution.GetValue());
   pRenderData->m_uiCellsPerSide = (ezUInt32)m_Resolution.GetValue();
-  pRenderData->m_fGridSpacing = m_fSize / static_cast<float>(m_Resolution.GetValue());
+  pRenderData->m_fGridSpacing = fGridSpacing;
   pRenderData->m_uiDefaultMaterialIndex = m_uiBaseMaterialIndex;
+
+  // LodDistanceScale == 0 is the "LOD Disabled" special value: always render at full resolution
+  // and skip the skirt (there is no coarser neighbor LOD it would need to hide seams against).
+  const bool bLodEnabled = m_fLodDistanceScale > 0.0f;
+
+  ezUInt8 uiLod = 0;
+  float fLodFade = 0.0f;
+
+  if (bLodEnabled && msg.m_pView != nullptr)
+  {
+    const ezVec3 vCenter = GetOwner()->GetGlobalTransform() * ezVec3(m_fSize * 0.5f, m_fSize * 0.5f, 0.0f);
+    const float fCoverage0 = CalculateGridCellScreenCoverage(vCenter, fGridSpacing, *msg.m_pView->GetLodCamera());
+    const float fTargetCoverage = cvar_TerrainLodTargetCoverage / m_fLodDistanceScale;
+
+    const float fContinuousLod = ezMath::Clamp(ezMath::Log2(fTargetCoverage / ezMath::Max(fCoverage0, 0.00001f)), 0.0f, 2.0f);
+
+    uiLod = (ezUInt8)ezMath::Trunc(fContinuousLod);
+    const float fFrac = fContinuousLod - uiLod;
+
+    const float kFadeBand = 0.3f;
+    fLodFade = ezMath::Saturate((fFrac - (1.0f - kFadeBand)) / kFadeBand);
+  }
+
+  pRenderData->m_uiLod = uiLod;
+  pRenderData->m_fLodFade = fLodFade;
+  pRenderData->m_bRenderSkirt = bLodEnabled;
+  pRenderData->m_fSkirtDepth = g_fSkirtDepth;
   pRenderData->m_uiSortingKey = 0;
   pRenderData->m_uiNumInstances = 1;
   pRenderData->m_DataOffsets.m_uiInstance = m_InstanceDataOffset.m_uiOffset;
   pRenderData->m_hInstanceDataBuffer = hInstanceDataBuffer;
 
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::IfStatic);
+  // LOD level and fade are recomputed from the current camera distance every frame, so the render
+  // data must not be cached across frames (caching would freeze it at whatever LOD was extracted once).
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::Never);
 
   // The vertex shader samples these persistent GPU buffers, so declare them as render-graph
   // dependencies for the categories that render this patch.
@@ -379,6 +453,21 @@ void ezTerrainPatchComponent::SetBaseMaterialIndex(ezUInt8 uiIndex)
   {
     auto* pSystem = GetWorld()->GetOrCreateModule<ezTerrainSystem>();
     pSystem->ModifyHeightfieldTerrain(m_uiHeightfieldIndex).m_uiDefaultMaterialIndex = uiIndex;
+  }
+}
+
+void ezTerrainPatchComponent::SetLodDistanceScale(float fScale)
+{
+  fScale = ezMath::Max(fScale, 0.0f);
+  if (m_fLodDistanceScale != fScale)
+  {
+    const bool bSkirtChanged = (m_fLodDistanceScale > 0.0f) != (fScale > 0.0f);
+
+    m_fLodDistanceScale = fScale;
+    InvalidateCachedRenderData();
+
+    if (bSkirtChanged)
+      TriggerLocalBoundsUpdate();
   }
 }
 
