@@ -6,6 +6,7 @@
 #include <EditorFramework/DragDrop/DragDropHandler.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorFramework/Object/ObjectPropertyPath.h>
+#include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
 #include <EditorPluginScene/Panels/LayerPanel/LayerAdapter.moc.h>
 #include <EditorPluginScene/Scene/LayerDocument.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
@@ -38,7 +39,7 @@ ezResult ezEditorSceneDocumentTest::InitializeTest()
   if (SUPER::InitializeTest().Failed())
     return EZ_FAILURE;
 
-  if (SUPER::CreateAndLoadProject("SceneTestProject").Failed())
+  if (SUPER::OpenProject("Data/UnitTests/EditorTest").Failed())
     return EZ_FAILURE;
 
   if (ezStatus res = ezAssetCurator::GetSingleton()->TransformAllAssets(); res.Failed())
@@ -334,13 +335,84 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Drag&Drop Prefabs")
   {
-    const char* szSpherePrefab = "{ a3ce5d3d-be5e-4bda-8820-b1ce3b3d33fd }";
+    const char* szSpherePrefab = "{ 195cdef0-45f1-0642-9fea-5dea95057fb9 }";
     pPrefab1 = DropAsset(m_pDoc, szSpherePrefab);
     EZ_TEST_BOOL(!m_pDoc->IsObjectEditorPrefab(pPrefab1->GetGuid()));
     EZ_TEST_BOOL(m_pDoc->IsObjectEnginePrefab(pPrefab1->GetGuid()));
+
+    // Test undo / redo of prefab creation
+    ProcessEvents(1);
+    EZ_TEST_STATUS(m_pDoc->GetCommandHistory()->Undo(1));
+    EZ_TEST_STATUS(m_pDoc->GetCommandHistory()->Redo(1));
+
     pPrefab2 = DropAsset(m_pDoc, szSpherePrefab, true);
     EZ_TEST_BOOL(m_pDoc->IsObjectEditorPrefab(pPrefab2->GetGuid()));
     EZ_TEST_BOOL(!m_pDoc->IsObjectEnginePrefab(pPrefab2->GetGuid()));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Modify Runtime Prefab Exposed Parameters")
+  {
+    m_pDoc->GetSelectionManager()->SetSelection(pPrefab1);
+
+    const ezDocumentObject* pPrefabComponent = pAccessor->GetChildObjectByName(pPrefab1, "Components", 0);
+    const ezAbstractProperty* pPropExposedParameters = pPrefabComponent->GetType()->FindPropertyByName("Parameters");
+    const auto* pAttrib = pPropExposedParameters->GetAttributeByType<ezExposedParametersAttribute>();
+    const ezAbstractProperty* pPropParameterSource = pPrefabComponent->GetType()->FindPropertyByName(pAttrib->GetParametersSource());
+
+    // Proxy exposed parameters array with exposed parameter type
+    ezUniquePtr<ezExposedParameterCommandAccessor> pProxy = EZ_DEFAULT_NEW(ezExposedParameterCommandAccessor, pAccessor, pPropExposedParameters, pPropParameterSource);
+    ezUniquePtr<ezExposedParametersAsTypeCommandAccessor> pTypeProxy = EZ_DEFAULT_NEW(ezExposedParametersAsTypeCommandAccessor, pProxy.Borrow());
+
+    ezTempHybridArray<ezPropertySelection, 1> selection;
+    selection.PushBack({pPrefabComponent, ezVariant()});
+    const ezRTTI* pCommonType = pProxy->GetCommonExposedParamsType(selection);
+    EZ_TEST_BOOL(pCommonType->GetTypeName().StartsWith("ezExposedParameters_"));
+    const ezAbstractProperty* pPropSortingDepthOffset = pCommonType->FindPropertyByName("SortingDepthOffset");
+    const ezAbstractProperty* pPropColor = pCommonType->FindPropertyByName("Color");
+    const ezAbstractProperty* pPropMaterial = pCommonType->FindPropertyByName("Material");
+
+    // Create default state on exposed parameter type proxy. This now thinks it's working on a type with fields (the exposed parameters)
+    ezDefaultObjectState defaultState(pCommonType, pTypeProxy.Borrow(), selection);
+    EZ_TEST_STRING(defaultState.GetStateProviderName(), "Exposed Parameters");
+    EZ_TEST_BOOL(defaultState.IsDefaultValue(pPropSortingDepthOffset));
+    EZ_TEST_BOOL(defaultState.IsDefaultValue(pPropColor));
+    EZ_TEST_BOOL(defaultState.IsDefaultValue(pPropMaterial));
+
+    // Make modifications on the proxy type and observe default state change
+    {
+      pTypeProxy->StartTransaction("Modify Exposed Parameters");
+      EZ_TEST_STATUS(pTypeProxy->SetValue(pPrefabComponent, pPropSortingDepthOffset, 0.1f));
+      pTypeProxy->FinishTransaction();
+    }
+
+    EZ_TEST_BOOL(!defaultState.IsDefaultValue(pPropSortingDepthOffset));
+    EZ_TEST_BOOL(defaultState.IsDefaultValue(pPropColor));
+    EZ_TEST_BOOL(defaultState.IsDefaultValue(pPropMaterial));
+
+    {
+      pTypeProxy->StartTransaction("Modify Exposed Parameters");
+      EZ_TEST_STATUS(defaultState.RevertProperty(pPropSortingDepthOffset));
+      EZ_TEST_STATUS(pTypeProxy->SetValue(pPrefabComponent, pPropColor, ezColor::AliceBlue));
+
+
+      EZ_TEST_STATUS(defaultState.RevertProperty(pPropMaterial));
+      pTypeProxy->FinishTransaction();
+    }
+
+    EZ_TEST_BOOL(defaultState.IsDefaultValue(pPropSortingDepthOffset));
+    EZ_TEST_BOOL(!defaultState.IsDefaultValue(pPropColor));
+    EZ_TEST_BOOL(defaultState.IsDefaultValue(pPropMaterial));
+
+    {
+      pTypeProxy->StartTransaction("Modify Exposed Parameters");
+      EZ_TEST_STATUS(pTypeProxy->SetValue(pPrefabComponent, pPropMaterial, "{ 7c71fc2d-2a1a-4938-9305-f3a0f26d73cc }")); // Lit material
+      EZ_TEST_STATUS(defaultState.RevertProperty(pPropColor));
+      pTypeProxy->FinishTransaction();
+    }
+
+    EZ_TEST_BOOL(defaultState.IsDefaultValue(pPropSortingDepthOffset));
+    EZ_TEST_BOOL(defaultState.IsDefaultValue(pPropColor));
+    EZ_TEST_BOOL(!defaultState.IsDefaultValue(pPropMaterial));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Create Nodes and check default state")
