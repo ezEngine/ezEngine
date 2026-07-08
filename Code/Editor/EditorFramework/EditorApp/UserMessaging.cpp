@@ -43,7 +43,7 @@ void ezQtEditorApp::AddReloadProjectRequiredReason(const char* szReason)
       ezStringBuilder sProjectFile = ezToolsProject::GetSingleton()->GetProjectFile();
 
       SlotQueuedCloseProject();
-      OpenProject(sProjectFile, true);
+      OpenProject(sProjectFile, true).IgnoreResult();
     }
   }
 }
