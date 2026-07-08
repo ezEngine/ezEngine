@@ -110,7 +110,7 @@ void ezQtPropertyEditorTagSetWidget::OnInit()
       QLatin1String("[") + QString(catname.GetData(tmp)) + QLatin1String("]"));
   }
 
-  m_pMenu->addSeparator();
+  m_pInvalidTagsAnchor = m_pMenu->addSeparator();
 
   QAction* pEditAction = new QAction(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/GuiFoundation/Icons/Edit.svg"), "Edit Tags...", m_pMenu);
   connect(pEditAction, &QAction::triggered, this, [this]()
@@ -142,6 +142,9 @@ void ezQtPropertyEditorTagSetWidget::InternalUpdateValue()
     ezString value = pCheckBox->property("Tag").toString().toUtf8().data();
     ezUInt32 uiUsed = tags[value];
 
+    // this tag is handled below in the "invalid tags" section instead
+    tags.Remove(value);
+
     ezQtScopedBlockSignals b(pCheckBox);
     if (uiUsed == 0)
     {
@@ -160,6 +163,62 @@ void ezQtPropertyEditorTagSetWidget::InternalUpdateValue()
     }
   }
 
+  // Any tag left over at this point is used by the selection but isn't a known, registered tag
+  // (e.g. it was removed from the tags config after being set on an object, or copied in from another project).
+  // Rebuild the "invalid tags" menu section to reflect these, since which tags qualify can change with every selection.
+  for (QAction* pAction : m_InvalidTagActions)
+  {
+    m_pMenu->removeAction(pAction);
+    pAction->deleteLater();
+  }
+  m_InvalidTagActions.Clear();
+
+  bool bHasInvalidTags = false;
+  for (auto it = tags.GetIterator(); it.IsValid(); ++it)
+  {
+    if (!ezToolsTagRegistry::IsTagKnown(it.Key()))
+    {
+      bHasInvalidTags = true;
+      break;
+    }
+  }
+
+  if (bHasInvalidTags)
+  {
+    QAction* pHeader = m_pMenu->insertSection(m_pInvalidTagsAnchor, ezQtUiServices::GetSingleton()->GetCachedIconResource(":/GuiFoundation/Icons/Warning.svg"), "Invalid Tags");
+    m_InvalidTagActions.PushBack(pHeader);
+
+    const ezString sInvalidStyle = "color: #D0342C; font-weight: bold;";
+
+    for (auto it = tags.GetIterator(); it.IsValid(); ++it)
+    {
+      if (ezToolsTagRegistry::IsTagKnown(it.Key()))
+        continue;
+
+      const ezString& sValue = it.Key();
+      const ezUInt32 uiUsed = it.Value();
+
+      QWidgetAction* pAction = new QWidgetAction(m_pMenu);
+      QCheckBox* pCheckBox = new QCheckBox(sValue.GetData(), m_pMenu);
+      pCheckBox->setStyleSheet(sInvalidStyle.GetData());
+      pCheckBox->setToolTip("This tag is set on the selected object(s) but is not registered in the project's tag configuration.");
+      pCheckBox->setProperty("Tag", sValue.GetData());
+      pCheckBox->setCheckState(uiUsed == uiCount ? Qt::CheckState::Checked : Qt::CheckState::PartiallyChecked);
+      connect(pCheckBox, &QCheckBox::clicked, this, &ezQtPropertyEditorTagSetWidget::onCheckBoxClicked);
+      pAction->setDefaultWidget(pCheckBox);
+
+      m_pMenu->insertAction(m_pInvalidTagsAnchor, pAction);
+      m_InvalidTagActions.PushBack(pAction);
+
+      sText += sValue.GetData();
+      sText += "|";
+    }
+
+    QAction* pRemoveAllAction = new QAction("Remove All Invalid Tags", m_pMenu);
+    connect(pRemoveAllAction, &QAction::triggered, this, &ezQtPropertyEditorTagSetWidget::onRemoveInvalidTagsClicked);
+    m_pMenu->insertAction(m_pInvalidTagsAnchor, pRemoveAllAction);
+    m_InvalidTagActions.PushBack(pRemoveAllAction);
+  }
 
   ezQtScopedBlockSignals b(m_pWidget);
   if (!sText.isEmpty())
@@ -167,8 +226,42 @@ void ezQtPropertyEditorTagSetWidget::InternalUpdateValue()
   else
     sText = "<none>";
 
-  // m_pWidget->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag.svg"));
+  // indicate invalid tags via an icon rather than coloring the whole button text,
+  // since only the invalid tag names themselves should read as red (see the menu entries above)
+  if (bHasInvalidTags)
+    m_pWidget->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/GuiFoundation/Icons/Warning.svg"));
+  else
+    m_pWidget->setIcon(QIcon());
+
   m_pWidget->setText(sText);
+}
+
+void ezQtPropertyEditorTagSetWidget::onRemoveInvalidTagsClicked()
+{
+  m_pObjectAccessor->StartTransaction("Remove Invalid Tags");
+
+  for (auto& item : m_Items)
+  {
+    ezTempHybridArray<ezVariant, 16> currentSetValues;
+    ezStatus status = m_pObjectAccessor->GetValues(item.m_pObject, m_pProp, currentSetValues);
+    EZ_ASSERT_DEV(status.Succeeded(), "Failed to get tag keys!");
+
+    // remove from the back, so that indices of not-yet-removed values stay valid
+    for (ezUInt32 i = currentSetValues.GetCount(); i-- > 0;)
+    {
+      const ezString sValue = currentSetValues[i].Get<ezString>();
+      if (ezToolsTagRegistry::IsTagKnown(sValue))
+        continue;
+
+      auto res = m_pObjectAccessor->RemoveValue(item.m_pObject, m_pProp, i);
+      if (res.Failed())
+      {
+        EZ_REPORT_FAILURE("Failed to remove invalid '{0}' tag from tag set", sValue);
+      }
+    }
+  }
+
+  m_pObjectAccessor->FinishTransaction();
 }
 
 void ezQtPropertyEditorTagSetWidget::on_Menu_aboutToShow()
