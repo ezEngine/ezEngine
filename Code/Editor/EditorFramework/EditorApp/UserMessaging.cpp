@@ -30,13 +30,21 @@ void ezQtEditorApp::AddReloadProjectRequiredReason(const char* szReason)
   if (!m_ReloadProjectRequiredReasons.Find(szReason).IsValid())
   {
     m_ReloadProjectRequiredReasons.Insert(szReason);
-
-    ezStringBuilder s;
-    s.SetFormat("The project must be reloaded.\nReason: '{0}'", szReason);
-
-    ezQtUiServices::MessageBoxInformation(s);
-
     UpdateGlobalStatusBarMessage();
+  }
+
+  ezStringBuilder s;
+  s.SetFormat("The project must be reloaded.\nReason: '{0}'\n\nDo you want to reload it now?", szReason);
+
+  if (ezQtUiServices::MessageBoxQuestion(s, QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::Yes)
+  {
+    if (ezToolsProject::CanCloseProject())
+    {
+      ezStringBuilder sProjectFile = ezToolsProject::GetSingleton()->GetProjectFile();
+
+      SlotQueuedCloseProject();
+      OpenProject(sProjectFile, true);
+    }
   }
 }
 
