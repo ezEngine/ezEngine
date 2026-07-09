@@ -3,6 +3,7 @@
 #include "Foundation/Serialization/GraphPatch.h"
 #include <Core/World/GameObject.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
+#include <EditorPluginScene/Scene/Scene2Document.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentSettingsBase, 1, ezRTTINoAllocator)
@@ -116,14 +117,18 @@ ezStatus ezSceneObjectManager::InternalCanMove(
 
 ezStatus ezSceneObjectManager::InternalCanSelect(const ezDocumentObject* pObject) const
 {
-  // Components etc. aren't selectable on their own; callers (e.g. ezQtEditorApp's object-reference
-  // navigation) walk up to the owning ezGameObject instead when this fails.
-  if (pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
-  {
-    return ezStatus(
-      ezFmt("Object of type '{0}' is not a 'ezGameObject' and can't be selected.", pObject->GetTypeAccessor().GetType()->GetTypeName()));
-  }
-  return ezStatus(EZ_SUCCESS);
+  const ezRTTI* pRtti = pObject->GetTypeAccessor().GetType();
+
+  if (pRtti == ezGetStaticRTTI<ezGameObject>())
+    return ezStatus(EZ_SUCCESS);
+
+  if (pRtti == ezGetStaticRTTI<ezSceneLayer>())
+    return ezStatus(EZ_SUCCESS);
+
+  if (pRtti == ezGetStaticRTTI<ezPrefabDocumentSettings>())
+    return ezStatus(EZ_SUCCESS);
+
+  return ezStatus(ezFmt("Object of type '{0}' is not a 'ezGameObject' and can't be selected.", pObject->GetTypeAccessor().GetType()->GetTypeName()));
 }
 
 namespace
