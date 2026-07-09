@@ -42,7 +42,13 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
 
   connect(pMenu, &QMenu::aboutToShow, this, &ezQtAssetPropertyWidget::OnShowMenu);
 
-  m_pLayout->addWidget(m_pWidget);
+  m_pWarningIcon = new QLabel(this);
+  m_pWarningIcon->setPixmap(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Warning.svg").pixmap(16, 16));
+  m_pWarningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  m_pWarningIcon->setVisible(false);
+
+  m_pLayout->addWidget(m_pWidget, 1);
+  m_pLayout->addWidget(m_pWarningIcon);
   m_pLayout->addWidget(m_pButton);
 
   EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetPropertyWidget::ThumbnailLoaded) != nullptr, "signal/slot connection failed");
@@ -138,6 +144,19 @@ void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* sz
   }
 }
 
+void ezQtAssetPropertyWidget::UpdateRequiredIndicator(bool bValueEmpty, bool bValueValid)
+{
+  const bool bRequired = m_pProp->GetAttributeByType<ezRequiredAttribute>() != nullptr;
+  const bool bShow = (bRequired && bValueEmpty) || (!bValueEmpty && !bValueValid);
+
+  m_pWarningIcon->setVisible(bShow);
+
+  if (bShow)
+  {
+    m_pWarningIcon->setToolTip(bValueEmpty ? QStringLiteral("This property is required and must reference a valid asset.") : QStringLiteral("The selected file is not a valid asset."));
+  }
+}
+
 void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
 {
   ezQtScopedBlockSignals b(m_pWidget);
@@ -146,6 +165,7 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
   if (!value.IsValid())
   {
     m_pWidget->setPlaceholderText(QStringLiteral("<Multiple Values>"));
+    m_pWarningIcon->setVisible(false);
   }
   else
   {
@@ -167,6 +187,8 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
         m_Pal.setColor(QPalette::Active, QPalette::Text, Qt::red);
         m_Pal.setColor(QPalette::Inactive, QPalette::Text, Qt::red);
         m_pWidget->setPalette(m_Pal);
+
+        UpdateRequiredIndicator(false, false);
 
         return;
       }
@@ -224,6 +246,8 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
 
     m_pWidget->setPlaceholderText(QString());
     m_pWidget->setText(QString::fromUtf8(sText.GetData()));
+
+    UpdateRequiredIndicator(sText.IsEmpty(), m_AssetGuid.IsValid());
   }
 }
 

@@ -37,7 +37,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltClothSheetComponent, 4, ezComponentMode::Static)
       EZ_MEMBER_PROPERTY("Damping", m_fDamping)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
       EZ_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.0f, 0.5f)),
       EZ_BITFLAGS_ACCESSOR_PROPERTY("Flags", ezJoltClothSheetFlags, GetFlags, SetFlags),
-      EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+      EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material"), new ezRequiredAttribute()),
       EZ_MEMBER_PROPERTY("TextureScale", m_vTextureScale)->AddAttributes(new ezDefaultValueAttribute(ezVec2(1.0f))),
       EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
     }

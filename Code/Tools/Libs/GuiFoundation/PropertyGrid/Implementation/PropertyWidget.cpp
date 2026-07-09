@@ -1404,7 +1404,14 @@ ezQtPropertyEditorLineEditWidget::ezQtPropertyEditorLineEditWidget()
   m_pWidget->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
   setFocusProxy(m_pWidget);
 
-  m_pLayout->addWidget(m_pWidget);
+  m_pWarningIcon = new QLabel(this);
+  m_pWarningIcon->setPixmap(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Warning.svg").pixmap(16, 16));
+  m_pWarningIcon->setToolTip(QStringLiteral("This property is required and must not be empty."));
+  m_pWarningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  m_pWarningIcon->setVisible(false);
+
+  m_pLayout->addWidget(m_pWidget, 1);
+  m_pLayout->addWidget(m_pWarningIcon);
 
   connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered()));
 }
@@ -1447,11 +1454,17 @@ void ezQtPropertyEditorLineEditWidget::InternalSetValue(const ezVariant& value)
   if (!value.IsValid())
   {
     m_pWidget->setPlaceholderText(QStringLiteral("<Multiple Values>"));
+    m_pWarningIcon->setVisible(false);
   }
   else
   {
+    const ezString sValue = value.ConvertTo<ezString>();
+
     m_pWidget->setPlaceholderText(QString());
-    m_pWidget->setText(QString::fromUtf8(value.ConvertTo<ezString>().GetData()));
+    m_pWidget->setText(QString::fromUtf8(sValue.GetData()));
+
+    const bool bRequired = m_pProp->GetAttributeByType<ezRequiredAttribute>() != nullptr;
+    m_pWarningIcon->setVisible(bRequired && sValue.IsEmpty());
   }
 }
 

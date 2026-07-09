@@ -44,8 +44,8 @@ protected:
   virtual void OnInit() override {}
   virtual void InternalSetValue(const ezVariant& value) override;
 
-  QHBoxLayout* m_pLayout;
-  QCheckBox* m_pWidget;
+  QHBoxLayout* m_pLayout = nullptr;
+  QCheckBox* m_pWidget = nullptr;
 };
 
 
@@ -92,9 +92,9 @@ protected:
   virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
 
-  bool m_bTemporaryCommand;
-  QHBoxLayout* m_pLayout;
-  ezQtDoubleSpinBox* m_pWidget;
+  bool m_bTemporaryCommand = false;
+  QHBoxLayout* m_pLayout = nullptr;
+  ezQtDoubleSpinBox* m_pWidget = nullptr;
 };
 
 /// *** ANGLE SPINBOX ***
@@ -114,9 +114,9 @@ protected:
   virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
 
-  bool m_bTemporaryCommand;
-  QHBoxLayout* m_pLayout;
-  ezQtDoubleSpinBox* m_pWidget;
+  bool m_bTemporaryCommand = false;
+  QHBoxLayout* m_pLayout = nullptr;
+  ezQtDoubleSpinBox* m_pWidget = nullptr;
 };
 
 /// *** INT SPINBOX ***
@@ -280,8 +280,9 @@ protected:
   virtual void InternalSetValue(const ezVariant& value) override;
 
 protected:
-  QHBoxLayout* m_pLayout;
-  QLineEdit* m_pWidget;
+  QHBoxLayout* m_pLayout = nullptr;
+  QLineEdit* m_pWidget = nullptr;
+  QLabel* m_pWarningIcon = nullptr;
   ezEnum<ezVariantType> m_OriginalType;
 };
 
@@ -330,8 +331,8 @@ protected:
 protected:
   bool m_bExposeAlpha = false;
   bool m_bIsHDR = false;
-  QHBoxLayout* m_pLayout;
-  ezQtColorButtonWidget* m_pWidget;
+  QHBoxLayout* m_pLayout = nullptr;
+  ezQtColorButtonWidget* m_pWidget = nullptr;
   ezVariant m_OriginalValue;
 };
 

@@ -240,9 +240,18 @@ void ezQtEditorApp::UiServicesEvents(const ezQtUiServices::Event& e)
             {
               const ezUuid objGuid = ezConversionUtils::ConvertStringToUuid(sObjRef);
 
-              if (auto pObj = pDoc->GetObjectManager()->GetObject(objGuid))
+              const ezDocumentObjectManager* pMan = pDoc->GetObjectManager();
+              const ezDocumentObject* pSelObj = pMan->GetObject(objGuid);
+
+              // Walk up to the nearest selectable ancestor, e.g. a component's owning game object.
+              while (pSelObj != nullptr && pMan->CanSelect(pSelObj).Failed())
               {
-                pDoc->GetSelectionManager()->SetSelection(pObj);
+                pSelObj = pSelObj->GetParent();
+              }
+
+              if (pSelObj != nullptr)
+              {
+                pDoc->GetSelectionManager()->SetSelection(pSelObj);
               }
             }
           }

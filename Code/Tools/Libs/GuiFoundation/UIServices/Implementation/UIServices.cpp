@@ -16,7 +16,7 @@
 
 EZ_IMPLEMENT_SINGLETON(ezQtUiServices);
 
-ezEvent<const ezQtUiServices::Event&> ezQtUiServices::s_Events;
+ezEvent<const ezQtUiServices::Event&, ezMutex> ezQtUiServices::s_Events;
 ezEvent<const ezQtUiServices::TickEvent&> ezQtUiServices::s_TickEvent;
 
 ezMap<ezString, QIcon> ezQtUiServices::s_IconsCache;

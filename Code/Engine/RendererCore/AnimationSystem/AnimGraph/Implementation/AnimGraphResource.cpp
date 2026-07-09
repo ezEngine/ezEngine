@@ -14,7 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipMapping, 1, ezRTTIDefaultAllocato
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("ClipName", GetClipName, SetClipName)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
-    EZ_RESOURCE_MEMBER_PROPERTY("Clip", m_hClip)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Clip", m_hClip)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation"), new ezRequiredAttribute()),
   }
     EZ_END_PROPERTIES;
 }

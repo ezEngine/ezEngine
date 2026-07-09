@@ -116,11 +116,13 @@ ezStatus ezSceneObjectManager::InternalCanMove(
 
 ezStatus ezSceneObjectManager::InternalCanSelect(const ezDocumentObject* pObject) const
 {
-  /*if (pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
+  // Components etc. aren't selectable on their own; callers (e.g. ezQtEditorApp's object-reference
+  // navigation) walk up to the owning ezGameObject instead when this fails.
+  if (pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
   {
     return ezStatus(
       ezFmt("Object of type '{0}' is not a 'ezGameObject' and can't be selected.", pObject->GetTypeAccessor().GetType()->GetTypeName()));
-  }*/
+  }
   return ezStatus(EZ_SUCCESS);
 }
 

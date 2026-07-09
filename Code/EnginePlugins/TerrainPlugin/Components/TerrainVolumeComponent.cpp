@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTerrainVolumeComponent, 1, ezComponentMode::Static)
   {
     EZ_ENUM_ACCESSOR_PROPERTY("Resolution", ezTerrainResolution, GetResolution, SetResolution),
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezClampValueAttribute(1.0f, 1024.0f), new ezDefaultValueAttribute(64.0f)),
-    EZ_RESOURCE_ACCESSOR_PROPERTY("Material", GetMaterial, SetMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material", "Terrain-Voxel")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Material", GetMaterial, SetMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material", "Terrain-Voxel"), new ezRequiredAttribute()),
     EZ_ACCESSOR_PROPERTY("BaseMaterialIndex", GetBaseMaterialIndex, SetBaseMaterialIndex)->AddAttributes(new ezClampValueAttribute(0, 15)),
     EZ_ACCESSOR_PROPERTY("FillHeight", GetFillHeight, SetFillHeight)->AddAttributes(new ezDefaultValueAttribute(-0.01f), new ezClampValueAttribute(-0.01f, 100.0f), new ezMinValueTextAttribute("Off")),
     EZ_ACCESSOR_PROPERTY("EnableCollider", GetEnableCollider, SetEnableCollider)->AddAttributes(new ezDefaultValueAttribute(true)),
