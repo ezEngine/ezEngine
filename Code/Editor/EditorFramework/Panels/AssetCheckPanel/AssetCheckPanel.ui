@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AssetCheckPanel</class>
+ <widget class="QWidget" name="AssetCheckPanel">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>700</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Check Assets</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
+    <normaloff>:/GuiFoundation/Icons/Checklist.svg</normaloff>:/GuiFoundation/Icons/Checklist.svg</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="AssetsGroup">
+     <property name="title">
+      <string>Assets to Check</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="AssetTypeLabel">
+        <property name="text">
+         <string>Asset Type:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="AssetTypeCombo"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="NameFilterLabel">
+        <property name="text">
+         <string>Name Filter:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="NameFilterEdit">
+        <property name="placeholderText">
+         <string>All parts must match (space separated), prefix a part with - to exclude</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="RulesGroup">
+     <property name="title">
+      <string>Rules</string>
+     </property>
+     <layout class="QVBoxLayout" name="rulesLayout">
+      <item>
+       <widget class="QListWidget" name="RuleList"/>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="AutoFixCheck">
+        <property name="text">
+         <string>Automatically fix issues</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="RunButton">
+     <property name="text">
+      <string>Run Check</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTreeWidget" name="ResultTree">
+     <property name="headerHidden">
+      <bool>true</bool>
+     </property>
+     <column>
+      <property name="text">
+       <string notr="true">1</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="StatusLabel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

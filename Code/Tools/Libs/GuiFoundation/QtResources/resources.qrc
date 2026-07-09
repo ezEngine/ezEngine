@@ -68,5 +68,7 @@
     <file>Icons/Object.svg</file>
     <file>Icons/Edit.svg</file>
     <file>Icons/Preset.svg</file>
+    <file>Icons/Checklist.svg</file>
+    <file>Icons/Heal.svg</file>
   </qresource>
 </RCC>

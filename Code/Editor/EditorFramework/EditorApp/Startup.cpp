@@ -32,6 +32,7 @@
 #include <EditorFramework/Manipulators/SplineTangentManipulatorAdapter.h>
 #include <EditorFramework/Manipulators/TransformManipulatorAdapter.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
+#include <EditorFramework/Panels/AssetCheckPanel/AssetCheckPanel.moc.h>
 #include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
 #include <EditorFramework/Panels/CVarPanel/CVarPanel.moc.h>
 #include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
@@ -587,16 +588,19 @@ void ezQtEditorApp::CreatePanels()
   ezQtApplicationPanel* pLogPanel = new ezQtLogPanel(pDockManager);
   ezQtApplicationPanel* pCVarPanel = new ezQtCVarPanel(pDockManager);
   ezQtApplicationPanel* pLongOpsPanel = new ezQtLongOpsPanel(pDockManager);
+  ezQtApplicationPanel* pAssetCheckPanel = new ezQtAssetCheckPanel(pDockManager);
 
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pAssetBrowserPanel);
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pAssetCuratorPanel);
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pLogPanel);
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pCVarPanel);
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pLongOpsPanel);
+  pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pAssetCheckPanel);
 
   // by default these panels can be hidden
   pCVarPanel->toggleView(false);
   pLongOpsPanel->toggleView(false);
+  pAssetCheckPanel->toggleView(false);
 
   pAssetBrowserPanel->raise();
 }
