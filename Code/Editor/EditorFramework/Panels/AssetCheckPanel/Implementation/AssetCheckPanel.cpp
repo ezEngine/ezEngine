@@ -24,6 +24,13 @@ ezQtAssetCheckPanel::ezQtAssetCheckPanel(ads::CDockManager* pDockManager)
   setWindowTitle(ezMakeQString(ezTranslate("Panel.AssetCheck")));
   setWidget(pDummy);
 
+  MainSplitter->setStretchFactor(0, 1);
+  MainSplitter->setStretchFactor(1, 2);
+
+  // The panel has no real geometry yet at construction time (ADS assigns it later), so setSizes() here would be
+  // clamped to a 0-size splitter and lost. Apply the ratio on the splitter's first real resize instead.
+  MainSplitter->installEventFilter(this);
+
   connect(RunButton, &QPushButton::clicked, this, &ezQtAssetCheckPanel::RunButtonClicked);
   connect(ResultTree, &QTreeWidget::itemDoubleClicked, this, &ezQtAssetCheckPanel::ResultTreeItemDoubleClicked);
 
@@ -40,6 +47,21 @@ ezQtAssetCheckPanel::~ezQtAssetCheckPanel()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtAssetCheckPanel::DocumentManagerEventHandler, this));
 
   ezAssetCheckRule::DestroyRules(m_Rules);
+}
+
+bool ezQtAssetCheckPanel::eventFilter(QObject* pWatched, QEvent* pEvent)
+{
+  if (pWatched == MainSplitter && pEvent->type() == QEvent::Resize)
+  {
+    const int iTotal = MainSplitter->orientation() == Qt::Horizontal ? MainSplitter->width() : MainSplitter->height();
+    if (iTotal > 0)
+    {
+      MainSplitter->setSizes({iTotal / 3, iTotal - (iTotal / 3)});
+      MainSplitter->removeEventFilter(this);
+    }
+  }
+
+  return ezQtApplicationPanel::eventFilter(pWatched, pEvent);
 }
 
 void ezQtAssetCheckPanel::DocumentManagerEventHandler(const ezDocumentManager::Event& e)

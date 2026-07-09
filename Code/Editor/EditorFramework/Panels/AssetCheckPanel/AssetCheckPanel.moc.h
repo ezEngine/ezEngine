@@ -23,6 +23,9 @@ public:
   ezQtAssetCheckPanel(ads::CDockManager* pDockManager);
   ~ezQtAssetCheckPanel();
 
+protected:
+  virtual bool eventFilter(QObject* pWatched, QEvent* pEvent) override;
+
 private:
   void RunButtonClicked();
   void ResultTreeItemDoubleClicked(QTreeWidgetItem* pItem, int iColumn);
