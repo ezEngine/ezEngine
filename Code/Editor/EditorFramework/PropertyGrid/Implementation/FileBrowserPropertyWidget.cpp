@@ -46,8 +46,21 @@ ezQtFilePropertyWidget::ezQtFilePropertyWidget()
     m_pButton->setMenu(pMenu);
   }
 
+  m_pWarningIcon = new QLabel(this);
+  m_pWarningIcon->setPixmap(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Warning.svg").pixmap(16, 16));
+  m_pWarningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  m_pWarningIcon->setVisible(false);
+  m_pWarningIcon->setToolTip(QStringLiteral("This property is required and must reference a file."));
+
   m_pLayout->addWidget(m_pWidget);
   m_pLayout->addWidget(m_pButton);
+  m_pLayout->addWidget(m_pWarningIcon);
+}
+
+void ezQtFilePropertyWidget::UpdateRequiredIndicator(bool bValueEmpty)
+{
+  const bool bRequired = m_pProp->GetAttributeByType<ezRequiredAttribute>() != nullptr;
+  m_pWarningIcon->setVisible(bRequired && bValueEmpty);
 }
 
 bool ezQtFilePropertyWidget::IsValidFileReference(ezStringView sFile) const
@@ -96,6 +109,7 @@ void ezQtFilePropertyWidget::InternalSetValue(const ezVariant& value)
   if (!value.IsValid())
   {
     m_pWidget->setPlaceholderText(QStringLiteral("<Multiple Values>"));
+    m_pWarningIcon->setVisible(false);
   }
   else
   {
@@ -103,12 +117,16 @@ void ezQtFilePropertyWidget::InternalSetValue(const ezVariant& value)
 
     m_pWidget->setPlaceholderText(QString());
     m_pWidget->setText(QString::fromUtf8(sText.GetData()));
+
+    UpdateRequiredIndicator(sText.IsEmpty());
   }
 }
 
 void ezQtFilePropertyWidget::on_TextFinished_triggered()
 {
   ezStringBuilder sText = m_pWidget->text().toUtf8().data();
+
+  UpdateRequiredIndicator(sText.IsEmpty());
 
   BroadcastValueChanged(sText.GetData());
 }

@@ -21,7 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 3, ezRTTIDefaultAllocato
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezDecalMode, m_Mode),
     EZ_MEMBER_PROPERTY("BlendModeColorize", m_bBlendModeColorize),
     EZ_MEMBER_PROPERTY("AlphaMask", m_sAlphaMask)->AddAttributes(new ezFileBrowserAttribute("Select Alpha Mask", ezFileBrowserAttribute::ImagesLdrOnly)),
-    EZ_MEMBER_PROPERTY("BaseColor", m_sBaseColor)->AddAttributes(new ezFileBrowserAttribute("Select Base Color Map", ezFileBrowserAttribute::ImagesLdrOnly)),
+    EZ_MEMBER_PROPERTY("BaseColor", m_sBaseColor)->AddAttributes(new ezFileBrowserAttribute("Select Base Color Map", ezFileBrowserAttribute::ImagesLdrOnly), new ezRequiredAttribute()),
     EZ_MEMBER_PROPERTY("Normal", m_sNormal)->AddAttributes(new ezFileBrowserAttribute("Select Normal Map", ezFileBrowserAttribute::ImagesLdrOnly), new ezDefaultValueAttribute(ezStringView("Textures/NeutralNormal.tga"))), // wrap in ezStringView to prevent a memory leak report
     EZ_MEMBER_PROPERTY("ORM", m_sORM)->AddAttributes(new ezFileBrowserAttribute("Select ORM Map", ezFileBrowserAttribute::ImagesLdrOnly)),
     EZ_MEMBER_PROPERTY("Emissive", m_sEmissive)->AddAttributes(new ezFileBrowserAttribute("Select Emissive Map", ezFileBrowserAttribute::ImagesLdrOnly)),

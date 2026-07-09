@@ -48,8 +48,8 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
   m_pWarningIcon->setVisible(false);
 
   m_pLayout->addWidget(m_pWidget, 1);
-  m_pLayout->addWidget(m_pWarningIcon);
   m_pLayout->addWidget(m_pButton);
+  m_pLayout->addWidget(m_pWarningIcon);
 
   EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetPropertyWidget::ThumbnailLoaded) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(
