@@ -372,7 +372,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeImageComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("Image", m_hImage)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_2D")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Image", m_hImage)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_2D"), new ezRequiredAttribute()),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS

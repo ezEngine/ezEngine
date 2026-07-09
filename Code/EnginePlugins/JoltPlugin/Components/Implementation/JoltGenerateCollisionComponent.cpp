@@ -130,8 +130,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezJoltMeshMapping, ezNoBase, 1, ezRTTIDefaultAllo
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("RenderMesh", m_hRenderMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static", ezDependencyFlags::None)),
-    EZ_RESOURCE_MEMBER_PROPERTY("CollisionMesh", m_hCollisionMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle", ezDependencyFlags::None)),
+    EZ_RESOURCE_MEMBER_PROPERTY("RenderMesh", m_hRenderMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static", ezDependencyFlags::None), new ezRequiredAttribute()),
+    EZ_RESOURCE_MEMBER_PROPERTY("CollisionMesh", m_hCollisionMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle", ezDependencyFlags::None), new ezRequiredAttribute()),
   }
   EZ_END_PROPERTIES;
 }

@@ -196,7 +196,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltBreakableSlabComponent, 1, ezComponentMode::Dynami
     EZ_ACCESSOR_PROPERTY("Width", GetWidth, SetWidth)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 8.0f), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("Height", GetHeight, SetHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 8.0f), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("Thickness", GetThickness, SetThickness)->AddAttributes(new ezDefaultValueAttribute(0.02f), new ezClampValueAttribute(0.005f, 1.0f), new ezSuffixAttribute(" m")),
-    EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material"), new ezRequiredAttribute()),
     EZ_ACCESSOR_PROPERTY("UVScale", GetUvScale, SetUvScale)->AddAttributes(new ezDefaultValueAttribute(ezVec2(1.0f))),
     EZ_MEMBER_PROPERTY("CollisionLayerStatic", m_uiCollisionLayerStatic)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("CollisionLayerDynamic", m_uiCollisionLayerDynamic)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),

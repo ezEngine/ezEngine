@@ -12,7 +12,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReactionFactory_Prefab, 1, ezRTTI
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Prefab", m_sPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
+    EZ_MEMBER_PROPERTY("Prefab", m_sPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab"), new ezRequiredAttribute()),
     EZ_ENUM_MEMBER_PROPERTY("Alignment", ezSurfaceInteractionAlignment, m_Alignment),
   }
   EZ_END_PROPERTIES;

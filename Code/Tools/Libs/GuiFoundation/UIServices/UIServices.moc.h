@@ -44,7 +44,7 @@ public:
     TextType m_TextType = TextType::Info;
   };
 
-  static ezEvent<const ezQtUiServices::Event&> s_Events;
+  static ezEvent<const ezQtUiServices::Event&, ezMutex> s_Events;
 
   struct TickEvent
   {

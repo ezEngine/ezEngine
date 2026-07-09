@@ -2,6 +2,7 @@
 
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
+#include <QLabel>
 #include <QLineEdit>
 
 class ezQtFileLineEdit;
@@ -32,9 +33,13 @@ protected:
   virtual void InternalSetValue(const ezVariant& value) override;
 
 protected:
+  void UpdateRequiredIndicator(bool bValueEmpty);
+
+protected:
   QHBoxLayout* m_pLayout = nullptr;
   ezQtFileLineEdit* m_pWidget = nullptr;
   QToolButton* m_pButton = nullptr;
+  QLabel* m_pWarningIcon = nullptr;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezQtExternalFilePropertyWidget : public ezQtStandardPropertyWidget

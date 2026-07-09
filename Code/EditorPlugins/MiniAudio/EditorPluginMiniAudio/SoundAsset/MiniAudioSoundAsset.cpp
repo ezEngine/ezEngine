@@ -13,7 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMiniAudioSoundAssetProperties, 1, ezRTTIDefaul
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("Files", m_SoundFiles)->AddAttributes(new ezFileBrowserAttribute("Select Sound", "*.wav;*.mp3")),
+    EZ_ARRAY_MEMBER_PROPERTY("Files", m_SoundFiles)->AddAttributes(new ezFileBrowserAttribute("Select Sound", "*.wav;*.mp3"), new ezRequiredAttribute()),
     EZ_MEMBER_PROPERTY("Group", m_sGroup)->AddAttributes(new ezDynamicStringEnumAttribute("MiniAudioSoundGroups")),
     EZ_MEMBER_PROPERTY("Loop", m_bLoop),
     EZ_MEMBER_PROPERTY("MinRandomVolume", m_fMinVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),

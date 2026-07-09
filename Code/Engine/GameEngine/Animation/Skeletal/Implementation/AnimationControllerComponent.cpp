@@ -16,7 +16,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 4, ezComponentMode::Stat
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("AnimGraph", m_hAnimGraph)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Graph")),
+    EZ_RESOURCE_MEMBER_PROPERTY("AnimGraph", m_hAnimGraph)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Graph"), new ezRequiredAttribute()),
 
     EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
     EZ_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", ezAnimationInvisibleUpdateRate, m_InvisibleUpdateRate),

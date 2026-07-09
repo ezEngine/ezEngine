@@ -24,6 +24,13 @@ class EZ_FOUNDATION_DLL ezHiddenAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezHiddenAttribute, ezPropertyAttribute);
 };
 
+/// \brief Marks a property as required. Asset check rules flag the property as an error if it is left empty
+/// (e.g. an empty string, or an empty/invalid game object or component reference).
+class EZ_FOUNDATION_DLL ezRequiredAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezRequiredAttribute, ezPropertyAttribute);
+};
+
 /// \brief A property attribute that indicates that the property is not to be serialized
 /// and whatever it points to only exists temporarily while running or in editor.
 class EZ_FOUNDATION_DLL ezTemporaryAttribute : public ezPropertyAttribute

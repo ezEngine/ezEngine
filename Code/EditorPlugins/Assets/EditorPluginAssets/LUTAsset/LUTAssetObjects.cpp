@@ -7,7 +7,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLUTAssetProperties, 1, ezRTTIDefaultAllocator<
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Input", GetInputFile, SetInputFile)->AddAttributes(new ezFileBrowserAttribute("Select CUBE file", "*.cube")),
+    EZ_ACCESSOR_PROPERTY("Input", GetInputFile, SetInputFile)->AddAttributes(new ezFileBrowserAttribute("Select CUBE file", "*.cube"), new ezRequiredAttribute()),
   }
   EZ_END_PROPERTIES;
 }

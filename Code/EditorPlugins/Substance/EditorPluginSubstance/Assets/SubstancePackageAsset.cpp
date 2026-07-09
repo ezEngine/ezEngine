@@ -630,7 +630,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSubstancePackageAssetProperties, 1, ezRTTIDefa
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("SubstanceFile", m_sSubstancePackage)->AddAttributes(new ezFileBrowserAttribute("Select Substance File", "*.sbs")),
+    EZ_MEMBER_PROPERTY("SubstanceFile", m_sSubstancePackage)->AddAttributes(new ezFileBrowserAttribute("Select Substance File", "*.sbs"), new ezRequiredAttribute()),
     EZ_MEMBER_PROPERTY("OutputPattern", m_sOutputPattern)->AddAttributes(new ezDefaultValueAttribute(ezStringView("$(graph)_$(label)"))),
     EZ_ARRAY_MEMBER_PROPERTY("Graphs", m_Graphs)
   }

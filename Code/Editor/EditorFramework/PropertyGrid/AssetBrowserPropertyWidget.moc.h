@@ -3,6 +3,7 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/PropertyGrid/QtAssetLineEdit.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
+#include <QLabel>
 #include <QLineEdit>
 #include <QModelIndex>
 
@@ -43,10 +44,18 @@ protected:
 protected:
   void UpdateThumbnail(const ezUuid& guid, const char* szThumbnailPath);
 
+  /// Shows or hides the warning icon next to the asset reference field.
+  ///
+  /// bValueEmpty is whether the referenced text is empty; bValueValid is whether a non-empty text
+  /// resolved to a valid asset GUID. The icon is shown if the property is required and empty, or
+  /// if it is non-empty but doesn't reference a valid asset (regardless of whether it is required).
+  void UpdateRequiredIndicator(bool bValueEmpty, bool bValueValid);
+
   QPalette m_Pal;
   QHBoxLayout* m_pLayout;
   ezQtAssetLineEdit* m_pWidget;
   QToolButton* m_pButton;
+  QLabel* m_pWarningIcon;
   ezUInt32 m_uiThumbnailID;
   ezUuid m_AssetGuid;
 };

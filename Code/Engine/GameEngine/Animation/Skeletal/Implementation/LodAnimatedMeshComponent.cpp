@@ -19,7 +19,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLodAnimatedMeshLod, ezNoBase, 2, ezRTTIDefaultA
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("Mesh", m_hMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Mesh", m_hMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned"), new ezRequiredAttribute()),
     EZ_MEMBER_PROPERTY("Threshold", m_fThreshold)
   }
   EZ_END_PROPERTIES;

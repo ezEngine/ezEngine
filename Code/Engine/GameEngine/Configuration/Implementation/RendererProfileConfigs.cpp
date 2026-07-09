@@ -12,7 +12,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineProfileConfig, 1, ezRTTIDefaultA
   EZ_BEGIN_PROPERTIES
   {
     // MainRenderPipeline.ezRenderPipelineAsset
-    EZ_MEMBER_PROPERTY("MainRenderPipeline", m_sMainRenderPipeline)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_RenderPipeline"), new ezDefaultValueAttribute(ezStringView("{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"))),
+    EZ_MEMBER_PROPERTY("MainRenderPipeline", m_sMainRenderPipeline)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_RenderPipeline"), new ezDefaultValueAttribute(ezStringView("{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }")), new ezRequiredAttribute()),
     // EditorRenderPipeline.ezRenderPipelineAsset
     //EZ_MEMBER_PROPERTY("EditorRenderPipeline", m_sEditorRenderPipeline)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_RenderPipeline"), new ezDefaultValueAttribute(ezStringView("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"))),
     // DebugRenderPipeline.ezRenderPipelineAsset

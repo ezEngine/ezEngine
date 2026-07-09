@@ -10,7 +10,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezColorAnimationComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("Gradient", GetColorGradient, SetColorGradient)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Gradient")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Gradient", GetColorGradient, SetColorGradient)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Gradient"), new ezRequiredAttribute()),
     EZ_MEMBER_PROPERTY("Duration", m_Duration),
     EZ_ENUM_MEMBER_PROPERTY("SetColorMode", ezSetColorMode, m_SetColorMode),
     EZ_ENUM_MEMBER_PROPERTY("AnimationMode", ezPropertyAnimMode, m_AnimationMode),

@@ -83,7 +83,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRandomPrefabComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("MaxScale", GetMaxUniformScale, SetMaxUniformScale)->AddAttributes(new ezGroupAttribute("Random Transform"), new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
     EZ_ACCESSOR_PROPERTY("Color1", GetColor1, SetColor1)->AddAttributes(new ezExposeColorAlphaAttribute(), new ezGroupAttribute("Random Color")),
     EZ_ACCESSOR_PROPERTY("Color2", GetColor2, SetColor2)->AddAttributes(new ezExposeColorAlphaAttribute(), new ezGroupAttribute("Random Color")),
-    EZ_ARRAY_ACCESSOR_PROPERTY("Prefabs", Prefabs_GetCount, Prefabs_GetValue, Prefabs_SetValue, Prefabs_Insert, Prefabs_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
+    EZ_ARRAY_ACCESSOR_PROPERTY("Prefabs", Prefabs_GetCount, Prefabs_GetValue, Prefabs_SetValue, Prefabs_Insert, Prefabs_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab"), new ezRequiredAttribute()),
   }
   EZ_END_PROPERTIES;
 

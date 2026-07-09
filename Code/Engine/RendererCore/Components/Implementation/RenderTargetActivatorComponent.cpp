@@ -13,7 +13,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRenderTargetActivatorComponent, 1, ezComponentMode::St
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_ACCESSOR_PROPERTY("RenderTarget", GetRenderTarget, SetRenderTarget)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Target", ezDependencyFlags::Package)),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("RenderTarget", GetRenderTarget, SetRenderTarget)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Target", ezDependencyFlags::Package), new ezRequiredAttribute()),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES

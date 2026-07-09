@@ -9,10 +9,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetProperties, 4, ezRTTIDefaultA
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", ezFileBrowserAttribute::MeshesWithAnimations)),
+    EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", ezFileBrowserAttribute::MeshesWithAnimations), new ezRequiredAttribute()),
     EZ_MEMBER_PROPERTY("MeshIncludeTags", m_sMeshIncludeTags),
     EZ_MEMBER_PROPERTY("MeshExcludeTags", m_sMeshExcludeTags)->AddAttributes(new ezDefaultValueAttribute("$;UCX_")),
-    EZ_MEMBER_PROPERTY("DefaultSkeleton", m_sDefaultSkeleton)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skeleton")),
+    EZ_MEMBER_PROPERTY("DefaultSkeleton", m_sDefaultSkeleton)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skeleton"), new ezRequiredAttribute()),
     EZ_MEMBER_PROPERTY("RecalculateNormals", m_bRecalculateNormals),
     EZ_MEMBER_PROPERTY("RecalculateTangents", m_bRecalculateTangents)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("HighPrecision", m_bHighPrecision),

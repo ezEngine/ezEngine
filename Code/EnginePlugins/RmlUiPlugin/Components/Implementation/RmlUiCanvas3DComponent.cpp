@@ -26,7 +26,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas3DComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_RESOURCE_ACCESSOR_PROPERTY("ProxyMesh", GetProxyMesh, SetProxyMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static")),
-    EZ_RESOURCE_ACCESSOR_PROPERTY("BaseMaterial", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material"), new ezDefaultValueAttribute("{ 05af8d07-0b38-44a6-8d50-49731ae2625d }")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("BaseMaterial", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material"), new ezDefaultValueAttribute("{ 05af8d07-0b38-44a6-8d50-49731ae2625d }"), new ezRequiredAttribute()),
     EZ_ACCESSOR_PROPERTY("MaterialIndex", GetMaterialIndex, SetMaterialIndex)->AddAttributes(new ezDefaultValueAttribute(0)),
     EZ_ACCESSOR_PROPERTY("TextureSlotName", GetTextureSlotName, SetTextureSlotName)->AddAttributes(new ezDefaultValueAttribute("BaseTexture")),
     EZ_ACCESSOR_PROPERTY("TextureSize", GetTextureSize, SetTextureSize)->AddAttributes(new ezSuffixAttribute("px"), new ezDefaultValueAttribute(ezVec2U32(512, 512)), new ezClampValueAttribute(ezVec2U32(0), ezVec2U32(4096))),

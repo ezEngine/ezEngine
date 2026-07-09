@@ -38,7 +38,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLensFlareElement, ezNoBase, 1, ezRTTIDefaultAll
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("Texture", m_hTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Texture", m_hTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D"), new ezRequiredAttribute()),
     EZ_MEMBER_PROPERTY("GreyscaleTexture", m_bGreyscaleTexture),
     EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_MEMBER_PROPERTY("ModulateByLightColor", m_bModulateByLightColor)->AddAttributes(new ezDefaultValueAttribute(true)),
