@@ -314,7 +314,8 @@ void ezPickingRenderPass::ReadBackPropertiesSinglePick(ezView* pView)
     vNormals[2].CalculateNormal(vPickedPosition, vOtherPos[1], vOtherPos[3]).IgnoreResult();
     vNormals[3].CalculateNormal(vPickedPosition, vOtherPos[3], vOtherPos[0]).IgnoreResult();
 
-    vNormal = (vNormals[0] + vNormals[1] + vNormals[2] + vNormals[3]).GetNormalized();
+    vNormal = vNormals[0] + vNormals[1] + vNormals[2] + vNormals[3];
+    vNormal.NormalizeIfNotZero();
   }
 
   ezUInt32 uiPickID = m_PickingResultsID[uiIndex];

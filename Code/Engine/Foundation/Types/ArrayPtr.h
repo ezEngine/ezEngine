@@ -364,7 +364,7 @@ EZ_ALWAYS_INLINE ezArrayPtr<T> ezMakeArrayPtr(T (&staticArray)[N])
 template <typename T>
 EZ_ALWAYS_INLINE ezConstByteArrayPtr ezMakeByteArrayPtr(const T* pPtr, ezUInt32 uiCount)
 {
-  return ezConstByteArrayPtr(static_cast<const ezUInt8*>(pPtr), uiCount * sizeof(T));
+  return ezConstByteArrayPtr(reinterpret_cast<const ezUInt8*>(pPtr), uiCount * sizeof(T));
 }
 
 /// \brief Helper function to create ezByteArrayPtr from a pointer of some type and a count.
@@ -377,7 +377,7 @@ EZ_ALWAYS_INLINE ezByteArrayPtr ezMakeByteArrayPtr(T* pPtr, ezUInt32 uiCount)
 /// \brief Helper function to create ezByteArrayPtr from a void pointer and a count.
 EZ_ALWAYS_INLINE ezByteArrayPtr ezMakeByteArrayPtr(void* pPtr, ezUInt32 uiBytes)
 {
-  return ezByteArrayPtr(reinterpret_cast<ezUInt8*>(pPtr), uiBytes);
+  return ezByteArrayPtr(static_cast<ezUInt8*>(pPtr), uiBytes);
 }
 
 /// \brief Helper function to create ezConstByteArrayPtr from a const void pointer and a count.

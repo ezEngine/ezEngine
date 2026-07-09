@@ -92,7 +92,8 @@ bool ShouldDebugContext(const ezRmlUiContext& context)
   if (cvar_RmlUiDebugContext.GetValue().IsEmpty())
     return false;
 
-  return context.GetName().find(cvar_RmlUiDebugContext.GetValue().GetData()) != std::string::npos;
+  ezStringView sContextName = ezRmlUiConversionUtils::ToStringView(context.GetName());
+  return sContextName.FindSubString_NoCase(cvar_RmlUiDebugContext.GetValue()) != nullptr;
 }
 #endif
 

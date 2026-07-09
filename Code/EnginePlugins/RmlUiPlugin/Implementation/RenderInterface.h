@@ -33,10 +33,34 @@ namespace ezRmlUiInternal
     Rml::TextureHandle ToRml() const { return m_Data; }
   };
 
+  struct ShaderId : public ezGenericId<24, 8>
+  {
+    using ezGenericId::ezGenericId;
+
+    static ShaderId FromRml(Rml::CompiledShaderHandle hShader) { return ShaderId(static_cast<ezUInt32>(hShader)); }
+
+    Rml::CompiledShaderHandle ToRml() const { return m_Data; }
+  };
+
+  struct ShaderType
+  {
+    using StorageType = ezUInt8;
+
+    enum Enum
+    {
+      Invalid,
+      Gradient,
+      Custom,
+
+      Default = Invalid
+    };
+  };
+
   //////////////////////////////////////////////////////////////////////////
 
   struct CompiledGeometry;
   struct CommandBuffer;
+  struct CommandRenderGeometry;
 
   class RenderInterface final : public Rml::RenderInterface
   {
@@ -44,6 +68,7 @@ namespace ezRmlUiInternal
     RenderInterface();
     virtual ~RenderInterface();
 
+    // Interface implementation
     virtual Rml::CompiledGeometryHandle CompileGeometry(Rml::Span<const Rml::Vertex> vertices, Rml::Span<const int> indices) override;
     virtual void RenderGeometry(Rml::CompiledGeometryHandle hGeometry, Rml::Vector2f translation, Rml::TextureHandle hTexture) override;
     virtual void ReleaseGeometry(Rml::CompiledGeometryHandle hGeometry) override;
@@ -60,6 +85,21 @@ namespace ezRmlUiInternal
 
     virtual void SetTransform(const Rml::Matrix4f* pTransform) override;
 
+    virtual Rml::LayerHandle PushLayer() override;
+    virtual void CompositeLayers(Rml::LayerHandle source, Rml::LayerHandle destination, Rml::BlendMode blendMode, Rml::Span<const Rml::CompiledFilterHandle> filters) override;
+    virtual void PopLayer() override;
+
+    virtual Rml::TextureHandle SaveLayerAsTexture() override;
+    virtual Rml::CompiledFilterHandle SaveLayerAsMaskImage() override;
+
+    virtual Rml::CompiledFilterHandle CompileFilter(const Rml::String& name, const Rml::Dictionary& parameters) override;
+    virtual void ReleaseFilter(Rml::CompiledFilterHandle hFilter) override;
+
+    virtual Rml::CompiledShaderHandle CompileShader(const Rml::String& name, const Rml::Dictionary& parameters) override;
+    virtual void RenderShader(Rml::CompiledShaderHandle hShader, Rml::CompiledGeometryHandle hGeometry, Rml::Vector2f translation, Rml::TextureHandle hTexture) override;
+    virtual void ReleaseShader(Rml::CompiledShaderHandle hShader) override;
+
+    // EZ specific functions
     void BeginExtraction(const ezHashedString& sName, ezGALTextureHandle hTargetTexture);
     void EndExtraction();
 
@@ -69,6 +109,7 @@ namespace ezRmlUiInternal
     void EndFrame();
     void FreeReleasedGeometry(GeometryId id);
 
+    void FillRenderCommand(CommandRenderGeometry& out_cmd, Rml::CompiledGeometryHandle hGeometry, Rml::Vector2f translation, Rml::TextureHandle hTexture);
     ezUniquePtr<CommandBuffer> AllocateCommandBuffer();
     void FreeCommandBuffer(ezUniquePtr<CommandBuffer>&& pBuffer);
     void SubmitCommandBuffer(ezUniquePtr<CommandBuffer>&& pBuffer);
@@ -93,6 +134,16 @@ namespace ezRmlUiInternal
     ezIdTable<TextureId, TextureInfo> m_Textures;
     ezTexture2DResourceHandle m_hFallbackTexture;
 
+    struct ShaderInfo
+    {
+      ezShaderResourceHandle m_hShader;
+      ezGALBufferHandle m_hAdditionalConstantBuffer;
+      ezEnum<ShaderType> m_Type;
+    };
+
+    ezIdTable<ShaderId, ShaderInfo> m_Shaders;
+
+    ezMat4 m_mProjection = ezMat4::MakeIdentity();
     ezMat4 m_mTransform = ezMat4::MakeIdentity();
     bool m_bUseStencilTest = false;
 
@@ -101,8 +152,8 @@ namespace ezRmlUiInternal
 
     ezUniquePtr<CommandBuffer> m_pCurrentCommandBuffer;
 
-    ezShaderResourceHandle m_hShader;
-    ezConstantBufferStorageHandle m_hConstantBuffer;
+    ezShaderResourceHandle m_hMainShader;
+    ezConstantBufferStorageHandle m_hMainConstantBuffer;
     ezSmallArray<ezGALVertexAttribute, 3> m_VertexAttributes;
 
     ezSharedPtr<ezRenderGraph> m_pRenderGraph;
