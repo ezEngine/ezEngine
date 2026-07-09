@@ -176,6 +176,13 @@ void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObject*>& se
   }
 }
 
+void ezSelectionManager::RefreshSelection()
+{
+  ezDeque<const ezDocumentObject*> selection = m_pSelectionStorage->m_SelectionList;
+  Clear();
+  SetSelection(selection);
+}
+
 void ezSelectionManager::ToggleObject(const ezDocumentObject* pObject)
 {
   if (IsSelected(pObject))

@@ -65,6 +65,13 @@ public:
   void SetSelection(const ezDeque<const ezDocumentObject*>& selection);
   void ToggleObject(const ezDocumentObject* pObject);
 
+  /// \brief Forces all UI that is bound to the selection to rebuild, without actually changing which objects are selected.
+  ///
+  /// Clears and immediately reapplies the current selection, which triggers the same events as SetSelection().
+  /// Use this when external state that affects how the selection is displayed (e.g. available tags) has changed,
+  /// but the set of selected objects has not, so a plain SetSelection() call would be a no-op.
+  void RefreshSelection();
+
   /// \brief Sets a separate selection (temporarily), which is sent to the engine but not propagated to the editor.
   ///
   /// This is used for cases where temporarily the engine should use a different selection than the editor.

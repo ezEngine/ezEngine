@@ -152,6 +152,11 @@ void ezToolsTagRegistry::GetAllTags(ezDynamicArray<const ezToolsTag*>& out_tags)
   out_tags.Sort(TagComparer());
 }
 
+bool ezToolsTagRegistry::IsTagKnown(ezStringView sName)
+{
+  return s_NameToTags.Find(sName).IsValid();
+}
+
 void ezToolsTagRegistry::GetTagsByCategory(const ezArrayPtr<ezStringView>& categories, ezDynamicArray<const ezToolsTag*>& out_tags)
 {
   out_tags.Clear();

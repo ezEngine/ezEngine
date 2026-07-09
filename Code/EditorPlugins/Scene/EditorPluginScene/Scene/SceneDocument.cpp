@@ -1573,11 +1573,10 @@ void ezSceneDocument::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
   {
     case ezToolsProjectEvent::Type::ProjectConfigChanged:
     {
-      // we are lazy and just re-select everything here
+      // we are lazy and just refresh the current selection here
       // that ensures that ui elements will rebuild their content
 
-      ezDeque<const ezDocumentObject*> selection = GetSelectionManager()->GetSelection();
-      GetSelectionManager()->SetSelection(selection);
+      GetSelectionManager()->RefreshSelection();
     }
     break;
 

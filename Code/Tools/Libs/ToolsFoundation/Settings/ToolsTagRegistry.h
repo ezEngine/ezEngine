@@ -41,6 +41,12 @@ public:
   /// \brief Retrieves all tags in the given categories.
   static void GetTagsByCategory(const ezArrayPtr<ezStringView>& categories, ezDynamicArray<const ezToolsTag*>& out_tags);
 
+  /// \brief Returns whether a tag with this name is currently registered, regardless of its category.
+  ///
+  /// Objects may reference tags that were removed from the registry (e.g. after copying objects from another project),
+  /// which is used to detect and surface such "dangling" tags in the UI.
+  static bool IsTagKnown(ezStringView sName);
+
 private:
   static ezMap<ezString, ezToolsTag> s_NameToTags;
 };

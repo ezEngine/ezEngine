@@ -37,9 +37,10 @@ void ezQtEditorApp::SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg
     return;
 
   m_FileSystemConfig = cfg;
-  ezQtEditorApp::GetSingleton()->AddReloadProjectRequiredReason("The data directory configuration has changed.");
-
   m_FileSystemConfig.CreateDataDirStubFiles().IgnoreResult();
+  m_FileSystemConfig.Save().IgnoreResult();
+
+  ezQtEditorApp::GetSingleton()->AddReloadProjectRequiredReason("The data directory configuration has changed.");
 }
 
 void ezQtEditorApp::SetupDataDirectories()
