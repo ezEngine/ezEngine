@@ -132,6 +132,7 @@ namespace ezRmlUiInternal
     };
 
     ezIdTable<TextureId, TextureInfo> m_Textures;
+    ezTexture2DResourceHandle m_hNoiseTexture;
     ezTexture2DResourceHandle m_hFallbackTexture;
 
     struct ShaderInfo

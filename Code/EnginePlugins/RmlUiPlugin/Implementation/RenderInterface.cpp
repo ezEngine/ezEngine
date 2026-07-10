@@ -165,6 +165,7 @@ namespace ezRmlUiInternal
   {
     ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&RenderInterface::GALEventHandler, this));
 
+    m_hNoiseTexture = ezResourceManager::LoadResource<ezTexture2DResource>("{ ac614d7c-2b31-4a7b-aa0c-c5d8200b7b89 }"); // BlueNoise
     m_hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
     m_hMainShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/RmlUi.ezShader");
     m_hMainConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezRmlUiConstants>();
@@ -625,6 +626,7 @@ namespace ezRmlUiInternal
             pRenderContext->BindShader(m_hMainShader);
             ezBindGroupBuilder& bindGroup = pRenderContext->GetBindGroup();
             bindGroup.BindBuffer("ezRmlUiConstants", m_hMainConstantBuffer);
+            bindGroup.BindTexture("NoiseTexture", m_hNoiseTexture);
 
             auto Draw = [&](const CommandRenderGeometry& cmd, bool bGradient)
             {

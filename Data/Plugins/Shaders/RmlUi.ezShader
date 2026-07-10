@@ -75,6 +75,8 @@ VS_OUT main(VS_IN Input)
 #include <Shaders/Common/Common.h>
 #include "RmlUiConstants.h"
 
+Texture2D NoiseTexture;
+
 float4 lerp_stop_colors(float t)
 {
     float4 color = GradientStopColors[0];
@@ -90,6 +92,23 @@ float4 lerp_stop_colors(float t)
 float glsl_mod(float x, float y)
 {
     return x - y * floor(x / y);
+}
+
+float4 dither(float2 screenPos)
+{
+  float2 texCoords = screenPos / 256.0;
+  float4 noise = NoiseTexture.SampleLevel(PointSampler, texCoords, 0.0);
+
+#if 0
+  // remap to triangular distribution
+  float4 orig = noise * 2 - 1;
+  noise = max(-1.0, orig / sqrt(abs(orig)));
+  noise = noise - sign(orig) + 0.5;
+#else
+  noise = noise * 2 - 0.5;
+#endif
+
+  return noise / 255.0;
 }
 
 #if RMLUI_MODE == RMLUI_MODE_STENCIL_SET
@@ -133,7 +152,7 @@ float glsl_mod(float x, float y)
         t = t0 + glsl_mod(t - t0, t1 - t0);
     }
 
-    return Input.Color0 * lerp_stop_colors(t);
+    return Input.Color0 * lerp_stop_colors(t) + dither(Input.Position.xy);
 
   #else
 
