@@ -4,10 +4,11 @@ o
 {
 	Uuid %id{u4{10562996751653777210,423160607111720072}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"SocketMesh"}
@@ -22,10 +23,11 @@ o
 {
 	Uuid %id{u4{5190871716152112654,521261947377757810}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"<root-transform>"}
@@ -40,10 +42,11 @@ o
 {
 	Uuid %id{u4{15303378303263442149,3963137434886210096}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"BarrelRecoilBone"}
@@ -68,7 +71,7 @@ o
 			s{"Animations/Turret/Turret.glb"}
 		}
 		Uuid %DocumentID{u4{15670882188369860531,5160132352143365795}}
-		u4 %Hash{6877096927970498872}
+		u4 %Hash{12613705221090092281}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2250784937224855489,8131906298234352154}}
@@ -86,10 +89,11 @@ o
 {
 	Uuid %id{u4{1305762706206703750,6170661493763751140}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"BarrelMesh"}
@@ -123,10 +127,11 @@ o
 {
 	Uuid %id{u4{16657971123379262335,11064305118567624139}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"BarrelBone"}
@@ -141,10 +146,11 @@ o
 {
 	Uuid %id{u4{3287948431384305784,14865854565518303011}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"SocketBone"}
@@ -159,10 +165,11 @@ o
 {
 	Uuid %id{u4{12000036003393347990,17606771942748304705}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Armature"}
@@ -264,7 +271,7 @@ o
 {
 	Uuid %id{u4{8165936004128223152,5065601606206069030}}
 	s %t{"ezEditableSkeleton"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		s %BoneDirection{"ezBasisAxis::PositiveY"}
@@ -275,9 +282,12 @@ o
 		u1 %CollisionLayer{0}
 		s %File{"Animations/Turret/Turret.glb"}
 		b %FlipForwardDir{0}
+		s %ImportTransform{"ezMeshImportTransform::Custom"}
+		s %LeftFootJoint{""}
 		f %MaxImpulse{0x0000C842}
 		s %PreviewMesh{"{ 9a8ebd2a-dd92-4ea9-8dbe-ad1ad6feda14 }"}
 		s %RightDir{"ezBasisAxis::PositiveZ"}
+		s %RightFootJoint{""}
 		s %Surface{""}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}
@@ -476,6 +486,23 @@ o
 }
 o
 {
+	Uuid %id{u4{16959510582460493866,8962221111705621108}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshImportTransform"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13569856615221415969,9151104531254943604}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -522,7 +549,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEditableSkeleton"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

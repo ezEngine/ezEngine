@@ -11,7 +11,7 @@ o
 		s %AssetType{"Animation Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17040389563557335176,5211196173846543662}}
-		u4 %Hash{16786165886435482739}
+		u4 %Hash{9322878429832749565}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -234,7 +234,7 @@ o
 {
 	Uuid %id{u4{4638214082267836093,4988179585995482624}}
 	s %t{"ezSampleAnimClipSequenceAnimNode"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Uuid %ClipIndex{u4{10082080253213443798,12743341119202188664}}
@@ -255,6 +255,7 @@ o
 		Uuid %OutOnMiddleStarted{u4{14454116389220555185,9117328400803170644}}
 		Uuid %OutPose{u4{3877037168528667349,2568801147091764788}}
 		f %PlaybackSpeed{0x0000803F}
+		f %RootMotionAmount{0}
 		s %StartClip{""}
 	}
 }
@@ -269,6 +270,7 @@ o
 		s %Comparison{"ezComparisonOperator::Equal"}
 		s %CustomTitle{""}
 		Vec2 %Node::Pos{f{0xD68281C4,0x570AB1C2}}
+		Uuid %OutIsFalse{u4{15729822372751669126,17770604338774661805}}
 		Uuid %OutIsTrue{u4{12760260205009942385,17868628455071619584}}
 		Uuid %OutOnFalse{u4{5869077977563271134,1963487006621893815}}
 		Uuid %OutOnTrue{u4{9654568014302185534,12227647325798155927}}
@@ -502,6 +504,7 @@ o
 		s %Comparison{"ezComparisonOperator::Equal"}
 		s %CustomTitle{""}
 		Vec2 %Node::Pos{f{0x84A180C4,0xFEE29642}}
+		Uuid %OutIsFalse{u4{2112523649628487613,12496268723036401366}}
 		Uuid %OutIsTrue{u4{7722500640196068081,3079653880358528894}}
 		Uuid %OutOnFalse{u4{9043008142502291064,10535791717079686916}}
 		Uuid %OutOnTrue{u4{9561737084515274098,1541658662256991824}}
@@ -556,6 +559,17 @@ o
 {
 	Uuid %id{u4{9654568014302185534,12227647325798155927}}
 	s %t{"ezAnimGraphTriggerOutputPin"}
+	u3 %v{1}
+	p
+	{
+		u1 %NumConnections{0}
+		i2 %PinIdx{0}
+	}
+}
+o
+{
+	Uuid %id{u4{2112523649628487613,12496268723036401366}}
+	s %t{"ezAnimGraphBoolOutputPin"}
 	u3 %v{1}
 	p
 	{
@@ -622,6 +636,17 @@ o
 {
 	Uuid %id{u4{948817813250743962,16171681086446461576}}
 	s %t{"ezAnimGraphTriggerOutputPin"}
+	u3 %v{1}
+	p
+	{
+		u1 %NumConnections{0}
+		i2 %PinIdx{0}
+	}
+}
+o
+{
+	Uuid %id{u4{15729822372751669126,17770604338774661805}}
+	s %t{"ezAnimGraphBoolOutputPin"}
 	u3 %v{1}
 	p
 	{
@@ -872,7 +897,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSampleAnimClipSequenceAnimNode"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

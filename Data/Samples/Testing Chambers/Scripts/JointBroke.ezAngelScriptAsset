@@ -4,10 +4,11 @@ o
 {
 	Uuid %id{u4{17248399532039307811,3732066756556529703}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		s %DefaultValue{"Joint Broke"}
 		s %Name{"Text"}
 		s %Type{""}

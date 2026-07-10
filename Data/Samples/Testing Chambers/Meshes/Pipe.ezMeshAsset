@@ -14,7 +14,7 @@ o
 			s{"Meshes/Pipe.glb"}
 		}
 		Uuid %DocumentID{u4{9834010295383600514,4976128533550079289}}
-		u4 %Hash{934219082618626844}
+		u4 %Hash{5224494526623848427}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -38,7 +38,7 @@ o
 {
 	Uuid %id{u4{6006775589138369929,4743847640316887780}}
 	s %t{"ezMeshAssetProperties"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %AggressiveSimplification{0}
@@ -62,6 +62,7 @@ o
 		s %MeshFile{"Meshes/Pipe.glb"}
 		s %MeshIncludeTags{""}
 		u1 %MeshSimplification{50}
+		f %NormalWeight{0x0000003F}
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
@@ -144,7 +145,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshAssetProperties"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o

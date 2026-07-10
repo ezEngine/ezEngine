@@ -11,7 +11,7 @@ o
 		s %AssetType{"VisualScriptClass"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8702791535040800131,5364255646142763986}}
-		u4 %Hash{9092167260312344087}
+		u4 %Hash{17015453647087367487}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{6960221125742948398,15674178643755375914}}
@@ -507,7 +507,7 @@ o
 		s %PluginName{"ezEditorPluginVisualScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptVariable"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -517,7 +517,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Title{"GameObject::TryGetComponentOfBaseType {TypeName}"}
+		s %Title{"GameObject::TryGet {TypeName}"}
 	}
 }
 o
@@ -540,11 +540,11 @@ o
 o
 {
 	Uuid %id{u4{2704307095509630922,2528198461262495569}}
-	s %t{"ezDynamicStringEnumAttribute"}
+	s %t{"ezRttiTypeStringAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %DynamicEnum{"ComponentTypes"}
+		s %BaseType{"ezComponent"}
 	}
 }
 o
@@ -701,6 +701,23 @@ o
 }
 o
 {
+	Uuid %id{u4{5514559133848394859,6944786798886162182}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginVisualScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptVariableCategory"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{14188699775242566703,8390556797600524102}}
 	s %t{"ezColorAttribute"}
 	u3 %v{1}
@@ -734,6 +751,23 @@ o
 	p
 	{
 		Color %Color{f{0x17DAC53E,0x317C1C3D,0x2C41D63D,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{17031262981869958585,9370940739905747393}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginVisualScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptVariableType"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -903,6 +937,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezColorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16046955658216964626,14620062218799320494}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginVisualScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptVariableTypeDeclaration"}
 		u3 %TypeVersion{1}
 	}
 }

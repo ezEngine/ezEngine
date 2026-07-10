@@ -4,10 +4,11 @@ o
 {
 	Uuid %id{u4{4686213565572593055,178487098428048658}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_ring.03.L"}
@@ -22,10 +23,11 @@ o
 {
 	Uuid %id{u4{7863881720808184774,272287286544313154}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-foot.L"}
@@ -40,10 +42,11 @@ o
 {
 	Uuid %id{u4{15773413587004936086,553480587023764367}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_index.01.L"}
@@ -58,10 +61,11 @@ o
 {
 	Uuid %id{u4{8105888441040791456,1930112564467310640}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_ring.01.L"}
@@ -76,10 +80,11 @@ o
 {
 	Uuid %id{u4{7627037030657653500,2022115971898196789}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_middle.02.R"}
@@ -94,10 +99,11 @@ o
 {
 	Uuid %id{u4{3970177422344094408,2192697201727210407}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-spine.002"}
@@ -112,10 +118,11 @@ o
 {
 	Uuid %id{u4{11164179185447069262,2319903961201927787}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-thumb.02.L"}
@@ -130,10 +137,11 @@ o
 {
 	Uuid %id{u4{2720515762992218873,2350502308029714805}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-shin.R"}
@@ -148,10 +156,11 @@ o
 {
 	Uuid %id{u4{12483814482827960807,2556581671397380306}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_ring.02.L"}
@@ -166,10 +175,11 @@ o
 {
 	Uuid %id{u4{1335552043325936654,3141920699653113726}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_index.03.R"}
@@ -184,10 +194,11 @@ o
 {
 	Uuid %id{u4{10579970887128607115,3247520129625501940}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-forearm.L"}
@@ -202,10 +213,11 @@ o
 {
 	Uuid %id{u4{1363640400696492430,3422550042900648324}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-spine.003"}
@@ -220,10 +232,11 @@ o
 {
 	Uuid %id{u4{7084318541314878346,3447063944347255968}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-thumb.03.R"}
@@ -238,10 +251,11 @@ o
 {
 	Uuid %id{u4{15022036418068843447,3719515472933728692}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-upper_arm.L"}
@@ -256,10 +270,11 @@ o
 {
 	Uuid %id{u4{1875940385375113,3751341734550144325}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-foot.R"}
@@ -342,10 +357,11 @@ o
 {
 	Uuid %id{u4{6430516172036037565,4411900129589319058}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-hand.R"}
@@ -360,10 +376,11 @@ o
 {
 	Uuid %id{u4{16224243234743827985,4490062951663735407}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_middle.01.L"}
@@ -378,10 +395,11 @@ o
 {
 	Uuid %id{u4{10348973328819344762,5308633435224541180}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_middle.01.R"}
@@ -427,10 +445,11 @@ o
 {
 	Uuid %id{u4{3335738644378879232,5926821878085702843}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_pinky.01.L"}
@@ -445,10 +464,11 @@ o
 {
 	Uuid %id{u4{15871235877087146540,6694155459511211302}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-thumb.01.R"}
@@ -463,10 +483,11 @@ o
 {
 	Uuid %id{u4{6777304778940290423,7046190534254101315}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_pinky.02.L"}
@@ -481,10 +502,11 @@ o
 {
 	Uuid %id{u4{763873830445372801,7081100304712553957}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_ring.03.R"}
@@ -499,10 +521,11 @@ o
 {
 	Uuid %id{u4{18115405469452004234,7313980108679880460}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_middle.02.L"}
@@ -517,10 +540,11 @@ o
 {
 	Uuid %id{u4{11214732451543701752,7765084938302284434}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Rig"}
@@ -535,10 +559,11 @@ o
 {
 	Uuid %id{u4{2636592634376558618,8105609248006957433}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_middle.03.R"}
@@ -553,10 +578,11 @@ o
 {
 	Uuid %id{u4{12881378364925897337,8442295097787345196}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_ring.02.R"}
@@ -571,10 +597,11 @@ o
 {
 	Uuid %id{u4{5600925847725646999,8444889469231231321}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_pinky.01.R"}
@@ -589,10 +616,11 @@ o
 {
 	Uuid %id{u4{7899255671539578183,9698677745212828961}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-thigh.L"}
@@ -607,10 +635,11 @@ o
 {
 	Uuid %id{u4{1205838335100272369,10004582714329545854}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-forearm.R"}
@@ -625,10 +654,11 @@ o
 {
 	Uuid %id{u4{3813778963489435419,10142947557754857882}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_pinky.03.R"}
@@ -643,10 +673,11 @@ o
 {
 	Uuid %id{u4{10542769962222315769,10432751531354915805}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-shoulder.R"}
@@ -661,10 +692,11 @@ o
 {
 	Uuid %id{u4{3079876595390355235,10619352758991804788}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-toe.L"}
@@ -679,10 +711,11 @@ o
 {
 	Uuid %id{u4{9880189629676355860,10641643755580247762}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_middle.03.L"}
@@ -697,10 +730,11 @@ o
 {
 	Uuid %id{u4{6602818680183092906,10807357910563473641}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_index.01.R"}
@@ -715,10 +749,11 @@ o
 {
 	Uuid %id{u4{6574505454768224257,11173751734579629559}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"<root-transform>"}
@@ -733,10 +768,11 @@ o
 {
 	Uuid %id{u4{15179243008931765072,11179802157378020681}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-neck"}
@@ -751,10 +787,11 @@ o
 {
 	Uuid %id{u4{1923772650981873531,11193833681648516627}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_index.02.L"}
@@ -769,10 +806,11 @@ o
 {
 	Uuid %id{u4{1562289042757037849,11369029910011796507}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-shoulder.L"}
@@ -787,10 +825,11 @@ o
 {
 	Uuid %id{u4{11358460315607338148,11460951522979282411}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-thumb.03.L"}
@@ -805,10 +844,11 @@ o
 {
 	Uuid %id{u4{5177672725668257819,11523699401216990040}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-hand.L"}
@@ -823,10 +863,11 @@ o
 {
 	Uuid %id{u4{17055249513385748698,11589017682778854086}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_index.02.R"}
@@ -841,10 +882,11 @@ o
 {
 	Uuid %id{u4{8864776081863448380,11737918920160653444}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_pinky.03.L"}
@@ -859,10 +901,11 @@ o
 {
 	Uuid %id{u4{7263122921370511239,11830706866933233894}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Mannequin"}
@@ -877,10 +920,11 @@ o
 {
 	Uuid %id{u4{7282812861339646679,12312774229120462999}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_index.03.L"}
@@ -895,10 +939,11 @@ o
 {
 	Uuid %id{u4{16951033471785948685,12797004834671008596}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-thumb.02.R"}
@@ -913,10 +958,11 @@ o
 {
 	Uuid %id{u4{8695970811246937051,14375684012850166452}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-toe.R"}
@@ -931,10 +977,11 @@ o
 {
 	Uuid %id{u4{8980934407242320901,14540558954637439748}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-thumb.01.L"}
@@ -949,10 +996,11 @@ o
 {
 	Uuid %id{u4{12874314197413460908,14959901749530330998}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-head"}
@@ -967,10 +1015,11 @@ o
 {
 	Uuid %id{u4{9253785425320920542,15286466651675730160}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-spine.001"}
@@ -985,10 +1034,11 @@ o
 {
 	Uuid %id{u4{12138434358553349114,15892812752398922520}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-upper_arm.R"}
@@ -1003,10 +1053,11 @@ o
 {
 	Uuid %id{u4{6843218159735470827,16104350025007601456}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"root"}
@@ -1021,10 +1072,11 @@ o
 {
 	Uuid %id{u4{11723984524571745920,16378228133812820925}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-thigh.R"}
@@ -1039,10 +1091,11 @@ o
 {
 	Uuid %id{u4{10768630531828971833,17209522357908162929}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-hips"}
@@ -1057,10 +1110,11 @@ o
 {
 	Uuid %id{u4{10816908191767163653,17720887486028706380}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-shin.L"}
@@ -1075,10 +1129,11 @@ o
 {
 	Uuid %id{u4{18377639147792282524,18369909985612098341}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_ring.01.R"}
@@ -1093,10 +1148,11 @@ o
 {
 	Uuid %id{u4{1959444269932968768,18394620362798613841}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"DEF-f_pinky.02.R"}

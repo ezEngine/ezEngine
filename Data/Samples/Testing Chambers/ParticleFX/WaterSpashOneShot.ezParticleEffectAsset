@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1669202781980823951,4740119719706526711}}
-		u4 %Hash{17775417840819766149}
+		u4 %Hash{16374640254236791720}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{8147395035327592428,6064996575705268553}}
@@ -19,16 +19,12 @@ o
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
-			s{"{ b6b27ea0-a039-42d6-834c-555de0f90c65 }"}
 			s{"{ c1ff3ecb-522f-4085-9164-dc1f40be3f98 }"}
-			s{"{ cc86ce86-a658-4b3f-bb37-2234708d18db }"}
 			s{"{ f633ccad-b4d5-12e5-260a-bb050d602881 }"}
 		}
 		VarArray %References
 		{
-			s{"{ b6b27ea0-a039-42d6-834c-555de0f90c65 }"}
 			s{"{ c1ff3ecb-522f-4085-9164-dc1f40be3f98 }"}
-			s{"{ cc86ce86-a658-4b3f-bb37-2234708d18db }"}
 			s{"{ f633ccad-b4d5-12e5-260a-bb050d602881 }"}
 		}
 		s %Tags{""}
@@ -152,8 +148,10 @@ o
 	u3 %v{2}
 	p
 	{
-		s %CustomMaterial{""}
+		f %CameraProximityFadeOut{0x0000003F}
+		HashedString %CustomMaterial{s{""}}
 		Angle %Deviation{f{0}}
+		f %GeometryProximityFadeOut{0xCDCCCC3D}
 		f %LightDirectionality{0x0000003F}
 		s %LightingMode{"ezParticleLightingMode::VertexLit"}
 		f %NormalCurvature{0x0000003F}
@@ -162,9 +160,9 @@ o
 		s %Orientation{"ezQuadParticleOrientation::Fixed_EmitterDir"}
 		f %ParticleStretch{0x0000803F}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
-		s %Texture{"{ cc86ce86-a658-4b3f-bb37-2234708d18db }"}
+		HashedString %Texture{s{"{ cc86ce86-a658-4b3f-bb37-2234708d18db }"}}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
-		s %TintColorParam{""}
+		HashedString %TintColorParam{s{""}}
 		b %UseCustomMaterial{0}
 	}
 }
@@ -324,8 +322,10 @@ o
 	u3 %v{2}
 	p
 	{
-		s %CustomMaterial{""}
+		f %CameraProximityFadeOut{0x0000003F}
+		HashedString %CustomMaterial{s{""}}
 		Angle %Deviation{f{0}}
+		f %GeometryProximityFadeOut{0xCDCCCC3D}
 		f %LightDirectionality{0x0000003F}
 		s %LightingMode{"ezParticleLightingMode::VertexLit"}
 		f %NormalCurvature{0x0000003F}
@@ -334,9 +334,9 @@ o
 		s %Orientation{"ezQuadParticleOrientation::Billboard"}
 		f %ParticleStretch{0x0000803F}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
-		s %Texture{"{ b6b27ea0-a039-42d6-834c-555de0f90c65 }"}
+		HashedString %Texture{s{"{ b6b27ea0-a039-42d6-834c-555de0f90c65 }"}}
 		s %TextureAtlas{"ezParticleTextureAtlasType::RandomVariations"}
-		s %TintColorParam{""}
+		HashedString %TintColorParam{s{""}}
 		b %UseCustomMaterial{0}
 	}
 }
@@ -368,6 +368,7 @@ o
 			f %Variance{0x52B89E3E}
 			f %Value{0x00006040}
 		}
+		s %SpeedScaleParam{""}
 	}
 }
 o

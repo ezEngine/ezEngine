@@ -50,6 +50,7 @@ o
 	{
 		s %ClassName{"ScriptObject"}
 		s %Code{""}
+		VarArray %Dependencies{}
 		VarArray %Parameters{}
 		s %Source{"ezAngelScriptCodeMode::FromFile"}
 		s %SourceFile{"Prefabs/WallMine_data/WallMine.as"}

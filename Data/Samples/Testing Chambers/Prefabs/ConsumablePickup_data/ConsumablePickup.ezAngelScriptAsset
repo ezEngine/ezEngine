@@ -33,10 +33,11 @@ o
 {
 	Uuid %id{u4{12406719109675330251,5965527008351685374}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		i3 %DefaultValue{0}
 		s %Name{"ObjectType"}
 		s %Type{""}
@@ -60,10 +61,11 @@ o
 {
 	Uuid %id{u4{1889178969123095169,16585914396142701549}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		i3 %DefaultValue{0}
 		s %Name{"Amount"}
 		s %Type{""}

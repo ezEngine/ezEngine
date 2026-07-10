@@ -4,10 +4,11 @@ o
 {
 	Uuid %id{u4{12386762662154684137,2277879848306001819}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Bone.002"}
@@ -22,10 +23,11 @@ o
 {
 	Uuid %id{u4{2709280504395971271,2498681028165681831}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Bone.009"}
@@ -40,10 +42,11 @@ o
 {
 	Uuid %id{u4{2697671937960253370,3671008462530017696}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"<root-transform>"}
@@ -58,10 +61,11 @@ o
 {
 	Uuid %id{u4{10095618226229850298,4041100693438641986}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Bone.003"}
@@ -76,10 +80,11 @@ o
 {
 	Uuid %id{u4{2187082723473678429,4254788555775744439}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Bone.010"}
@@ -122,10 +127,11 @@ o
 {
 	Uuid %id{u4{3060328288735603407,6862233695965849581}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Cube"}
@@ -140,10 +146,11 @@ o
 {
 	Uuid %id{u4{8241209050346398351,10011579001277391031}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Bone.001"}
@@ -158,10 +165,11 @@ o
 {
 	Uuid %id{u4{8922376658798871960,10491703987349886725}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Bone.005"}
@@ -176,10 +184,11 @@ o
 {
 	Uuid %id{u4{10901810112042911879,11230106080560122102}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Bone"}
@@ -194,10 +203,11 @@ o
 {
 	Uuid %id{u4{3005194294817696419,12671930726433471441}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Armature"}
@@ -212,10 +222,11 @@ o
 {
 	Uuid %id{u4{5542854886597506910,14143298193070220065}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Bone.008"}

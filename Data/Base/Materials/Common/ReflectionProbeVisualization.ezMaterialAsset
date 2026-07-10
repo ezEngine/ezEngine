@@ -14,7 +14,7 @@ o
 			s{"Shaders/Materials/ReflectionProbeVisualization.ezShader"}
 		}
 		Uuid %DocumentID{u4{4746343837574186671,4963508747386251216}}
-		u4 %Hash{15522248181752946743}
+		u4 %Hash{13522876676941707851}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}

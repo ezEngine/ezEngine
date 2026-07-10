@@ -39,10 +39,11 @@ o
 {
 	Uuid %id{u4{12600545583228508556,11303081472576712832}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		Time %DefaultValue{d{0x0000000000002440}}
 		s %Name{"Interval"}
 		s %Type{""}
@@ -60,6 +61,7 @@ o
 	{
 		s %ClassName{"ScriptObject"}
 		s %Code{" class ScriptObject : ezAngelScriptClass\n {\n    ezTime Interval = ezTime::MakeFromSeconds(10);\n\n    void OnSimulationStarted()\n    {\n        ezMsgComponentInternalTrigger msg;\n        msg.Message = \"FlipMotor\";\n\n        GetOwner().PostMessage(msg, Interval);\n    }\n\n    void OnMsgComponentInternalTrigger(ezMsgComponentInternalTrigger@ msg)\n    {\n        ezJoltHingeConstraintComponent@ joint;\n        if (GetOwner().TryGetComponentOfBaseType(@joint))\n        {\n            joint.DriveTargetValue = -joint.DriveTargetValue;\n        }\n\n        GetOwner().PostMessage(msg, Interval);\n    }\n}\n\n"}
+		VarArray %Dependencies{}
 		VarArray %Parameters
 		{
 			Uuid{u4{7980154311346584707,5330016736335725095}}

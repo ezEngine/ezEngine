@@ -4,10 +4,11 @@ o
 {
 	Uuid %id{u4{16351756523608763836,676289933262852652}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		f %DefaultValue{0x00002041}
 		s %Name{"Health"}
 		s %Type{""}

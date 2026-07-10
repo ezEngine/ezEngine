@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9340082855766888863,4792825339744186213}}
-		u4 %Hash{10182853041871438110}
+		u4 %Hash{18275085393039241312}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -103,6 +103,7 @@ o
 		Vec2 %Node::Pos{f{0xA0814B44,0x17B3E243}}
 		Uuid %SSAO{u4{5468046685546711420,8801164129771791513}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
+		Uuid %ShadowMasks{u4{17664677969462345130,11656120651171703420}}
 		b %WriteDepth{0}
 	}
 }
@@ -123,13 +124,15 @@ o
 {
 	Uuid %id{u4{14015861933268748453,4832101727536707722}}
 	s %t{"ezDepthOnlyPass"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		Uuid %DepthStencil{u4{14034198369995003864,10700101904229972968}}
 		s %Name{"DepthPrePass"}
 		Vec2 %Node::Pos{f{0xE5700B44,0xE7B1ED43}}
+		b %RenderDynamicObjects{1}
+		b %RenderStaticObjects{1}
 		b %RenderTransparentObjects{0}
 	}
 }
@@ -231,7 +234,7 @@ o
 {
 	Uuid %id{u4{13766159566503031479,5378026105745909468}}
 	s %t{"ezTonemapPass"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -249,6 +252,7 @@ o
 		Uuid %Output{u4{7642371703623570691,6852461079880770907}}
 		f %Saturation{0x0000803F}
 		s %VignettingTexture{"White.color"}
+		f %WhitePoint{0x33333341}
 	}
 }
 o
@@ -404,6 +408,13 @@ o
 }
 o
 {
+	Uuid %id{u4{17664677969462345130,11656120651171703420}}
+	s %t{"ezRenderPipelineNodeInputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{1496801259720670516,12221049048469735748}}
 	s %t{"ezRenderPipelineNodeInputPin"}
 	u3 %v{1}
@@ -471,7 +482,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTonemapPass"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -641,7 +652,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDepthOnlyPass"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -907,7 +918,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezRenderPipelineNode"}
 		s %PluginName{"Static"}

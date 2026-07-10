@@ -20,14 +20,23 @@ o
 			s{":app/VisualShader/Utils.ddl"}
 		}
 		Uuid %DocumentID{u4{2473129551536206237,5132110376782968790}}
-		u4 %Hash{8127576532061071894}
+		u4 %Hash{7038830452028593087}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
 			s{"VISUAL_SHADER"}
 		}
 		VarArray %PackageDeps{}
-		VarArray %References{}
+		VarArray %References
+		{
+			s{":app/VisualShader/Conversions.ddl"}
+			s{":app/VisualShader/Inputs.ddl"}
+			s{":app/VisualShader/Math_Basic.ddl"}
+			s{":app/VisualShader/Math_Clamping.ddl"}
+			s{":app/VisualShader/Output_Material.ddl"}
+			s{":app/VisualShader/Parameters.ddl"}
+			s{":app/VisualShader/Utils.ddl"}
+		}
 		s %Tags{""}
 	}
 }
@@ -327,7 +336,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Constant"}
+		s %Category{"Permutation"}
 	}
 }
 o
@@ -337,7 +346,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Permutation"}
+		s %Category{"Constant"}
 	}
 }
 o
@@ -560,9 +569,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Density"}
-		s %Type{"float"}
+		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Name{"SHADING_MODE"}
+		s %Type{"SHADING_MODE"}
 	}
 }
 o
@@ -590,7 +599,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Constant"}
+		s %Category{"Permutation"}
 	}
 }
 o
@@ -628,7 +637,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Permutation"}
+		s %Category{"Constant"}
 	}
 }
 o
@@ -650,7 +659,7 @@ o
 }
 o
 {
-	Uuid %id{u4{4858951768529187673,5136142318512320422}}
+	Uuid %id{u4{4429484940278732110,5199250531614328946}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
 	p
@@ -812,12 +821,13 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{18437073470067871457,1625598021779406384}}
+			Uuid{u4{4429484940278732110,5199250531614328946}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
-		s %Name{"SHADING_MODE"}
-		s %Type{"SHADING_MODE"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"MaskThreshold"}
+		s %Type{"float"}
 	}
 }
 o
@@ -1199,12 +1209,11 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{11103799278586492299,3397139525945711413}}
-			Uuid{u4{4858951768529187673,5136142318512320422}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"MaskThreshold"}
+		s %Name{"Density"}
 		s %Type{"float"}
 	}
 }
@@ -1232,8 +1241,8 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"TWO_SIDED"}
-		s %Type{"bool"}
+		s %Name{"Color"}
+		s %Type{"ezColor"}
 	}
 }
 o
@@ -1291,9 +1300,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
-		s %Name{"BLEND_MODE"}
-		s %Type{"BLEND_MODE"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"TWO_SIDED"}
+		s %Type{"bool"}
 	}
 }
 o
@@ -1484,9 +1493,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Color"}
-		s %Type{"ezColor"}
+		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Name{"BLEND_MODE"}
+		s %Type{"BLEND_MODE"}
 	}
 }
 o

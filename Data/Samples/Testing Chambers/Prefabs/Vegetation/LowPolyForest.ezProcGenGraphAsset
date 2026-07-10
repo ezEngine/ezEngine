@@ -11,7 +11,7 @@ o
 		s %AssetType{"ProcGen Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{981310233886598055,4858695034691347977}}
-		u4 %Hash{2174295800247084804}
+		u4 %Hash{9614223090701231090}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps

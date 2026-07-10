@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12499081548750111905,5098320840254519259}}
-		u4 %Hash{15486139877623522857}
+		u4 %Hash{1077644172025254369}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13165321594895125825,13490457828695981343}}
@@ -19,18 +19,21 @@ o
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
-			s{"{ 44d1d17d-4d68-4f8f-b3e3-7e0f82cf58c3 }"}
-			s{"{ 6702a0c1-8ef6-4019-bdd3-5d1df66e5f02 }"}
 			s{"{ fa809b34-ccf3-49fb-b648-1ad793cb66f9 }"}
 		}
 		VarArray %References
 		{
-			s{"{ 44d1d17d-4d68-4f8f-b3e3-7e0f82cf58c3 }"}
-			s{"{ 6702a0c1-8ef6-4019-bdd3-5d1df66e5f02 }"}
 			s{"{ fa809b34-ccf3-49fb-b648-1ad793cb66f9 }"}
 		}
 		s %Tags{""}
 	}
+}
+o
+{
+	Uuid %id{u4{12759459727092880090,10133381028760556921}}
+	s %t{"ezExposeColorAlphaAttribute"}
+	u3 %v{1}
+	p{}
 }
 o
 {
@@ -52,7 +55,10 @@ o
 	u3 %v{3}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{12759459727092880090,10133381028760556921}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Color %DefaultValue{f{0xBEAE9E3F,0xE738963D,0x529D5E3C,0x0000803F}}
 		s %Name{"FireColor"}
@@ -232,8 +238,10 @@ o
 	u3 %v{2}
 	p
 	{
-		s %CustomMaterial{"{ 44d1d17d-4d68-4f8f-b3e3-7e0f82cf58c3 }"}
+		f %CameraProximityFadeOut{0x0000003F}
+		HashedString %CustomMaterial{s{"{ 44d1d17d-4d68-4f8f-b3e3-7e0f82cf58c3 }"}}
 		Angle %Deviation{f{0}}
+		f %GeometryProximityFadeOut{0xCDCCCC3D}
 		f %LightDirectionality{0x0000003F}
 		s %LightingMode{"ezParticleLightingMode::Fullbright"}
 		f %NormalCurvature{0x0000003F}
@@ -242,9 +250,9 @@ o
 		s %Orientation{"ezQuadParticleOrientation::FixedAxis_EmitterDir"}
 		f %ParticleStretch{0x0000803F}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
-		s %Texture{"{ 6702a0c1-8ef6-4019-bdd3-5d1df66e5f02 }"}
+		HashedString %Texture{s{"{ 6702a0c1-8ef6-4019-bdd3-5d1df66e5f02 }"}}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
-		s %TintColorParam{""}
+		HashedString %TintColorParam{s{""}}
 		b %UseCustomMaterial{1}
 	}
 }

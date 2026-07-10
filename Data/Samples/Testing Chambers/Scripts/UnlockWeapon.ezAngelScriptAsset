@@ -15,7 +15,7 @@ o
 			s{"Scripts/UnlockWeapon.as"}
 		}
 		Uuid %DocumentID{u4{18353314003251839166,5725247999247466157}}
-		u4 %Hash{683992239689923063}
+		u4 %Hash{11586427828478283680}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7670945929406840423,7059934551145565828}}
@@ -46,10 +46,11 @@ o
 {
 	Uuid %id{u4{13920967811640955704,14217010279176380258}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		i3 %DefaultValue{0}
 		s %Name{"weaponType"}
 		s %Type{""}

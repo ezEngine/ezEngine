@@ -4,10 +4,11 @@ o
 {
 	Uuid %id{u4{1871483767671702843,450883156872178612}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Foot.Front.R"}
@@ -22,10 +23,11 @@ o
 {
 	Uuid %id{u4{9232763358808814205,3616673881947280037}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Mesh.UpperLeg.Back.R"}
@@ -40,10 +42,11 @@ o
 {
 	Uuid %id{u4{6457332754026085188,5238448636474238496}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Mesh.LowerLeg.Back.L"}
@@ -68,7 +71,7 @@ o
 			s{"Animations/Hunter/Hunter.glb"}
 		}
 		Uuid %DocumentID{u4{8081327079296500373,5521147930565435920}}
-		u4 %Hash{12415373226699567697}
+		u4 %Hash{16732033657894489422}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{1381809871271396736,9742788063897032705}}
@@ -86,10 +89,11 @@ o
 {
 	Uuid %id{u4{16596025636254774106,7143838874047609538}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Mesh.UpperLeg.Front.L"}
@@ -104,10 +108,11 @@ o
 {
 	Uuid %id{u4{17348383247305055401,7808813366657413728}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Mesh.Eye"}
@@ -122,10 +127,11 @@ o
 {
 	Uuid %id{u4{11455374532015616429,7908682768827480344}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"LowerLeg.Front.L"}
@@ -140,10 +146,11 @@ o
 {
 	Uuid %id{u4{6301419871120021094,8423900351174655661}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Foot.Front.L"}
@@ -158,10 +165,11 @@ o
 {
 	Uuid %id{u4{12203826129663421583,8478775151749662030}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Mesh.LowerLeg.Front.R"}
@@ -176,10 +184,11 @@ o
 {
 	Uuid %id{u4{2360915874347152599,9436618007461513077}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Mesh.UpperLeg.Front.R"}
@@ -233,10 +242,11 @@ o
 {
 	Uuid %id{u4{3075391392297138282,9853747971845549886}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"UpperLeg.Front.R"}
@@ -251,10 +261,11 @@ o
 {
 	Uuid %id{u4{2668965507662828513,10120357954046529329}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"<root-transform>"}
@@ -269,10 +280,11 @@ o
 {
 	Uuid %id{u4{5437499139899959568,10799784022783141020}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"UpperLeg.Back.L"}
@@ -287,10 +299,11 @@ o
 {
 	Uuid %id{u4{1202376737436813132,10941912409728731774}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Mesh.LowerLeg.Front.L"}
@@ -305,10 +318,11 @@ o
 {
 	Uuid %id{u4{5597635517013690227,11843801646031908804}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"LowerLeg.Front.R"}
@@ -323,10 +337,11 @@ o
 {
 	Uuid %id{u4{1303854271148225564,11954718617783725685}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"LowerLeg.Back.R"}
@@ -341,10 +356,11 @@ o
 {
 	Uuid %id{u4{9130059602526422415,12060081728033588716}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"ROOT"}
@@ -359,10 +375,11 @@ o
 {
 	Uuid %id{u4{6027068053590433115,12504618520262431819}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"UpperLeg.Back.R"}
@@ -377,10 +394,11 @@ o
 {
 	Uuid %id{u4{12050165761414802254,12525241333645630039}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Mesh.Body"}
@@ -395,10 +413,11 @@ o
 {
 	Uuid %id{u4{7155669476865635395,12595734920973810026}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Mesh.LowerLeg.Back.R"}
@@ -413,10 +432,11 @@ o
 {
 	Uuid %id{u4{2919380111706479103,14047243401888390569}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Root"}
@@ -431,10 +451,11 @@ o
 {
 	Uuid %id{u4{8771796132516347825,14067708613853132624}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Foot.Back.L"}
@@ -449,10 +470,11 @@ o
 {
 	Uuid %id{u4{7961501942565117465,14913157161500517705}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Foot.Back.R"}
@@ -467,10 +489,11 @@ o
 {
 	Uuid %id{u4{10594417655215275538,17050794434731494946}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"LowerLeg.Back.L"}
@@ -485,10 +508,11 @@ o
 {
 	Uuid %id{u4{6327416498306464019,17293375197479825358}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Mesh.UpperLeg.Back.L"}
@@ -503,10 +527,11 @@ o
 {
 	Uuid %id{u4{17128299158679597335,17380375593342254333}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Eye"}
@@ -521,10 +546,11 @@ o
 {
 	Uuid %id{u4{1680965732394546811,17573499574645438047}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Body"}
@@ -539,10 +565,11 @@ o
 {
 	Uuid %id{u4{15232370645739920230,17763238002747473427}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"UpperLeg.Front.L"}
@@ -582,8 +609,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0,0,0,0,0x0000803F,0,0x6921A2B3,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -609,8 +636,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0x38BD5EB2,0xDFC06F3F,0x00717533,0x119F02BF,0x8AB9023F,0x936EFABE,0xCEA5FABE,0x0000803F,0x0200803F,0xFEFF7F3F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -639,8 +666,8 @@ o
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0xD4ECA832,0x00406E3A,0x4D758FBE,0x5F6D33BF,0x586DE6B2,0x1F0B83B3,0xF998363F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -672,8 +699,8 @@ o
 		Angle %SwingLimitY{f{0x920A863F}}
 		Angle %SwingLimitZ{f{0x920A863F}}
 		Transform %Transform{f{0x55D4323E,0xD0F45CBE,0x61300DBE,0x6F8D2F3F,0xD99A303E,0x708D2F3F,0xC69A30BE,0x0600803F,0x0000803F,0xFFFF7F3F}}
-		Angle %TwistLimit1{f{0x920A063F}}
-		Angle %TwistLimit2{f{0x920A063F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -714,8 +741,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -747,8 +774,8 @@ o
 		Angle %SwingLimitY{f{0x368D2740}}
 		Angle %SwingLimitZ{f{0xC2B8B23E}}
 		Transform %Transform{f{0x320281B1,0x3C61CA3E,0x0E53A733,0xA35487BE,0x9D53C138,0x0914D339,0x40E5763F,0x0000803F,0x0000803F,0x0100803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -780,8 +807,8 @@ o
 		Angle %SwingLimitY{f{0x368D2740}}
 		Angle %SwingLimitZ{f{0xC2B8B23E}}
 		Transform %Transform{f{0xD424C431,0x3E61CA3E,0x4CAD7132,0xA15487BE,0x1A5DC1B8,0x2D12D3B9,0x41E5763F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -833,8 +860,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -875,8 +902,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0x68F0CEB1,0xE0C06F3F,0x00228BB2,0x109F023F,0x8BB9023F,0x916EFABE,0xD1A5FA3E,0x0000803F,0x0100803F,0xFEFF7F3F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -908,8 +935,8 @@ o
 		Angle %SwingLimitY{f{0x368D2740}}
 		Angle %SwingLimitZ{f{0xC2B8B23E}}
 		Transform %Transform{f{0xEA24C532,0x3E61CA3E,0x254B7BB3,0xA15487BE,0xE358C138,0xE913D339,0x41E5763F,0x0000803F,0x0100803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -956,8 +983,8 @@ o
 		Angle %SwingLimitY{f{0x920A863F}}
 		Angle %SwingLimitZ{f{0x920A863F}}
 		Transform %Transform{f{0x53D432BE,0xD0F45CBE,0x63300DBE,0x6F8D2F3F,0xE39A30BE,0x6D8D2FBF,0xD09A30BE,0x0B00803F,0x0200803F,0x0100803F}}
-		Angle %TwistLimit1{f{0x920A063F}}
-		Angle %TwistLimit2{f{0x920A063F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -1011,8 +1038,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -1038,8 +1065,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -1080,8 +1107,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -1107,8 +1134,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -1134,8 +1161,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0x608403B1,0xE0C06F3F,0x00EC2C32,0x119F023F,0x89B9023F,0x966EFABE,0xCCA5FA3E,0x0000803F,0x0200803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -1191,8 +1218,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -1218,8 +1245,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -1251,8 +1278,8 @@ o
 		Angle %SwingLimitY{f{0x920A863F}}
 		Angle %SwingLimitZ{f{0x920A863F}}
 		Transform %Transform{f{0xB26A5DBE,0xD0F45CBE,0x297B153E,0x708D2F3F,0xDA9A30BE,0x6E8D2FBF,0xD29A30BE,0x0300803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A063F}}
-		Angle %TwistLimit2{f{0x920A063F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -1284,8 +1311,8 @@ o
 		Angle %SwingLimitY{f{0x920A863F}}
 		Angle %SwingLimitZ{f{0x920A863F}}
 		Transform %Transform{f{0xB06A5D3E,0xD0F45CBE,0x2B7B153E,0x6E8D2F3F,0xDA9A303E,0x718D2F3F,0xC69A30BE,0x0800803F,0x0000803F,0xFFFF7F3F}}
-		Angle %TwistLimit1{f{0x920A063F}}
-		Angle %TwistLimit2{f{0x920A063F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -1321,8 +1348,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0,0x0000C03F,0,0,0xA48508B3,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -1348,8 +1375,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -1375,8 +1402,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -1417,8 +1444,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0xC0631CB2,0xDFC06F3F,0x001C21B2,0x119F02BF,0x8BB9023F,0x936EFABE,0xCCA5FABE,0x0000803F,0x0100803F,0xFFFF7F3F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -1450,8 +1477,8 @@ o
 		Angle %SwingLimitY{f{0x368D2740}}
 		Angle %SwingLimitZ{f{0xC2B8B23E}}
 		Transform %Transform{f{0xF615FA31,0x3861CA3E,0xA66441B2,0xA05487BE,0x6641C1B8,0xD311D3B9,0x41E5763F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o
@@ -1507,8 +1534,8 @@ o
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %TwistLimit1{f{0x920A863E}}
-		Angle %TwistLimit2{f{0x920A863E}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
 	}
 }
 o

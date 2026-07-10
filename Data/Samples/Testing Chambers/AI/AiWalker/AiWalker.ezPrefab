@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9787685060025488154,10081810663128121436}}
-		u4 %Hash{11987655172295413499}
+		u4 %Hash{17679835804808231836}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2303340321395474942,4382405691360237669}}

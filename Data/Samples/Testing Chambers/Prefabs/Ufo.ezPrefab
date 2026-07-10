@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7885917526367686325,5166844528193650739}}
-		u4 %Hash{3135475736058267528}
+		u4 %Hash{15125028223103911042}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{16812304856148921221,10389549716759088900}}
@@ -288,16 +288,23 @@ o
 {
 	Uuid %id{u4{14411211764832067758,5414785106944929089}}
 	s %t{"ezSpriteComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		f %AspectRatio{0x0000803F}
 		s %BlendMode{"ezSpriteBlendMode::Additive"}
 		Color %Color{f{0x1BDDC341,0x232EBA42,0x59B8E642,0x0000803F}}
+		u1 %Columns{1}
+		f %Framerate{0x0000C041}
+		b %IsAnimated{0}
+		u3 %Loops{0}
 		f %MaxScreenSize{0x00008042}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
+		u1 %Rows{1}
 		f %Size{0x0000803F}
 		s %Texture{"{ 342af925-a6a8-4451-a70a-407c0f834168 }"}
+		b %UseMaxScreenSize{1}
 	}
 }
 o
@@ -776,6 +783,23 @@ o
 }
 o
 {
+	Uuid %id{u4{15829715360065729463,8612673207191066077}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezShapeIconAlwaysVisibleAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{16760069048281874555,8669125593883744592}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -912,6 +936,23 @@ o
 }
 o
 {
+	Uuid %id{u4{2869469983493172804,11764438314605031013}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezOnComponentFinishedAction"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{8761784020540283900,11813671609775349281}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1026,7 +1067,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSpriteComponent"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

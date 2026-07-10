@@ -34,10 +34,11 @@ o
 {
 	Uuid %id{u4{1750455764661399590,6754495073589856346}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		b %DefaultValue{0}
 		s %Name{"GiveAllWeapons"}
 		s %Type{""}
@@ -61,10 +62,11 @@ o
 {
 	Uuid %id{u4{12805666855229338352,17496957414801617661}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		b %DefaultValue{0}
 		s %Name{"Invincible"}
 		s %Type{""}

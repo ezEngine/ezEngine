@@ -14,7 +14,7 @@ o
 			s{"Textures/BlueNoise.dds"}
 		}
 		Uuid %DocumentID{u4{9906524041035189418,5366930873287527804}}
-		u4 %Hash{8342718404431817118}
+		u4 %Hash{8814732109602361693}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -42,6 +42,7 @@ o
 		s %AddressModeV{"ezImageAddressMode::Repeat"}
 		s %AddressModeW{"ezImageAddressMode::Repeat"}
 		f %AlphaThreshold{0x0000003F}
+		VarArray %ArraySlices{}
 		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
 		s %CompressionMode{"ezTexConvCompressionMode::None"}
@@ -53,6 +54,7 @@ o
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
+		b %IsArrayTexture{0}
 		b %IsRenderTarget{0}
 		s %MipmapMode{"ezTexConvMipmapMode::None"}
 		b %PremultipliedAlpha{0}

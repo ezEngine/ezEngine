@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5963804767315103672,5433555503478725399}}
-		u4 %Hash{17465973183641944916}
+		u4 %Hash{2385826222267194133}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -53,19 +53,20 @@ o
 {
 	Uuid %id{u4{4121618234579671715,5033433658973113555}}
 	s %t{"ezReflectionFilterPass"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		Uuid %AvgLuminance{u4{9228162745912888491,4525556984875514586}}
+		f %DiffuseIntensity{0x0000803F}
+		f %DiffuseSaturation{0x0000803F}
 		Uuid %FilteredSpecular{u4{14302187211121575540,11720120274908737651}}
 		u3 %InputCubemap{0}
-		f %Intensity{0x0000803F}
 		Uuid %IrradianceData{u4{3796248088956775667,8325318231547522961}}
 		u3 %IrradianceOutputIndex{0}
 		s %Name{""}
 		Vec2 %Node::Pos{f{0xC1A2F843,0x1B90A143}}
-		f %Saturation{0x0000803F}
+		f %SpecularIntensity{0x0000803F}
 		u3 %SpecularOutputIndex{0}
 	}
 }
@@ -391,7 +392,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectionFilterPass"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -453,7 +454,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezRenderPipelineNode"}
 		s %PluginName{"Static"}

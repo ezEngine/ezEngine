@@ -11,7 +11,7 @@ o
 		s %AssetType{"Kraut Tree"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16846456159653526701,5701691552207060837}}
-		u4 %Hash{2921608461283999594}
+		u4 %Hash{520671759365570753}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps

@@ -40,12 +40,22 @@ o
 }
 o
 {
+	Uuid %id{u4{6994146536369266775,14918085421000251359}}
+	s %t{"ezExposeColorAlphaAttribute"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{17235667589145516774,15558572846373414828}}
 	s %t{"ezExposedParameter"}
 	u3 %v{3}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{6994146536369266775,14918085421000251359}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Color %DefaultValue{f{0x8D30843E,0xB7C76D3E,0xC024AE3D,0x0000803F}}
 		s %Name{"TintColor"}

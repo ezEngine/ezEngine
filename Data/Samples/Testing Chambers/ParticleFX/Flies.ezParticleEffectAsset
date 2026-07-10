@@ -2,6 +2,13 @@ HeaderV2
 {
 o
 {
+	Uuid %id{u4{1807322456743510761,1748085029311348889}}
+	s %t{"ezExposeColorAlphaAttribute"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{4121784730246764220,4747101245080027643}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -11,20 +18,14 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4121784730246764220,4747101245080027643}}
-		u4 %Hash{2839230140642703157}
+		u4 %Hash{11903804128981541979}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2308028051231343519,15184132879719398359}}
 		}
 		VarArray %Outputs{}
-		VarArray %PackageDeps
-		{
-			s{"{ 3619cd17-924e-4a3a-8aab-ecd69716ab3d }"}
-		}
-		VarArray %References
-		{
-			s{"{ 3619cd17-924e-4a3a-8aab-ecd69716ab3d }"}
-		}
+		VarArray %PackageDeps{}
+		VarArray %References{}
 		s %Tags{""}
 	}
 }
@@ -32,10 +33,14 @@ o
 {
 	Uuid %id{u4{16107726488328678813,7779557405079041185}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{1807322456743510761,1748085029311348889}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
 		Color %DefaultValue{f{0,0,0,0x0000803F}}
 		s %Name{"Color"}
 		s %Type{""}
@@ -59,10 +64,11 @@ o
 {
 	Uuid %id{u4{8363121022664159298,16891741109228124371}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		f %DefaultValue{0x0000803F}
 		s %Name{"NumMultiplier"}
 		s %Type{""}
@@ -78,17 +84,22 @@ o
 	u3 %v{2}
 	p
 	{
+		f %CameraProximityFadeOut{0x0000003F}
+		HashedString %CustomMaterial{s{""}}
 		Angle %Deviation{f{0}}
-		f %DistortionStrength{0x0000C842}
-		s %DistortionTexture{""}
+		f %GeometryProximityFadeOut{0xCDCCCC3D}
+		f %LightDirectionality{0x0000003F}
+		s %LightingMode{"ezParticleLightingMode::Fullbright"}
+		f %NormalCurvature{0x0000003F}
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
 		s %Orientation{"ezQuadParticleOrientation::Billboard"}
 		f %ParticleStretch{0x0000803F}
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
-		s %Texture{"{ 3619cd17-924e-4a3a-8aab-ecd69716ab3d }"}
+		HashedString %Texture{s{"{ 3619cd17-924e-4a3a-8aab-ecd69716ab3d }"}}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
-		s %TintColorParam{"Color"}
+		HashedString %TintColorParam{s{"Color"}}
+		b %UseCustomMaterial{0}
 	}
 }
 o
@@ -108,7 +119,7 @@ o
 {
 	Uuid %id{u4{12482735272940276654,5215376470873342350}}
 	s %t{"ezParticleInitializerFactory_RandomSize"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		ezVarianceTypeFloat %Size
@@ -117,6 +128,7 @@ o
 			f %Value{0x0AD7233C}
 		}
 		s %SizeCurve{""}
+		HashedString %SizeScaleParameter{s{""}}
 	}
 }
 o
@@ -191,6 +203,7 @@ o
 		{
 			f %NumMultiplier{0x0000803F}
 		}
+		Vec3u %NumWindSamples{u3{1,1,1}}
 		VarArray %ParticleSystems
 		{
 			Uuid{u4{12351991099906206898,5342725441741897352}}
@@ -279,6 +292,23 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9692001477283607726,5375904088218900509}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleLightingMode"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -432,7 +462,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomSize"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

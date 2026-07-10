@@ -32,10 +32,11 @@ o
 {
 	Uuid %id{u4{15863496947712508938,4845540081987646196}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		i3 %DefaultValue{50}
 		s %Name{"Health"}
 		s %Type{""}
@@ -45,10 +46,11 @@ o
 {
 	Uuid %id{u4{5645884320301430187,5451274358698965928}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		f %DefaultValue{0x00007041}
 		s %Name{"MaxShootDistance"}
 		s %Type{""}
@@ -73,10 +75,11 @@ o
 {
 	Uuid %id{u4{8546864662629442572,8643542302965132399}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		b %DefaultValue{1}
 		s %Name{"ShowState"}
 		s %Type{""}

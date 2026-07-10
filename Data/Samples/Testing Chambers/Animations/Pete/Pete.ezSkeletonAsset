@@ -4,10 +4,11 @@ o
 {
 	Uuid %id{u4{10800497526967973248,472321477127673464}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Hip"}
@@ -22,10 +23,11 @@ o
 {
 	Uuid %id{u4{7185694148196499845,1489981893786905210}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"UpperArm.L"}
@@ -73,10 +75,11 @@ o
 {
 	Uuid %id{u4{2803809154188033062,1598812279498174208}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Foot.R"}
@@ -91,10 +94,11 @@ o
 {
 	Uuid %id{u4{4117639128150213291,1606226684588972359}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Armature"}
@@ -109,10 +113,11 @@ o
 {
 	Uuid %id{u4{10075916163830054971,2140233041116088183}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Hand.L"}
@@ -127,10 +132,11 @@ o
 {
 	Uuid %id{u4{8735742475507075827,3151631224414389965}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"LowerLeg.R"}
@@ -145,10 +151,11 @@ o
 {
 	Uuid %id{u4{1463490887411199210,3996728747486234328}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"LowerArm.L"}
@@ -163,10 +170,11 @@ o
 {
 	Uuid %id{u4{10109631631037056248,4107703580293034545}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"UpperArm.R"}
@@ -191,7 +199,7 @@ o
 			s{"Animations/Pete/Pete.glb"}
 		}
 		Uuid %DocumentID{u4{14480472025422740414,4881933244452828737}}
-		u4 %Hash{8477220499789841439}
+		u4 %Hash{15867707886178326007}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3973616563548524274,1591302125804003715}}
@@ -212,10 +220,11 @@ o
 {
 	Uuid %id{u4{7441261239206005719,5659823392133915402}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"LowerLeg.L"}
@@ -230,10 +239,11 @@ o
 {
 	Uuid %id{u4{9984994043380211165,5869989733569692940}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Belly"}
@@ -248,10 +258,11 @@ o
 {
 	Uuid %id{u4{17475635896212109748,7067188030693148199}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Torso"}
@@ -266,10 +277,11 @@ o
 {
 	Uuid %id{u4{12540732808250018952,7157597193053591257}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Mesh"}
@@ -284,10 +296,11 @@ o
 {
 	Uuid %id{u4{16868568650116893358,9503345888266230159}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Root"}
@@ -302,10 +315,11 @@ o
 {
 	Uuid %id{u4{10194939313408598623,10029557552142148854}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"LowerArm.R"}
@@ -320,10 +334,11 @@ o
 {
 	Uuid %id{u4{2103556600310111046,11703689851715972682}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"UpperLeg.R"}
@@ -338,10 +353,11 @@ o
 {
 	Uuid %id{u4{14405428573320167828,13862840865773911893}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Head"}
@@ -356,10 +372,11 @@ o
 {
 	Uuid %id{u4{14602162453344934622,15332928325952018967}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Neck"}
@@ -374,10 +391,11 @@ o
 {
 	Uuid %id{u4{12612901644474068878,15615794760183928201}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"UpperLeg.L"}
@@ -392,10 +410,11 @@ o
 {
 	Uuid %id{u4{7874900190881831332,16867951029430541157}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Foot.L"}
@@ -410,10 +429,11 @@ o
 {
 	Uuid %id{u4{12029671576196043485,17395949255685776439}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"<root-transform>"}
@@ -428,10 +448,11 @@ o
 {
 	Uuid %id{u4{16339736863641632613,18425236110336130259}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Hand.R"}
@@ -560,9 +581,11 @@ o
 		s %File{"Animations/Pete/Pete.glb"}
 		b %FlipForwardDir{0}
 		s %ImportTransform{"ezMeshImportTransform::Blender_YUp"}
+		s %LeftFootJoint{""}
 		f %MaxImpulse{0x0000C842}
 		s %PreviewMesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 		s %RightDir{"ezBasisAxis::NegativeX"}
+		s %RightFootJoint{""}
 		s %Surface{"{ 73b2bf79-7803-43de-9647-117773d05b87 }"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}

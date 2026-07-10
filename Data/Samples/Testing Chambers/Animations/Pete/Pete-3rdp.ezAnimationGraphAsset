@@ -11,7 +11,7 @@ o
 		s %AssetType{"Animation Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6797545156234836401,4800943814550157568}}
-		u4 %Hash{16328808773844026583}
+		u4 %Hash{12634548158889907018}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -120,6 +120,7 @@ o
 		s %Comparison{"ezComparisonOperator::Equal"}
 		s %CustomTitle{""}
 		Vec2 %Node::Pos{f{0xB451A941,0x4E8A8D42}}
+		Uuid %OutIsFalse{u4{17190509585963921855,13549076565041684356}}
 		Uuid %OutIsTrue{u4{13058704105371471338,16457107067101032047}}
 		Uuid %OutOnFalse{u4{16275890302134480520,17692801956574312155}}
 		Uuid %OutOnTrue{u4{16272340345037245455,9402378584779083736}}
@@ -363,10 +364,9 @@ o
 {
 	Uuid %id{u4{6832227440580779706,5682826984787779592}}
 	s %t{"ezSampleAnimClipAnimNode"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		b %ApplyRootMotion{0}
 		s %Clip{"Action_Wave"}
 		s %CustomTitle{""}
 		Uuid %InLoop{u4{6516434545322176361,16778869095490527622}}
@@ -378,6 +378,7 @@ o
 		Uuid %OutOnStarted{u4{12879398190869885375,4754062766353032456}}
 		Uuid %OutPose{u4{7874071963988400401,17316232270945880602}}
 		f %PlaybackSpeed{0x0000803F}
+		f %RootMotionAmount{0}
 	}
 }
 o
@@ -545,6 +546,17 @@ o
 {
 	Uuid %id{u4{5170767083328980824,13025346988809757882}}
 	s %t{"ezAnimGraphNumberInputPin"}
+	u3 %v{1}
+	p
+	{
+		u1 %NumConnections{0}
+		i2 %PinIdx{0}
+	}
+}
+o
+{
+	Uuid %id{u4{17190509585963921855,13549076565041684356}}
+	s %t{"ezAnimGraphBoolOutputPin"}
 	u3 %v{1}
 	p
 	{
@@ -877,7 +889,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSampleAnimClipAnimNode"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

@@ -17,10 +17,11 @@ o
 {
 	Uuid %id{u4{14174253969718733738,4567279119277075983}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		f %DefaultValue{0x00004842}
 		s %Name{"Health"}
 		s %Type{""}
@@ -79,6 +80,7 @@ o
 	{
 		s %ClassName{"ScriptObject"}
 		s %Code{"class ScriptObject : ezAngelScriptClass\n{\n\t// int PublicIntVar = 0;\n\n\tvoid OnSimulationStarted()\n\t{\n\t\t// ezLog::Info(\"Simulation Started\");\n\t}\n\n\t// void Update() { }\n\n\t// void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg) { }\n}"}
+		VarArray %Dependencies{}
 		VarArray %Parameters
 		{
 			Uuid{u4{2837054639475688633,4801220311714150597}}
