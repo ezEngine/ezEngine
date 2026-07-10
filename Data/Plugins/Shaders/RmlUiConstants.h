@@ -19,15 +19,17 @@ CONSTANT_BUFFER(ezRmlUiConstants, 4)
 
 CONSTANT_BUFFER(ezRmlUiAdditionalConstants, 5)
 {
-  UINT1(GradientFunc);     // one of the above definitions
+  UINT1(GradientFunc); // one of the above definitions
   UINT1(GradientNumStops);
   UINT2(Padding);
 
   FLOAT2(GradientParams0); // linear: starting point,         radial: center,                        conic: center
   FLOAT2(GradientParams1); // linear: vector to ending point, radial: 2d curvature (inverse radius), conic: angled unit vector
 
-  COLOR4F(GradientStopColors)[GRADIENT_MAX_NUM_STOPS];
-  FLOAT4(GradientStopPositions)[GRADIENT_MAX_NUM_STOPS_PACKED]; // normalized, 0 -> starting point, 1 -> ending point
+  COLOR4F(GradientStopColors)
+  [GRADIENT_MAX_NUM_STOPS];
+  FLOAT4(GradientStopPositions)
+  [GRADIENT_MAX_NUM_STOPS_PACKED]; // normalized, 0 -> starting point, 1 -> ending point
 };
 
 #define GRADIENT_GET_STOP_POS(i) (GradientStopPositions[i >> 2][i & 3])
