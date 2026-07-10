@@ -11,7 +11,7 @@ o
 		s %AssetType{"Layer"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15189912638122679973,5056406926986055588}}
-		u4 %Hash{9507188070679349763}
+		u4 %Hash{12359037124013139212}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -1048,7 +1048,7 @@ o
 {
 	Uuid %id{u4{5003741172033480353,1388303214683579688}}
 	s %t{"ezSpotLightComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -1064,6 +1064,7 @@ o
 		Time %MaterialUpdateInterval{d{0}}
 		Angle %OuterSpotAngle{f{0xC2B83240}}
 		f %PenumbraSize{0x9A99993E}
+		f %Radius{0}
 		f %Range{0x00007041}
 		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
@@ -1640,29 +1641,6 @@ o
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x0000C0C0,0x0000E0C0,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
-	}
-}
-o
-{
-	Uuid %id{u4{15900930218882992487,1625537946262103937}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components{}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000A841,0x0000D840,0xCDCC6041}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -11340,9 +11318,6 @@ o
 			Uuid{u4{15158303280035194706,10159376664291144166}}
 			Uuid{u4{790121617097197791,15885127216373741046}}
 			Uuid{u4{8268094945062698331,10744326837500621075}}
-			Uuid{u4{374242852032643160,10155287319570294460}}
-			Uuid{u4{4338905754864005850,15415686424381585185}}
-			Uuid{u4{15900930218882992487,1625537946262103937}}
 			Uuid{u4{3328253748783208242,10155687381714989490}}
 			Uuid{u4{4282436068908628147,15866860036453950359}}
 			Uuid{u4{12497526311976066894,2309607065746153510}}
@@ -14579,8 +14554,6 @@ o
 			Uuid{u4{14675455948556290920,11609553963836385229}}
 			Uuid{u4{16508405627129468453,792826990510357529}}
 			Uuid{u4{9168245054819145134,6338567955705461656}}
-			Uuid{u4{12290727667290846509,10011249738975980197}}
-			Uuid{u4{15366606295801759785,10819084021387277459}}
 		}
 		VarArray %Components{}
 		s %GlobalKey{""}
@@ -18303,29 +18276,6 @@ o
 }
 o
 {
-	Uuid %id{u4{12290727667290846509,10011249738975980197}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components{}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x67669241,0,0x6866863F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{17020355494478978103,10020368233276136168}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -18779,29 +18729,6 @@ o
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0xFDFF20C2,0x00000037,0}}
 		Quat %LocalRotation{f{0xFEFFFFBE,0xFCFFFF3E,0xFCFFFF3E,0xFEFFFF3E}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
-	}
-}
-o
-{
-	Uuid %id{u4{374242852032643160,10155287319570294460}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components{}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00006841,0xEC2B2D41,0x14D45641}}
-		Quat %LocalRotation{f{0x70B08FB2,0x16EFC3BE,0x5E836CBF,0xBD722DB3}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -20054,7 +19981,7 @@ o
 {
 	Uuid %id{u4{15057721541263718975,10563438937391201255}}
 	s %t{"ezSpotLightComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -20070,6 +19997,7 @@ o
 		Time %MaterialUpdateInterval{d{0}}
 		Angle %OuterSpotAngle{f{0xAA619C3F}}
 		f %PenumbraSize{0xCDCCCC3D}
+		f %Radius{0}
 		f %Range{0x0000A040}
 		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
@@ -20505,29 +20433,6 @@ o
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
 		b %UseAsOccluder{1}
-	}
-}
-o
-{
-	Uuid %id{u4{15366606295801759785,10819084021387277459}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components{}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xCDCC6C40,0x04002040,0x6866863F}}
-		Quat %LocalRotation{f{0,0,0x0000803F,0x000000B3}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
 	}
 }
 o
@@ -21034,7 +20939,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -25989,7 +25893,7 @@ o
 {
 	Uuid %id{u4{140467312151931645,14742995286125668238}}
 	s %t{"ezSpotLightComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -26005,6 +25909,7 @@ o
 		Time %MaterialUpdateInterval{d{0}}
 		Angle %OuterSpotAngle{f{0xC2B83240}}
 		f %PenumbraSize{0x9A99993E}
+		f %Radius{0}
 		f %Range{0x00007041}
 		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
@@ -28491,29 +28396,6 @@ o
 }
 o
 {
-	Uuid %id{u4{4338905754864005850,15415686424381585185}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components{}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x34330542,0x0000D840,0xCDCC6041}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{16254088062504215159,15421554074945132282}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{7}
@@ -29826,7 +29708,7 @@ o
 {
 	Uuid %id{u4{15372772158859297523,16131182256385470375}}
 	s %t{"ezSpotLightComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -29842,6 +29724,7 @@ o
 		Time %MaterialUpdateInterval{d{0}}
 		Angle %OuterSpotAngle{f{0xAA619C3F}}
 		f %PenumbraSize{0xCDCCCC3D}
+		f %Radius{0}
 		f %Range{0x0000A040}
 		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
@@ -34372,6 +34255,23 @@ o
 }
 o
 {
+	Uuid %id{u4{15829715360065729463,8612673207191066077}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezShapeIconAlwaysVisibleAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -34690,7 +34590,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSpotLightComponent"}
-		u3 %TypeVersion{4}
+		u3 %TypeVersion{5}
 	}
 }
 o

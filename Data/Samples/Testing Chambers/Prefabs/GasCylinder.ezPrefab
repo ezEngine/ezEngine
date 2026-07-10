@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11026521484683807143,5069145872215893263}}
-		u4 %Hash{17320543954143345196}
+		u4 %Hash{6154682695735758189}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13688798916372137839,17151749029646927549}}
@@ -82,7 +82,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -136,7 +135,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -219,7 +217,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -254,7 +251,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }

@@ -11,7 +11,7 @@ o
 		s %AssetType{"ProcGen Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{981310233886598055,4858695034691347977}}
-		u4 %Hash{16343654587808557785}
+		u4 %Hash{2174295800247084804}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -62,70 +62,70 @@ Objects
 o
 {
 	Uuid %id{u4{492371588104095530,231746249907055650}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{8895798926741891639,502286843582595106}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{9953861084860125787,847663724014550230}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{17933461953996852511,1095880196080254593}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{1300657948929632541,1441459004572120178}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{8466303560495301357,1694987596653693922}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{14627671749983382854,2166273716434469619}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{12074103305648719887,2327997889468989105}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{14111996544672275947,2463884661687375929}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{10907521940083392654,2539826526296706506}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -133,7 +133,7 @@ o
 {
 	Uuid %id{u4{817735689362986595,2621636094742848594}}
 	s %t{"ezProcGen_PlacementOutput"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -150,6 +150,7 @@ o
 		Vec3 %MinScale{f{0x0000803F,0x0000803F,0x0000803F}}
 		s %Name{"Trees"}
 		Vec2 %Node::Pos{f{0x0D0B0C45,0x39308844}}
+		u1 %NumAdditionalRays{4}
 		Uuid %ObjectIndex{u4{17205322854093697021,11247925661290101466}}
 		VarArray %Objects
 		{
@@ -160,6 +161,7 @@ o
 		}
 		s %PlacementMode{"ezProcPlacementMode::Raycast"}
 		s %PlacementPattern{"ezProcPlacementPattern::Natural"}
+		f %RaySpread{0x0000803F}
 		Uuid %Scale{u4{33123001161142769,11200021596351852653}}
 		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
 		Angle %YawRotationSnap{f{0}}
@@ -169,7 +171,7 @@ o
 {
 	Uuid %id{u4{452269919894580078,2845153550461940095}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		Uuid %A{u4{17287982115483427083,15267032885617820732}}
@@ -185,21 +187,21 @@ o
 o
 {
 	Uuid %id{u4{10088655096741004202,2983713797142531621}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{10146851308058342636,3034887777967704981}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{6014380337099378453,3102721885616473713}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -207,7 +209,7 @@ o
 {
 	Uuid %id{u4{4501114813013145996,3214550633566790233}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		Uuid %A{u4{13545910010730603846,6917513109302467411}}
@@ -223,70 +225,70 @@ o
 o
 {
 	Uuid %id{u4{7198840391181854490,3303915681089357328}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{14841498567658903008,3309576757843333904}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{5309002403984746715,3542473136916179022}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{5672144117076277930,3620766819148860165}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{6792101527068060831,3689099936118032011}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{10384529000048585503,3762748708981447852}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{15763598214395385548,3945880542887840090}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{6263761558413731804,3993594986063446699}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{7665462179634629236,4194839073531828489}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{2527192337467739445,4419485408748631446}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -319,14 +321,14 @@ o
 o
 {
 	Uuid %id{u4{9317006871444525255,4724992809406509670}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{8324840329989801076,4744048616050290595}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -463,7 +465,7 @@ o
 o
 {
 	Uuid %id{u4{11986041271903640945,4997985185529720892}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -523,7 +525,7 @@ o
 {
 	Uuid %id{u4{16817574684964554622,5079641246814765777}}
 	s %t{"ezProcGen_PlacementOutput"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -540,6 +542,7 @@ o
 		Vec3 %MinScale{f{0x0000803F,0x0000803F,0x0000803F}}
 		s %Name{"Grass"}
 		Vec2 %Node::Pos{f{0x351DE144,0x3BD4E943}}
+		u1 %NumAdditionalRays{4}
 		Uuid %ObjectIndex{u4{11746751176086775362,17616112730742463115}}
 		VarArray %Objects
 		{
@@ -549,6 +552,7 @@ o
 		}
 		s %PlacementMode{"ezProcPlacementMode::Raycast"}
 		s %PlacementPattern{"ezProcPlacementPattern::Natural"}
+		f %RaySpread{0x0000803F}
 		Uuid %Scale{u4{12607850159536126480,10808416320009248582}}
 		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
 		Angle %YawRotationSnap{f{0}}
@@ -597,7 +601,7 @@ o
 {
 	Uuid %id{u4{5536070860423738789,5223747584207417703}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		Uuid %A{u4{9687954752929208312,16266152763927210964}}
@@ -614,7 +618,7 @@ o
 {
 	Uuid %id{u4{3173037520450595226,5264164646148286264}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		Uuid %A{u4{11958991048038540356,14493997408711337834}}
@@ -670,14 +674,13 @@ o
 {
 	Uuid %id{u4{7705163314845634440,5430387326417427919}}
 	s %t{"ezProcGen_ApplyVolumes"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		s %ImageVolumeMode{"ezProcVolumeImageMode::ChannelR"}
 		Uuid %In{u4{13147273912716077788,15803737195913363829}}
 		VarArray %IncludeTags
 		{
-			s{"PlantGrass"}
 			s{"VegetationMask"}
 		}
 		f %InputValue{0}
@@ -690,7 +693,7 @@ o
 {
 	Uuid %id{u4{16438042823814126710,5436183973699312777}}
 	s %t{"ezProcGen_PerlinNoise"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Vec2 %Node::Pos{f{0x3BFEB644,0xDA688044}}
@@ -719,7 +722,7 @@ o
 {
 	Uuid %id{u4{14545993987884189315,5486187653222028933}}
 	s %t{"ezProcGen_Random"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Vec2 %Node::Pos{f{0x600DFE44,0x334C7D44}}
@@ -732,7 +735,7 @@ o
 o
 {
 	Uuid %id{u4{12108258171620535030,5505919292076356056}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -778,7 +781,7 @@ o
 o
 {
 	Uuid %id{u4{109079822797195324,5576931416680053742}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -786,7 +789,7 @@ o
 {
 	Uuid %id{u4{17044263134987283077,5613765737471725626}}
 	s %t{"ezProcGen_Slope"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		f %LowerFade{0}
@@ -808,6 +811,21 @@ o
 		s %SourcePin{"Value"}
 		Uuid %Target{u4{452269919894580078,2845153550461940095}}
 		s %TargetPin{"B"}
+	}
+}
+o
+{
+	Uuid %id{u4{16048998175577490353,5646465019837416877}}
+	s %t{"ezProcGenGraphAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		f %DebugAlignToNormal{0x0000803F}
+		s %DebugColorGradient{"{ 3834b7d0-5a3f-140d-31d8-3a2bf48b09bd }"}
+		f %DebugFootprint{0x0000803F}
+		s %DebugPlacementPattern{"ezProcPlacementPattern::RegularGrid"}
+		s %DebugPrefab{"{ a3ce5d3d-be5e-4bda-8820-b1ce3b3d33fd }"}
+		s %DebugSurface{""}
 	}
 }
 o
@@ -852,35 +870,35 @@ o
 o
 {
 	Uuid %id{u4{9375474601770404266,6125639768038036929}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{12676803473047846727,6344116143938384839}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{8179727875653596814,6378549197647571095}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{13546133518978003660,6380144554958689956}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{3878258049618966317,6419593839993390770}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -894,6 +912,7 @@ o
 	{
 		VarArray %Children
 		{
+			Uuid{u4{16048998175577490353,5646465019837416877}}
 			Uuid{u4{16817574684964554622,5079641246814765777}}
 			Uuid{u4{7705163314845634440,5430387326417427919}}
 			Uuid{u4{12125062461466306323,10213231834358194426}}
@@ -958,21 +977,21 @@ o
 o
 {
 	Uuid %id{u4{13545910010730603846,6917513109302467411}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{4559282803502536305,7092873597541568289}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{7963956100556782251,7219006117039321778}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -980,7 +999,7 @@ o
 {
 	Uuid %id{u4{17805406093158526212,7661521590936665945}}
 	s %t{"ezProcGen_PlacementOutput"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -997,6 +1016,7 @@ o
 		Vec3 %MinScale{f{0x0000803F,0x0000803F,0x0000803F}}
 		s %Name{"Bushes"}
 		Vec2 %Node::Pos{f{0x52D00845,0x7C7CA444}}
+		u1 %NumAdditionalRays{4}
 		Uuid %ObjectIndex{u4{9259700309424549955,12102862374230343797}}
 		VarArray %Objects
 		{
@@ -1006,6 +1026,7 @@ o
 		}
 		s %PlacementMode{"ezProcPlacementMode::Raycast"}
 		s %PlacementPattern{"ezProcPlacementPattern::Natural"}
+		f %RaySpread{0x0000803F}
 		Uuid %Scale{u4{9764830544944795344,12066804901998654980}}
 		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
 		Angle %YawRotationSnap{f{0}}
@@ -1014,28 +1035,28 @@ o
 o
 {
 	Uuid %id{u4{2632848015926812116,7663588810887449176}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{11684460619658195607,7784987761500868932}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{2816115750908068652,7793109669079916344}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{10192502921978447280,8226815035306779752}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -1043,7 +1064,7 @@ o
 {
 	Uuid %id{u4{10295991528331625205,8302537849083120047}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		Uuid %A{u4{2632848015926812116,7663588810887449176}}
@@ -1059,7 +1080,7 @@ o
 o
 {
 	Uuid %id{u4{9046339688250474046,8472463468027834431}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -1067,7 +1088,7 @@ o
 {
 	Uuid %id{u4{14962571729085409582,8551407334838214687}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		Uuid %A{u4{4973767311912024838,14805811322319698361}}
@@ -1083,14 +1104,14 @@ o
 o
 {
 	Uuid %id{u4{9963017460778484742,9544871375296475239}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{8576997145164208527,9926909343819974148}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -1098,7 +1119,7 @@ o
 {
 	Uuid %id{u4{970473617223593728,10163047290310140982}}
 	s %t{"ezProcGen_PerlinNoise"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Vec2 %Node::Pos{f{0x6001B944,0x338C0244}}
@@ -1114,7 +1135,7 @@ o
 {
 	Uuid %id{u4{2965684165538800686,10207949622785046863}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		Uuid %A{u4{1745853948418404308,10566993519185499667}}
@@ -1131,7 +1152,7 @@ o
 {
 	Uuid %id{u4{12125062461466306323,10213231834358194426}}
 	s %t{"ezProcGen_PlacementOutput"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -1148,6 +1169,7 @@ o
 		Vec3 %MinScale{f{0x0000003F,0x0000003F,0x0000003F}}
 		s %Name{"Big Rocks"}
 		Vec2 %Node::Pos{f{0x8E72D844,0x1D342244}}
+		u1 %NumAdditionalRays{4}
 		Uuid %ObjectIndex{u4{3878258049618966317,6419593839993390770}}
 		VarArray %Objects
 		{
@@ -1157,6 +1179,7 @@ o
 		}
 		s %PlacementMode{"ezProcPlacementMode::Raycast"}
 		s %PlacementPattern{"ezProcPlacementPattern::Natural"}
+		f %RaySpread{0x0000803F}
 		Uuid %Scale{u4{9953861084860125787,847663724014550230}}
 		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
 		Angle %YawRotationSnap{f{0}}
@@ -1165,7 +1188,7 @@ o
 o
 {
 	Uuid %id{u4{18077229354249741544,10394451289113165735}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -1173,7 +1196,7 @@ o
 {
 	Uuid %id{u4{10346977150845715259,10407434129926999801}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		Uuid %A{u4{10384529000048585503,3762748708981447852}}
@@ -1189,7 +1212,7 @@ o
 o
 {
 	Uuid %id{u4{7644193294526897973,10527982571333337618}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -1197,14 +1220,13 @@ o
 {
 	Uuid %id{u4{8699259740960916786,10555173133151154876}}
 	s %t{"ezProcGen_ApplyVolumes"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		s %ImageVolumeMode{"ezProcVolumeImageMode::ChannelB"}
 		Uuid %In{u4{3264582831478279235,17982295004608264540}}
 		VarArray %IncludeTags
 		{
-			s{"PlantGrass"}
 			s{"VegetationMask"}
 		}
 		f %InputValue{0}
@@ -1216,7 +1238,7 @@ o
 o
 {
 	Uuid %id{u4{1745853948418404308,10566993519185499667}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -1224,7 +1246,7 @@ o
 {
 	Uuid %id{u4{5613910586070690097,10651211241666674809}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		Uuid %A{u4{6263761558413731804,3993594986063446699}}
@@ -1240,7 +1262,7 @@ o
 o
 {
 	Uuid %id{u4{12607850159536126480,10808416320009248582}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -1248,7 +1270,7 @@ o
 {
 	Uuid %id{u4{11186448227761529398,10818643119809085308}}
 	s %t{"ezProcGen_Slope"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		f %LowerFade{0}
@@ -1263,7 +1285,7 @@ o
 {
 	Uuid %id{u4{11341042917679482921,10836990527524556884}}
 	s %t{"ezProcGen_Slope"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		f %LowerFade{0}
@@ -1277,91 +1299,91 @@ o
 o
 {
 	Uuid %id{u4{33123001161142769,11200021596351852653}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{17205322854093697021,11247925661290101466}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{11439546015821650046,11920582100511938366}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{9878367685421750159,11975656621691432573}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{9764830544944795344,12066804901998654980}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{9259700309424549955,12102862374230343797}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{16024390908371239510,12203166575620651801}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{8109280200964657936,12443628810105299060}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{4257075060453423134,12486151012617330313}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{10178556391291673308,13667268389556257835}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{624282967039972987,14469985292440978469}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{11958991048038540356,14493997408711337834}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{4973767311912024838,14805811322319698361}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -1369,7 +1391,7 @@ o
 {
 	Uuid %id{u4{1575579462225757627,15239916183038978696}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		Uuid %A{u4{11218266840259340361,15979677105020525076}}
@@ -1385,14 +1407,14 @@ o
 o
 {
 	Uuid %id{u4{17287982115483427083,15267032885617820732}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{12444793286172776636,15543457043142328544}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -1400,7 +1422,7 @@ o
 {
 	Uuid %id{u4{11497315071994065360,15763339560521988950}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		Uuid %A{u4{12676803473047846727,6344116143938384839}}
@@ -1416,7 +1438,7 @@ o
 o
 {
 	Uuid %id{u4{13147273912716077788,15803737195913363829}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -1424,7 +1446,7 @@ o
 {
 	Uuid %id{u4{14642594709839739053,15898660726092735470}}
 	s %t{"ezProcGen_PlacementOutput"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -1441,6 +1463,7 @@ o
 		Vec3 %MinScale{f{0xCDCCCC3D,0xCDCCCC3D,0xCDCCCC3D}}
 		s %Name{"Small Rocks"}
 		Vec2 %Node::Pos{f{0x92D5EE44,0x1F3C5044}}
+		u1 %NumAdditionalRays{4}
 		Uuid %ObjectIndex{u4{7198840391181854490,3303915681089357328}}
 		VarArray %Objects
 		{
@@ -1450,6 +1473,7 @@ o
 		}
 		s %PlacementMode{"ezProcPlacementMode::Raycast"}
 		s %PlacementPattern{"ezProcPlacementPattern::Natural"}
+		f %RaySpread{0x0000803F}
 		Uuid %Scale{u4{8466303560495301357,1694987596653693922}}
 		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
 		Angle %YawRotationSnap{f{0}}
@@ -1458,7 +1482,7 @@ o
 o
 {
 	Uuid %id{u4{11218266840259340361,15979677105020525076}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -1466,14 +1490,13 @@ o
 {
 	Uuid %id{u4{13018213705260943796,15994959354025493904}}
 	s %t{"ezProcGen_ApplyVolumes"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		s %ImageVolumeMode{"ezProcVolumeImageMode::ChannelB"}
 		Uuid %In{u4{10907521940083392654,2539826526296706506}}
 		VarArray %IncludeTags
 		{
-			s{"PlantGrass"}
 			s{"VegetationMask"}
 		}
 		f %InputValue{0}
@@ -1486,7 +1509,7 @@ o
 {
 	Uuid %id{u4{11458137829923355876,16081247725132415172}}
 	s %t{"ezProcGen_Blend"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		Uuid %A{u4{10178556391291673308,13667268389556257835}}
@@ -1503,7 +1526,7 @@ o
 {
 	Uuid %id{u4{17469650440073560770,16124932377051580833}}
 	s %t{"ezProcGen_Slope"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		f %LowerFade{0}
@@ -1518,14 +1541,13 @@ o
 {
 	Uuid %id{u4{10357301251526831829,16257400906854292702}}
 	s %t{"ezProcGen_ApplyVolumes"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		s %ImageVolumeMode{"ezProcVolumeImageMode::ChannelR"}
 		Uuid %In{u4{8324840329989801076,4744048616050290595}}
 		VarArray %IncludeTags
 		{
-			s{"PlantGrass"}
 			s{"VegetationMask"}
 		}
 		f %InputValue{0}
@@ -1537,49 +1559,49 @@ o
 o
 {
 	Uuid %id{u4{9687954752929208312,16266152763927210964}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{7844253701151040589,16468261802632790180}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{3934073857145194219,16520178549477846733}}
-	s %t{"ezRenderPipelineNodeOutputPin"}
+	s %t{"ezProcGenNodeOutputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{5336263722557649545,17305523306156976621}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{11746751176086775362,17616112730742463115}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{3264582831478279235,17982295004608264540}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{16620350516197852397,18282665648652931980}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezProcGenNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -1600,7 +1622,7 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_PerlinNoise"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -1617,7 +1639,7 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_Random"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -1673,7 +1695,7 @@ o
 }
 o
 {
-	Uuid %id{u4{877898746071678167,5219608750413080699}}
+	Uuid %id{u4{17583845451521862270,4970174047781500938}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -1681,10 +1703,10 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderPipelineNodePin"}
-		s %PluginName{"Static"}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
-		s %TypeName{"ezRenderPipelineNodeInputPin"}
+		s %TypeName{"ezProcGenGraphAssetProperties"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1753,24 +1775,7 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_Blend"}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{8636592190291312350,8842102502527186654}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezPropertyAttribute"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezHiddenAttribute"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -1787,6 +1792,40 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_Slope"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{3465131713388210816,9157984022485066445}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezProcGenNodePin"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGenNodeOutputPin"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13930015959207738258,9230131473859383370}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezProcGenNodePin"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGenNodeInputPin"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1821,7 +1860,7 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_ApplyVolumes"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -1860,6 +1899,23 @@ o
 }
 o
 {
+	Uuid %id{u4{5883366426830762526,11312905709444159892}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGenNodePin"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{9604010176759229512,12868035041842190965}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1889,7 +1945,7 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_PlacementOutput"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -1928,23 +1984,6 @@ o
 }
 o
 {
-	Uuid %id{u4{5542183663418081810,15339814270034028823}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderPipelineNodePin"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezRenderPipelineNodeOutputPin"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{13983305718315019434,17572363554072221229}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1974,23 +2013,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{4715616898552901881,17964090804382331328}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{""}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezRenderPipelineNodePin"}
 		u3 %TypeVersion{1}
 	}
 }

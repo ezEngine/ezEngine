@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3421619666798658962,5440524630353719653}}
-		u4 %Hash{16946169244071488171}
+		u4 %Hash{18177061601485796273}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{16401473598051780497,10489396510517213864}}
@@ -42,10 +42,11 @@ o
 {
 	Uuid %id{u4{17235667589145516774,15558572846373414828}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		Color %DefaultValue{f{0x8D30843E,0xB7C76D3E,0xC024AE3D,0x0000803F}}
 		s %Name{"TintColor"}
 		s %Type{""}
@@ -125,7 +126,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }

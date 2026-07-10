@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1770717116474788750,5200003004667475101}}
-		u4 %Hash{1258333348075047852}
+		u4 %Hash{950744121810502878}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{916600690709626963,2163470213800314226}}
@@ -63,7 +63,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -75,6 +74,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %NoGlobalPitch{0}
 		u1 %OcclusionCollisionLayer{0}
 		f %OcclusionThreshold{0x0000003F}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}

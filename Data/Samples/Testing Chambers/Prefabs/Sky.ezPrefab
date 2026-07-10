@@ -89,7 +89,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13699384296078697487,10650164635913670525}}
-		u4 %Hash{16551597272137829565}
+		u4 %Hash{8134015292285717186}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13850971636205318926,9059842567955752105}}
@@ -254,10 +254,7 @@ o
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Sun"}
-		VarArray %Tags
-		{
-			s{"AutoColMesh"}
-		}
+		VarArray %Tags{}
 	}
 }
 o
@@ -379,7 +376,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 			s{"SkyLight"}
 		}
 	}
@@ -388,7 +384,7 @@ o
 {
 	Uuid %id{u4{636291222374689851,10962956743524253609}}
 	s %t{"ezDirectionalLightComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -404,6 +400,7 @@ o
 		f %PenumbraSize{0xCDCC4C3D}
 		b %ScreenSpaceShadows{1}
 		f %SlopeBias{0x0000803E}
+		Angle %SourceAngle{f{0}}
 		f %SpecularMultiplier{0x0000803F}
 		f %SplitModeWeight{0x3333333F}
 		u3 %Temperature{6550}
@@ -605,6 +602,23 @@ o
 }
 o
 {
+	Uuid %id{u4{14561188410025902030,6776644216668443091}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDirectionalLightVisualizerAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13649880205026559927,7297274558339895637}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -736,7 +750,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDirectionalLightComponent"}
-		u3 %TypeVersion{4}
+		u3 %TypeVersion{5}
 	}
 }
 o

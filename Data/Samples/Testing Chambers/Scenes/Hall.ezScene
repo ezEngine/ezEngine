@@ -15,7 +15,7 @@ o
 			s{"{ 62d40fa4-f74f-462b-a5de-84941069cdd2 }"}
 		}
 		Uuid %DocumentID{u4{486148939000192446,5710267355810385475}}
-		u4 %Hash{6881638326235985679}
+		u4 %Hash{2148092956460443726}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -910,7 +910,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -994,7 +993,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -1034,7 +1032,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -1079,7 +1076,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -2175,6 +2171,13 @@ o
 }
 o
 {
+	Uuid %id{u4{11523411406702872274,8576130243053308536}}
+	s %t{"ezRequiredAttribute"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -2334,6 +2337,7 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{5449530764545251402,10313447163609080742}}
+			Uuid{u4{11523411406702872274,8576130243053308536}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}

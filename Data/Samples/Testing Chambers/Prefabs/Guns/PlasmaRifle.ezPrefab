@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7324531010891562938,4867376662453078402}}
-		u4 %Hash{4078982907939307232}
+		u4 %Hash{3014688883303790428}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{16304204798312990039,657795623948011512}}
@@ -90,7 +90,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -145,10 +144,7 @@ o
 		f %LocalUniformScaling{0xCDCCCC3D}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Graphics"}
-		VarArray %Tags
-		{
-			s{"AutoColMesh"}
-		}
+		VarArray %Tags{}
 	}
 }
 o
@@ -205,7 +201,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -255,7 +250,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -282,7 +276,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
