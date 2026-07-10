@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12907113733222061238,5577365460626278697}}
-		u4 %Hash{7659566224986371423}
+		u4 %Hash{2380311775160908135}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{6765826213476026374,12337321247186771883}}
@@ -43,12 +43,23 @@ o
 }
 o
 {
+	Uuid %id{u4{16765143467767140008,14171262512691146390}}
+	s %t{"ezExposeColorAlphaAttribute"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{18184649823918133605,15991694410865606567}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{16765143467767140008,14171262512691146390}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
 		Color %DefaultValue{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		s %Name{"Color"}
 		s %Type{""}
@@ -68,6 +79,8 @@ o
 		u1 %CollisionLayer{0}
 		s %OnCollideEvent{""}
 		s %Reaction{"ezParticleRaycastHitReaction::Bounce"}
+		f %SizeFactor{0xCDCCCC3D}
+		f %SlideFactor{0x0000003F}
 	}
 }
 o
@@ -130,6 +143,7 @@ o
 	{
 		s %Material{""}
 		s %Mesh{"{ 356ae27b-729d-48e7-9bf3-3aaefa239628 }"}
+		f %Scale{0x0000803F}
 		s %TintColorParam{"Color"}
 	}
 }
@@ -148,6 +162,7 @@ o
 		}
 		VarArray %EventReactions{}
 		VarDict %FloatParameters{}
+		Vec3u %NumWindSamples{u3{1,1,1}}
 		VarArray %ParticleSystems
 		{
 			Uuid{u4{13943468011956230331,4773669181983843787}}
@@ -195,13 +210,14 @@ o
 			f %Variance{0xAE47613E}
 			f %Value{0x00000040}
 		}
+		s %SpeedScaleParam{""}
 	}
 }
 o
 {
 	Uuid %id{u4{10192201461062335874,5547236477099215653}}
 	s %t{"ezParticleInitializerFactory_RandomSize"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		ezVarianceTypeFloat %Size
@@ -210,6 +226,7 @@ o
 			f %Value{0xCDCC4C3D}
 		}
 		s %SizeCurve{""}
+		HashedString %SizeScaleParameter{s{""}}
 	}
 }
 o
@@ -447,7 +464,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomSize"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

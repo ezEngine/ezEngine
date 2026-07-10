@@ -14,13 +14,14 @@ o
 			s{"Animations/Pete/Pete.glb"}
 		}
 		Uuid %DocumentID{u4{18148280973963892381,5298573739848084967}}
-		u4 %Hash{15056494338393006379}
+		u4 %Hash{10145205193776441659}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
 		VarArray %References
 		{
 			s{"Animations/Pete/Pete.glb"}
+			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 		}
 		s %Tags{""}
 	}
@@ -32,33 +33,22 @@ o
 {
 	Uuid %id{u4{7958024423686327205,5822849212657401574}}
 	s %t{"ezAnimationClipAssetProperties"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Additive{0}
-		VarArray %AvailableClips
-		{
-			s{"Gun Hold Pose"}
-			s{"Gun Point Pose"}
-			s{"Gun Shoot"}
-			s{"Idle Breath"}
-			s{"Idle_Pose"}
-			s{"Jump"}
-			s{"Rest Pose"}
-			s{"Run"}
-			s{"Step Backwards"}
-			s{"Step Left"}
-			s{"Step Right"}
-			s{"Walk"}
-			s{"Wave"}
-		}
+		s %AdditiveReference{"ezAdditiveAnimationReference::FirstKeyFrame"}
+		f %AdjustScale{0x0000803F}
+		s %BasePreviewAnim{""}
 		Vec3 %ConstantRootMotion{f{0,0,0}}
+		VarArray %Curves{}
 		Uuid %EventTrack{u4{15828578154470655372,14457530333006650821}}
 		s %File{"Animations/Pete/Pete.glb"}
 		u3 %FirstFrame{0}
 		u3 %NumFrames{0}
 		s %PreviewMesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 		s %RootMotion{"ezRootMotionSource::None"}
+		f %RootMotionDistance{0}
 		s %UseAnimationClip{"Idle_Pose"}
 	}
 }
@@ -89,6 +79,91 @@ o
 }
 Types
 {
+o
+{
+	Uuid %id{u4{14722461902623688675,2098269905474166124}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSingleCurveData"}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{6978840138548522775,2217290670471061858}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezAnimationClipCurveData"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4976983466369834828,2223514201630482789}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCurveControlPointData"}
+		u3 %TypeVersion{5}
+	}
+}
+o
+{
+	Uuid %id{u4{3552612722790702332,2420538729568060994}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezAdditiveAnimationReference"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13216943865831982294,3766144591255929939}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCurveTangentMode"}
+		u3 %TypeVersion{1}
+	}
+}
 o
 {
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
@@ -188,7 +263,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimationClipAssetProperties"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8652896357578632380,5599060834268014650}}
-		u4 %Hash{1706030277985888200}
+		u4 %Hash{5603675600057187259}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{8885226172160777186,5126833314392564869}}
@@ -46,6 +46,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %NoGlobalPitch{0}
 		u1 %OcclusionCollisionLayer{0}
 		f %OcclusionThreshold{0x0000003F}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10095897394996261,10807132643521334864}}
-		u4 %Hash{16238908030423963905}
+		u4 %Hash{2259442514294107675}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -459,7 +459,7 @@ o
 {
 	Uuid %id{u4{630702243771808919,5458188388287656580}}
 	s %t{"ezVolumeSamplerComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -2011,7 +2011,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezVolumeSamplerComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

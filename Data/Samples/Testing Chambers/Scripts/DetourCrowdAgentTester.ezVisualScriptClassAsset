@@ -11,7 +11,7 @@ o
 		s %AssetType{"VisualScriptClass"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11735855455484624013,5300559636529469061}}
-		u4 %Hash{12201346764918521039}
+		u4 %Hash{8092439638604443662}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{10002818640258148504,5810489925284682606}}
@@ -421,7 +421,7 @@ o
 		s %PluginName{"ezEditorPluginVisualScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptVariable"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

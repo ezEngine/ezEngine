@@ -14,7 +14,7 @@ o
 			s{"Shaders/Decals/SimpleCopyDecal.ezShader"}
 		}
 		Uuid %DocumentID{u4{17372758667113576343,5452746600906667002}}
-		u4 %Hash{2285429555720536857}
+		u4 %Hash{10309187012033477963}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps

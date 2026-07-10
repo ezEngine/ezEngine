@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12727109183318336433,5544407383420753517}}
-		u4 %Hash{4121917188425250053}
+		u4 %Hash{14667477062678719893}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{11757098738642944256,14943731475290958307}}
@@ -61,7 +61,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -83,6 +82,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %NoGlobalPitch{0}
 		u1 %OcclusionCollisionLayer{0}
 		f %OcclusionThreshold{0x0000003F}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteGameObject"}

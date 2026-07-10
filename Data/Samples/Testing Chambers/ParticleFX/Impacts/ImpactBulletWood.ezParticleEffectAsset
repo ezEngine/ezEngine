@@ -11,20 +11,14 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16172054985231832202,5382839285714293133}}
-		u4 %Hash{7231356281903221629}
+		u4 %Hash{3100713444066837316}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3972749031450700410,15086216924884544056}}
 		}
 		VarArray %Outputs{}
-		VarArray %PackageDeps
-		{
-			s{"{ 65ea6692-5e91-4991-a047-d181b0587a5c }"}
-		}
-		VarArray %References
-		{
-			s{"{ 65ea6692-5e91-4991-a047-d181b0587a5c }"}
-		}
+		VarArray %PackageDeps{}
+		VarArray %References{}
 		s %Tags{""}
 	}
 }
@@ -54,6 +48,7 @@ o
 			f %Variance{0xD7A3F03E}
 			f %Value{0x00000040}
 		}
+		s %SpeedScaleParam{""}
 	}
 }
 o
@@ -63,9 +58,10 @@ o
 	u3 %v{2}
 	p
 	{
+		f %CameraProximityFadeOut{0x0000003F}
+		HashedString %CustomMaterial{s{""}}
 		Angle %Deviation{f{0}}
-		f %DistortionStrength{0x0000C842}
-		s %DistortionTexture{""}
+		f %GeometryProximityFadeOut{0xCDCCCC3D}
 		f %LightDirectionality{0x0000003F}
 		s %LightingMode{"ezParticleLightingMode::VertexLit"}
 		f %NormalCurvature{0x0000003F}
@@ -74,9 +70,10 @@ o
 		s %Orientation{"ezQuadParticleOrientation::Rotating_OrthoEmitterDir"}
 		f %ParticleStretch{0x0000803F}
 		s %RenderMode{"ezParticleTypeRenderMode::Opaque"}
-		s %Texture{"{ 65ea6692-5e91-4991-a047-d181b0587a5c }"}
+		HashedString %Texture{s{"{ 65ea6692-5e91-4991-a047-d181b0587a5c }"}}
 		s %TextureAtlas{"ezParticleTextureAtlasType::RandomVariations"}
-		s %TintColorParam{""}
+		HashedString %TintColorParam{s{""}}
+		b %UseCustomMaterial{0}
 	}
 }
 o
@@ -180,7 +177,7 @@ o
 {
 	Uuid %id{u4{12664101762930783369,5754322621706562002}}
 	s %t{"ezParticleInitializerFactory_RandomSize"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		ezVarianceTypeFloat %Size
@@ -189,6 +186,7 @@ o
 			f %Value{0x8FC2753D}
 		}
 		s %SizeCurve{""}
+		HashedString %SizeScaleParameter{s{""}}
 	}
 }
 o
@@ -477,7 +475,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomSize"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

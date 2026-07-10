@@ -11,7 +11,7 @@ o
 		s %AssetType{"Render Target"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12010511938558044046,5627087558692952901}}
-		u4 %Hash{10602112574057311891}
+		u4 %Hash{18350592308971292447}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -33,6 +33,7 @@ o
 		s %AddressModeV{"ezImageAddressMode::ClampBorder"}
 		s %AddressModeW{"ezImageAddressMode::Repeat"}
 		f %AlphaThreshold{0x0000003F}
+		VarArray %ArraySlices{}
 		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		s %CompressionMode{"ezTexConvCompressionMode::None"}
@@ -44,6 +45,7 @@ o
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
+		b %IsArrayTexture{0}
 		b %IsRenderTarget{1}
 		s %MipmapMode{"ezTexConvMipmapMode::None"}
 		b %PremultipliedAlpha{0}

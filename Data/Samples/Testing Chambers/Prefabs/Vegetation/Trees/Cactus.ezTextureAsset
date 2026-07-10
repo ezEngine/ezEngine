@@ -14,7 +14,7 @@ o
 			s{"Prefabs/Vegetation/Trees/Cactus.tga"}
 		}
 		Uuid %DocumentID{u4{1686163430445077654,5708059803044036642}}
-		u4 %Hash{14469216059778200299}
+		u4 %Hash{3030568015742933778}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -42,6 +42,7 @@ o
 		s %AddressModeV{"ezImageAddressMode::Repeat"}
 		s %AddressModeW{"ezImageAddressMode::Repeat"}
 		f %AlphaThreshold{0x0000003F}
+		VarArray %ArraySlices{}
 		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		s %CompressionMode{"ezTexConvCompressionMode::Medium"}
@@ -53,6 +54,7 @@ o
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
+		b %IsArrayTexture{0}
 		b %IsRenderTarget{0}
 		s %MipmapMode{"ezTexConvMipmapMode::Kaiser"}
 		b %PremultipliedAlpha{0}

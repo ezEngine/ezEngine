@@ -11,7 +11,7 @@ o
 		s %AssetType{"Kraut Tree"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14104302783405023669,5644165233381600114}}
-		u4 %Hash{14040163528311382403}
+		u4 %Hash{6206020808787232687}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -423,7 +423,7 @@ o
 		i1 %FrondDetailReduction{1}
 		u3 %LodDistance{50}
 		i1 %MaxFrondDetail{6}
-		s %Mode{"ezKrautLodMode::Billboard"}
+		s %Mode{"ezKrautLodMode::Full"}
 		f %ThicknessThreshold{0xCDCCCC3D}
 		f %TipDetail{0xCDCCCC3D}
 		f %VertexRingDetail{0xCDCCCC3E}

@@ -14,7 +14,7 @@ o
 			s{"Shaders/Materials/IrradianceProbeVisualization.ezShader"}
 		}
 		Uuid %DocumentID{u4{10735177727750644884,4887717215577949974}}
-		u4 %Hash{13467246162118106948}
+		u4 %Hash{17456181342726093677}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}

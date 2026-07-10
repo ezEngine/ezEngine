@@ -11,7 +11,7 @@ o
 		s %AssetType{"Animation Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18403867198336733375,5427508012436602719}}
-		u4 %Hash{11708020773239460090}
+		u4 %Hash{7793354603459628494}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps

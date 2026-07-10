@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11785284047795560881,5069679960437056094}}
-		u4 %Hash{4209614607287764131}
+		u4 %Hash{10341614861273725588}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{10802459141449347342,6765385443964035779}}
@@ -26,7 +26,6 @@ o
 		}
 		VarArray %References
 		{
-			s{"{ 019bcfdb-17ea-4b11-887b-e001d31243bb }"}
 			s{"{ 71066033-431e-4b15-a69e-cff98c98a62b }"}
 			s{"{ ca4d2ed3-16e9-4b45-ba91-38fe8b8cc049 }"}
 		}
@@ -50,11 +49,12 @@ o
 {
 	Uuid %id{u4{6383442826818026030,143160345554914054}}
 	s %t{"ezAiNavigationComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		f %Acceleration{0x00004040}
 		b %Active{1}
+		b %ApplySteering{1}
 		u3 %CollisionLayer{0}
 		s %DebugFlags{"ezAiNavigationDebugFlags::PrintState|ezAiNavigationDebugFlags::VisPathCorridor|ezAiNavigationDebugFlags::VisPathLine|ezAiNavigationDebugFlags::VisTarget"}
 		f %Deceleration{0x00000041}
@@ -88,7 +88,7 @@ o
 {
 	Uuid %id{u4{16614209636668090696,388122237021577971}}
 	s %t{"ezScriptComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -97,6 +97,7 @@ o
 		b %PassThroughUnhandledEvents{0}
 		s %ScriptClass{"{ 019bcfdb-17ea-4b11-887b-e001d31243bb }"}
 		Time %UpdateInterval{d{0x9A9999999999B93F}}
+		b %UpdateOnlyWhenSimulating{1}
 	}
 }
 o
@@ -142,7 +143,6 @@ o
 		{
 			Uuid{u4{6383442826818026030,143160345554914054}}
 			Uuid{u4{16614209636668090696,388122237021577971}}
-			Uuid{u4{613418828998073779,4913478176346079188}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -154,24 +154,7 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{613418828998073779,4913478176346079188}}
-	s %t{"ezSimpleAnimationComponent"}
-	u3 %v{3}
-	p
-	{
-		b %Active{0}
-		s %AnimationClip{""}
-		s %AnimationMode{"ezPropertyAnimMode::Loop"}
-		b %EnableIK{0}
-		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::Max5FPS"}
-		s %RootMotionMode{"ezRootMotionMode::Ignore"}
-		f %Speed{0x0000803F}
 	}
 }
 o
@@ -230,14 +213,16 @@ o
 {
 	Uuid %id{u4{6131152242285971162,5747275415069110273}}
 	s %t{"ezTwoBoneIKComponent"}
-	u3 %v{1}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		f %DebugVisScale{0}
 		HashedString %JointEnd{s{"Foot.Front.L"}}
 		HashedString %JointMiddle{s{"LowerLeg.Front.L"}}
 		HashedString %JointStart{s{"UpperLeg.Front.L"}}
 		s %MidAxis{"ezBasisAxis::PositiveX"}
+		u2 %Order{0}
 		s %PoleVector{""}
 		f %Weight{0x0000803F}
 	}
@@ -408,14 +393,16 @@ o
 {
 	Uuid %id{u4{6764198858442794625,10969776822005670554}}
 	s %t{"ezTwoBoneIKComponent"}
-	u3 %v{1}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		f %DebugVisScale{0}
 		HashedString %JointEnd{s{"Foot.Back.L"}}
 		HashedString %JointMiddle{s{"LowerLeg.Back.L"}}
 		HashedString %JointStart{s{"UpperLeg.Back.L"}}
 		s %MidAxis{"ezBasisAxis::PositiveX"}
+		u2 %Order{0}
 		s %PoleVector{""}
 		f %Weight{0x0000803F}
 	}
@@ -424,14 +411,16 @@ o
 {
 	Uuid %id{u4{13444410197093801319,10976417585153632107}}
 	s %t{"ezTwoBoneIKComponent"}
-	u3 %v{1}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		f %DebugVisScale{0}
 		HashedString %JointEnd{s{"Foot.Front.R"}}
 		HashedString %JointMiddle{s{"LowerLeg.Front.R"}}
 		HashedString %JointStart{s{"UpperLeg.Front.R"}}
 		s %MidAxis{"ezBasisAxis::PositiveX"}
+		u2 %Order{0}
 		s %PoleVector{""}
 		f %Weight{0x0000803F}
 	}
@@ -478,6 +467,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 71066033-431e-4b15-a69e-cff98c98a62b }"}
 	}
@@ -512,14 +502,16 @@ o
 {
 	Uuid %id{u4{14077456813250624782,16198918992090192388}}
 	s %t{"ezTwoBoneIKComponent"}
-	u3 %v{1}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		f %DebugVisScale{0}
 		HashedString %JointEnd{s{"Foot.Back.R"}}
 		HashedString %JointMiddle{s{"LowerLeg.Back.R"}}
 		HashedString %JointStart{s{"UpperLeg.Back.R"}}
 		s %MidAxis{"ezBasisAxis::PositiveX"}
+		u2 %Order{0}
 		s %PoleVector{""}
 		f %Weight{0x0000803F}
 	}
@@ -702,7 +694,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezScriptComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -886,7 +878,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -1166,7 +1158,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTwoBoneIKComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -1338,7 +1330,7 @@ o
 		s %PluginName{"ezEditorPluginAi"}
 		VarArray %Properties{}
 		s %TypeName{"ezAiNavigationComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 }

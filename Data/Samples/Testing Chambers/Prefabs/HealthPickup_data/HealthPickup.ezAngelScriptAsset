@@ -44,6 +44,7 @@ o
 	{
 		s %ClassName{"HealthPickup"}
 		s %Code{"class HealthPickup :  ezAngelScriptClass\n{\n    void OnMsgGenericEvent(ezMsgGenericEvent@ msg)\n    {\n        if (msg.Message != \"Animation Cue 1\")\n           return;\n\n        ezGameObject@ pfxObj = GetOwner().FindChildByName(\"Particle\", true);\n\n        if (@pfxObj !is null)\n        {\n            ezParticleComponent@ pfxComp;\n            if (pfxObj.TryGetComponentOfBaseType(@pfxComp))\n            {\n                pfxComp.StartEffect();\n            }\n        }\n    }\n\n    void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg)\n    {\n        if (msg.TriggerState == ezTriggerState::Activated && msg.Message == \"Pickup\")\n        {\n            ezGameObject@ owner = GetOwner();\n\n            ezParticleComponent@ pfxComp;\n            if (owner.TryGetComponentOfBaseType(@pfxComp))\n            {\n                pfxComp.StartEffect();\n            }\n\n            ezMsgDeleteGameObject msgDel;\n            owner.PostMessage(msgDel, ezTime::MakeFromSeconds(0.1));\n        }\n    }\n} "}
+		VarArray %Dependencies{}
 		VarArray %Parameters{}
 		s %Source{"ezAngelScriptCodeMode::Inline"}
 		s %SourceFile{""}

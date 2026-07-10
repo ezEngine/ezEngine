@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5610093527764820148,5219027326469845793}}
-		u4 %Hash{13113950543545671831}
+		u4 %Hash{11037182972112869375}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -73,7 +73,7 @@ o
 {
 	Uuid %id{u4{7700804308116829100,2601260444340485067}}
 	s %t{"ezTerrainPatchComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -81,8 +81,9 @@ o
 		s %Collider{"ezTerrainPatchColliderMode::QuarterResolution"}
 		s %HeightImage{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
 		Vec2 %HeightImageOffset{f{0,0x0000003F}}
+		f %HeightImageScale{0x00000042}
 		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
-		f %HeightScale{0x00004842}
+		f %LodDistanceScale{0x0000803F}
 		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
 		s %Resolution{"ezTerrainResolution::Res256"}
 		f %Size{0x00004843}
@@ -102,11 +103,12 @@ o
 {
 	Uuid %id{u4{3739301098285028032,4732982985170039779}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{1}
@@ -149,7 +151,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -190,7 +191,6 @@ o
 		s %Name{""}
 		VarArray %Tags
 		{
-			s{"PlantGrass"}
 			s{"VegetationMask"}
 		}
 	}
@@ -231,7 +231,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -258,7 +257,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -290,7 +288,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -388,7 +385,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -426,7 +422,7 @@ o
 {
 	Uuid %id{u4{11541954861188027540,5615350731574297343}}
 	s %t{"ezTerrainPatchComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -434,8 +430,9 @@ o
 		s %Collider{"ezTerrainPatchColliderMode::QuarterResolution"}
 		s %HeightImage{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
 		Vec2 %HeightImageOffset{f{0,0}}
+		f %HeightImageScale{0x00000042}
 		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
-		f %HeightScale{0x00004842}
+		f %LodDistanceScale{0x0000803F}
 		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
 		s %Resolution{"ezTerrainResolution::Res256"}
 		f %Size{0x00004843}
@@ -474,7 +471,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -570,7 +566,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -578,7 +573,7 @@ o
 {
 	Uuid %id{u4{13599989202278948688,10604270275996112374}}
 	s %t{"ezTerrainPatchComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -586,8 +581,9 @@ o
 		s %Collider{"ezTerrainPatchColliderMode::QuarterResolution"}
 		s %HeightImage{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
 		Vec2 %HeightImageOffset{f{0x0000003F,0}}
+		f %HeightImageScale{0x00000042}
 		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
-		f %HeightScale{0x00004842}
+		f %LodDistanceScale{0x0000803F}
 		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
 		s %Resolution{"ezTerrainResolution::Res256"}
 		f %Size{0x00004843}
@@ -658,7 +654,7 @@ o
 {
 	Uuid %id{u4{6527565531093704200,15528429879928004522}}
 	s %t{"ezTerrainPatchComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -666,8 +662,9 @@ o
 		s %Collider{"ezTerrainPatchColliderMode::QuarterResolution"}
 		s %HeightImage{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
 		Vec2 %HeightImageOffset{f{0x0000003F,0x0000003F}}
+		f %HeightImageScale{0x00000042}
 		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
-		f %HeightScale{0x00004842}
+		f %LodDistanceScale{0x0000803F}
 		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
 		s %Resolution{"ezTerrainResolution::Res256"}
 		f %Size{0x00004843}
@@ -1182,7 +1179,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeVersion{10}
+		u3 %TypeVersion{11}
 	}
 }
 o
@@ -1267,7 +1264,7 @@ o
 		s %PluginName{"ezEditorPluginTerrain"}
 		VarArray %Properties{}
 		s %TypeName{"ezTerrainPatchComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

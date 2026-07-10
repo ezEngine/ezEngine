@@ -11,7 +11,7 @@ o
 		s %AssetType{"Mesh"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{213188251966388406,5362472639878592910}}
-		u4 %Hash{1255486085893106294}
+		u4 %Hash{8565894551940511980}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -32,7 +32,7 @@ o
 {
 	Uuid %id{u4{14085665238340200101,5267508282247266226}}
 	s %t{"ezMeshAssetProperties"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %AggressiveSimplification{0}
@@ -55,6 +55,7 @@ o
 		s %MeshFile{""}
 		s %MeshIncludeTags{""}
 		u1 %MeshSimplification{50}
+		f %NormalWeight{0x0000003F}
 		s %PrimitiveType{"ezMeshPrimitive::Rect"}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
@@ -126,7 +127,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshAssetProperties"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o

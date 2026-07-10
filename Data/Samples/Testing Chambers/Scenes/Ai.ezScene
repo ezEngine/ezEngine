@@ -14,7 +14,7 @@ o
 			s{"{ 93c2e641-1f6a-43c8-bad0-7b7e9762daae }"}
 		}
 		Uuid %DocumentID{u4{14156501856797205539,10398819186738443508}}
-		u4 %Hash{8616932576313825123}
+		u4 %Hash{12286216403703173723}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -398,7 +398,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -649,7 +648,7 @@ o
 {
 	Uuid %id{u4{1854644117689914536,5716389269860087803}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -657,8 +656,10 @@ o
 		f %ConstantBias{0xCDCCCC3D}
 		ColorGamma %EffectiveColor{u1{255,255,255,255}}
 		f %Intensity{0x00007A44}
+		f %Length{0}
 		ColorGamma %LightColor{u1{88,199,255,255}}
 		f %PenumbraSize{0xCDCCCC3D}
+		f %Radius{0}
 		f %Range{0x00002041}
 		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
@@ -1107,11 +1108,12 @@ o
 {
 	Uuid %id{u4{12204109024956009006,10112741312631492669}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{1}
@@ -2546,7 +2548,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeVersion{10}
+		u3 %TypeVersion{11}
 	}
 }
 o
@@ -2631,7 +2633,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPointLightComponent"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

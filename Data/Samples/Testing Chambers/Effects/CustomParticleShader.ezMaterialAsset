@@ -20,7 +20,7 @@ o
 			s{":app/VisualShader/Textures.ddl"}
 		}
 		Uuid %DocumentID{u4{14076228792859157427,5732885960892469629}}
-		u4 %Hash{17614664837984927426}
+		u4 %Hash{13851272944891704609}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -34,6 +34,13 @@ o
 		}
 		VarArray %References
 		{
+			s{":app/VisualShader/Constants.ddl"}
+			s{":app/VisualShader/Conversions.ddl"}
+			s{":app/VisualShader/Inputs.ddl"}
+			s{":app/VisualShader/Math_Basic.ddl"}
+			s{":app/VisualShader/Output_QuadParticle.ddl"}
+			s{":app/VisualShader/Particles.ddl"}
+			s{":app/VisualShader/Textures.ddl"}
 			s{"{ 4dd63c93-3472-4ff8-8629-f2dcff139048 }"}
 			s{"{ 6ef63095-32fb-4814-b518-a79fa3a1dabf }"}
 			s{"{ 79f446ae-22ef-46bb-bb5b-eb3cef7a5acd }"}
@@ -645,7 +652,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Color"}
+		s %Name{"Gradient"}
 		s %Type{"ezString"}
 	}
 }
@@ -691,7 +698,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Noise1"}
+		s %Name{"Color"}
 		s %Type{"ezString"}
 	}
 }
@@ -784,7 +791,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Gradient"}
+		s %Name{"Noise1"}
 		s %Type{"ezString"}
 	}
 }

@@ -18,7 +18,7 @@ o
 			s{":app/VisualShader/Textures.ddl"}
 		}
 		Uuid %DocumentID{u4{13440486346430160540,5666818092925673221}}
-		u4 %Hash{1101519345838031129}
+		u4 %Hash{11342037966232271393}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -31,6 +31,11 @@ o
 		}
 		VarArray %References
 		{
+			s{":app/VisualShader/Inputs.ddl"}
+			s{":app/VisualShader/Math_Basic.ddl"}
+			s{":app/VisualShader/Output_Decal.ddl"}
+			s{":app/VisualShader/Parameters.ddl"}
+			s{":app/VisualShader/Textures.ddl"}
 			s{"{ 7b03a52d-73f4-40bd-9ac3-47ad341bd23b }"}
 			s{"{ aebdcc6a-c838-47d4-864a-c10a576c6472 }"}
 		}
@@ -795,7 +800,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Value{"Parameter"}
+		s %Value{"CustomColor"}
 	}
 }
 o
@@ -818,13 +823,12 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{12585243020589431342,1510528536669252142}}
-			Uuid{u4{17593286895962159426,4539992905245718535}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"BaseTexture"}
-		s %Type{"ezString"}
+		s %Name{"Scroll1"}
+		s %Type{"ezVec2"}
 	}
 }
 o
@@ -834,7 +838,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Texture 2D"}
+		s %Category{"Constant"}
 	}
 }
 o
@@ -905,8 +909,8 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"BaseColor"}
-		s %Type{"ezColor"}
+		s %Name{"ScrollDist"}
+		s %Type{"ezVec2"}
 	}
 }
 o
@@ -960,18 +964,6 @@ o
 		}
 		s %TypeName{"AssetCache/Common/Effects/Caustics_Decal.autogen.ezShader"}
 		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{17593286895962159426,4539992905245718535}}
-	s %t{"ezAssetBrowserAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
-		s %Filter{";CompatibleAsset_Texture_2D;"}
-		s %RequiredTag{""}
 	}
 }
 o
@@ -1202,8 +1194,8 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Scroll2"}
-		s %Type{"ezVec2"}
+		s %Name{"BaseColor"}
+		s %Type{"ezColor"}
 	}
 }
 o
@@ -1329,7 +1321,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Constant"}
+		s %Category{"Texture 2D"}
 	}
 }
 o
@@ -1339,7 +1331,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Value{"Parameter"}
+		s %Value{"CustomValue2f"}
 	}
 }
 o
@@ -1399,12 +1391,13 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{5896483173777386151,13629518213560782402}}
+			Uuid{u4{14276143018456059436,17109711781975926716}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"ScrollDist"}
-		s %Type{"ezVec2"}
+		s %Name{"BaseTexture"}
+		s %Type{"ezString"}
 	}
 }
 o
@@ -1421,7 +1414,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Scroll1"}
+		s %Name{"Scroll2"}
 		s %Type{"ezVec2"}
 	}
 }
@@ -1493,6 +1486,18 @@ o
 	p
 	{
 		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{14276143018456059436,17109711781975926716}}
+	s %t{"ezAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
+		s %RequiredTag{""}
 	}
 }
 o

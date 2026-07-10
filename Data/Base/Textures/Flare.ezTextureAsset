@@ -14,7 +14,7 @@ o
 			s{"Textures/Flare.tga"}
 		}
 		Uuid %DocumentID{u4{104150515546721672,4824860388845839080}}
-		u4 %Hash{1166288348774608872}
+		u4 %Hash{11503059060459998896}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -42,6 +42,7 @@ o
 		s %AddressModeV{"ezImageAddressMode::Clamp"}
 		s %AddressModeW{"ezImageAddressMode::Clamp"}
 		f %AlphaThreshold{0x0000003F}
+		VarArray %ArraySlices{}
 		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		s %CompressionMode{"ezTexConvCompressionMode::None"}
@@ -53,6 +54,7 @@ o
 		s %Input2{"Textures/Flare.tga"}
 		s %Input3{""}
 		s %Input4{""}
+		b %IsArrayTexture{0}
 		b %IsRenderTarget{0}
 		s %MipmapMode{"ezTexConvMipmapMode::Kaiser"}
 		b %PremultipliedAlpha{0}

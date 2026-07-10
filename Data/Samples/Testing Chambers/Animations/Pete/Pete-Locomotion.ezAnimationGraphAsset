@@ -11,7 +11,7 @@ o
 		s %AssetType{"Animation Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7962049223207265704,5190859084399954250}}
-		u4 %Hash{3951886181546498919}
+		u4 %Hash{8126943795845956648}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -270,6 +270,7 @@ o
 		s %Comparison{"ezComparisonOperator::Equal"}
 		s %CustomTitle{""}
 		Vec2 %Node::Pos{f{0xE23218C4,0x6B6F4043}}
+		Uuid %OutIsFalse{u4{3594339066643697965,9830080299476125309}}
 		Uuid %OutIsTrue{u4{18222676684238767031,230969397886752761}}
 		Uuid %OutOnFalse{u4{8984837769136233886,2907999887719546830}}
 		Uuid %OutOnTrue{u4{7276631382958229959,18897174470448627}}
@@ -293,7 +294,7 @@ o
 {
 	Uuid %id{u4{2734683811502562969,5010830573041923448}}
 	s %t{"ezSampleAnimClipSequenceAnimNode"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Uuid %ClipIndex{u4{2096431025156090156,6052000390883307229}}
@@ -313,6 +314,7 @@ o
 		Uuid %OutOnMiddleStarted{u4{10533204511374679987,17377705888502798694}}
 		Uuid %OutPose{u4{3262110297156855213,11595791784163530703}}
 		f %PlaybackSpeed{0x0000803F}
+		f %RootMotionAmount{0}
 		s %StartClip{"Jump_Start"}
 	}
 }
@@ -523,10 +525,9 @@ o
 {
 	Uuid %id{u4{440481059679114640,5454752280545177635}}
 	s %t{"ezSampleBlendSpace2DAnimNode"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		b %ApplyRootMotion{1}
 		s %CenterClip{"Idle"}
 		VarArray %Clips
 		{
@@ -547,6 +548,7 @@ o
 		Uuid %OutOnStarted{u4{18262870130581425111,2041568809116489337}}
 		Uuid %OutPose{u4{8447260086510130232,4020950847954567614}}
 		f %PlaybackSpeed{0x0000803F}
+		f %RootMotionAmount{0x0000803F}
 		Uuid %X{u4{7795588119844767947,3753908229838548775}}
 		Uuid %Y{u4{15555883950077611145,5575751364534997207}}
 	}
@@ -801,6 +803,17 @@ o
 {
 	Uuid %id{u4{3162926196342970462,9166046108041833270}}
 	s %t{"ezAnimGraphBoneWeightsInputPin"}
+	u3 %v{1}
+	p
+	{
+		u1 %NumConnections{0}
+		i2 %PinIdx{0}
+	}
+}
+o
+{
+	Uuid %id{u4{3594339066643697965,9830080299476125309}}
+	s %t{"ezAnimGraphBoolOutputPin"}
 	u3 %v{1}
 	p
 	{
@@ -1301,7 +1314,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSampleAnimClipSequenceAnimNode"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -1471,7 +1484,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSampleBlendSpace2DAnimNode"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

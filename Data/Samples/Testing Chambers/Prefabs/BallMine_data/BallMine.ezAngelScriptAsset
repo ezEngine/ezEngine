@@ -4,10 +4,11 @@ o
 {
 	Uuid %id{u4{10627311575654157926,3946533649140613157}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		f %DefaultValue{0x00004843}
 		s %Name{"RollForce"}
 		s %Type{""}
@@ -45,10 +46,11 @@ o
 {
 	Uuid %id{u4{4539012508241732823,5555326558859244893}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		f %DefaultValue{0x0000C03F}
 		s %Name{"AttackDistance"}
 		s %Type{""}
@@ -75,10 +77,11 @@ o
 {
 	Uuid %id{u4{5999075823033778192,12135476350223088512}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		f %DefaultValue{0x00002041}
 		s %Name{"ApproachDistance"}
 		s %Type{""}
@@ -88,10 +91,11 @@ o
 {
 	Uuid %id{u4{3657597596690714311,17066590172444216581}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		f %DefaultValue{0x0000A041}
 		s %Name{"Health"}
 		s %Type{""}
@@ -101,10 +105,11 @@ o
 {
 	Uuid %id{u4{18374143812373485936,18224755004977413665}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		f %DefaultValue{0x00007041}
 		s %Name{"AlertDistance"}
 		s %Type{""}
@@ -122,6 +127,7 @@ o
 	{
 		s %ClassName{"ScriptObject"}
 		s %Code{""}
+		VarArray %Dependencies{}
 		VarArray %Parameters
 		{
 			Uuid{u4{13652739731568597183,5035852951416904736}}

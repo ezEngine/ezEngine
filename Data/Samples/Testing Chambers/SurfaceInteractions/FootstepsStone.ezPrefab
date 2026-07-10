@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10656125845132406420,4615196946006643739}}
-		u4 %Hash{2659157569497896261}
+		u4 %Hash{10318964603745331653}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13841058815999601379,467533701195636396}}
@@ -69,6 +69,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %NoGlobalPitch{0}
 		u1 %OcclusionCollisionLayer{0}
 		f %OcclusionThreshold{0x0000003F}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteGameObject"}

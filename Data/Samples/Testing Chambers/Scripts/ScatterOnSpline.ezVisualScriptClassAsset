@@ -56,7 +56,7 @@ o
 		s %AssetType{"VisualScriptClass"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12892982444285199766,5260723139333185655}}
-		u4 %Hash{12741422412995963094}
+		u4 %Hash{9013690898292552494}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{10698852245720595768,15996515677871391451}}
@@ -359,7 +359,7 @@ o
 {
 	Uuid %id{u4{6795609362328732577,4709656159796475894}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %ClampRange{0}
@@ -372,7 +372,7 @@ o
 		HashedString %Name{s{"Prefab"}}
 		ezVisualScriptVariableTypeDeclaration %Type
 		{
-			i4 %Type{13}
+			i4 %Type{15}
 			i4 %Category{1}
 			b %Public{1}
 		}
@@ -715,7 +715,7 @@ o
 {
 	Uuid %id{u4{2376621170794959031,4862082950758791143}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %ClampRange{0}
@@ -725,7 +725,7 @@ o
 		HashedString %Name{s{"RandomRotation"}}
 		ezVisualScriptVariableTypeDeclaration %Type
 		{
-			i4 %Type{8}
+			i4 %Type{9}
 			i4 %Category{0}
 			b %Public{1}
 		}
@@ -795,7 +795,7 @@ o
 {
 	Uuid %id{u4{15836945309388997765,4901672399189561837}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %ClampRange{0}
@@ -805,7 +805,7 @@ o
 		HashedString %Name{s{"RandomOffset"}}
 		ezVisualScriptVariableTypeDeclaration %Type
 		{
-			i4 %Type{8}
+			i4 %Type{9}
 			i4 %Category{0}
 			b %Public{1}
 		}
@@ -1163,6 +1163,7 @@ o
 	{
 		f %Distance{0}
 		Vec2 %Node::Pos{f{0x6B0EBD44,0x5FDF4545}}
+		s %Space{"ezSplineComponentSpace::Local"}
 	}
 }
 o
@@ -1218,7 +1219,7 @@ o
 {
 	Uuid %id{u4{16209499938516933507,5140401747127540320}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %ClampRange{1}
@@ -1371,7 +1372,7 @@ o
 {
 	Uuid %id{u4{15815945527105652129,5242022164745285914}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %ClampRange{1}
@@ -1599,7 +1600,7 @@ o
 {
 	Uuid %id{u4{243917159121296310,5384204649170103722}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %ClampRange{0}
@@ -1609,7 +1610,7 @@ o
 		HashedString %Name{s{"CreatedObjects"}}
 		ezVisualScriptVariableTypeDeclaration %Type
 		{
-			i4 %Type{18}
+			i4 %Type{20}
 			i4 %Category{1}
 			b %Public{0}
 		}
@@ -2045,7 +2046,7 @@ o
 {
 	Uuid %id{u4{5065629187736132766,5698756959831521874}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %ClampRange{0}
@@ -2820,6 +2821,7 @@ o
 		VarArray %Properties
 		{
 			Uuid{u4{8258134904166227608,13059431464395824449}}
+			Uuid{u4{8256563820166497476,2550696983794128127}}
 		}
 		s %TypeName{"VisualScriptNode_SplineComponent::GetTransformAtDistance"}
 		u3 %TypeVersion{1}
@@ -2897,7 +2899,7 @@ o
 		s %PluginName{"ezEditorPluginVisualScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptVariable"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -3017,6 +3019,21 @@ o
 	p
 	{
 		s %BaseType{"ezComponent"}
+	}
+}
+o
+{
+	Uuid %id{u4{8256563820166497476,2550696983794128127}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Name{"Space"}
+		s %Type{"ezSplineComponentSpace"}
 	}
 }
 o
@@ -3295,6 +3312,23 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Cases"}
 		s %Type{"ezHashedString"}
+	}
+}
+o
+{
+	Uuid %id{u4{8654430645282539645,3990045288992136643}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineComponentSpace"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -3792,6 +3826,8 @@ o
 	u3 %v{1}
 	p
 	{
+		ColorGamma %CustomKeywordColor{u1{182,129,31,255}}
+		s %CustomKeywords{""}
 		s %InputsProperty{"Inputs"}
 		s %OutputsProperty{"Outputs"}
 	}

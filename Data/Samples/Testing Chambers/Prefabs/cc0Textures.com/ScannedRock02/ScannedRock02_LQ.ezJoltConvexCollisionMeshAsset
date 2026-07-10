@@ -14,7 +14,7 @@ o
 			s{"Objects/cc0Textures.com/ScannedRock02/ScannedRock02_LQ.obj"}
 		}
 		Uuid %DocumentID{u4{14737680971665784505,5057588949416469305}}
-		u4 %Hash{1481269076846208128}
+		u4 %Hash{13147887136016474915}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -47,7 +47,7 @@ o
 {
 	Uuid %id{u4{7436360443324174726,5677078167736249002}}
 	s %t{"ezJoltCollisionMeshAssetProperties"}
-	u3 %v{1}
+	u3 %v{3}
 	p
 	{
 		b %AggressiveSimplification{0}
@@ -55,11 +55,15 @@ o
 		u1 %Detail{1}
 		b %FlipForwardDir{0}
 		f %Height{0x0000803F}
+		s %ImportTransform{"ezMeshImportTransform::Custom"}
 		b %IsConvexMesh{1}
 		u2 %MaxConvexPieces{2}
 		u1 %MaxSimplificationError{20}
+		s %MeshExcludeTags{""}
 		s %MeshFile{"Objects/cc0Textures.com/ScannedRock02/ScannedRock02_LQ.obj"}
+		s %MeshIncludeTags{""}
 		u1 %MeshSimplification{50}
+		f %NormalWeight{0x0000003F}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
 		s %RightDir{"ezBasisAxis::PositiveX"}
@@ -138,7 +142,7 @@ o
 		s %PluginName{"ezEditorPluginJolt"}
 		VarArray %Properties{}
 		s %TypeName{"ezJoltCollisionMeshAssetProperties"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -155,6 +159,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16959510582460493866,8962221111705621108}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshImportTransform"}
 		u3 %TypeVersion{1}
 	}
 }

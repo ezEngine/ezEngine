@@ -46,10 +46,11 @@ o
 {
 	Uuid %id{u4{324251830965485188,8050725033822172580}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		i3 %DefaultValue{10}
 		s %Name{"MaxImpacts"}
 		s %Type{""}
@@ -59,10 +60,11 @@ o
 {
 	Uuid %id{u4{2848394800840748579,13084424561199595491}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		b %DefaultValue{1}
 		s %Name{"RadialShatter"}
 		s %Type{""}
