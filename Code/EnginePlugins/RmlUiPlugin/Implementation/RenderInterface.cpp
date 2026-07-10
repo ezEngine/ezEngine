@@ -387,7 +387,7 @@ namespace ezRmlUiInternal
     return {};
   }
 
-  void RenderInterface::CompositeLayers(Rml::LayerHandle source, Rml::LayerHandle destination, Rml::BlendMode blendMode, Rml::Span<const Rml::CompiledFilterHandle> filters)
+  void RenderInterface::CompositeLayers(Rml::LayerHandle hSource, Rml::LayerHandle hDestination, Rml::BlendMode blendMode, Rml::Span<const Rml::CompiledFilterHandle> filters)
   {
     EZ_ASSERT_NOT_IMPLEMENTED;
   }
@@ -409,7 +409,7 @@ namespace ezRmlUiInternal
     return {};
   }
 
-  Rml::CompiledFilterHandle RenderInterface::CompileFilter(const Rml::String& name, const Rml::Dictionary& parameters)
+  Rml::CompiledFilterHandle RenderInterface::CompileFilter(const Rml::String& sName, const Rml::Dictionary& parameters)
   {
     EZ_ASSERT_NOT_IMPLEMENTED;
     return {};
@@ -420,7 +420,7 @@ namespace ezRmlUiInternal
     EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
-  Rml::CompiledShaderHandle RenderInterface::CompileShader(const Rml::String& name, const Rml::Dictionary& parameters)
+  Rml::CompiledShaderHandle RenderInterface::CompileShader(const Rml::String& sName, const Rml::Dictionary& parameters)
   {
     auto ApplyColorStopList = [](ezRmlUiAdditionalConstants& out_data, const Rml::Dictionary& shader_parameters)
     {
@@ -459,7 +459,7 @@ namespace ezRmlUiInternal
     ezRmlUiAdditionalConstants data;
     ezMemoryUtils::ZeroFill(&data);
 
-    if (name == "linear-gradient")
+    if (sName == "linear-gradient")
     {
       data.GradientFunc = repeating ? GRADIENT_REPEATING_LINEAR : GRADIENT_LINEAR;
       data.GradientParams0 = ezRmlUiConversionUtils::ToVec2(Rml::Get(parameters, "p0", Rml::Vector2f(0.f)));
@@ -469,7 +469,7 @@ namespace ezRmlUiInternal
       shaderInfo.m_hAdditionalConstantBuffer = CreateGradientConstantBuffer(data);
       shaderInfo.m_Type = ShaderType::Gradient;
     }
-    else if (name == "radial-gradient")
+    else if (sName == "radial-gradient")
     {
       data.GradientFunc = repeating ? GRADIENT_REPEATING_RADIAL : GRADIENT_RADIAL;
       data.GradientParams0 = ezRmlUiConversionUtils::ToVec2(Rml::Get(parameters, "center", Rml::Vector2f(0.f)));
@@ -479,7 +479,7 @@ namespace ezRmlUiInternal
       shaderInfo.m_hAdditionalConstantBuffer = CreateGradientConstantBuffer(data);
       shaderInfo.m_Type = ShaderType::Gradient;
     }
-    else if (name == "conic-gradient")
+    else if (sName == "conic-gradient")
     {
       data.GradientFunc = repeating ? GRADIENT_REPEATING_CONIC : GRADIENT_CONIC;
       data.GradientParams0 = ezRmlUiConversionUtils::ToVec2(Rml::Get(parameters, "center", Rml::Vector2f(0.f)));
@@ -498,7 +498,7 @@ namespace ezRmlUiInternal
       return m_Shaders.Insert(shaderInfo).ToRml();
     }
 
-    ezLog::Warning("Unsupported shader type '{}'.", name.c_str());
+    ezLog::Warning("Unsupported shader type '{}'.", sName.c_str());
     return {};
   }
 

@@ -86,16 +86,16 @@ namespace ezRmlUiInternal
     virtual void SetTransform(const Rml::Matrix4f* pTransform) override;
 
     virtual Rml::LayerHandle PushLayer() override;
-    virtual void CompositeLayers(Rml::LayerHandle source, Rml::LayerHandle destination, Rml::BlendMode blendMode, Rml::Span<const Rml::CompiledFilterHandle> filters) override;
+    virtual void CompositeLayers(Rml::LayerHandle hSource, Rml::LayerHandle hDestination, Rml::BlendMode blendMode, Rml::Span<const Rml::CompiledFilterHandle> filters) override;
     virtual void PopLayer() override;
 
     virtual Rml::TextureHandle SaveLayerAsTexture() override;
     virtual Rml::CompiledFilterHandle SaveLayerAsMaskImage() override;
 
-    virtual Rml::CompiledFilterHandle CompileFilter(const Rml::String& name, const Rml::Dictionary& parameters) override;
+    virtual Rml::CompiledFilterHandle CompileFilter(const Rml::String& sName, const Rml::Dictionary& parameters) override;
     virtual void ReleaseFilter(Rml::CompiledFilterHandle hFilter) override;
 
-    virtual Rml::CompiledShaderHandle CompileShader(const Rml::String& name, const Rml::Dictionary& parameters) override;
+    virtual Rml::CompiledShaderHandle CompileShader(const Rml::String& sName, const Rml::Dictionary& parameters) override;
     virtual void RenderShader(Rml::CompiledShaderHandle hShader, Rml::CompiledGeometryHandle hGeometry, Rml::Vector2f translation, Rml::TextureHandle hTexture) override;
     virtual void ReleaseShader(Rml::CompiledShaderHandle hShader) override;
 
