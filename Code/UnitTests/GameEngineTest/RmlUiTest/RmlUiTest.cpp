@@ -36,6 +36,7 @@ ezResult ezGameEngineTestRmlUi::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(4);
     m_ImgCompFrames.PushBack(7);
     m_ImgCompFrames.PushBack(10);
+    m_ImgCompFrames.PushBack(13);
 
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("RmlUi/AssetCache/Common/Scenes/Demo.ezBinScene"));
     return EZ_SUCCESS;

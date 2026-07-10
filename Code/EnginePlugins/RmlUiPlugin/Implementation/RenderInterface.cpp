@@ -426,7 +426,7 @@ namespace ezRmlUiInternal
       auto it = shader_parameters.find("color_stop_list");
       EZ_ASSERT_DEV(it != shader_parameters.end() && it->second.GetType() == Rml::Variant::COLORSTOPLIST, "Color stop list not found or invalid type");
       const Rml::ColorStopList& color_stop_list = it->second.GetReference<Rml::ColorStopList>();
-      const ezUInt32 uiNumStops = ezMath::Min<ezUInt32>(color_stop_list.size(), GRADIENT_MAX_NUM_STOPS);
+      const ezUInt32 uiNumStops = ezMath::Min(static_cast<ezUInt32>(color_stop_list.size()), GRADIENT_MAX_NUM_STOPS);
 
       out_data.GradientNumStops = uiNumStops;
       float* pStopPositions = &out_data.GradientStopPositions[0].x;
@@ -453,12 +453,13 @@ namespace ezRmlUiInternal
     ShaderInfo shaderInfo;
     shaderInfo.m_hShader = m_hMainShader;
 
+    const bool repeating = Rml::Get(parameters, "repeating", false);
+
+    ezRmlUiAdditionalConstants data;
+    ezMemoryUtils::ZeroFill(&data);
+
     if (name == "linear-gradient")
     {
-      const bool repeating = Rml::Get(parameters, "repeating", false);
-      
-      ezRmlUiAdditionalConstants data;
-      ezMemoryUtils::ZeroFill(&data);
       data.GradientFunc = repeating ? GRADIENT_REPEATING_LINEAR : GRADIENT_LINEAR;
       data.GradientParams0 = ezRmlUiConversionUtils::ToVec2(Rml::Get(parameters, "p0", Rml::Vector2f(0.f)));
       data.GradientParams1 = ezRmlUiConversionUtils::ToVec2(Rml::Get(parameters, "p1", Rml::Vector2f(0.f))) - data.GradientParams0;
@@ -467,6 +468,29 @@ namespace ezRmlUiInternal
       shaderInfo.m_hAdditionalConstantBuffer = CreateGradientConstantBuffer(data);
       shaderInfo.m_Type = ShaderType::Gradient;
     }
+    else if (name == "radial-gradient")
+    {
+      data.GradientFunc = repeating ? GRADIENT_REPEATING_RADIAL : GRADIENT_RADIAL;
+      data.GradientParams0 = ezRmlUiConversionUtils::ToVec2(Rml::Get(parameters, "center", Rml::Vector2f(0.f)));
+      data.GradientParams1 = ezRmlUiConversionUtils::ToVec2(Rml::Vector2f(1.f) / Rml::Get(parameters, "radius", Rml::Vector2f(1.f)));
+      ApplyColorStopList(data, parameters);
+
+      shaderInfo.m_hAdditionalConstantBuffer = CreateGradientConstantBuffer(data);
+      shaderInfo.m_Type = ShaderType::Gradient;
+    }
+    else if (name == "conic-gradient")
+    {
+      data.GradientFunc = repeating ? GRADIENT_REPEATING_CONIC : GRADIENT_CONIC;
+      data.GradientParams0 = ezRmlUiConversionUtils::ToVec2(Rml::Get(parameters, "center", Rml::Vector2f(0.f)));
+
+      const ezAngle angle = ezAngle::MakeFromRadian(Rml::Get(parameters, "angle", 0.f));
+      data.GradientParams1 = ezVec2(ezMath::Cos(angle), ezMath::Sin(angle));
+      ApplyColorStopList(data, parameters);
+
+      shaderInfo.m_hAdditionalConstantBuffer = CreateGradientConstantBuffer(data);
+      shaderInfo.m_Type = ShaderType::Gradient;
+    }
+
 
     if (shaderInfo.m_Type != ShaderType::Invalid)
     {

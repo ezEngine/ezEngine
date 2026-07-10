@@ -1,0 +1,24 @@
+<rml>
+  <head>
+    <link type="text/template" href="window.rml"/>
+    <link type="text/rcss" href="demo.rcss"/>
+    <title>Demo Sample</title>
+  </head>
+
+  <body template="window">
+
+    <tabset id="menu">
+      <tab>Gradients</tab>
+      <panel id="decorators">
+        <div style="display: inline-block; width: 400dp; height: 170dp; decorator: linear-gradient(45deg, red 40%, white, blue 60%);"/>
+        <div style="display: inline-block; width: 400dp; height: 170dp; decorator: repeating-linear-gradient(red, white, blue 20%);"/>
+        
+        <div style="display: inline-block; width: 400dp; height: 170dp; decorator: radial-gradient(circle closest-side at 100dp 60dp, red, yellow, green);"/>
+        <div style="display: inline-block; width: 400dp; height: 170dp; decorator: repeating-radial-gradient(50dp 80dp, #f00, #ff0, #f00);"/>
+        
+        <div style="display: inline-block; width: 400dp; height: 170dp; decorator: conic-gradient(red, yellow);"/>
+        <div style="display: inline-block; width: 400dp; height: 170dp; decorator: repeating-conic-gradient(#ffd700, #f06, #ffd700 20deg)"/>
+      </panel>
+    </tabset>
+  </body>
+</rml>

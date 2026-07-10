@@ -7,8 +7,8 @@ CONSTANT_BUFFER(ezRmlUiConstants, 4)
   BOOL1(TextureNeedsAlphaMultiplication);
 };
 
-#define GRADIENT_MAX_NUM_STOPS 16
-#define GRADIENT_MAX_NUM_STOPS_PACKED 4
+#define GRADIENT_MAX_NUM_STOPS 16u
+#define GRADIENT_MAX_NUM_STOPS_PACKED 4u
 
 #define GRADIENT_LINEAR 0
 #define GRADIENT_RADIAL 1
