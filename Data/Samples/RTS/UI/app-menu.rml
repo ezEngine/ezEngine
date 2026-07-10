@@ -3,7 +3,7 @@
     <!-- The default RML template is in the RmlUI plugin folder.
          It sets up a default style for common widgets.
          Override the style with your own RCSS files as needed. -->
-    <link type="text/template" href="RmlUI/rmlui-default/template.rml"/>
+    <link type="text/template" href="rmlui-default/template.rml"/>
     <link type="text/css" href="app-menu.rcss"/>
   </head>
   <body class="app-menu">

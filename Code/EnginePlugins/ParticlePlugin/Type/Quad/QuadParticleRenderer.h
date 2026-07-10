@@ -6,8 +6,8 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererFoundation/Resources/BufferPool.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardQuadParticleShaderData.h>
-#include <RendererCore/../../../Data/Base/Shaders/Particles/TangentQuadParticleShaderData.h>
+#include <RendererCore/../../../Data/Plugins/ParticlePlugin/Shaders/Particles/BillboardQuadParticleShaderData.h>
+#include <RendererCore/../../../Data/Plugins/ParticlePlugin/Shaders/Particles/TangentQuadParticleShaderData.h>
 
 /// Render data for quad particles.
 class EZ_PARTICLEPLUGIN_DLL ezParticleQuadRenderData final : public ezRenderData

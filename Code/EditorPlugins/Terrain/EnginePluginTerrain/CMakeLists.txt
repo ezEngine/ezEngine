@@ -20,5 +20,5 @@ target_link_libraries(${PROJECT_NAME}
 # Those include paths are PRIVATE on TerrainPlugin so we must repeat them here.
 target_include_directories(${PROJECT_NAME} PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/../../../../Data/Base"
-  "${CMAKE_CURRENT_SOURCE_DIR}/../../../../Data/Plugins"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../../../../Data/Plugins/TerrainPlugin"
 )

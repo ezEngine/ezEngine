@@ -196,7 +196,8 @@ public:
 
   /// \brief Adds a data directory as a hard dependency to the project. Should be used by plugins to ensure their required data is
   /// available. The path must be relative to the SdkRoot folder.
-  void AddPluginDataDirDependency(const char* szSdkRootRelativePath, const char* szRootName = nullptr, bool bWriteable = false);
+  /// \brief If uiInsertIndex is not ezInvalidIndex, a newly added directory is inserted at that position instead of appended.
+  void AddPluginDataDirDependency(const char* szSdkRootRelativePath, const char* szRootName = nullptr, bool bWriteable = false, ezUInt32 uiInsertIndex = ezInvalidIndex);
 
   const ezApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
   const ezApplicationPluginConfig GetRuntimePluginConfig(bool bIncludeEditorPlugins) const;
@@ -276,6 +277,14 @@ private:
   void OpenDemoDocument();
 
   ezResult AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConfig::PluginConfig>& order, const ezPluginBundleSet& bundles, const ezString& start, bool bEditor, bool bEditorEngine, bool bRuntime) const;
+
+  /// \brief Collects the data directories of all bundles that are currently active (mandatory, selected, or a transitive
+  /// requirement of one of those), normalized for comparison.
+  void GetActiveBundleDataDirectories(ezSet<ezString>& out_dirs) const;
+
+  /// \brief Collects the data directories declared by every known bundle (active or not), normalized for comparison.
+  /// Used to identify and prune stale bundle data directory entries.
+  void GetAllKnownBundleDataDirectories(ezSet<ezString>& out_dirs) const;
 
   bool m_bSavePreferencesAfterOpenProject;
   bool m_bLoadingProjectInProgress = false;

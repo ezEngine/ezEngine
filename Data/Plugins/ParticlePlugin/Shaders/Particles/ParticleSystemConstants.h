@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Common/ConstantBufferMacros.h"
-#include "../Common/Platforms.h"
+#include <Shaders/Common/ConstantBufferMacros.h>
+#include <Shaders/Common/Platforms.h>
 
 CONSTANT_BUFFER2(ezParticleSystemConstants, 2, BG_DRAW_CALL)
 {

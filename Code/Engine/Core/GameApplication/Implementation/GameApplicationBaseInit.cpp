@@ -157,16 +157,6 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
   // ":project/" for reading the project specific files
   ezFileSystem::AddDataDirectory(GetProjectDataDirectoryPath(), "GameApplicationBase", "project", ezDataDirUsage::ReadOnly).IgnoreResult();
 
-  // ":plugins/" for plugin specific data (optional, if it exists)
-  {
-    ezStringBuilder dir;
-    ezFileSystem::ResolveSpecialDirectory(">sdk/Data/Plugins", dir).IgnoreResult();
-    if (dir.IsAbsolutePath() && ezOSFile::ExistsDirectory(dir))
-    {
-      ezFileSystem::AddDataDirectory(">sdk/Data/Plugins", "GameApplicationBase", "plugins", ezDataDirUsage::ReadOnly).IgnoreResult();
-    }
-  }
-
   {
     ezApplicationFileSystemConfig appFileSystemConfig;
     appFileSystemConfig.Load();
@@ -175,7 +165,7 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
     for (ezUInt32 i = appFileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
     {
       const ezString name = appFileSystemConfig.m_DataDirs[i - 1].m_sRootName;
-      if (name.IsEqual_NoCase(":") || name.IsEqual_NoCase("bin") || name.IsEqual_NoCase("shadercache") || name.IsEqual_NoCase("appdata") || name.IsEqual_NoCase("base") || name.IsEqual_NoCase("project") || name.IsEqual_NoCase("plugins"))
+      if (name.IsEqual_NoCase(":") || name.IsEqual_NoCase("bin") || name.IsEqual_NoCase("shadercache") || name.IsEqual_NoCase("appdata") || name.IsEqual_NoCase("base") || name.IsEqual_NoCase("project"))
       {
         appFileSystemConfig.m_DataDirs.RemoveAtAndCopy(i - 1);
       }

@@ -12,4 +12,9 @@ target_link_libraries(${PROJECT_NAME}
   GameEngine
 )
 
+# needed for shader files to compile (ParticleSystemConstants.h includes Shaders/Common/... from Data/Base)
+target_include_directories(${PROJECT_NAME} PRIVATE
+  "${CMAKE_CURRENT_SOURCE_DIR}/../../../Data/Base"
+)
+
 ez_copy_plugin_bundle(${PROJECT_NAME} "Particles")

@@ -1,4 +1,4 @@
-string %Shader { "Kraut/Kraut.ezShader" }
+string %Shader { "Kraut.ezShader" }
 
 Permutation
 {
@@ -9,13 +9,13 @@ Permutation
 Permutation
 {
   string %Variable { "TWO_SIDED" }
-  string %Value { "FALSE" }
+  string %Value { "TRUE" }
 }
 
 Constant
 {
   string %Variable { "KrautTreeMode" }
-  u3 %Value { 2 }
+  u3 %Value { 3 }
 }
 
 Texture2D

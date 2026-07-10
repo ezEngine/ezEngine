@@ -9,7 +9,7 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Device/Device.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
+#include <RendererCore/../../../Data/Plugins/ParticlePlugin/Shaders/Particles/ParticleSystemConstants.h>
 
 //clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTrailRenderData, 1, ezRTTINoAllocator)

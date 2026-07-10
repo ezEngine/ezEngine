@@ -15,7 +15,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/DynamicBuffer.h>
 
-#include <RendererCore/../../../Data/Plugins/ProcGen/ProcGenVertexColor.h>
+#include <RendererCore/../../../Data/Plugins/ProcGenPlugin/ProcGenVertexColor.h>
 
 namespace
 {

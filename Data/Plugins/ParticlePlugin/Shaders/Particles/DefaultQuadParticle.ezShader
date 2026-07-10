@@ -53,7 +53,7 @@ struct PS_IN
 };
 
 Particle System constants can be accessed through the ezParticleSystemConstants buffer, see
-  Data/Base/Shaders/Particles/ParticleSystemConstants.h
+  Data/Plugins/ParticlePlugin/Shaders/Particles/ParticleSystemConstants.h
 
 */
 

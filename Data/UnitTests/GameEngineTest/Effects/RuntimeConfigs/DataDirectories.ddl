@@ -6,12 +6,6 @@ DataDir
 }
 DataDir
 {
-	string %Path{">sdk/Data/Plugins"}
-	string %RootName{"plugins"}
-	bool %Writable{false}
-}
-DataDir
-{
 	string %Path{">sdk/Data/Content"}
 	string %RootName{""}
 	bool %Writable{false}

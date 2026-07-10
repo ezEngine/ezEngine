@@ -370,6 +370,66 @@ ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConf
   return EZ_SUCCESS;
 }
 
+static void NormalizeDataDirPath(const ezString& sPath, ezStringBuilder& out_sClean)
+{
+  out_sClean = sPath;
+  out_sClean.MakeCleanPath();
+
+  while (out_sClean.EndsWith("/"))
+    out_sClean.Shrink(0, 1);
+}
+
+static void CollectBundleDataDirsRecursive(const ezPluginBundleSet& bundles, const ezString& sBundleName, ezSet<ezString>& inout_visited, ezSet<ezString>& out_dirs)
+{
+  if (inout_visited.Contains(sBundleName))
+    return;
+
+  inout_visited.Insert(sBundleName);
+
+  auto it = bundles.m_Plugins.Find(sBundleName);
+  if (!it.IsValid())
+    return;
+
+  const ezPluginBundle& bundle = it.Value();
+
+  ezStringBuilder sClean;
+  for (const ezString& sDir : bundle.m_DataDirectories)
+  {
+    NormalizeDataDirPath(sDir, sClean);
+    out_dirs.Insert(sClean);
+  }
+
+  for (const ezString& sReq : bundle.m_RequiredBundles)
+  {
+    CollectBundleDataDirsRecursive(bundles, sReq, inout_visited, out_dirs);
+  }
+}
+
+void ezQtEditorApp::GetActiveBundleDataDirectories(ezSet<ezString>& out_dirs) const
+{
+  ezSet<ezString> visited;
+  for (auto it : m_PluginBundles.m_Plugins)
+  {
+    if (it.Value().m_bMandatory || it.Value().m_bSelected)
+    {
+      CollectBundleDataDirsRecursive(m_PluginBundles, it.Key(), visited, out_dirs);
+    }
+  }
+}
+
+void ezQtEditorApp::GetAllKnownBundleDataDirectories(ezSet<ezString>& out_dirs) const
+{
+  ezStringBuilder sClean;
+  for (auto it : m_PluginBundles.m_Plugins)
+  {
+    for (const ezString& sDir : it.Value().m_DataDirectories)
+    {
+      NormalizeDataDirPath(sDir, sClean);
+      out_dirs.Insert(sClean);
+    }
+  }
+}
+
 static ezStatus ExtractArchive(const ezString& sArchivePath)
 {
   ezStringBuilder sArchiveDir = sArchivePath;

@@ -57,7 +57,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Kraut, KrautPlugin)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-
 EZ_STATICLINK_LIBRARY(KrautPlugin)
 {
   if (bReturn)

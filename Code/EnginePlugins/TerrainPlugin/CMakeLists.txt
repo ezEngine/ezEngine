@@ -15,7 +15,7 @@ target_link_libraries(${PROJECT_NAME}
 # needed for shader files to compile
 target_include_directories(${PROJECT_NAME} PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/../../../Data/Base"
-  "${CMAKE_CURRENT_SOURCE_DIR}/../../../Data/Plugins"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../../../Data/Plugins/TerrainPlugin"
 )
 
 ez_copy_plugin_bundle(${PROJECT_NAME} "Terrain")
