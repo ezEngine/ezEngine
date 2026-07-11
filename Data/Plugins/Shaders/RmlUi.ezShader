@@ -4,6 +4,7 @@ ALL
 [PERMUTATIONS]
 
 RMLUI_MODE
+RMLUI_GRADIENT
 
 [RENDERSTATE]
 
@@ -56,20 +57,12 @@ struct VS_IN
 
 typedef PS_IN VS_OUT;
 
-float4 GetScreenPosition(float4 inputPos)
-{
-  float3 screenPosition = mul(UiTransform, inputPos).xyz;
-  screenPosition.xy = (screenPosition.xy * ViewportSize.zw) * float2(2.0, -2.0) + float2(-1.0, 1.0);
-  return float4(screenPosition, 1.0f);
-}
-
 VS_OUT main(VS_IN Input)
 {
   VS_OUT RetVal;
 
-  float4 inputPos = float4(Input.Position, 0, 1);
-  inputPos.xy += UiTranslation.xy;
-  RetVal.Position = GetScreenPosition(inputPos);
+  float2 translatedPos = Input.Position + UiTranslation;
+  RetVal.Position = mul(UiTransform, float4(translatedPos, 0, 1));
 
   RetVal.TexCoord0 = Input.TexCoord0;
   RetVal.Color0 = Input.Color0;
@@ -79,7 +72,44 @@ VS_OUT main(VS_IN Input)
 
 [PIXELSHADER]
 
+#include <Shaders/Common/Common.h>
 #include "RmlUiConstants.h"
+
+Texture2D NoiseTexture;
+
+float4 lerp_stop_colors(float t)
+{
+    float4 color = GradientStopColors[0];
+
+    for (uint i = 1; i < GradientNumStops; i++)
+    {
+        color = lerp(color, GradientStopColors[i], smoothstep(GRADIENT_GET_STOP_POS(i-1), GRADIENT_GET_STOP_POS(i), t));
+    }
+
+    return color;
+};
+
+float glsl_mod(float x, float y)
+{
+    return x - y * floor(x / y);
+}
+
+float4 dither(float2 screenPos)
+{
+  float2 texCoords = screenPos / 256.0;
+  float4 noise = NoiseTexture.SampleLevel(PointSampler, texCoords, 0.0);
+
+#if 0
+  // remap to triangular distribution
+  float4 orig = noise * 2 - 1;
+  noise = max(-1.0, orig / sqrt(abs(orig)));
+  noise = noise - sign(orig) + 0.5;
+#else
+  noise = noise * 2 - 0.5;
+#endif
+
+  return noise / 255.0;
+}
 
 #if RMLUI_MODE == RMLUI_MODE_STENCIL_SET
   void main()
@@ -91,6 +121,41 @@ VS_OUT main(VS_IN Input)
 
   float4 main(PS_IN Input) : SV_Target
   {
+  #if RMLUI_GRADIENT
+
+    float2 m_p = GradientParams0;
+    float2 m_v = GradientParams1;
+    float t = 0.0;
+
+    if (GradientFunc == GRADIENT_LINEAR || GradientFunc == GRADIENT_REPEATING_LINEAR)
+    {
+        float dist_square = dot(m_v, m_v);
+        float2 V = Input.TexCoord0.xy - m_p;
+        t = dot(m_v, V) / dist_square;
+    }
+    else if (GradientFunc == GRADIENT_RADIAL || GradientFunc == GRADIENT_REPEATING_RADIAL)
+    {
+        float2 V = Input.TexCoord0.xy - m_p;
+        t = length(m_v * V);
+    }
+    else if (GradientFunc == GRADIENT_CONIC || GradientFunc == GRADIENT_REPEATING_CONIC)
+    {
+        float2x2 R = float2x2(m_v.x, -m_v.y, m_v.y, m_v.x);
+        float2 V = mul((Input.TexCoord0.xy - m_p), R);
+        t = 0.5 + atan2(-V.x, V.y) / (2.0 * PI);
+    }
+
+    if (GradientFunc >= GRADIENT_REPEATING_LINEAR && GradientFunc <= GRADIENT_REPEATING_CONIC)
+    {
+        float t0 = GRADIENT_GET_STOP_POS(0);
+        float t1 = GRADIENT_GET_STOP_POS(GradientNumStops - 1);
+        t = t0 + glsl_mod(t - t0, t1 - t0);
+    }
+
+    return Input.Color0 * lerp_stop_colors(t) + dither(Input.Position.xy);
+
+  #else
+
     float4 textureColor = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoord0.xy);
     if (TextureNeedsAlphaMultiplication)
     {
@@ -98,5 +163,7 @@ VS_OUT main(VS_IN Input)
     }
 
     return textureColor * Input.Color0;
+
+  #endif
   }
 #endif

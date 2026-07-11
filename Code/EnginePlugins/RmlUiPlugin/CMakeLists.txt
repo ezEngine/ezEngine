@@ -11,6 +11,8 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   GameEngine
   RmlCore
+  $<$<CONFIG:Debug>:RmlDebugger>
+  $<$<CONFIG:Dev>:RmlDebugger>
 )
 
 # needed for shader structure includes

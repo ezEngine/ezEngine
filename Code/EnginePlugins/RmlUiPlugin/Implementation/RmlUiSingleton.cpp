@@ -1,5 +1,6 @@
 #include <RmlUiPlugin/RmlUiPluginPCH.h>
 
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OpenDdlReader.h>
@@ -12,6 +13,11 @@
 #include <RmlUiPlugin/Implementation/SystemInterface.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#  include <RmlUi/Include/RmlUi/Debugger.h>
+#endif
+
 
 ezResult ezRmlUiConfiguration::Save(ezStringView sFile) const
 {
@@ -78,6 +84,19 @@ bool ezRmlUiConfiguration::operator==(const ezRmlUiConfiguration& rhs) const
 
 EZ_IMPLEMENT_SINGLETON(ezRmlUi);
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+ezCVarString cvar_RmlUiDebugContext("RmlUi.DebugContext", "", ezCVarFlags::Default, "Sets the name of the context that should be debugged");
+
+bool ShouldDebugContext(const ezRmlUiContext& context)
+{
+  if (cvar_RmlUiDebugContext.GetValue().IsEmpty())
+    return false;
+
+  ezStringView sContextName = ezRmlUiConversionUtils::ToStringView(context.GetName());
+  return sContextName.FindSubString_NoCase(cvar_RmlUiDebugContext.GetValue()) != nullptr;
+}
+#endif
+
 struct ezRmlUi::Data
 {
   ezMutex m_ExtractionMutex;
@@ -95,6 +114,11 @@ struct ezRmlUi::Data
   ezUInt64 m_uiLastClearedCacheFrame = 0;
 
   ezRmlUiConfiguration m_Config;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  bool m_bDebuggerInitialized = false;
+  ezEventSubscriptionID m_DebugCVarEventHandler;
+#endif
 };
 
 ezRmlUi::ezRmlUi()
@@ -127,10 +151,43 @@ ezRmlUi::ezRmlUi()
       ezLog::Warning("Failed to load font face '{0}'.", font);
     }
   }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  m_pData->m_DebugCVarEventHandler = cvar_RmlUiDebugContext.m_CVarEvents.AddEventHandler(
+    [this](const ezCVarEvent& e)
+    {
+      if (e.m_EventType != ezCVarEvent::ValueChanged)
+        return;
+
+      ezStringView sContextName = cvar_RmlUiDebugContext.GetValue();
+      if (sContextName.IsEmpty())
+      {
+        DebugContext(nullptr);
+        return;
+      }
+
+      EZ_LOCK(m_pData->m_ContextsMutex);
+
+      for (auto pContext : m_pData->m_Contexts)
+      {
+        if (ShouldDebugContext(*pContext))
+        {
+          DebugContext(pContext);
+          return;
+        }
+      }
+
+      DebugContext(nullptr);
+    });
+#endif
 }
 
 ezRmlUi::~ezRmlUi()
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  cvar_RmlUiDebugContext.m_CVarEvents.RemoveEventHandler(m_pData->m_DebugCVarEventHandler);
+#endif
+
   Rml::Shutdown();
 }
 
@@ -184,6 +241,13 @@ ezResult ezRmlUi::LoadDocumentFromResource(ezRmlUiContext& ref_context, const ez
     }
   }
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (ref_context.HasDocument() && ShouldDebugContext(ref_context))
+  {
+    DebugContext(&ref_context);
+  }
+#endif
+
   return ref_context.HasDocument() ? EZ_SUCCESS : EZ_FAILURE;
 }
 
@@ -200,6 +264,13 @@ ezResult ezRmlUi::LoadDocumentFromString(ezRmlUiContext& ref_context, const ezSt
 
     ref_context.LoadDocumentFromMemory(sRmlContent);
   }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (ref_context.HasDocument() && ShouldDebugContext(ref_context))
+  {
+    DebugContext(&ref_context);
+  }
+#endif
 
   return ref_context.HasDocument() ? EZ_SUCCESS : EZ_FAILURE;
 }
@@ -243,3 +314,23 @@ ezMutex& ezRmlUi::GetContextMutex()
 {
   return m_pData->m_ContextsMutex;
 }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+void ezRmlUi::DebugContext(ezRmlUiContext* pContext)
+{
+  EZ_LOCK(m_pData->m_ContextsMutex);
+
+  if (m_pData->m_bDebuggerInitialized)
+  {
+    Rml::Debugger::Shutdown();
+    m_pData->m_bDebuggerInitialized = false;
+  }
+
+  if (pContext != nullptr)
+  {
+    Rml::Debugger::Initialise(pContext);
+    Rml::Debugger::SetVisible(true);
+    m_pData->m_bDebuggerInitialized = true;
+  }
+}
+#endif

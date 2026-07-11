@@ -11,13 +11,14 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3667610956660949061,10076447021010321389}}
-		u4 %Hash{16999337589989277389}
+		u4 %Hash{14954147408134727285}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
 			s{"{ 3a360a07-31c8-494b-a5ba-ce4adcdcea44 }"}
 			s{"{ 4a03e92d-6c09-40e7-a12d-4d608a1a5e09 }"}
+			s{"{ 5d6228fb-ec03-47c9-a5f0-651bbb09c281 }"}
 			s{"{ 6f52ba5d-c2bf-4e7a-83b2-e6ba9da6fe8f }"}
 			s{"{ b81db567-6ef4-452f-8a8c-b374efd45a67 }"}
 			s{"{ e719a2b9-059b-474a-90fc-415037e55827 }"}
@@ -26,6 +27,7 @@ o
 		{
 			s{"{ 3a360a07-31c8-494b-a5ba-ce4adcdcea44 }"}
 			s{"{ 4a03e92d-6c09-40e7-a12d-4d608a1a5e09 }"}
+			s{"{ 5d6228fb-ec03-47c9-a5f0-651bbb09c281 }"}
 			s{"{ 6f52ba5d-c2bf-4e7a-83b2-e6ba9da6fe8f }"}
 			s{"{ e719a2b9-059b-474a-90fc-415037e55827 }"}
 		}
@@ -76,6 +78,7 @@ o
 		b %OnDemandUpdate{1}
 		b %PassInput{1}
 		s %RmlFile{"{ 4a03e92d-6c09-40e7-a12d-4d608a1a5e09 }"}
+		b %SendEventMessage{0}
 		Vec2u %Size{u3{0,0}}
 	}
 }
@@ -119,6 +122,7 @@ o
 			Uuid{u4{5767842084527288908,10145685247372224283}}
 			Uuid{u4{17502700390169993458,15364194562371257505}}
 			Uuid{u4{9869834696544175999,2029298654234671863}}
+			Uuid{u4{10423172502420794145,7478733422870783688}}
 		}
 		VarArray %Components
 		{
@@ -165,6 +169,7 @@ o
 		b %OnDemandUpdate{1}
 		b %PassInput{1}
 		s %RmlFile{"{ 3a360a07-31c8-494b-a5ba-ce4adcdcea44 }"}
+		b %SendEventMessage{0}
 		Vec2u %Size{u3{0,0}}
 	}
 }
@@ -181,6 +186,51 @@ o
 			Uuid{u4{7463730853608409502,5213171614851582755}}
 		}
 		Uuid %Settings{u4{18024635943807659867,9605308623736577498}}
+	}
+}
+o
+{
+	Uuid %id{u4{10423172502420794145,7478733422870783688}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{0}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1336009601201200651,8011251954977273208}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"DemoUi5"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{1336009601201200651,8011251954977273208}}
+	s %t{"ezRmlUiCanvas2DComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		Vec2 %AnchorPoint{f{0,0}}
+		b %AutobindBlackboards{0}
+		f %CustomScale{0x0000803F}
+		Vec2i %Offset{i3{0,0}}
+		b %OnDemandUpdate{1}
+		b %PassInput{1}
+		s %RmlFile{"{ 5d6228fb-ec03-47c9-a5f0-651bbb09c281 }"}
+		b %SendEventMessage{0}
+		Vec2u %Size{u3{0,0}}
 	}
 }
 o
@@ -247,6 +297,7 @@ o
 		b %OnDemandUpdate{1}
 		b %PassInput{1}
 		s %RmlFile{"{ 6f52ba5d-c2bf-4e7a-83b2-e6ba9da6fe8f }"}
+		b %SendEventMessage{0}
 		Vec2u %Size{u3{0,0}}
 	}
 }
@@ -291,6 +342,7 @@ o
 		b %OnDemandUpdate{1}
 		b %PassInput{1}
 		s %RmlFile{"{ e719a2b9-059b-474a-90fc-415037e55827 }"}
+		b %SendEventMessage{0}
 		Vec2u %Size{u3{0,0}}
 	}
 }
@@ -430,7 +482,7 @@ o
 		s %PluginName{"ezEditorPluginRmlUi"}
 		VarArray %Properties{}
 		s %TypeName{"ezRmlUiCanvasComponentBase"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

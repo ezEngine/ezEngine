@@ -243,7 +243,9 @@ ezRmlUiContext* ezRmlUiCanvasComponentBase::GetOrCreateRmlContext()
   ezStringBuilder sName = "RmlUi_";
   if (m_hResource.IsValid())
   {
-    ezStringView sResourceID = m_hResource.GetResourceIdOrDescription();
+    ezResourceLock<ezRmlUiResource> pResource(m_hResource, ezResourceAcquireMode::BlockTillLoaded);
+
+    ezStringView sResourceID = pResource->GetResourceDescription();
     sName.Append(sResourceID.GetFileName());
   }
 
