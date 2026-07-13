@@ -1364,6 +1364,35 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
   }
 
+  // Builtin_CreateComponent
+  {
+    FillDesc(typeDesc, "Builtin_CreateComponent", gameObjectColor);
+
+    {
+      auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
+      propDesc.m_Category = ezPropertyCategory::Member;
+      propDesc.m_sName = "TypeName";
+      propDesc.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
+      propDesc.m_Flags = ezPropertyFlags::StandardType;
+
+      auto pAttr = EZ_DEFAULT_NEW(ezRttiTypeStringAttribute, "ezComponent");
+      propDesc.m_Attributes.PushBack(pAttr);
+    }
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "GameObject::Create {TypeName}");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_CreateComponent;
+
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("");
+    nodeDesc.AddInputDataPin("GameObject", ezGetStaticRTTI<ezGameObject>(), ezVisualScriptDataType::GameObject, false);
+    AddOutputDataPin<ezComponent>(nodeDesc, "Component");
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), ezMakeHashedString("GameObject"));
+  }
+
   // Builtin_TryGetComponentOfBaseType
   {
     FillDesc(typeDesc, "Builtin_TryGetComponentOfBaseType", gameObjectColor);

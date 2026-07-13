@@ -45,6 +45,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezWorld, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_FUNCTIONS
   {
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_CreateGameObject, In, "Name", In, "Parent", In, "LocalPosition", In, "LocalRotation", In, "LocalScale", In, "Dynamic"),
     EZ_SCRIPT_FUNCTION_PROPERTY(DeleteObjectDelayed, In, "GameObject", In, "DeleteEmptyParents")->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(true))),
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_TryGetObjectWithGlobalKey, In, "GlobalKey")->AddFlags(ezPropertyFlags::PureFunction),
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SearchForObject, In, "SearchPath", In, "ReferenceObject")->AddFlags(ezPropertyFlags::PureFunction),
@@ -672,6 +673,21 @@ const ezWorldModule* ezWorld::GetModule(const ezRTTI* pRtti) const
   }
 
   return nullptr;
+}
+
+ezGameObject* ezWorld::Reflection_CreateGameObject(ezHashedString sName, const ezGameObjectHandle& hParent, const ezVec3& vLocalPosition, const ezQuat& qLocalRotation, const ezVec3& vLocalScale, bool bDynamic)
+{
+  ezGameObjectDesc desc;
+  desc.m_bDynamic = bDynamic;
+  desc.m_sName = sName;
+  desc.m_hParent = hParent;
+  desc.m_LocalPosition = vLocalPosition;
+  desc.m_LocalRotation = qLocalRotation;
+  desc.m_LocalScaling = vLocalScale;
+
+  ezGameObject* pObject = nullptr;
+  CreateObject(desc, pObject);
+  return pObject;
 }
 
 ezGameObject* ezWorld::Reflection_TryGetObjectWithGlobalKey(ezTempHashedString sGlobalKey)

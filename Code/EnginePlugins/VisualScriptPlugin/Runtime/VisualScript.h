@@ -92,6 +92,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
       Builtin_Array_Remove,
       Builtin_Array_RemoveAt,
 
+      Builtin_CreateComponent,
       Builtin_TryGetComponentOfBaseType,
 
       Builtin_StartCoroutine,

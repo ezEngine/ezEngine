@@ -406,6 +406,7 @@ private:
   friend class ezComponent;
   EZ_ALLOW_PRIVATE_PROPERTIES(ezWorld);
 
+  ezGameObject* Reflection_CreateGameObject(ezHashedString sName, const ezGameObjectHandle& hParent, const ezVec3& vLocalPosition, const ezQuat& qLocalRotation, const ezVec3& vLocalScale, bool bDynamic);
   ezGameObject* Reflection_TryGetObjectWithGlobalKey(ezTempHashedString sGlobalKey);
   ezGameObject* Reflection_SearchForObject(ezStringView sSearchPath, ezGameObject* pReferenceObject) { return SearchForObject(sSearchPath, pReferenceObject, nullptr); }
   ezClock* Reflection_GetClock();

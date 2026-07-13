@@ -1500,6 +1500,35 @@ namespace
 
   //////////////////////////////////////////////////////////////////////////
 
+  static ExecResult NodeFunction_Builtin_CreateComponent(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    auto& userData = node.GetUserData<NodeUserData_Type>();
+
+    ezTypedPointer p = inout_context.GetPointerData(node.GetInputDataOffset(0));
+    if (p.m_pType != ezGetStaticRTTI<ezGameObject>())
+    {
+      ezLog::Error("Visual script call CreateComponent: Game object is not of type 'ezGameObject'");
+      return ExecResult::Error();
+    }
+
+    if (p.m_pObject == nullptr)
+    {
+      ezLog::Error("Visual script call CreateComponent: Game object is null");
+      return ExecResult::Error();
+    }
+
+    ezGameObject* pObject = static_cast<ezGameObject*>(p.m_pObject);
+    auto pComponentManager = pObject->GetWorld()->GetOrCreateManagerForComponentType(userData.m_pType);
+
+    ezComponent* pComponent = nullptr;
+    pComponentManager->CreateComponent(pObject, pComponent);
+    inout_context.SetPointerData(node.GetOutputDataOffset(0), pComponent);
+
+    return ExecResult::RunNext(0);
+  }
+
+  //////////////////////////////////////////////////////////////////////////
+
   static ExecResult NodeFunction_Builtin_TryGetComponentOfBaseType(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     auto& userData = node.GetUserData<NodeUserData_Type>();
@@ -1714,6 +1743,7 @@ namespace
     {&NodeFunction_Builtin_Array_Remove},                      // Builtin_Array_Remove,
     {&NodeFunction_Builtin_Array_RemoveAt},                    // Builtin_Array_RemoveAt,
 
+    {&NodeFunction_Builtin_CreateComponent},                   // Builtin_CreateComponent
     {&NodeFunction_Builtin_TryGetComponentOfBaseType},         // Builtin_TryGetComponentOfBaseType
 
     {&NodeFunction_Builtin_StartCoroutine},                    // Builtin_StartCoroutine,
