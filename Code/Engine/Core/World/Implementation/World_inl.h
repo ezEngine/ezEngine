@@ -6,7 +6,12 @@ EZ_ALWAYS_INLINE ezStringView ezWorld::GetName() const
 
 EZ_ALWAYS_INLINE ezUInt32 ezWorld::GetIndex() const
 {
-  return m_uiIndex;
+  return m_InternalId.m_InstanceIndex;
+}
+
+EZ_ALWAYS_INLINE ezWorldHandle ezWorld::GetHandle() const
+{
+  return ezWorldHandle(m_InternalId);
 }
 
 EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc)
@@ -23,8 +28,8 @@ EZ_ALWAYS_INLINE const ezEvent<const ezGameObject*>& ezWorld::GetObjectDeletionE
 EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& hObject) const
 {
   CheckForReadAccess();
-  EZ_ASSERT_DEV(hObject.IsInvalidated() || hObject.m_InternalId.m_WorldIndex == m_uiIndex,
-    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, hObject.m_InternalId.m_WorldIndex);
+  EZ_ASSERT_DEV(hObject.IsInvalidated() || hObject.m_InternalId.m_WorldIndex == GetIndex(),
+    "Object does not belong to this world. Expected world id {0} got id {1}", GetIndex(), hObject.m_InternalId.m_WorldIndex);
 
   return m_Data.m_Objects.Contains(hObject);
 }
@@ -32,8 +37,8 @@ EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& hObject) c
 EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& hObject, ezGameObject*& out_pObject)
 {
   CheckForReadAccess();
-  EZ_ASSERT_DEV(hObject.IsInvalidated() || hObject.m_InternalId.m_WorldIndex == m_uiIndex,
-    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, hObject.m_InternalId.m_WorldIndex);
+  EZ_ASSERT_DEV(hObject.IsInvalidated() || hObject.m_InternalId.m_WorldIndex == GetIndex(),
+    "Object does not belong to this world. Expected world id {0} got id {1}", GetIndex(), hObject.m_InternalId.m_WorldIndex);
 
   return m_Data.m_Objects.TryGetValue(hObject, out_pObject);
 }
@@ -41,8 +46,8 @@ EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& hObject, ez
 EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& hObject, const ezGameObject*& out_pObject) const
 {
   CheckForReadAccess();
-  EZ_ASSERT_DEV(hObject.IsInvalidated() || hObject.m_InternalId.m_WorldIndex == m_uiIndex,
-    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, hObject.m_InternalId.m_WorldIndex);
+  EZ_ASSERT_DEV(hObject.IsInvalidated() || hObject.m_InternalId.m_WorldIndex == GetIndex(),
+    "Object does not belong to this world. Expected world id {0} got id {1}", GetIndex(), hObject.m_InternalId.m_WorldIndex);
 
   ezGameObject* pObject = nullptr;
   bool bResult = m_Data.m_Objects.TryGetValue(hObject, pObject);
@@ -526,21 +531,29 @@ EZ_ALWAYS_INLINE ezUInt32 ezWorld::GetWorldCount()
 }
 
 // static
-EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(ezUInt32 uiIndex)
+EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(ezUInt8 uiIndex)
 {
-  return s_Worlds[uiIndex];
+  return s_Worlds.GetValueUnchecked(uiIndex);
+}
+
+// static
+EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(const ezWorldHandle& hWorld)
+{
+  ezWorld* pWorld = nullptr;
+  s_Worlds.TryGetValue(hWorld.m_InternalId, pWorld);
+  return pWorld;
 }
 
 // static
 EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(const ezGameObjectHandle& hObject)
 {
-  return s_Worlds[hObject.GetInternalID().m_WorldIndex];
+  return GetWorld(hObject.GetInternalID().m_WorldIndex);
 }
 
 // static
 EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(const ezComponentHandle& hComponent)
 {
-  return s_Worlds[hComponent.GetInternalID().m_WorldIndex];
+  return GetWorld(hComponent.GetInternalID().m_WorldIndex);
 }
 
 EZ_ALWAYS_INLINE void ezWorld::CheckForReadAccess() const

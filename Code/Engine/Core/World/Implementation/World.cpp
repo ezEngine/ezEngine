@@ -10,7 +10,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Utilities/Stats.h>
 
-ezStaticArray<ezWorld*, ezWorld::GetMaxNumWorlds()> ezWorld::s_Worlds;
+ezIdTable<ezWorldId, ezWorld*> ezWorld::s_Worlds;
 
 static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData, ezComponentHandle hThis, ezStringView sProperty)
 {
@@ -67,28 +67,10 @@ ezWorld::ezWorld(ezWorldDesc& ref_desc)
   sb.Append(".Update");
   m_pUpdateTask->ConfigureTask(sb, ezTaskNesting::Maybe);
 
-  m_uiIndex = ezInvalidIndex;
+  EZ_ASSERT_DEV(GetWorldCount() < GetMaxNumWorlds(), "Max number of worlds reached: {}", GetMaxNumWorlds());
+  static_assert(GetMaxNumWorlds() == EZ_MAX_WORLDS);
 
-  // find a free world slot
-  const ezUInt32 uiWorldCount = s_Worlds.GetCount();
-  for (ezUInt32 i = 0; i < uiWorldCount; i++)
-  {
-    if (s_Worlds[i] == nullptr)
-    {
-      s_Worlds[i] = this;
-      m_uiIndex = i;
-      break;
-    }
-  }
-
-  if (m_uiIndex == ezInvalidIndex)
-  {
-    m_uiIndex = s_Worlds.GetCount();
-    EZ_ASSERT_DEV(m_uiIndex < GetMaxNumWorlds(), "Max world index reached: {}", GetMaxNumWorlds());
-    static_assert(GetMaxNumWorlds() == EZ_MAX_WORLDS);
-
-    s_Worlds.PushBack(this);
-  }
+  m_InternalId = s_Worlds.Insert(this);
 
   SetGameObjectReferenceResolver(DefaultGameObjectReferenceResolver);
 }
@@ -100,8 +82,8 @@ ezWorld::~ezWorld()
   EZ_LOCK(GetWriteMarker());
   m_Data.Clear();
 
-  s_Worlds[m_uiIndex] = nullptr;
-  m_uiIndex = ezInvalidIndex;
+  s_Worlds.Remove(m_InternalId);
+  m_InternalId.Invalidate();
 }
 
 
@@ -184,7 +166,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
 
   // insert the new object into the id mapping table
   ezGameObjectId newId = m_Data.m_Objects.Insert(pNewObject);
-  newId.m_WorldIndex = ezGameObjectId::StorageType(m_uiIndex & (EZ_MAX_WORLDS - 1));
+  newId.m_WorldIndex = GetIndex();
 
   // fill out some data
   pNewObject->m_InternalId = newId;
@@ -314,7 +296,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject0, bool bAlsoDele
 
   // invalidate (but preserve world index) and remove from id table
   pObject->m_InternalId.Invalidate();
-  pObject->m_InternalId.m_WorldIndex = m_uiIndex;
+  pObject->m_InternalId.m_WorldIndex = GetIndex();
 
   m_Data.m_DeadObjects.Insert(pObject);
   EZ_VERIFY(m_Data.m_Objects.Remove(hObject), "Implementation error.");

@@ -95,6 +95,9 @@ private:
   friend class ezRenderWorld;
   friend class ezView;
 
+  /// \brief Returns whether the pipeline should be rendered. E.g. returns false if the associated world has been destroyed.
+  bool ShouldRender() const;
+
   // \brief Rebuilds the render pipeline, e.g. sorting passes via dependencies and creating render targets.
   PipelineState Rebuild(const ezView& view);
   bool RebuildInternal(const ezView& view);
