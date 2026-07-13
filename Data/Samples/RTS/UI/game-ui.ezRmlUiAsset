@@ -11,23 +11,23 @@ o
 		s %AssetType{"RmlUi"}
 		VarArray %Dependencies
 		{
-			s{"RmlUI/rmlui-default/assets.rcss"}
-			s{"RmlUI/rmlui-default/button.rcss"}
-			s{"RmlUI/rmlui-default/common.rcss"}
-			s{"RmlUI/rmlui-default/expand.rcss"}
-			s{"RmlUI/rmlui-default/input-checkbox.rcss"}
-			s{"RmlUI/rmlui-default/input-radio.rcss"}
-			s{"RmlUI/rmlui-default/input-range.rcss"}
-			s{"RmlUI/rmlui-default/input-submit.rcss"}
-			s{"RmlUI/rmlui-default/input-text.rcss"}
-			s{"RmlUI/rmlui-default/progress.rcss"}
-			s{"RmlUI/rmlui-default/scrollbar.rcss"}
-			s{"RmlUI/rmlui-default/select.rcss"}
-			s{"RmlUI/rmlui-default/table.rcss"}
-			s{"RmlUI/rmlui-default/tabs.rcss"}
-			s{"RmlUI/rmlui-default/template.rml"}
-			s{"RmlUI/rmlui-default/textarea.rcss"}
-			s{"RmlUI/rmlui-default/window.rcss"}
+			s{"rmlui-default/assets.rcss"}
+			s{"rmlui-default/button.rcss"}
+			s{"rmlui-default/common.rcss"}
+			s{"rmlui-default/expand.rcss"}
+			s{"rmlui-default/input-checkbox.rcss"}
+			s{"rmlui-default/input-radio.rcss"}
+			s{"rmlui-default/input-range.rcss"}
+			s{"rmlui-default/input-submit.rcss"}
+			s{"rmlui-default/input-text.rcss"}
+			s{"rmlui-default/progress.rcss"}
+			s{"rmlui-default/scrollbar.rcss"}
+			s{"rmlui-default/select.rcss"}
+			s{"rmlui-default/table.rcss"}
+			s{"rmlui-default/tabs.rcss"}
+			s{"rmlui-default/template.rml"}
+			s{"rmlui-default/textarea.rcss"}
+			s{"rmlui-default/window.rcss"}
 			s{"UI/game-ui.rml"}
 			s{"UI/game-widget.rcss"}
 		}

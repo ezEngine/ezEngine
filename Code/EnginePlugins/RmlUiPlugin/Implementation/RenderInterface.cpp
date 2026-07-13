@@ -15,7 +15,7 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <RmlUiPlugin/Implementation/RenderInterface.h>
 
-#include <RendererCore/../../../Data/Plugins/Shaders/RmlUiConstants.h>
+#include <RendererCore/../../../Data/Plugins/RmlUiPlugin/Shaders/RmlUiConstants.h>
 
 namespace ezRmlUiInternal
 {

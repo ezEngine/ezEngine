@@ -4,7 +4,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
 
-void ezQtEditorApp::AddPluginDataDirDependency(const char* szSdkRootRelativePath, const char* szRootName, bool bWriteable)
+void ezQtEditorApp::AddPluginDataDirDependency(const char* szSdkRootRelativePath, const char* szRootName, bool bWriteable, ezUInt32 uiInsertIndex)
 {
   ezStringBuilder sPath = szSdkRootRelativePath;
   sPath.MakeCleanPath();
@@ -28,7 +28,10 @@ void ezQtEditorApp::AddPluginDataDirDependency(const char* szSdkRootRelativePath
   cfg.m_sRootName = szRootName;
   cfg.m_bHardCodedDependency = true;
 
-  m_FileSystemConfig.m_DataDirs.PushBack(cfg);
+  if (uiInsertIndex == ezInvalidIndex || uiInsertIndex >= m_FileSystemConfig.m_DataDirs.GetCount())
+    m_FileSystemConfig.m_DataDirs.PushBack(cfg);
+  else
+    m_FileSystemConfig.m_DataDirs.InsertAt(uiInsertIndex, cfg);
 }
 
 void ezQtEditorApp::SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg)
@@ -62,7 +65,38 @@ void ezQtEditorApp::SetupDataDirectories()
   m_Events.Broadcast(e);
 
   ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(">sdk/Data/Base", "base", false);
-  ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(">sdk/Data/Plugins", "plugins", false);
+
+  // Remove stale plugin-bundle data directories (bundle no longer active, or the legacy shared mount) before re-injecting
+  // the ones that are currently active. This self-heals when a plugin is disabled.
+  {
+    ezSet<ezString> knownBundleDirs;
+    ezQtEditorApp::GetSingleton()->GetAllKnownBundleDataDirectories(knownBundleDirs);
+
+    ezStringBuilder sLegacy = ">sdk/Data/Plugins";
+    sLegacy.MakeCleanPath();
+    knownBundleDirs.Insert(sLegacy);
+
+    for (ezUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
+    {
+      if (knownBundleDirs.Contains(m_FileSystemConfig.m_DataDirs[i - 1].m_sDataDirSpecialPath))
+      {
+        m_FileSystemConfig.m_DataDirs.RemoveAtAndCopy(i - 1);
+      }
+    }
+  }
+
+  // Inject the data directories declared by all currently active plugin bundles (mandatory/selected + transitive
+  // requirements). Added before the ">project/" mount below, so a project can override plugin-provided files.
+  {
+    ezSet<ezString> activeBundleDirs;
+    ezQtEditorApp::GetSingleton()->GetActiveBundleDataDirectories(activeBundleDirs);
+
+    for (const ezString& sDir : activeBundleDirs)
+    {
+      ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(sDir, nullptr, false);
+    }
+  }
+
   ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(">project/", "project", true);
 
   // Tell the tools project that all data directories are ok to put documents in

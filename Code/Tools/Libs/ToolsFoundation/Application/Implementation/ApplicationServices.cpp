@@ -84,15 +84,22 @@ ezString ezApplicationServices::GetDocumentPreferencesFolder(const ezDocument* p
 
 ezString ezApplicationServices::GetPrecompiledToolsFolder(bool bUsePrecompiledTools) const
 {
-  ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();
-
   if (bUsePrecompiledTools)
   {
-    sPath.AppendPath("../../../Data/Tools/Precompiled");
+    // Don't derive this from the application directory through a fixed number of "../" hops -- that assumes
+    // a specific output directory depth (e.g. the default "Output/Bin/<Config>") and breaks for custom
+    // build layouts (e.g. a custom -WorkspaceDir with an extra output folder level). The SDK root is already
+    // known reliably (auto-detected by searching upwards for "ezSdkRoot.txt"), so anchor to that instead.
+    ezFileSystem::DetectSdkRootDirectory().IgnoreResult();
+
+    ezStringBuilder sPath = ezFileSystem::GetSdkRootDirectory();
+    sPath.AppendPath("Data/Tools/Precompiled");
+    sPath.MakeCleanPath();
+    return sPath;
   }
 
+  ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();
   sPath.MakeCleanPath();
-
   return sPath;
 }
 

@@ -21,4 +21,10 @@ add_dependencies(${PROJECT_NAME}
   EnginePluginParticle
 )
 
+# ParticlePlugin exposes headers that include shared C++/HLSL data structs from the Data directory.
+# Those include paths are PRIVATE on ParticlePlugin so we must repeat them here.
+target_include_directories(${PROJECT_NAME} PRIVATE
+  "${CMAKE_CURRENT_SOURCE_DIR}/../../../../Data/Base"
+)
+
 

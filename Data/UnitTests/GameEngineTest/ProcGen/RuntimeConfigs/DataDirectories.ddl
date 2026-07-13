@@ -6,8 +6,8 @@ DataDir
 }
 DataDir
 {
-	string %Path{">sdk/Data/Plugins"}
-	string %RootName{"plugins"}
+	string %Path{">sdk/Data/Plugins/ProcGenPlugin"}
+	string %RootName{""}
 	bool %Writable{false}
 }
 DataDir

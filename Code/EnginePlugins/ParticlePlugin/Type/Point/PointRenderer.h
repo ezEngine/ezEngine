@@ -5,7 +5,7 @@
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardQuadParticleShaderData.h>
+#include <RendererCore/../../../Data/Plugins/ParticlePlugin/Shaders/Particles/BillboardQuadParticleShaderData.h>
 #include <RendererFoundation/Resources/BufferPool.h>
 
 /// Render data for point particles.

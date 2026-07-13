@@ -1,7 +1,7 @@
 Fonts
 {
-	string{"RmlUI/rmlui-default/LatoLatin-Regular.ttf"}
-	string{"RmlUI/rmlui-default/LatoLatin-Italic.ttf"}
-	string{"RmlUI/rmlui-default/LatoLatin-Bold.ttf"}
-	string{"RmlUI/rmlui-default/LatoLatin-BoldItalic.ttf"}
+	string{"rmlui-default/LatoLatin-Regular.ttf"}
+	string{"rmlui-default/LatoLatin-Italic.ttf"}
+	string{"rmlui-default/LatoLatin-Bold.ttf"}
+	string{"rmlui-default/LatoLatin-BoldItalic.ttf"}
 }

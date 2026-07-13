@@ -7,7 +7,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererFoundation/Resources/BufferPool.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Particles/TrailShaderData.h>
+#include <RendererCore/../../../Data/Plugins/ParticlePlugin/Shaders/Particles/TrailShaderData.h>
 
 /// Render data for trail particles.
 class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderData final : public ezRenderData

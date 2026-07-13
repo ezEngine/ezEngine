@@ -160,7 +160,7 @@ BOOL1(UseOrmTexture);
 
 #include <Shaders/Materials/MaterialVertexShader.h>
 %if TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_PROCEDURAL
-#include <ProcGen/ProcGenVertexColor.h>
+#include <ProcGenVertexColor.h>
 %endif
 
 VS_OUT main(VS_IN Input)

@@ -7,7 +7,7 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
+#include <RendererCore/../../../Data/Plugins/ParticlePlugin/Shaders/Particles/ParticleSystemConstants.h>
 
 class ezGALBufferPool;
 class ezRenderContext;

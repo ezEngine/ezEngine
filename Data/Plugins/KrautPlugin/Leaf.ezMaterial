@@ -1,9 +1,9 @@
-string %Shader { "Kraut/Kraut.ezShader" }
+string %Shader { "Kraut.ezShader" }
 
 Permutation
 {
   string %Variable { "BLEND_MODE" }
-  string %Value { "BLEND_MODE_OPAQUE" }
+  string %Value { "BLEND_MODE_MASKED" }
 }
 
 Permutation
@@ -15,7 +15,7 @@ Permutation
 Constant
 {
   string %Variable { "KrautTreeMode" }
-  u3 %Value { 0 }
+  u3 %Value { 2 }
 }
 
 Texture2D
@@ -29,4 +29,3 @@ Texture2D
   string %Variable { "NormalTexture" }
   string %Value { "Black.color" }
 }
-

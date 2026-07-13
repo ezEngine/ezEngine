@@ -9,6 +9,7 @@ PluginInfo
 	string %EditorEnginePlugins{"ezEnginePluginTerrain"}
 	string %RuntimePlugins{"ezTerrainPlugin"}
 	string %PackageDependencies{}
+	string %DataDirectories{">sdk/Data/Plugins/TerrainPlugin"}
 	string %RequiredPlugins{}
 	string %ExclusiveFeatures{}
 	string %EnabledInTemplates{"General3D"}

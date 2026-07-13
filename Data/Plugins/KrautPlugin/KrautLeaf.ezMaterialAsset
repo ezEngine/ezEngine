@@ -11,7 +11,7 @@ o
 		s %AssetType{"Material"}
 		VarArray %Dependencies
 		{
-			s{"Kraut/Kraut.ezShader"}
+			s{"Kraut.ezShader"}
 		}
 		Uuid %DocumentID{u4{14703000161299225229,5028904401778289702}}
 		u4 %Hash{11670749873006357277}
@@ -24,7 +24,7 @@ o
 		}
 		VarArray %References
 		{
-			s{"Kraut/Kraut.ezShader"}
+			s{"Kraut.ezShader"}
 			s{"White.color"}
 			s{"{ aa700289-9aae-4ec5-81ea-9c381ec8309e }"}
 		}
@@ -37,7 +37,7 @@ Objects
 o
 {
 	Uuid %id{u4{3854811707890825690,4800712492177526299}}
-	s %t{"Kraut/Kraut.ezShader"}
+	s %t{"Kraut.ezShader"}
 	u3 %v{2}
 	p
 	{
@@ -66,7 +66,7 @@ o
 	{
 		s %AssetFilterTags{"Kraut;Kraut-Leaf"}
 		s %BaseMaterial{""}
-		s %Shader{"Kraut/Kraut.ezShader"}
+		s %Shader{"Kraut.ezShader"}
 		s %ShaderMode{"ezMaterialShaderMode::File"}
 		Uuid %ShaderProperties{u4{3854811707890825690,4800712492177526299}}
 		s %Surface{""}
@@ -455,7 +455,7 @@ o
 			Uuid{u4{6531323744674856096,1087810015732108027}}
 			Uuid{u4{8631691144663655203,17842077780041545775}}
 		}
-		s %TypeName{"Kraut/Kraut.ezShader"}
+		s %TypeName{"Kraut.ezShader"}
 		u3 %TypeVersion{2}
 	}
 }

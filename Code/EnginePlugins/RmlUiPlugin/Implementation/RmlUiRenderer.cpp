@@ -9,7 +9,7 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-#include <RendererCore/../../../Data/Plugins/Shaders/RmlUiBlitConstants.h>
+#include <RendererCore/../../../Data/Plugins/RmlUiPlugin/Shaders/RmlUiBlitConstants.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiRenderData, 1, ezRTTINoAllocator)
