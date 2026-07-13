@@ -10,12 +10,11 @@
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/SplineMeshComponent.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/DynamicBuffer.h>
 
-#include <RendererCore/../../../Data/Plugins/ProcGenPlugin/ProcGenVertexColor.h>
+#include <ProcGenPlugin/Shaders/ProcGen/ProcGenVertexColor.h>
 
 namespace
 {

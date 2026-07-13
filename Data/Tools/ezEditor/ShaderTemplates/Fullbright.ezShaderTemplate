@@ -134,7 +134,7 @@ COLOR4F(EmissiveColor);
 
 #include <Shaders/Materials/MaterialVertexShader.h>
 %if TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_PROCEDURAL
-#include <ProcGenVertexColor.h>
+#include <Shaders/ProcGen/ProcGenVertexColor.h>
 %endif
 
 VS_OUT main(VS_IN Input)
