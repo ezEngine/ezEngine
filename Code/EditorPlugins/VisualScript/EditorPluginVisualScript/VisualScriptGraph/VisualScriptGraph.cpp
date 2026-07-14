@@ -514,6 +514,11 @@ void ezVisualScriptNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezVisual
 
     auto& typeAccessor = GetRootObject()->GetChildren()[0]->GetTypeAccessor();
     const ezUInt32 uiNumVariables = typeAccessor.GetCount(sVariables.GetView());
+
+    // Pre-allocate the necessary memory for the property values since we take slices of it in the loop below,
+    // thus we must not reallocate the array otherwise the slices would become invalid.
+    m_PropertyValues.Reserve(uiNumVariables);
+
     for (ezUInt32 i = 0; i < uiNumVariables; ++i)
     {
       ezVariant variableUuid = typeAccessor.GetValue(sVariables.GetView(), i);

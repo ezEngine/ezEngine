@@ -1342,6 +1342,13 @@ namespace
     return ExecResult::RunNext(0);
   }
 
+  static ExecResult NodeFunction_Builtin_String_IsEmpty(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    auto& sText = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
+    inout_context.SetData(node.GetOutputDataOffset(0), sText.IsEmpty());
+    return ExecResult::RunNext(0);
+  }
+
   //////////////////////////////////////////////////////////////////////////
 
   static ExecResult NodeFunction_Builtin_MakeArray(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
@@ -1728,6 +1735,7 @@ namespace
 
     {&NodeFunction_Builtin_String_Format},                     // Builtin_String_Format,
     {&NodeFunction_Builtin_String_GetCharacterCount},          // Builtin_String_GetCharacterCount,
+    {&NodeFunction_Builtin_String_IsEmpty},                    // Builtin_String_IsEmpty,
 
     {&NodeFunction_Builtin_MakeArray},                         // Builtin_MakeArray
     {&NodeFunction_Builtin_Array_GetElement},                  // Builtin_Array_GetElement,

@@ -416,7 +416,14 @@ void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti, bool bForce
           ezUInt32 uiStart = m_PropertyValues.GetCount();
           m_PropertyValues.PushBack({sType, sTypeName});
           m_PropertyValues.PushBack({sProperty, pProp->GetPropertyName()});
-          m_PropertyValues.PushBack({sValue, ezReflectionUtils::GetDefaultValue(pProp)});
+
+          // String views are not allowed in command history, so we need to convert the value into a proper string.
+          ezVariant defaultValue = ezReflectionUtils::GetDefaultValue(pProp);
+          if (defaultValue.IsA<ezStringView>())
+          {
+            defaultValue = defaultValue.ConvertTo<ezString>();
+          }
+          m_PropertyValues.PushBack({sValue, defaultValue});
 
           // Setter
           {
@@ -1142,13 +1149,26 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
   // Builtin_String_GetCharacterCount
   {
-    FillDesc(typeDesc, "Builtin_String_GetCharacterCount", stringColor);
+    FillDesc(typeDesc, "Builtin_String::GetCharacterCount", stringColor);
 
     NodeDesc nodeDesc;
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_String_GetCharacterCount;
 
     AddInputDataPin<ezString>(typeDesc, nodeDesc, "Text");
     AddOutputDataPin<int>(nodeDesc, "");
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sStringCategory);
+  }
+
+  // Builtin_String_IsEmpty
+  {
+    FillDesc(typeDesc, "Builtin_String::IsEmpty", stringColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_String_IsEmpty;
+
+    AddInputDataPin<ezString>(typeDesc, nodeDesc, "Text");
+    AddOutputDataPin<bool>(nodeDesc, "");
 
     RegisterNodeType(typeDesc, std::move(nodeDesc), sStringCategory);
   }

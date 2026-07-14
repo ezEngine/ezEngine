@@ -592,6 +592,7 @@ namespace
 
     {},                                           // Builtin_String_Format,
     {},                                           // Builtin_String_GetCharacterCount,
+    {},                                           // Builtin_String_IsEmpty,
 
     {},                                           // Builtin_MakeArray
     {},                                           // Builtin_Array_GetElement,

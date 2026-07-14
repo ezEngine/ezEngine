@@ -285,6 +285,7 @@ namespace
 
     nullptr,                                   // Builtin_String_Format,
     nullptr,                                   // Builtin_String_GetCharacterCount,
+    nullptr,                                   // Builtin_String_IsEmpty,
 
     nullptr,                                   // Builtin_MakeArray
     nullptr,                                   // Builtin_Array_GetElement,
@@ -1498,7 +1499,11 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
 
   // Go through all loop body nodes and check if they have data connections to nodes outside the loop.
   // If so add the data input to the jump node to prevent register re-use inside the loop.
-  m_CompilationState.m_VisitedNodes.Insert(pLoopBody);
+  if (pLoopBody != nullptr)
+  {
+    m_CompilationState.m_VisitedNodes.Insert(pLoopBody);
+  }
+
   for (auto pAstNode : m_CompilationState.m_VisitedNodes)
   {
     if (pAstNode == pLoopIncrement)
