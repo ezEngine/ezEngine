@@ -28,7 +28,7 @@ public:
   EZ_ALWAYS_INLINE const ezViewData& GetViewData() const { return m_ViewData; }
 
   EZ_ALWAYS_INLINE void SetWorldHandle(const ezWorldHandle& hWorld) { m_hWorld = hWorld; }
-  EZ_ALWAYS_INLINE const ezWorldHandle& GetWorldHandle() const  { return m_hWorld; }
+  EZ_ALWAYS_INLINE const ezWorldHandle& GetWorldHandle() const { return m_hWorld; }
 
   EZ_ALWAYS_INLINE void SetWorldTime(ezTime time) { m_WorldTime = time; }
   EZ_ALWAYS_INLINE ezTime GetWorldTime() const { return m_WorldTime; }
