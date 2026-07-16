@@ -541,6 +541,7 @@ EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(const ezWorldHandle& hWorld)
 {
   ezWorld* pWorld = nullptr;
   bool _ = s_Worlds.TryGetValue(hWorld.m_InternalId, pWorld);
+  EZ_IGNORE_UNUSED(_);
   return pWorld;
 }
 
