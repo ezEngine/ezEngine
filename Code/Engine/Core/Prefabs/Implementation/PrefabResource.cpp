@@ -40,7 +40,15 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& ref_world, const ezTransform& 
     m_WorldReader.InstantiatePrefab(ref_world, rootTransform, options);
 
     EZ_ASSERT_DEBUG(options.m_pCreatedRootObjectsOut != options.m_pCreatedChildObjectsOut, "These pointers must point to different arrays, otherwise applying exposed properties doesn't work correctly.");
+
+    // It is ok to move static objects through exposed parameter, so we disable the error message here.
+    const bool bReportErrorWhenStaticObjectMoves = ref_world.ReportErrorWhenStaticObjectMoves();
+    ref_world.SetReportErrorWhenStaticObjectMoves(false);
+
     ApplyExposedParameterValues(pExposedParamValues, *options.m_pCreatedChildObjectsOut, *options.m_pCreatedRootObjectsOut);
+
+    // Restore the original error reporting state
+    ref_world.SetReportErrorWhenStaticObjectMoves(bReportErrorWhenStaticObjectMoves);
   }
   else
   {

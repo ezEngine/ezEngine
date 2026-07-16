@@ -410,6 +410,7 @@ private:
   friend class ezWorldModule;
   friend class ezComponentManagerBase;
   friend class ezComponent;
+  friend class ezPrefabResource;
   EZ_ALLOW_PRIVATE_PROPERTIES(ezWorld);
 
   ezGameObject* Reflection_CreateGameObject(ezHashedString sName, const ezGameObjectHandle& hParent, const ezVec3& vLocalPosition, const ezQuat& qLocalRotation, const ezVec3& vLocalScale, bool bDynamic);
@@ -468,6 +469,7 @@ private:
   void ProcessResourceReloadFunctions();
 
   bool ReportErrorWhenStaticObjectMoves() const;
+  void SetReportErrorWhenStaticObjectMoves(bool bReportError);
 
   float GetInvDeltaSeconds() const;
 
