@@ -1594,7 +1594,7 @@ namespace
     }
     else
     {
-      auto sName = inout_context.GetData<ezString>(node.GetInputDataOffset(1));
+      auto& sName = inout_context.GetData<ezString>(node.GetInputDataOffset(1));
       pModule->StopAndDeleteCoroutine(sName, &inout_context.GetInstance());
     }
 

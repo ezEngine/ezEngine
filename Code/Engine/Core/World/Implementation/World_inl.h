@@ -540,7 +540,7 @@ EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(ezUInt8 uiIndex)
 EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(const ezWorldHandle& hWorld)
 {
   ezWorld* pWorld = nullptr;
-  s_Worlds.TryGetValue(hWorld.m_InternalId, pWorld);
+  bool _ = s_Worlds.TryGetValue(hWorld.m_InternalId, pWorld);
   return pWorld;
 }
 
