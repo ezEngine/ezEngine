@@ -23,6 +23,7 @@ macro(ez_find_qt)
 		Widgets
 		Core
 		Gui
+		GuiPrivate
 		Widgets
 		Network
 		Svg
