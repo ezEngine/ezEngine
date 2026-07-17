@@ -83,7 +83,7 @@ float RoughnessValue @Default(0.7) @Clamp(0.0, 1.0);
 #define CUSTOM_INTERPOLATOR float4 Color0 : COLOR0;
 
 #include <Shaders/Materials/MaterialVertexShader.h>
-#include <ProcGenVertexColor.h>
+#include <Shaders/ProcGen/ProcGenVertexColor.h>
 
 VS_OUT main(VS_IN Input)
 {

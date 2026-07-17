@@ -36,7 +36,9 @@ ezVisualScriptVariableType::Int64;Int64
 ezVisualScriptVariableType::Float;Float
 ezVisualScriptVariableType::Double;Double
 ezVisualScriptVariableType::Color;Color
+ezVisualScriptVariableType::Vector2;Vector2
 ezVisualScriptVariableType::Vector3;Vector3
+ezVisualScriptVariableType::Vector4;Vector4
 ezVisualScriptVariableType::Quaternion;Quaternion
 ezVisualScriptVariableType::Transform;Transform
 ezVisualScriptVariableType::Time;Time

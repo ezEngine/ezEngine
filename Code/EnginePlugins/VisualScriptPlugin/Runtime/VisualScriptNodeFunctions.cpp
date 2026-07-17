@@ -1342,6 +1342,13 @@ namespace
     return ExecResult::RunNext(0);
   }
 
+  static ExecResult NodeFunction_Builtin_String_IsEmpty(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    auto& sText = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
+    inout_context.SetData(node.GetOutputDataOffset(0), sText.IsEmpty());
+    return ExecResult::RunNext(0);
+  }
+
   //////////////////////////////////////////////////////////////////////////
 
   static ExecResult NodeFunction_Builtin_MakeArray(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
@@ -1500,6 +1507,35 @@ namespace
 
   //////////////////////////////////////////////////////////////////////////
 
+  static ExecResult NodeFunction_Builtin_CreateComponent(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    auto& userData = node.GetUserData<NodeUserData_Type>();
+
+    ezTypedPointer p = inout_context.GetPointerData(node.GetInputDataOffset(0));
+    if (p.m_pType != ezGetStaticRTTI<ezGameObject>())
+    {
+      ezLog::Error("Visual script call CreateComponent: Game object is not of type 'ezGameObject'");
+      return ExecResult::Error();
+    }
+
+    if (p.m_pObject == nullptr)
+    {
+      ezLog::Error("Visual script call CreateComponent: Game object is null");
+      return ExecResult::Error();
+    }
+
+    ezGameObject* pObject = static_cast<ezGameObject*>(p.m_pObject);
+    auto pComponentManager = pObject->GetWorld()->GetOrCreateManagerForComponentType(userData.m_pType);
+
+    ezComponent* pComponent = nullptr;
+    pComponentManager->CreateComponent(pObject, pComponent);
+    inout_context.SetPointerData(node.GetOutputDataOffset(0), pComponent);
+
+    return ExecResult::RunNext(0);
+  }
+
+  //////////////////////////////////////////////////////////////////////////
+
   static ExecResult NodeFunction_Builtin_TryGetComponentOfBaseType(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     auto& userData = node.GetUserData<NodeUserData_Type>();
@@ -1558,7 +1594,7 @@ namespace
     }
     else
     {
-      auto sName = inout_context.GetData<ezString>(node.GetInputDataOffset(1));
+      auto& sName = inout_context.GetData<ezString>(node.GetInputDataOffset(1));
       pModule->StopAndDeleteCoroutine(sName, &inout_context.GetInstance());
     }
 
@@ -1699,6 +1735,7 @@ namespace
 
     {&NodeFunction_Builtin_String_Format},                     // Builtin_String_Format,
     {&NodeFunction_Builtin_String_GetCharacterCount},          // Builtin_String_GetCharacterCount,
+    {&NodeFunction_Builtin_String_IsEmpty},                    // Builtin_String_IsEmpty,
 
     {&NodeFunction_Builtin_MakeArray},                         // Builtin_MakeArray
     {&NodeFunction_Builtin_Array_GetElement},                  // Builtin_Array_GetElement,
@@ -1714,6 +1751,7 @@ namespace
     {&NodeFunction_Builtin_Array_Remove},                      // Builtin_Array_Remove,
     {&NodeFunction_Builtin_Array_RemoveAt},                    // Builtin_Array_RemoveAt,
 
+    {&NodeFunction_Builtin_CreateComponent},                   // Builtin_CreateComponent
     {&NodeFunction_Builtin_TryGetComponentOfBaseType},         // Builtin_TryGetComponentOfBaseType
 
     {&NodeFunction_Builtin_StartCoroutine},                    // Builtin_StartCoroutine,

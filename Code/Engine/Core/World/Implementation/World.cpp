@@ -10,7 +10,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Utilities/Stats.h>
 
-ezStaticArray<ezWorld*, ezWorld::GetMaxNumWorlds()> ezWorld::s_Worlds;
+ezIdTable<ezWorldId, ezWorld*> ezWorld::s_Worlds;
 
 static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData, ezComponentHandle hThis, ezStringView sProperty)
 {
@@ -45,6 +45,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezWorld, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_FUNCTIONS
   {
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_CreateGameObject, In, "Name", In, "Parent", In, "LocalPosition", In, "LocalRotation", In, "LocalScale", In, "LocalUniformScale", In, "Dynamic")->AddAttributes(
+      new ezFunctionArgumentAttributes(4, new ezDefaultValueAttribute(ezVec3(1.0f))),
+      new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(1.0f))),
     EZ_SCRIPT_FUNCTION_PROPERTY(DeleteObjectDelayed, In, "GameObject", In, "DeleteEmptyParents")->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(true))),
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_TryGetObjectWithGlobalKey, In, "GlobalKey")->AddFlags(ezPropertyFlags::PureFunction),
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SearchForObject, In, "SearchPath", In, "ReferenceObject")->AddFlags(ezPropertyFlags::PureFunction),
@@ -66,28 +69,10 @@ ezWorld::ezWorld(ezWorldDesc& ref_desc)
   sb.Append(".Update");
   m_pUpdateTask->ConfigureTask(sb, ezTaskNesting::Maybe);
 
-  m_uiIndex = ezInvalidIndex;
+  EZ_ASSERT_DEV(GetWorldCount() < GetMaxNumWorlds(), "Max number of worlds reached: {}", GetMaxNumWorlds());
+  static_assert(GetMaxNumWorlds() == EZ_MAX_WORLDS);
 
-  // find a free world slot
-  const ezUInt32 uiWorldCount = s_Worlds.GetCount();
-  for (ezUInt32 i = 0; i < uiWorldCount; i++)
-  {
-    if (s_Worlds[i] == nullptr)
-    {
-      s_Worlds[i] = this;
-      m_uiIndex = i;
-      break;
-    }
-  }
-
-  if (m_uiIndex == ezInvalidIndex)
-  {
-    m_uiIndex = s_Worlds.GetCount();
-    EZ_ASSERT_DEV(m_uiIndex < GetMaxNumWorlds(), "Max world index reached: {}", GetMaxNumWorlds());
-    static_assert(GetMaxNumWorlds() == EZ_MAX_WORLDS);
-
-    s_Worlds.PushBack(this);
-  }
+  m_InternalId = s_Worlds.Insert(this);
 
   SetGameObjectReferenceResolver(DefaultGameObjectReferenceResolver);
 }
@@ -99,8 +84,8 @@ ezWorld::~ezWorld()
   EZ_LOCK(GetWriteMarker());
   m_Data.Clear();
 
-  s_Worlds[m_uiIndex] = nullptr;
-  m_uiIndex = ezInvalidIndex;
+  s_Worlds.Remove(m_InternalId);
+  m_InternalId.Invalidate();
 }
 
 
@@ -183,7 +168,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
 
   // insert the new object into the id mapping table
   ezGameObjectId newId = m_Data.m_Objects.Insert(pNewObject);
-  newId.m_WorldIndex = ezGameObjectId::StorageType(m_uiIndex & (EZ_MAX_WORLDS - 1));
+  newId.m_WorldIndex = GetIndex();
 
   // fill out some data
   pNewObject->m_InternalId = newId;
@@ -313,7 +298,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject0, bool bAlsoDele
 
   // invalidate (but preserve world index) and remove from id table
   pObject->m_InternalId.Invalidate();
-  pObject->m_InternalId.m_WorldIndex = m_uiIndex;
+  pObject->m_InternalId.m_WorldIndex = GetIndex();
 
   m_Data.m_DeadObjects.Insert(pObject);
   EZ_VERIFY(m_Data.m_Objects.Remove(hObject), "Implementation error.");
@@ -672,6 +657,33 @@ const ezWorldModule* ezWorld::GetModule(const ezRTTI* pRtti) const
   }
 
   return nullptr;
+}
+
+ezGameObject* ezWorld::Reflection_CreateGameObject(ezHashedString sName, const ezGameObjectHandle& hParent, const ezVec3& vLocalPosition, const ezQuat& qLocalRotation, const ezVec3& vLocalScale, float fLocalUniformScale, bool bDynamic)
+{
+  ezGameObjectDesc desc;
+  desc.m_bDynamic = bDynamic;
+  desc.m_sName = sName;
+  desc.m_hParent = hParent;
+  desc.m_LocalPosition = vLocalPosition;
+  desc.m_LocalRotation = qLocalRotation;
+  desc.m_LocalScaling = vLocalScale;
+  desc.m_LocalUniformScaling = fLocalUniformScale;
+
+  // Prevent zero scale, which can easily happen when creating objects from script, as this can easily break all sort of things down the line.
+  if (desc.m_LocalScaling.IsZero(ezMath::DefaultEpsilon<float>()))
+  {
+    desc.m_LocalScaling.Set(0.0001f);
+  }
+
+  if (ezMath::IsZero(desc.m_LocalUniformScaling, ezMath::DefaultEpsilon<float>()))
+  {
+    desc.m_LocalUniformScaling = 0.0001f;
+  }
+
+  ezGameObject* pObject = nullptr;
+  CreateObject(desc, pObject);
+  return pObject;
 }
 
 ezGameObject* ezWorld::Reflection_TryGetObjectWithGlobalKey(ezTempHashedString sGlobalKey)

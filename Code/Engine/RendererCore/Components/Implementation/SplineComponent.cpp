@@ -536,6 +536,7 @@ void ezSplineComponent::CreateDistanceToKeyRemapping()
     const ezUInt32 uiCp1 = (uiCp0 + 1 < uiNumCPs) ? uiCp0 + 1 : 0;
     const auto& vLowerPos = points[uiCp0].m_vPos;
     const auto& vUpperPos = points[uiCp1].m_vPos;
+    EZ_ASSERT_DEBUG(vLowerPos.IsValid<3>() && vUpperPos.IsValid<3>(), "Invalid control point position.");
 
     InsertHalfPoint(segmentTs, uiCp0, 0.0f, 1.0f, vLowerPos, vUpperPos, fMaxErrorSqr, 0, 7);
     segmentTs.Sort();

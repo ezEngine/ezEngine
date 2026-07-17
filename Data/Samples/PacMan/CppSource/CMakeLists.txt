@@ -1,5 +1,10 @@
-#ez-version 2
+#ez-version 3
 cmake_minimum_required(VERSION 3.21)
+
+# Set CMake policies
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "4.1")
+  cmake_policy(SET CMP0194 OLD)
+endif()
 
 project (PacMan VERSION 1.0 LANGUAGES C CXX)
 

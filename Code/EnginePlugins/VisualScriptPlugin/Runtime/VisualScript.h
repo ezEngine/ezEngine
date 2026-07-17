@@ -77,6 +77,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
 
       Builtin_String_Format,
       Builtin_String_GetCharacterCount,
+      Builtin_String_IsEmpty,
 
       Builtin_MakeArray,
       Builtin_Array_GetElement,
@@ -92,6 +93,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
       Builtin_Array_Remove,
       Builtin_Array_RemoveAt,
 
+      Builtin_CreateComponent,
       Builtin_TryGetComponentOfBaseType,
 
       Builtin_StartCoroutine,

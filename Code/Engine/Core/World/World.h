@@ -33,6 +33,9 @@ public:
   /// \brief Returns the index of this world.
   ezUInt32 GetIndex() const;
 
+  /// \brief Returns a handle to this world. The handle can be used to check whether the world is still valid.
+  ezWorldHandle GetHandle() const;
+
   /// \name Object Functions
   ///@{
 
@@ -391,7 +394,10 @@ public:
   static ezUInt32 GetWorldCount();
 
   /// \brief Returns the world with the given index.
-  static ezWorld* GetWorld(ezUInt32 uiIndex);
+  static ezWorld* GetWorld(ezUInt8 uiIndex);
+
+  /// \brief Returns the world with the given handle.
+  static ezWorld* GetWorld(const ezWorldHandle& hWorld);
 
   /// \brief Returns the world for the given game object handle.
   static ezWorld* GetWorld(const ezGameObjectHandle& hObject);
@@ -404,8 +410,10 @@ private:
   friend class ezWorldModule;
   friend class ezComponentManagerBase;
   friend class ezComponent;
+  friend class ezPrefabResource;
   EZ_ALLOW_PRIVATE_PROPERTIES(ezWorld);
 
+  ezGameObject* Reflection_CreateGameObject(ezHashedString sName, const ezGameObjectHandle& hParent, const ezVec3& vLocalPosition, const ezQuat& qLocalRotation, const ezVec3& vLocalScale, float fLocalUniformScale, bool bDynamic);
   ezGameObject* Reflection_TryGetObjectWithGlobalKey(ezTempHashedString sGlobalKey);
   ezGameObject* Reflection_SearchForObject(ezStringView sSearchPath, ezGameObject* pReferenceObject) { return SearchForObject(sSearchPath, pReferenceObject, nullptr); }
   ezClock* Reflection_GetClock();
@@ -461,6 +469,7 @@ private:
   void ProcessResourceReloadFunctions();
 
   bool ReportErrorWhenStaticObjectMoves() const;
+  void SetReportErrorWhenStaticObjectMoves(bool bReportError);
 
   float GetInvDeltaSeconds() const;
 
@@ -473,8 +482,8 @@ private:
 
   ezInternal::WorldData m_Data;
 
-  ezUInt32 m_uiIndex;
-  static ezStaticArray<ezWorld*, EZ_MAX_WORLDS> s_Worlds;
+  ezWorldId m_InternalId;
+  static ezIdTable<ezWorldId, ezWorld*> s_Worlds;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezWorld);

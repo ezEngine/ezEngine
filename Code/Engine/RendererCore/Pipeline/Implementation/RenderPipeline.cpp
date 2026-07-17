@@ -323,6 +323,17 @@ const ezRenderPipelinePassConnection* ezRenderPipeline::GetOutputConnection(cons
   return data.m_Outputs[pPin->m_uiOutputIndex];
 }
 
+bool ezRenderPipeline::ShouldRender() const
+{
+  auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
+
+  const ezWorld* pWorld = ezWorld::GetWorld(data.GetWorldHandle());
+  if (pWorld == nullptr)
+    return false;
+
+  return true;
+}
+
 ezRenderPipeline::PipelineState ezRenderPipeline::Rebuild(const ezView& view)
 {
   ezLogBlock b("ezRenderPipeline::Rebuild");
@@ -876,6 +887,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   // Store camera and viewdata
   data.SetCamera(*view.GetCamera());
   data.SetViewData(view.GetData());
+  data.SetWorldHandle(view.GetWorld()->GetHandle());
   data.SetWorldTime(view.GetWorld()->GetClock().GetAccumulatedTime());
   data.SetWorldDebugContext(view.GetWorld());
   data.SetViewDebugContext(view.GetHandle());
@@ -1123,6 +1135,8 @@ void ezRenderPipeline::UpdateRenderContext(ezRenderGraphContext& ctx)
   m_RenderViewContext.m_pRenderContext = pRenderContext;
   m_RenderViewContext.m_pWorldDebugContext = &data.GetWorldDebugContext();
   m_RenderViewContext.m_pViewDebugContext = &data.GetViewDebugContext();
+
+  EZ_ASSERT_DEBUG(ezWorld::GetWorld(data.GetWorldHandle()) != nullptr, "Trying to render a deleted world");
 
   // Set camera mode permutation variable here since it doesn't change throughout the frame
   static ezHashedString sCameraMode = ezMakeHashedString("CAMERA_MODE");

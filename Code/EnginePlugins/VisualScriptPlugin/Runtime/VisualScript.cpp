@@ -72,6 +72,7 @@ namespace
 
     "Builtin_String_Format",
     "Builtin_String_GetCharacterCount",
+    "Builtin_String_IsEmpty",
 
     "Builtin_MakeArray",
     "Builtin_Array_GetElement",
@@ -87,6 +88,7 @@ namespace
     "Builtin_Array_Remove",
     "Builtin_Array_RemoveAt",
 
+    "Builtin_CreateComponent",
     "Builtin_TryGetComponentOfBaseType",
 
     "Builtin_StartCoroutine",
@@ -163,7 +165,7 @@ ezVisualScriptGraphDescription::ezVisualScriptGraphDescription()
 
 ezVisualScriptGraphDescription::~ezVisualScriptGraphDescription() = default;
 
-static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 8;
+static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 9;
 
 // static
 ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScriptNodeDescription> nodes, const ezVisualScriptDataDescription& localDataDesc, ezStreamWriter& inout_stream)

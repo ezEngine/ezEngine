@@ -577,6 +577,7 @@ void ezSceneContext::OnDeinitialize()
   m_hSkyLight.Invalidate();
   m_hDirectionalLight.Invalidate();
   m_LayerTag = ezTag();
+  m_ObjectsToTag.Clear();
   for (ezLayerContext* pLayer : m_Layers)
   {
     if (pLayer != nullptr)

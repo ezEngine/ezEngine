@@ -19,6 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponent, 1, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetOwner),
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetWorld),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetUniqueID),
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetUniqueID, In, "UniqueID"),
     EZ_SCRIPT_FUNCTION_PROPERTY(DeleteComponent),
     EZ_SCRIPT_FUNCTION_PROPERTY(Initialize)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::Initialize)),
     EZ_SCRIPT_FUNCTION_PROPERTY(Deinitialize)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::Deinitialize)),

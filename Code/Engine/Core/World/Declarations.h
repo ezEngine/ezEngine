@@ -38,6 +38,17 @@ class ezComponent;
 
 struct ezMsgDeleteGameObject;
 
+/// \brief Internal world id used by ezWorldHandle.
+using ezWorldId = ezGenericId<8, 8>;
+
+/// \brief A handle to a world.
+struct ezWorldHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezWorldHandle, ezWorldId);
+
+  friend class ezWorld;
+};
+
 /// \brief Internal game object id used by ezGameObjectHandle.
 struct ezGameObjectId
 {

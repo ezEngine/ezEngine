@@ -246,7 +246,7 @@ ezTestAppRun ezGameEngineTestDynamicTextureAtlas::RunSubTest(ezInt32 iIdentifier
   ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView);
   auto& viewport = pView->GetViewport();
 
-  m_TextureAtlas.DebugDraw(0, viewport.width, viewport.height);
+  m_TextureAtlas.DebugDraw(pView->GetHandle(), viewport.width, viewport.height);
 
   m_pOwnApplication->Run();
   if (m_pOwnApplication->ShouldApplicationQuit())

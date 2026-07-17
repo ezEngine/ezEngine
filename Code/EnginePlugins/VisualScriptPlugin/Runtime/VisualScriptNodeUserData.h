@@ -592,6 +592,7 @@ namespace
 
     {},                                           // Builtin_String_Format,
     {},                                           // Builtin_String_GetCharacterCount,
+    {},                                           // Builtin_String_IsEmpty,
 
     {},                                           // Builtin_MakeArray
     {},                                           // Builtin_Array_GetElement,
@@ -609,7 +610,10 @@ namespace
 
     {&NodeUserData_Type::Serialize,
       &NodeUserData_Type::Deserialize,
-      &NodeUserData_Type::ToString}, // Builtin_TryGetComponentOfBaseType
+      &NodeUserData_Type::ToString}, // Builtin_CreateComponent,
+    {&NodeUserData_Type::Serialize,
+      &NodeUserData_Type::Deserialize,
+      &NodeUserData_Type::ToString}, // Builtin_TryGetComponentOfBaseType,
 
     {&NodeUserData_StartCoroutine::Serialize,
       &NodeUserData_StartCoroutine::Deserialize,
