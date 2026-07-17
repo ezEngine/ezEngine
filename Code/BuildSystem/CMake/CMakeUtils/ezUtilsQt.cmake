@@ -23,7 +23,6 @@ macro(ez_find_qt)
 		Widgets
 		Core
 		Gui
-		GuiPrivate
 		Widgets
 		Network
 		Svg
@@ -35,9 +34,9 @@ macro(ez_find_qt)
 
 	if(EZ_ENABLE_QT_SUPPORT)
 		if(EZ_QT_DIR)
-			find_package(Qt6 ${EZ_REQUIRED_QT_VERSION} COMPONENTS ${EZ_QT_COMPONENTS} REQUIRED PATHS ${EZ_QT_DIR})
+			find_package(Qt6 ${EZ_REQUIRED_QT_VERSION} COMPONENTS ${EZ_QT_COMPONENTS} OPTIONAL_COMPONENTS GuiPrivate REQUIRED PATHS ${EZ_QT_DIR})
 		else()
-			find_package(Qt6 ${EZ_REQUIRED_QT_VERSION} COMPONENTS ${EZ_QT_COMPONENTS} REQUIRED)
+			find_package(Qt6 ${EZ_REQUIRED_QT_VERSION} COMPONENTS ${EZ_QT_COMPONENTS} OPTIONAL_COMPONENTS GuiPrivate REQUIRED)
 		endif()
 	endif()
 
