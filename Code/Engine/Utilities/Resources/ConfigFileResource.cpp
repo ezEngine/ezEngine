@@ -244,6 +244,8 @@ ezResourceLoadData ezConfigFileResourceLoader::OpenDataStream(const ezResource* 
         value.Trim(" ");
 
         line.SetSubString_FromTo(line.GetData(), szAssign);
+        // do not use szAssign after this line anymore
+
         line.ReplaceAll("\t", " ");
         line.ReplaceAll("  ", " ");
         line.Trim(" ");
@@ -253,7 +255,7 @@ ezResourceLoadData ezConfigFileResourceLoader::OpenDataStream(const ezResource* 
 
         if (line.StartsWith("int "))
         {
-          key.SetSubString_FromTo(line.GetData() + 4, szAssign);
+          key.SetSubString_FromTo(line.GetData() + 4, line.GetData() + line.GetElementCount());
           key.Trim(" ");
 
           if (bOverride && !intData.Contains(key))
@@ -273,7 +275,7 @@ ezResourceLoadData ezConfigFileResourceLoader::OpenDataStream(const ezResource* 
         }
         else if (line.StartsWith("float "))
         {
-          key.SetSubString_FromTo(line.GetData() + 6, szAssign);
+          key.SetSubString_FromTo(line.GetData() + 6, line.GetData() + line.GetElementCount());
           key.Trim(" ");
 
           if (bOverride && !floatData.Contains(key))
@@ -293,7 +295,7 @@ ezResourceLoadData ezConfigFileResourceLoader::OpenDataStream(const ezResource* 
         }
         else if (line.StartsWith("bool "))
         {
-          key.SetSubString_FromTo(line.GetData() + 5, szAssign);
+          key.SetSubString_FromTo(line.GetData() + 5, line.GetData() + line.GetElementCount());
           key.Trim(" ");
 
           if (bOverride && !boolData.Contains(key))
@@ -313,7 +315,7 @@ ezResourceLoadData ezConfigFileResourceLoader::OpenDataStream(const ezResource* 
         }
         else if (line.StartsWith("string "))
         {
-          key.SetSubString_FromTo(line.GetData() + 7, szAssign);
+          key.SetSubString_FromTo(line.GetData() + 7, line.GetData() + line.GetElementCount());
           key.Trim(" ");
 
           if (bOverride && !stringData.Contains(key))

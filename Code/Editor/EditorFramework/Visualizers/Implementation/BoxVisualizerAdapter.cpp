@@ -42,6 +42,10 @@ void ezBoxVisualizerAdapter::Update()
       {
         m_vScale *= val.ConvertTo<ezVec3>();
       }
+      else if (val.CanConvertTo<ezVec2>())
+      {
+        m_vScale *= val.ConvertTo<ezVec2>().GetAsVec3(1);
+      }
     }
   }
 

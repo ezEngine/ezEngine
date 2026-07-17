@@ -500,6 +500,14 @@ void ezRenderWorld::ExtractMainViews()
 
   s_bInExtract = true;
 
+  // must happen before the BeginExtraction broadcast, since listeners may call AddViewToRender,
+  // which appends the tasks that we have to wait for below
+  if (cvar_RenderingMultithreading)
+  {
+    EZ_LOCK(s_ExtractTasksMutex);
+    s_ExtractTasks.Clear();
+  }
+
   ezRenderWorldExtractionEvent extractionEvent;
   extractionEvent.m_Type = ezRenderWorldExtractionEvent::Type::BeginExtraction;
   extractionEvent.m_uiFrameCounter = s_uiFrameCounter;
@@ -507,8 +515,6 @@ void ezRenderWorld::ExtractMainViews()
 
   if (cvar_RenderingMultithreading)
   {
-    s_ExtractTasks.Clear();
-
     ezTaskGroupID extractTaskID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
     s_ExtractTasks.PushBack(extractTaskID);
 

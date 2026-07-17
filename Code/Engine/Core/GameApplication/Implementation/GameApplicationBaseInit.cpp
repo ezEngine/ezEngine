@@ -173,6 +173,17 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
 
     appFileSystemConfig.Apply();
   }
+
+  {
+    // We need the file system before we can start the html logger.
+
+    ezGlobalLog::RemoveLogWriter(m_LogToHTML);
+    ezStringBuilder sLogFile;
+    sLogFile.SetFormat(":appdata/Log.htm");
+    m_LogHTML.BeginLog(sLogFile, GetApplicationName());
+
+    m_LogToHTML = ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
+  }
 }
 
 void ezGameApplicationBase::Init_LoadWorldModuleConfig()
@@ -268,5 +279,9 @@ void ezGameApplicationBase::Deinit_ShutdownLogging()
   // during development, keep these loggers active
   ezGlobalLog::RemoveLogWriter(m_LogToConsoleID);
   ezGlobalLog::RemoveLogWriter(m_LogToVsID);
+  ezGlobalLog::RemoveLogWriter(m_LogToTracingID);
 #endif
+
+  ezGlobalLog::RemoveLogWriter(m_LogToHTML);
+  m_LogHTML.EndLog();
 }
