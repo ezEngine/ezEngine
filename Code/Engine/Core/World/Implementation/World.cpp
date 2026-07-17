@@ -45,8 +45,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezWorld, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_CreateGameObject, In, "Name", In, "Parent", In, "LocalPosition", In, "LocalRotation", In, "LocalScale", In, "Dynamic")->AddAttributes(
-      new ezFunctionArgumentAttributes(4, new ezDefaultValueAttribute(ezVec3(1.0f)))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_CreateGameObject, In, "Name", In, "Parent", In, "LocalPosition", In, "LocalRotation", In, "LocalScale", In, "LocalUniformScale", In, "Dynamic")->AddAttributes(
+      new ezFunctionArgumentAttributes(4, new ezDefaultValueAttribute(ezVec3(1.0f))),
+      new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(1.0f))),
     EZ_SCRIPT_FUNCTION_PROPERTY(DeleteObjectDelayed, In, "GameObject", In, "DeleteEmptyParents")->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(true))),
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_TryGetObjectWithGlobalKey, In, "GlobalKey")->AddFlags(ezPropertyFlags::PureFunction),
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SearchForObject, In, "SearchPath", In, "ReferenceObject")->AddFlags(ezPropertyFlags::PureFunction),
@@ -658,7 +659,7 @@ const ezWorldModule* ezWorld::GetModule(const ezRTTI* pRtti) const
   return nullptr;
 }
 
-ezGameObject* ezWorld::Reflection_CreateGameObject(ezHashedString sName, const ezGameObjectHandle& hParent, const ezVec3& vLocalPosition, const ezQuat& qLocalRotation, const ezVec3& vLocalScale, bool bDynamic)
+ezGameObject* ezWorld::Reflection_CreateGameObject(ezHashedString sName, const ezGameObjectHandle& hParent, const ezVec3& vLocalPosition, const ezQuat& qLocalRotation, const ezVec3& vLocalScale, float fLocalUniformScale, bool bDynamic)
 {
   ezGameObjectDesc desc;
   desc.m_bDynamic = bDynamic;
@@ -667,11 +668,17 @@ ezGameObject* ezWorld::Reflection_CreateGameObject(ezHashedString sName, const e
   desc.m_LocalPosition = vLocalPosition;
   desc.m_LocalRotation = qLocalRotation;
   desc.m_LocalScaling = vLocalScale;
+  desc.m_LocalUniformScaling = fLocalUniformScale;
 
   // Prevent zero scale, which can easily happen when creating objects from script, as this can easily break all sort of things down the line.
   if (desc.m_LocalScaling.IsZero(ezMath::DefaultEpsilon<float>()))
   {
     desc.m_LocalScaling.Set(0.0001f);
+  }
+
+  if (ezMath::IsZero(desc.m_LocalUniformScaling, ezMath::DefaultEpsilon<float>()))
+  {
+    desc.m_LocalUniformScaling = 0.0001f;
   }
 
   ezGameObject* pObject = nullptr;
