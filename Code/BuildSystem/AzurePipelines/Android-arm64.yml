@@ -101,6 +101,7 @@ jobs:
         script: |
           & "$(androidHome)/platform-tools/adb" connect $(deviceAdb)
           & "$(androidHome)/platform-tools/adb" -s $(deviceAdb) wait-for-device
+          & "$(androidHome)/platform-tools/adb" -s $(deviceAdb) shell input keyevent KEYCODE_WAKEUP
       env:
         ANDROID_HOME: '$(androidHome)'
 
@@ -169,6 +170,10 @@ jobs:
         pwsh: true
         targetType: inline
         script: |
+          # Set the device to stay awake when KEYCODE_SLEEP is called so adb continues to work but displays will be turned off to save power.
+          # This is done by adding a wake lock to the device. The wake lock will be removed on reboot so this code adds it only if it is not already present.
+          & "$(androidHome)/platform-tools/adb" -s $(deviceAdb) shell "su 0 sh -c 'grep -qw ci-adb /sys/power/wake_lock || echo ci-adb > /sys/power/wake_lock'"
+          & "$(androidHome)/platform-tools/adb" -s $(deviceAdb) shell input keyevent KEYCODE_SLEEP
           & "$(androidHome)/platform-tools/adb" disconnect $(deviceAdb)
       env:
         ANDROID_HOME: '$(androidHome)'

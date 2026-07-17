@@ -99,19 +99,24 @@ verlt() {
     [ "$1" = "$2" ] && return 1 || verlte $1 $2
 }
 
-if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "22" -o "$Version" = "24" -o "$Version" = "25" \) ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ] || [ "$Distribution" = "Debian" -a "$Version" = "13" ]; then
+if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "22" -o "$Version" = "24" -o "$Version" = "25" -o "$Version" = "26" \) ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ] || [ "$Distribution" = "Debian" -a "$Version" = "13" ]; then
   packages=(cmake build-essential ninja-build libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev uuid-dev mold libfreetype-dev libxkbcommon-dev liblttng-ust-dev lttng-tools)
 
-  if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "24" -o "$Version" = "25" \) ] || [ "$Distribution" = "Debian" -a "$Version" = "13" ]; then
+  if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "24" -o "$Version" = "25" -o "$Version" = "26" \) ] || [ "$Distribution" = "Debian" -a "$Version" = "13" ]; then
     packages+=(libtinfo6)
   else  
     packages+=(libtinfo5)
+  fi
+
+  if [ "$Distribution" = "Ubuntu" -a "$Version" = "26" ]; then
+    packages+=(libxxf86vm-dev)
   fi
 else
   >&2 echo "Your Distribution or Distribution version is not supported by this script"
   >&2 echo "Currently supported are:"
   >&2 echo "  * Ubuntu 22"
   >&2 echo "  * Ubuntu 24"
+  >&2 echo "  * Ubuntu 26"
   >&2 echo "  * Linux Mint 21"
   >&2 echo "Yours is: $Issue"
   
