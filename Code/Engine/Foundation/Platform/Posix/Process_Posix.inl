@@ -378,6 +378,7 @@ struct ezProcessImpl
     if (ezOSFile::GetFileStats(executablePath, stats).Failed() || stats.m_bIsDirectory)
     {
       ezHybridArray<char, 512> confPath;
+      auto homePath = getenv("HOME");
       auto envPATH = getenv("PATH");
       if (envPATH == nullptr) // if no PATH environment variable is available, we need to fetch the system default;
       {
@@ -405,7 +406,17 @@ struct ezProcessImpl
 
       for (auto& pathPart : pathParts)
       {
-        executablePath = pathPart;
+        // Linux allows environmental values to be relative to home directory
+        // e.g. PATH=$PATH:.local/bin or PATH=$PATH:~
+        // Handle here or crash
+
+        executablePath.Clear();
+
+        if(!pathPart.IsAbsolutePath()){
+            executablePath.AppendPath(homePath);
+            executablePath.Append("/");
+        }
+        executablePath.AppendPath(pathPart);
         executablePath.AppendPath(opt.m_sProcess);
         if (ezOSFile::GetFileStats(executablePath, stats).Succeeded() && !stats.m_bIsDirectory)
         {

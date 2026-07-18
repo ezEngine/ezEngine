@@ -19,7 +19,7 @@ endmacro()
 macro(ez_find_qt)
 	ez_prepare_find_qt()
 
-	set(EZ_QT_COMPONENTS 
+	set(EZ_QT_COMPONENTS
 		Widgets
 		Core
 		Gui
@@ -28,7 +28,7 @@ macro(ez_find_qt)
 		Svg
 	)
 
-	# ezEngine requires at least Qt 6.3 because earlier versions have a bug which prevents the 3d viewport in the 
+	# ezEngine requires at least Qt 6.3 because earlier versions have a bug which prevents the 3d viewport in the
 	# Editor from working correctly.
 	SET(EZ_REQUIRED_QT_VERSION "6.3")
 
@@ -41,7 +41,7 @@ macro(ez_find_qt)
 	endif()
 
 	message(STATUS "Found Qt6 Version ${Qt6_VERSION} in ${Qt6_DIR}")
-	
+
 	mark_as_advanced(FORCE Qt6_DIR)
 	mark_as_advanced(FORCE Qt6Core_DIR)
 	mark_as_advanced(FORCE Qt6CoreTools_DIR)
@@ -61,7 +61,7 @@ macro(ez_find_qt)
 			ez_platformhook_find_qt()
 		endif()
 	endif()
-	
+
 endmacro()
 
 # #####################################

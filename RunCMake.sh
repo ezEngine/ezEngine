@@ -61,7 +61,7 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
 
-	  
+
     *)
       break
       ;;
@@ -88,6 +88,12 @@ elif [[ $Issue =~ $MintPattern ]]; then
 elif [[ $Issue =~ $DebianPattern ]]; then
   Distribution="Debian"
   Version=${BASH_REMATCH[1]}
+else
+  ISSUE=$(cat /etc/os-release | grep ^NAME | cut -d'"' -f2)
+  if [[ $ISSUE = "Arch Linux" ]]; then
+    Distribution="Arch"
+    Version="Rolling-Release"
+  fi
 fi
 
 # This requires a 'sort' that supports '-V'
@@ -99,18 +105,26 @@ verlt() {
     [ "$1" = "$2" ] && return 1 || verlte $1 $2
 }
 
+PACKAGE_MANAGER=apt
+INSTALL_COMMAND=install
+FORCE_INSTALL=-y
 if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "22" -o "$Version" = "24" -o "$Version" = "25" -o "$Version" = "26" \) ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ] || [ "$Distribution" = "Debian" -a "$Version" = "13" ]; then
   packages=(cmake build-essential ninja-build libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev uuid-dev mold libfreetype-dev libxkbcommon-dev liblttng-ust-dev lttng-tools)
 
   if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "24" -o "$Version" = "25" -o "$Version" = "26" \) ] || [ "$Distribution" = "Debian" -a "$Version" = "13" ]; then
     packages+=(libtinfo6)
-  else  
+  else
     packages+=(libtinfo5)
   fi
 
   if [ "$Distribution" = "Ubuntu" -a "$Version" = "26" ]; then
     packages+=(libxxf86vm-dev)
   fi
+elif [[ $Distribution = "Arch" ]]; then
+    PACKAGE_MANAGER=pacman
+    INSTALL_COMMAND=-Sy
+    FORCE_INSTALL=--noconfirm
+    packages=(ncurses cmake ninja libxrandr libxinerama libxi mold base-devel freetype2 lttng-ust libxkbcommon)
 else
   >&2 echo "Your Distribution or Distribution version is not supported by this script"
   >&2 echo "Currently supported are:"
@@ -118,26 +132,36 @@ else
   >&2 echo "  * Ubuntu 24"
   >&2 echo "  * Ubuntu 26"
   >&2 echo "  * Linux Mint 21"
+  >&2 echo "  * Arch Linux"
   >&2 echo "Yours is: $Issue"
-  
+
   exit 1
 fi
 
 if [ "$Setup" = true ]; then
-  qtVer=$(apt list qt6-base-dev 2>/dev/null | grep -o "6\.[0-9]*\.[0-9]")
+  if [[ $PACKAGE_MANAGER = "apt" ]]; then
+    qtVer=$(apt list qt6-base-dev 2>/dev/null | grep -o "6\.[0-9]*\.[0-9]")
+  else
+    qtVer=$(pacman -Ss qt6-base 2>/dev/null | grep -o "6\.[0-9]*\.[0-9]")
+  fi
   echo $qtVer
 
   if verlt $qtVer "6.3.0"; then
     >&2 echo -e "\033[0;33mYour distributions package manager does not provide Qt 6.3.0 or newer. Please install Qt manually."
     >&2 echo -e "See https://ezengine.net/pages/docs/build/build-linux.html#automatic-setup for details.\033[0m"
   else
-    packages+=(qt6-base-dev libqt6svg6-dev qt6-base-private-dev)
+    if [[ $Distribution = "Arch" ]]; then
+      packages+=(qt6-base)
+    else
+      packages+=(qt6-base-dev libqt6svg6-dev qt6-base-private-dev)
+    fi
   fi
 
   # Determine compiler from target for package installation
   if [[ "$Target" == *"clang"* ]]; then
     packages+=(clang-14 libomp-14-dev libstdc++-12-dev)
-  else
+  elif [[ ! $Distribution = "Arch" ]]; then
+    # Arch already supplies new versions by default
     packages+=(gcc-12 g++-12)
   fi
 
@@ -145,9 +169,9 @@ if [ "$Setup" = true ]; then
   echo "Attempting to install the following packages through the package manager:"
   echo ${packages[@]}
   if [ "$Force" = true ]; then
-    sudo apt install -y ${packages[@]}
+    sudo $PACKAGE_MANAGER $INSTALL_COMMAND $FORCE_INSTALL ${packages[@]}
   else
-    sudo apt install ${packages[@]}
+    sudo $PACKAGE_MANAGER $INSTALL_COMMAND ${packages[@]}
   fi
 
   echo -e "\nSetup complete. Run the script again without --setup to configure CMake."
