@@ -68,15 +68,18 @@ ezTexConvCompressionMode::High;Strong Compression
 
 ezImageAddressMode::ClampBorder;Clamp to Black
 
-ezTexture2DChannelMappingEnum::R1;Red - Single Input
-ezTexture2DChannelMappingEnum::RG1;Red Green - Single Input
+ezTexture2DChannelMappingEnum::R1;Red - Single Input (R)
+ezTexture2DChannelMappingEnum::R1_ALPHA;Red - Single Input (A)
+ezTexture2DChannelMappingEnum::RG1;Red Green - Single Input (RG)
 ezTexture2DChannelMappingEnum::R1_G2;RG - Input1.r, Input2.r
-ezTexture2DChannelMappingEnum::RGB1;RGB - Single Input
+ezTexture2DChannelMappingEnum::RGB1;RGB - Single Input (RGB)
 ezTexture2DChannelMappingEnum::R1_G2_B3;RGB - Input1.r, Input2.r, Input3.r
-ezTexture2DChannelMappingEnum::RGBA1;RGBA - Single Input
+ezTexture2DChannelMappingEnum::RGBA1;RGBA - Single Input (RGBA)
 ezTexture2DChannelMappingEnum::RGB1_A2;RGBA - Input1.rgb, Input2.r
 ezTexture2DChannelMappingEnum::R1_G2_B3_A4;RGBA - Input1.r, Input2.r, Input3.r, Input4.r
 ezTexture2DChannelMappingEnum::RGB1_ABLACK;RGBA - Input1.rgb, Alpha = Black
+ezTexture2DChannelMappingEnum::RGBWHITE_A1;RGBA - RGB = White, Alpha = Input1.a
+ezTexture2DChannelMappingEnum::RGBWHITE_R1;RGBA - RGB = White, Alpha = Input1.r
 
 ezTextureCubeChannelMappingEnum::RGB1;Cubemap: RGB - Single Input
 ezTextureCubeChannelMappingEnum::RGBA1;Cubemap: RGBA - Single Input

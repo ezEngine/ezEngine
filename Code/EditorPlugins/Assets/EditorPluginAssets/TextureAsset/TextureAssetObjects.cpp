@@ -5,10 +5,11 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DChannelMappingEnum, 1)
-  EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::R1)
+  EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::R1, ezTexture2DChannelMappingEnum::R1_ALPHA)
   EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RG1, ezTexture2DChannelMappingEnum::R1_G2)
   EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RGB1, ezTexture2DChannelMappingEnum::RGB1_ABLACK, ezTexture2DChannelMappingEnum::R1_G2_B3)
   EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RGBA1, ezTexture2DChannelMappingEnum::RGB1_A2, ezTexture2DChannelMappingEnum::R1_G2_B3_A4)
+  EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RGBWHITE_A1, ezTexture2DChannelMappingEnum::RGBWHITE_R1)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DResolution, 1)
@@ -183,7 +184,7 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
           break;
       }
 
-      if (mapping == ezTexture2DChannelMappingEnum::R1 || mapping == ezTexture2DChannelMappingEnum::RGBA1 ||
+      if (mapping == ezTexture2DChannelMappingEnum::R1 || mapping == ezTexture2DChannelMappingEnum::R1_ALPHA || mapping == ezTexture2DChannelMappingEnum::RGBA1 ||
           mapping == ezTexture2DChannelMappingEnum::R1_G2_B3_A4 || mapping == ezTexture2DChannelMappingEnum::RGB1_A2 ||
           mapping == ezTexture2DChannelMappingEnum::R1_G2_B3_A4)
       {
@@ -193,6 +194,17 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
           props["DilateColor"].m_Visibility = ezPropertyUiState::Default;
         }
 
+        if (hasMips)
+        {
+          props["PreserveAlphaCoverage"].m_Visibility = ezPropertyUiState::Default;
+          props["AlphaThreshold"].m_Visibility = ezPropertyUiState::Default;
+        }
+      }
+
+      if (mapping == ezTexture2DChannelMappingEnum::RGBWHITE_A1 || mapping == ezTexture2DChannelMappingEnum::RGBWHITE_R1)
+      {
+        // RGB is a constant white, so dilating the color into transparent areas is pointless,
+        // but keeping the mask's coverage across mips is not.
         if (hasMips)
         {
           props["PreserveAlphaCoverage"].m_Visibility = ezPropertyUiState::Default;
@@ -232,10 +244,13 @@ ezInt32 ezTextureAssetProperties::GetNumInputFiles() const
   switch (m_ChannelMapping)
   {
     case ezTexture2DChannelMappingEnum::R1:
+    case ezTexture2DChannelMappingEnum::R1_ALPHA:
     case ezTexture2DChannelMappingEnum::RG1:
     case ezTexture2DChannelMappingEnum::RGB1:
     case ezTexture2DChannelMappingEnum::RGB1_ABLACK:
     case ezTexture2DChannelMappingEnum::RGBA1:
+    case ezTexture2DChannelMappingEnum::RGBWHITE_A1:
+    case ezTexture2DChannelMappingEnum::RGBWHITE_R1:
       return 1;
 
     case ezTexture2DChannelMappingEnum::R1_G2:
