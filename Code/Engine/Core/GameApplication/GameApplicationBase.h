@@ -6,6 +6,7 @@
 #include <Core/GameState/GameStateBase.h>
 #include <Core/System/Window.h>
 #include <Foundation/Application/Application.h>
+#include <Foundation/Logging/HTMLWriter.h>
 #include <Foundation/Types/UniquePtr.h>
 
 class ezWindowBase;
@@ -219,6 +220,8 @@ protected:
   ezEventSubscriptionID m_LogToConsoleID = 0;
   ezEventSubscriptionID m_LogToVsID = 0;
   ezEventSubscriptionID m_LogToTracingID = 0;
+  ezEventSubscriptionID m_LogToHTML = 0;
+  ezLogWriter::HTML m_LogHTML;
 
   /// \brief Executes all 'Init_' functions. Typically done after core system startup
   virtual void ExecuteInitFunctions();
