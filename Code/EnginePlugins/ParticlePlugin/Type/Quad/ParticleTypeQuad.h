@@ -53,6 +53,7 @@ public:
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezEnum<ezParticleLightingMode> m_LightingMode;
   ezEnum<ezParticleTextureAtlasType> m_TextureAtlasType;
+  ezEnum<ezParticleTextureAtlasOrientation> m_TextureAtlasOrientation;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;
   bool m_bUseCustomMaterial = false;
@@ -90,6 +91,7 @@ public:
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezEnum<ezParticleLightingMode> m_LightingMode;
   ezEnum<ezParticleTextureAtlasType> m_TextureAtlasType;
+  ezEnum<ezParticleTextureAtlasOrientation> m_TextureAtlasOrientation;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;
 

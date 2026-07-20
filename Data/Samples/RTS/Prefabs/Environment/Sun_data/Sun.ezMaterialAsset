@@ -339,7 +339,7 @@ o
 o
 {
 	Uuid %id{u4{6241561801560546210,5271871044825063978}}
-	s %t{"ShaderNode::UV_Scroll"}
+	s %t{"ShaderNode::UVScroll"}
 	u3 %v{1}
 	p
 	{
@@ -1203,7 +1203,7 @@ o
 			Uuid{u4{13620391104002069818,7672537951123968627}}
 			Uuid{u4{2057838931552913371,17892806788685602908}}
 		}
-		s %TypeName{"ShaderNode::UV_Scroll"}
+		s %TypeName{"ShaderNode::UVScroll"}
 		u3 %TypeVersion{1}
 	}
 }

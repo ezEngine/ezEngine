@@ -64,7 +64,7 @@ Node %UV2
   }
 }
 
-Node %UV_Scroll
+Node %UVScroll
 {
   string %Category { "Input" }
   string %Color { "Green" }

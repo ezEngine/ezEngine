@@ -25,6 +25,7 @@ public:
   ezTime m_UpdateDiff;
   ezString m_sTexture;
   ezEnum<ezParticleTextureAtlasType> m_TextureAtlasType;
+  ezEnum<ezParticleTextureAtlasOrientation> m_TextureAtlasOrientation;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;
   ezString m_sTintColorParameter;
@@ -54,6 +55,7 @@ public:
   ezTime m_UpdateDiff;
   ezTexture2DResourceHandle m_hTexture;
   ezEnum<ezParticleTextureAtlasType> m_TextureAtlasType;
+  ezEnum<ezParticleTextureAtlasOrientation> m_TextureAtlasOrientation;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;
   ezTempHashedString m_sTintColorParameter;

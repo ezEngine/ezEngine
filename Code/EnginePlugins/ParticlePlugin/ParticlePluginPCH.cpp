@@ -41,6 +41,16 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleTextureAtlasType, 1)
   EZ_ENUM_CONSTANT(ezParticleTextureAtlasType::RandomVariations),
   EZ_ENUM_CONSTANT(ezParticleTextureAtlasType::FlipbookAnimation),
   EZ_ENUM_CONSTANT(ezParticleTextureAtlasType::RandomYAnimatedX),
+  EZ_ENUM_CONSTANT(ezParticleTextureAtlasType::RandomXAnimatedY),
+EZ_END_STATIC_REFLECTED_ENUM;
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleTextureAtlasOrientation, 1)
+  EZ_ENUM_CONSTANT(ezParticleTextureAtlasOrientation::Up),
+  EZ_ENUM_CONSTANT(ezParticleTextureAtlasOrientation::Right),
+  EZ_ENUM_CONSTANT(ezParticleTextureAtlasOrientation::Down),
+  EZ_ENUM_CONSTANT(ezParticleTextureAtlasOrientation::Left),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////

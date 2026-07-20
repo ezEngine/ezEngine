@@ -24,7 +24,7 @@ ezParticleRenderer::TempSystemCB::~TempSystemCB()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-void ezParticleRenderer::TempSystemCB::SetGenericData(const ezTransform& objectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fNormalCurvature, float fLightDirectionality, float fGeometryProximityFadeOut, float fCameraProximityFadeOut)
+void ezParticleRenderer::TempSystemCB::SetGenericData(const ezTransform& objectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fNormalCurvature, float fLightDirectionality, float fGeometryProximityFadeOut, float fCameraProximityFadeOut, ezUInt8 uiTextureAtlasOrientation)
 {
   ezParticleSystemConstants& cb = m_pConstants->GetDataForWriting();
   cb.ObjectToWorldMatrix = objectTransform.GetAsMat4();
@@ -37,7 +37,7 @@ void ezParticleRenderer::TempSystemCB::SetGenericData(const ezTransform& objectT
   cb.LightDirectionality = fLightDirectionality;
   cb.GeometryProximityFadeOut = fGeometryProximityFadeOut;
   cb.CameraProximityFadeOut = fCameraProximityFadeOut;
-  cb.ParticlePadding = 0;
+  cb.TextureAtlasOrientation = uiTextureAtlasOrientation;
 }
 
 

@@ -14,6 +14,7 @@ struct TMP_PS_IN
   float FogAmount : FOG;
   float Life : TEXCOORD1;
   float Variation : TEXCOORD2;
+  float2 ParticleUV : TEXCOORD3;
 };
 
 struct PS_GLOBALS
@@ -117,3 +118,17 @@ float4 main(PS_IN Input)
 }
 
 #endif
+
+// The raw [0-1] coordinate across the particle, unaffected by the flipbook / variation atlas.
+// Use this to sample textures that should NOT be chopped up by the flipbook, e.g. a background
+// pattern that a flipbook mask is blended with.
+float2 GetParticleQuadUV()
+{
+  return G.Input.ParticleUV;
+}
+
+// The flipbook / variation transformed coordinate, i.e. what the built-in particle texture uses.
+float2 GetParticleFlipbookUV()
+{
+  return G.Input.TexCoord0;
+}

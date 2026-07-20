@@ -26,7 +26,7 @@ PARTICLE_LIGHTING_MODE=PARTICLE_LIGHTING_MODE_FULLBRIGHT
   string %CodeRenderStates { "#include <Shaders/Particles/ParticleRenderState.h>" }
 
   string %CodeShaderShared { "
-#define CUSTOM_INTERPOLATOR float FogAmount : FOG; float Life : TEXCOORD1; float Variation : TEXCOORD2;
+#define CUSTOM_INTERPOLATOR float FogAmount : FOG; float Life : TEXCOORD1; float Variation : TEXCOORD2; float2 ParticleUV : TEXCOORD3;
 #ifndef USE_TEXCOORD0
 #define USE_TEXCOORD0
 #endif
@@ -83,6 +83,7 @@ float GetParticleOpacity()
     unsigned_int8 %Color { 200, 200, 200 }
     bool %Expose { true }
     string %DefaultValue { "1, 1, 1" }
+    string %Tooltip { "Final color of the particle.\n\nThe per-particle color from initializers and behaviors is NOT applied automatically - multiply in the 'Vertex Color' node if you want those to have an effect." }
   }
 
   // Pin 1
@@ -92,5 +93,6 @@ float GetParticleOpacity()
     string %Color { "Red" }
     bool %Expose { true }
     string %DefaultValue { "1" }
+    string %Tooltip { "Final opacity of the particle.\n\nThe per-particle alpha is NOT applied automatically - multiply in the 'Alpha' pin of the 'Vertex Color' node if you want behaviors such as 'Fade Out' to have an effect." }
   }
 }

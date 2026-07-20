@@ -35,6 +35,7 @@ ezEffectInvisibleUpdateRate::Max10fps;Max 10 FPS
 ezEffectInvisibleUpdateRate::Max5fps;Max 5 FPS
 
 ezParticleTextureAtlasType::RandomYAnimatedX;Random Row, Animated Column
+ezParticleTextureAtlasType::RandomXAnimatedY;Random Column, Animated Row
 
 ezParticleBehaviorFactory_ColorGradient;Color Gradient
 ezParticleBehaviorFactory_Velocity;Velocity

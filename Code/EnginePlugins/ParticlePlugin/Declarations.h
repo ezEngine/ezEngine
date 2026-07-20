@@ -146,12 +146,33 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleTextureAtlasType
     RandomVariations,  ///< Pick random tile for variation
     FlipbookAnimation, ///< Animate through tiles over lifetime
     RandomYAnimatedX,  ///< Random Y row, animate X over lifetime
+    RandomXAnimatedY,  ///< Random X column, animate Y over lifetime
 
     Default = None
   };
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleTextureAtlasType);
+
+//////////////////////////////////////////////////////////////////////////
+
+/// Which edge of the source texture is treated as "forward" (i.e. unrotated)
+struct EZ_PARTICLEPLUGIN_DLL ezParticleTextureAtlasOrientation
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Up,    ///< Texture's authored "forward" edge is unrotated (current/default behavior)
+    Right, ///< Cell content rotated 90° clockwise
+    Down,  ///< Cell content rotated 180°
+    Left,  ///< Cell content rotated 270° clockwise
+
+    Default = Up
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleTextureAtlasOrientation);
 
 //////////////////////////////////////////////////////////////////////////
 
