@@ -32,6 +32,7 @@ set_property(GLOBAL PROPERTY EZ_BUILD_FILTER_PrecompiledTools
     SPIRV-Reflect
     stb
     tinyexr
+    TracyClient
     DependencyAnalysis
     Lua
     lunasvg
