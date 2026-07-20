@@ -15,3 +15,5 @@ Code/Engine/ezBuildInfo.h
 # AngelScript auto-generated files
 *.asgen
 as.predefined
+
+ezDefaultAssertHandlerOutput
