@@ -65,8 +65,14 @@
 #    define EZ_VA_NUM_ARGS(...) EZ_VA_NUM_ARGS_HELPER EZ_LEFT_PARENTHESIS __VA_ARGS__, EZ_VA_NUM_ARGS_REVERSE_SEQUENCE EZ_RIGHT_PARENTHESIS
 #  endif
 
-#  define EZ_WARNING_PUSH() __pragma(warning(push))
-#  define EZ_WARNING_POP() __pragma(warning(pop))
+#  if EZ_ENABLED(EZ_COMPILER_MSVC_CLANG)
+// Push/pop both diagnostic stacks, so that EZ_WARNING_DISABLE_CLANG is scoped as well.
+#    define EZ_WARNING_PUSH() __pragma(warning(push)) _Pragma("clang diagnostic push")
+#    define EZ_WARNING_POP() __pragma(warning(pop)) _Pragma("clang diagnostic pop")
+#  else
+#    define EZ_WARNING_PUSH() __pragma(warning(push))
+#    define EZ_WARNING_POP() __pragma(warning(pop))
+#  endif
 #  define EZ_WARNING_DISABLE_MSVC(_x) __pragma(warning(disable : _x))
 
 #  define EZ_DECL_EXPORT __declspec(dllexport)

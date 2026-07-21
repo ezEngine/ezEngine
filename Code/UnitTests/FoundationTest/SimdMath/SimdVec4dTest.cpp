@@ -192,7 +192,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
     EZ_TEST_BOOL(vInit4D.x() == 1.0 && vInit4D.y() == 2.0 && vInit4D.z() == 3.0 && vInit4D.w() == 4.0);
 
     // Make sure all components have the correct values
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
 #  if EZ_SSE_LEVEL >= EZ_SSE_AVX
     EZ_TEST_BOOL(
       vInit4D.m_v.m256d_f64[0] == 1.0 && vInit4D.m_v.m256d_f64[1] == 2.0 && vInit4D.m_v.m256d_f64[2] == 3.0 && vInit4D.m_v.m256d_f64[3] == 4.0);
@@ -275,7 +275,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
       EZ_TEST_BOOL(xyzw.GetComponent(4) == 4.0);
 
       // Make sure all components have the correct values
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
 #  if EZ_SSE_LEVEL >= EZ_SSE_AVX
       EZ_TEST_BOOL(xyzw.m_v.m256d_f64[0] == 1.0 && xyzw.m_v.m256d_f64[1] == 2.0 && xyzw.m_v.m256d_f64[2] == 3.0 && xyzw.m_v.m256d_f64[3] == 4.0);
 #  else

@@ -11,6 +11,7 @@ EZ_STATICLINK_LIBRARY(RmlUiPlugin)
   EZ_STATICLINK_REFERENCE(RmlUiPlugin_Components_Implementation_RmlUiCanvasComponentBase);
   EZ_STATICLINK_REFERENCE(RmlUiPlugin_Components_Implementation_RmlUiMessages);
   EZ_STATICLINK_REFERENCE(RmlUiPlugin_Implementation_RmlUiRenderer);
+  EZ_STATICLINK_REFERENCE(RmlUiPlugin_Implementation_RmlUiSingleton);
   EZ_STATICLINK_REFERENCE(RmlUiPlugin_Resources_RmlUiResource);
   EZ_STATICLINK_REFERENCE(RmlUiPlugin_Startup);
 }

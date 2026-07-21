@@ -33,7 +33,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
     EZ_TEST_BOOL(vInit1F == 2.0f);
 
     // Make sure all components are set to the same value
-#if (EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE) && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if (EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE) && EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
     EZ_TEST_BOOL(
       vInit1F.m_v.m128_f32[0] == 2.0f && vInit1F.m_v.m128_f32[1] == 2.0f && vInit1F.m_v.m128_f32[2] == 2.0f && vInit1F.m_v.m128_f32[3] == 2.0f);
 #endif
@@ -42,7 +42,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
     EZ_TEST_BOOL(vInit1I == 1.0f);
 
     // Make sure all components are set to the same value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
     EZ_TEST_BOOL(
       vInit1I.m_v.m128_f32[0] == 1.0f && vInit1I.m_v.m128_f32[1] == 1.0f && vInit1I.m_v.m128_f32[2] == 1.0f && vInit1I.m_v.m128_f32[3] == 1.0f);
 #endif
@@ -51,7 +51,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
     EZ_TEST_BOOL(vInit1U == 4553.0f);
 
     // Make sure all components are set to the same value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
     EZ_TEST_BOOL(vInit1U.m_v.m128_f32[0] == 4553.0f && vInit1U.m_v.m128_f32[1] == 4553.0f && vInit1U.m_v.m128_f32[2] == 4553.0f &&
                  vInit1U.m_v.m128_f32[3] == 4553.0f);
 #endif
@@ -60,7 +60,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
     EZ_TEST_BOOL(z == 0.0f);
 
     // Make sure all components are set to the same value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
     EZ_TEST_BOOL(z.m_v.m128_f32[0] == 0.0f && z.m_v.m128_f32[1] == 0.0f && z.m_v.m128_f32[2] == 0.0f && z.m_v.m128_f32[3] == 0.0f);
 #endif
   }
@@ -69,7 +69,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
     ezSimdFloat z = ezSimdFloat::MakeNaN();
 
     // Make sure all components are set to the same value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
     EZ_TEST_BOOL(ezMath::IsNaN(z.m_v.m128_f32[0]));
     EZ_TEST_BOOL(ezMath::IsNaN(z.m_v.m128_f32[1]));
     EZ_TEST_BOOL(ezMath::IsNaN(z.m_v.m128_f32[2]));

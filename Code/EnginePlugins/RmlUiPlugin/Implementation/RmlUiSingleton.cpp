@@ -334,3 +334,6 @@ void ezRmlUi::DebugContext(ezRmlUiContext* pContext)
   }
 }
 #endif
+
+
+EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Implementation_RmlUiSingleton);

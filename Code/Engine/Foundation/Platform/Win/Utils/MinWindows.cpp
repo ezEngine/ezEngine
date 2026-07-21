@@ -38,7 +38,7 @@ void ezCheckWindowsTypeSizes()
   static_assert(std::is_same<decltype(&WindowsWinapiTest1), decltype(&WindowsWinapiTest2)>::value, "EZ_WINDOWS_WINAPI does not match WINAPI");
 
   // Clang doesn't allow us to do this check at compile time
-#  if EZ_DISABLED(EZ_COMPILER_CLANG)
+#  if EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
   static_assert(EZ_WINDOWS_INVALID_HANDLE_VALUE == INVALID_HANDLE_VALUE, "EZ_WINDOWS_INVALID_HANDLE_VALUE does not match INVALID_HANDLE_VALUE");
 #  endif
 }

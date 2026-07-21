@@ -45,10 +45,17 @@
 #define EZ_PLATFORM_BIG_ENDIAN EZ_OFF
 
 // Different Compilers
+//
+// EZ_COMPILER_MSVC means "MSVC compatible" (_MSC_VER is defined), which is also the case for clang-cl
+// and for the clang driver when it targets *-windows-msvc. It can be used for things that any of those
+// support, such as __declspec, __forceinline or the MSVC warning pragmas.
+// Code that requires the MSVC front-end itself must use EZ_COMPILER_MSVC_PURE instead. This applies to
+// MSVC-only intrinsics (for example the SVML functions _mm_exp_ps, _mm_div_epi32) and to the layout of
+// the MSVC SIMD types (__m128::m128_f32 etc), none of which exist in clang.
 #define EZ_COMPILER_MSVC EZ_OFF
-#define EZ_COMPILER_MSVC_CLANG EZ_OFF // Clang front-end with MSVC CodeGen
+#define EZ_COMPILER_MSVC_CLANG EZ_OFF // Clang front-end with MSVC compatibility
 #define EZ_COMPILER_MSVC_PURE EZ_OFF  // MSVC front-end and CodeGen, no mixed compilers
-#define EZ_COMPILER_CLANG EZ_OFF
+#define EZ_COMPILER_CLANG EZ_OFF      // Clang front-end in GCC mode, NOT set for clang-cl (see EZ_COMPILER_MSVC_CLANG)
 #define EZ_COMPILER_GCC EZ_OFF
 
 // How to compile the engine
