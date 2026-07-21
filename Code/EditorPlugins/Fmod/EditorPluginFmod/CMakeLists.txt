@@ -1,5 +1,7 @@
 ez_cmake_init()
 
+ez_apply_build_filter(EditorPluginFmod)
+
 ez_requires_editor()
 
 ez_requires_fmod()
@@ -19,5 +21,3 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 ez_link_target_fmod(${PROJECT_NAME})
-
-

@@ -1,5 +1,7 @@
 ez_cmake_init()
 
+ez_apply_build_filter(ModelImporter2)
+
 ez_requires_assimp()
 
 # Get the name of this folder as the project name
