@@ -87,9 +87,7 @@ namespace ezMath
   {
     EZ_ASSERT_DEBUG(value != 0, "FirstBitLow is undefined for 0");
 
-#if __castxml__
-    return 0;
-#elif EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_ENABLED(EZ_COMPILER_MSVC)
     unsigned long uiIndex = 0;
 #  if EZ_ENABLED(EZ_PLATFORM_64BIT)
 
@@ -136,9 +134,7 @@ namespace ezMath
   {
     EZ_ASSERT_DEBUG(value != 0, "FirstBitHigh is undefined for 0");
 
-#if __castxml__
-    return 0;
-#elif EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_ENABLED(EZ_COMPILER_MSVC)
     unsigned long uiIndex = 0;
 #  if EZ_ENABLED(EZ_PLATFORM_64BIT)
     _BitScanReverse64(&uiIndex, value);

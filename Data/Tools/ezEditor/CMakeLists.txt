@@ -3,6 +3,8 @@ ez_cmake_init()
 # Get the name of this folder as the project name
 set(PROJECT_NAME "EditorData")
 
+ez_apply_build_filter(${PROJECT_NAME})
+
 ez_glob_source_files(${CMAKE_CURRENT_SOURCE_DIR} ALL_SOURCE_FILES)
 add_custom_target(${PROJECT_NAME} SOURCES "${ALL_SOURCE_FILES}")
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${ALL_SOURCE_FILES})

@@ -16,4 +16,4 @@ Code/Engine/ezBuildInfo.h
 *.asgen
 as.predefined
 
-ezDefaultAssertHandlerOutput
+ezDefaultAssertHandlerOutput*

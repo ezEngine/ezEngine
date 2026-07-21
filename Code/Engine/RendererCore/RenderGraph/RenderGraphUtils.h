@@ -3,8 +3,8 @@
 #include <RendererCore/RendererCoreDLL.h>
 
 class ezRenderGraph;
+class ezGALTextureHandle;
 struct ezGALTextureRange;
-struct ezGALTextureHandle;
 
 class EZ_RENDERERCORE_DLL ezRenderGraphUtils
 {

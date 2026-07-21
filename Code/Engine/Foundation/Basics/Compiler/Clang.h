@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef __clang__
+#if defined(__clang__) && !defined(_MSC_VER)
 
 #  undef EZ_COMPILER_CLANG
 #  define EZ_COMPILER_CLANG EZ_ON

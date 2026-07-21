@@ -1,11 +1,11 @@
 #pragma once
 
-#if defined(_MSC_VER) && !defined(__clang__)
+#if defined(_MSC_VER)
 
 #  undef EZ_COMPILER_MSVC
 #  define EZ_COMPILER_MSVC EZ_ON
 
-#  if __clang__ || __castxml__
+#  if __clang__
 #    undef EZ_COMPILER_MSVC_CLANG
 #    define EZ_COMPILER_MSVC_CLANG EZ_ON
 #  else
