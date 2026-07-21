@@ -6,9 +6,9 @@ extern "C"
   // The hack however does only work on the MSVC compiler. See fall back code below.
 
   // First define two functions which are binary compatible with EnterCriticalSection and LeaveCriticalSection
-  __declspec(dllimport) void __stdcall ezWinEnterCriticalSection(ezMutexHandle* handle);
-  __declspec(dllimport) void __stdcall ezWinLeaveCriticalSection(ezMutexHandle* handle);
-  __declspec(dllimport) ezMinWindows::BOOL __stdcall ezWinTryEnterCriticalSection(ezMutexHandle* handle);
+  __declspec(dllimport) void __stdcall ezWinEnterCriticalSection(ezMutexHandle* pHandle);
+  __declspec(dllimport) void __stdcall ezWinLeaveCriticalSection(ezMutexHandle* pHandle);
+  __declspec(dllimport) ezMinWindows::BOOL __stdcall ezWinTryEnterCriticalSection(ezMutexHandle* pHandle);
 
   // Now redirect them through linker flags to the correct implementation
 #  if EZ_ENABLED(EZ_PLATFORM_32BIT)
