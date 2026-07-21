@@ -30,5 +30,5 @@ CONSTANT_BUFFER2(ezParticleSystemConstants, 2, BG_DRAW_CALL)
   FLOAT1(GeometryProximityFadeOut);
   FLOAT1(CameraProximityFadeOut);
 
-  INT1(ParticlePadding);
+  UINT1(TextureAtlasOrientation); // 0=Up,1=Right,2=Down,3=Left
 };

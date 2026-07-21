@@ -36,6 +36,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeQuadFactory, 2, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("CustomMaterial", m_sCustomMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material", "QuadParticle")),
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D"), new ezDefaultValueAttribute(ezStringView("{ e00262e8-58f5-42f5-880d-569257047201 }"))),// wrap in ezStringView to prevent a memory leak report
     EZ_ENUM_MEMBER_PROPERTY("TextureAtlas", ezParticleTextureAtlasType, m_TextureAtlasType),
+    EZ_ENUM_MEMBER_PROPERTY("TextureOrientation", ezParticleTextureAtlasOrientation, m_TextureAtlasOrientation),
     EZ_MEMBER_PROPERTY("NumSpritesX", m_uiNumSpritesX)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
@@ -68,6 +69,7 @@ void ezParticleTypeQuadFactory::CopyTypeProperties(ezParticleType* pObject, bool
   pType->m_uiNumSpritesY = m_uiNumSpritesY;
   pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
   pType->m_TextureAtlasType = m_TextureAtlasType;
+  pType->m_TextureAtlasOrientation = m_TextureAtlasOrientation;
   pType->m_fStretch = m_fStretch;
   pType->m_LightingMode = m_LightingMode;
   pType->m_fNormalCurvature = m_fNormalCurvature;
@@ -99,6 +101,7 @@ enum class TypeQuadVersion
   Version_6, // added particle lighting
   Version_7, // added custom material support
   Version_8, // added proximity fade out parameters
+  Version_9, // added texture atlas orientation
 
   // insert new version numbers above
   Version_Count,
@@ -139,6 +142,9 @@ void ezParticleTypeQuadFactory::Save(ezStreamWriter& inout_stream) const
   // Version 8
   inout_stream << m_fGeometryProximityFadeOut;
   inout_stream << m_fCameraProximityFadeOut;
+
+  // Version 9
+  inout_stream << m_TextureAtlasOrientation;
 }
 
 void ezParticleTypeQuadFactory::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
@@ -202,6 +208,11 @@ void ezParticleTypeQuadFactory::Load(ezStreamReader& inout_stream, const ezParti
     inout_stream >> m_fGeometryProximityFadeOut;
     inout_stream >> m_fCameraProximityFadeOut;
   }
+
+  if (uiVersion >= 9)
+  {
+    inout_stream >> m_TextureAtlasOrientation;
+  }
 }
 
 void ezParticleTypeQuadFactory::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
@@ -233,7 +244,7 @@ void ezParticleTypeQuad::CreateRequiredStreams()
     CreateStream("Axis", ezProcessingStream::DataType::Float3, &m_pStreamAxis, true);
   }
 
-  if (m_TextureAtlasType == ezParticleTextureAtlasType::RandomVariations || m_TextureAtlasType == ezParticleTextureAtlasType::RandomYAnimatedX)
+  if (m_TextureAtlasType == ezParticleTextureAtlasType::RandomVariations || m_TextureAtlasType == ezParticleTextureAtlasType::RandomYAnimatedX || m_TextureAtlasType == ezParticleTextureAtlasType::RandomXAnimatedY)
   {
     CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, false);
   }
@@ -494,6 +505,7 @@ void ezParticleTypeQuad::AddParticleRenderData(ezMsgExtractRenderData& msg, cons
   pRenderData->m_uiNumFlipbookAnimationsX = 1;
   pRenderData->m_uiNumFlipbookAnimationsY = 1;
   pRenderData->m_LightingMode = m_LightingMode;
+  pRenderData->m_TextureAtlasOrientation = m_TextureAtlasOrientation;
   pRenderData->m_fNormalCurvature = m_fNormalCurvature;
   pRenderData->m_fLightDirectionality = m_fLightDirectionality;
   pRenderData->m_fGeometryProximityFadeOut = m_fGeometryProximityFadeOut;
@@ -536,6 +548,11 @@ void ezParticleTypeQuad::AddParticleRenderData(ezMsgExtractRenderData& msg, cons
     case ezParticleTextureAtlasType::RandomYAnimatedX:
       pRenderData->m_uiNumFlipbookAnimationsX = m_uiNumSpritesX;
       pRenderData->m_uiNumVariationsY = m_uiNumSpritesY;
+      break;
+
+    case ezParticleTextureAtlasType::RandomXAnimatedY:
+      pRenderData->m_uiNumVariationsX = m_uiNumSpritesX;
+      pRenderData->m_uiNumFlipbookAnimationsY = m_uiNumSpritesY;
       break;
   }
 

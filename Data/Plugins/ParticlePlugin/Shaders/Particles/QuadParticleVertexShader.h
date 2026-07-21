@@ -22,6 +22,7 @@ struct TMP_VS_OUT
   float FogAmount : FOG;
   float Life : TEXCOORD1;
   float Variation : TEXCOORD2;
+  float2 ParticleUV : TEXCOORD3;
 };
 
 TMP_VS_OUT main(TMP_VS_IN input)
@@ -35,6 +36,7 @@ TMP_VS_OUT main(TMP_VS_IN input)
   ret.FogAmount = 1.0;  // 1 == no fog
   ret.Life = 1.0;       // 1 == just spawned
   ret.Variation = 42.0; // purely random value
+  ret.ParticleUV = input.TexCoord0;
 
   return ret;
 }
@@ -83,11 +85,16 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 
   float fVariation = (baseParticle.Variation & 255) / 255.0;
 
+  // the raw [0-1] coordinate across the quad, before the flipbook / variation atlas transform is applied
 #  if PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_AXIS_ALIGNED
-  ret.TexCoord0 = ComputeAtlasTexCoordRandomAnimated(QuadTexCoordsAxisAligned[vertexIndex], TextureAtlasVariationFramesX, TextureAtlasVariationFramesY, fVariation, TextureAtlasFlipbookFramesX, TextureAtlasFlipbookFramesY, 1.0f - particleLife);
+  float2 quadUV = QuadTexCoordsAxisAligned[vertexIndex];
 #  else
-  ret.TexCoord0 = ComputeAtlasTexCoordRandomAnimated(QuadTexCoordsBillboard[vertexIndex], TextureAtlasVariationFramesX, TextureAtlasVariationFramesY, fVariation, TextureAtlasFlipbookFramesX, TextureAtlasFlipbookFramesY, 1.0f - particleLife);
+  float2 quadUV = QuadTexCoordsBillboard[vertexIndex];
 #  endif
+
+  float2 rotatedUV = RotateAtlasCellUV(quadUV, TextureAtlasOrientation);
+  ret.ParticleUV = rotatedUV;
+  ret.TexCoord0 = ComputeAtlasTexCoordRandomAnimated(rotatedUV, TextureAtlasVariationFramesX, TextureAtlasVariationFramesY, fVariation, TextureAtlasFlipbookFramesX, TextureAtlasFlipbookFramesY, 1.0f - particleLife);
 
 #  if PARTICLE_LIGHTING_MODE == PARTICLE_LIGHTING_MODE_VERTEX_LIT
   float3 diffuseLight = CalculateParticleLighting(quad.screenPosition, quad.worldPosition, quad.normal);

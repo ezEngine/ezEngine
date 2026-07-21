@@ -20,7 +20,7 @@ CAMERA_MODE
 
 [SHADER]
 
-#define CUSTOM_INTERPOLATOR float FogAmount : FOG; float Life : TEXCOORD1; float Variation : TEXCOORD2;
+#define CUSTOM_INTERPOLATOR float FogAmount : FOG; float Life : TEXCOORD1; float Variation : TEXCOORD2; float2 ParticleUV : TEXCOORD3;
 #define USE_TEXCOORD0
 #define USE_COLOR0
 
@@ -50,7 +50,13 @@ struct PS_IN
   float FogAmount : FOG;
   float Life : TEXCOORD1;
   float Variation : TEXCOORD2;
+  float2 ParticleUV : TEXCOORD3;
 };
+
+Prefer the UV accessors over touching these fields directly:
+  GetParticleQuadUV()      - raw [0-1] across the trail, ignores the flipbook / variation atlas
+                             .x runs across the trail, .y along it
+  GetParticleFlipbookUV()  - the atlas transformed coordinate, i.e. what ParticleTexture uses below
 
 Particle System constants can be accessed through the ezParticleSystemConstants buffer, see
   Data/Plugins/ParticlePlugin/Shaders/Particles/ParticleSystemConstants.h

@@ -33,4 +33,20 @@ Node %Particle
     string %Inline { "G.Input.Variation" }
     string %Tooltip { "Random variation value per particle." }
   }
+
+  OutputPin %QuadUV
+  {
+    string %Type { "float2" }
+    string %Color { "Teal" }
+    string %Inline { "GetParticleQuadUV()" }
+    string %Tooltip { "Raw [0-1] UV across the particle, unaffected by flipbook animations and random variations. Use this for textures that should not be chopped up by the flipbook, e.g. a pattern that a flipbook mask is blended with. On trails, X runs across the trail and Y along it." }
+  }
+
+  OutputPin %FlipbookUV
+  {
+    string %Type { "float2" }
+    string %Color { "Teal" }
+    string %Inline { "GetParticleFlipbookUV()" }
+    string %Tooltip { "UV transformed into the current flipbook animation / random variation frame. This is what texture nodes sample with by default." }
+  }
 }

@@ -36,7 +36,7 @@ protected:
     ~TempSystemCB();
 
     /// Sets general particle system rendering parameters including transform, texture variations, and lighting.
-    void SetGenericData(const ezTransform& objectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fNormalCurvature = 0, float fLightDirectionality = 0, float fGeometryProximityFadeOut = 0.1f, float fCameraProximityFadeOut = 0.5f);
+    void SetGenericData(const ezTransform& objectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fNormalCurvature = 0, float fLightDirectionality = 0, float fGeometryProximityFadeOut = 0.1f, float fCameraProximityFadeOut = 0.5f, ezUInt8 uiTextureAtlasOrientation = 0);
 
     /// Sets trail-specific rendering parameters.
     void SetTrailData(float fSnapshotFraction, ezInt32 iNumUsedTrailPoints);

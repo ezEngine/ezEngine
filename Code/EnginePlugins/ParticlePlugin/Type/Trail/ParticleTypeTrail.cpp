@@ -23,6 +23,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrailFactory, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D"), new ezDefaultValueAttribute(ezStringView("{ e00262e8-58f5-42f5-880d-569257047201 }"))),// wrap in ezStringView to prevent a memory leak report
     EZ_MEMBER_PROPERTY("Segments", m_uiMaxPoints)->AddAttributes(new ezDefaultValueAttribute(6), new ezClampValueAttribute(3, 64)),
     EZ_ENUM_MEMBER_PROPERTY("TextureAtlas", ezParticleTextureAtlasType, m_TextureAtlasType),
+    EZ_ENUM_MEMBER_PROPERTY("TextureOrientation", ezParticleTextureAtlasOrientation, m_TextureAtlasOrientation),
     EZ_MEMBER_PROPERTY("NumSpritesX", m_uiNumSpritesX)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
@@ -48,6 +49,7 @@ void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject, boo
   pType->m_uiMaxPoints = m_uiMaxPoints;
   pType->m_hTexture.Invalidate();
   pType->m_TextureAtlasType = m_TextureAtlasType;
+  pType->m_TextureAtlasOrientation = m_TextureAtlasOrientation;
   pType->m_uiNumSpritesX = m_uiNumSpritesX;
   pType->m_uiNumSpritesY = m_uiNumSpritesY;
   pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
@@ -95,6 +97,7 @@ enum class TypeTrailVersion
   Version_5, // added distortion mode
   Version_6, // added particle lighting
   Version_7, // added custom material support
+  Version_8, // added texture atlas orientation
 
   // insert new version numbers above
   Version_Count,
@@ -133,6 +136,9 @@ void ezParticleTypeTrailFactory::Save(ezStreamWriter& inout_stream) const
   // Version 7
   inout_stream << m_bUseCustomMaterial;
   inout_stream << m_sCustomMaterial;
+
+  // Version 8
+  inout_stream << m_TextureAtlasOrientation;
 }
 
 void ezParticleTypeTrailFactory::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
@@ -189,6 +195,11 @@ void ezParticleTypeTrailFactory::Load(ezStreamReader& inout_stream, const ezPart
     inout_stream >> m_bUseCustomMaterial;
     inout_stream >> m_sCustomMaterial;
   }
+
+  if (uiVersion >= 8)
+  {
+    inout_stream >> m_TextureAtlasOrientation;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -213,7 +224,7 @@ void ezParticleTypeTrail::CreateRequiredStreams()
 
   m_pStreamVariation = nullptr;
 
-  if (m_TextureAtlasType == ezParticleTextureAtlasType::RandomVariations || m_TextureAtlasType == ezParticleTextureAtlasType::RandomYAnimatedX)
+  if (m_TextureAtlasType == ezParticleTextureAtlasType::RandomVariations || m_TextureAtlasType == ezParticleTextureAtlasType::RandomYAnimatedX || m_TextureAtlasType == ezParticleTextureAtlasType::RandomXAnimatedY)
   {
     CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, false);
   }
@@ -308,6 +319,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
   pRenderData->m_TrailPointsShared = m_TrailPointsShared;
   pRenderData->m_fSnapshotFraction = m_fSnapshotFraction;
   pRenderData->m_LightingMode = m_LightingMode;
+  pRenderData->m_TextureAtlasOrientation = m_TextureAtlasOrientation;
   pRenderData->m_fNormalCurvature = m_fNormalCurvature;
   pRenderData->m_fLightDirectionality = m_fLightDirectionality;
   pRenderData->m_hCustomMaterial = m_hCustomMaterial;
@@ -335,6 +347,11 @@ void ezParticleTypeTrail::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
     case ezParticleTextureAtlasType::RandomYAnimatedX:
       pRenderData->m_uiNumFlipbookAnimationsX = m_uiNumSpritesX;
       pRenderData->m_uiNumVariationsY = m_uiNumSpritesY;
+      break;
+
+    case ezParticleTextureAtlasType::RandomXAnimatedY:
+      pRenderData->m_uiNumVariationsX = m_uiNumSpritesX;
+      pRenderData->m_uiNumFlipbookAnimationsY = m_uiNumSpritesY;
       break;
   }
 

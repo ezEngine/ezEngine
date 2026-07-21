@@ -15,6 +15,7 @@ struct TMP_VS_OUT
   float2 TexCoord0 : TEXCOORD0;
   float4 Color0 : COLOR0;
   float FogAmount : FOG;
+  float2 ParticleUV : TEXCOORD3;
 };
 
 TMP_VS_OUT main(TMP_VS_IN input)
@@ -26,6 +27,7 @@ TMP_VS_OUT main(TMP_VS_IN input)
   ret.TexCoord0 = input.TexCoord0;
   ret.Color0 = float4(1, 1, 1, 1);
   ret.FogAmount = 1.0; // 1 == no fog
+  ret.ParticleUV = input.TexCoord0;
 
   return ret;
 }
@@ -68,6 +70,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     ret.FogAmount = 1.0;
     ret.Life = particleLife;
     ret.Variation = 0.0;
+    ret.ParticleUV = float2(0, 0);
   }
   else
   {
@@ -80,9 +83,11 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     // UV step is currently calculated over the maximum number of segments, instead of the active number of segments
     // this means at start the texture is cut off, instead of stretching over the full UV space
     // doing it differently would be very complicated though
-    float uvStep = textureAtlasRect.z / (NumUsedTrailPoints - 2);
-    float uvCoord = uvStep * vertexTrailPointIndex;
-    float uvSubtract = uvStep * SnapshotFraction; // to adjust the UV coordinates while the first position glides along, to not have jumps when a new segment is added
+    // computed in normalized [0-1] local space (i.e. relative to one atlas cell), so that
+    // RotateAtlasCellUV below can rotate it the same way as the Quad particle type does
+    float uvStepLocal = 1.0 / (NumUsedTrailPoints - 2);
+    float alongLocal = uvStepLocal * vertexTrailPointIndex;
+    float uvSubtractLocal = uvStepLocal * SnapshotFraction; // to adjust the UV coordinates while the first position glides along, to not have jumps when a new segment is added
 
     int prevTrailPointIdx = max(vertexTrailPointIndex - 1, 0);
     int nextTrailPointIdx = min(vertexTrailPointIndex + 1, trailParticle.NumPoints - 1);
@@ -102,17 +107,24 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     float4 screenPosition = mul(GetWorldToScreenMatrix(), worldPosition);
 
     ret.Position = screenPosition;
-    ret.TexCoord0.y = textureAtlasRect.x + uvCoord;
-    ret.TexCoord0.x = textureAtlasRect.y + textureAtlasRect.w * (1.0 - QuadPosOffsets[vertexSubIndex].y);
 
     // do NOT adjust the UV of the very first vertex, that is the one moves all the time and is always at UV.x == 0
     // however, DO adjust the coordinate of the LAST vertex, since that is not moving and needs to "fade away" (out of the UV space, ie > 1)
-    if (ret.TexCoord0.y > textureAtlasRect.x)
-      ret.TexCoord0.y -= uvSubtract;
+    if (alongLocal > 0.0)
+      alongLocal -= uvSubtractLocal;
 
     // manually clamp the texCoords
     // this could be set as a sampler state, but it would not work with sub-ranges
-    ret.TexCoord0.y = min(textureAtlasRect.x + textureAtlasRect.z, ret.TexCoord0.y);
+    alongLocal = min(1.0, alongLocal);
+
+    // the raw [0-1] local coordinate within one atlas cell, before the flipbook / variation atlas
+    // transform and orientation rotation are applied; .x runs across the trail, .y along it
+    float2 acrossAlongLocal = float2(1.0 - QuadPosOffsets[vertexSubIndex].y, alongLocal);
+    float2 rotatedUV = RotateAtlasCellUV(acrossAlongLocal, TextureAtlasOrientation);
+
+    ret.ParticleUV = rotatedUV;
+    ret.TexCoord0.y = textureAtlasRect.x + rotatedUV.y * textureAtlasRect.z;
+    ret.TexCoord0.x = textureAtlasRect.y + rotatedUV.x * textureAtlasRect.w;
 
     float3 centerNormal = normalize(cross(dirRight, dirUp));
     float3 cornerNormal = normalize(offsetUp.xyz);

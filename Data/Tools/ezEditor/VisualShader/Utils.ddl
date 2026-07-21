@@ -1,3 +1,50 @@
+Node %ScrollFloat4
+{
+  string %Category { "Utils" }
+  string %Color { "Green" }
+  string %Docs { "Scrolls a float4 value (e.g. a UV coordinate) over time, using the world time." }
+  string %Title { "Scroll: {$in0}" }
+
+  InputPin %UV
+  {
+    string %Type { "float4" }
+    string %DefaultValue { "G.Input.TexCoord0" }
+    string %Tooltip { "The float4 value to scroll, e.g. a UV coordinate." }
+  }
+
+  InputPin %Speed
+  {
+    string %Type { "float4" }
+    bool %Expose { true }
+    string %DefaultValue { "1, 1, 1, 1" }
+    string %Tooltip { "Scroll speed along X, Y, Z and W." }
+  }
+
+  InputPin %Scale
+  {
+    string %Type { "float4" }
+    bool %Expose { true }
+    string %DefaultValue { "1, 1, 1, 1" }
+    string %Tooltip { "Scale applied to the input value before scrolling." }
+  }
+
+  InputPin %Offset
+  {
+    string %Type { "float4" }
+    bool %Expose { true }
+    string %DefaultValue { "0, 0, 0, 0" }
+    string %Tooltip { "Constant offset applied after scaling." }
+  }
+
+  OutputPin %UV
+  {
+    string %Type { "float4" }
+    string %Color { "Teal" }
+    string %Inline { "(ToFloat4Direction($in0) * $in2 + $in3) + frac(WorldTime * $in1)" }
+    string %Tooltip { "The scrolled value." }
+  }
+}
+
 Node %SceneColor
 {
   string %Category { "Utils" }

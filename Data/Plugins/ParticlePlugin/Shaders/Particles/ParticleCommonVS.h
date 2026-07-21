@@ -153,6 +153,23 @@ float2 ComputeAtlasTexCoordRandomAnimated(float2 baseTexCoord, uint numVarsX, ui
   return texCoordOffsetAndSize.xy + baseTexCoord * texCoordOffsetAndSize.zw;
 }
 
+// Rotates a normalized [0-1]^2 local UV (e.g. within one atlas cell) around its center.
+// orientation: 0 = Up (identity), 1 = Right (90° CW), 2 = Down (180°), 3 = Left (270° CW)
+// Lets a texture authored with its "forward" content running in any of the 4 cardinal
+// directions be used correctly, regardless of which direction the particle stretches/moves in.
+float2 RotateAtlasCellUV(float2 uv, uint orientation)
+{
+  float2 c = uv - 0.5;
+  float2 r = c;
+  if (orientation == 1)
+    r = float2(c.y, -c.x);  // Right, 90°
+  else if (orientation == 2)
+    r = float2(-c.x, -c.y); // Down, 180°
+  else if (orientation == 3)
+    r = float2(-c.y, c.x);  // Left, 270°
+  return r + 0.5;
+}
+
 float3 CalculateParticleLighting(float4 screenPosition, float3 worldPosition, float3 worldNormal)
 {
   float3 totalLight = 0.0f;
