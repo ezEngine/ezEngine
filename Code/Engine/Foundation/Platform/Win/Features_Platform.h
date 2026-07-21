@@ -87,7 +87,11 @@
 #    define EZ_SSE_LEVEL EZ_SSE_20
 #  endif
 #elif EZ_ENABLED(EZ_PLATFORM_ARCH_ARM)
-#  define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_NEON
+#  if defined(_MSC_VER) && !defined(__clang__)
+#    define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_FPU
+#  else
+#    define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_NEON
+#  endif
 #else
 #  error "Unknown architecture."
 #endif
