@@ -14,6 +14,7 @@ struct ezTexture2DChannelMappingEnum
   enum Enum
   {
     R1,
+    R1_ALPHA,
 
     RG1,
     R1_G2,
@@ -25,6 +26,12 @@ struct ezTexture2DChannelMappingEnum
     RGB1_A2,
     RGB1_ABLACK,
     R1_G2_B3_A4,
+
+    // 'mask' textures: RGB is a constant white, the mask itself ends up in the alpha channel.
+    // Ideally this would be a single channel texture combined with a GPU side texture swizzle,
+    // but D3D11 has no support for component swizzles, so for now the white is baked in.
+    RGBWHITE_A1,
+    RGBWHITE_R1,
 
     Default = RGB1,
   };
