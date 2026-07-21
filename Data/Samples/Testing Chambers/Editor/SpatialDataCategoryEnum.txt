@@ -1,3 +1,5 @@
 GrabObjectMarker
+Hunter
 NPC
 Player
+Prey

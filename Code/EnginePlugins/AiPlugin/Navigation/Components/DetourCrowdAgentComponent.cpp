@@ -1,14 +1,15 @@
 #include <AiPlugin/AiPluginPCH.h>
+
+#include <AiPlugin/Navigation/Components/DetourCrowdAgentComponent.h>
+#include <AiPlugin/Navigation/NavMeshWorldModule.h>
+#include <AiPlugin/Navigation/Navigation.h>
+#include <AiPlugin/Utils/RcMath.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <RendererCore/Debug/DebugRenderer.h>
 #include <DetourCrowd.h>
-#include <AiPlugin/Utils/RcMath.h>
-#include <AiPlugin/Navigation/Components/DetourCrowdAgentComponent.h>
-#include <AiPlugin/Navigation/Navigation.h>
-#include <AiPlugin/Navigation/NavMeshWorldModule.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Math/Rect.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 
 ezCVarBool cvar_DetourCrowdVisAgents("DetourCrowd.Debug.VisAgents", false, ezCVarFlags::Default, "Draws DetourCrowd agents, if any");
 ezCVarBool cvar_DetourCrowdVisCorners("DetourCrowd.Debug.VisCorners", false, ezCVarFlags::Default, "Draws next few path corners of the DetourCrowd agents");
@@ -216,8 +217,7 @@ void ezDetourCrowdAgentComponentManager::FillDtCrowdAgentParams(const ezDetourCr
   out_params.maxSpeed = pAgent->GetMaxSpeed();
   out_params.collisionQueryRange = ezMath::Max(1.2f, 12.0f * out_params.radius);
   out_params.pathOptimizationRange = ezMath::Max(3.0f, 30.0f * out_params.radius);
-  out_params.updateFlags = DT_CROWD_ANTICIPATE_TURNS | DT_CROWD_OPTIMIZE_VIS | DT_CROWD_OPTIMIZE_TOPO
-    | DT_CROWD_OBSTACLE_AVOIDANCE | DT_CROWD_SEPARATION;
+  out_params.updateFlags = DT_CROWD_ANTICIPATE_TURNS | DT_CROWD_OPTIMIZE_VIS | DT_CROWD_OPTIMIZE_TOPO | DT_CROWD_OBSTACLE_AVOIDANCE | DT_CROWD_SEPARATION;
   out_params.obstacleAvoidanceType = 3;
   out_params.separationWeight = pAgent->GetPushiness();
   out_params.userData = reinterpret_cast<void*>(static_cast<std::uintptr_t>(pAgent->m_uiUniqueAgentId));
@@ -243,7 +243,8 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
   for (auto pair : m_CrowdPerNavMesh)
   {
     const ezAiNavMesh* pNavMesh = pNavMeshModule->GetNavMesh(pair.key);
-    if (!pNavMesh) continue;
+    if (!pNavMesh)
+      continue;
 
     if (pNavMesh->GetDetourNavMesh() != pair.value->getNavMeshQuery()->getAttachedNavMesh())
     {
@@ -549,3 +550,6 @@ void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation_Components_DetourCrowdAgentComponent);
