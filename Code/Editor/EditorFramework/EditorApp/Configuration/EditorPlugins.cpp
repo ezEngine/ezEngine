@@ -142,6 +142,20 @@ ezResult ezPluginBundle::ReadBundleFromDDL(ezOpenDdlReader& ref_ddl)
       m_PackageDependencies[i] = pElement->GetPrimitivesString()[i];
   }
 
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "PackageDevDebugDependencies"))
+  {
+    m_PackageDevDebugDependencies.SetCount(pElement->GetNumPrimitives());
+    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+      m_PackageDevDebugDependencies[i] = pElement->GetPrimitivesString()[i];
+  }
+
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "PackageShippingDependencies"))
+  {
+    m_PackageShippingDependencies.SetCount(pElement->GetNumPrimitives());
+    for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
+      m_PackageShippingDependencies[i] = pElement->GetPrimitivesString()[i];
+  }
+  
   if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "DataDirectories"))
   {
     m_DataDirectories.SetCount(pElement->GetNumPrimitives());
