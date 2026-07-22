@@ -5,6 +5,8 @@
 
 struct GPUTimingScope;
 
+#if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)
+
 /// Sets profiling marker and GPU timings for the current scope.
 class EZ_RENDERERFOUNDATION_DLL ezProfilingScopeAndMarker : public ezProfilingScope
 {
@@ -20,8 +22,6 @@ protected:
   ezGALCommandEncoder* m_pCommandEncoder;
   GPUTimingScope* m_pTimingScope;
 };
-
-#if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)
 
 /// \brief Profiles the current scope using the given name and also inserts a marker with the given command encoder.
 #  define EZ_PROFILE_AND_MARKER(GALCommandEncoder, ScopeName)                                                \

@@ -224,6 +224,8 @@ void ezIpcChannel::FlushPendingOperations()
 
 void ezIpcChannel::LogAndBroadcastConnectionState(ezEnum<ConnectionState> previousState, ezEnum<ConnectionState> currentState)
 {
+  EZ_IGNORE_UNUSED(previousState);
+
   EZ_TRACE_EVENT("IpcChannel_StateChanged", ezTraceLevel::Info,
     EZ_TRACE_VALUE("Address", m_sAddress.GetData()),
     EZ_TRACE_VALUE("Mode", (int)m_Mode.GetValue()),

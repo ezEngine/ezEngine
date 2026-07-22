@@ -409,6 +409,7 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx, ezArrayPtr<ezRenderGr
   ezHybridArray<GPUTimingScope*, 4> scopes;
   auto ExecuteMarker = [&](const MarkerEvent& evt, ezGALCommandEncoder* pEncoder)
   {
+#if EZ_ENABLED(EZ_USE_PROFILING)
     if (evt.m_bPush)
     {
       scopes.PushBack(ezProfilingScopeAndMarker::Start(pEncoder, evt.m_sName.GetData()));
@@ -419,6 +420,7 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx, ezArrayPtr<ezRenderGr
         ezProfilingScopeAndMarker::Stop(pEncoder, scopes.PeekBack());
       scopes.PopBack();
     }
+#endif
   };
 
   ezUInt32 uiNextMarker = 0;
