@@ -22,7 +22,7 @@ public:
 
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
-  bool IsDecalTextureUpToDate(const char* szDecalFile, ezUInt64 uiAssetHash) const;
+  bool IsDecalTextureUpToDate(const char* szDecalFile, ezUInt64 uiAssetHash, ezUInt16 uiAssetVersion) const;
   ezStatus RunTexConv(const char* szTargetFile, const char* szInputFile, const ezAssetFileHeader& AssetHeader);
 
   virtual void InternalCreateDocument(

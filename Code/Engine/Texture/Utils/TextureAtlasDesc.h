@@ -47,6 +47,13 @@ struct EZ_TEXTURE_DLL ezTextureAtlasCreationDesc
     ezUInt32 m_uiFlags;
     ezString m_sAlphaInput;
     ezString m_sLayerInput[4];
+
+    /// Number of columns and rows of equally sized variations that the input images contain.
+    ///
+    /// The images are packed into the atlas as a whole, the subdivision is only stored as meta data
+    /// for the runtime to select a single cell. A value of 1 means the image is used as-is.
+    ezUInt8 m_uiNumVariationsX = 1;
+    ezUInt8 m_uiNumVariationsY = 1;
   };
 
   ezHybridArray<Layer, 4> m_Layers;
@@ -85,6 +92,12 @@ struct EZ_TEXTURE_DLL ezTextureAtlasRuntimeDesc
   {
     ezUInt32 m_uiFlags;
     ezRectU32 m_LayerRects[4];
+
+    /// Into how many columns and rows the layer rects are subdivided.
+    ///
+    /// Each cell holds an independent variation of the image. A value of 1 means the entire rect is one image.
+    ezUInt8 m_uiNumVariationsX = 1;
+    ezUInt8 m_uiNumVariationsY = 1;
   };
 
   ezUInt32 m_uiNumLayers = 0;

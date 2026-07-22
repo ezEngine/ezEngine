@@ -32,7 +32,7 @@ ezResult ezTexConvProcessor::GenerateTextureAtlas(ezMemoryStreamWriter& stream)
 
   EZ_SUCCEED_OR_RETURN(LoadAtlasInputs(atlasDesc, atlasItems));
 
-  const ezUInt8 uiVersion = 3;
+  const ezUInt8 uiVersion = 4;
   stream << uiVersion;
 
   ezDdsFileFormat ddsWriter;
@@ -76,6 +76,8 @@ ezResult ezTexConvProcessor::LoadAtlasInputs(const ezTextureAtlasCreationDesc& a
     auto& item = items.ExpandAndGetRef();
     item.m_uiUniqueID = srcItem.m_uiUniqueID;
     item.m_uiFlags = srcItem.m_uiFlags;
+    item.m_uiNumVariationsX = ezMath::Max<ezUInt8>(1, srcItem.m_uiNumVariationsX);
+    item.m_uiNumVariationsY = ezMath::Max<ezUInt8>(1, srcItem.m_uiNumVariationsY);
 
     for (ezUInt32 layer = 0; layer < atlasDesc.m_Layers.GetCount(); ++layer)
     {
@@ -117,8 +119,26 @@ ezResult ezTexConvProcessor::LoadAtlasInputs(const ezTextureAtlasCreationDesc& a
       EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sAlphaInput, alphaImg, uiResX, uiResY, ezTexConvUsage::Linear));
 
 
-      // layer 0 must have the exact same size as the alpha texture
-      EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sLayerInput[0], item.m_InputImage[0], uiResX, uiResY, ezTexConvUsage::Linear));
+      if (srcItem.m_sLayerInput[0].IsEmpty())
+      {
+        // no base color was given, generate an opaque white one, so that the alpha mask alone defines the decal
+        ezImageHeader header;
+        header.SetWidth(uiResX);
+        header.SetHeight(uiResY);
+        header.SetImageFormat(ezImageFormat::R32G32B32A32_FLOAT);
+
+        item.m_InputImage[0].ResetAndAlloc(header);
+
+        for (ezColor& pixel : item.m_InputImage[0].GetBlobPtr<ezColor>())
+        {
+          pixel = ezColor::White;
+        }
+      }
+      else
+      {
+        // layer 0 must have the exact same size as the alpha texture
+        EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sLayerInput[0], item.m_InputImage[0], uiResX, uiResY, ezTexConvUsage::Linear));
+      }
 
       // copy alpha channel into layer 0
       EZ_SUCCEED_OR_RETURN(ezImageUtils::CopyChannel(item.m_InputImage[0], 3, alphaImg, 0));
@@ -148,6 +168,8 @@ ezResult ezTexConvProcessor::WriteTextureAtlasInfo(const ezDynamicArray<TextureA
   {
     auto& e = runtimeAtlas.m_Items[item.m_uiUniqueID];
     e.m_uiFlags = item.m_uiFlags;
+    e.m_uiNumVariationsX = item.m_uiNumVariationsX;
+    e.m_uiNumVariationsY = item.m_uiNumVariationsY;
 
     for (ezUInt32 l = 0; l < uiNumLayers; ++l)
     {

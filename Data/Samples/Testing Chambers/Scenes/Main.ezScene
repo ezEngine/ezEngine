@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{7473104630180952594}
+		u4 %Hash{13150164362031170641}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -78,6 +78,7 @@ o
 			s{"{ ac49f52b-70b6-468e-b934-af2373a806bc }"}
 			s{"{ ad417552-5eb2-4bec-81d8-3960872cd7db }"}
 			s{"{ afb2a2a5-e863-4c47-a2f7-002d7dea6162 }"}
+			s{"{ b0e6ae87-aa52-48a8-b67b-ce3db8742c20 }"}
 			s{"{ b579c3bb-6d40-485d-a91d-ae15b15337a9 }"}
 			s{"{ baf34fd7-9f42-4d8d-a95e-e94afd972d1d }"}
 			s{"{ bb2c15ae-dbab-4fbb-9846-9e4f32bba2ed }"}
@@ -157,6 +158,7 @@ o
 			s{"{ aa3be7d1-d9e2-4ddc-b6fc-6deaa22696eb }"}
 			s{"{ ad417552-5eb2-4bec-81d8-3960872cd7db }"}
 			s{"{ afb2a2a5-e863-4c47-a2f7-002d7dea6162 }"}
+			s{"{ b0e6ae87-aa52-48a8-b67b-ce3db8742c20 }"}
 			s{"{ b579c3bb-6d40-485d-a91d-ae15b15337a9 }"}
 			s{"{ bf60c51f-0262-40b6-931c-82dea06a2e72 }"}
 			s{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
@@ -4949,7 +4951,7 @@ o
 {
 	Uuid %id{u4{18241125998317213581,3362574962708303496}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -4974,6 +4976,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -6020,7 +6023,7 @@ o
 {
 	Uuid %id{u4{7753591136141791386,4659527321774633038}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -6045,6 +6048,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -6789,7 +6793,7 @@ o
 {
 	Uuid %id{u4{14676395863611964032,4728866708024648143}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -6814,6 +6818,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -7677,7 +7682,7 @@ o
 {
 	Uuid %id{u4{5909946387826516382,4823786535650699490}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -7702,6 +7707,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -8953,7 +8959,7 @@ o
 {
 	Uuid %id{u4{296746694807826059,4940337787088754089}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -8978,6 +8984,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -9685,7 +9692,7 @@ o
 {
 	Uuid %id{u4{674981289265289617,5018119732198729083}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -9710,6 +9717,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -9786,7 +9794,7 @@ o
 {
 	Uuid %id{u4{13322735042945102474,5026775111395780209}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -9811,6 +9819,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -10306,7 +10315,7 @@ o
 {
 	Uuid %id{u4{7817197177305312702,5066278279979603860}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -10331,6 +10340,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{1}
 	}
 }
@@ -10635,6 +10645,32 @@ o
 }
 o
 {
+	Uuid %id{u4{8678991703298100376,5084327187925375626}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{9670170772733216946,5159676077541433995}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x7B4896BE,0x9DD5013D,0x4F422CBE}}
+		Quat %LocalRotation{f{0x3B3A40BF,0x5494B13D,0x9E810DBF,0x6FA4B33E}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0xCDCC4C3E}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{13345457775305504652,5084417832524229730}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -10830,7 +10866,7 @@ o
 {
 	Uuid %id{u4{7076981106638042302,5118677211503179128}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -10855,6 +10891,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{1}
 	}
 }
@@ -11110,6 +11147,39 @@ o
 		{
 			s{"CastShadow"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{9670170772733216946,5159676077541433995}}
+	s %t{"ezDecalComponent"}
+	u3 %v{9}
+	p
+	{
+		b %Active{1}
+		s %ApplyToDynamic{"{ e63fd6c9-dc18-4bea-8519-89219c4ec4e3 }"}
+		ColorGamma %Color{u1{255,255,255,255}}
+		VarArray %Decals
+		{
+			s{"{ b0e6ae87-aa52-48a8-b67b-ce3db8742c20 }"}
+		}
+		Color %EmissiveColor{f{0,0,0,0x0000803F}}
+		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
+		ezVarianceTypeTime %FadeOutDelay
+		{
+			f %Variance{0}
+			Time %Value{d{0}}
+		}
+		Time %FadeOutDuration{d{0}}
+		Angle %InnerFadeAngle{f{0xF3665F3F}}
+		b %MapNormalToGeometry{1}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
+		Angle %OuterFadeAngle{f{0xC2B8B23F}}
+		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
+		f %SizeVariance{0}
+		f %SortOrder{0}
+		u1 %Variation{0}
+		b %WrapAround{0}
 	}
 }
 o
@@ -11605,7 +11675,7 @@ o
 {
 	Uuid %id{u4{18310681679280427143,5199814569336012838}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -11630,6 +11700,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeY"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -12228,7 +12299,7 @@ o
 {
 	Uuid %id{u4{2640822372557710777,5250607679716488985}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -12253,6 +12324,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -12309,7 +12381,7 @@ o
 {
 	Uuid %id{u4{9102097781581472,5263711167446450584}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -12334,6 +12406,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -12413,7 +12486,7 @@ o
 {
 	Uuid %id{u4{15441591673395029146,5269068344963447371}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -12438,6 +12511,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -12631,7 +12705,7 @@ o
 {
 	Uuid %id{u4{11417277254865192339,5289040257303819342}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -12656,6 +12730,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -12982,7 +13057,7 @@ o
 {
 	Uuid %id{u4{8074580124266806956,5326066199245304604}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -13007,6 +13082,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0x000000C0}
+		u1 %Variation{0}
 		b %WrapAround{1}
 	}
 }
@@ -14513,6 +14589,7 @@ o
 			Uuid{u4{14004903037467620415,10526289154359170128}}
 			Uuid{u4{16533651558163174102,15395516630537220804}}
 			Uuid{u4{4035438157520732271,2611598208399380468}}
+			Uuid{u4{8678991703298100376,5084327187925375626}}
 		}
 		VarArray %Components
 		{
@@ -15585,7 +15662,7 @@ o
 {
 	Uuid %id{u4{9643951826860136834,5573689410682670084}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -15610,6 +15687,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{1}
 	}
 }
@@ -15921,7 +15999,7 @@ o
 {
 	Uuid %id{u4{2474926597576389548,5610151011235201361}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -15946,6 +16024,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -16926,7 +17005,7 @@ o
 {
 	Uuid %id{u4{6636954869502140599,5714846897166102933}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -16951,6 +17030,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -17240,7 +17320,7 @@ o
 {
 	Uuid %id{u4{3131487477095578780,5734734444396026101}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -17265,6 +17345,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -17383,7 +17464,7 @@ o
 {
 	Uuid %id{u4{6807643743268954282,5750554109751388140}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -17408,6 +17489,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -21239,7 +21321,7 @@ o
 {
 	Uuid %id{u4{11369571629066397468,8642929095521123135}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -21264,6 +21346,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -23568,7 +23651,7 @@ o
 {
 	Uuid %id{u4{14105820043920360218,10011563873266701913}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -23593,6 +23676,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0x000080BF}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -25316,7 +25400,7 @@ o
 {
 	Uuid %id{u4{3972486213090903582,10313548034414320883}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -25341,6 +25425,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{1}
 	}
 }
@@ -26210,7 +26295,7 @@ o
 {
 	Uuid %id{u4{15593134230670731095,10440736297674422750}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -26235,6 +26320,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -27331,7 +27417,7 @@ o
 {
 	Uuid %id{u4{10345604391922430016,10595463548009307797}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -27356,6 +27442,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -28378,7 +28465,7 @@ o
 {
 	Uuid %id{u4{5048502225777145672,10809848379844313299}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -28403,6 +28490,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{1}
 	}
 }
@@ -28617,7 +28705,7 @@ o
 {
 	Uuid %id{u4{9849100841681838156,10870077604280631178}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -28642,6 +28730,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -29113,7 +29202,7 @@ o
 {
 	Uuid %id{u4{11740207185359939406,10967458121172975955}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -29138,6 +29227,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -29638,7 +29728,7 @@ o
 {
 	Uuid %id{u4{174588094896154697,11089105834911979682}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -29663,6 +29753,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -33103,7 +33194,7 @@ o
 {
 	Uuid %id{u4{14491129331463363249,14080166525343876876}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -33128,6 +33219,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -35832,7 +35924,7 @@ o
 {
 	Uuid %id{u4{2860432648031743205,15407621999124117724}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -35857,6 +35949,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -38654,7 +38747,7 @@ o
 {
 	Uuid %id{u4{16438169190156968916,16026659756468782016}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -38679,6 +38772,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -39999,7 +40093,7 @@ o
 {
 	Uuid %id{u4{1617946225290743261,16436862350917924954}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -40024,6 +40118,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -40362,7 +40457,7 @@ o
 {
 	Uuid %id{u4{12644831326319049731,16699607026948307493}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -40387,6 +40482,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		u1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -42016,7 +42112,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalComponent"}
-		u3 %TypeVersion{8}
+		u3 %TypeVersion{9}
 	}
 }
 o

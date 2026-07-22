@@ -111,10 +111,14 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
     uiAssetHash += pCurator->GetAssetTransformHash(it.Key());
   }
 
+  // the atlas has to be regenerated when the asset types change, because that may change the layout of the generated file
+  ezUInt16 uiAssetVersion = ezGetStaticRTTI<ezDecalAssetDocument>()->GetTypeVersion() & 0xFF;
+  uiAssetVersion |= (ezGetStaticRTTI<ezDecalAssetProperties>()->GetTypeVersion() & 0xFF) << 8;
+
   ezStringBuilder decalFile = ezToolsProject::GetSingleton()->GetProjectDirectory();
   decalFile.AppendPath("AssetCache", GetDecalTexturePath(pAssetProfile));
 
-  if (IsDecalTextureUpToDate(decalFile, uiAssetHash))
+  if (IsDecalTextureUpToDate(decalFile, uiAssetHash, uiAssetVersion))
     return ezStatus(EZ_SUCCESS);
 
   ezTextureAtlasCreationDesc atlasDesc;
@@ -167,6 +171,14 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
         item.m_uiFlags |= pDecalProps->NeedsORM() ? DECAL_USE_ORM : 0;
         item.m_uiFlags |= pDecalProps->NeedsEmissive() ? DECAL_USE_EMISSIVE : 0;
         item.m_uiFlags |= pDecalProps->m_bBlendModeColorize ? DECAL_BLEND_MODE_COLORIZE : 0;
+
+        item.m_uiNumVariationsX = ezMath::Max<ezUInt8>(1, pDecalProps->m_uiNumVariationsX);
+        item.m_uiNumVariationsY = ezMath::Max<ezUInt8>(1, pDecalProps->m_uiNumVariationsY);
+
+        if (!pDecalProps->NeedsBaseColor() && pDecalProps->m_sAlphaMask.IsEmpty())
+        {
+          return ezStatus("Decal has neither a base color nor an alpha mask texture");
+        }
 
         if (!pDecalProps->m_sAlphaMask.IsEmpty())
         {
@@ -231,12 +243,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
   }
 
   ezAssetFileHeader header;
-  {
-    ezUInt16 uiVersion = ezGetStaticRTTI<ezDecalAssetDocument>()->GetTypeVersion() & 0xFF;
-    uiVersion |= (ezGetStaticRTTI<ezDecalAssetProperties>()->GetTypeVersion() & 0xFF) << 8;
-
-    header.SetFileHashAndVersion(uiAssetHash, uiVersion);
-  }
+  header.SetFileHashAndVersion(uiAssetHash, uiAssetVersion);
 
   ezStatus result(EZ_SUCCESS);
 
@@ -264,7 +271,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
   return result;
 }
 
-bool ezDecalAssetDocumentManager::IsDecalTextureUpToDate(const char* szDecalFile, ezUInt64 uiAssetHash) const
+bool ezDecalAssetDocumentManager::IsDecalTextureUpToDate(const char* szDecalFile, ezUInt64 uiAssetHash, ezUInt16 uiAssetVersion) const
 {
   ezFileReader file;
   if (file.Open(szDecalFile).Succeeded())
@@ -272,9 +279,7 @@ bool ezDecalAssetDocumentManager::IsDecalTextureUpToDate(const char* szDecalFile
     ezAssetFileHeader header;
     header.Read(file).IgnoreResult();
 
-    // file still valid
-    if (header.GetFileHash() == uiAssetHash)
-      return true;
+    return header.IsFileUpToDate(uiAssetHash, uiAssetVersion);
   }
 
   return false;

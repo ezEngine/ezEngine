@@ -19,11 +19,52 @@
 
 //////////////////////////////////////////////////////////////////////////
 
+namespace
+{
+  // The number of grid cells that an atlas item is subdivided into. At least 1x1.
+  ezVec2U32 GetVariationGridSize(const ezTextureAtlasRuntimeDesc::Item& item)
+  {
+    return ezVec2U32(ezMath::Max<ezUInt32>(1, item.m_uiNumVariationsX), ezMath::Max<ezUInt32>(1, item.m_uiNumVariationsY));
+  }
+
+  // The column and row of the cell to display.
+  //
+  // uiVariation is the one-based index that the user selected, zero means to use uiRandomIdx instead.
+  // Indices that exceed the number of cells wrap around.
+  ezVec2U32 GetVariationCell(const ezVec2U32& vGridSize, ezInt8 iVariation, ezUInt8 uiRandomIdx)
+  {
+    const ezUInt32 uiIdx = (iVariation < 0 ? uiRandomIdx : (ezUInt32)iVariation) % (vGridSize.x * vGridSize.y);
+    return ezVec2U32(uiIdx % vGridSize.x, uiIdx / vGridSize.x);
+  }
+
+  float GetCellAspectRatio(const ezRectU32& layerRect, const ezVec2U32& vGridSize)
+  {
+    return ((float)layerRect.width / vGridSize.x) / ((float)layerRect.height / vGridSize.y);
+  }
+
+  // Converts the cell of an atlas item into the scale/offset pair that the decal shader uses to map
+  // the decal's local position (in [-1;1]) to atlas UVs.
+  ezVec4 LayerRectToScaleOffset(const ezRectU32& layerRect, const ezVec2U32& vTextureSize, const ezVec2U32& vGridSize, const ezVec2U32& vCell)
+  {
+    const float fCellWidth = (float)layerRect.width / vGridSize.x;
+    const float fCellHeight = (float)layerRect.height / vGridSize.y;
+
+    ezVec4 result;
+    result.x = fCellWidth / vTextureSize.x * 0.5f;
+    result.y = fCellHeight / vTextureSize.y * 0.5f;
+    result.z = ((float)layerRect.x + vCell.x * fCellWidth) / vTextureSize.x + result.x;
+    result.w = ((float)layerRect.y + vCell.y * fCellHeight) / vTextureSize.y + result.y;
+    return result;
+  }
+} // namespace
+
+//////////////////////////////////////////////////////////////////////////
+
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalRenderData, 1, ezRTTIDefaultAllocator<ezDecalRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 8, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 9, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -42,6 +83,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 8, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("FadeOutDuration", m_FadeOutDuration),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
     EZ_ACCESSOR_PROPERTY("ApplyToDynamic", DummyGetter, SetApplyToRef)->AddAttributes(new ezGameObjectReferenceAttribute()),
+    EZ_ACCESSOR_PROPERTY("Variation", GetVariation, SetVariation)->AddAttributes(new ezDefaultValueAttribute(-1), new ezClampValueAttribute(-1, 255), new ezMinValueTextAttribute("Auto")),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -98,6 +140,10 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   // version 7
   s << m_uiRandomDecalIdx;
   s.WriteArray(m_Decals).IgnoreResult();
+
+  // version 9
+  s << m_iVariation;
+  s << m_uiRandomVariationIdx;
 }
 
 void ezDecalComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -172,6 +218,12 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& inout_stream)
     s >> m_uiRandomDecalIdx;
     s.ReadArray(m_Decals).IgnoreResult();
   }
+
+  if (uiVersion >= 9)
+  {
+    s >> m_iVariation;
+    s >> m_uiRandomVariationIdx;
+  }
 }
 
 ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
@@ -179,7 +231,11 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
   if (m_Decals.IsEmpty())
     return EZ_FAILURE;
 
-  m_uiRandomDecalIdx = (GetOwner()->GetStableRandomSeed() % m_Decals.GetCount()) & 0xFF;
+  const ezUInt32 uiStableSeed = GetOwner()->GetStableRandomSeed();
+  m_uiRandomDecalIdx = (uiStableSeed % m_Decals.GetCount()) & 0xFF;
+
+  // hash the seed again, so that the chosen variation doesn't correlate with the chosen decal
+  m_uiRandomVariationIdx = static_cast<ezUInt8>(ezHashHelper<ezUInt32>::Hash(uiStableSeed) & 0xFF);
 
   const ezUInt32 uiDecalIndex = ezMath::Min<ezUInt32>(m_uiRandomDecalIdx, m_Decals.GetCount() - 1);
 
@@ -199,7 +255,7 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
     {
       const auto& item = atlas.m_Items.GetValue(decalIdx);
       const ezUInt32 uiLayerIdx = item.m_LayerRects[0].width > 0 ? 0 : 2;
-      fAspectRatio = (float)item.m_LayerRects[uiLayerIdx].width / item.m_LayerRects[uiLayerIdx].height;
+      fAspectRatio = GetCellAspectRatio(item.m_LayerRects[uiLayerIdx], GetVariationGridSize(item));
     }
   }
 
@@ -328,6 +384,19 @@ const ezDecalResourceHandle& ezDecalComponent::GetDecal(ezUInt32 uiIndex) const
   return m_Decals[uiIndex];
 }
 
+void ezDecalComponent::SetVariation(ezInt8 iVariation)
+{
+  m_iVariation = iVariation;
+
+  // all cells have the same size, so the bounds don't change, but the atlas UVs do
+  InvalidateCachedRenderData();
+}
+
+ezInt8 ezDecalComponent::GetVariation() const
+{
+  return m_iVariation;
+}
+
 void ezDecalComponent::SetProjectionAxis(ezEnum<ezBasisAxis> projectionAxis)
 {
   m_ProjectionAxis = projectionAxis;
@@ -407,22 +476,15 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
       const auto& item = atlas.m_Items.GetValue(decalIdx);
       uiDecalFlags = item.m_uiFlags;
 
-      auto layerRectToScaleOffset = [](ezRectU32 layerRect, ezVec2U32 vTextureSize)
-      {
-        ezVec4 result;
-        result.x = (float)layerRect.width / vTextureSize.x * 0.5f;
-        result.y = (float)layerRect.height / vTextureSize.y * 0.5f;
-        result.z = (float)layerRect.x / vTextureSize.x + result.x;
-        result.w = (float)layerRect.y / vTextureSize.y + result.y;
-        return result;
-      };
+      const ezVec2U32 vGridSize = GetVariationGridSize(item);
+      const ezVec2U32 vCell = GetVariationCell(vGridSize, m_iVariation, m_uiRandomVariationIdx);
 
-      baseAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[0], pDecalAtlas->GetBaseColorTextureSize());
-      normalAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[1], pDecalAtlas->GetNormalTextureSize());
-      ormAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[2], pDecalAtlas->GetORMTextureSize());
+      baseAtlasScaleOffset = LayerRectToScaleOffset(item.m_LayerRects[0], pDecalAtlas->GetBaseColorTextureSize(), vGridSize, vCell);
+      normalAtlasScaleOffset = LayerRectToScaleOffset(item.m_LayerRects[1], pDecalAtlas->GetNormalTextureSize(), vGridSize, vCell);
+      ormAtlasScaleOffset = LayerRectToScaleOffset(item.m_LayerRects[2], pDecalAtlas->GetORMTextureSize(), vGridSize, vCell);
 
       const ezUInt32 uiLayerIdx = item.m_LayerRects[0].width > 0 ? 0 : 2;
-      fAspectRatio = (float)item.m_LayerRects[uiLayerIdx].width / item.m_LayerRects[uiLayerIdx].height;
+      fAspectRatio = GetCellAspectRatio(item.m_LayerRects[uiLayerIdx], vGridSize);
     }
   }
 
