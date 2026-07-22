@@ -96,7 +96,10 @@ void ezSplineTangentManipulatorAdapter::UpdateGizmoTransform()
     return;
 
   auto& cp = m_Spline.m_ControlPoints[m_uiNodeIndex];
-  const ezTransform ownerTransform = GetObjectTransform();
+  ezTransform ownerTransform = GetObjectTransform();
+
+  // Remove scale since is does not have any effect on tangents
+  ownerTransform.m_vScale.Set(1.0f);
 
   const ezVec3 forwardDir = m_bIsTangentIn ? ezSimdConversion::ToVec3(cp.m_vPosTangentIn) : ezSimdConversion::ToVec3(cp.m_vPosTangentOut);
   const ezVec3 upDir = ezSimdConversion::ToVec3(cp.m_vUpDirAndRoll);

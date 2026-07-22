@@ -453,15 +453,15 @@ void ezSplineComponent::UpdateFromNodeObjects()
 
     auto& cp = points.ExpandAndGetRef();
     cp.SetPosition(localNodeTransform.m_Position);
-    cp.SetTangentIn(ezSimdConversion::ToVec3(pNodeComponent->GetCustomTangentIn()), pNodeComponent->GetTangentModeIn());
+    cp.SetTangentIn(pNodeComponent->GetFinalCustomTangentIn(), pNodeComponent->GetTangentModeIn());
 
     if (pNodeComponent->GetLinkCustomTangents() && pNodeComponent->GetTangentModeIn() == ezSplineTangentMode::Custom && pNodeComponent->GetTangentModeOut() == ezSplineTangentMode::Custom)
     {
-      cp.SetTangentOut(ezSimdConversion::ToVec3(-pNodeComponent->GetCustomTangentIn()), pNodeComponent->GetTangentModeOut());
+      cp.SetTangentOut(-pNodeComponent->GetFinalCustomTangentIn(), pNodeComponent->GetTangentModeOut());
     }
     else
     {
-      cp.SetTangentOut(ezSimdConversion::ToVec3(pNodeComponent->GetCustomTangentOut()), pNodeComponent->GetTangentModeOut());
+      cp.SetTangentOut(pNodeComponent->GetFinalCustomTangentOut(), pNodeComponent->GetTangentModeOut());
     }
 
     cp.SetRoll(pNodeComponent->GetRoll());
@@ -760,16 +760,11 @@ void ezSplineNodeComponent::SetCustomTangentOut(const ezVec3& vTangent)
 
 void ezSplineNodeComponent::SetLinkCustomTangents(bool bLink)
 {
-  if (bLink != GetLinkCustomTangents())
+  if (m_bLinkCustomTangents != bLink)
   {
-    SetUserFlag(0, bLink);
+    m_bLinkCustomTangents = bLink;
     SplineChanged();
   }
-}
-
-bool ezSplineNodeComponent::GetLinkCustomTangents() const
-{
-  return GetUserFlag(0);
 }
 
 void ezSplineNodeComponent::OnMsgTransformChanged(ezMsgTransformChanged& msg)
@@ -828,6 +823,20 @@ void ezSplineNodeComponent::SplineChanged()
 
   ezMsgSplineChanged msg;
   GetOwner()->SendEventMessage(msg, this);
+}
+
+ezSimdVec4f ezSplineNodeComponent::GetFinalCustomTangentIn() const
+{
+  ezSimdVec4f t = ezSimdConversion::ToVec3(m_vCustomTangentIn);
+  t = GetOwner()->GetLocalRotationSimd() * t;
+  return t;
+}
+
+ezSimdVec4f ezSplineNodeComponent::GetFinalCustomTangentOut() const
+{
+  ezSimdVec4f t = ezSimdConversion::ToVec3(m_vCustomTangentOut);
+  t = GetOwner()->GetLocalRotationSimd() * t;
+  return t;
 }
 
 //////////////////////////////////////////////////////////////////////////

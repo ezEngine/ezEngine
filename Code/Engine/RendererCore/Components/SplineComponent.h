@@ -244,7 +244,7 @@ public:
   const ezVec3& GetCustomTangentOut() const { return m_vCustomTangentOut; }          // [ property ]
 
   void SetLinkCustomTangents(bool bLink);                                            // [ property ]
-  bool GetLinkCustomTangents() const;                                                // [ property ]
+  bool GetLinkCustomTangents() const { return m_bLinkCustomTangents; }               // [ property ]
 
 protected:
   friend class ezSplineComponent;
@@ -257,6 +257,9 @@ protected:
 
   void SplineChanged();
 
+  ezSimdVec4f GetFinalCustomTangentIn() const;
+  ezSimdVec4f GetFinalCustomTangentOut() const;
+
   ezAngle m_Roll;
   ezEnum<ezSplineTangentMode> m_TangentModeIn;
   ezEnum<ezSplineTangentMode> m_TangentModeOut;
@@ -266,5 +269,6 @@ protected:
   ezVec3 m_vCustomTangentIn = ezVec3::MakeZero();
   ezVec3 m_vCustomTangentOut = ezVec3::MakeZero();
 
+  bool m_bLinkCustomTangents = false;
   bool m_bEditDummy = false;
 };
