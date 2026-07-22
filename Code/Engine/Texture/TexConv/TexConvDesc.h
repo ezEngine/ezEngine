@@ -56,6 +56,13 @@ public:
 
   ezHybridArray<ezTexConvSliceChannelMapping, 6> m_ChannelMappings; ///< Channel routing for multi-input processing
 
+  // If the source images are a grid (sprite sheet) of equally sized cells, only a single cell is processed
+  // and the rest of the image is discarded right after loading. Cells are indexed left to right, top to bottom.
+  // With a 1x1 grid the images are used as-is.
+  ezUInt8 m_uiSourceGridX = 1;     ///< Number of columns in the source images
+  ezUInt8 m_uiSourceGridY = 1;     ///< Number of rows in the source images
+  ezUInt16 m_uiSourceGridCell = 0; ///< Which cell to extract, wraps around if it exceeds the number of cells
+
   // Output configuration
   ezEnum<ezTexConvOutputType> m_OutputType;         ///< Type of texture to generate (2D, Cubemap, 3D, etc.)
   ezEnum<ezTexConvTargetPlatform> m_TargetPlatform; ///< Target platform for format optimization

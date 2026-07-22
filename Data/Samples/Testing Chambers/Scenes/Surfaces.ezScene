@@ -15,7 +15,7 @@ o
 			s{"{ 1b6970cc-390d-420d-9481-48f5e22cacd0 }"}
 		}
 		Uuid %DocumentID{u4{332678910050156717,5413383538482065259}}
-		u4 %Hash{2313543743175228360}
+		u4 %Hash{1671036175964655848}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -879,7 +879,7 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
-			s %Material{"{ c7ffd47b-4be4-431c-9192-1c1366f2137b }"}
+			s %Material{"{ e0cf917f-e7ae-4739-afa5-d74c0fb54e38 }"}
 		}
 		s %Prefab{"{ 700252a3-0f42-4bdf-9a4e-acb2ea759784 }"}
 		b %ShowShapeIcons{0}

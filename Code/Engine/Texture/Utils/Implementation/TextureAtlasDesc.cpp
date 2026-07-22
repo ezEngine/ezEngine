@@ -6,7 +6,7 @@
 
 ezResult ezTextureAtlasCreationDesc::Serialize(ezStreamWriter& inout_stream) const
 {
-  inout_stream.WriteVersion(3);
+  inout_stream.WriteVersion(4);
 
   if (m_Layers.GetCount() > 255u)
     return EZ_FAILURE;
@@ -32,6 +32,9 @@ ezResult ezTextureAtlasCreationDesc::Serialize(ezStreamWriter& inout_stream) con
     }
 
     inout_stream << item.m_sAlphaInput;
+
+    inout_stream << item.m_uiNumVariationsX;
+    inout_stream << item.m_uiNumVariationsY;
   }
 
   return EZ_SUCCESS;
@@ -39,7 +42,7 @@ ezResult ezTextureAtlasCreationDesc::Serialize(ezStreamWriter& inout_stream) con
 
 ezResult ezTextureAtlasCreationDesc::Deserialize(ezStreamReader& inout_stream)
 {
-  const ezTypeVersion uiVersion = inout_stream.ReadVersion(3);
+  const ezTypeVersion uiVersion = inout_stream.ReadVersion(4);
 
   ezUInt8 uiNumLayers = 0;
   inout_stream >> uiNumLayers;
@@ -69,6 +72,12 @@ ezResult ezTextureAtlasCreationDesc::Deserialize(ezStreamReader& inout_stream)
     if (uiVersion >= 3)
     {
       inout_stream >> item.m_sAlphaInput;
+    }
+
+    if (uiVersion >= 4)
+    {
+      inout_stream >> item.m_uiNumVariationsX;
+      inout_stream >> item.m_uiNumVariationsY;
     }
   }
 
@@ -101,6 +110,8 @@ ezResult ezTextureAtlasRuntimeDesc::Serialize(ezStreamWriter& inout_stream) cons
 {
   m_Items.Sort();
 
+  inout_stream.WriteVersion(2);
+
   inout_stream << m_uiNumLayers;
   inout_stream << m_Items.GetCount();
 
@@ -117,6 +128,9 @@ ezResult ezTextureAtlasRuntimeDesc::Serialize(ezStreamWriter& inout_stream) cons
       inout_stream << r.width;
       inout_stream << r.height;
     }
+
+    inout_stream << m_Items.GetValue(i).m_uiNumVariationsX;
+    inout_stream << m_Items.GetValue(i).m_uiNumVariationsY;
   }
 
   return EZ_SUCCESS;
@@ -125,6 +139,8 @@ ezResult ezTextureAtlasRuntimeDesc::Serialize(ezStreamWriter& inout_stream) cons
 ezResult ezTextureAtlasRuntimeDesc::Deserialize(ezStreamReader& inout_stream)
 {
   Clear();
+
+  const ezTypeVersion uiVersion = inout_stream.ReadVersion(2);
 
   inout_stream >> m_uiNumLayers;
 
@@ -147,6 +163,12 @@ ezResult ezTextureAtlasRuntimeDesc::Deserialize(ezStreamReader& inout_stream)
       inout_stream >> r.y;
       inout_stream >> r.width;
       inout_stream >> r.height;
+    }
+
+    if (uiVersion >= 2)
+    {
+      inout_stream >> item.m_uiNumVariationsX;
+      inout_stream >> item.m_uiNumVariationsY;
     }
   }
 

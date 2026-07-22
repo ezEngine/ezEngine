@@ -14,17 +14,19 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDecalMode, 1)
   EZ_ENUM_CONSTANT(ezDecalMode::BaseColorEmissive)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 3, ezRTTIDefaultAllocator<ezDecalAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 4, ezRTTIDefaultAllocator<ezDecalAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezDecalMode, m_Mode),
     EZ_MEMBER_PROPERTY("BlendModeColorize", m_bBlendModeColorize),
     EZ_MEMBER_PROPERTY("AlphaMask", m_sAlphaMask)->AddAttributes(new ezFileBrowserAttribute("Select Alpha Mask", ezFileBrowserAttribute::ImagesLdrOnly)),
-    EZ_MEMBER_PROPERTY("BaseColor", m_sBaseColor)->AddAttributes(new ezFileBrowserAttribute("Select Base Color Map", ezFileBrowserAttribute::ImagesLdrOnly), new ezRequiredAttribute()),
+    EZ_MEMBER_PROPERTY("BaseColor", m_sBaseColor)->AddAttributes(new ezFileBrowserAttribute("Select Base Color Map", ezFileBrowserAttribute::ImagesLdrOnly)),
     EZ_MEMBER_PROPERTY("Normal", m_sNormal)->AddAttributes(new ezFileBrowserAttribute("Select Normal Map", ezFileBrowserAttribute::ImagesLdrOnly), new ezDefaultValueAttribute(ezStringView("Textures/NeutralNormal.tga"))), // wrap in ezStringView to prevent a memory leak report
     EZ_MEMBER_PROPERTY("ORM", m_sORM)->AddAttributes(new ezFileBrowserAttribute("Select ORM Map", ezFileBrowserAttribute::ImagesLdrOnly)),
     EZ_MEMBER_PROPERTY("Emissive", m_sEmissive)->AddAttributes(new ezFileBrowserAttribute("Select Emissive Map", ezFileBrowserAttribute::ImagesLdrOnly)),
+    EZ_MEMBER_PROPERTY("NumVariationsX", m_uiNumVariationsX)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
+    EZ_MEMBER_PROPERTY("NumVariationsY", m_uiNumVariationsY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
   }
   EZ_END_PROPERTIES;
 }
@@ -66,7 +68,7 @@ void ezDecalAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEv
 }
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocument, 5, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocument, 6, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -85,7 +87,6 @@ ezTransformStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailI
   const ezDecalAssetProperties* pProp = GetProperties();
 
   QStringList arguments;
-  ezStringBuilder temp;
 
   const ezStringBuilder sThumbnail = GetThumbnailFilePath();
 
@@ -104,41 +105,69 @@ ezTransformStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailI
     arguments << "256";
   }
 
+  if (pProp->m_uiNumVariationsX > 1 || pProp->m_uiNumVariationsY > 1)
+  {
+    // only show the first variation, otherwise the thumbnail would show the entire grid
+    arguments << "-gridX";
+    arguments << QString::number(ezMath::Max<ezUInt8>(1, pProp->m_uiNumVariationsX));
+
+    arguments << "-gridY";
+    arguments << QString::number(ezMath::Max<ezUInt8>(1, pProp->m_uiNumVariationsY));
+  }
+
   {
     ezQtEditorApp* pEditorApp = ezQtEditorApp::GetSingleton();
 
-    temp.SetFormat("-in0");
-
-    ezStringBuilder sAbsPath = pProp->m_sBaseColor;
-    if (!pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
+    ezStringBuilder sAbsBaseColor = pProp->m_sBaseColor;
+    if (!sAbsBaseColor.IsEmpty() && !pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsBaseColor))
     {
-      return ezStatus(ezFmt("Failed to make path absolute: '{}'", sAbsPath));
+      return ezStatus(ezFmt("Failed to make path absolute: '{}'", sAbsBaseColor));
     }
 
-    arguments << temp.GetData();
-    arguments << QString(sAbsPath.GetData());
-
-    if (!pProp->m_sAlphaMask.IsEmpty())
+    ezStringBuilder sAbsAlphaMask = pProp->m_sAlphaMask;
+    if (!sAbsAlphaMask.IsEmpty() && !pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsAlphaMask))
     {
-      ezStringBuilder sAbsPath2 = pProp->m_sAlphaMask;
-      if (!pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath2))
-      {
-        return ezStatus(ezFmt("Failed to make path absolute: '{}'", sAbsPath2));
-      }
+      return ezStatus(ezFmt("Failed to make path absolute: '{}'", sAbsAlphaMask));
+    }
 
-      arguments << "-in1";
-      arguments << QString(sAbsPath2.GetData());
+    if (sAbsBaseColor.IsEmpty() && sAbsAlphaMask.IsEmpty())
+    {
+      return ezStatus("Decal has neither a base color nor an alpha mask texture");
+    }
+
+    if (sAbsBaseColor.IsEmpty())
+    {
+      // only an alpha mask is given, the decal is opaque white with the mask's shape
+      arguments << "-in0";
+      arguments << QString(sAbsAlphaMask.GetData());
 
       arguments << "-rgb";
-      arguments << "in0.rgb";
+      arguments << "white";
 
       arguments << "-a";
-      arguments << "in1.r";
+      arguments << "in0.r";
     }
     else
     {
-      arguments << "-rgba";
-      arguments << "in0.rgba";
+      arguments << "-in0";
+      arguments << QString(sAbsBaseColor.GetData());
+
+      if (!sAbsAlphaMask.IsEmpty())
+      {
+        arguments << "-in1";
+        arguments << QString(sAbsAlphaMask.GetData());
+
+        arguments << "-rgb";
+        arguments << "in0.rgb";
+
+        arguments << "-a";
+        arguments << "in1.r";
+      }
+      else
+      {
+        arguments << "-rgba";
+        arguments << "in0.rgba";
+      }
     }
   }
 

@@ -42,7 +42,16 @@ public:
   ezString m_sORM;
   ezString m_sEmissive;
 
-  bool NeedsBaseColor() const { return true; }
+  /// Into how many columns and rows the input textures are subdivided.
+  ///
+  /// Every cell must contain an independent variation of the decal. All input textures (base color, normal, ...)
+  /// must use the same subdivision. The texture is packed into the decal atlas as a whole, an ezDecalComponent
+  /// then displays only a single cell.
+  ezUInt8 m_uiNumVariationsX = 1;
+  ezUInt8 m_uiNumVariationsY = 1;
+
+  /// If no base color texture is given, an opaque white one is generated, so that the alpha mask alone defines the decal.
+  bool NeedsBaseColor() const { return !m_sBaseColor.IsEmpty(); }
   bool NeedsNormal() const { return m_Mode == ezDecalMode::BaseColorNormal || m_Mode == ezDecalMode::BaseColorNormalORM; }
   bool NeedsORM() const { return m_Mode == ezDecalMode::BaseColorORM || m_Mode == ezDecalMode::BaseColorNormalORM; }
   bool NeedsEmissive() const { return m_Mode == ezDecalMode::BaseColorEmissive; }

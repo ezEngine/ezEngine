@@ -51,6 +51,17 @@ ezCommandLineOptionBool opt_Premulalpha("_TexConv", "-premulalpha", "Whether to 
 
 ezCommandLineOptionInt opt_ThumbnailRes("_TexConv", "-thumbnailRes", "Thumbnail resolution. Should be a power-of-two.", 0, 32, 1024);
 
+ezCommandLineOptionInt opt_GridX("_TexConv", "-gridX", "Into how many columns the input images are subdivided.", 1, 1, 255);
+
+ezCommandLineOptionInt opt_GridY("_TexConv", "-gridY", "Into how many rows the input images are subdivided.", 1, 1, 255);
+
+ezCommandLineOptionInt opt_GridCell("_TexConv", "-gridCell",
+  "\
+  Which cell of the grid to process, the rest of the input images is discarded.\n\
+  Cells are counted left to right, top to bottom. Only used when -gridX or -gridY is larger than 1.\n\
+",
+  0, 0, 0xFFFF);
+
 ezCommandLineOptionPath opt_ThumbnailOut("_TexConv", "-thumbnailOut",
   "\
   Path to 2D thumbnail file.\n\
@@ -379,6 +390,10 @@ ezResult ezTexConv::ParseInputFiles()
                  "multiple input files.");
     return EZ_FAILURE;
   }
+
+  m_Processor.m_Descriptor.m_uiSourceGridX = static_cast<ezUInt8>(opt_GridX.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
+  m_Processor.m_Descriptor.m_uiSourceGridY = static_cast<ezUInt8>(opt_GridY.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
+  m_Processor.m_Descriptor.m_uiSourceGridCell = static_cast<ezUInt16>(opt_GridCell.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
 
   return EZ_SUCCESS;
 }

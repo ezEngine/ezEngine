@@ -4,6 +4,51 @@
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 
+namespace
+{
+  // Replaces the image with a single cell of the grid that it is subdivided into.
+  //
+  // Fails for block compressed formats. Mipmaps, faces and array slices other than the first one are discarded,
+  // TexConv regenerates those from the cropped image.
+  ezResult CropToGridCell(ezImage& inout_image, ezStringView sImageName, ezUInt32 uiGridX, ezUInt32 uiGridY, ezUInt32 uiCell)
+  {
+    const ezEnum<ezImageFormat> format = inout_image.GetImageFormat();
+
+    if (ezImageFormat::IsCompressed(format))
+    {
+      ezLog::Error("Cannot extract a grid cell from '{}', the image format is block compressed.", sImageName);
+      return EZ_FAILURE;
+    }
+
+    const ezUInt32 uiCellWidth = inout_image.GetWidth() / uiGridX;
+    const ezUInt32 uiCellHeight = inout_image.GetHeight() / uiGridY;
+
+    if (uiCellWidth == 0 || uiCellHeight == 0)
+    {
+      ezLog::Error("Cannot extract a {}x{} grid from '{}', the image is only {}x{} pixels.", uiGridX, uiGridY, sImageName, inout_image.GetWidth(), inout_image.GetHeight());
+      return EZ_FAILURE;
+    }
+
+    const ezUInt32 uiCellIdx = uiCell % (uiGridX * uiGridY);
+    const ezUInt32 uiOffsetX = (uiCellIdx % uiGridX) * uiCellWidth;
+    const ezUInt32 uiOffsetY = (uiCellIdx / uiGridX) * uiCellHeight;
+
+    ezImageHeader header;
+    header.SetWidth(uiCellWidth);
+    header.SetHeight(uiCellHeight);
+    header.SetImageFormat(format);
+
+    ezImage cropped;
+    cropped.ResetAndAlloc(header);
+
+    const ezRectU32 srcRect(uiOffsetX, uiOffsetY, uiCellWidth, uiCellHeight);
+    EZ_SUCCEED_OR_RETURN(ezImageUtils::Copy(inout_image, srcRect, cropped, ezVec3U32::MakeZero()));
+
+    inout_image.ResetAndMove(std::move(cropped));
+    return EZ_SUCCESS;
+  }
+} // namespace
+
 ezResult ezTexConvProcessor::LoadInputImages()
 {
   EZ_PROFILE_SCOPE("Load Images");
@@ -55,6 +100,17 @@ ezResult ezTexConvProcessor::LoadInputImages()
     {
       ezLog::Error("Unknown image format for '{}'", ezArgSensitive(m_Descriptor.m_InputFiles[i], "File"));
       return EZ_FAILURE;
+    }
+  }
+
+  const ezUInt32 uiGridX = ezMath::Max<ezUInt32>(1, m_Descriptor.m_uiSourceGridX);
+  const ezUInt32 uiGridY = ezMath::Max<ezUInt32>(1, m_Descriptor.m_uiSourceGridY);
+
+  if (uiGridX > 1 || uiGridY > 1)
+  {
+    for (ezUInt32 i = 0; i < m_Descriptor.m_InputImages.GetCount(); ++i)
+    {
+      EZ_SUCCEED_OR_RETURN(CropToGridCell(m_Descriptor.m_InputImages[i], m_Descriptor.m_InputFiles[i], uiGridX, uiGridY, m_Descriptor.m_uiSourceGridCell));
     }
   }
 

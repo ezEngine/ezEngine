@@ -115,6 +115,15 @@ public:
   void SetDecal(ezUInt32 uiIndex, const ezDecalResourceHandle& hResource); // [ property ]
   const ezDecalResourceHandle& GetDecal(ezUInt32 uiIndex) const;           // [ property ]
 
+  /// \brief Selects which variation of the decal texture to display.
+  ///
+  /// Only has an effect if the decal asset declares that its texture contains a grid of variations.
+  /// Zero means that a variation is chosen randomly, based on the owner object's stable random seed.
+  /// Otherwise the value is a one-based index into the grid, values that exceed the number of
+  /// available variations wrap around.
+  void SetVariation(ezInt8 iVariation); // [ property ]
+  ezInt8 GetVariation() const;          // [ property ]
+
   /// If non-zero, the decal fades out after this time and then vanishes.
   ezVarianceTypeTime m_FadeOutDelay; // [ property ]
 
@@ -163,6 +172,8 @@ protected:
   bool m_bWrapAround = false;
   bool m_bMapNormalToGeometry = false;
   ezUInt8 m_uiRandomDecalIdx = 0xFF;
+  ezInt8 m_iVariation = 0;
+  ezUInt8 m_uiRandomVariationIdx = 0;
   ezEnum<ezBasisAxis> m_ProjectionAxis;
   ezHybridArray<ezDecalResourceHandle, 1> m_Decals;
 

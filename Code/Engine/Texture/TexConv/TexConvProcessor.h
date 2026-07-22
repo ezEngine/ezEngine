@@ -79,6 +79,8 @@ private:
     ezUInt32 m_uiFlags = 0;
     ezImage m_InputImage[4];
     ezRectU32 m_AtlasRect[4];
+    ezUInt8 m_uiNumVariationsX = 1;
+    ezUInt8 m_uiNumVariationsY = 1;
   };
 
   ezResult LoadAtlasInputs(const ezTextureAtlasCreationDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& items) const;

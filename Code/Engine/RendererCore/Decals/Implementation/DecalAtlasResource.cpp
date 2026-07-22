@@ -100,10 +100,10 @@ ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
   {
     ezUInt8 uiVersion = 0;
     *Stream >> uiVersion;
-    EZ_ASSERT_DEV(uiVersion <= 3, "Invalid decal atlas version {0}", uiVersion);
+    EZ_ASSERT_DEV(uiVersion <= 4, "Invalid decal atlas version {0}", uiVersion);
 
     // this version is now incompatible
-    if (uiVersion < 3)
+    if (uiVersion < 4)
       return res;
   }
 
