@@ -14,8 +14,34 @@
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-#  include <RmlUi/Include/RmlUi/Debugger.h>
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
+#  include <RmlUi/Include/RmlUi/Debugger/DebuggerFunctionTable.h>
+
+static Rml_Debugger_Functions s_DebuggerFunctions;
+
+void FillDebuggerFunctionTable()
+{
+  if (s_DebuggerFunctions.m_InitFunc != nullptr)
+    return;
+
+  auto hModule = LoadLibraryW(L"RmlDebugger.dll");
+  if (hModule == nullptr)
+  {
+    ezLog::Error("Could not load RmlDebugger.dll");
+    return;
+  }
+
+  auto func = (GetFunctionsFunc)GetProcAddress(hModule, "Rml_Debugger_GetFunctions");
+  if (func == nullptr)
+  {
+    ezLog::Error("Could not find Rml_Debugger_GetFunctions in RmlDebugger.dll");
+    return;
+  }
+
+  func(&s_DebuggerFunctions);
+};
+
 #endif
 
 
@@ -318,20 +344,29 @@ ezMutex& ezRmlUi::GetContextMutex()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 void ezRmlUi::DebugContext(ezRmlUiContext* pContext)
 {
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  FillDebuggerFunctionTable();
+
+  if (s_DebuggerFunctions.m_InitFunc == nullptr)
+    return;
+
   EZ_LOCK(m_pData->m_ContextsMutex);
 
   if (m_pData->m_bDebuggerInitialized)
   {
-    Rml::Debugger::Shutdown();
+    s_DebuggerFunctions.m_ShutdownFunc();
     m_pData->m_bDebuggerInitialized = false;
   }
 
   if (pContext != nullptr)
   {
-    Rml::Debugger::Initialise(pContext);
-    Rml::Debugger::SetVisible(true);
+    s_DebuggerFunctions.m_InitFunc(pContext);
+    s_DebuggerFunctions.m_SetVisibleFunc(true);
     m_pData->m_bDebuggerInitialized = true;
   }
+#  else
+  ezLog::Error("RmlUi debugger is only available on Windows.");
+#  endif
 }
 #endif
 

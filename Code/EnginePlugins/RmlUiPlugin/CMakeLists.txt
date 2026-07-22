@@ -11,9 +11,9 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   GameEngine
   RmlCore
-  $<$<CONFIG:Debug>:RmlDebugger>
-  $<$<CONFIG:Dev>:RmlDebugger>
 )
+
+add_dependencies(${PROJECT_NAME} RmlDebugger)
 
 # needed for shader structure includes
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../../Data/Base")
