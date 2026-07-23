@@ -108,10 +108,10 @@ verlt() {
 PACKAGE_MANAGER=apt
 INSTALL_COMMAND=install
 FORCE_INSTALL=-y
-if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "22" -o "$Version" = "24" -o "$Version" = "25" -o "$Version" = "26" \) ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ] || [ "$Distribution" = "Debian" -a "$Version" = "13" ]; then
+if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "22" -o "$Version" = "24" -o "$Version" = "25" -o "$Version" = "26" \) ] || [ "$Distribution" = "Mint" -a \( "$Version" = "21" -o "$Version" = "22" \) ] || [ "$Distribution" = "Debian" -a "$Version" = "13" ]; then
   packages=(cmake build-essential ninja-build libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev uuid-dev mold libfreetype-dev libxkbcommon-dev liblttng-ust-dev lttng-tools)
 
-  if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "24" -o "$Version" = "25" -o "$Version" = "26" \) ] || [ "$Distribution" = "Debian" -a "$Version" = "13" ]; then
+  if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "24" -o "$Version" = "25" -o "$Version" = "26" \) ] || [ "$Distribution" = "Mint" -a "$Version" = "22" ] || [ "$Distribution" = "Debian" -a "$Version" = "13" ]; then
     packages+=(libtinfo6)
   else
     packages+=(libtinfo5)
@@ -132,6 +132,7 @@ else
   >&2 echo "  * Ubuntu 24"
   >&2 echo "  * Ubuntu 26"
   >&2 echo "  * Linux Mint 21"
+  >&2 echo "  * Linux Mint 22"
   >&2 echo "  * Arch Linux"
   >&2 echo "Yours is: $Issue"
 
