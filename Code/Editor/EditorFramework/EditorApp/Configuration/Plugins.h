@@ -24,19 +24,22 @@ struct EZ_EDITORFRAMEWORK_DLL ezPluginBundle
   ezTimestamp m_LastModificationTime;
 
   // General Bundle Description
-  bool m_bMandatory = false;                        ///< if set, the bundle is always used and not even displayed in the UI
-  bool m_bAllowEnableReload = false;                ///< If false, the "Enable Reload" option is not available for this bundle. Only set to true for plugins that are loaded purely dynamically at runtime and not linked against directly.
-  ezString m_sDisplayName;                          ///< The string for displaying the bundle in UI
-  ezString m_sDescription;                          ///< A proper description what this bundle is for, so that users know when to use it.
-  ezHybridArray<ezString, 1> m_EditorPlugins;       ///< List of all the DLLs (without extension) to load into the editor process.
-  ezHybridArray<ezString, 1> m_EditorEnginePlugins; ///< List of all the DLLs to load into the editor's engine process.
-  ezHybridArray<ezString, 1> m_RuntimePlugins;      ///< List of all the DLLs to load into the runtime. These will also get packaged.
-  ezHybridArray<ezString, 1> m_PackageDependencies; ///< Additional files to include in packages. E.g. indirect DLL dependencies.
-  ezHybridArray<ezString, 1> m_DataDirectories;     ///< Special-directory paths (e.g. ">sdk/Data/Plugins/KrautPlugin") to mount as data directories when this bundle is active.
-  ezHybridArray<ezString, 1> m_RequiredBundles;     ///< The file names (without path or extension) of other bundles that are required for this bundle to work.
-  ezHybridArray<ezString, 1> m_ExclusiveFeatures;   ///< If two bundles have the same string in this list, they can't be activated at the same time. So for example only one bundle with the feature 'Sound' or 'Physics' may be activated simultaneously. Only enforced by the UI.
-  ezHybridArray<ezString, 1> m_EnabledInTemplates;  ///< In which project templates this plugin should be active by default.
-  ezString m_sCMakeTargetName;                      ///< The CMake target name for linking user plugins against this plugin.
+  bool m_bMandatory = false;                                ///< if set, the bundle is always used and not even displayed in the UI
+  bool m_bAllowEnableReload = false;                        ///< If false, the "Enable Reload" option is not available for this bundle. Only set to true for plugins that are loaded purely dynamically at runtime and not linked against directly.
+  ezString m_sDisplayName;                                  ///< The string for displaying the bundle in UI
+  ezString m_sDescription;                                  ///< A proper description what this bundle is for, so that users know when to use it.
+  ezHybridArray<ezString, 1> m_EditorPlugins;               ///< List of all the DLLs (without extension) to load into the editor process.
+  ezHybridArray<ezString, 1> m_EditorEnginePlugins;         ///< List of all the DLLs to load into the editor's engine process.
+  ezHybridArray<ezString, 1> m_RuntimePlugins;              ///< List of all the DLLs to load into the runtime. These will also get packaged.
+  ezHybridArray<ezString, 1> m_PackageDependencies;         ///< Additional files to include in packages. E.g. indirect DLL dependencies.
+  ezHybridArray<ezString, 1> m_PackageDependenciesDev;      ///< Additional files to include in packages only for Dev builds. E.g. indirect DLL dependencies specific to Dev builds.
+  ezHybridArray<ezString, 1> m_PackageDependenciesDebug;    ///< Additional files to include in packages only for Debug builds. E.g. indirect DLL dependencies specific to Debug builds.
+  ezHybridArray<ezString, 1> m_PackageDependenciesShipping; ///< Additional files to include in packages only for Shipping builds. E.g. indirect DLL dependencies specific to Shipping builds.
+  ezHybridArray<ezString, 1> m_DataDirectories;             ///< Special-directory paths (e.g. ">sdk/Data/Plugins/KrautPlugin") to mount as data directories when this bundle is active.
+  ezHybridArray<ezString, 1> m_RequiredBundles;             ///< The file names (without path or extension) of other bundles that are required for this bundle to work.
+  ezHybridArray<ezString, 1> m_ExclusiveFeatures;           ///< If two bundles have the same string in this list, they can't be activated at the same time. So for example only one bundle with the feature 'Sound' or 'Physics' may be activated simultaneously. Only enforced by the UI.
+  ezHybridArray<ezString, 1> m_EnabledInTemplates;          ///< In which project templates this plugin should be active by default.
+  ezString m_sCMakeTargetName;                              ///< The CMake target name for linking user plugins against this plugin.
 
   /// \brief Reads the bundle description, but not the state.
   ezResult ReadBundleFromDDL(ezOpenDdlReader& ref_ddl);

@@ -9,6 +9,8 @@ PluginInfo
 	string %EditorEnginePlugins{"ezEnginePluginRmlUi"}
 	string %RuntimePlugins{"ezRmlUiPlugin"}
 	string %PackageDependencies{"freetype.dll", "RmlCore.dll"}
+	string %PackageDependenciesDev{"RmlDebugger.dll"}
+	string %PackageDependenciesDebug{"RmlDebugger.dll"}
 	string %DataDirectories{">sdk/Data/Plugins/RmlUiPlugin"}
 	string %RequiredPlugins{}
 	string %ExclusiveFeatures{}

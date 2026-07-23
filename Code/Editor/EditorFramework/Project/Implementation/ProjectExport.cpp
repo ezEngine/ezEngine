@@ -508,6 +508,22 @@ ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezP
         binariesFilter.AddFilter(dep, true);
       }
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+      for (const auto& dep : it.Value().m_PackageDependenciesDebug)
+      {
+        binariesFilter.AddFilter(dep, true);
+      }
+#elif EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+      for (const auto& dep : it.Value().m_PackageDependenciesDev)
+      {
+        binariesFilter.AddFilter(dep, true);
+      }
+#else
+      for (const auto& dep : it.Value().m_PackageDependenciesShipping)
+      {
+        binariesFilter.AddFilter(dep, true);
+      }
+#endif
       for (const auto& dep : it.Value().m_RuntimePlugins)
       {
         ezStringBuilder tmp = dep;
