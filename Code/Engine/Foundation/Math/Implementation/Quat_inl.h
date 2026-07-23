@@ -88,7 +88,7 @@ void ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAx
   }
   else
   {
-    const Type ds = 1.0 / s;
+    const Type ds = (Type)1.0 / s;
     out_vAxis.x = x * ds;
     out_vAxis.y = y * ds;
     out_vAxis.z = z * ds;
