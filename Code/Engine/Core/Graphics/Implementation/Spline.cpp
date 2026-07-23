@@ -213,13 +213,13 @@ void ezSpline::CalculateUpDirAndAutoTangents(const ezSimdVec4f& vGlobalUpDir, co
 
       const ezSimdVec4f upDir = [&]()
       {
-        if (!forwardDir.IsEqual(vGlobalUpDir, ezMath::HugeEpsilon<float>()).AllSet<3>())
+        if (forwardDir.Dot<3>(vGlobalUpDir).Abs() < 0.99f)
           return vGlobalUpDir;
 
         if (i > 0)
         {
           auto& prevCp = m_ControlPoints[i - 1];
-          if (!forwardDir.IsEqual(prevCp.m_vUpDirAndRoll, ezMath::HugeEpsilon<float>()).AllSet<3>())
+          if (forwardDir.Dot<3>(prevCp.m_vUpDirAndRoll).Abs() < 0.99f)
           {
             return prevCp.m_vUpDirAndRoll;
           }
@@ -237,6 +237,8 @@ void ezSpline::CalculateUpDirAndAutoTangents(const ezSimdVec4f& vGlobalUpDir, co
       cp.m_vUpDirAndRoll.SetW(roll);
       cp.m_vUpDirTangentIn.SetZero();
       cp.m_vUpDirTangentOut.SetZero();
+
+      EZ_ASSERT_DEBUG(cp.m_vUpDirAndRoll.IsValid<4>(), "Invalid up dir");
     }
   }
 
