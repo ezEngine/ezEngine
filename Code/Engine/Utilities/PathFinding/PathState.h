@@ -80,7 +80,7 @@ public:
   ///   pPathSearch->AddPathNode(neighbor.index, newState);
   /// }
   /// ```
-  virtual void GenerateAdjacentStates(ezInt64 iNodeIndex, const PathStateType& StartState, ezPathSearch<PathStateType>* pPathSearch) = 0;
+  virtual void GenerateAdjacentStates(ezInt64 iCurrentNodeIndex, const PathStateType& currentState, ezPathSearch<PathStateType>* pPathSearch) = 0;
 
   /// \brief Automatically called by ezPathSearch objects when a new path search is about to start (ezPathSearch::FindClosest).
   /// Allows the generator to do some initial setup.

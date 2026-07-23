@@ -65,8 +65,30 @@ public:
   void CancelNavigation();
 
   void SetCurrentPosition(const ezVec3& vPosition);
-  void SetTargetPosition(const ezVec3& vPosition);
+
+  /// \brief Sets the desired target location and starts a path search.
+  ///
+  /// If \a bOptimizeWhenFound is true, the corridor is optimized (topology + visibility) once,
+  /// as soon as the path search finishes. Use this to avoid the weird corridor shapes that the
+  /// incremental (counter-based) optimization produces right after a repath. The path search is
+  /// asynchronous, so the optimization cannot happen inside this call - it happens in a later
+  /// Update() when the search completes.
+  void SetTargetPosition(const ezVec3& vPosition, bool bOptimizeWhenFound = false);
   const ezVec3& GetTargetPosition() const;
+
+  /// \brief Immediately optimizes the current path corridor (topology + visibility).
+  ///
+  /// Only has an effect when a path exists (GetState() == FullPathFound or PartialPathFound).
+  /// This is the on-demand counterpart to SetTargetPosition()'s bOptimizeWhenFound flag.
+  void OptimizeCurrentPath();
+
+  /// \brief Checks whether \a vPosition lies inside the current path corridor.
+  ///
+  /// Returns true only if the point is directly above/below one of the corridor polygons and
+  /// within \a fHeightTolerance of that polygon's surface. This is different from testing whether
+  /// a point is on the navmesh at all, and different from a raycast: it answers "would moving to
+  /// this position leave the planned corridor?". Returns false if no path exists.
+  bool IsPointInPathCorridor(const ezVec3& vPosition, float fHeightTolerance = 0.5f) const;
   void SetNavmesh(ezAiNavMesh* pNavmesh);
   void SetQueryFilter(const dtQueryFilter& filter);
 
@@ -103,6 +125,7 @@ private:
   ezUInt8 m_uiCurrentPositionChangedBit : 1;
   ezUInt8 m_uiTargetPositionChangedBit : 1;
   ezUInt8 m_uiReinitQueryBit : 1;
+  ezUInt8 m_uiOptimizeWhenFoundBit : 1;
 
   ezAiNavMesh* m_pNavmesh = nullptr;
   dtNavMeshQuery m_Query;

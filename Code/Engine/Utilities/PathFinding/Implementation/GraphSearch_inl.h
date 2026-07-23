@@ -192,7 +192,7 @@ ezResult ezPathSearch<PathStateType>::FindClosest(
     m_iCurNodeIndex = FindBestNodeToExpand(pCurState);
 
     // we have reached the target node, generate the final path result
-    if (Callback(m_iCurNodeIndex, *pCurState))
+    if (Callback(m_iCurNodeIndex, *pCurState, m_pStateGenerator))
     {
       FillOutPathResult(m_iCurNodeIndex, out_Path);
       m_pStateGenerator->SearchFinished(EZ_SUCCESS);

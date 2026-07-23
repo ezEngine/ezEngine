@@ -40,6 +40,7 @@ ezAiNavigation::ezAiNavigation()
   m_uiCurrentPositionChangedBit = 0;
   m_uiTargetPositionChangedBit = 0;
   m_uiReinitQueryBit = 0;
+  m_uiOptimizeWhenFoundBit = 0;
 
   m_PathCorridor.init(MaxPathNodes);
 }
@@ -99,7 +100,14 @@ void ezAiNavigation::Update()
       ezRectFloat r = ezRectFloat::MakeInvalid();
       r.ExpandToInclude(m_vCurrentPosition.GetAsVec2());
       r.Grow(c_fPathSearchBoundary);
-      m_pNavmesh->RequestSector(r.GetCenter(), r.GetHalfExtents());
+      if (!m_pNavmesh->RequestSector(r.GetCenter(), r.GetHalfExtents()))
+      {
+        // The sectors around the new position aren't streamed in yet. Validating against the incomplete navmesh
+        // below would spuriously report InvalidCurrentPosition, so defer to a full replan instead - the
+        // StartNewSearch state waits on the very same sector gate until the navmesh is ready.
+        m_State = State::StartNewSearch;
+        return;
+      }
     }
 
     const dtPolyRef firstPoly = m_PathCorridor.getFirstPoly();
@@ -152,7 +160,15 @@ void ezAiNavigation::Update()
       ezRectFloat r = ezRectFloat::MakeInvalid();
       r.ExpandToInclude(m_vTargetPosition.GetAsVec2());
       r.Grow(c_fPathSearchBoundary);
-      m_pNavmesh->RequestSector(r.GetCenter(), r.GetHalfExtents());
+      if (!m_pNavmesh->RequestSector(r.GetCenter(), r.GetHalfExtents()))
+      {
+        // The sectors around the new target aren't streamed in yet. Validating against the incomplete navmesh
+        // below would spuriously report InvalidTargetPosition (e.g. right after retargeting to a far-away point),
+        // so defer to a full replan instead - the StartNewSearch state waits on the very same sector gate until
+        // the navmesh is ready.
+        m_State = State::StartNewSearch;
+        return;
+      }
     }
 
     const dtPolyRef lastPoly = m_PathCorridor.getLastPoly();
@@ -221,10 +237,15 @@ void ezAiNavigation::SetCurrentPosition(const ezVec3& vPosition)
   m_uiCurrentPositionChangedBit = 1;
 }
 
-void ezAiNavigation::SetTargetPosition(const ezVec3& vPosition)
+void ezAiNavigation::SetTargetPosition(const ezVec3& vPosition, bool bOptimizeWhenFound /*= false*/)
 {
   m_vTargetPosition = vPosition;
   m_uiTargetPositionChangedBit = 1;
+
+  if (bOptimizeWhenFound)
+  {
+    m_uiOptimizeWhenFoundBit = 1;
+  }
 }
 
 const ezVec3& ezAiNavigation::GetTargetPosition() const
@@ -268,6 +289,62 @@ void ezAiNavigation::ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_waypoints) 
   {
     out_waypoints[i] = straightPath[i]; // automatically swaps Y and Z
   }
+}
+
+void ezAiNavigation::OptimizeCurrentPath()
+{
+  if (m_pNavmesh == nullptr || m_pFilter == nullptr)
+    return;
+
+  if (m_PathCorridor.getPathCount() == 0)
+    return;
+
+  // local area re-search to straighten out a weird corridor shape
+  m_PathCorridor.optimizePathTopology(&m_Query, m_pFilter);
+  m_uiOptimizeTopologyCounter = 0;
+
+  // string-pull the corridor toward the farthest currently visible corner
+  ezUInt8 cornerFlags[MaxPathNodes];
+  dtPolyRef cornerPolys[MaxPathNodes];
+  ezRcPos straightPath[MaxPathNodes];
+
+  const int straightLen = m_PathCorridor.findCorners(straightPath[0], cornerFlags, cornerPolys, MaxPathNodes, &m_Query);
+
+  if (straightLen > 0)
+  {
+    m_PathCorridor.optimizePathVisibility(straightPath[straightLen - 1], 10.0f, &m_Query, m_pFilter);
+    m_uiOptimizeVisibilityCounter = 0;
+  }
+}
+
+bool ezAiNavigation::IsPointInPathCorridor(const ezVec3& vPosition, float fHeightTolerance) const
+{
+  const ezUInt32 uiCorrLen = m_PathCorridor.getPathCount();
+  if (uiCorrLen == 0)
+    return false;
+
+  const dtPolyRef* pCorrArr = m_PathCorridor.getPath();
+  const ezRcPos rcPos(vPosition);
+
+  for (ezUInt32 c = 0; c < uiCorrLen; ++c)
+  {
+    ezRcPos closest;
+    bool bPosOverPoly = false;
+
+    // closestPointOnPoly reports whether the point is directly over this polygon;
+    // that is what makes this a corridor-containment test rather than a nearest-poly query.
+    if (dtStatusFailed(m_Query.closestPointOnPoly(pCorrArr[c], rcPos, closest, &bPosOverPoly)))
+      continue;
+
+    if (bPosOverPoly)
+    {
+      const ezVec3 vClosest(closest);
+      if (ezMath::Abs(vClosest.z - vPosition.z) <= fHeightTolerance)
+        return true;
+    }
+  }
+
+  return false;
 }
 
 bool ezAiNavigation::UpdatePathSearch()
@@ -366,6 +443,12 @@ bool ezAiNavigation::UpdatePathSearch()
 
     m_uiOptimizeTopologyCounter = 0;
     m_uiOptimizeVisibilityCounter = 0;
+
+    if (m_uiOptimizeWhenFoundBit)
+    {
+      m_uiOptimizeWhenFoundBit = 0;
+      OptimizeCurrentPath();
+    }
   }
 
   // Replan if path has become invalid due to navmesh modifications
