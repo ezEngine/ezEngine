@@ -142,25 +142,25 @@ ezResult ezPluginBundle::ReadBundleFromDDL(ezOpenDdlReader& ref_ddl)
       m_PackageDependencies[i] = pElement->GetPrimitivesString()[i];
   }
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "PackageDevDependencies"))
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "PackageDependenciesDev"))
   {
-    m_PackageDevDependencies.SetCount(pElement->GetNumPrimitives());
+    m_PackageDependenciesDev.SetCount(pElement->GetNumPrimitives());
     for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
-      m_PackageDevDependencies[i] = pElement->GetPrimitivesString()[i];
+      m_PackageDependenciesDev[i] = pElement->GetPrimitivesString()[i];
   }
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "PackageDebugDependencies"))
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "PackageDependenciesDebug"))
   {
-    m_PackageDebugDependencies.SetCount(pElement->GetNumPrimitives());
+    m_PackageDependenciesDebug.SetCount(pElement->GetNumPrimitives());
     for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
-      m_PackageDebugDependencies[i] = pElement->GetPrimitivesString()[i];
+      m_PackageDependenciesDebug[i] = pElement->GetPrimitivesString()[i];
   }
 
-  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "PackageShippingDependencies"))
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "PackageDependenciesShipping"))
   {
-    m_PackageShippingDependencies.SetCount(pElement->GetNumPrimitives());
+    m_PackageDependenciesShipping.SetCount(pElement->GetNumPrimitives());
     for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
-      m_PackageShippingDependencies[i] = pElement->GetPrimitivesString()[i];
+      m_PackageDependenciesShipping[i] = pElement->GetPrimitivesString()[i];
   }
 
   if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "DataDirectories"))

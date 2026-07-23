@@ -32,9 +32,9 @@ struct EZ_EDITORFRAMEWORK_DLL ezPluginBundle
   ezHybridArray<ezString, 1> m_EditorEnginePlugins;         ///< List of all the DLLs to load into the editor's engine process.
   ezHybridArray<ezString, 1> m_RuntimePlugins;              ///< List of all the DLLs to load into the runtime. These will also get packaged.
   ezHybridArray<ezString, 1> m_PackageDependencies;         ///< Additional files to include in packages. E.g. indirect DLL dependencies.
-  ezHybridArray<ezString, 1> m_PackageDevDependencies;      ///< Additional files to include in packages only for Dev builds. E.g. indirect DLL dependencies specific to Dev builds.
-  ezHybridArray<ezString, 1> m_PackageDebugDependencies;    ///< Additional files to include in packages only for Debug builds. E.g. indirect DLL dependencies specific to Debug builds.
-  ezHybridArray<ezString, 1> m_PackageShippingDependencies; ///< Additional files to include in packages only for Shipping builds. E.g. indirect DLL dependencies specific to Shipping builds.
+  ezHybridArray<ezString, 1> m_PackageDependenciesDev;      ///< Additional files to include in packages only for Dev builds. E.g. indirect DLL dependencies specific to Dev builds.
+  ezHybridArray<ezString, 1> m_PackageDependenciesDebug;    ///< Additional files to include in packages only for Debug builds. E.g. indirect DLL dependencies specific to Debug builds.
+  ezHybridArray<ezString, 1> m_PackageDependenciesShipping; ///< Additional files to include in packages only for Shipping builds. E.g. indirect DLL dependencies specific to Shipping builds.
   ezHybridArray<ezString, 1> m_DataDirectories;             ///< Special-directory paths (e.g. ">sdk/Data/Plugins/KrautPlugin") to mount as data directories when this bundle is active.
   ezHybridArray<ezString, 1> m_RequiredBundles;             ///< The file names (without path or extension) of other bundles that are required for this bundle to work.
   ezHybridArray<ezString, 1> m_ExclusiveFeatures;           ///< If two bundles have the same string in this list, they can't be activated at the same time. So for example only one bundle with the feature 'Sound' or 'Physics' may be activated simultaneously. Only enforced by the UI.
