@@ -525,8 +525,10 @@ ezSelectedObjectsExtractor::~ezSelectedObjectsExtractor() = default;
 
 const ezDeque<ezGameObjectHandle>* ezSelectedObjectsExtractor::GetSelection()
 {
-  if (m_pSelectionContext)
+  if (m_pSelectionContext && m_pSelectionContext->m_bEnabled)
+  {
     return &m_pSelectionContext->m_Objects;
+  }
 
   return nullptr;
 }

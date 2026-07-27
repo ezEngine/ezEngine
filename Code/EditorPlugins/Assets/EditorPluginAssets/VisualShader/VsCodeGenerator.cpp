@@ -538,6 +538,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezVisualGraphOb
   m_sFinalShaderCode.Append("\n");
 
   m_sFinalShaderCode.Append("[RENDERSTATE]\n\n", m_sShaderRenderState, "\n");
+  m_sFinalShaderCode.Append("[MATERIALCONFIG]\n\n", m_sShaderMaterialConfig, "\n");
   m_sFinalShaderCode.Append("[MATERIALCONSTANTS]\n\n", sMaterialConstants, "\n");
 
   m_sFinalShaderCode.Append("[VERTEXSHADER]\n\n", m_sShaderVertexDefines, "\n", m_sShaderVertexIncludes, "\n");
@@ -575,7 +576,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
 
   EZ_SUCCEED_OR_RETURN(GenerateInputPinCode(m_pNodeManager->GetInputPins(pNode)));
 
-  ezStringBuilder sPixelConstantsCode, sPixelBody, sMaterialParamCode, sMaterialConstantsCode, sPixelSamplersCode, sMaterialCB, sPermutations, sRenderStates, sPixelDefines, sPixelIncludes, sVertexDefines, sVertexIncludes, sVertexBody;
+  ezStringBuilder sPixelConstantsCode, sPixelBody, sMaterialParamCode, sMaterialConstantsCode, sPixelSamplersCode, sMaterialCB, sPermutations, sRenderStates, sMaterialConfig, sPixelDefines, sPixelIncludes, sVertexDefines, sVertexIncludes, sVertexBody;
 
   // Pixel shader sections
   sPixelDefines = pDesc->m_sShaderCodeShaderShared;
@@ -597,6 +598,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   sMaterialCB = pDesc->m_sShaderCodeMaterialCB;
   sPermutations = pDesc->m_sShaderCodePermutations;
   sRenderStates = pDesc->m_sShaderCodeRenderState;
+  sMaterialConfig = pDesc->m_sShaderCodeMaterialConfig;
 
   // For the main node, use linearized code generation for both pixel and vertex body
   if (pNode == m_pMainNode)
@@ -626,9 +628,11 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialCB));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPixelSamplersCode));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sRenderStates));
+  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialConfig));
 
   SetPinDefines(pNode, sPermutations);
   SetPinDefines(pNode, sRenderStates);
+  SetPinDefines(pNode, sMaterialConfig);
   SetPinDefines(pNode, sVertexBody);
   SetPinDefines(pNode, sVertexDefines);
   SetPinDefines(pNode, sMaterialParamCode);
@@ -643,6 +647,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   {
     AppendStringIfUnique(m_sShaderPermutations, sPermutations);
     AppendStringIfUnique(m_sShaderRenderState, sRenderStates);
+    AppendStringIfUnique(m_sShaderMaterialConfig, sMaterialConfig);
     AppendStringIfUnique(m_sShaderVertexDefines, sVertexDefines);
     AppendStringIfUnique(m_sShaderVertexIncludes, sVertexIncludes);
     AppendStringIfUnique(m_sShaderMaterialConstants, sMaterialConstantsCode);

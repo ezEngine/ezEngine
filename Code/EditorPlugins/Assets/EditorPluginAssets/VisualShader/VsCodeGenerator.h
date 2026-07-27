@@ -91,6 +91,7 @@ private:
   ezStringBuilder m_sShaderMaterialConstants;
   ezStringBuilder m_sShaderMaterialCB;
   ezStringBuilder m_sShaderRenderState;
+  ezStringBuilder m_sShaderMaterialConfig;
   ezStringBuilder m_sShaderPermutations;
   ezStringBuilder m_sFinalShaderCode;
 };

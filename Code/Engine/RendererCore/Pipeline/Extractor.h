@@ -105,6 +105,7 @@ public:
   void AddObjectAndChildren(const ezWorld& world, const ezGameObjectHandle& hObject);
   void AddObjectAndChildren(const ezWorld& world, const ezGameObject* pObject);
 
+  bool m_bEnabled = true; ///< allows to temporarily 
   ezDeque<ezGameObjectHandle> m_Objects;
 };
 

@@ -5,7 +5,7 @@
 /// Uses radian internally. Will <b>not</b> automatically keep its range between 0 degree - 360 degree (0 - 2PI) but you can call NormalizeRange to do
 /// so.
 template <typename Type>
-class EZ_FOUNDATION_DLL ezAngleTemplate
+class ezAngleTemplate
 {
 public:
   EZ_DECLARE_POD_TYPE();

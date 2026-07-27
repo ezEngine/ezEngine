@@ -148,7 +148,7 @@ void ezQtColorGradientEditorWidget::on_SpinPosition_valueChanged(double value)
     m_bTemporaryTransaction = true;
   }
 
-  value = ezColorGradient::SnapTimeToTick(value);
+  value = ezColorGradient::SnapTimeTo(value);
 
   if (m_iSelectedColorCP != -1)
   {

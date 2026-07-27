@@ -645,6 +645,13 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
           temp.Append("\n");
         nd.m_sShaderCodeRenderState = temp;
       }
+      else if (pElement->GetName() == "CodeMaterialConfig")
+      {
+        temp = pElement->GetPrimitivesString()[0];
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
+        nd.m_sShaderCodeMaterialConfig = temp;
+      }
       else if (pElement->GetName() == "CodeShaderShared")
       {
         temp = pElement->GetPrimitivesString()[0];

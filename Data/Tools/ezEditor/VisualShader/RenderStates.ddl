@@ -185,3 +185,19 @@ Node %RasterizerState
   string %CodeRenderStates { "CullMode = $prop0
 WireFrame = $prop1" }
 }
+
+Node %RenderDataCategory
+{
+  string %NodeType { "ShaderState" }
+  string %Category { "RenderStates" }
+  string %Color { "Blue" }
+  string %Docs { "Configures which render data category the material is sorted and rendered under" }
+
+  Property %RenderDataCategory
+  {
+    string %Type { "identifier" }
+    string %DefaultValue { "LitOpaque" }
+  }
+
+  string %CodeMaterialConfig { "RenderDataCategory = $prop0" }
+}
