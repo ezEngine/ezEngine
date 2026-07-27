@@ -590,13 +590,10 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
   // if it is a git repository, clone it
   if (sType == "git" && !sUrl.IsEmpty())
   {
-    ezProgressRange progress("Downloading Project", 2, true);
-    progress.SetStepWeighting(0, 0.8f);
-    progress.SetStepWeighting(1, 0.2f);
-
     {
       QStringList args;
       args << "clone";
+      args << "--progress"; // it appears that this flag forces non-buffered I/O so it flushes output immediately after each write
       args << ezMakeQString(sUrl);
       args << ezMakeQString(sName);
 
@@ -606,6 +603,7 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
 
       ezProgressRange cloneProgress("Downloading Project", true);
       bool bRecursion = false;
+      bool bFirstProgress = true;
 
       QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&]()
         {
@@ -624,7 +622,15 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
             ezInt32 p;
             if (ezConversionUtils::StringToInt(str, p).Succeeded())
             {
-              cloneProgress.SetCompletion(p / 100.0f);
+              // skip "Counting objects: 100% (1/1), done."
+              if (bFirstProgress && p == 100) {
+                bFirstProgress = false;
+              }
+              else
+              {
+                // here we have "Receiving objects:   2% (72/3593)"
+                cloneProgress.SetCompletion(p / 100.0f);
+              }
             }
           }
 
@@ -651,7 +657,10 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
         return ezStatus(ezFmt("Running 'git' to download the remote project failed."));
       }
 
-      proc.waitForFinished(60 * 1000);
+      while (!proc.waitForFinished())
+      {
+        // wait indefinitely
+      }
 
       if (proc.exitStatus() != QProcess::ExitStatus::NormalExit)
       {
