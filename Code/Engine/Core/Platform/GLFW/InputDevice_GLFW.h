@@ -17,10 +17,7 @@ public:
   ezInputDeviceMouseKeyboard_GLFW(GLFWwindow* windowHandle);
   ~ezInputDeviceMouseKeyboard_GLFW();
 
-  virtual void SetShowMouseCursor(bool bShow) override;
-  virtual bool GetShowMouseCursor() const override;
-  virtual void SetClipMouseCursor(ezMouseCursorClipMode::Enum mode) override;
-  virtual ezMouseCursorClipMode::Enum GetClipMouseCursor() const override;
+  virtual ezUInt32 GetHardwareCursorSize() const override;
 
   // GLFW callback for key pressed, released, repeated events
   void OnKey(int key, int scancode, int action, int mods);
@@ -38,6 +35,9 @@ public:
   void OnScroll(double xoffset, double yoffset);
 
 private:
+  virtual void ApplyShowMouseCursor(bool bShow, bool bCustomCursorActive) override;
+  virtual void ApplyClipMouseCursor(ezMouseCursorClipMode::Enum mode) override;
+
   virtual void InitializeDevice() override;
   virtual void RegisterInputSlots() override;
   virtual void ResetInputSlotValues() override;

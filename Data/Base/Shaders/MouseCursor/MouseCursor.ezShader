@@ -1,0 +1,41 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+// Deliberately none. This shader is executed outside of any render pipeline, where the
+// permutation state is whatever the last render pass happened to leave behind.
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+BlendingEnabled0 = true
+BlendOp0 = BlendOp_Add
+SourceBlend0 = Blend_SrcAlpha
+DestBlend0 = Blend_InvSrcAlpha
+DestBlendAlpha0 = Blend_InvSrcAlpha
+
+[VERTEXSHADER]
+
+#include <Shaders/MouseCursor/MouseCursorCommon.h>
+
+ezMouseCursorVSOutput main(uint VertexID : SV_VertexID)
+{
+  return ezMouseCursorVertex(VertexID);
+}
+
+[PIXELSHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/MouseCursor/MouseCursorCommon.h>
+
+// Bound by ezMouseCursorRenderer when the cursor was given as a texture asset.
+Texture2D CursorTexture;
+
+float4 main(ezMouseCursorVSOutput Input) : SV_Target
+{
+  return CursorTexture.Sample(LinearClampSampler, Input.TexCoord0) * CursorColor;
+}

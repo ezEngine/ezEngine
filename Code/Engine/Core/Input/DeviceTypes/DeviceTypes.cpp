@@ -2,6 +2,7 @@
 
 #include <Core/Input/DeviceTypes/Controller.h>
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
+#include <Core/Input/InputManager.h>
 #include <Foundation/Time/Clock.h>
 
 // clang-format off
@@ -166,6 +167,58 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
     {
       ApplyVibration(c, (Motor::Enum)m, fVibrationToApply[c][m]);
     }
+  }
+}
+
+void ezInputDeviceMouseKeyboard::SetShowMouseCursor(bool bShow)
+{
+  m_bShowMouseCursorDesired = bShow;
+
+  UpdateEffectiveMouseCursorState();
+}
+
+void ezInputDeviceMouseKeyboard::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
+{
+  m_ClipModeDesired = mode;
+
+  UpdateEffectiveMouseCursorState();
+}
+
+void ezInputDeviceMouseKeyboard::UpdateEffectiveMouseCursorState()
+{
+  const ezMouseCursorOverrideDesc ovr = ezInputManager::GetActiveMouseCursorOverride();
+  const bool bCustomCursorActive = ezInputManager::IsCustomMouseCursorActive();
+
+  // An explicit override wins over the custom cursor, which in turn wins over what the application wants.
+  bool bShow;
+  switch (ovr.m_OSCursor)
+  {
+    case ezMouseCursorOverride::ForceOSCursor:
+      bShow = true;
+      break;
+
+    case ezMouseCursorOverride::ForceHidden:
+      bShow = false;
+      break;
+
+    case ezMouseCursorOverride::None:
+    default:
+      bShow = bCustomCursorActive ? false : m_bShowMouseCursorDesired;
+      break;
+  }
+
+  if (bShow != m_bShowMouseCursorEffective)
+  {
+    m_bShowMouseCursorEffective = bShow;
+    ApplyShowMouseCursor(bShow, bCustomCursorActive);
+  }
+
+  const ezMouseCursorClipMode::Enum clipMode = ovr.m_bForceNoClip ? ezMouseCursorClipMode::NoClip : m_ClipModeDesired;
+
+  if (clipMode != m_ClipModeEffective)
+  {
+    m_ClipModeEffective = clipMode;
+    ApplyClipMouseCursor(clipMode);
   }
 }
 

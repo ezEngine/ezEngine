@@ -9,7 +9,8 @@ void RTSGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
   if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard*>(pWindow->GetInputDevice()))
   {
     // pInput->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
-    pInput->SetShowMouseCursor(true);
+    // The hardware cursor is hidden automatically while a custom cursor is set,
+    // see RTSGameState::UpdateMouseCursor() and ezMouseCursorRenderer.
     pInput->SetMouseSpeed(ezVec2(0.002f));
   }
 }
@@ -109,6 +110,7 @@ void RTSGameState::ProcessInput()
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
 
   UpdateMousePosition();
+  UpdateMouseCursor();
 
   if (m_pActiveGameMode)
   {

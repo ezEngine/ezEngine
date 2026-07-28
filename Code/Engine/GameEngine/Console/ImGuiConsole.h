@@ -3,7 +3,7 @@
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
 
 #  include <Core/Console/Console.h>
-#  include <Core/Input/DeviceTypes/MouseKeyboard.h>
+#  include <Core/Input/Declarations.h>
 #  include <Foundation/Containers/IdTable.h>
 #  include <Foundation/Logging/Log.h>
 #  include <Foundation/Types/Delegate.h>
@@ -146,11 +146,13 @@ protected:
   // Input handling
   ezUInt8 m_uiForceFocus = 3;
   bool m_bWasOpen = false;
-  bool m_bCursorWasVisible = true;
   bool m_bDefaultInputHandlingInitialized = false;
   bool m_bExecutingCommand = false;
   ezUInt8 m_uiResetLayout = 0;
-  ezMouseCursorClipMode::Enum m_MouseWasClipped;
+
+  // While the console is open, the OS cursor has to be visible, no matter what the game wants,
+  // and a custom ('software') cursor must not be used, because it may not indicate where clicks go.
+  ezMouseCursorOverrideRequest m_CursorOverride;
 
   // Frame time tracking for statistics
   float m_FrameTimeHistory[30 * 10];

@@ -8,18 +8,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezInputDeviceMouseKeyboard_NoImpl::ezInputDeviceMouseKeyboard_NoImpl(ezUInt32 uiWindowNumber) {}
 ezInputDeviceMouseKeyboard_NoImpl::~ezInputDeviceMouseKeyboard_NoImpl() = default;
 
-void ezInputDeviceMouseKeyboard_NoImpl::SetShowMouseCursor(bool bShow) {}
-
-bool ezInputDeviceMouseKeyboard_NoImpl::GetShowMouseCursor() const
+void ezInputDeviceMouseKeyboard_NoImpl::ApplyShowMouseCursor(bool bShow, bool bCustomCursorActive)
 {
-  return false;
+  EZ_IGNORE_UNUSED(bShow);
+  EZ_IGNORE_UNUSED(bCustomCursorActive);
 }
 
-void ezInputDeviceMouseKeyboard_NoImpl::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode) {}
-
-ezMouseCursorClipMode::Enum ezInputDeviceMouseKeyboard_NoImpl::GetClipMouseCursor() const
+void ezInputDeviceMouseKeyboard_NoImpl::ApplyClipMouseCursor(ezMouseCursorClipMode::Enum mode)
 {
-  return ezMouseCursorClipMode::Default;
+  EZ_IGNORE_UNUSED(mode);
 }
 
 void ezInputDeviceMouseKeyboard_NoImpl::InitializeDevice() {}
