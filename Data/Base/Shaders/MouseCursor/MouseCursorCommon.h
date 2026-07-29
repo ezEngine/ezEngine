@@ -18,10 +18,14 @@ struct ezMouseCursorVSOutput
 ezMouseCursorVSOutput ezMouseCursorVertex(uint VertexID)
 {
   const float2 corners[6] =
-  {
-    float2(0, 0), float2(1, 0), float2(0, 1),
-    float2(1, 0), float2(1, 1), float2(0, 1),
-  };
+    {
+      float2(0, 0),
+      float2(1, 0),
+      float2(0, 1),
+      float2(1, 0),
+      float2(1, 1),
+      float2(0, 1),
+    };
 
   const float2 corner = corners[VertexID];
 
