@@ -61,7 +61,7 @@ void ezQtProgressbar::ProgressbarEventHandler(const ezProgressEvent& e)
       m_pDialog->setLabelText(QString::fromUtf8(sText.GetData()));
       EZ_ASSERT_DEV(m_pDialog != nullptr, "Progress dialog was destroyed while being in use");
 
-      const ezUInt32 uiProMille = ezMath::Clamp<ezUInt32>((ezUInt32)(e.m_pProgressbar->GetCompletion() * 1000.0), 0, 1000);
+      const ezUInt32 uiProMille = ezMath::Clamp<ezUInt32>((ezUInt32)(e.m_pProgressbar->GetCompletion() * 1000.0f), 0, 1000);
       m_pDialog->setValue(uiProMille);
 
       if (m_pDialog->wasCanceled())
@@ -86,7 +86,7 @@ void ezQtProgressbar::EnsureCreated()
 
   m_pDialog = new QProgressDialog("                                                                                ", "Cancel", 0, 1000, QApplication::activeWindow());
 
-  m_pDialog->setWindowModality(Qt::WindowModal);
+  m_pDialog->setWindowModality(Qt::ApplicationModal);
   m_pDialog->setMinimumDuration((int)500);
   m_pDialog->setAutoReset(false);
   m_pDialog->setAutoClose(false);
@@ -102,6 +102,10 @@ void ezQtProgressbar::EnsureCreated()
   };
 
   m_OnDialogDestroyed = QObject::connect(m_pDialog, &QObject::destroyed, ClearDialog);
+  QObject::connect(m_pDialog, &QProgressDialog::canceled, [this]()
+  {
+    m_pProgress->UserClickedCancel();
+  });
 }
 
 void ezQtProgressbar::EnsureDestroyed()

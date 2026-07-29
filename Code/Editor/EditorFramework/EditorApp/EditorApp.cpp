@@ -590,72 +590,104 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
   // if it is a git repository, clone it
   if (sType == "git" && !sUrl.IsEmpty())
   {
-    ezProgressRange progress("Downloading Project", 2, true);
-    progress.SetStepWeighting(0, 0.8f);
-    progress.SetStepWeighting(1, 0.2f);
-
     {
       QStringList args;
       args << "clone";
+      args << "--progress"; // it appears that this flag forces non-buffered I/O so it flushes output immediately after each write
       args << ezMakeQString(sUrl);
       args << ezMakeQString(sName);
 
-      QProcess proc;
-      proc.setWorkingDirectory(sTargetDir.GetData());
-      proc.setProcessChannelMode(QProcess::MergedChannels);
-
       ezProgressRange cloneProgress("Downloading Project", true);
-      bool bRecursion = false;
 
-      QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&]()
+      ezProcessOptions po;
+      po.m_sWorkingDirectory = sTargetDir.GetData();
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+      po.m_sProcess = "git.exe";
+#else
+      po.m_sProcess = "git";
+#endif
+      po.AddArgument("clone");
+      po.AddArgument("--progress"); // it appears that this flag forces non-buffered I/O so it flushes output immediately after each write
+      po.AddArgument(sUrl);
+      po.AddArgument(sName);
+
+      ezProcessGroup pgroup;
+
+      ezString s_last_stderr_line;
+
+      ezDeque<ezString> strings = {};
+      ezMutex mutex;
+
+      // this function called on a separate thread
+      po.m_onStdError = [&](ezStringView out)
         {
-          if (bRecursion)
-            return;
-
-          bRecursion = true;
-
-          auto data = proc.readAllStandardOutput();
-          ezStringBuilder str = data.toStdString().c_str();
-          if (const char* szPercent = str.FindLastSubString("%"))
-          {
-            str.SetSubString_FromTo(szPercent - 3, szPercent);
-            str.Trim();
-
-            ezInt32 p;
-            if (ezConversionUtils::StringToInt(str, p).Succeeded())
-            {
-              cloneProgress.SetCompletion(p / 100.0f);
-            }
-          }
-
-          if (cloneProgress.WasCanceled())
-          {
-            proc.close();
-          }
-
-          bRecursion = false;
-          //
-        });
+          EZ_LOCK(mutex);
+          strings.PushBack(out);
+        };
 
       QApplication::setOverrideCursor(Qt::WaitCursor);
       EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-      proc.start("git.exe", args);
-#else
-      proc.start("git", args);
-#endif
-
-      if (!proc.waitForStarted())
+      ezResult res = pgroup.Launch(po);
+      if (res.Failed())
       {
+        pgroup.TerminateAll().IgnoreResult();
         return ezStatus(ezFmt("Running 'git' to download the remote project failed."));
       }
 
-      proc.waitForFinished(60 * 1000);
-
-      if (proc.exitStatus() != QProcess::ExitStatus::NormalExit)
+      while (true)
       {
-        return ezStatus(ezFmt("Failed to git clone the remote project '{}' from '{}'", sName, sUrl));
+        // Process stderr output from git to update the progress bar.
+        if (strings.GetCount() > 0)
+        {
+          EZ_LOCK(mutex);
+          for (const auto& line : strings)
+          {
+            ezString data = line;
+            ezStringBuilder str = data.GetData();
+
+            if (const char* szPercent = str.FindLastSubString("%"))
+            {
+              str.SetSubString_FromTo(szPercent - 3, szPercent);
+              str.Trim();
+
+              ezInt32 p;
+              if (ezConversionUtils::StringToInt(str, p).Succeeded())
+              {
+                double f_completion = p / 100.0;
+                if (f_completion < cloneProgress.GetProgressbar()->GetCompletion())
+                {
+                  cloneProgress.GetProgressbar()->Reset();
+                }
+                cloneProgress.SetCompletion(f_completion);
+              }
+            }
+            s_last_stderr_line = line;
+          }
+          strings.Clear();
+        }
+
+        if (cloneProgress.WasCanceled())
+        {
+          pgroup.TerminateAll().IgnoreResult();
+          break;
+        }
+
+        qApp->processEvents();
+
+        if (pgroup.GetProcesses()[0].GetState() == ezProcessState::Finished)
+          break;
+      }
+
+      res = pgroup.WaitToFinish();
+
+      if (cloneProgress.WasCanceled())
+      {
+        return ezStatus("Project downloading cancelled by user. Please remove the incomplete project directory manually.");
+      }
+      else if (pgroup.GetProcesses()[0].GetExitCode() != 0)
+      {
+        return ezStatus(ezFmt("Failed to git clone the remote project '{}' from '{}'\n{}", sName, sUrl, s_last_stderr_line));
       }
 
       ezLog::Success("Cloned remote project '{}' from '{}' to '{}'", sName, sUrl, sTargetDir);

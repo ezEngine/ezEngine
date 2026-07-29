@@ -37,6 +37,18 @@ void ezProgress::SetCompletion(float fCompletion)
   }
 }
 
+void ezProgress::Reset()
+{
+  m_fCurrentCompletion = 0.0f;
+  m_fLastReportedCompletion = 0.0f;
+
+  ezProgressEvent e;
+  e.m_pProgressbar = this;
+  e.m_Type = ezProgressEvent::Type::ProgressChanged;
+
+  m_Events.Broadcast(e, 1);
+}
+
 void ezProgress::SetActiveRange(ezProgressRange* pRange)
 {
   if (m_pActiveRange == nullptr && pRange != nullptr)
