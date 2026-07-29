@@ -41,8 +41,11 @@ public:
   /// \brief Returns the current overall progress in [0; 1] range.
   float GetCompletion() const;
 
-  /// \brief Sets the current overall progress in [0; 1] range. Should not be called directly, typically called by ezProgreesRange.
+  /// \brief Sets the current overall progress in [0; 1] range. Should not be called directly, typically called by ezProgressRange.
   void SetCompletion(float fCompletion);
+
+  /// \brief Resets the progress bar to 0% completion.
+  void Reset();
 
   /// \brief Returns the current 'headline' text for the progress bar
   ezStringView GetMainDisplayText() const;

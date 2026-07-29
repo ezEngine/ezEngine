@@ -99,6 +99,10 @@ struct ezPipeWin
             while (szCurrentPos < szEndPos)
             {
               const char* szFound = ezStringUtils::FindSubString(szCurrentPos, "\n", szEndPos);
+              if (!szFound)
+              {
+                szFound = ezStringUtils::FindSubString(szCurrentPos, "\r", szEndPos);
+              }
               if (szFound)
               {
                 if (overflowBuffer.IsEmpty())
