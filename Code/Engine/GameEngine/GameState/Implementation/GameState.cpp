@@ -15,6 +15,7 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <GameEngine/Gameplay/PlayerStartPointComponent.h>
+#include <GameEngine/MouseCursor/MouseCursorRenderer.h>
 #include <GameEngine/XR/DummyXR.h>
 #include <GameEngine/XR/XRInterface.h>
 #include <RendererCore/Components/CameraComponent.h>
@@ -245,6 +246,13 @@ void ezGameState::ConfigureInputActions()
 
 void ezGameState::SetupMainView(ezGALSwapChainHandle hSwapChain, ezSizeU32 viewportSize)
 {
+  // Render the custom mouse cursor (if one is set) into the same swap-chain as the main view.
+  // Done here, rather than in CreateWindows(), so that it also follows swap-chain re-creation.
+  if (auto pCursorRenderer = ezMouseCursorRenderer::GetSingleton())
+  {
+    pCursorRenderer->SetSwapChain(hSwapChain);
+  }
+
   ezView* pView = nullptr;
   if (!ezRenderWorld::TryGetView(m_hMainView, pView))
   {

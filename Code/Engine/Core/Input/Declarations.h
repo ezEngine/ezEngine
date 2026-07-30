@@ -1,11 +1,16 @@
 #pragma once
 
 #include <Core/CoreDLL.h>
+#include <Foundation/Math/Angle.h>
+#include <Foundation/Math/Color.h>
+#include <Foundation/Math/Vec2.h>
+#include <Foundation/Strings/String.h>
 #include <Foundation/Types/Bitflags.h>
 
-/// \brief This struct defines the different states a key can be in.
-///        All keys always go through the states 'Pressed' and 'Released', even if they are active for only one frame.
-///        A key is 'Down' when it is pressed for at least two frames. It is 'Up' when it is not pressed for at least two frames.
+/// This struct defines the different states a key can be in.
+///
+/// All keys always go through the states 'Pressed' and 'Released', even if they are active for only one frame.
+/// A key is 'Down' when it is pressed for at least two frames. It is 'Up' when it is not pressed for at least two frames.
 struct EZ_CORE_DLL ezKeyState
 {
   enum Enum
@@ -16,14 +21,122 @@ struct EZ_CORE_DLL ezKeyState
     Down      ///< Key is pressed down for longer than one frame now.
   };
 
-  /// \brief Computes the new key state from a previous key state and whether it is currently pressed or not.
+  /// Computes the new key state from a previous key state and whether it is currently pressed or not.
   static ezKeyState::Enum GetNewKeyState(ezKeyState::Enum prevState, bool bKeyDown);
+};
+
+/// Abstract description of a custom ('software') mouse cursor.
+///
+/// The ezInputManager only stores this data, it never interprets m_sCursor and it does not render
+/// anything. A higher level system (ezMouseCursorRenderer in the GameEngine library) reads this,
+/// resolves the identifier to an actual resource and draws the cursor on top of everything else.
+///
+/// \sa ezInputManager::SetMouseCursor()
+struct EZ_CORE_DLL ezMouseCursorDesc
+{
+  /// Identifies which cursor to display. An empty string means that no custom cursor is used.
+  ///
+  /// This is either the GUID of a material or texture asset ("{ ... }"), or a path to one.
+  /// Whether it is a material or a texture is figured out by the system that renders the cursor
+  /// (ezMouseCursorRenderer determines it from the file extension that the identifier resolves to).
+  ezString m_sCursor;
+
+  /// Scales the size of the cursor image.
+  ///
+  /// The base size is ezInputManager::GetHardwareCursorSize(), which makes the custom cursor
+  /// match the size of the OS cursor on any monitor, resolution and DPI scaling.
+  /// Use this only to deliberately deviate from the size that the user configured.
+  float m_fSize = 1.0f;
+
+  /// The point of the image that shall sit exactly on the mouse position, in normalized
+  /// coordinates. (0,0) is the top-left corner of the image, (0.5,0.5) its center.
+  ///
+  /// This is also the pivot around which m_Rotation is applied.
+  ezVec2 m_vHotspot = ezVec2(0.0f);
+
+  /// The sub-rectangle of the image to display. Use this for texture atlases and animated cursors.
+  ezVec2 m_vUvTopLeft = ezVec2(0.0f);
+  ezVec2 m_vUvBottomRight = ezVec2(1.0f);
+
+  /// Rotation of the cursor image around its hotspot. Positive angles rotate clockwise on screen.
+  ezAngle m_Rotation;
+
+  /// The cursor image is multiplied with this color. Useful for state changes without extra artwork.
+  ezColor m_Color = ezColor::White;
+
+  bool operator==(const ezMouseCursorDesc& rhs) const;
+  bool operator!=(const ezMouseCursorDesc& rhs) const { return !(*this == rhs); }
+};
+
+/// How an overlay temporarily changes the mouse cursor state, ignoring what the application wants.
+struct ezMouseCursorOverride
+{
+  enum Enum : ezUInt8
+  {
+    None,          ///< No override. The OS cursor follows what the application requested, and is hidden while a custom cursor is set.
+    ForceOSCursor, ///< The OS cursor is forced to be visible and the custom cursor is not drawn.
+    ForceHidden,   ///< The OS cursor is forced to be hidden. A custom cursor is still drawn.
+
+    Default = ForceOSCursor,
+  };
+};
+
+/// Describes one mouse cursor override.
+///
+/// \sa ezInputManager::PushMouseCursorOverride()
+struct EZ_CORE_DLL ezMouseCursorOverrideDesc
+{
+  /// How the OS cursor and the custom cursor are affected while this override is active.
+  ezMouseCursorOverride::Enum m_OSCursor = ezMouseCursorOverride::Default;
+
+  /// If true, ezMouseCursorClipMode::NoClip is forced while this override is active,
+  /// so that the mouse can leave the window, no matter what the application requested.
+  bool m_bForceNoClip = true;
+
+  bool operator==(const ezMouseCursorOverrideDesc& rhs) const { return m_OSCursor == rhs.m_OSCursor && m_bForceNoClip == rhs.m_bForceNoClip; }
+  bool operator!=(const ezMouseCursorOverrideDesc& rhs) const { return !(*this == rhs); }
+};
+
+/// Holds at most one mouse cursor override and releases it automatically on destruction.
+///
+/// Use this either as a scope, by passing a desc to the constructor, or as a member of a long lived
+/// object (such as an in-game console), that requests and releases the override as it is shown and hidden.
+///
+/// \sa ezInputManager::PushMouseCursorOverride()
+class EZ_CORE_DLL ezMouseCursorOverrideRequest
+{
+public:
+  ezMouseCursorOverrideRequest() = default;
+
+  /// Requests an override right away, which is released again when this object goes out of scope.
+  explicit ezMouseCursorOverrideRequest(const ezMouseCursorOverrideDesc& desc) { Request(desc); }
+
+  ~ezMouseCursorOverrideRequest() { Release(); }
+
+  ezMouseCursorOverrideRequest(const ezMouseCursorOverrideRequest&) = delete;
+  void operator=(const ezMouseCursorOverrideRequest&) = delete;
+
+  ezMouseCursorOverrideRequest(ezMouseCursorOverrideRequest&& rhs);
+  void operator=(ezMouseCursorOverrideRequest&& rhs);
+
+  /// Activates the override. Calling this repeatedly with an identical desc does nothing.
+  void Request(const ezMouseCursorOverrideDesc& desc = ezMouseCursorOverrideDesc());
+
+  /// Deactivates the override. Calling this while inactive does nothing.
+  void Release();
+
+  /// Whether an override is currently registered.
+  bool IsActive() const { return m_uiOverrideId != 0; }
+
+private:
+  ezUInt32 m_uiOverrideId = 0;
+  ezMouseCursorOverrideDesc m_Desc;
 };
 
 // clang-format off
 // off for the entire file
 
-/// \brief These flags are specified when registering an input slot (by a device), to define some capabilities and restrictions of the hardware.
+/// These flags are specified when registering an input slot (by a device), to define some capabilities and restrictions of the hardware.
 ///
 /// By default you do not need to use these flags at all. However, when presenting the user with a list of 'possible' buttons to press to map to an
 /// action, these flags can be used to filter out unwanted slots.

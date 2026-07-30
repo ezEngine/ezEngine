@@ -1632,7 +1632,15 @@ void ezGALDevice::EnqueueFrameSwapChain(ezGALSwapChainHandle hSwapChain)
 
   ezGALSwapChain* pSwapChain = nullptr;
   if (m_SwapChains.TryGetValue(hSwapChain, pSwapChain))
-    m_FrameSwapChains.PushBack(pSwapChain);
+  {
+    // Enqueuing the same swap-chain twice would acquire and present it twice.
+    // Several independent systems may want to render into the same swap-chain (e.g. a render pipeline
+    // and something that draws on top of everything), so silently ignore duplicates.
+    if (!m_FrameSwapChains.Contains(pSwapChain))
+    {
+      m_FrameSwapChains.PushBack(pSwapChain);
+    }
+  }
 }
 
 void ezGALDevice::BeginFrame(const ezUInt64 uiAppFrame)

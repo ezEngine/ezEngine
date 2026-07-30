@@ -1186,35 +1186,22 @@ void ezImGuiConsole::RenderConsole(bool bIsOpen)
   UpdateFrameTimes();
   UpdateMemoryUsage();
 
-  if (bIsOpen != m_bWasOpen)
-  {
-    m_bWasOpen = bIsOpen;
-    m_uiForceFocus = 3;
-
-    if (auto pInput = ezInputManager::GetInputDeviceOfType<ezInputDeviceMouseKeyboard>())
-    {
-      if (bIsOpen)
-      {
-        m_bCursorWasVisible = pInput->GetShowMouseCursor();
-        m_MouseWasClipped = pInput->GetClipMouseCursor();
-        pInput->SetShowMouseCursor(true);
-        pInput->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
-      }
-      else
-      {
-        pInput->SetShowMouseCursor(m_bCursorWasVisible);
-        pInput->SetClipMouseCursor(m_MouseWasClipped);
-      }
-    }
-  }
-
   if (bIsOpen || (m_bStatsWindowOpen && m_bPinStatsWindow) || (m_bLogWindowOpen && m_bPinLogWindow))
   {
     if (ezImgui::GetSingleton() == nullptr)
     {
       EZ_DEFAULT_NEW(ezImgui);
     }
+  }
 
+  if (ezImgui::GetSingleton() != nullptr)
+  {
+    // pinned windows stay visible after the console got closed, but must not consume input then
+    ezImgui::GetSingleton()->SetPassInputToImgui(bIsOpen);
+  }
+
+  if (bIsOpen || (m_bStatsWindowOpen && m_bPinStatsWindow) || (m_bLogWindowOpen && m_bPinLogWindow))
+  {
     const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView);
     if (pView == nullptr)
       return;
@@ -1224,8 +1211,6 @@ void ezImGuiConsole::RenderConsole(bool bIsOpen)
 
   if (bIsOpen)
   {
-    ezImgui::GetSingleton()->SetPassInputToImgui(true);
-
     RenderMenuBar();
     RenderCommandWindow(m_uiForceFocus > 0);
     if (m_uiForceFocus > 0)
@@ -1270,6 +1255,28 @@ void ezImGuiConsole::RenderConsole(bool bIsOpen)
 
 void ezImGuiConsole::HandleInput(bool bIsOpen)
 {
+  // this has to happen here, rather than in RenderConsole(), because it must run on the main thread
+  // and before the frame's rendering decisions were made, otherwise the OS cursor and a custom
+  // cursor would both be visible for one frame
+  if (bIsOpen != m_bWasOpen)
+  {
+    m_bWasOpen = bIsOpen;
+    m_uiForceFocus = 3;
+
+    if (bIsOpen)
+    {
+      ezMouseCursorOverrideDesc desc;
+      desc.m_OSCursor = ezMouseCursorOverride::ForceOSCursor;
+      desc.m_bForceNoClip = true;
+
+      m_CursorOverride.Request(desc);
+    }
+    else
+    {
+      m_CursorOverride.Release();
+    }
+  }
+
   if (!m_bDefaultInputHandlingInitialized)
   {
     m_bDefaultInputHandlingInitialized = true;

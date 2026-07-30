@@ -248,23 +248,42 @@ ezInputDeviceMouseKeyboard_GLFW::~ezInputDeviceMouseKeyboard_GLFW()
 {
 }
 
-void ezInputDeviceMouseKeyboard_GLFW::SetShowMouseCursor(bool bShow)
+void ezInputDeviceMouseKeyboard_GLFW::ApplyShowMouseCursor(bool bShow, bool bCustomCursorActive)
 {
-  glfwSetInputMode(m_pWindow, GLFW_CURSOR, bShow ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+  int iMode = GLFW_CURSOR_NORMAL;
+
+  if (!bShow)
+  {
+    // GLFW_CURSOR_DISABLED not only hides the cursor, it also captures it and switches to unbounded
+    // relative movement, which is what an application that hides the cursor for mouse-look wants.
+    // A custom ('software') cursor however still needs absolute in-window mouse positions to be
+    // rendered at the right place, so there the cursor may only be hidden.
+    iMode = bCustomCursorActive ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_DISABLED;
+  }
+
+  glfwSetInputMode(m_pWindow, GLFW_CURSOR, iMode);
 }
 
-bool ezInputDeviceMouseKeyboard_GLFW::GetShowMouseCursor() const
+ezUInt32 ezInputDeviceMouseKeyboard_GLFW::GetHardwareCursorSize() const
 {
-  return (glfwGetInputMode(m_pWindow, GLFW_CURSOR) != GLFW_CURSOR_DISABLED);
+  // GLFW can't report the cursor size, so this is the common default of 32 pixels at 100% scaling,
+  // adjusted for the monitor's DPI. It does not pick up a custom cursor size that the user configured.
+  float fScaleX = 1.0f;
+  float fScaleY = 1.0f; // not used, GLFW requires both to be passed in
+
+  if (m_pWindow != nullptr)
+  {
+    glfwGetWindowContentScale(m_pWindow, &fScaleX, &fScaleY);
+  }
+
+  return (ezUInt32)(32.0f * ezMath::Max(fScaleX, 1.0f));
 }
 
-void ezInputDeviceMouseKeyboard_GLFW::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
+void ezInputDeviceMouseKeyboard_GLFW::ApplyClipMouseCursor(ezMouseCursorClipMode::Enum mode)
 {
-}
+  EZ_IGNORE_UNUSED(mode);
 
-ezMouseCursorClipMode::Enum ezInputDeviceMouseKeyboard_GLFW::GetClipMouseCursor() const
-{
-  return ezMouseCursorClipMode::Default;
+  // not implemented on GLFW
 }
 
 void ezInputDeviceMouseKeyboard_GLFW::InitializeDevice() {}

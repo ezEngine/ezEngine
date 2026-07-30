@@ -96,9 +96,11 @@ private:
   virtual void ConfigureInputActions() override;
   virtual void ProcessInput() override;
   void UpdateMousePosition();
+  void UpdateMouseCursor();
 
   RtsMouseInputState m_MouseInputState;
   float m_fCameraZoom = 10.0f;
+  ezTime m_CursorAnimation;
 
   //////////////////////////////////////////////////////////////////////////
   // Picking

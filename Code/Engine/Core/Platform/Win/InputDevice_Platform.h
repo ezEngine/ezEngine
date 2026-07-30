@@ -22,15 +22,14 @@ public:
   /// the display names, if that is required.
   static void LocalizeButtonDisplayNames();
 
-  virtual void SetClipMouseCursor(ezMouseCursorClipMode::Enum mode) override;
-  virtual ezMouseCursorClipMode::Enum GetClipMouseCursor() const override { return m_ClipCursorMode; }
-
-  virtual void SetShowMouseCursor(bool bShow) override;
-  virtual bool GetShowMouseCursor() const override;
+  virtual ezUInt32 GetHardwareCursorSize() const override;
 
   virtual void SetDisableOSHotkeys(bool bDisable) override;
 
 protected:
+  virtual void ApplyShowMouseCursor(bool bShow, bool bCustomCursorActive) override;
+  virtual void ApplyClipMouseCursor(ezMouseCursorClipMode::Enum mode) override;
+
   virtual void InitializeDevice() override;
   virtual void RegisterInputSlots() override;
   virtual void ResetInputSlotValues() override;
@@ -44,8 +43,6 @@ private:
   static ezInputDeviceMouseKeyboard_Win* s_pGlobalInputHandler;
 
   ezMinWindows::HWND m_hWnd;
-  bool m_bShowCursor = true;
-  ezMouseCursorClipMode::Enum m_ClipCursorMode = ezMouseCursorClipMode::NoClip;
   bool m_bApplyClipRect = false;
   // m_bFirstWndMsg and m_bFirstClick are used to fix issues Windows not giving focus to applications that have been launched
   // through a parent process

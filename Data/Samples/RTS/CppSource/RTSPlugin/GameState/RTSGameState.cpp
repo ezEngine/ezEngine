@@ -94,6 +94,9 @@ void RTSGameState::OnDeactivation()
 
   SetActiveGameMode(RtsActiveGameMode::None);
 
+  // Brings the hardware mouse cursor back.
+  ezInputManager::ClearMouseCursor();
+
   SUPER::OnDeactivation();
 }
 

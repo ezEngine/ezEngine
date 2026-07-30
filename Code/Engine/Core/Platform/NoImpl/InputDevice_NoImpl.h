@@ -10,12 +10,10 @@ public:
   ezInputDeviceMouseKeyboard_NoImpl(ezUInt32 uiWindowNumber);
   ~ezInputDeviceMouseKeyboard_NoImpl();
 
-  virtual void SetShowMouseCursor(bool bShow) override;
-  virtual bool GetShowMouseCursor() const override;
-  virtual void SetClipMouseCursor(ezMouseCursorClipMode::Enum mode) override;
-  virtual ezMouseCursorClipMode::Enum GetClipMouseCursor() const override;
-
 private:
+  virtual void ApplyShowMouseCursor(bool bShow, bool bCustomCursorActive) override;
+  virtual void ApplyClipMouseCursor(ezMouseCursorClipMode::Enum mode) override;
+
   virtual void InitializeDevice() override;
   virtual void RegisterInputSlots() override;
 };

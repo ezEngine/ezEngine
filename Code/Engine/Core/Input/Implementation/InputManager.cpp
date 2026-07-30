@@ -1,12 +1,185 @@
 #include <Core/CorePCH.h>
 
+#include <Core/Input/DeviceTypes/MouseKeyboard.h>
 #include <Core/Input/InputManager.h>
+#include <Foundation/Threading/ThreadUtils.h>
 
 ezInputManager::ezEventInput ezInputManager::s_InputEvents;
 ezInputManager::InternalData* ezInputManager::s_pData = nullptr;
 ezUInt32 ezInputManager::s_uiLastCharacter = '\0';
 bool ezInputManager::s_bInputSlotResetRequired = true;
 ezString ezInputManager::s_sExclusiveInputSet;
+ezMouseCursorDesc ezInputManager::s_MouseCursor;
+ezUInt32 ezInputManager::s_uiMouseCursorChangeCounter = 0;
+ezUInt32 ezInputManager::s_uiMouseCursorIdChangeCounter = 0;
+ezHybridArray<ezInputManager::MouseCursorOverride, 4> ezInputManager::s_MouseCursorOverrides;
+ezUInt32 ezInputManager::s_uiNextMouseCursorOverrideId = 0;
+ezUInt32 ezInputManager::s_uiHardwareCursorSize = 0;
+ezUInt32 ezInputManager::s_uiUpdateCount = 0;
+
+bool ezMouseCursorDesc::operator==(const ezMouseCursorDesc& rhs) const
+{
+  return m_sCursor == rhs.m_sCursor &&
+         m_fSize == rhs.m_fSize &&
+         m_vHotspot == rhs.m_vHotspot &&
+         m_vUvTopLeft == rhs.m_vUvTopLeft &&
+         m_vUvBottomRight == rhs.m_vUvBottomRight &&
+         m_Rotation == rhs.m_Rotation &&
+         m_Color == rhs.m_Color;
+}
+
+void ezInputManager::SetMouseCursor(const ezMouseCursorDesc& desc)
+{
+  if (s_MouseCursor == desc)
+    return;
+
+  const bool bIdentifierChanged = (s_MouseCursor.m_sCursor != desc.m_sCursor);
+
+  s_MouseCursor = desc;
+  ++s_uiMouseCursorChangeCounter;
+
+  if (bIdentifierChanged)
+  {
+    // only whether a custom cursor is used at all can affect the OS cursor,
+    // all the other properties are pure visuals
+    ++s_uiMouseCursorIdChangeCounter;
+
+    UpdateMouseCursorState();
+  }
+}
+
+ezUInt32 ezInputManager::PushMouseCursorOverride(const ezMouseCursorOverrideDesc& desc)
+{
+  EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "Mouse cursor overrides may only be modified from the main thread.");
+
+  auto& o = s_MouseCursorOverrides.ExpandAndGetRef();
+  o.m_uiId = ++s_uiNextMouseCursorOverrideId;
+  o.m_Desc = desc;
+
+  UpdateMouseCursorState();
+
+  return o.m_uiId;
+}
+
+void ezInputManager::PopMouseCursorOverride(ezUInt32 uiOverrideId)
+{
+  if (uiOverrideId == 0)
+    return;
+
+  EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "Mouse cursor overrides may only be modified from the main thread.");
+
+  for (ezUInt32 i = 0; i < s_MouseCursorOverrides.GetCount(); ++i)
+  {
+    if (s_MouseCursorOverrides[i].m_uiId == uiOverrideId)
+    {
+      // must preserve the order of the remaining overrides, the last one wins
+      s_MouseCursorOverrides.RemoveAtAndCopy(i);
+
+      UpdateMouseCursorState();
+      return;
+    }
+  }
+}
+
+ezMouseCursorOverrideDesc ezInputManager::GetActiveMouseCursorOverride()
+{
+  if (!s_MouseCursorOverrides.IsEmpty())
+    return s_MouseCursorOverrides.PeekBack().m_Desc;
+
+  ezMouseCursorOverrideDesc d;
+  d.m_bForceNoClip = false;
+  d.m_OSCursor = ezMouseCursorOverride::None;
+
+  return d;
+}
+
+bool ezInputManager::IsCustomMouseCursorActive()
+{
+  // An explicit override wins over the custom cursor, which in turn wins over what the application wants.
+  return !s_MouseCursor.m_sCursor.IsEmpty() && (GetActiveMouseCursorOverride().m_OSCursor != ezMouseCursorOverride::ForceOSCursor);
+}
+
+void ezInputManager::UpdateMouseCursorState()
+{
+  for (auto pDevice = ezInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
+  {
+    if (auto pMouse = ezDynamicCast<ezInputDeviceMouseKeyboard*>(pDevice))
+    {
+      pMouse->UpdateEffectiveMouseCursorState();
+    }
+  }
+}
+
+ezMouseCursorOverrideRequest::ezMouseCursorOverrideRequest(ezMouseCursorOverrideRequest&& rhs)
+{
+  m_uiOverrideId = rhs.m_uiOverrideId;
+  m_Desc = rhs.m_Desc;
+
+  rhs.m_uiOverrideId = 0;
+}
+
+void ezMouseCursorOverrideRequest::operator=(ezMouseCursorOverrideRequest&& rhs)
+{
+  if (this == &rhs)
+    return;
+
+  Release();
+
+  m_uiOverrideId = rhs.m_uiOverrideId;
+  m_Desc = rhs.m_Desc;
+
+  rhs.m_uiOverrideId = 0;
+}
+
+void ezMouseCursorOverrideRequest::Request(const ezMouseCursorOverrideDesc& desc)
+{
+  if (IsActive())
+  {
+    if (m_Desc == desc)
+      return;
+
+    Release();
+  }
+
+  m_Desc = desc;
+  m_uiOverrideId = ezInputManager::PushMouseCursorOverride(desc);
+}
+
+void ezMouseCursorOverrideRequest::Release()
+{
+  if (!IsActive())
+    return;
+
+  ezInputManager::PopMouseCursorOverride(m_uiOverrideId);
+  m_uiOverrideId = 0;
+}
+
+void ezInputManager::ClearMouseCursor()
+{
+  SetMouseCursor(ezMouseCursorDesc());
+}
+
+ezUInt32 ezInputManager::GetHardwareCursorSize()
+{
+  // Update() re-queries this periodically, this only covers being called before the first Update().
+  if (s_uiHardwareCursorSize == 0)
+  {
+    UpdateHardwareCursorSize();
+  }
+
+  // fall back to the typical cursor size at 100% scaling, if no device could report one
+  return s_uiHardwareCursorSize > 0 ? s_uiHardwareCursorSize : 32;
+}
+
+void ezInputManager::UpdateHardwareCursorSize()
+{
+  s_uiHardwareCursorSize = 0;
+
+  if (auto pMouse = GetInputDeviceOfType<ezInputDeviceMouseKeyboard>())
+  {
+    s_uiHardwareCursorSize = pMouse->GetHardwareCursorSize();
+  }
+}
 
 ezInputManager::InternalData& ezInputManager::GetInternals()
 {
@@ -199,6 +372,18 @@ void ezInputManager::Update(ezTime timeDifference)
   ezInputDevice::ResetAllDevices();
 
   ezInputDevice::UpdateAllHardwareStates(timeDifference);
+
+  // safety net, so that devices that were created after the last state change pick it up as well
+  UpdateMouseCursorState();
+
+  // The OS cursor size only changes when the user changes their settings, or when the window moves
+  // to a monitor with a different DPI scaling, so re-querying it every few hundred updates is enough.
+  if ((s_uiUpdateCount % 250) == 0)
+  {
+    UpdateHardwareCursorSize();
+  }
+
+  ++s_uiUpdateCount;
 
   s_bInputSlotResetRequired = true;
 }
