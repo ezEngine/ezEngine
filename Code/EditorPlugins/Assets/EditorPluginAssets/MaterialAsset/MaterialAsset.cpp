@@ -427,34 +427,67 @@ void ezMaterialAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStat
 
 ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
 {
-  bool isGuid = ezConversionUtils::IsStringUuid(m_sShader);
+  // Which shader a material uses is defined by its shader mode, m_sShader is only a cached value of that:
+  //   * Custom       -> the Visual Shader that is generated for this very document
+  //   * BaseMaterial -> whatever shader the base material uses
+  //   * File         -> the shader file that m_sShader points to
+  //
+  // m_sShader can be stale, most notably when a material file was copied on disk: the copy keeps the guid
+  // of the original, so it would be generating its own Visual Shader but silently render with the shader of
+  // the original (including its render states and its render data category). Therefore derive the guid from
+  // the shader mode wherever we can and only fall back to m_sShader.
 
-  if (isGuid)
+  ezUuid shaderGuid;
+
+  if (m_ShaderMode == ezMaterialShaderMode::Custom && m_pDocument != nullptr)
   {
-    ezUuid guid = ezConversionUtils::ConvertStringToUuid(m_sShader);
-    auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
-    if (pAsset)
-    {
-      EZ_ASSERT_DEV(pAsset->m_pAssetInfo->GetManager() == m_pDocument->GetDocumentManager(), "Referenced shader via guid by this material is not of type material asset (ezMaterialShaderMode::Custom).");
+    // a Visual Shader material always uses the shader that is generated for itself
+    shaderGuid = m_pDocument->GetGuid();
+  }
+  else if (m_ShaderMode == ezMaterialShaderMode::BaseMaterial && ezConversionUtils::IsStringUuid(m_sBaseMaterial))
+  {
+    // if the base material generates a Visual Shader, that's the shader we inherit
+    // otherwise the base material uses a plain shader file, whose path we inherit through m_sShader
+    const ezUuid baseGuid = ezConversionUtils::ConvertStringToUuid(m_sBaseMaterial);
 
-      ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(pAsset->m_pAssetInfo->m_Path);
-      ezStringBuilder sResult = pAsset->m_pAssetInfo->GetManager()->GetRelativeOutputFileName(m_pDocument->GetAssetDocumentTypeDescriptor(), sProjectDir, pAsset->m_pAssetInfo->m_Path, ezMaterialAssetDocumentManager::s_szShaderOutputTag);
-
-      sResult.Prepend("AssetCache/");
-      return sResult;
-    }
-    else
+    if (auto pBaseAsset = ezAssetCurator::GetSingleton()->GetSubAsset(baseGuid))
     {
-      ezLog::Error("Could not resolve guid '{0}' for the material shader.", m_sShader);
-      return "";
+      if (pBaseAsset->m_pAssetInfo->m_Info->m_Outputs.Contains(ezMaterialAssetDocumentManager::s_szShaderOutputTag))
+      {
+        shaderGuid = baseGuid;
+      }
     }
   }
-  else
+
+  if (!shaderGuid.IsValid())
   {
-    return m_sShader;
+    if (!ezConversionUtils::IsStringUuid(m_sShader))
+      return m_sShader;
+
+    shaderGuid = ezConversionUtils::ConvertStringToUuid(m_sShader);
   }
 
-  return m_sShader;
+  auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(shaderGuid);
+  if (pAsset == nullptr)
+  {
+    ezStringBuilder sGuid;
+    ezLog::Error("Could not resolve guid '{0}' for the material shader.", ezConversionUtils::ToString(shaderGuid, sGuid));
+    return "";
+  }
+
+  if (m_pDocument == nullptr)
+  {
+    ezLog::Error("Unknown material document.");
+    return "";
+  }
+
+  EZ_ASSERT_DEV(pAsset->m_pAssetInfo->GetManager() == m_pDocument->GetDocumentManager(), "Referenced shader via guid by this material is not of type material asset (ezMaterialShaderMode::Custom).");
+
+  ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(pAsset->m_pAssetInfo->m_Path);
+  ezStringBuilder sResult = pAsset->m_pAssetInfo->GetManager()->GetRelativeOutputFileName(m_pDocument->GetAssetDocumentTypeDescriptor(), sProjectDir, pAsset->m_pAssetInfo->m_Path, ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+
+  sResult.Prepend("AssetCache/");
+  return sResult;
 }
 
 //////////////////////////////////////////////////////////////////////////
