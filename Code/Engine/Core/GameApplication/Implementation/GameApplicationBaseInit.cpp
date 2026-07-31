@@ -154,22 +154,58 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
   // ":base/" for reading the core engine files
   ezFileSystem::AddDataDirectory(GetBaseDataDirectoryPath(), "GameApplicationBase", "base", ezDataDirUsage::ReadOnly).IgnoreResult();
 
-  // ":project/" for reading the project specific files
-  ezFileSystem::AddDataDirectory(GetProjectDataDirectoryPath(), "GameApplicationBase", "project", ezDataDirUsage::ReadOnly).IgnoreResult();
-
   {
+    // the default config path is ":project/...", which would require the project data directory to be mounted already,
+    // but that only happens further below, so the path has to be resolved to an absolute one instead
+    // (the ":" data directory above is what makes absolute paths readable)
+    ezStringBuilder sConfigFile;
+    ezFileSystem::ResolveSpecialDirectory(GetProjectDataDirectoryPath(), sConfigFile).IgnoreResult();
+    sConfigFile.AppendPath("RuntimeConfigs/DataDirectories.ddl");
+
     ezApplicationFileSystemConfig appFileSystemConfig;
-    appFileSystemConfig.Load();
+    appFileSystemConfig.Load(sConfigFile);
 
     // get rid of duplicates that we already hard-coded above
     for (ezUInt32 i = appFileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
     {
       const ezString name = appFileSystemConfig.m_DataDirs[i - 1].m_sRootName;
-      if (name.IsEqual_NoCase(":") || name.IsEqual_NoCase("bin") || name.IsEqual_NoCase("shadercache") || name.IsEqual_NoCase("appdata") || name.IsEqual_NoCase("base") || name.IsEqual_NoCase("project"))
+      if (name.IsEqual_NoCase(":") || name.IsEqual_NoCase("bin") || name.IsEqual_NoCase("shadercache") || name.IsEqual_NoCase("appdata") || name.IsEqual_NoCase("base"))
       {
         appFileSystemConfig.m_DataDirs.RemoveAtAndCopy(i - 1);
       }
     }
+
+    // ":project/" is deliberately NOT mounted before the config is applied, because its position *within* the
+    // config matters. Data directories are searched back to front, and the editor lists the data directories of
+    // the active plugin bundles before the project, so that a project can override plugin provided files
+    // (e.g. ship its own version of a particle shader). Mounting the project up front would put every
+    // directory from the config, including those, above it again.
+    // The config entry is only patched up, so that the (virtual) GetProjectDataDirectoryPath() still decides
+    // where the project is, and so that it stays read-only, which is what a shipped game wants.
+    ezUInt32 uiProjectIdx = ezInvalidIndex;
+    for (ezUInt32 i = 0; i < appFileSystemConfig.m_DataDirs.GetCount(); ++i)
+    {
+      const ezString name = appFileSystemConfig.m_DataDirs[i].m_sRootName;
+      if (name.IsEqual_NoCase("project"))
+      {
+        uiProjectIdx = i;
+        break;
+      }
+    }
+
+    if (uiProjectIdx == ezInvalidIndex)
+    {
+      // no config file at all, or one that doesn't mention the project directory
+      ezApplicationFileSystemConfig::DataDirConfig cfg;
+      cfg.m_sRootName = "project";
+      cfg.m_bHardCodedDependency = true;
+
+      uiProjectIdx = appFileSystemConfig.m_DataDirs.GetCount();
+      appFileSystemConfig.m_DataDirs.PushBack(cfg);
+    }
+
+    appFileSystemConfig.m_DataDirs[uiProjectIdx].m_sDataDirSpecialPath = GetProjectDataDirectoryPath();
+    appFileSystemConfig.m_DataDirs[uiProjectIdx].m_bWritable = false;
 
     appFileSystemConfig.Apply();
   }
