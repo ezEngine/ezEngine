@@ -2,10 +2,11 @@
 
 #include <EditorFramework/ui_SnapSettingsDlg.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
 class QAbstractButton;
 
-class ezQtSnapSettingsDlg : public QDialog, public Ui_SnapSettingsDlg
+class ezQtSnapSettingsDlg : public ezQtDialog, public Ui_SnapSettingsDlg
 {
   Q_OBJECT
 

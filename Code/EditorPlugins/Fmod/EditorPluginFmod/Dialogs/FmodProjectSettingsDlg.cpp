@@ -5,7 +5,7 @@
 #include <QInputDialog>
 
 ezQtFmodProjectSettingsDlg::ezQtFmodProjectSettingsDlg(QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

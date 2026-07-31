@@ -2,9 +2,9 @@
 
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/ui_ExportProjectDlg.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezQtExportProjectDlg : public QDialog, public Ui_ExportProjectDlg
+class ezQtExportProjectDlg : public ezQtDialog, public Ui_ExportProjectDlg
 {
   Q_OBJECT
 

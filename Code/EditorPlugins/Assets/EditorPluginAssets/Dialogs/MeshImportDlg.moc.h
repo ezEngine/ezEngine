@@ -2,9 +2,9 @@
 
 #include <EditorPluginAssets/EditorPluginAssetsDLL.h>
 #include <EditorPluginAssets/ui_MeshImportDlg.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezMeshImportDlg : public QDialog, public Ui_MeshImportDlg
+class ezMeshImportDlg : public ezQtDialog, public Ui_MeshImportDlg
 {
   Q_OBJECT
 

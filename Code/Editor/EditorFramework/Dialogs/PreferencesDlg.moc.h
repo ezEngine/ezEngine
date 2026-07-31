@@ -3,13 +3,13 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/ui_PreferencesDlg.h>
 #include <Foundation/Strings/String.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
 class ezPreferencesDocument;
 class ezPreferences;
 class ezQtDocumentTreeView;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtPreferencesDlg : public QDialog, public Ui_ezQtPreferencesDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtPreferencesDlg : public ezQtDialog, public Ui_ezQtPreferencesDlg
 {
 public:
   Q_OBJECT

@@ -582,6 +582,11 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
 
   static QString sPreviousFolder = ezOSFile::GetUserDocumentsFolder().GetData();
 
+  // native window, so not covered by ezQtDialog - there is no automated path for downloading a remote
+  // project, the target folder has to come from a user
+  if (ezQtUiServices::SuppressModalWindow("Remote project download folder (file picker)"))
+    return ezStatus("A remote project needs a download folder, which cannot be chosen without a user present.");
+
   QString sSelectedDir = QFileDialog::getExistingDirectory(QApplication::activeWindow(), QLatin1String("Choose Folder"), sPreviousFolder, QFileDialog::Option::ShowDirsOnly | QFileDialog::Option::DontResolveSymlinks);
 
   if (sSelectedDir.isEmpty())
@@ -625,10 +630,10 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
 
       // this function called on a separate thread
       po.m_onStdError = [&](ezStringView out)
-        {
-          EZ_LOCK(mutex);
-          strings.PushBack(out);
-        };
+      {
+        EZ_LOCK(mutex);
+        strings.PushBack(out);
+      };
 
       QApplication::setOverrideCursor(Qt::WaitCursor);
       EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());

@@ -4,9 +4,9 @@
 
 #include <EditorFramework/ui_DashboardDlg.h>
 #include <Foundation/Strings/String.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtDashboardDlg : public QDialog, public Ui_ezQtDashboardDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtDashboardDlg : public ezQtDialog, public Ui_ezQtDashboardDlg
 {
   Q_OBJECT
 

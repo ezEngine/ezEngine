@@ -103,9 +103,7 @@ void ezQtProgressbar::EnsureCreated()
 
   m_OnDialogDestroyed = QObject::connect(m_pDialog, &QObject::destroyed, ClearDialog);
   QObject::connect(m_pDialog, &QProgressDialog::canceled, [this]()
-  {
-    m_pProgress->UserClickedCancel();
-  });
+    { m_pProgress->UserClickedCancel(); });
 }
 
 void ezQtProgressbar::EnsureDestroyed()

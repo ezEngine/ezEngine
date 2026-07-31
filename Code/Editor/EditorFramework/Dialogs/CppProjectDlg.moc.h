@@ -5,9 +5,9 @@
 #include <EditorFramework/CodeGen/CppSettings.h>
 #include <EditorFramework/ui_CppProjectDlg.h>
 #include <Foundation/Strings/String.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtCppProjectDlg : public QDialog, public Ui_ezQtCppProjectDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtCppProjectDlg : public ezQtDialog, public Ui_ezQtCppProjectDlg
 {
 public:
   Q_OBJECT

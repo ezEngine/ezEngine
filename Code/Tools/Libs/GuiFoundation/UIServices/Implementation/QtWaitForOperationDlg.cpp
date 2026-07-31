@@ -4,7 +4,7 @@
 #include <QTimer>
 
 ezQtWaitForOperationDlg::ezQtWaitForOperationDlg(QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

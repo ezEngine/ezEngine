@@ -31,7 +31,7 @@ bool ezQtRemoteConnectionDlg::Address::IsEmpty() const
 }
 
 ezQtRemoteConnectionDlg::ezQtRemoteConnectionDlg(QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

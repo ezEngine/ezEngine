@@ -16,7 +16,7 @@ float ezQtDuplicateDlg::s_fRevolveRadius = 1.0f;
 
 
 ezQtDuplicateDlg::ezQtDuplicateDlg(QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

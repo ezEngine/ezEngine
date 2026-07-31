@@ -1,11 +1,11 @@
 #pragma once
 
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/ui_ModifiedDocumentsDlg.h>
-#include <QDialog>
 #include <ToolsFoundation/Document/Document.h>
 
-class EZ_GUIFOUNDATION_DLL ezQtModifiedDocumentsDlg : public QDialog, public Ui_DocumentList
+class EZ_GUIFOUNDATION_DLL ezQtModifiedDocumentsDlg : public ezQtDialog, public Ui_DocumentList
 {
 public:
   Q_OBJECT

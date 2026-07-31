@@ -4,10 +4,11 @@
 #include <EditorPluginScene/ui_ExtractGeometryDlg.h>
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Math/Mat3.h>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
 #include <QPushButton>
 
-class ezQtExtractGeometryDlg : public QDialog, public Ui_ExtractGeometryDlg
+class ezQtExtractGeometryDlg : public ezQtDialog, public Ui_ExtractGeometryDlg
 {
   Q_OBJECT
 

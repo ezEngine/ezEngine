@@ -7,7 +7,7 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezQtDashboardDlg::ezQtDashboardDlg(QWidget* pParent, DashboardTab activeTab)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

@@ -4,7 +4,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 ezQtDataDirsDlg::ezQtDataDirsDlg(QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

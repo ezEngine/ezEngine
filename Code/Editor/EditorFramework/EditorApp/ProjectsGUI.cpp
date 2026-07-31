@@ -6,11 +6,17 @@
 
 void ezQtEditorApp::GuiOpenDashboard()
 {
+  if (ezQtUiServices::SuppressModalWindow("ezQtDashboardDlg"))
+    return;
+
   QMetaObject::invokeMethod(this, "SlotQueuedGuiOpenDashboard", Qt::ConnectionType::QueuedConnection);
 }
 
 void ezQtEditorApp::GuiOpenDocsAndCommunity()
 {
+  if (ezQtUiServices::SuppressModalWindow("ezQtDashboardDlg (documentation)"))
+    return;
+
   QMetaObject::invokeMethod(this, "SlotQueuedGuiOpenDocsAndCommunity", Qt::ConnectionType::QueuedConnection);
 }
 
@@ -22,6 +28,9 @@ bool ezQtEditorApp::GuiCreateProject(bool bImmediate /*= false*/)
   }
   else
   {
+    if (ezQtUiServices::SuppressModalWindow("ezQtCreateProjectDlg"))
+      return false;
+
     QMetaObject::invokeMethod(this, "SlotQueuedGuiCreateOrOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(bool, true));
     return true;
   }
@@ -35,6 +44,9 @@ bool ezQtEditorApp::GuiOpenProject(bool bImmediate /*= false*/)
   }
   else
   {
+    if (ezQtUiServices::SuppressModalWindow("Open Project (file picker)"))
+      return false;
+
     QMetaObject::invokeMethod(this, "SlotQueuedGuiCreateOrOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(bool, false));
     return true;
   }
@@ -74,6 +86,10 @@ bool ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
   }
   else
   {
+    // native window, so not covered by ezQtDialog - see CreateOrOpenProject() for opening a known path
+    if (ezQtUiServices::SuppressModalWindow("Open Project (file picker)"))
+      return false;
+
     sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Project"), sDir, QLatin1String(szFilter), nullptr, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
   }
 

@@ -78,7 +78,7 @@ private:
 };
 
 ezQtAssetProfilesDlg::ezQtAssetProfilesDlg(QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

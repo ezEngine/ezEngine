@@ -27,7 +27,7 @@ void ezQtUiServices::ShowColorDialog(
 }
 
 ezQtColorDialog::ezQtColorDialog(const ezColor& initial, QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

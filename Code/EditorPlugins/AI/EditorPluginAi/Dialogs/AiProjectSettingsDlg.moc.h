@@ -3,9 +3,9 @@
 #include <AiPlugin/Navigation/NavMesh.h>
 #include <EditorPluginAi/EditorPluginAiDLL.h>
 #include <EditorPluginAi/ui_AiProjectSettingsDlg.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezQtAiProjectSettingsDlg : public QDialog, public Ui_AiProjectSettingsDlg
+class ezQtAiProjectSettingsDlg : public ezQtDialog, public Ui_AiProjectSettingsDlg
 {
 public:
   Q_OBJECT

@@ -21,7 +21,7 @@ bool ezQtExportProjectDlg::s_bCreateLaunchScripts = true;
 bool ezQtExportProjectDlg::s_bOpenOutputFolder = true;
 
 ezQtExportProjectDlg::ezQtExportProjectDlg(QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

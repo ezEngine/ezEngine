@@ -3,11 +3,11 @@
 #include <EditorFramework/CodeGen/CppSettings.h>
 #include <EditorPluginScene/EditorPluginSceneDLL.h>
 #include <EditorPluginScene/ui_ExportAndRunDlg.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
 class ezSceneDocument;
 
-class ezQtExportAndRunDlg : public QDialog, public Ui_ExportAndRunDlg
+class ezQtExportAndRunDlg : public ezQtDialog, public Ui_ExportAndRunDlg
 {
   Q_OBJECT
 

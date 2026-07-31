@@ -4,7 +4,7 @@
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 
 ezQtEditDynamicEnumsDlg::ezQtEditDynamicEnumsDlg(ezDynamicStringEnum* pEnum, QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   m_pEnum = pEnum;
   m_Values = m_pEnum->GetAllValidValues();

@@ -2,11 +2,11 @@
 
 #include <EditorPluginAssets/EditorPluginAssetsDLL.h>
 #include <EditorPluginAssets/ui_ShaderTemplateDlg.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
 class ezDocument;
 
-class ezQtShaderTemplateDlg : public QDialog, public Ui_ShaderTemplateDlg
+class ezQtShaderTemplateDlg : public ezQtDialog, public Ui_ShaderTemplateDlg
 {
   Q_OBJECT
 

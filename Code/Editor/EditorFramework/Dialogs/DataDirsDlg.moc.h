@@ -3,9 +3,9 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/ui_DataDirsDlg.h>
 #include <Foundation/Application/Config/FileSystemConfig.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtDataDirsDlg : public QDialog, public Ui_ezQtDataDirsDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtDataDirsDlg : public ezQtDialog, public Ui_ezQtDataDirsDlg
 {
 public:
   Q_OBJECT

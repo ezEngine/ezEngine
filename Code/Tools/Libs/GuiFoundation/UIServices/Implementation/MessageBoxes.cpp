@@ -45,7 +45,7 @@ void ezQtUiServices::MessageBoxInformation(const ezFormatString& msg, ezStringVi
   ezStringBuilder tmp;
 
   if (IsUnattended())
-    ezLog::Info(msg.GetText(tmp));
+    ReportSuppressedDialog(ezStringBuilder("Information: ", msg.GetText(tmp)));
   else
   {
     QMessageBox box(QApplication::activeWindow());
@@ -84,7 +84,7 @@ void ezQtUiServices::MessageBoxWarning(const ezFormatString& msg)
   ezStringBuilder tmp;
 
   if (IsUnattended())
-    ezLog::Warning(msg.GetText(tmp));
+    ReportSuppressedDialog(ezStringBuilder("Warning: ", msg.GetText(tmp)));
   else
   {
     QMessageBox::warning(QApplication::activeWindow(), ezApplication::GetApplicationInstance()->GetApplicationName().GetData(), QString::fromUtf8(msg.GetTextCStr(tmp)), QMessageBox::StandardButton::Ok);
@@ -96,7 +96,7 @@ QMessageBox::StandardButton ezQtUiServices::MessageBoxQuestion(const ezFormatStr
   if (IsUnattended())
   {
     ezStringBuilder tmp;
-    ezLog::Info("Question answered automatically, no user present: {}", msg.GetText(tmp));
+    ReportSuppressedDialog(ezStringBuilder("Question, answered automatically: ", msg.GetText(tmp)));
 
     return unattendedButton;
   }

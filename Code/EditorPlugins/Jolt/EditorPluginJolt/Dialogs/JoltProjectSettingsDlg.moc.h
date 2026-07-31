@@ -7,9 +7,9 @@
 #include <GameEngine/Physics/CollisionFilter.h>
 #include <GameEngine/Physics/ImpulseType.h>
 #include <GameEngine/Physics/WeightCategory.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezQtJoltProjectSettingsDlg : public QDialog, public Ui_JoltProjectSettingsDlg
+class ezQtJoltProjectSettingsDlg : public ezQtDialog, public Ui_JoltProjectSettingsDlg
 {
 public:
   Q_OBJECT

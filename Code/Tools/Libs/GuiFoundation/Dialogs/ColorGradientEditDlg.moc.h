@@ -1,14 +1,14 @@
 #pragma once
 
 #include <Foundation/Tracks/ColorGradient.h>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/ui_ColorGradientEditDlg.h>
-#include <QDialog>
 
 class ezObjectAccessorBase;
 class ezDocumentObject;
 
-class EZ_GUIFOUNDATION_DLL ezQtColorGradientEditDlg : public QDialog, public Ui_ColorGradientEditDlg
+class EZ_GUIFOUNDATION_DLL ezQtColorGradientEditDlg : public ezQtDialog, public Ui_ColorGradientEditDlg
 {
   Q_OBJECT
 

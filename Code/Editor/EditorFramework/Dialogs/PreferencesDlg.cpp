@@ -39,7 +39,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPreferencesDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezQtPreferencesDlg::ezQtPreferencesDlg(QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

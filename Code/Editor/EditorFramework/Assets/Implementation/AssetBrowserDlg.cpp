@@ -68,7 +68,7 @@ void ezQtAssetBrowserDlg::Init(QWidget* pParent)
 }
 
 ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& preselectedAsset, ezStringView sVisibleFilters, ezStringView sWindowTitle, ezStringView sRequiredTag)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   {
     ezStringBuilder temp = sVisibleFilters;
@@ -113,7 +113,7 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& presele
 }
 
 ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, ezStringView sWindowTitle, ezStringView sPreselectedFileAbs, ezStringView sFileExtensions)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   m_sVisibleFilters = sFileExtensions;
 

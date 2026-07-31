@@ -7,7 +7,7 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezQtShaderTemplateDlg::ezQtShaderTemplateDlg(QWidget* pParent, const ezDocument* pSceneDoc)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

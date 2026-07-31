@@ -28,7 +28,7 @@ void UpdateInputDynamicEnumValues()
 }
 
 ezQtInputConfigDlg::ezQtInputConfigDlg(QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 
