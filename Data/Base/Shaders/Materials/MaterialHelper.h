@@ -134,7 +134,10 @@ uint CalculateCoverage()
 
   return coverage;
 #else
-  return GetOpacity() > 0.0;
+  // Without per-sample texture coordinates the coverage can only be all or nothing.
+  // It must still be a full sample mask: a plain bool gives the value 1, which covers
+  // only sample 0 and makes the surface look transparent at higher MSAA levels.
+  return (GetOpacity() > 0.0) ? ((1u << NumMsaaSamples) - 1u) : 0u;
 #endif
 }
 

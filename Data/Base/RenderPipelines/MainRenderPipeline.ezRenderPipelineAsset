@@ -661,8 +661,8 @@ o
 	{
 		Uuid %Source{u4{17874211026188057104,11340632456546551903}}
 		s %SourcePin{"Color"}
-		Uuid %Target{u4{16972766189944550570,4911723010182931087}}
-		s %TargetPin{"Input"}
+		Uuid %Target{u4{5007371992987168930,16788374052909412801}}
+		s %TargetPin{"Color"}
 	}
 }
 o
@@ -1012,6 +1012,9 @@ o
 			Uuid{u4{12902397426000068764,5102241972032460734}}
 			Uuid{u4{7923946231253630611,5409259712904032528}}
 			Uuid{u4{7727492444571916711,5463061435811087574}}
+			Uuid{u4{5007371992987168930,16788374052909412801}}
+			Uuid{u4{10361771389732182380,17232654361250067058}}
+			Uuid{u4{11479429621587365917,4497210249107166724}}
 		}
 	}
 }
@@ -1284,6 +1287,62 @@ o
 	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
+}
+o
+{
+	Uuid %id{u4{5201842405045114294,13546983707155518672}}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{2543710138770509855,2617769327265691328}}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{5007371992987168930,16788374052909412801}}
+	s %t{"ezCustomRenderDataPass"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Uuid %Color{u4{5201842405045114294,13546983707155518672}}
+		Uuid %DepthStencil{u4{2543710138770509855,2617769327265691328}}
+		s %Name{"SimpleScreenFX"}
+		Vec2 %Node::Pos{f{0x28B4D5C2,0x934C0BC3}}
+		s %RenderDataCategory{"SimpleScreenFX"}
+		s %SortingFunction{"ezRenderSortingFunctions::ByDepthOffsetOnly"}
+	}
+}
+o
+{
+	Uuid %id{u4{10361771389732182380,17232654361250067058}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{17874211026188057104,11340632456546551903}}
+		s %SourcePin{"DepthStencil"}
+		Uuid %Target{u4{5007371992987168930,16788374052909412801}}
+		s %TargetPin{"DepthStencil"}
+	}
+}
+o
+{
+	Uuid %id{u4{11479429621587365917,4497210249107166724}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{5007371992987168930,16788374052909412801}}
+		s %SourcePin{"Color"}
+		Uuid %Target{u4{16972766189944550570,4911723010182931087}}
+		s %TargetPin{"Input"}
+	}
 }
 }
 Types

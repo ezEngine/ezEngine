@@ -898,8 +898,8 @@ o
 	{
 		Uuid %Source{u4{18089536666281101362,10409455054173507219}}
 		s %SourcePin{"Color"}
-		Uuid %Target{u4{8782294134444534196,4625200147396304737}}
-		s %TargetPin{"Input"}
+		Uuid %Target{u4{14588637703619636764,4643383697577620142}}
+		s %TargetPin{"Color"}
 	}
 }
 o
@@ -1004,7 +1004,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Uuid %Source{u4{18089536666281101362,10409455054173507219}}
+		Uuid %Source{u4{14588637703619636764,4643383697577620142}}
 		s %SourcePin{"DepthStencil"}
 		Uuid %Target{u4{12025421613094468508,5132296434815839289}}
 		s %TargetPin{"DepthStencil"}
@@ -1106,6 +1106,9 @@ o
 			Uuid{u4{823674230318425778,5701042907791412726}}
 			Uuid{u4{7699985895336808109,5160191665719377766}}
 			Uuid{u4{15475085124871418045,5537930756229207825}}
+			Uuid{u4{14588637703619636764,4643383697577620142}}
+			Uuid{u4{17649204974489527575,13929745660406161204}}
+			Uuid{u4{9000256966846344677,5012410442622846256}}
 		}
 	}
 }
@@ -1406,6 +1409,62 @@ o
 	s %t{"ezRenderPipelineNodeOutputPin"}
 	u3 %v{1}
 	p{}
+}
+o
+{
+	Uuid %id{u4{3532588436880949452,7433100866212032558}}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{15105460014321718085,10960168837637751626}}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{14588637703619636764,4643383697577620142}}
+	s %t{"ezCustomRenderDataPass"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Uuid %Color{u4{3532588436880949452,7433100866212032558}}
+		Uuid %DepthStencil{u4{15105460014321718085,10960168837637751626}}
+		s %Name{"SimpleScreenFX"}
+		Vec2 %Node::Pos{f{0xD0E2F5C2,0x2430CEC2}}
+		s %RenderDataCategory{"SimpleScreenFX"}
+		s %SortingFunction{"ezRenderSortingFunctions::ByDepthOffsetOnly"}
+	}
+}
+o
+{
+	Uuid %id{u4{17649204974489527575,13929745660406161204}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{18089536666281101362,10409455054173507219}}
+		s %SourcePin{"DepthStencil"}
+		Uuid %Target{u4{14588637703619636764,4643383697577620142}}
+		s %TargetPin{"DepthStencil"}
+	}
+}
+o
+{
+	Uuid %id{u4{9000256966846344677,5012410442622846256}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{14588637703619636764,4643383697577620142}}
+		s %SourcePin{"Color"}
+		Uuid %Target{u4{8782294134444534196,4625200147396304737}}
+		s %TargetPin{"Input"}
+	}
 }
 }
 Types
