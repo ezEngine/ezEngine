@@ -50,7 +50,8 @@ public:
     InvalidCurrentPosition,
     InvalidTargetPosition,
     NoPathFound,
-    PartialPathFound,
+    PartialPathSearchLimited, ///< partial: the A* search hit its node/buffer budget. A repath from closer to the target may complete it. The corridor is usable meanwhile, and Update() will auto-repath as the agent nears the partial end (as long as it keeps making progress).
+    PartialPathUnreachable,   ///< partial: the search finished but the target is genuinely not reachable. The corridor's end is the closest reachable point - this is final and will not be retried.
     FullPathFound,
     Searching,
   };
@@ -78,7 +79,7 @@ public:
 
   /// \brief Immediately optimizes the current path corridor (topology + visibility).
   ///
-  /// Only has an effect when a path exists (GetState() == FullPathFound or PartialPathFound).
+  /// Only has an effect when a path exists (GetState() == FullPathFound or one of the PartialPath* states).
   /// This is the on-demand counterpart to SetTargetPosition()'s bOptimizeWhenFound flag.
   void OptimizeCurrentPath();
 
@@ -137,6 +138,25 @@ private:
 
   ezUInt8 m_uiOptimizeTopologyCounter = 0;
   ezUInt8 m_uiOptimizeVisibilityCounter = 0;
+
+  // Straight-line distance to the target at the last time a budget-limited partial path triggered an
+  // automatic repath. Used as an anti-oscillation guard: we only repath again if we have gotten strictly
+  // closer to the target since then. Reset to HighValue whenever a fresh search is requested.
+  float m_fLastRepathStartDistToTarget = ezMath::HighValue<float>();
+
+  // Number of corridor polygons at the moment a budget-limited partial path was established. As the agent
+  // advances, the corridor shrinks from the front; comparing the current length against this tells us how
+  // much of the partial path has been used up. 0 means "not a budget-limited partial".
+  ezUInt32 m_uiPartialCorridorInitialLength = 0;
+
+  // Repath a budget-limited partial path once so few corridor polygons remain, regardless of how much of the
+  // original corridor that is - this keeps enough runway for the async search to finish before the agent stalls.
+  constexpr static ezUInt32 c_uiRepathMinPolysRemaining = 10;
+  // ...or once at least this fraction of the original corridor has been consumed, so long corridors repath early
+  // rather than travelling almost to their (partial) end first. Expressed as the remaining-length divisor.
+  constexpr static ezUInt32 c_uiRepathConsumedFractionDivisor = 2; // remaining <= initial / 2  ==  half consumed
+  // Minimum progress (straight-line, towards the target) required since the last repath to allow another one.
+  constexpr static float c_fRepathMinProgress = 1.0f;
 
   bool UpdatePathSearch();
 };

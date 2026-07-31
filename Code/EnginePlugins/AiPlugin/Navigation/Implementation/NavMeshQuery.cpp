@@ -42,8 +42,8 @@ bool ezAiNavmeshQuery::Raycast(const ezVec3& vStart, const ezVec3& vDir, float f
     m_Query.init(m_pNavmesh->GetDetourNavMesh(), MaxSearchNodes);
   }
 
-  // TODO: hardcoded 'epsilon'
-  float he[3] = {2, 2, 2};
+  // Recast is Y-up: index 1 is the vertical (ez Z) extent, 0 and 2 are horizontal (ez X/Y).
+  float he[3] = {m_fSearchExtentsXY, m_fSearchExtentsZ, m_fSearchExtentsXY};
 
   dtPolyRef ref;
   float pt[3];
@@ -86,8 +86,8 @@ bool ezAiNavmeshQuery::FindRandomPointAroundCircle(const ezVec3& vStart, float f
     m_Query.init(m_pNavmesh->GetDetourNavMesh(), MaxSearchNodes);
   }
 
-  // TODO: hardcoded 'epsilon'
-  float he[3] = {2, 2, 2};
+  // Recast is Y-up: index 1 is the vertical (ez Z) extent, 0 and 2 are horizontal (ez X/Y).
+  float he[3] = {m_fSearchExtentsXY, m_fSearchExtentsZ, m_fSearchExtentsXY};
 
   dtPolyRef ref;
   float pt[3];
@@ -106,5 +106,45 @@ bool ezAiNavmeshQuery::FindRandomPointAroundCircle(const ezVec3& vStart, float f
     return false;
 
   out_vPoint = resPt;
+  return true;
+}
+
+bool ezAiNavmeshQuery::FindClosestPointOnNavmesh(const ezVec3& vPos, ezVec3& out_vPoint, ezVec3* out_pNormal)
+{
+  if (m_uiReinitQueryBit)
+  {
+    EZ_ASSERT_DEV(m_pNavmesh != nullptr, "Navmesh has not been set.");
+    EZ_ASSERT_DEV(m_pFilter != nullptr, "Navmesh filter has not been set.");
+
+    m_uiReinitQueryBit = 0;
+    m_Query.init(m_pNavmesh->GetDetourNavMesh(), MaxSearchNodes);
+  }
+
+  // Recast is Y-up: index 1 is the vertical (ez Z) extent, 0 and 2 are horizontal (ez X/Y).
+  float he[3] = {m_fSearchExtentsXY, m_fSearchExtentsZ, m_fSearchExtentsXY};
+
+  dtPolyRef ref;
+  ezRcPos closestPt;
+
+  if (dtStatusFailed(m_Query.findNearestPoly(ezRcPos(vPos), he, m_pFilter, &ref, closestPt)))
+    return false;
+
+  if (ref == 0)
+    return false;
+
+  out_vPoint = closestPt;
+
+  if (out_pNormal != nullptr)
+  {
+    // Query from the original (possibly off-mesh) position, not closestPt: closestPt sits exactly on the wall,
+    // which would make hitDist ~0 and the normal (a near-zero vector, normalized) NaN.
+    float hitDist, hitPos[3], hitNormal[3];
+    if (dtStatusSucceed(m_Query.findDistanceToWall(ref, ezRcPos(vPos), m_fSearchExtentsXY, m_pFilter, &hitDist, hitPos, hitNormal)) &&
+        hitDist > 0.001f)
+    {
+      *out_pNormal = ezRcPos(hitNormal);
+    }
+  }
+
   return true;
 }
