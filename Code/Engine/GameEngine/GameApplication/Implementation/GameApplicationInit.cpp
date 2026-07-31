@@ -7,6 +7,7 @@
 #include <Core/Prefabs/PrefabResource.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/StateMachine/StateMachineResource.h>
@@ -284,6 +285,18 @@ void ezGameApplication::Init_LoadRequiredPlugins()
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezPlugin::LoadPlugin("ezInspectorPlugin").IgnoreResult();
+
+  // The MCP server is a development-only tool, so it is not part of the project's plugin config and thus
+  // never ends up in a shipping build. Load it on demand instead, when a port was actually requested.
+  // In the editor's engine process this is not needed - there the Mcp plugin bundle pulls it in.
+  if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-mcpport") ||
+      ezCommandLineUtils::GetGlobalInstance()->HasOption("-editor-mcpport"))
+  {
+    if (ezPlugin::LoadPlugin("ezMcpPlugin", ezPluginLoadFlags::PluginIsOptional).Failed())
+    {
+      ezLog::Warning("An MCP port was given on the command line, but 'ezMcpPlugin' could not be loaded.");
+    }
+  }
 
   // on sandboxed platforms, we can only load data through fileserve, so enforce use of this plugin
 #  if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
