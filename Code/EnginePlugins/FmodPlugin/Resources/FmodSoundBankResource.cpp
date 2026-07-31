@@ -28,8 +28,11 @@ ezResourceLoadDesc ezFmodSoundBankResource::UnloadData(Unload WhatToUnload)
     m_pSoundBank = nullptr;
   }
 
-  ezFmod::GetSingleton()->QueueSoundBankDataForDeletion(m_pSoundBankData);
-  m_pSoundBankData = nullptr;
+  if (m_pSoundBankData != nullptr)
+  {
+    ezFmod::GetSingleton()->QueueSoundBankDataForDeletion(m_pSoundBankData);
+    m_pSoundBankData = nullptr;
+  }
 
   ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezFmodSoundBankResource);
 
