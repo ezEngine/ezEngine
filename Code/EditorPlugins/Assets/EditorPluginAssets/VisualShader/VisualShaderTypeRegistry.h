@@ -104,9 +104,20 @@ private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(EditorPluginAssets, VisualShader);
 
   void EditorEventHandler(const ezEditorAppEvent& e);
+  void ProjectEventHandler(const ezToolsProjectEvent& e);
   void LoadNodeData();
+
+  /// \brief Loads the nodes that the open project ships in its own data directories.
+  ///
+  /// Only callable once the project's data directories are configured and mounted, which is why this
+  /// hangs off ProjectOpened and not off the editor startup event.
+  void LoadProjectNodeData();
+
+  /// \brief Unregisters everything LoadProjectNodeData() added, so the next project starts clean.
+  void UnloadProjectNodeData();
+
   const ezRTTI* GenerateTypeFromDesc(const ezVisualShaderNodeDescriptor& desc);
-  void LoadConfigFile(const char* szFile);
+  void LoadConfigFile(const char* szFile, bool bProjectNode);
 
   void ExtractNodePins(const ezOpenDdlReaderElement* pNode, const char* szPinType, ezDynamicArray<ezVisualShaderPinDescriptor>& pinArray, bool bOutput);
   void ExtractNodeProperties(const ezOpenDdlReaderElement* pNode, ezVisualShaderNodeDescriptor& nd);
@@ -114,6 +125,10 @@ private:
 
 
   ezMap<const ezRTTI*, ezVisualShaderNodeDescriptor> m_NodeDescriptors;
+
+  /// The types that came from the open project's data directories, so that they can be removed again
+  /// when the project is closed. The editor's own node types stay for the whole session.
+  ezDynamicArray<const ezRTTI*> m_ProjectNodeTypes;
 
   const ezRTTI* m_pBaseType;
   const ezRTTI* m_pSamplerPinType;

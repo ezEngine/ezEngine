@@ -99,10 +99,12 @@ ezVisualShaderTypeRegistry::ezVisualShaderTypeRegistry()
   m_pBaseType = nullptr;
   m_pSamplerPinType = nullptr;
   ezQtEditorApp::m_Events.AddEventHandler(ezMakeDelegate(&ezVisualShaderTypeRegistry::EditorEventHandler, this));
+  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezVisualShaderTypeRegistry::ProjectEventHandler, this));
 }
 
 ezVisualShaderTypeRegistry::~ezVisualShaderTypeRegistry()
 {
+  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezVisualShaderTypeRegistry::ProjectEventHandler, this));
   ezQtEditorApp::m_Events.RemoveEventHandler(ezMakeDelegate(&ezVisualShaderTypeRegistry::EditorEventHandler, this));
 }
 
@@ -124,6 +126,21 @@ void ezVisualShaderTypeRegistry::EditorEventHandler(const ezEditorAppEvent& e)
   }
 }
 
+void ezVisualShaderTypeRegistry::ProjectEventHandler(const ezToolsProjectEvent& e)
+{
+  // The editor startup event fires before any project is loaded, so at that point there are no project
+  // data directories to search. They are configured and mounted while ProjectOpened is being handled.
+  if (e.m_Type == ezToolsProjectEvent::Type::ProjectOpened)
+  {
+    LoadProjectNodeData();
+  }
+
+  if (e.m_Type == ezToolsProjectEvent::Type::ProjectClosed)
+  {
+    UnloadProjectNodeData();
+  }
+}
+
 void ezVisualShaderTypeRegistry::UpdateNodeData()
 {
   // If the assets plugin is statically linked, ON_CORESYSTEMS_STARTUP is fired before the editor is running, at which point the data directories are not set up yet so the code below will fail. Therefore, we also run this code in the EditorEventHandler code above to ensure that we run this code at the appropriate time.
@@ -131,6 +148,7 @@ void ezVisualShaderTypeRegistry::UpdateNodeData()
   if (!ezQtEditorApp::GetSingleton() || !ezQtEditorApp::GetSingleton()->IsRunning())
     return;
 
+  // the nodes that the editor itself ships
   ezStringBuilder sSearchDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
   sSearchDir.AppendPath("VisualShader/*.ddl");
 
@@ -139,17 +157,72 @@ void ezVisualShaderTypeRegistry::UpdateNodeData()
   {
     UpdateNodeData(it.GetStats().m_sName);
   }
+
+  // and the nodes of the open project, if there already is one - see ProjectEventHandler()
+  LoadProjectNodeData();
+}
+
+void ezVisualShaderTypeRegistry::LoadProjectNodeData()
+{
+  if (!ezToolsProject::IsProjectOpen())
+    return;
+
+  // A project may ship its own nodes in '<data directory>/Editor/VisualShader/*.ddl', e.g. to wrap
+  // game specific render states or shader functions, without having to modify the editor's own data.
+  // The files are read through the file system, so this must run after the data directories have been
+  // applied - which is why this is not part of the editor startup event.
+  ezStringBuilder sSearchDir, sNodeFile;
+  for (const auto& dd : ezQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs)
+  {
+    if (ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sSearchDir).Failed())
+      continue;
+
+    sSearchDir.AppendPath("Editor/VisualShader/*.ddl");
+
+    ezFileSystemIterator it;
+    for (it.StartSearch(sSearchDir, ezFileSystemIteratorFlags::ReportFiles); it.IsValid(); it.Next())
+    {
+      it.GetStats().GetFullPath(sNodeFile);
+
+      LoadConfigFile(sNodeFile, true);
+    }
+  }
+}
+
+void ezVisualShaderTypeRegistry::UnloadProjectNodeData()
+{
+  for (const ezRTTI* pType : m_ProjectNodeTypes)
+  {
+    m_NodeDescriptors.Remove(pType);
+    ezPhantomRttiManager::UnregisterType(pType);
+  }
+
+  m_ProjectNodeTypes.Clear();
 }
 
 
 void ezVisualShaderTypeRegistry::UpdateNodeData(ezStringView sCfgFileRelative)
 {
   ezStringBuilder sPath = sCfgFileRelative;
+  bool bProjectNode = false;
+
   if (!ezPathUtils::IsAbsolutePath(sCfgFileRelative))
   {
     sPath.SetFormat(":app/VisualShader/{}", sCfgFileRelative);
   }
-  LoadConfigFile(sPath);
+  else
+  {
+    // absolute paths come from the directory watchers, which watch the editor's folder as well as the
+    // project's - anything that isn't the editor's own folder belongs to the project
+    ezStringBuilder sAppDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+    sAppDir.AppendPath("VisualShader");
+    sAppDir.MakeCleanPath();
+
+    sPath.MakeCleanPath();
+    bProjectNode = !sPath.StartsWith_NoCase(sAppDir);
+  }
+
+  LoadConfigFile(sPath, bProjectNode);
 }
 
 void ezVisualShaderTypeRegistry::LoadNodeData()
@@ -214,7 +287,7 @@ const ezRTTI* ezVisualShaderTypeRegistry::GenerateTypeFromDesc(const ezVisualSha
   return ezPhantomRttiManager::RegisterType(desc);
 }
 
-void ezVisualShaderTypeRegistry::LoadConfigFile(const char* szFile)
+void ezVisualShaderTypeRegistry::LoadConfigFile(const char* szFile, bool bProjectNode)
 {
   EZ_LOG_BLOCK("Loading Visual Shader Config", szFile);
 
@@ -256,7 +329,13 @@ void ezVisualShaderTypeRegistry::LoadConfigFile(const char* szFile)
       ExtractNodePins(pNode, "InputPin", nd.m_InputPins, false);
       ExtractNodePins(pNode, "OutputPin", nd.m_OutputPins, true);
 
-      m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
+      const ezRTTI* pType = GenerateTypeFromDesc(nd);
+      m_NodeDescriptors.Insert(pType, nd);
+
+      if (bProjectNode && !m_ProjectNodeTypes.Contains(pType))
+      {
+        m_ProjectNodeTypes.PushBack(pType);
+      }
 
       pNode = pNode->GetSibling();
     }

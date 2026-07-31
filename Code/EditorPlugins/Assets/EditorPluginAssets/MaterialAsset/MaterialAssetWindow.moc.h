@@ -58,7 +58,10 @@ private:
   bool m_bVisualShaderEnabled;
 
   static ezInt32 s_iNodeConfigWatchers;
-  static ezDirectoryWatcher* s_pNodeConfigWatcher;
+
+  /// One watcher for the editor's own VisualShader folder, plus one for each data directory of the
+  /// open project that has such a folder (projects may ship their own nodes).
+  static ezHybridArray<ezDirectoryWatcher*, 4> s_NodeConfigWatchers;
 };
 
 class ezMaterialModelAction : public ezEnumerationMenuAction
