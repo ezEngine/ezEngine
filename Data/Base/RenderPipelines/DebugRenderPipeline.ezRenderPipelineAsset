@@ -375,7 +375,7 @@ o
 	{
 		Uuid %Source{u4{13953005379888452994,5588286543726681588}}
 		s %SourcePin{"Color"}
-		Uuid %Target{u4{16246312026800188290,4661069980728115750}}
+		Uuid %Target{u4{3205771074798358752,1691382944470273643}}
 		s %TargetPin{"Color"}
 	}
 }
@@ -507,7 +507,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Uuid %Source{u4{13953005379888452994,5588286543726681588}}
+		Uuid %Source{u4{3205771074798358752,1691382944470273643}}
 		s %SourcePin{"DepthStencil"}
 		Uuid %Target{u4{16246312026800188290,4661069980728115750}}
 		s %TargetPin{"DepthStencil"}
@@ -907,6 +907,9 @@ o
 			Uuid{u4{1026441006699774363,4938410090958425404}}
 			Uuid{u4{3043143681169432985,4743083588402864006}}
 			Uuid{u4{9100579640070733185,5035099763285260530}}
+			Uuid{u4{3205771074798358752,1691382944470273643}}
+			Uuid{u4{10418040540573686176,1104696995851887330}}
+			Uuid{u4{10243075154011554266,18364186052375778659}}
 		}
 	}
 }
@@ -1107,6 +1110,62 @@ o
 	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
+}
+o
+{
+	Uuid %id{u4{8973018380578243738,5624804713691794012}}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{2137139873129710073,2829235983227888962}}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{3205771074798358752,1691382944470273643}}
+	s %t{"ezCustomRenderDataPass"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Uuid %Color{u4{8973018380578243738,5624804713691794012}}
+		Uuid %DepthStencil{u4{2137139873129710073,2829235983227888962}}
+		s %Name{"SimpleScreenFX"}
+		Vec2 %Node::Pos{f{0xE05393C2,0x0484DEC3}}
+		s %RenderDataCategory{"SimpleScreenFX"}
+		s %SortingFunction{"ezRenderSortingFunctions::ByDepthOffsetOnly"}
+	}
+}
+o
+{
+	Uuid %id{u4{10418040540573686176,1104696995851887330}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{13953005379888452994,5588286543726681588}}
+		s %SourcePin{"DepthStencil"}
+		Uuid %Target{u4{3205771074798358752,1691382944470273643}}
+		s %TargetPin{"DepthStencil"}
+	}
+}
+o
+{
+	Uuid %id{u4{10243075154011554266,18364186052375778659}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{3205771074798358752,1691382944470273643}}
+		s %SourcePin{"Color"}
+		Uuid %Target{u4{16246312026800188290,4661069980728115750}}
+		s %TargetPin{"Color"}
+	}
 }
 }
 Types

@@ -127,11 +127,9 @@ void ezParticleTypeMesh::CreateRequiredStreams()
   CreateStream("RotationOffset", ezProcessingStream::DataType::Half, &m_pStreamRotationOffset, false);
   CreateStream("Axis", ezProcessingStream::DataType::Float3, &m_pStreamAxis, true);
 
-  if (m_uiNumSubMeshes > 1)
-  {
-    // only create this stream when necessary
-    CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, false);
-  }
+  // Always create this stream. The number of sub-meshes is not necessarily known at this time,
+  // because the mesh resource may not be loaded yet, and the streams are created only once.
+  CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, false);
 }
 
 void ezParticleTypeMesh::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
@@ -288,8 +286,6 @@ void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, 
     }
     else
     {
-      EZ_ASSERT_DEBUG(pVariation != nullptr, "Variation stream should be set up");
-
       // Non-opaque particles or multiple submeshes require per-particle render data
       for (ezUInt32 p = 0; p < numParticles; ++p)
       {
@@ -303,7 +299,7 @@ void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, 
         ezRenderDataManager::FillPerInstanceData(instanceData[p], nullptr, trans, ezInvalidIndex, pColor[idx].ToLinearFloat() * tintColor);
 
         // Determine submesh index from variation
-        const ezUInt32 uiSubMeshIdx = static_cast<ezUInt32>(ezMath::Abs(pVariation[idx])) % uiNumSubMeshes;
+        const ezUInt32 uiSubMeshIdx = (pVariation != nullptr && uiNumSubMeshes > 1) ? (static_cast<ezUInt32>(ezMath::Abs(pVariation[idx])) % uiNumSubMeshes) : 0;
 
         // Determine material for this submesh
         ezMaterialResourceHandle hMaterial = m_hMaterial;
