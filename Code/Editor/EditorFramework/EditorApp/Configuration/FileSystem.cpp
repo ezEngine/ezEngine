@@ -86,14 +86,35 @@ void ezQtEditorApp::SetupDataDirectories()
   }
 
   // Inject the data directories declared by all currently active plugin bundles (mandatory/selected + transitive
-  // requirements). Added before the ">project/" mount below, so a project can override plugin-provided files.
+  // requirements). These have to end up before ">project/", because data directories are searched back to front:
+  // whatever is listed after the project shadows the project's own files, and a project must be able to override
+  // plugin provided files (e.g. ship its own version of a particle shader).
+  // Appending is not enough for that, because the project directory is usually already part of the config that was
+  // just loaded, so the insert position has to be looked up.
   {
     ezSet<ezString> activeBundleDirs;
     ezQtEditorApp::GetSingleton()->GetActiveBundleDataDirectories(activeBundleDirs);
 
+    ezStringBuilder sProjectDir = ">project/";
+    sProjectDir.MakeCleanPath();
+
+    ezUInt32 uiInsertIndex = ezInvalidIndex;
+    for (ezUInt32 i = 0; i < m_FileSystemConfig.m_DataDirs.GetCount(); ++i)
+    {
+      if (m_FileSystemConfig.m_DataDirs[i].m_sDataDirSpecialPath == sProjectDir)
+      {
+        uiInsertIndex = i;
+        break;
+      }
+    }
+
     for (const ezString& sDir : activeBundleDirs)
     {
-      ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(sDir, nullptr, false);
+      ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(sDir, nullptr, false, uiInsertIndex);
+
+      // the loop above removed all bundle directories, so each of these really is an insert
+      if (uiInsertIndex != ezInvalidIndex)
+        ++uiInsertIndex;
     }
   }
 

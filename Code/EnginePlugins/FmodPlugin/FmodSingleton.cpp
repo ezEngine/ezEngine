@@ -142,27 +142,30 @@ void ezFmod::Startup()
 
 void ezFmod::Shutdown()
 {
-  if (m_bInitialized)
+  if (m_pData == nullptr)
+    return;
+
+  // this also runs when the initialization failed (e.g. no master bank): sound bank resources may exist
+  // regardless, and unloading them needs m_pData to still be around
+
+  // delete all FMOD resources, except the master bank
+  ezResourceManager::FreeAllUnusedResources();
+
+  m_bInitialized = false;
+  m_pData->m_hMasterBank.Invalidate();
+  m_pData->m_hMasterBankStrings.Invalidate();
+
+  // now also delete the master bank
+  ezResourceManager::FreeAllUnusedResources();
+
+  // now actually delete the sound bank data
+  ClearSoundBankDataDeletionQueue();
+
+  if (m_pStudioSystem != nullptr)
   {
-    // delete all FMOD resources, except the master bank
-    ezResourceManager::FreeAllUnusedResources();
-
-    m_bInitialized = false;
-    m_pData->m_hMasterBank.Invalidate();
-    m_pData->m_hMasterBankStrings.Invalidate();
-
-    // now also delete the master bank
-    ezResourceManager::FreeAllUnusedResources();
-
-    // now actually delete the sound bank data
-    ClearSoundBankDataDeletionQueue();
-
-    if (m_pStudioSystem != nullptr)
-    {
-      m_pStudioSystem->release();
-      m_pStudioSystem = nullptr;
-      m_pLowLevelSystem = nullptr;
-    }
+    m_pStudioSystem->release();
+    m_pStudioSystem = nullptr;
+    m_pLowLevelSystem = nullptr;
   }
 
   // finally delete all data
@@ -420,12 +423,21 @@ void ezFmod::QueueSoundBankDataForDeletion(ezDataBuffer* pData)
 {
   EZ_LOCK(m_DeletionQueueMutex);
 
+  if (m_pData == nullptr)
+  {
+    // Sound bank resources can outlive the FMOD shutdown (the missing-fallback resource is only freed
+    // when the resource manager itself shuts down). By then the FMOD system is already released,
+    // so there is nothing to wait for and the data can just be deleted.
+    EZ_DEFAULT_DELETE(pData);
+    return;
+  }
+
   m_pData->m_SbDeletionQueue.PushBack(pData);
 }
 
 void ezFmod::ClearSoundBankDataDeletionQueue()
 {
-  if (m_pData->m_SbDeletionQueue.IsEmpty())
+  if (m_pData == nullptr || m_pData->m_SbDeletionQueue.IsEmpty())
     return;
 
   EZ_LOCK(m_DeletionQueueMutex);

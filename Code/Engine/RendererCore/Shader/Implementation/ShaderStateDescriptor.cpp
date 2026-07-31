@@ -207,13 +207,22 @@ static const char* AppendNumber(const char* szString, ezInt32 iNumber, ezStringB
 }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+// Parse() runs concurrently (shader permutations are compiled in parallel), so this must be locked.
+// Global variables don't use memory tracking, so these won't be reported as memory leaks.
+static ezMutex s_AllowedVariablesLock;
 static ezSet<ezString> s_AllAllowedVariables;
+
+static void RegisterAllowedVariable(const char* szVariable)
+{
+  EZ_LOCK(s_AllowedVariablesLock);
+  s_AllAllowedVariables.Insert(szVariable);
+}
 #endif
 
 static bool GetBoolStateVariable(const ezMap<ezString, ezString>& variables, const char* szVariable, bool bDefValue)
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  s_AllAllowedVariables.Insert(szVariable);
+  RegisterAllowedVariable(szVariable);
 #endif
 
   auto it = variables.Find(szVariable);
@@ -234,7 +243,7 @@ static ezInt32 GetEnumStateVariable(
   const ezMap<ezString, ezString>& variables, const ezMap<ezString, ezInt32>& values, const char* szVariable, ezInt32 iDefValue)
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  s_AllAllowedVariables.Insert(szVariable);
+  RegisterAllowedVariable(szVariable);
 #endif
 
   auto it = variables.Find(szVariable);
@@ -261,7 +270,7 @@ static ezInt32 GetEnumStateVariable(
 static float GetFloatStateVariable(const ezMap<ezString, ezString>& variables, const char* szVariable, float fDefValue)
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  s_AllAllowedVariables.Insert(szVariable);
+  RegisterAllowedVariable(szVariable);
 #endif
 
   auto it = variables.Find(szVariable);
@@ -282,7 +291,7 @@ static float GetFloatStateVariable(const ezMap<ezString, ezString>& variables, c
 static ezInt32 GetIntStateVariable(const ezMap<ezString, ezString>& variables, const char* szVariable, ezInt32 iDefValue)
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  s_AllAllowedVariables.Insert(szVariable);
+  RegisterAllowedVariable(szVariable);
 #endif
 
   auto it = variables.Find(szVariable);
@@ -485,6 +494,8 @@ ezResult ezShaderStateResourceDescriptor::Parse(const char* szSource)
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // check for invalid variable names
   {
+    EZ_LOCK(s_AllowedVariablesLock);
+
     for (auto it = VariableValues.GetIterator(); it.IsValid(); ++it)
     {
       if (!s_AllAllowedVariables.Contains(it.Key()))

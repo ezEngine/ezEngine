@@ -330,7 +330,8 @@ void ezAiNavigationComponent::Steer(ezTransform& transform, float tDiff)
     case ezAiNavigation::State::FullPathFound:
       break;
 
-    case ezAiNavigation::State::PartialPathFound:
+    case ezAiNavigation::State::PartialPathSearchLimited:
+    case ezAiNavigation::State::PartialPathUnreachable:
       if (m_bAllowPartialPath)
         break;
 

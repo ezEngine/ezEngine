@@ -70,7 +70,7 @@ void ezMaterialAssetActions::MapToolbarActions(ezStringView sMapping)
 
 
 ezInt32 ezQtMaterialAssetDocumentWindow::s_iNodeConfigWatchers = 0;
-ezDirectoryWatcher* ezQtMaterialAssetDocumentWindow::s_pNodeConfigWatcher = nullptr;
+ezHybridArray<ezDirectoryWatcher*, 4> ezQtMaterialAssetDocumentWindow::s_NodeConfigWatchers;
 
 
 ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument)
@@ -224,15 +224,43 @@ void ezQtMaterialAssetDocumentWindow::SetupDirectoryWatcher(bool needIt)
   {
     ++s_iNodeConfigWatchers;
 
-    if (s_pNodeConfigWatcher == nullptr)
+    if (s_NodeConfigWatchers.IsEmpty())
     {
-      s_pNodeConfigWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
+      // the editor's own nodes, and the nodes that the open project ships in its data directories
+      ezHybridArray<ezStringBuilder, 4> folders;
 
-      ezStringBuilder sSearchDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
-      sSearchDir.AppendPath("VisualShader");
+      {
+        ezStringBuilder& sAppDir = folders.ExpandAndGetRef();
+        sAppDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+        sAppDir.AppendPath("VisualShader");
+      }
 
-      if (s_pNodeConfigWatcher->OpenDirectory(sSearchDir, ezDirectoryWatcher::Watch::Writes).Failed())
-        ezLog::Warning("Could not register a file system watcher for changes to '{0}'", sSearchDir);
+      for (const auto& dd : ezQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs)
+      {
+        ezStringBuilder sDataDir;
+        if (ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir).Succeeded())
+        {
+          sDataDir.AppendPath("Editor/VisualShader");
+          folders.PushBack(sDataDir);
+        }
+      }
+
+      for (ezStringBuilder& sFolder : folders)
+      {
+        if (!ezOSFile::ExistsDirectory(sFolder))
+          continue;
+
+        ezDirectoryWatcher* pWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
+
+        if (pWatcher->OpenDirectory(sFolder, ezDirectoryWatcher::Watch::Writes).Failed())
+        {
+          ezLog::Warning("Could not register a file system watcher for changes to '{0}'", sFolder);
+          EZ_DEFAULT_DELETE(pWatcher);
+          continue;
+        }
+
+        s_NodeConfigWatchers.PushBack(pWatcher);
+      }
     }
   }
   else
@@ -241,7 +269,12 @@ void ezQtMaterialAssetDocumentWindow::SetupDirectoryWatcher(bool needIt)
 
     if (s_iNodeConfigWatchers == 0)
     {
-      EZ_DEFAULT_DELETE(s_pNodeConfigWatcher);
+      for (ezDirectoryWatcher* pWatcher : s_NodeConfigWatchers)
+      {
+        EZ_DEFAULT_DELETE(pWatcher);
+      }
+
+      s_NodeConfigWatchers.Clear();
     }
   }
 }
@@ -255,9 +288,9 @@ void ezQtMaterialAssetDocumentWindow::InternalRedraw()
 {
   ezEditorInputContext::UpdateActiveInputContext();
   SendRedrawMsg();
-  if (s_pNodeConfigWatcher)
+  for (ezDirectoryWatcher* pWatcher : s_NodeConfigWatchers)
   {
-    s_pNodeConfigWatcher->EnumerateChanges(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::OnVseConfigChanged, this));
+    pWatcher->EnumerateChanges(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::OnVseConfigChanged, this));
   }
   ezQtEngineDocumentWindow::InternalRedraw();
 }

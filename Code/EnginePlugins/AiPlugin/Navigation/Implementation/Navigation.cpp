@@ -239,6 +239,13 @@ void ezAiNavigation::SetCurrentPosition(const ezVec3& vPosition)
 
 void ezAiNavigation::SetTargetPosition(const ezVec3& vPosition, bool bOptimizeWhenFound /*= false*/)
 {
+  if (m_vTargetPosition != vPosition)
+  {
+    // A genuinely new target starts a fresh progress budget for the partial-path auto-repath guard. Guarded by
+    // the comparison so that callers re-setting the same target every frame don't keep resetting the guard.
+    m_fLastRepathStartDistToTarget = ezMath::HighValue<float>();
+  }
+
   m_vTargetPosition = vPosition;
   m_uiTargetPositionChangedBit = 1;
 
@@ -415,7 +422,8 @@ bool ezAiNavigation::UpdatePathSearch()
     ezInt32 iPathCorridorLength = 0;
     dtPolyRef resultPolys[MaxPathNodes];
 
-    if (dtStatusFailed(m_Query.finalizeSlicedFindPath(resultPolys, &iPathCorridorLength, (int)MaxPathNodes)))
+    const dtStatus finalizeStatus = m_Query.finalizeSlicedFindPath(resultPolys, &iPathCorridorLength, (int)MaxPathNodes);
+    if (dtStatusFailed(finalizeStatus))
     {
       m_State = State::NoPathFound;
       EZ_REPORT_FAILURE("Detour: finalizeSlicedFindPath failed.");
@@ -427,8 +435,16 @@ bool ezAiNavigation::UpdatePathSearch()
 
     if (resultPolys[iPathCorridorLength - 1] != m_PathSearchTargetPoly)
     {
-      // if this is the case, the target position cannot be reached, but we can walk close to it
-      m_State = State::PartialPathFound;
+      // The target position cannot be reached with this corridor, but we can walk close to it. There are two
+      // very different reasons for a partial result, and they must be told apart:
+      // - DT_OUT_OF_NODES / DT_BUFFER_TOO_SMALL: the A* search ran out of budget before finishing. The endpoint
+      //   is just how far it got. Repathing from closer to the target (once we've travelled along this corridor)
+      //   can complete it - see the auto-repath below.
+      // - neither flag: the search fully explored the reachable area and the target simply isn't reachable.
+      //   The endpoint is the genuinely closest reachable point and will not improve on a repath.
+      const bool bBudgetLimited = dtStatusDetail(finalizeStatus, DT_OUT_OF_NODES) ||
+                                  dtStatusDetail(finalizeStatus, DT_BUFFER_TOO_SMALL);
+      m_State = bBudgetLimited ? State::PartialPathSearchLimited : State::PartialPathUnreachable;
     }
     else
     {
@@ -449,10 +465,15 @@ bool ezAiNavigation::UpdatePathSearch()
       m_uiOptimizeWhenFoundBit = 0;
       OptimizeCurrentPath();
     }
+
+    // Remember how long the corridor started out, so the auto-repath below can tell how much of it has been
+    // used up. Capture after the optimize pass, which can change the corridor length. Only meaningful for a
+    // budget-limited partial - a full path never repaths, an unreachable one must not.
+    m_uiPartialCorridorInitialLength = (m_State == State::PartialPathSearchLimited) ? m_PathCorridor.getPathCount() : 0;
   }
 
   // Replan if path has become invalid due to navmesh modifications
-  if (m_State == State::FullPathFound || m_State == State::PartialPathFound)
+  if (m_State == State::FullPathFound || m_State == State::PartialPathSearchLimited || m_State == State::PartialPathUnreachable)
   {
     constexpr ezInt32 PathLookahead = 10;
 
@@ -460,6 +481,34 @@ bool ezAiNavigation::UpdatePathSearch()
     if (!m_Query.isValidPolyRef(currentPoly, m_pFilter) || !m_Query.isValidPolyRef(m_PathSearchTargetPoly, m_pFilter) || !m_PathCorridor.isValid(PathLookahead, &m_Query, m_pFilter))
     {
       CancelNavigation();
+      m_State = State::StartNewSearch;
+      return false;
+    }
+  }
+
+  // Auto-repath a budget-limited partial path once enough of its corridor has been consumed. Triggering on
+  // corridor usage rather than on physically reaching the corridor's end is important: the agent may brake,
+  // overshoot or never touch that endpoint, so waiting for arrival can leave it following a stale partial path
+  // forever. Starting a fresh search from further along (closer to the target) often lets it finish within the
+  // node budget. This never fires for PartialPathUnreachable (the target really isn't reachable - retrying just
+  // reproduces the same result) nor for FullPathFound. The progress guard prevents oscillation: we only repath
+  // if we have gotten strictly closer to the target than at the previous repath, so a partial endpoint that
+  // merely shifts sideways (e.g. along the rim of a chasm) cannot cause an endless back-and-forth.
+  if (m_State == State::PartialPathSearchLimited)
+  {
+    const ezUInt32 uiRemaining = m_PathCorridor.getPathCount();
+
+    const bool bFewPolysLeft = uiRemaining <= c_uiRepathMinPolysRemaining;
+    const bool bHalfConsumed = m_uiPartialCorridorInitialLength > 0 &&
+                               uiRemaining * c_uiRepathConsumedFractionDivisor <= m_uiPartialCorridorInitialLength;
+
+    const float fToTarget = m_vCurrentPosition.GetDistanceTo(m_vTargetPosition);
+
+    if ((bFewPolysLeft || bHalfConsumed) && fToTarget < m_fLastRepathStartDistToTarget - c_fRepathMinProgress)
+    {
+      // CancelNavigation() first, then record the guard value - CancelNavigation() must not clobber it.
+      CancelNavigation();
+      m_fLastRepathStartDistToTarget = fToTarget;
       m_State = State::StartNewSearch;
       return false;
     }
@@ -637,8 +686,11 @@ void ezAiNavigation::DebugDrawState(const ezDebugRendererContext& context, const
     case ezAiNavigation::State::NoPathFound:
       ezDebugRenderer::Draw3DText(context, "No Path Found", vPosition, ezColor::White);
       break;
-    case ezAiNavigation::State::PartialPathFound:
-      ezDebugRenderer::Draw3DText(context, "Partial Path Found", vPosition, ezColor::Turquoise);
+    case ezAiNavigation::State::PartialPathSearchLimited:
+      ezDebugRenderer::Draw3DText(context, "Partial Path (search limited)", vPosition, ezColor::Turquoise);
+      break;
+    case ezAiNavigation::State::PartialPathUnreachable:
+      ezDebugRenderer::Draw3DText(context, "Partial Path (target unreachable)", vPosition, ezColor::Orange);
       break;
     case ezAiNavigation::State::FullPathFound:
       ezDebugRenderer::Draw3DText(context, "Full Path Found", vPosition, ezColor::LawnGreen);
