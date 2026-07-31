@@ -216,172 +216,127 @@ void ezStandardJSONWriter::WriteTime(ezTime value)
   WriteDouble(value.GetSeconds());
 }
 
+void ezStandardJSONWriter::WriteFloatComponents(const float* pValues, ezUInt32 uiCount, ezStringView sComponentNames)
+{
+  EZ_ASSERT_DEBUG(uiCount <= sComponentNames.GetElementCount(), "Not enough component names for {} components.", uiCount);
+
+  BeginObject();
+
+  for (ezUInt32 i = 0; i < uiCount; ++i)
+  {
+    const char* szName = sComponentNames.GetStartPointer() + i;
+    AddVariableFloat(ezStringView(szName, szName + 1), pValues[i]);
+  }
+
+  EndObject();
+}
+
 void ezStandardJSONWriter::WriteColor(const ezColor& value)
 {
-  ezVec4 temp(value.r, value.g, value.b, value.a);
-
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(float));
-
-  ezStringBuilder s;
-
-  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.SetFormat("({0},{1},{2},{3})", ezArgF(value.r, 4), ezArgF(value.g, 4), ezArgF(value.b, 4), ezArgF(value.a, 4));
-  else
-    s.SetFormat("({0}, {1}, {2}, {3})", ezArgF(value.r, 4), ezArgF(value.g, 4), ezArgF(value.b, 4), ezArgF(value.a, 4));
-
-  WriteBinaryData("color", &temp, sizeof(temp), s.GetData());
+  // The linear/gamma distinction is not part of the output, so a reader has to know which one it is
+  // getting from the context - same as for the component types below, which do not record their type
+  // either.
+  WriteFloatComponents(&value.r, 4, "rgba");
 }
 
 void ezStandardJSONWriter::WriteColorGamma(const ezColorGammaUB& value)
 {
-  ezStringBuilder s;
-
-  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.SetFormat("({0},{1},{2},{3})", value.r, value.g, value.b, value.a);
-  else
-    s.SetFormat("({0}, {1}, {2}, {3})", value.r, value.g, value.b, value.a);
-
-  WriteBinaryData("gamma", value.GetData(), sizeof(ezColorGammaUB), s.GetData());
+  BeginObject();
+  AddVariableUInt32("r", value.r);
+  AddVariableUInt32("g", value.g);
+  AddVariableUInt32("b", value.b);
+  AddVariableUInt32("a", value.a);
+  EndObject();
 }
 
 void ezStandardJSONWriter::WriteVec2(const ezVec2& value)
 {
-  ezVec2 temp = value;
-
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(float));
-
-  ezStringBuilder s;
-
-  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.SetFormat("({0},{1})", ezArgF(value.x, 4), ezArgF(value.y, 4));
-  else
-    s.SetFormat("({0}, {1})", ezArgF(value.x, 4), ezArgF(value.y, 4));
-
-  WriteBinaryData("vec2", &temp, sizeof(temp), s.GetData());
+  WriteFloatComponents(&value.x, 2, "xyzw");
 }
 
 void ezStandardJSONWriter::WriteVec3(const ezVec3& value)
 {
-  ezVec3 temp = value;
-
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(float));
-
-  ezStringBuilder s;
-
-  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.SetFormat("({0},{1},{2})", ezArgF(value.x, 4), ezArgF(value.y, 4), ezArgF(value.z, 4));
-  else
-    s.SetFormat("({0}, {1}, {2})", ezArgF(value.x, 4), ezArgF(value.y, 4), ezArgF(value.z, 4));
-
-  WriteBinaryData("vec3", &temp, sizeof(temp), s.GetData());
+  WriteFloatComponents(&value.x, 3, "xyzw");
 }
 
 void ezStandardJSONWriter::WriteVec4(const ezVec4& value)
 {
-  ezVec4 temp = value;
-
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(float));
-
-  ezStringBuilder s;
-
-  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.SetFormat("({0},{1},{2},{3})", ezArgF(value.x, 4), ezArgF(value.y, 4), ezArgF(value.z, 4), ezArgF(value.w, 4));
-  else
-    s.SetFormat("({0}, {1}, {2}, {3})", ezArgF(value.x, 4), ezArgF(value.y, 4), ezArgF(value.z, 4), ezArgF(value.w, 4));
-
-  WriteBinaryData("vec4", &temp, sizeof(temp), s.GetData());
+  WriteFloatComponents(&value.x, 4, "xyzw");
 }
 
 void ezStandardJSONWriter::WriteVec2I32(const ezVec2I32& value)
 {
-  CommaWriter cw(this);
-
-  ezVec2I32 temp = value;
-
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(ezInt32));
-
-  ezStringBuilder s;
-
-  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.SetFormat("({0},{1})", value.x, value.y);
-  else
-    s.SetFormat("({0}, {1})", value.x, value.y);
-
-  WriteBinaryData("vec2i", &temp, sizeof(temp), s.GetData());
+  BeginObject();
+  AddVariableInt32("x", value.x);
+  AddVariableInt32("y", value.y);
+  EndObject();
 }
 
 void ezStandardJSONWriter::WriteVec3I32(const ezVec3I32& value)
 {
-  CommaWriter cw(this);
-
-  ezVec3I32 temp = value;
-
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(ezInt32));
-
-  ezStringBuilder s;
-
-  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.SetFormat("({0},{1},{2})", value.x, value.y, value.z);
-  else
-    s.SetFormat("({0}, {1}, {2})", value.x, value.y, value.z);
-
-  WriteBinaryData("vec3i", &temp, sizeof(temp), s.GetData());
+  BeginObject();
+  AddVariableInt32("x", value.x);
+  AddVariableInt32("y", value.y);
+  AddVariableInt32("z", value.z);
+  EndObject();
 }
 
 void ezStandardJSONWriter::WriteVec4I32(const ezVec4I32& value)
 {
-  CommaWriter cw(this);
-
-  ezVec4I32 temp = value;
-
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(ezInt32));
-
-  ezStringBuilder s;
-
-  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.SetFormat("({0},{1},{2},{3})", value.x, value.y, value.z, value.w);
-  else
-    s.SetFormat("({0}, {1}, {2}, {3})", value.x, value.y, value.z, value.w);
-
-  WriteBinaryData("vec4i", &temp, sizeof(temp), s.GetData());
+  BeginObject();
+  AddVariableInt32("x", value.x);
+  AddVariableInt32("y", value.y);
+  AddVariableInt32("z", value.z);
+  AddVariableInt32("w", value.w);
+  EndObject();
 }
 
 void ezStandardJSONWriter::WriteQuat(const ezQuat& value)
 {
-  ezQuat temp = value;
+  WriteFloatComponents(&value.x, 4, "xyzw");
+}
 
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(float));
+void ezStandardJSONWriter::WriteMatrix(const float* pValues, ezUInt32 uiRowsAndColumns)
+{
+  BeginArray();
 
-  WriteBinaryData("quat", &temp, sizeof(temp));
+  for (ezUInt32 uiRow = 0; uiRow < uiRowsAndColumns; ++uiRow)
+  {
+    BeginArray();
+
+    for (ezUInt32 uiColumn = 0; uiColumn < uiRowsAndColumns; ++uiColumn)
+    {
+      WriteFloat(pValues[uiRow * uiRowsAndColumns + uiColumn]);
+    }
+
+    EndArray();
+  }
+
+  EndArray();
 }
 
 void ezStandardJSONWriter::WriteMat3(const ezMat3& value)
 {
-  ezMat3 temp = value;
+  float f[9];
+  value.GetAsArray(f, ezMatrixLayout::RowMajor);
 
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(float));
-
-  WriteBinaryData("mat3", &temp, sizeof(temp));
+  WriteMatrix(f, 3);
 }
 
 void ezStandardJSONWriter::WriteMat4(const ezMat4& value)
 {
-  ezMat4 temp = value;
+  float f[16];
+  value.GetAsArray(f, ezMatrixLayout::RowMajor);
 
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(float));
-
-  WriteBinaryData("mat4", &temp, sizeof(temp));
+  WriteMatrix(f, 4);
 }
 
 void ezStandardJSONWriter::WriteUuid(const ezUuid& value)
 {
-  CommaWriter cw(this);
+  ezStringBuilder s;
+  ezConversionUtils::ToString(value, s);
 
-  ezUuid temp = value;
-
-  ezEndianHelper::NativeToLittleEndian((ezUInt64*)&temp, sizeof(temp) / sizeof(ezUInt64));
-
-  WriteBinaryData("uuid", &temp, sizeof(temp));
+  WriteString(s);
 }
 
 void ezStandardJSONWriter::WriteAngle(ezAngle value)
@@ -391,7 +346,16 @@ void ezStandardJSONWriter::WriteAngle(ezAngle value)
 
 void ezStandardJSONWriter::WriteDataBuffer(const ezDataBuffer& value)
 {
-  WriteBinaryData("data", value.GetData(), value.GetCount());
+  // Hex, because Foundation has no base64 encoder. This doubles the size of the data, so consider
+  // writing a reference to the data instead of the data itself.
+  ezStringBuilder sHex;
+
+  for (ezUInt8 uiByte : value)
+  {
+    sHex.AppendFormat("{}", ezArgU(uiByte, 2, true, 16));
+  }
+
+  WriteString(sHex);
 }
 
 void ezStandardJSONWriter::BeginVariable(ezStringView sName)
@@ -521,6 +485,22 @@ void ezStandardJSONWriter::BeginObject(ezStringView sName)
   ++m_iIndentation;
 
   OutputIndentation();
+}
+
+void ezStandardJSONWriter::WriteRawJson(ezStringView sJson)
+{
+  // places the separating comma and marks the value as written, exactly as for any other value
+  CommaWriter cw(this);
+
+  // not OutputEscapedString(), because the text is JSON already and must not be quoted or escaped
+  OutputString(sJson);
+}
+
+void ezStandardJSONWriter::AddVariableRawJson(ezStringView sName, ezStringView sJson)
+{
+  BeginVariable(sName);
+  WriteRawJson(sJson);
+  EndVariable();
 }
 
 void ezStandardJSONWriter::EndAll()
