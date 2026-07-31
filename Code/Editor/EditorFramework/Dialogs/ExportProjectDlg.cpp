@@ -73,51 +73,21 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   s_bCreateLaunchScripts = CreateLaunchScripts->isChecked();
   s_bOpenOutputFolder = OpenOutputFolder->isChecked();
 
-  if (CompileCpp->isChecked())
+  ezProjectExportOptions options;
+  options.m_bCompileCppPlugin = CompileCpp->isChecked();
+  options.m_bTransformAssets = s_bTransformAll;
+  options.m_bCreateLaunchScripts = s_bCreateLaunchScripts;
+
+  const ezString sDstFolder = Destination->text().toUtf8().data();
+
+  ezStringBuilder sLog;
+  const ezStatus res = ezProjectExport::ExportProjectComplete(sDstFolder, options, &sLog);
+
+  ExportLog->setPlainText(sLog.GetData());
+
+  if (res.Failed())
   {
-    if (ezCppProject::EnsureCppPluginReady().Failed())
-      return;
-  }
-
-  if (TransformAll->isChecked())
-  {
-    ezStatus stat = ezAssetCurator::GetSingleton()->TransformAllAssets();
-
-    if (stat.Failed())
-    {
-      ezQtUiServices::GetSingleton()->MessageBoxStatus(stat, "Asset transform failed");
-      return;
-    }
-  }
-
-  const ezString szDstFolder = Destination->text().toUtf8().data();
-
-  ezLogSystemToBuffer logFile;
-
-  auto WriteLogFile = [&]()
-  {
-    ezStringBuilder sTemp;
-    sTemp.Set(szDstFolder, "/ExportLog.txt");
-
-    ExportLog->setPlainText(logFile.m_sBuffer.GetData());
-
-    ezOSFile file;
-
-    if (file.Open(sTemp, ezFileOpenMode::Write).Failed())
-    {
-      ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to write export log '{0}'", sTemp));
-      return;
-    }
-
-    file.Write(logFile.m_sBuffer.GetData(), logFile.m_sBuffer.GetElementCount()).AssertSuccess();
-  };
-
-  ezLogSystemScope logScope(&logFile);
-  EZ_SCOPE_EXIT(WriteLogFile());
-
-  if (ezProjectExport::ExportProject(szDstFolder, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), ezQtEditorApp::GetSingleton()->GetFileSystemConfig(), s_bCreateLaunchScripts).Failed())
-  {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("Project export failed. See log for details.");
+    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Project export failed. See log for details.");
   }
   else
   {
@@ -125,7 +95,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
     if (s_bOpenOutputFolder)
     {
-      ezQtUiServices::GetSingleton()->OpenInExplorer(szDstFolder, false);
+      ezQtUiServices::GetSingleton()->OpenInExplorer(sDstFolder, false);
     }
   }
 }

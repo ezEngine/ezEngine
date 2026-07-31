@@ -1,5 +1,6 @@
 #include <Core/Configuration/PlatformProfile.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/CodeGen/CppProject.h>
 #include <EditorFramework/CodeGen/CppSettings.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Project/ProjectExport.h>
@@ -490,6 +491,77 @@ void ezProjectExport::AddPackageDependenciesToFileList(DirectoryMapping& ref_fil
       }
     }
   }
+}
+
+ezStatus ezProjectExport::ExportProjectComplete(ezStringView sTargetDirectory, const ezProjectExportOptions& options, ezStringBuilder* out_pLog)
+{
+  if (sTargetDirectory.IsEmpty())
+    return ezStatus("No target directory given.");
+
+  if (!ezPathUtils::IsAbsolutePath(sTargetDirectory))
+    return ezStatus(ezFmt("The target directory '{}' is not an absolute path.", sTargetDirectory));
+
+  const ezString sTargetDir = sTargetDirectory;
+
+  ezLogSystemToBuffer logBuffer;
+  ezStatus result = ezStatus(EZ_SUCCESS);
+
+  {
+    ezLogSystemScope logScope(&logBuffer);
+
+    if (options.m_bCompileCppPlugin)
+    {
+      // Does nothing if the project has no C++ code at all. Failing here would leave the export with
+      // binaries that don't match the code, so it is not something to continue past.
+      if (ezCppProject::EnsureCppPluginReady().Failed())
+      {
+        result = ezStatus("Building the project's C++ plugin failed.");
+      }
+    }
+
+    if (result.Succeeded() && options.m_bTransformAssets)
+    {
+      const ezStatus stat = ezAssetCurator::GetSingleton()->TransformAllAssets();
+
+      if (stat.Failed())
+      {
+        result = ezStatus(ezFmt("Transforming all assets failed: {}", stat.GetMessageString()));
+      }
+    }
+
+    if (result.Succeeded())
+    {
+      if (ezProjectExport::ExportProject(sTargetDir, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), ezQtEditorApp::GetSingleton()->GetFileSystemConfig(), options.m_bCreateLaunchScripts).Failed())
+      {
+        result = ezStatus("Project export failed.");
+      }
+    }
+  }
+
+  if (out_pLog != nullptr)
+  {
+    *out_pLog = logBuffer.m_sBuffer;
+  }
+
+  // Written last, and only when the directory is there: a failure early on means ExportProject() never
+  // got as far as creating it, and an otherwise empty folder containing just a log would look like a
+  // half finished export.
+  if (ezOSFile::ExistsDirectory(sTargetDir))
+  {
+    ezStringBuilder sLogFile(sTargetDir, "/ExportLog.txt");
+
+    ezOSFile file;
+    if (file.Open(sLogFile, ezFileOpenMode::Write).Succeeded())
+    {
+      file.Write(logBuffer.m_sBuffer.GetData(), logBuffer.m_sBuffer.GetElementCount()).IgnoreResult();
+    }
+    else
+    {
+      ezLog::Warning("Failed to write the export log '{}'.", sLogFile);
+    }
+  }
+
+  return result;
 }
 
 ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezPlatformProfile* pPlatformProfile, const ezApplicationFileSystemConfig& dataDirs, bool bCreateLaunchScripts)
