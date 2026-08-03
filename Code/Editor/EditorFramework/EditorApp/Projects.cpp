@@ -85,7 +85,8 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
       ezStringView sdkDir = ezFileSystem::GetSdkRootDirectory();
       sdkDir.Trim(nullptr, "/");
 
-      if (sdkDirFromProject != sdkDir)
+      // compare without case, because on Windows those can differ only in the drive letter's case ('d:/...' vs 'D:/...')
+      if (!sdkDirFromProject.IsEqual_NoCase(sdkDir))
       {
         if (ezQtUiServices::MessageBoxQuestion(ezFmt("You are attempting to open a project that's located in a different SDK directory.\n\nSDK location: '{}'\nProject path: '{}'\n\nThis may make problems.\n\nContinue anyway?", sdkDir, sFile), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
         {
@@ -457,7 +458,7 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
               continue;
             }
 
-              ModifiedDocs.PushBack(pDoc);
+            ModifiedDocs.PushBack(pDoc);
           }
         }
       }

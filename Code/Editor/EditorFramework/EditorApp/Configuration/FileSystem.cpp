@@ -158,7 +158,9 @@ bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder&
     ezUuid guid = ezConversionUtils::ConvertStringToUuid(ref_sPath);
     auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
 
-    if (pAsset == nullptr)
+    // m_pAssetInfo is null for a sub-asset the curator knows but holds no file information for, so it
+    // has to be checked separately from the asset itself.
+    if (pAsset == nullptr || pAsset->m_pAssetInfo == nullptr)
       return false;
 
     ref_sPath = pAsset->m_pAssetInfo->m_Path;
@@ -228,7 +230,9 @@ bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& ref_s
     ezUuid guid = ezConversionUtils::ConvertStringToUuid(ref_sPath);
     auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
 
-    if (pAsset == nullptr)
+    // m_pAssetInfo is null for a sub-asset the curator knows but holds no file information for, so it
+    // has to be checked separately from the asset itself.
+    if (pAsset == nullptr || pAsset->m_pAssetInfo == nullptr)
       return false;
 
     ref_sPath = pAsset->m_pAssetInfo->m_Path;
