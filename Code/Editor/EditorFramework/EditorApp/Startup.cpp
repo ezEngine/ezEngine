@@ -247,8 +247,28 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezCommandLineOptionBool opt_Safe("_Editor", "-safe", "In safe-mode the editor minimizes the risk of crashing, for instance by not loading previous projects and scenes.", false);
 ezCommandLineOptionBool opt_NoRecent("_Editor", "-noRecent", "Disables automatic loading of recent projects and documents.", false);
 
+/// Tells the editor that no user is present to interact with it.
+///
+/// Questions are not answered with their *safest* option but with the one that continues as if a user had
+/// let the operation proceed, since an editor that is only half-started is of no use to an automated caller.
+/// Notably safe mode is declined during startup, because it would prevent the project from loading at all.
+/// Use '-safe' to actually get safe mode.
+ezCommandLineOptionBool opt_Unattended("_Editor", "-unattended",
+  "Runs the editor without a user present, e.g. driven by a script or an AI agent.\n"
+  "Nothing modal is displayed, questions are answered with the option that lets the operation continue.\n"
+  "Without this, a dialog that nobody closes blocks the editor indefinitely.",
+  false);
+
 void ezQtEditorApp::StartupEditor()
 {
+  // Has to happen before anything below can ask a question - the startup flags, which the other
+  // StartupEditor() overload derives this from, are only set further down.
+  const bool bUnattended = opt_Unattended.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+  if (bUnattended)
+  {
+    ezQtUiServices::SetUnattended();
+  }
+
   {
     ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
     sTemp.AppendPath("ezEditorCrashIndicator");
@@ -257,7 +277,10 @@ void ezQtEditorApp::StartupEditor()
     {
       ezOSFile::DeleteFile(sTemp).IgnoreResult();
 
-      if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("It seems the editor ran into problems last time.\n\nDo you want to run it in safe mode, to deactivate automatic project loading and document restoration?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::Yes)
+      // Unattended this is declined: the indicator file is left behind by any hard process termination,
+      // so an automated caller that kills a stuck editor would otherwise get safe mode at every
+      // subsequent launch, which prevents the project from loading at all. Use '-safe' to really get it.
+      if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("It seems the editor ran into problems last time.\n\nDo you want to run it in safe mode, to deactivate automatic project loading and document restoration?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
       {
         opt_Safe.GetOptions(sTemp);
         ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(sTemp);
@@ -269,6 +292,7 @@ void ezQtEditorApp::StartupEditor()
 
   startupFlags.AddOrRemove(StartupFlags::SafeMode, opt_Safe.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
   startupFlags.AddOrRemove(StartupFlags::NoRecent, opt_NoRecent.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
+  startupFlags.AddOrRemove(StartupFlags::Unattended, bUnattended);
 
   StartupEditor(startupFlags);
 }
@@ -283,6 +307,11 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   QCoreApplication::setApplicationVersion("1.0.0");
 
   m_StartupFlags = startupFlags;
+
+  if (IsInUnattendedMode())
+  {
+    ezQtUiServices::SetUnattended();
+  }
 
   auto* pCmd = ezCommandLineUtils::GetGlobalInstance();
 

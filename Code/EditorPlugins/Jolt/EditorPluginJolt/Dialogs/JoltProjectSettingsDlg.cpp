@@ -378,7 +378,7 @@ void ezQtJoltProjectSettingsDlg::on_ButtonRemoveLayer_clicked()
   if (sel.isEmpty())
     return;
 
-  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Remove selected Collision Layer?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::No)
+  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Remove selected Collision Layer?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::No)
     return;
 
   const int iRow = sel[0].row();
@@ -563,7 +563,7 @@ void ezQtJoltProjectSettingsDlg::on_ButtonRemoveCategory_clicked()
   if (sel.isEmpty())
     return;
 
-  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Remove selected category?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::No)
+  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Remove selected category?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::No)
     return;
 
   const ezUInt32 uiRow = sel[0].row();
@@ -651,7 +651,7 @@ void ezQtJoltProjectSettingsDlg::on_ButtonRemoveImpulse_clicked()
   if (sel.isEmpty())
     return;
 
-  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Remove selected impulse type?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::No)
+  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Remove selected impulse type?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::No)
     return;
 
   const ezUInt32 uiRow = sel[0].row();

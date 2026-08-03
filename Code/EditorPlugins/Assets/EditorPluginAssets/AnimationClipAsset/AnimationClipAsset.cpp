@@ -307,12 +307,17 @@ ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sInputFile
 
   ezStringBuilder sPreviewMesh;
 
-  ezQtAssetBrowserDlg dlg(nullptr, ezUuid::MakeInvalid(), "CompatibleAsset_Mesh_Skinned", title);
-  if (dlg.exec() != 0)
+  // The preview mesh is only used for previewing the clip in the editor, so leaving it empty is fine.
+  // Without a user there is nobody to close this dialog, which would block the editor indefinitely.
+  if (!pApp->IsInUnattendedMode())
   {
-    if (dlg.GetSelectedAssetGuid().IsValid())
+    ezQtAssetBrowserDlg dlg(nullptr, ezUuid::MakeInvalid(), "CompatibleAsset_Mesh_Skinned", title);
+    if (dlg.exec() != 0)
     {
-      ezConversionUtils::ToString(dlg.GetSelectedAssetGuid(), sPreviewMesh);
+      if (dlg.GetSelectedAssetGuid().IsValid())
+      {
+        ezConversionUtils::ToString(dlg.GetSelectedAssetGuid(), sPreviewMesh);
+      }
     }
   }
 

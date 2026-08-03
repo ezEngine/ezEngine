@@ -373,7 +373,7 @@ ezStatus ezQtDocumentWindow::SaveDocument()
         if (ezQtUiServices::MessageBoxQuestion("Warning! This document contained unknown object types that could not be loaded. Saving the "
                                                "document means those objects will get lost permanently.\n\nDo you really want to save this "
                                                "document?",
-              QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
+              QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
           return ezStatus(EZ_SUCCESS); // failed successfully
       }
     }
@@ -435,7 +435,7 @@ bool ezQtDocumentWindow::InternalCanCloseWindow()
 
   if (m_pDocument && m_pDocument->IsModified())
   {
-    QMessageBox::StandardButton res = ezQtUiServices::MessageBoxQuestion("Save before closing?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel);
+    QMessageBox::StandardButton res = ezQtUiServices::MessageBoxQuestion("Save before closing?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Yes);
 
     if (res == QMessageBox::StandardButton::Cancel)
       return false;

@@ -13,7 +13,7 @@ void ezQtEditorApp::AddRestartRequiredReason(const char* szReason)
   ezStringBuilder s;
   s.SetFormat("The editor process must be restarted.\nReason: '{0}'\n\nDo you want to restart now?", szReason);
 
-  if (ezQtUiServices::MessageBoxQuestion(s, QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::Yes)
+  if (ezQtUiServices::MessageBoxQuestion(s, QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
   {
     if (ezToolsProject::CanCloseProject())
     {
@@ -36,7 +36,7 @@ void ezQtEditorApp::AddReloadProjectRequiredReason(const char* szReason)
   ezStringBuilder s;
   s.SetFormat("The project must be reloaded.\nReason: '{0}'\n\nDo you want to reload it now?", szReason);
 
-  if (ezQtUiServices::MessageBoxQuestion(s, QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::Yes)
+  if (ezQtUiServices::MessageBoxQuestion(s, QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
   {
     if (ezToolsProject::CanCloseProject())
     {

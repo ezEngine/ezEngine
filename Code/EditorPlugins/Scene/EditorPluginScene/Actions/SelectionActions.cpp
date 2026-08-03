@@ -317,7 +317,7 @@ void ezSelectionAction::Execute(const ezVariant& value)
     case ActionType::RevertPrefab:
     {
       if (ezQtUiServices::MessageBoxQuestion("Discard all modifications to the selected prefabs and revert to the prefab template state?",
-            QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
+            QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::Yes)
       {
         ezTempHybridArray<ezSelectionEntry, 64> selection;
         m_pSceneDocument->GetSelectionManager()->GetTopLevelSelectionOfType(ezGetStaticRTTI<ezGameObject>(), selection);
@@ -337,7 +337,7 @@ void ezSelectionAction::Execute(const ezVariant& value)
     case ActionType::UnlinkFromPrefab:
     {
       if (ezQtUiServices::MessageBoxQuestion("Unlink the selected prefab instances from their templates?",
-            QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
+            QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::Yes)
       {
         ezTempHybridArray<ezSelectionEntry, 64> selection;
         m_pSceneDocument->GetSelectionManager()->GetTopLevelSelectionOfType(ezGetStaticRTTI<ezGameObject>(), selection);
@@ -400,7 +400,7 @@ void ezSelectionAction::Execute(const ezVariant& value)
     case ActionType::ConvertToEnginePrefab:
     {
       if (ezQtUiServices::MessageBoxQuestion("Discard all modifications to the selected prefabs and convert them to engine prefabs?",
-            QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
+            QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::Yes)
       {
         ezTempHybridArray<ezSelectionEntry, 64> selection;
         m_pSceneDocument->GetSelectionManager()->GetTopLevelSelectionOfType(ezGetStaticRTTI<ezGameObject>(), selection);

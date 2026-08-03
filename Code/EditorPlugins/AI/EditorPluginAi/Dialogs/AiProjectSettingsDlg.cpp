@@ -177,7 +177,7 @@ void ezQtAiProjectSettingsDlg::on_RemovePathCfg_clicked()
   if (cur < 0 || cur >= (int)m_Config.m_PathSearchConfigs.GetCount())
     return;
 
-  if (ezQtUiServices::MessageBoxQuestion("Remove the current Path Search Config?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+  if (ezQtUiServices::MessageBoxQuestion("Remove the current Path Search Config?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) == QMessageBox::No)
   {
     return;
   }
@@ -322,7 +322,7 @@ void ezQtAiProjectSettingsDlg::on_RemoveMeshCfg_clicked()
   if (cur < 0 || cur >= (int)m_Config.m_NavmeshConfigs.GetCount())
     return;
 
-  if (ezQtUiServices::MessageBoxQuestion("Remove the current Navmesh Config?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+  if (ezQtUiServices::MessageBoxQuestion("Remove the current Navmesh Config?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) == QMessageBox::No)
   {
     return;
   }

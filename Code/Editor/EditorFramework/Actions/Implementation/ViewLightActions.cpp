@@ -205,7 +205,7 @@ void ezViewLightButtonAction::Execute(const ezVariant& value)
     case ezEngineViewLightSettingsEvent::Type::DefaultValuesChanged:
     {
       if (ezQtUiServices::MessageBoxQuestion("Do you want to make the current light settings the global default?",
-            QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::Yes)
+            QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::Yes)
       {
         ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
         pPreferences->SetAsDefaultValues(*m_pSettings);

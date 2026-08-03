@@ -61,6 +61,7 @@ public:
       NoRecent = EZ_BIT(2),   ///< '-norecent' : Do not modify recent file lists. Used for modes such as tests, where the user does not do any interactions.
       UnitTest = EZ_BIT(3),   ///< Specified when the process is running as a unit test
       Background = EZ_BIT(4), ///< This process is an editor processor background process handling IPC tasks of the editor parent process.
+      Unattended = EZ_BIT(5), ///< '-unattended' : No user is present, don't show anything that would block waiting for input.
       Default = 0,
     };
 
@@ -71,6 +72,7 @@ public:
       StorageType NoRecent : 1;
       StorageType UnitTest : 1;
       StorageType Background : 1;
+      StorageType Unattended : 1;
     };
   };
 
@@ -126,6 +128,15 @@ public:
 
   /// \brief Returns true if the editor is started in run in background mode.
   bool IsBackgroundMode() const { return m_StartupFlags.IsSet(StartupFlags::Background); }
+
+  /// \brief Can be set via the command line option '-unattended'. In this mode no user is present to interact with the editor.
+  ///
+  /// The editor still shows its UI, but must not display anything modal, since nobody would ever close it and the
+  /// editor would stall forever. Message boxes going through ezQtUiServices already handle this, but anything that
+  /// opens a dialog itself, or that waits for a user decision in some other way, has to check this flag.
+  ///
+  /// Headless mode implies this, there is no window to show a dialog on.
+  bool IsInUnattendedMode() const { return m_StartupFlags.IsSet(StartupFlags::Unattended) || m_StartupFlags.IsSet(StartupFlags::Headless); }
 
   const ezPluginBundleSet& GetPluginBundles() const { return m_PluginBundles; }
   ezPluginBundleSet& GetPluginBundles() { return m_PluginBundles; }

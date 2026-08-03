@@ -23,6 +23,7 @@ ezMap<ezString, QIcon> ezQtUiServices::s_IconsCache;
 ezMap<ezString, QImage> ezQtUiServices::s_ImagesCache;
 ezMap<ezString, QPixmap> ezQtUiServices::s_PixmapsCache;
 bool ezQtUiServices::s_bHeadless;
+bool ezQtUiServices::s_bUnattended;
 ezQtUiServices::TickEvent ezQtUiServices::s_LastTickEvent;
 
 static ezQtUiServices* g_pInstance = nullptr;
@@ -60,7 +61,18 @@ bool ezQtUiServices::IsHeadless()
 
 void ezQtUiServices::SetHeadless(bool bHeadless)
 {
-  s_bHeadless = true;
+  s_bHeadless = bHeadless;
+}
+
+bool ezQtUiServices::IsUnattended()
+{
+  // without any window there is nowhere to show a dialog, so headless always implies unattended
+  return s_bUnattended || s_bHeadless;
+}
+
+void ezQtUiServices::SetUnattended()
+{
+  s_bUnattended = true;
 }
 
 void ezQtUiServices::SaveState()

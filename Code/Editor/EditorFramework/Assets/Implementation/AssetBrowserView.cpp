@@ -157,7 +157,7 @@ void ezQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
     {
       if (ezOSFile::ExistsDirectory(dst)) // ask to overwrite if target already exists
       {
-        const int res = ezQtUiServices::MessageBoxQuestion(ezFmt("Directory already exists:\n\n'{}'\n\nOverwrite files inside directory?", dst), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel);
+        const int res = ezQtUiServices::MessageBoxQuestion(ezFmt("Directory already exists:\n\n'{}'\n\nOverwrite files inside directory?", dst), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel, QMessageBox::Yes);
 
         if (res == QMessageBox::Cancel)
           return;
@@ -184,7 +184,7 @@ void ezQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
     {
       if (ezOSFile::ExistsFile(dst)) // ask to overwrite if target already exists
       {
-        const int res = ezQtUiServices::MessageBoxQuestion(ezFmt("The file already exists:\n\n'{}'\n\nOverwrite file?", dst), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel);
+        const int res = ezQtUiServices::MessageBoxQuestion(ezFmt("The file already exists:\n\n'{}'\n\nOverwrite file?", dst), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel, QMessageBox::Yes);
 
         if (res == QMessageBox::Cancel)
           return;

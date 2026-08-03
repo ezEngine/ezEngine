@@ -44,7 +44,7 @@ void ezQtUiServices::MessageBoxInformation(const ezFormatString& msg, ezStringVi
 {
   ezStringBuilder tmp;
 
-  if (s_bHeadless)
+  if (IsUnattended())
     ezLog::Info(msg.GetText(tmp));
   else
   {
@@ -83,7 +83,7 @@ void ezQtUiServices::MessageBoxWarning(const ezFormatString& msg)
 {
   ezStringBuilder tmp;
 
-  if (s_bHeadless)
+  if (IsUnattended())
     ezLog::Warning(msg.GetText(tmp));
   else
   {
@@ -91,12 +91,14 @@ void ezQtUiServices::MessageBoxWarning(const ezFormatString& msg)
   }
 }
 
-QMessageBox::StandardButton ezQtUiServices::MessageBoxQuestion(
-  const ezFormatString& msg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton)
+QMessageBox::StandardButton ezQtUiServices::MessageBoxQuestion(const ezFormatString& msg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton, QMessageBox::StandardButton unattendedButton)
 {
-  if (s_bHeadless)
+  if (IsUnattended())
   {
-    return defaultButton;
+    ezStringBuilder tmp;
+    ezLog::Info("Question answered automatically, no user present: {}", msg.GetText(tmp));
+
+    return unattendedButton;
   }
   else
   {

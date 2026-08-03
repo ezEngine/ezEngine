@@ -79,7 +79,8 @@ ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezSt
     sSharedMaterialsFolderAbs = tmp;
   }
 
-  if (m_bShowImportDlg)
+  // Without a user there is nobody to close this dialog, so the defaults below are used as they are.
+  if (m_bShowImportDlg && !pApp->IsInUnattendedMode())
   {
     ezMeshImportDlg dlg(nullptr);
     dlg.m_bShowAnimMeshOptions = m_bAnimatedMesh;

@@ -116,16 +116,14 @@ void ezQtInputConfigDlg::on_ButtonRemove_clicked()
 
   if (TreeActions->indexOfTopLevelItem(pItem) >= 0)
   {
-    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(
-          "Do you really want to remove the entire Input Set?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove the entire Input Set?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) == QMessageBox::No)
       return;
 
     m_InputSetToItem.Remove(pItem->text(0).toUtf8().data());
   }
   else
   {
-    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(
-          "Do you really want to remove this action?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove this action?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) == QMessageBox::No)
       return;
   }
 

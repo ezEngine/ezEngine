@@ -87,7 +87,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
 
       if (sdkDirFromProject != sdkDir)
       {
-        if (ezQtUiServices::MessageBoxQuestion(ezFmt("You are attempting to open a project that's located in a different SDK directory.\n\nSDK location: '{}'\nProject path: '{}'\n\nThis may make problems.\n\nContinue anyway?", sdkDir, sFile), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
+        if (ezQtUiServices::MessageBoxQuestion(ezFmt("You are attempting to open a project that's located in a different SDK directory.\n\nSDK location: '{}'\nProject path: '{}'\n\nThis may make problems.\n\nContinue anyway?", sdkDir, sFile), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
         {
           return EZ_FAILURE;
         }
@@ -313,7 +313,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
         SaveRecentFiles();
       }
 
-      if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest | ezQtEditorApp::StartupFlags::Background))
+      if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest | ezQtEditorApp::StartupFlags::Background | ezQtEditorApp::StartupFlags::Unattended))
       {
         if (ezCppProject::ExistsProjectCMakeListsTxt())
         {
@@ -331,7 +331,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
             const auto clicked = ezQtUiServices::MessageBoxQuestion("<html>Compile this project's C++ plugin?<br><br>\
 Explanation: This project has <a href='https://ezengine.net/pages/docs/custom-code/cpp/cpp-project-generation.html'>a dedicated C++ plugin</a> with custom code. The plugin is currently not compiled and therefore the project won't fully work and certain assets will fail to transform.<br><br>\
 It is advised to compile the plugin now, but you can also do so later.</html>",
-              QMessageBox::StandardButton::Apply | QMessageBox::StandardButton::Ignore, QMessageBox::StandardButton::Apply);
+              QMessageBox::StandardButton::Apply | QMessageBox::StandardButton::Ignore, QMessageBox::StandardButton::Apply, QMessageBox::StandardButton::Apply);
 
             if (clicked == QMessageBox::StandardButton::Ignore)
               break;
@@ -353,7 +353,7 @@ It is advised to compile the plugin now, but you can also do so later.</html>",
         {
           const auto clicked = ezQtUiServices::MessageBoxQuestion("<html>Apply asset transformation now?<br><br>\
 Explanation: For assets to work properly, they must be <a href='https://ezengine.net/pages/docs/assets/assets-overview.html#asset-transform'>transformed</a>. Otherwise they don't function as they should or don't even show up.<br>You can manually run the asset transform from the <a href='https://ezengine.net/pages/docs/assets/asset-browser.html#transform-assets'>asset browser</a> at any time.</html>",
-            QMessageBox::StandardButton::Apply | QMessageBox::StandardButton::Ignore, QMessageBox::StandardButton::Apply);
+            QMessageBox::StandardButton::Apply | QMessageBox::StandardButton::Ignore, QMessageBox::StandardButton::Apply, QMessageBox::StandardButton::Apply);
 
           if (clicked == QMessageBox::StandardButton::Ignore)
           {
