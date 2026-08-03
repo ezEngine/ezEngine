@@ -749,6 +749,29 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     }
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TryConvertStringToUuid")
+  {
+    ezUuid guid = ezUuid::MakeUuid();
+    ezStringBuilder sGuid;
+    ezConversionUtils::ToString(guid, sGuid);
+
+    ezUuid result;
+    EZ_TEST_RESULT(ezConversionUtils::TryConvertStringToUuid(sGuid, result));
+    EZ_TEST_BOOL(result == guid);
+
+    // The point of this function: anything that is not a uuid has to be reported rather than
+    // asserted, because callers use it to find out which of the two they were given.
+    const ezUuid untouched = ezUuid::MakeUuid();
+
+    for (const char* szNotAUuid : {"", "Textures/Wood.png", "D:/Some/Path.ezScene", "{ not-a-uuid }",
+           "05af8d07-0b38-44a6-8d50-49731ae2625d" /* no braces */})
+    {
+      result = untouched;
+      EZ_TEST_BOOL(ezConversionUtils::TryConvertStringToUuid(szNotAUuid, result).Failed());
+      EZ_TEST_BOOL(result == untouched); // must not be modified on failure
+    }
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetColorName")
   {
     EZ_TEST_STRING(ezString(ezConversionUtils::GetColorName(ezColorGammaUB(1, 2, 3))), "#010203");
