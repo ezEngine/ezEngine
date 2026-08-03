@@ -12,7 +12,6 @@
 #include <TestFramework/Utilities/TestOrder.h>
 #include <Texture/Image/Formats/ImageFileFormat.h>
 #include <cstdlib>
-#include <regex>
 #include <stdexcept>
 
 #ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
@@ -30,22 +29,60 @@ ezLog::TimestampMode ezTestFramework::s_LogTimestampMode = ezLog::TimestampMode:
 
 ezCommandLineOptionPath opt_OrderFile("_TestFramework", "-order", "Path to a file that defines which tests to run.", "");
 ezCommandLineOptionPath opt_SettingsFile("_TestFramework", "-settings", "Path to a file containing the test settings.", "");
-ezCommandLineOptionBool opt_Run("_TestFramework", "-run", "Makes the tests execute right away.", false);
-ezCommandLineOptionBool opt_Close("_TestFramework", "-close", "Makes the application close automatically after the tests are finished.", false);
-ezCommandLineOptionBool opt_NoGui("_TestFramework", "-noGui", "Never show a GUI.", false);
+ezCommandLineOptionBool opt_NoGui("_TestFramework", "-noGui", "Runs the tests in console mode, without showing a window. This is what automated runs want: the tests start on their own and the process exits when they are done, whether they passed or not.", false);
 ezCommandLineOptionBool opt_Timestamps("_TestFramework", "-timestamps", "Show timestamps in logs.", false);
-ezCommandLineOptionBool opt_DisableSuccessful("_TestFramework", "-disableSuccessful", "Disable tests that ran successfully.", false);
-ezCommandLineOptionBool opt_EnableAllTests("_TestFramework", "-all", "Enable all tests.", false);
-ezCommandLineOptionBool opt_NoSave("_TestFramework", "-noSave", "Disables saving of any state.", false);
 ezCommandLineOptionInt opt_Revision("_TestFramework", "-rev", "Revision number to pass through to JSON output.", -1);
 ezCommandLineOptionInt opt_Assert("_TestFramework", "-assert", "Whether to assert when a test fails.", (int)AssertOnTestFail::AssertIfDebuggerAttached);
-ezCommandLineOptionString opt_Filter("_TestFramework", "-filter", "Filter to execute only certain tests.", "");
+ezCommandLineOptionString opt_Filter("_TestFramework", "-filter",
+  "Only run tests whose name contains this (case insensitive), matched against both test and sub-test names, so '-filter JSON' runs "
+  "everything with JSON in the name. Shell style wildcards are accepted too: '*' and '?', so '-filter \"IO*Stream\"' or "
+  "'-filter \"IOStream?\"' work as expected. Without this every test runs. Use -list to see the available names.",
+  "");
 ezCommandLineOptionPath opt_Json("_TestFramework", "-json", "JSON file to write.", "");
 ezCommandLineOptionPath opt_OutputDir("_TestFramework", "-outputDir", "Output directory", "");
 ezCommandLineOptionBool opt_List("_TestFramework", "-list", "List all test names and exit.", false);
 ezCommandLineOptionBool opt_DebugDevice("_TestFramework", "-debugdevice", "Whether to create a debug GAL device.", false);
 
 constexpr int s_iMaxErrorMessageLength = 512;
+
+// Standard iterative wildcard match ('*' = any run of characters, '?' = exactly one), case insensitive.
+// Matches the whole string, so a caller wanting a "contains" match has to write the surrounding '*' themselves.
+static bool MatchesWildcard_NoCase(const char* szText, const char* szPattern)
+{
+  const char* szTextStar = nullptr;
+  const char* szPatternStar = nullptr;
+
+  auto ToLower = [](char c) -> char
+  { return (c >= 'A' && c <= 'Z') ? (c - 'A' + 'a') : c; };
+
+  while (*szText != '\0')
+  {
+    if (*szPattern == '*')
+    {
+      szPatternStar = szPattern++;
+      szTextStar = szText;
+    }
+    else if (*szPattern == '?' || ToLower(*szPattern) == ToLower(*szText))
+    {
+      ++szPattern;
+      ++szText;
+    }
+    else if (szPatternStar != nullptr)
+    {
+      szPattern = szPatternStar + 1;
+      szText = ++szTextStar;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  while (*szPattern == '*')
+    ++szPattern;
+
+  return *szPattern == '\0';
+}
 
 static bool TestAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
@@ -93,18 +130,7 @@ ezTestFramework::~ezTestFramework()
 
 void ezTestFramework::Initialize()
 {
-  {
-    ezStringBuilder cmdHelp;
-    if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_TestFramework;cvar"))
-    {
-      // make sure the console stays open
-      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-console");
-      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("true");
-
-      ezLog::Print(cmdHelp);
-      m_Settings.m_bShowHelp = true;
-    }
-  }
+  m_Settings.m_bShowHelp = ezCommandLineOption::IsHelpRequested();
 
   if (m_Settings.m_bNoGUI)
   {
@@ -129,7 +155,17 @@ void ezTestFramework::Initialize()
 
   // We have exit here after the core systems logic, or we hit issues with allocators of RTTI types.
   if (m_Settings.m_bShowHelp)
+  {
+    // Printed here rather than at the start of this function: before StartupCoreSystems() there is no
+    // log writer yet, so ezLog::Print() went nowhere and '-help' produced no output at all.
+    ezStringBuilder cmdHelp;
+    if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_TestFramework;cvar"))
+    {
+      ezLog::Print(cmdHelp);
+    }
+
     return;
+  }
 
   // if tests need to write data back through Fileserve (e.g. image comparison results), they can do that through a data dir mounted with
   // this path
@@ -185,8 +221,13 @@ void ezTestFramework::DeInitialize()
 {
   m_bIsInitialized = false;
 
-  ezSetAssertHandler(m_PreviousAssertHandler);
-  m_PreviousAssertHandler = nullptr;
+  // Initialize() returns early for -help and -list, before the assert handler is installed, so there
+  // may be nothing to restore. Setting a null handler crashes on the next assert.
+  if (m_PreviousAssertHandler != nullptr)
+  {
+    ezSetAssertHandler(m_PreviousAssertHandler);
+    m_PreviousAssertHandler = nullptr;
+  }
 }
 
 const char* ezTestFramework::GetTestName() const
@@ -307,8 +348,6 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
   // use a local instance of ezCommandLineUtils as global instance is not guaranteed to have been set up
   // for all call sites of this method.
 
-  m_Settings.m_bRunTests = opt_Run.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
-  m_Settings.m_bCloseOnSuccess = opt_Close.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
   m_Settings.m_bNoGUI = opt_NoGui.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
   if (opt_Assert.IsOptionSpecified(nullptr, &cmd))
@@ -333,11 +372,7 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
   opt_Timestamps.SetDefaultValue(m_Settings.m_bShowTimestampsInLog);
   m_Settings.m_bShowTimestampsInLog = opt_Timestamps.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
-  opt_DisableSuccessful.SetDefaultValue(m_Settings.m_bAutoDisableSuccessfulTests);
-  m_Settings.m_bAutoDisableSuccessfulTests = opt_DisableSuccessful.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
-
   m_Settings.m_iRevision = opt_Revision.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
-  m_Settings.m_bEnableAllTests = opt_EnableAllTests.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
   m_Settings.m_sTestFilter = opt_Filter.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd).GetData(tmp);
 
   if (opt_Json.IsOptionSpecified(nullptr, &cmd))
@@ -350,13 +385,18 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
     m_sAbsTestOutputDir = opt_OutputDir.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
   }
 
-  bool bNoAutoSave = false;
+  if (m_Settings.m_bNoGUI)
+  {
+    // In console mode nobody changed the test order or the settings interactively, so there is nothing
+    // worth persisting - and writing it would overwrite what the GUI last stored.
+    m_Settings.m_bSaveState = false;
+  }
+
   if (opt_OrderFile.IsOptionSpecified(nullptr, &cmd))
   {
     m_sAbsTestOrderFilePath = opt_OrderFile.GetOptionValue(ezCommandLineOption::LogMode::Always);
-    // If a custom order file was provided, default to -nosave as to not overwrite that file with additional
-    // parameters from command line. Use "-nosave false" to explicitly enable auto save in this case.
-    bNoAutoSave = true;
+    // If a custom order file was provided, don't overwrite it
+    m_Settings.m_bSaveState = false;
   }
   else
   {
@@ -366,16 +406,13 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
   if (opt_SettingsFile.IsOptionSpecified(nullptr, &cmd))
   {
     m_sAbsTestSettingsFilePath = opt_SettingsFile.GetOptionValue(ezCommandLineOption::LogMode::Always);
-    // If a custom settings file was provided, default to -nosave as to not overwrite that file with additional
-    // parameters from command line. Use "-nosave false" to explicitly enable auto save in this case.
-    bNoAutoSave = true;
+    // If a custom settings file was provided, don't overwrite it
+    m_Settings.m_bSaveState = false;
   }
   else
   {
     m_sAbsTestSettingsFilePath = m_sAbsTestOutputDir + std::string("/TestSettings.txt");
   }
-  opt_NoSave.SetDefaultValue(bNoAutoSave);
-  m_Settings.m_bNoAutomaticSaving = opt_NoSave.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 }
 
 void ezTestFramework::LoadTestOrder()
@@ -385,30 +422,34 @@ void ezTestFramework::LoadTestOrder()
 
 void ezTestFramework::ApplyTestOrderFromCommandLine(const ezCommandLineUtils& cmd)
 {
-  if (m_Settings.m_bEnableAllTests)
-    SetAllTestsEnabledStatus(true);
+  // A filter decides on its own which tests run, overriding whatever a test order file enabled or
+  // disabled - otherwise a stale order file would silently subtract from what was asked for. Without
+  // a filter nothing is changed here, and every test is enabled unless an order file said otherwise.
   if (!m_Settings.m_sTestFilter.empty())
   {
-    std::regex filterRegex;
-    try
+    const char* szFilter = m_Settings.m_sTestFilter.c_str();
+    const bool bHasWildcard = strchr(szFilter, '*') != nullptr || strchr(szFilter, '?') != nullptr;
+
+    // Without a wildcard the filter is a plain 'contains' check, which is what most people type
+    // ('-filter JSON'). With a wildcard it becomes a full match, so the caller controls where the
+    // free parts are ('-filter "IO*Stream"').
+    auto MatchesFilter = [&](const char* szName)
     {
-      filterRegex.assign(m_Settings.m_sTestFilter.c_str(), std::regex_constants::icase);
-    }
-    catch (const std::regex_error&)
-    {
-      ezLog::Print("Invalid regex provided via -filter\n");
-      return;
-    }
+      if (bHasWildcard)
+        return MatchesWildcard_NoCase(szName, szFilter);
+
+      return ezStringUtils::FindSubString_NoCase(szName, szFilter) != nullptr;
+    };
 
     const ezUInt32 uiTestCount = GetTestCount();
     for (ezUInt32 uiTestIdx = 0; uiTestIdx < uiTestCount; ++uiTestIdx)
     {
-      const bool bEnableTest = std::regex_search(m_TestEntries[uiTestIdx].m_szTestName, filterRegex);
+      const bool bEnableTest = MatchesFilter(m_TestEntries[uiTestIdx].m_szTestName);
       bool bAnySubTestEnabled = bEnableTest;
       const ezUInt32 uiSubTestCount = (ezUInt32)m_TestEntries[uiTestIdx].m_SubTests.size();
       for (ezUInt32 uiSubTest = 0; uiSubTest < uiSubTestCount; ++uiSubTest)
       {
-        const bool bEnableSubTest = bEnableTest || std::regex_search(m_TestEntries[uiTestIdx].m_SubTests[uiSubTest].m_szSubTestName, filterRegex);
+        const bool bEnableSubTest = bEnableTest || MatchesFilter(m_TestEntries[uiTestIdx].m_SubTests[uiSubTest].m_szSubTestName);
         m_TestEntries[uiTestIdx].m_SubTests[uiSubTest].m_bEnableTest = bEnableSubTest;
         bAnySubTestEnabled |= bEnableSubTest;
       }
@@ -516,7 +557,7 @@ void ezTestFramework::UpdateReferenceImages()
 
 void ezTestFramework::AutoSaveTestOrder()
 {
-  if (m_Settings.m_bNoAutomaticSaving)
+  if (!m_Settings.m_bSaveState)
     return;
 
   SaveTestOrder(m_sAbsTestOrderFilePath.c_str());
@@ -925,7 +966,18 @@ void ezTestFramework::EndTests()
 
   if (GetTestsPassedCount() + GetTestsFailedCount() == 0)
   {
-    ezTestFramework::Output(ezTestOutput::Error, "No tests were run. The -filter option may not have matched any tests.");
+    // Counted as a failure on purpose: a run that executed nothing must not report success, or a
+    // typo in -filter looks like a green build.
+    if (m_Settings.m_sTestFilter.empty())
+    {
+      ezTestFramework::Output(ezTestOutput::Error, "No tests were run, because no tests are enabled.");
+    }
+    else
+    {
+      ezTestFramework::Output(ezTestOutput::Error, "No tests were run: the -filter '%s' did not match any test or sub-test name. Use -list to see the available names.",
+        m_Settings.m_sTestFilter.c_str());
+    }
+
     m_iTestsFailed++;
   }
 

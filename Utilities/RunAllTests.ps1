@@ -17,7 +17,7 @@ function RunTest($name) {
 
     Write-Host "`nRunning $name.`n" -ForegroundColor Yellow
 
-    & "$Path\$name.exe" -nosave -all -nogui
+    & "$Path\$name.exe" -nogui
 
     if (!$?) {
         Write-Host "`n$name failed`n" -ForegroundColor Yellow

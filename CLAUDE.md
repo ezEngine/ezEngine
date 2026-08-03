@@ -7,11 +7,11 @@
 ```shell
 # Generate and build Debug configuration (use by default)
 powershell -NoProfile -ExecutionPolicy ByPass ./RunCMake.ps1 -Target vs2026x64 -SolutionName "ClaudeBuild" -WorkspaceDir "claude-build"
-Data/Tools/Precompiled/cmake/bin/cmake --build Workspace/claude-build --config Debug
+Data/Tools/Precompiled/cmake/bin/cmake --build Workspace/claude-build --config Debug -- -m -p:CL_MPCount=16
 
 # Generate and build Dev configuration
 powershell -NoProfile -ExecutionPolicy ByPass ./RunCMake.ps1 -Target vs2026x64 -SolutionName "ClaudeBuild" -WorkspaceDir "claude-build"
-Data/Tools/Precompiled/cmake/bin/cmake --build Workspace/claude-build --config Dev
+Data/Tools/Precompiled/cmake/bin/cmake --build Workspace/claude-build --config Dev -- -m -p:CL_MPCount=16
 
 # Clean build
 Data/Tools/Precompiled/cmake/bin/cmake --build Workspace/claude-build --target clean
@@ -27,7 +27,7 @@ Data/Tools/Precompiled/cmake/bin/cmake --build Workspace/claude-build --target c
 
 ```shell
 # Build and run specific test
-Data/Tools/Precompiled/cmake/bin/cmake --build Workspace/claude-build --config Debug --target FoundationTest
+Data/Tools/Precompiled/cmake/bin/cmake --build Workspace/claude-build --config Debug --target FoundationTest -- -m -p:CL_MPCount=16
 Data/Tools/Precompiled/cmake/bin/ctest --test-dir Workspace/claude-build -C Debug -R FoundationTest
 
 # Run all available tests
@@ -35,11 +35,24 @@ Data/Tools/Precompiled/cmake/bin/ctest --test-dir Workspace/claude-build -C Debu
 
 # Run tests with verbose output
 Data/Tools/Precompiled/cmake/bin/ctest --test-dir Workspace/claude-build -C Debug -V
+
+# Run a test executable directly. -noGui is what makes it usable from a script: the tests start on
+# their own, output goes to the console, and the process exits when they are done. Without it a
+# window opens and waits for interaction.
+Workspace/claude-build-output/Bin/WinVs2026Debug64/FoundationTest.exe -noGui
+
+# Run only some tests. -filter does a case insensitive 'contains' check against both test and
+# sub-test names; add '*'/'?' for a full-match wildcard pattern instead. Check the output actually
+# says what you expect - a filter that matches nothing is reported as a failure, not as a pass.
+Workspace/claude-build-output/Bin/WinVs2026Debug64/FoundationTest.exe -noGui -filter "JSON"
+Workspace/claude-build-output/Bin/WinVs2026Debug64/FoundationTest.exe -noGui -filter "IO*"
 ```
 
-To find more arguments for the test framework, run `FoundationTest.exe -help -close`.
+`-list` prints the available test names, `-help` every option.
 
 ### Important Notes
+
+- **Always pass `-- -m -p:CL_MPCount=16`**: without it the build is effectively single threaded. `-m` lets MSBuild build projects in parallel, but that alone does nothing for a single-target build - `CL_MPCount` is what makes `cl.exe` compile several source files of the *same* project at once. Note that `cmake --build -j` does **not** work here: the Visual Studio generator ignores it. Lower the number on a machine with fewer cores.
 
 - **cmake location**: The repository ships a precompiled cmake at `Data/Tools/Precompiled/cmake/bin/`. Always use this path for `cmake` and `ctest` commands rather than any system-installed version.
 

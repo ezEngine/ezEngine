@@ -44,7 +44,7 @@ function(ez_ci_add_test TARGET_NAME)
 	if(TARGET_TYPE STREQUAL "EXECUTABLE")
 		add_test(
 			NAME ${TARGET_NAME}
-			COMMAND ${TARGET_NAME} -noGui -run -close -console
+			COMMAND ${TARGET_NAME} -noGui
 		)
 		# Set test properties
 		set_tests_properties(${TARGET_NAME} PROPERTIES
