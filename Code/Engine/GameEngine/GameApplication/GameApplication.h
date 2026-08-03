@@ -32,6 +32,7 @@ struct ezGameApplicationInputFlags
     Dev_OpenInspector = EZ_BIT(15),        ///< Register the F10 key to open the ezInspector application
 
     Dev_All = 0xFFFFFF00,
+    Regular = ~Dev_All,
 
     Default = All
   };

@@ -236,11 +236,17 @@ void ezGameState::ConfigureInputActions()
 {
   if (auto pApp = ezGameApplication::GetGameApplicationInstance())
   {
-    // shipped games should have their own game state
-    // they should probably only use ezGameApplicationInputFlags::LoadInputConfig
-    // if you've come to the point where you want to use the ESC key (for instance to show a menu)
-    // you also need to have your own game-state and remove the flag ezGameApplicationInputFlags::Dev_EscapeToClose
+    // In shipping builds none of the developer shortcuts (F1 console, F5 stats, ESC to quit, ...) are registered,
+    // since a finished game shouldn't react to those keys at all.
+    //
+    // If you want a different split than "everything in development builds, nothing in shipping builds",
+    // override this function in your own game state and call ezGameApplication::RegisterGameApplicationInputActions()
+    // with the exact flags that you need.
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     pApp->RegisterGameApplicationInputActions(ezGameApplicationInputFlags::All);
+#else
+    pApp->RegisterGameApplicationInputActions(ezGameApplicationInputFlags::Regular);
+#endif
   }
 }
 
