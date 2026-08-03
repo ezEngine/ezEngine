@@ -67,7 +67,12 @@ else()
 endif()
 
 # NOTE: Custom Tracy Options.
-set_option(TRACY_ENABLE "Enable profiling" ON)
+
+# Wherever TRACY_ENABLE is defined, Tracy opens a listening socket, even with TRACY_ON_DEMAND,
+# which makes the OS firewall report shipped games as accessing the network.
+# Therefore Tracy is compiled out in shipping builds. Code using the EZ_PROFILE_* macros is unaffected,
+# it falls back to the built-in ez profiling system.
+target_compile_definitions(TracyClient PUBLIC $<$<NOT:$<CONFIG:${EZ_BUILDTYPENAME_RELEASE}>>:TRACY_ENABLE>)
 set_option(TRACY_ON_DEMAND "On-demand profiling" ON)
 set_option(TRACY_CALLSTACK "Enforce callstack collection for tracy regions" OFF)
 set_option(TRACY_NO_CALLSTACK "Disable all callstack related functionality" OFF)
