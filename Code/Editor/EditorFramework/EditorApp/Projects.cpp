@@ -446,7 +446,17 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
         {
           for (ezDocument* pDoc : pMan->GetAllOpenDocuments())
           {
-            if (pDoc->IsModified())
+            if (!pDoc->IsModified())
+              continue;
+
+            // Only ask about documents the user can actually see.
+            // A document without a window was opened programmatically.
+            if (!pDoc->HasWindowBeenRequested())
+            {
+              ezLog::Info("Discarding unsaved changes in '{}', which is open without a window.", pDoc->GetDocumentPath());
+              continue;
+            }
+
               ModifiedDocs.PushBack(pDoc);
           }
         }
