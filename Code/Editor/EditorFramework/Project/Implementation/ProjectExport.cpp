@@ -1,5 +1,6 @@
 #include <Core/Configuration/PlatformProfile.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/CodeGen/CppSettings.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Project/ProjectExport.h>
 #include <Foundation/Application/Config/FileSystemConfig.h>
@@ -365,24 +366,70 @@ ezResult ezProjectExport::GatherBinaries(DirectoryMapping& mapping, const ezPath
   return EZ_SUCCESS;
 }
 
-ezResult ezProjectExport::CreateLaunchConfig(const ezDynamicArray<ezString>& sceneFiles, const char* szTargetDirectory)
+ezString ezProjectExport::FindCustomGameExecutable()
 {
+  if (!ezFileSystem::ExistsFile(":project/Editor/CppProject.ddl"))
+    return {};
+
+  ezCppSettings cppSettings;
+  if (cppSettings.Load().Failed() || cppSettings.m_sPluginName.IsEmpty())
+    return {};
+
+  // this has to match the name of the application target that the C++ project generation creates
+  ezStringBuilder sExeName(cppSettings.m_sPluginName, "Game");
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  sExeName.Append(".exe");
+#endif
+
+  ezStringBuilder sExePath = ezOSFile::GetApplicationDirectory();
+  sExePath.AppendPath(sExeName);
+  sExePath.MakeCleanPath();
+
+  if (!ezOSFile::ExistsFile(sExePath))
+  {
+    ezLog::Info("The project's game executable '{}' hasn't been built, exporting ezPlayer instead.", sExeName);
+    return {};
+  }
+
+  return sExeName;
+}
+
+ezResult ezProjectExport::CreateLaunchConfig(const ezDynamicArray<ezString>& sceneFiles, const char* szTargetDirectory, ezStringView sCustomGameExecutable)
+{
+  auto WriteScript = [szTargetDirectory](ezStringView sScriptName, ezStringView sCommand) -> ezResult
+  {
+    ezStringBuilder sScriptPath;
+    sScriptPath.SetFormat("{}/{}.bat", szTargetDirectory, sScriptName);
+
+    ezOSFile file;
+    if (file.Open(sScriptPath, ezFileOpenMode::Write).Failed())
+    {
+      ezLog::Error("Couldn't create '{}'", sScriptPath);
+      return EZ_FAILURE;
+    }
+
+    return file.Write(sCommand.GetStartPointer(), sCommand.GetElementCount());
+  };
+
+  if (!sCustomGameExecutable.IsEmpty())
+  {
+    // the game executable decides itself which scene to load (see ezGameState::GetStartupOptions()),
+    // so a script per scene would be pointless here
+    ezStringBuilder cmd;
+    cmd.SetFormat("start Bin/{} -project \"Data/project\"", sCustomGameExecutable);
+
+    ezStringBuilder sScriptName("Launch ", ezPathUtils::GetFileName(sCustomGameExecutable));
+    return WriteScript(sScriptName, cmd);
+  }
+
   for (const auto& sf : sceneFiles)
   {
     ezStringBuilder cmd;
     cmd.SetFormat("start Bin/ezPlayer.exe -project \"Data/project\" -scene \"{}\"", sf);
 
-    ezStringBuilder bat;
-    bat.SetFormat("{}/Launch {}.bat", szTargetDirectory, ezPathUtils::GetFileName(sf));
-
-    ezOSFile file;
-    if (file.Open(bat, ezFileOpenMode::Write).Failed())
-    {
-      ezLog::Error("Couldn't create '{}'", bat);
-      return EZ_FAILURE;
-    }
-
-    file.Write(cmd.GetData(), cmd.GetElementCount()).AssertSuccess();
+    ezStringBuilder sScriptName("Launch ", ezPathUtils::GetFileName(sf));
+    EZ_SUCCEED_OR_RETURN(WriteScript(sScriptName, cmd));
   }
 
   return EZ_SUCCESS;
@@ -445,7 +492,7 @@ void ezProjectExport::AddPackageDependenciesToFileList(DirectoryMapping& ref_fil
   }
 }
 
-ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezPlatformProfile* pPlatformProfile, const ezApplicationFileSystemConfig& dataDirs)
+ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezPlatformProfile* pPlatformProfile, const ezApplicationFileSystemConfig& dataDirs, bool bCreateLaunchScripts)
 {
   ezProgressRange mainProgress("Export Project", 7, true);
   mainProgress.SetStepWeighting(0, 0.05f); // Preparing output folder
@@ -462,6 +509,8 @@ ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezP
 
   ezPathPatternFilter dataFilter;
   ezPathPatternFilter binariesFilter;
+
+  const ezString sCustomGameExecutable = ezProjectExport::FindCustomGameExecutable();
 
   // 0
   {
@@ -540,6 +589,24 @@ ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezP
       }
     }
 
+    if (!sCustomGameExecutable.IsEmpty())
+    {
+      // the export filters exclude all executables by default, so the project's own game executable
+      // has to be added explicitly, and ezPlayer isn't needed anymore
+      ezStringBuilder sPattern("/", sCustomGameExecutable);
+      binariesFilter.AddFilter(sPattern, true);
+
+      for (ezUInt32 i = binariesFilter.m_IncludePatterns.GetCount(); i > 0; --i)
+      {
+        if (binariesFilter.m_IncludePatterns[i - 1].m_sString.IsEqual_NoCase("/ezPlayer.exe"))
+        {
+          binariesFilter.m_IncludePatterns.RemoveAtAndCopy(i - 1);
+        }
+      }
+
+      ezLog::Info("Exporting '{}' as the game executable, ezPlayer is not exported.", sCustomGameExecutable);
+    }
+
     mainProgress.BeginNextStep("Gathering binaries");
     EZ_SUCCEED_OR_RETURN(ezProjectExport::GatherBinaries(fileList, binariesFilter));
   }
@@ -559,7 +626,11 @@ ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezP
   // 6
   {
     mainProgress.BeginNextStep("Finishing up");
-    EZ_SUCCEED_OR_RETURN(ezProjectExport::CreateLaunchConfig(sceneFiles, szTargetDirectory));
+
+    if (bCreateLaunchScripts)
+    {
+      EZ_SUCCEED_OR_RETURN(ezProjectExport::CreateLaunchConfig(sceneFiles, szTargetDirectory, sCustomGameExecutable));
+    }
   }
 
   return EZ_SUCCESS;

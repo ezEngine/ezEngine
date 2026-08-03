@@ -66,6 +66,26 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="CreateLaunchScripts">
+     <property name="toolTip">
+      <string>Writes .bat files to the output folder for launching the exported project.</string>
+     </property>
+     <property name="text">
+      <string>Create Launch Scripts</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="OpenOutputFolder">
+     <property name="toolTip">
+      <string>Opens the output folder in the file browser, once the export finished successfully.</string>
+     </property>
+     <property name="text">
+      <string>Open Output Folder</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="label_2">
      <property name="text">
       <string>Export Log:</string>
