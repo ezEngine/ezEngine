@@ -1,6 +1,8 @@
 #include <FoundationTest/FoundationTestPCH.h>
 
+#include <Foundation/IO/JSONReader.h>
 #include <Foundation/IO/JSONWriter.h>
+#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/OSFile.h>
 #include <FoundationTest/IO/JSONTestHelpers.h>
 
@@ -430,5 +432,127 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     js.AddVariableString("test", "text");
 
     js.EndObject();
+  }
+}
+
+EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter_EarlyOut)
+{
+  // ~ezStandardJSONWriter asserts that everything that was begun was also ended. These are the two
+  // supported ways to stop writing part way through, which error paths need - without them the only
+  // options are matching every Begin with an End on every path, or a dead process.
+  //
+  // Verified by parsing the result rather than by comparing text, because what matters is that the
+  // output is valid JSON with the expected content, not how it is formatted.
+  auto WriteAndParse = [](ezDelegate<void(ezStandardJSONWriter&)> build, ezVariantDictionary& out_result) -> ezResult
+  {
+    ezDefaultMemoryStreamStorage storage;
+
+    {
+      ezMemoryStreamWriter writer(&storage);
+      ezStandardJSONWriter js;
+      js.SetOutputStream(&writer);
+      build(js);
+    } // the writer is destroyed here - that is what would assert without EndAll()/Abandon()
+
+    ezMemoryStreamReader reader(&storage);
+    ezJSONReader parser;
+    EZ_SUCCEED_OR_RETURN(parser.Parse(reader));
+
+    out_result = parser.GetTopLevelObject();
+    return EZ_SUCCESS;
+  };
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EndAll closes nested objects")
+  {
+    ezVariantDictionary result;
+    EZ_TEST_BOOL(WriteAndParse([](ezStandardJSONWriter& js)
+      {
+        js.BeginObject();
+        js.BeginObject("outer");
+        js.BeginObject("inner");
+        js.AddVariableInt32("var", 1);
+        js.EndAll(); // three objects still open
+      },
+      result)
+                   .Succeeded());
+
+    ezVariant outer;
+    EZ_TEST_BOOL(result.TryGetValue("outer", outer));
+    EZ_TEST_BOOL(outer.IsA<ezVariantDictionary>());
+
+    ezVariant inner;
+    EZ_TEST_BOOL(outer.Get<ezVariantDictionary>().TryGetValue("inner", inner));
+    EZ_TEST_BOOL(inner.IsA<ezVariantDictionary>());
+
+    ezVariant var;
+    EZ_TEST_BOOL(inner.Get<ezVariantDictionary>().TryGetValue("var", var));
+    EZ_TEST_INT(var.ConvertTo<ezInt32>(), 1);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EndAll closes an open array")
+  {
+    ezVariantDictionary result;
+    EZ_TEST_BOOL(WriteAndParse([](ezStandardJSONWriter& js)
+      {
+        js.BeginObject();
+        js.BeginArray("arr");
+        js.WriteInt32(1);
+        js.WriteInt32(2);
+        js.EndAll(); }, result)
+                   .Succeeded());
+
+    ezVariant arr;
+    EZ_TEST_BOOL(result.TryGetValue("arr", arr));
+    EZ_TEST_BOOL(arr.IsA<ezVariantArray>());
+    EZ_TEST_INT(arr.Get<ezVariantArray>().GetCount(), 2);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EndAll writes null for a variable that has no value")
+  {
+    ezVariantDictionary result;
+    EZ_TEST_BOOL(WriteAndParse([](ezStandardJSONWriter& js)
+      {
+        js.BeginObject();
+        js.BeginVariable("var"); // nothing written for it
+        js.EndAll(); }, result)
+                   .Succeeded());
+
+    // The member has to exist, because an object member without any value is not representable.
+    EZ_TEST_BOOL(result.Contains("var"));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EndAll on a balanced stream changes nothing")
+  {
+    ezVariantDictionary result;
+    EZ_TEST_BOOL(WriteAndParse([](ezStandardJSONWriter& js)
+      {
+        js.BeginObject();
+        js.AddVariableInt32("var", 42);
+        js.EndObject();
+        js.EndAll(); }, result)
+                   .Succeeded());
+
+    ezVariant var;
+    EZ_TEST_BOOL(result.TryGetValue("var", var));
+    EZ_TEST_INT(var.ConvertTo<ezInt32>(), 42);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Abandon suppresses the destructor check")
+  {
+    // The output is deliberately left incomplete and must not be used. The point is that destroying
+    // the writer with containers still open does not assert.
+    ezDefaultMemoryStreamStorage storage;
+    ezMemoryStreamWriter writer(&storage);
+
+    ezStandardJSONWriter js;
+    js.SetOutputStream(&writer);
+
+    js.BeginObject();
+    js.BeginArray("arr");
+    js.WriteInt32(1);
+
+    js.Abandon();
+
+    EZ_TEST_BOOL(js.HadWriteError());
   }
 }
