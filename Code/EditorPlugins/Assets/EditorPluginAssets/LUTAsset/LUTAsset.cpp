@@ -123,14 +123,7 @@ void ezLUTAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezD
 
 ezStatus ezLUTAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
-  ezStringBuilder sOutFile = sInputFileAbs;
-  sOutFile.ChangeFileExtension(GetDocumentExtension());
-
-  if (ezOSFile::ExistsFile(sOutFile))
-  {
-    ezLog::Info("Skipping LUT import, file has been imported before: '{}'", sOutFile);
-    return ezStatus(EZ_SUCCESS);
-  }
+  const ezStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
 
   auto pApp = ezQtEditorApp::GetSingleton();
 

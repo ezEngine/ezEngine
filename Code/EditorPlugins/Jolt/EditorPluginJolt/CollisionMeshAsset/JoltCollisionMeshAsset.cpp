@@ -431,14 +431,7 @@ void ezJoltCollisionMeshAssetDocumentGenerator::GetImportModes(ezStringView sAbs
 
 ezStatus ezJoltCollisionMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
-  ezStringBuilder sOutFile = sInputFileAbs;
-  sOutFile.ChangeFileExtension(GetDocumentExtension());
-
-  if (ezOSFile::ExistsFile(sOutFile))
-  {
-    ezLog::Info("Skipping collision mesh import, file has been imported before: '{}'", sOutFile);
-    return ezStatus(EZ_SUCCESS);
-  }
+  const ezStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -490,14 +483,7 @@ void ezJoltConvexCollisionMeshAssetDocumentGenerator::GetImportModes(ezStringVie
 
 ezStatus ezJoltConvexCollisionMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
-  ezStringBuilder sOutFile = sInputFileAbs;
-  sOutFile.ChangeFileExtension(GetDocumentExtension());
-
-  if (ezOSFile::ExistsFile(sOutFile))
-  {
-    ezLog::Info("Skipping convex collision mesh import, file has been imported before: '{}'", sOutFile);
-    return ezStatus(EZ_SUCCESS);
-  }
+  const ezStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
 
   auto pApp = ezQtEditorApp::GetSingleton();
 

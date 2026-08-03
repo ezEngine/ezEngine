@@ -274,14 +274,7 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputF
 
 ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
-  ezStringBuilder sOutFile = sInputFileAbs;
-  sOutFile.ChangeFileExtension(GetDocumentExtension());
-
-  if (ezOSFile::ExistsFile(sOutFile))
-  {
-    ezLog::Info("Skipping cubemap import, file has been imported before: '{}'", sOutFile);
-    return EZ_SUCCESS;
-  }
+  const ezStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
 
   auto pApp = ezQtEditorApp::GetSingleton();
 

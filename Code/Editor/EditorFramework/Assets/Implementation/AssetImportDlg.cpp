@@ -56,6 +56,14 @@ void ezQtAssetImportDlg::InitRow(ezUInt32 uiRow)
   {
     QIcon icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(option.m_sIcon);
     pCombo->addItem(icon, ezMakeQString(ezTranslate(option.m_sName)));
+
+    // The lookup returns the key unchanged when there is no tooltip for it, so an untranslated mode
+    // would otherwise get its own name as the tooltip.
+    const ezStringView sTooltip = ezTranslateTooltip(option.m_sName);
+    if (!sTooltip.IsEmpty() && sTooltip != option.m_sName)
+    {
+      pCombo->setItemData(pCombo->count() - 1, ezMakeQString(sTooltip), Qt::ToolTipRole);
+    }
   }
 
   pCombo->setProperty("row", uiRow);

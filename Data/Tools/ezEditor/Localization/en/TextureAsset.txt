@@ -9,16 +9,16 @@ Render Target;Render Target;;https://ezengine.net/pages/docs/graphics/textures-o
 TextureAsset.LodSlider;Mipmap
 TextureAsset.ChannelMode;Channel to Display
 
-TextureImport.Auto;Texture 2D
-TextureImport.Diffuse;Diffuse Texture
-TextureImport.Normal;Normal Map
-TextureImport.HDR;HDR Texture
-TextureImport.Linear;Linear Texture
-TextureImport.Occlusion;Occlusion Texture
-TextureImport.Height;Height Map Texture
-TextureImport.Metalness;Metalness Texture
-TextureImport.Roughness;Roughness Texture
-TextureImport.ORM;Occlusion / Roughness / Metalness
+TextureImport.Auto;Texture 2D;Guesses the texture type from the file name and imports it accordingly.
+TextureImport.Diffuse;Diffuse Texture;Color data. Stored as sRGB, so the values are gamma corrected when read.
+TextureImport.Normal;Normal Map;A tangent space normal map.
+TextureImport.HDR;HDR Texture;High dynamic range color data, for values outside the 0 to 1 range.
+TextureImport.Linear;Linear Texture;Data that is not color and must not be gamma corrected, e.g. a mask.
+TextureImport.Occlusion;Occlusion Texture;Ambient occlusion, read from the red channel.
+TextureImport.Height;Height Map Texture;A height map, read from the red channel.
+TextureImport.Metalness;Metalness Texture;Metalness, read from the red channel.
+TextureImport.Roughness;Roughness Texture;Surface roughness, read from the red channel.
+TextureImport.ORM;Occlusion / Roughness / Metalness;Occlusion, roughness and metalness packed into the red, green and blue channels, in that order.
 
 CubemapImport.Skybox;Skybox
 CubemapImport.SkyboxHDR;HDR Skybox
