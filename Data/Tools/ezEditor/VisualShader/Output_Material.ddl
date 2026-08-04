@@ -34,6 +34,8 @@ VERTEX_SKINNING=FALSE
   string %CodeRenderStates { "#include <Shaders/Materials/MaterialState.h>" }
 
   string %CodeVertexDefines { "
+#define USE_TWO_SIDED_LIGHTING
+
 #if VERTEX_SKINNING
   #define USE_SKINNING
 #endif

@@ -51,6 +51,7 @@ int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impo
 #define USE_TEXCOORD1
 #define CUSTOM_INTERPOLATOR float3 LeafNormal : TEXCOORD2;
 #define USE_MATERIAL_SUBSURFACE_COLOR
+#define USE_TWO_SIDED_LIGHTING
 
 #if RENDER_PASS == RENDER_PASS_EDITOR
   #define USE_DEBUG_INTERPOLATOR
@@ -242,7 +243,6 @@ VS_OUT main(VS_IN Input)
 
 #define USE_SIMPLE_MATERIAL_MODEL
 #define USE_MATERIAL_OCCLUSION
-#define USE_TWO_SIDED_LIGHTING
 #define USE_FOG
 
 #include <Shaders/Materials/MaterialPixelShader.h>
