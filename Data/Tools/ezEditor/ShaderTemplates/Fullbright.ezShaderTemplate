@@ -22,7 +22,6 @@ BLEND_MODE
 %endif
 
 // no PBR lighting, just flat shading
-SHADING_MODE = SHADING_MODE_FULLBRIGHT
 
 %if TEMPLATE_TWO_SIDED == TEMPLATE_TWO_SIDED_OFF
 // triangles are only visible from the front
@@ -93,6 +92,8 @@ COLOR4F(EmissiveColor);
 #include <Shaders/Materials/MaterialState.h>
 
 [SHADER]
+
+#define USE_FULLBRIGHT_SHADING
 // The code in the SHADER section is prepended to every other shader stage,
 // e.g. VERTEXSHADER, GEOMETRYSHADER and PIXELSHADER all share this.
 // Most code is provided through the #included files.

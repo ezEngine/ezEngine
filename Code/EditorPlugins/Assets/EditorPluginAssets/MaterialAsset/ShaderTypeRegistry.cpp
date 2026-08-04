@@ -251,7 +251,7 @@ ezShaderTypeRegistry::ezShaderTypeRegistry()
   desc.m_sPluginName = "ShaderTypes";
   desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
   desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;
-  desc.m_uiTypeVersion = 2;
+  desc.m_uiTypeVersion = 3;
 
   m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
 
@@ -501,3 +501,39 @@ public:
 };
 
 ezShaderBaseTypePatch_1_2 g_ezShaderBaseTypePatch_1_2;
+
+/// Converts the SHADING_MODE permutation into the 'Fullbright' bool material parameter.
+///
+/// SHADING_MODE was removed from the permutation set of the shaders that let materials choose it
+/// (DefaultMaterial, Kraut, and every visual shader material), because it doubled their permutation
+/// count while only selecting whether lighting is applied. Without this patch a material that had
+/// SHADING_MODE_FULLBRIGHT would silently start rendering lit.
+class ezShaderBaseTypePatch_2_3 : public ezGraphPatch
+{
+public:
+  ezShaderBaseTypePatch_2_3()
+    : ezGraphPatch("ezShaderTypeBase", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    ezAbstractObjectNode::Property* pProp = pNode->FindProperty("SHADING_MODE");
+    if (pProp == nullptr)
+      return;
+
+    // The value has already been normalized to 'SHADING_MODE::SHADING_MODE_<VALUE>' by
+    // ezShaderBaseTypePatch_1_2.
+    bool bFullbright = false;
+    if (pProp->m_Value.IsA<ezString>())
+    {
+      const ezString sValue = pProp->m_Value.Get<ezString>();
+      bFullbright = sValue.FindSubString("FULLBRIGHT") != nullptr;
+    }
+
+    pNode->RemoveProperty("SHADING_MODE");
+    pNode->AddProperty("Fullbright", bFullbright);
+  }
+};
+
+ezShaderBaseTypePatch_2_3 g_ezShaderBaseTypePatch_2_3;

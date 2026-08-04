@@ -8,7 +8,6 @@ Node %MaterialOutput
   string %CodePermutations { "
 BLEND_MODE
 RENDER_PASS
-SHADING_MODE
 TWO_SIDED
 FLIP_WINDING
 FORWARD_PASS_WRITE_DEPTH
@@ -20,7 +19,6 @@ VERTEX_SKINNING" }
   {"
 BLEND_MODE=BLEND_MODE_OPAQUE
 RENDER_PASS=RENDER_PASS_FORWARD
-SHADING_MODE=SHADING_MODE_LIT
 TWO_SIDED=FALSE
 FLIP_WINDING=FALSE
 FORWARD_PASS_WRITE_DEPTH=TRUE
@@ -88,8 +86,8 @@ float3 GetWorldPositionOffset(ezPerInstanceData data, float3 worldPosition)
 
   string %CodeMaterialParams { "
 Permutation BLEND_MODE;
-Permutation SHADING_MODE;
 Permutation TWO_SIDED;
+bool Fullbright;
 float MaskThreshold @Default($prop0);
 " }
 
@@ -98,6 +96,7 @@ float MaskThreshold @Default($prop0);
 #define USE_MATERIAL_EMISSIVE
 #define USE_MATERIAL_OCCLUSION
 #define USE_TWO_SIDED_LIGHTING
+#define USE_RUNTIME_SHADING_MODE
 
 #if VERTEX_SKINNING
   #define USE_SKINNING
@@ -142,6 +141,7 @@ float MaskThreshold @Default($prop0);
   string %CodePixelConstants { "" }
   string %CodeMaterialConstants { "
 
+  BOOL1(Fullbright);
   FLOAT1(MaskThreshold);
   // Insert custom Visual Shader parameters here
   VSE_CONSTANTS

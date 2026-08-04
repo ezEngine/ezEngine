@@ -10,7 +10,6 @@ ALL
 BLEND_MODE = BLEND_MODE_OPAQUE
 
 // PBR materials always use lighting
-SHADING_MODE = SHADING_MODE_LIT
 
 // triangles are only visible from the front
 TWO_SIDED = FALSE

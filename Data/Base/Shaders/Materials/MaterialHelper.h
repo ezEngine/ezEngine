@@ -7,6 +7,19 @@
 #include <Shaders/Materials/MaterialData.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 
+// Whether lighting is skipped.
+//
+// Shaders that always want one or the other just define USE_FULLBRIGHT_SHADING (or not). This has
+// to stay compile time for them, because such a shader only defines the material getters its one
+// path needs - a shader without lighting typically has no GetMetallic() or GetRoughness(), so a
+// runtime branch would not compile there.
+//
+// Shaders that let the material decide define USE_RUNTIME_SHADING_MODE and expose a 'Fullbright'
+// bool material parameter. That is what keeps this out of the permutation set entirely.
+#if defined(USE_RUNTIME_SHADING_MODE)
+#  define EZ_IS_FULLBRIGHT (GetMaterialData(Fullbright))
+#endif
+
 float3 GetNormal();
 
 #if defined(USE_SIMPLE_MATERIAL_MODEL)
@@ -161,7 +174,17 @@ ezMaterialData FillMaterialData()
   matData.vertexNormal = float3(0, 0, 1);
 #endif
 
-#if SHADING_MODE == SHADING_MODE_FULLBRIGHT
+#if defined(USE_RUNTIME_SHADING_MODE)
+  [branch]
+  if (EZ_IS_FULLBRIGHT)
+  {
+    matData.worldNormal = float3(0, 0, 1);
+  }
+  else
+  {
+    matData.worldNormal = normalize(GetNormal());
+  }
+#elif defined(USE_FULLBRIGHT_SHADING)
   matData.worldNormal = float3(0, 0, 1);
 #else
   matData.worldNormal = normalize(GetNormal());
@@ -170,7 +193,23 @@ ezMaterialData FillMaterialData()
 #if defined(USE_SIMPLE_MATERIAL_MODEL)
   float3 baseColor = GetBaseColor();
 
-#  if SHADING_MODE == SHADING_MODE_FULLBRIGHT
+#  if defined(USE_RUNTIME_SHADING_MODE)
+  [branch]
+  if (EZ_IS_FULLBRIGHT)
+  {
+    matData.diffuseColor = baseColor;
+    matData.specularColor = float3(0, 0, 0);
+  }
+  else
+  {
+    float metallic = GetMetallic();
+    float reflectance = GetReflectance();
+    float f0 = 0.16f * reflectance * reflectance;
+
+    matData.diffuseColor = lerp(baseColor, 0.0f, metallic);
+    matData.specularColor = lerp(float3(f0, f0, f0), baseColor, metallic);
+  }
+#  elif defined(USE_FULLBRIGHT_SHADING)
   matData.diffuseColor = baseColor;
   matData.specularColor = float3(0, 0, 0);
 #  else
@@ -185,7 +224,9 @@ ezMaterialData FillMaterialData()
 #else
   matData.diffuseColor = GetDiffuseColor();
 
-#  if SHADING_MODE == SHADING_MODE_FULLBRIGHT
+#  if defined(USE_RUNTIME_SHADING_MODE)
+  matData.specularColor = EZ_IS_FULLBRIGHT ? float3(0, 0, 0) : GetSpecularColor();
+#  elif defined(USE_FULLBRIGHT_SHADING)
   matData.specularColor = float3(0, 0, 0);
 #  else
   matData.specularColor = GetSpecularColor();
@@ -204,7 +245,9 @@ ezMaterialData FillMaterialData()
   matData.refractionColor = float4(0, 0, 0, 1);
 #endif
 
-#if SHADING_MODE == SHADING_MODE_FULLBRIGHT
+#if defined(USE_RUNTIME_SHADING_MODE)
+  matData.perceptualRoughness = EZ_IS_FULLBRIGHT ? MIN_PERCEPTUAL_ROUGHNESS : max(GetRoughness(), MIN_PERCEPTUAL_ROUGHNESS);
+#elif defined(USE_FULLBRIGHT_SHADING)
   matData.perceptualRoughness = MIN_PERCEPTUAL_ROUGHNESS;
 #else
   matData.perceptualRoughness = max(GetRoughness(), MIN_PERCEPTUAL_ROUGHNESS);

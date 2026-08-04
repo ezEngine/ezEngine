@@ -9,12 +9,6 @@ Permutation
 
 Permutation
 {
-  string %Variable { "SHADING_MODE" }
-  string %Value { "SHADING_MODE_LIT" }
-}
-
-Permutation
-{
   string %Variable { "TWO_SIDED" }
   string %Value { "TRUE" }
 }
