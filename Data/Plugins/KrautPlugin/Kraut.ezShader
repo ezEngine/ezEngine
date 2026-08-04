@@ -5,7 +5,6 @@ ALL
 
 BLEND_MODE
 RENDER_PASS
-SHADING_MODE
 TWO_SIDED
 FLIP_WINDING = FALSE
 CAMERA_MODE
@@ -16,8 +15,9 @@ MATERIAL_PREVIEW
 [MATERIALPARAMETER]
 
 Permutation BLEND_MODE;
-Permutation SHADING_MODE;
 Permutation TWO_SIDED;
+
+bool Fullbright;
 
 Texture2D BaseTexture;
 
@@ -58,6 +58,7 @@ int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impo
 
 [MATERIALCONSTANTS]
 
+  BOOL1(Fullbright);
   COLOR4F(VariationColor);
   FLOAT1(RoughnessValue);
   BOOL1(UseNormalTexture);
@@ -243,6 +244,7 @@ VS_OUT main(VS_IN Input)
 #define USE_SIMPLE_MATERIAL_MODEL
 #define USE_MATERIAL_OCCLUSION
 #define USE_FOG
+#define USE_RUNTIME_SHADING_MODE
 
 #include <Shaders/Materials/MaterialPixelShader.h>
 

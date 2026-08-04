@@ -113,7 +113,31 @@ PS_OUT main(PS_IN Input)
   }
 #endif
 
-#if SHADING_MODE == SHADING_MODE_LIT
+#if defined(USE_RUNTIME_SHADING_MODE)
+  AccumulatedLight light;
+
+  [branch]
+  if (EZ_IS_FULLBRIGHT)
+  {
+    light = InitializeLight(matData.diffuseColor, 0.0f);
+  }
+  else
+  {
+#  if SHADING_QUALITY == SHADING_QUALITY_NORMAL
+#    if defined(USE_SCREEN_SPACE_TECHNIQUES)
+    bool useScreenSpaceTechniques = true;
+#    else
+    bool useScreenSpaceTechniques = false;
+#    endif
+
+    light = CalculateLighting(matData, clusterData, Input.Position.xyw, useScreenSpaceTechniques);
+#  elif SHADING_QUALITY == SHADING_QUALITY_SIMPLIFIED
+    light = CalculateLightingSimplified(matData);
+#  endif
+  }
+#elif defined(USE_FULLBRIGHT_SHADING)
+  AccumulatedLight light = InitializeLight(matData.diffuseColor, 0.0f);
+#else
 #  if SHADING_QUALITY == SHADING_QUALITY_NORMAL
 #    if defined(USE_SCREEN_SPACE_TECHNIQUES)
   bool useScreenSpaceTechniques = true;
@@ -125,8 +149,6 @@ PS_OUT main(PS_IN Input)
 #  elif SHADING_QUALITY == SHADING_QUALITY_SIMPLIFIED
   AccumulatedLight light = CalculateLightingSimplified(matData);
 #  endif
-#else
-  AccumulatedLight light = InitializeLight(matData.diffuseColor, 0.0f);
 #endif
 
 #if BLEND_MODE != BLEND_MODE_OPAQUE && BLEND_MODE != BLEND_MODE_MASKED

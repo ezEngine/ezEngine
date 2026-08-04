@@ -3,7 +3,6 @@ ALL
 
 [PERMUTATIONS]
 BLEND_MODE = BLEND_MODE_TRANSPARENT
-SHADING_MODE = SHADING_MODE_FULLBRIGHT
 TWO_SIDED = TRUE
 
 // SYSTEM permutations:
@@ -30,6 +29,8 @@ RenderDataCategory = SimpleTransparent;
 #include <Shaders/Materials/MaterialState.h>
 
 [SHADER]
+
+#define USE_FULLBRIGHT_SHADING
 #define USE_TEXCOORD0
 
 

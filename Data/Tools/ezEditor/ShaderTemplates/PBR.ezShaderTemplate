@@ -22,7 +22,6 @@ BLEND_MODE
 %endif
 
 // PBR materials always use lighting
-SHADING_MODE = SHADING_MODE_LIT
 
 %if TEMPLATE_TWO_SIDED == TEMPLATE_TWO_SIDED_OFF
 // triangles are only visible from the front

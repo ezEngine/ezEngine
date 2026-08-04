@@ -5,7 +5,6 @@ ALL
 
 BLEND_MODE
 RENDER_PASS
-SHADING_MODE
 TWO_SIDED
 FLIP_WINDING
 FORWARD_PASS_WRITE_DEPTH
@@ -16,8 +15,9 @@ VERTEX_SKINNING
 [MATERIALPARAMETER]
 
 Permutation BLEND_MODE;
-Permutation SHADING_MODE;
 Permutation TWO_SIDED;
+
+bool Fullbright;
 
 Color BaseColor @Default(Color(1.0, 1.0, 1.0));
 bool UseBaseTexture;
@@ -62,6 +62,7 @@ int PomMaxSteps @Default(16) @Clamp(4, 64);
 
 [MATERIALCONSTANTS]
 
+BOOL1(Fullbright);
 COLOR4F(BaseColor);
 COLOR4F(EmissiveColor);
 FLOAT1(MetallicValue);
@@ -110,6 +111,7 @@ VS_OUT main(VS_IN Input)
 #define USE_DECALS
 #define USE_FOG
 #define USE_CUSTOM_DITHER_NOISE
+#define USE_RUNTIME_SHADING_MODE
 #define CUSTOM_GLOBALS float2 ParallaxTexCoord;
 
 #include <Shaders/Materials/MaterialPixelShader.h>

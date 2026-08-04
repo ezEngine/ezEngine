@@ -8,12 +8,6 @@ Permutation
 
 Permutation
 {
-  string %Variable { "SHADING_MODE" }
-  string %Value { "SHADING_MODE_FULLBRIGHT" }
-}
-
-Permutation
-{
   string %Variable { "BLEND_MODE" }
   string %Value { "BLEND_MODE_OPAQUE" }
 }
