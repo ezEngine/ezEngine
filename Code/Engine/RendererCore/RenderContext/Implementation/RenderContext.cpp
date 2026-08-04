@@ -819,7 +819,7 @@ void ezRenderContext::LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type,
   static ezHashedString sTrue = ezMakeHashedString("TRUE");
   static ezHashedString sFalse = ezMakeHashedString("FALSE");
   static ezHashedString sCameraMode = ezMakeHashedString("CAMERA_MODE");
-  static ezHashedString sPerspective = ezMakeHashedString("CAMERA_MODE_PERSPECTIVE");
+  static ezHashedString sPerspective = ezMakeHashedString("CAMERA_MODE_MONO");
   static ezHashedString sStereo = ezMakeHashedString("CAMERA_MODE_STEREO");
 
   permutationVariables.Insert(sCameraMode, bStereo ? sStereo : sPerspective);

@@ -1126,6 +1126,7 @@ void ezRenderPipeline::UpdateRenderContext(ezRenderGraphContext& ctx)
   gc.Exposure = pCamera->GetExposure();
   gc.RenderPass = ezViewRenderMode::GetRenderPassForShader(pViewData->m_ViewRenderMode);
   gc.IsShadowPass = bIsShadowPass;
+  gc.IsOrthographicCamera = pCamera->IsOrthographic();
 
   pRenderContext->SetGlobalAndWorldTimeConstants(data.GetWorldTime());
 
@@ -1138,22 +1139,17 @@ void ezRenderPipeline::UpdateRenderContext(ezRenderGraphContext& ctx)
 
   EZ_ASSERT_DEBUG(ezWorld::GetWorld(data.GetWorldHandle()) != nullptr, "Trying to render a deleted world");
 
-  // Set camera mode permutation variable here since it doesn't change throughout the frame
+  // Set camera mode permutation variable here since it doesn't change throughout the frame.
+  // Orthographic projection is not a permutation value, it is the IsOrthographicCamera global constant.
   static ezHashedString sCameraMode = ezMakeHashedString("CAMERA_MODE");
-  static ezHashedString sOrtho = ezMakeHashedString("CAMERA_MODE_ORTHO");
-  static ezHashedString sPerspective = ezMakeHashedString("CAMERA_MODE_PERSPECTIVE");
+  static ezHashedString sMono = ezMakeHashedString("CAMERA_MODE_MONO");
   static ezHashedString sStereo = ezMakeHashedString("CAMERA_MODE_STEREO");
 
   static ezHashedString sClipSpaceFlipped = ezMakeHashedString("CLIP_SPACE_FLIPPED");
   static ezHashedString sTrue = ezMakeHashedString("TRUE");
   static ezHashedString sFalse = ezMakeHashedString("FALSE");
 
-  if (pCamera->IsOrthographic())
-    pRenderContext->SetShaderPermutationVariable(sCameraMode, sOrtho);
-  else if (pCamera->IsStereoscopic())
-    pRenderContext->SetShaderPermutationVariable(sCameraMode, sStereo);
-  else
-    pRenderContext->SetShaderPermutationVariable(sCameraMode, sPerspective);
+  pRenderContext->SetShaderPermutationVariable(sCameraMode, pCamera->IsStereoscopic() ? sStereo : sMono);
 
   EZ_ASSERT_DEV(pCamera->IsStereoscopic() == false || ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bSupportsVSRenderTargetArrayIndex, "Vertex shader render target index must be supported for stereo rendering.");
 

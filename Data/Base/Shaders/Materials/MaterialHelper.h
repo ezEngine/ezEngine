@@ -73,12 +73,15 @@ uint CalculateCoverage()
 
   float2 pixelPos = G.Input.Position.xy + randomOffset * 233;
 
-#  if defined(CAMERA_MODE) && CAMERA_MODE == CAMERA_MODE_ORTHO
-  float4 screenOrigin = mul(GetWorldToScreenMatrix(), worldOrigin);
-  screenOrigin.xy = screenOrigin.xy * float2(0.5, -0.5) + 0.5;
-  screenOrigin.xy *= ViewportSize.xy;
-  pixelPos -= screenOrigin.xy;
-#  endif
+  // Under an orthographic projection the dither pattern would otherwise be locked to the screen
+  // instead of to the object.
+  if (IsOrthographicCamera)
+  {
+    float4 screenOrigin = mul(GetWorldToScreenMatrix(), worldOrigin);
+    screenOrigin.xy = screenOrigin.xy * float2(0.5, -0.5) + 0.5;
+    screenOrigin.xy *= ViewportSize.xy;
+    pixelPos -= screenOrigin.xy;
+  }
 
 #  if defined(USE_CUSTOM_DITHER_NOISE)
   float4 ditherNoise = GetDitherNoise(pixelPos);

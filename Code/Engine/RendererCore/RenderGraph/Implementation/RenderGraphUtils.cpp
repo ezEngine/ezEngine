@@ -65,7 +65,7 @@ ezRenderGraphTextureHandle ezRenderGraphUtils::GenerateMipMaps(ezGALTextureHandl
     return hGraphTexture;
 
   static ezHashedString sCameraMode = ezMakeHashedString("CAMERA_MODE");
-  static ezHashedString sPerspective = ezMakeHashedString("CAMERA_MODE_PERSPECTIVE");
+  static ezHashedString sPerspective = ezMakeHashedString("CAMERA_MODE_MONO");
 
   const ezUInt32 uiArraySliceEnd = range.m_uiBaseArraySlice + range.m_uiArraySlices;
   const ezUInt32 uiMipEnd = range.m_uiBaseMipLevel + range.m_uiMipLevels;
