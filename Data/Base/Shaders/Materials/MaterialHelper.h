@@ -149,12 +149,8 @@ ezMaterialData FillMaterialData()
 #endif
 
 #if defined(USE_NORMAL)
-#  if TWO_SIDED == TRUE && defined(USE_TWO_SIDED_LIGHTING)
-#    if FLIP_WINDING == TRUE
-  G.Input.Normal = G.Input.FrontFace ? -G.Input.Normal : G.Input.Normal;
-#    else
+#  if defined(USE_TWO_SIDED_LIGHTING)
   G.Input.Normal = G.Input.FrontFace ? G.Input.Normal : -G.Input.Normal;
-#    endif
 #  endif
 
   matData.vertexNormal = normalize(G.Input.Normal);

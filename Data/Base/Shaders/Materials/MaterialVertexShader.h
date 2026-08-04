@@ -115,6 +115,12 @@ VS_OUT FillVertexData(VS_IN Input)
   Output.BiTangent = normalize(mul(objectToWorldNormal, bitangent));
 #endif
 
+#if defined(USE_NORMAL) && defined(USE_TWO_SIDED_LIGHTING) && defined(FLIP_WINDING)
+#  if FLIP_WINDING == TRUE
+  Output.Normal = -Output.Normal;
+#  endif
+#endif
+
 #if defined(USE_TEXCOORD0)
   Output.TexCoord0 = Input.TexCoord0;
 #  if defined(USE_TEXCOORD1)

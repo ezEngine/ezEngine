@@ -54,14 +54,12 @@ struct STAGE_TEMPLATE
   uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
 #endif
 
-#if defined(PIXEL_SHADER) && defined(TWO_SIDED)
-#  if TWO_SIDED == TRUE
-#    if defined(VULKAN) || defined(WGSL)
+#if defined(PIXEL_SHADER) && defined(USE_TWO_SIDED_LIGHTING)
+#  if defined(VULKAN) || defined(WGSL)
   // uint type is not supported by DXC/SPIR-V for SV_IsFrontFace
   bool FrontFace : SV_IsFrontFace;
-#    else
+#  else
   uint FrontFace : SV_IsFrontFace;
-#    endif
 #  endif
 #endif
 };

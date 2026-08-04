@@ -79,18 +79,21 @@ BOOL1(UseHeightTexture);
 FLOAT1(HeightScale);
 INT1(PomMaxSteps);
 
-[VERTEXSHADER]
+[SHADER]
 
 #define USE_NORMAL
 #define USE_TANGENT
 #define USE_TEXCOORD0
-
-#if VERTEX_SKINNING
-  #define USE_SKINNING
-#endif
+#define USE_TWO_SIDED_LIGHTING
 
 #if RENDER_PASS == RENDER_PASS_EDITOR
   #define USE_DEBUG_INTERPOLATOR
+#endif
+
+[VERTEXSHADER]
+
+#if VERTEX_SKINNING
+  #define USE_SKINNING
 #endif
 
 #include <Shaders/Materials/MaterialVertexShader.h>
@@ -102,21 +105,13 @@ VS_OUT main(VS_IN Input)
 
 [PIXELSHADER]
 
-#define USE_NORMAL
-#define USE_TANGENT
-#define USE_TEXCOORD0
 #define USE_SIMPLE_MATERIAL_MODEL
 #define USE_MATERIAL_EMISSIVE
 #define USE_MATERIAL_OCCLUSION
-#define USE_TWO_SIDED_LIGHTING
 #define USE_DECALS
 #define USE_FOG
 #define USE_CUSTOM_DITHER_NOISE
 #define CUSTOM_GLOBALS float2 ParallaxTexCoord;
-
-#if RENDER_PASS == RENDER_PASS_EDITOR
-  #define USE_DEBUG_INTERPOLATOR
-#endif
 
 #include <Shaders/Materials/MaterialPixelShader.h>
 
