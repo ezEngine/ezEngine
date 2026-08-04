@@ -30,10 +30,12 @@
 #    endif
 #  endif
 
-#  if defined(USE_ALPHA_TEST) && defined(MSAA)
-#    if MSAA == TRUE
-#      define WRITE_COVERAGE
-#    endif
+// SV_Coverage is declared unconditionally rather than per MSAA permutation. Without MSAA the
+// global NumMsaaSamples is 1, so every sample loop runs once and only bit 0 of the coverage mask
+// is used, which reproduces the single sample alpha test exactly. Writing it costs nothing extra
+// here because the alpha test already contains a discard, which defeats early-Z either way.
+#  if defined(USE_ALPHA_TEST)
+#    define WRITE_COVERAGE
 #  endif
 
 #endif
@@ -41,11 +43,7 @@
 #if BLEND_MODE == BLEND_MODE_TRANSPARENT && RENDER_PASS == RENDER_PASS_DEPTH_ONLY
 #  define USE_ALPHA_TEST
 #  define USE_DITHERING
-#  if defined(MSAA)
-#    if MSAA == TRUE
-#      define WRITE_COVERAGE
-#    endif
-#  endif
+#  define WRITE_COVERAGE
 #endif
 
 #if SHADING_QUALITY == SHADING_QUALITY_NORMAL

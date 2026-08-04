@@ -6,7 +6,6 @@ ALL
 SHAPE_ICON
 BLEND_MODE
 RENDER_PASS
-MSAA
 TWO_SIDED = FALSE
 FLIP_WINDING = FALSE
 CAMERA_MODE
@@ -130,7 +129,8 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 
 [PIXELSHADER]
 
-#if BLEND_MODE == BLEND_MODE_MASKED && MSAA
+// Declared regardless of MSAA - see the comment in MaterialPixelShader.h.
+#if BLEND_MODE == BLEND_MODE_MASKED
   #define WRITE_COVERAGE
 #endif
 
