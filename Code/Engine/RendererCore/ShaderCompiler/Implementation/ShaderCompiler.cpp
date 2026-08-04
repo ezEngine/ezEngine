@@ -606,6 +606,9 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
           ezLog::Error(pLog, "Writing stage {0} binary failed", stage);
           return EZ_FAILURE;
         }
+        // Permutations are compiled from several worker threads at once, so this shares the lock
+        // that LoadStageBinary() uses for the same map.
+        EZ_LOCK(ezShaderStageBinary::s_ShaderStageBinariesLock);
         ezShaderStageBinary::s_ShaderStageBinaries[stage].Insert(bin.m_uiSourceHash, bin);
       }
     }
