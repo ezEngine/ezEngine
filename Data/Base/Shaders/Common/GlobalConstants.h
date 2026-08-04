@@ -59,6 +59,7 @@ CONSTANT_BUFFER(ezGlobalConstants, 0)
   INT1(RenderPass);
   BOOL1(IsShadowPass);
   UINT1(NumMsaaSamples);
+  BOOL1(IsOrthographicCamera);
 };
 
 #include "CameraConstantsAccess.h"

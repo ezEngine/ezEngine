@@ -49,11 +49,9 @@ float4 main(PS_IN Input)
   s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
 #  endif
 
-  float proximityFadeOut = 1.0;
-
-#  if CAMERA_MODE != CAMERA_MODE_ORTHO
-  proximityFadeOut = CalcProximityFadeOut(Input.Position);
-#  endif
+  // The fade out is based on distance to the camera, which is not meaningful under an
+  // orthographic projection.
+  float proximityFadeOut = IsOrthographicCamera ? 1.0 : CalcProximityFadeOut(Input.Position);
 
   float opacity = proximityFadeOut * GetParticleOpacity();
   if (opacity <= 1.0 / 255.0)
