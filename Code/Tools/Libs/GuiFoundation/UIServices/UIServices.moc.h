@@ -76,6 +76,17 @@ public:
   /// Set to true if the application doesn't show any window and only works in the background
   static void SetHeadless(bool bHeadless);
 
+  /// True if no user is present to interact with the application. Always true in headless mode.
+  static bool IsUnattended();
+
+  /// Set if the application runs without a user present, e.g. driven by a script or an AI agent.
+  ///
+  /// The UI is still shown, but everything that would block waiting for input must not be displayed. The
+  /// message box functions below therefore only log their message and return their unattended answer. Code
+  /// that opens a modal dialog directly (file pickers, custom ezQtDialog, ...) has to check this itself,
+  /// otherwise it stalls the application indefinitely.
+  static void SetUnattended();
+
   /// Shows a non-modal color dialog. The Qt slots are called when the selected color is changed or when the dialog is closed and the result
   /// accepted or rejected.
   void ShowColorDialog(const ezColor& color, bool bAlpha, bool bHDR, QWidget* pParent, const char* szSlotCurColChanged, const char* szSlotAccept, const char* szSlotReject);
@@ -91,8 +102,15 @@ public:
   /// Shows an warning message box
   static void MessageBoxWarning(const ezFormatString& msg);
 
-  /// Shows a question message box and returns which button the user pressed
-  static QMessageBox::StandardButton MessageBoxQuestion(const ezFormatString& msg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton);
+  /// Shows a question message box and returns which button the user pressed.
+  ///
+  /// \param defaultButton The button that is preselected for the user. This is typically the option that prevents
+  ///        accidents, ie. the one that does the least harm when someone confirms the dialog without reading it.
+  /// \param unattendedButton The answer that is returned, without showing anything, when no user is present
+  ///        (see IsUnattended()). This is usually *not* the same as defaultButton: an automated caller needs the
+  ///        answer that lets the operation proceed, otherwise scripted work silently does nothing. Use the
+  ///        accident-preventing answer here only when proceeding would destroy data that cannot be recovered.
+  static QMessageBox::StandardButton MessageBoxQuestion(const ezFormatString& msg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton, QMessageBox::StandardButton unattendedButton);
 
   /// Use this if you need to display a status bar message in any/all documents. Go directly through the document, if you only want to show a
   /// message in a single document window.
@@ -176,6 +194,7 @@ private:
   static ezMap<ezString, QImage> s_ImagesCache;
   static ezMap<ezString, QPixmap> s_PixmapsCache;
   static bool s_bHeadless;
+  static bool s_bUnattended;
   static TickEvent s_LastTickEvent;
   bool m_bIsDrawingATM = false;
 };

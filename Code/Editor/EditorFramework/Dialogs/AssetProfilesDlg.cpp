@@ -306,7 +306,7 @@ void ezQtAssetProfilesDlg::on_DeleteButton_clicked()
   if (sel[0] == m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0])
     return;
 
-  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(ezFmt("Delete the selected profile?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
+  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(ezFmt("Delete the selected profile?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) != QMessageBox::Yes)
     return;
 
   m_ProfileBindings[sel[0]->GetGuid()].m_State = Binding::State::Deleted;

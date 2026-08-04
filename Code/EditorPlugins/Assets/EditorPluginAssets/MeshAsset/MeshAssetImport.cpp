@@ -53,14 +53,7 @@ void ezMeshAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ez
 
 ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
-  ezStringBuilder sOutFile = sInputFileAbs;
-  sOutFile.ChangeFileExtension(GetDocumentExtension());
-
-  if (ezOSFile::ExistsFile(sOutFile))
-  {
-    ezLog::Info("Skipping mesh import, file has been imported before: '{}'", sOutFile);
-    return ezStatus(EZ_SUCCESS);
-  }
+  const ezStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -79,7 +72,8 @@ ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezSt
     sSharedMaterialsFolderAbs = tmp;
   }
 
-  if (m_bShowImportDlg)
+  // Without a user there is nobody to close this dialog, so the defaults below are used as they are.
+  if (m_bShowImportDlg && !pApp->IsInUnattendedMode())
   {
     ezMeshImportDlg dlg(nullptr);
     dlg.m_bShowAnimMeshOptions = m_bAnimatedMesh;

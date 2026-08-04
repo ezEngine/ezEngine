@@ -72,11 +72,6 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& ref_testFramework)
 
   UpdateButtonStates();
   LoadGUILayout();
-
-  if (ref_testFramework.GetSettings().m_bRunTests)
-  {
-    QTimer::singleShot(10, this, SLOT(on_actionRunTests_triggered()));
-  }
 }
 
 ezQtTestGUI::~ezQtTestGUI()
@@ -216,9 +211,6 @@ void ezQtTestGUI::on_actionRunTests_triggered()
     else
     {
       m_pStatusTextWorkState->setText("<p><span style=\"font-weight:600; color:#00aa00;\">  [All Tests Passed]</span></p>");
-
-      if (m_pTestFramework->GetSettings().m_bCloseOnSuccess)
-        QTimer::singleShot(100, this, SLOT(on_actionQuit_triggered()));
     }
   }
 }

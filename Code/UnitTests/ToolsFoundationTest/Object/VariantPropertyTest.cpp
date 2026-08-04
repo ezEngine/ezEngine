@@ -1,6 +1,7 @@
 #include <ToolsFoundationTest/ToolsFoundationTestPCH.h>
 
 #include <ToolsFoundation/Object/VariantSubAccessor.h>
+#include <ToolsFoundation/Reflection/VariantStorageAccessor.h>
 #include <ToolsFoundationTest/Object/TestObjectManager.h>
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
 
@@ -269,5 +270,69 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, VariantPropertyTest)
       TestArray(accessor2, pObject, pPropDict, [&]()
         { return (*pNative->m_VariantDictionary.GetValue("BBB"))["B"]; });
     }
+  }
+}
+
+EZ_CREATE_SIMPLE_TEST(DocumentObject, VariantStorageAccessorBounds)
+{
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Array index bounds")
+  {
+    ezVariantArray values;
+    values.PushBack(ezVariant(0));
+    values.PushBack(ezVariant(1));
+
+    ezVariant container = values;
+    ezVariantStorageAccessor accessor("TestArray", container);
+
+    EZ_TEST_INT(accessor.GetCount(), 2);
+
+    // Reading inside the array works, past the end fails rather than reading out of bounds.
+    ezStatus res(EZ_SUCCESS);
+    EZ_TEST_BOOL(accessor.GetValue(1, &res).IsValid());
+    EZ_TEST_BOOL(res.Succeeded());
+
+    accessor.GetValue(2, &res);
+    EZ_TEST_BOOL(res.Failed());
+
+    accessor.GetValue(99, &res);
+    EZ_TEST_BOOL(res.Failed());
+
+    // Index == GetCount() is one past the last element: valid to insert at, not valid to remove or
+    // overwrite. RemoveValue() used to accept it and then read out of bounds.
+    EZ_TEST_BOOL(accessor.RemoveValue(2).Failed());
+    EZ_TEST_BOOL(accessor.RemoveValue(99).Failed());
+    EZ_TEST_BOOL(accessor.SetValue(ezVariant(7), 2).Failed());
+
+    EZ_TEST_INT(accessor.GetCount(), 2);
+
+    // Inserting at the end is allowed, beyond it is not.
+    EZ_TEST_BOOL(accessor.InsertValue(2, ezVariant(2)).Succeeded());
+    EZ_TEST_INT(accessor.GetCount(), 3);
+    EZ_TEST_BOOL(accessor.InsertValue(99, ezVariant(3)).Failed());
+
+    // Removing the now-last element works, and the one after it still does not.
+    EZ_TEST_BOOL(accessor.RemoveValue(2).Succeeded());
+    EZ_TEST_INT(accessor.GetCount(), 2);
+    EZ_TEST_BOOL(accessor.RemoveValue(2).Failed());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Dictionary key bounds")
+  {
+    ezVariantDictionary values;
+    values.Insert("A", ezVariant(0));
+
+    ezVariant container = values;
+    ezVariantStorageAccessor accessor("TestDict", container);
+
+    ezStatus res(EZ_SUCCESS);
+    accessor.GetValue("Missing", &res);
+    EZ_TEST_BOOL(res.Failed());
+
+    EZ_TEST_BOOL(accessor.RemoveValue("Missing").Failed());
+    EZ_TEST_BOOL(accessor.SetValue(ezVariant(1), "Missing").Failed());
+    EZ_TEST_BOOL(accessor.InsertValue("A", ezVariant(1)).Failed()); // already exists
+
+    EZ_TEST_BOOL(accessor.RemoveValue("A").Succeeded());
+    EZ_TEST_INT(accessor.GetCount(), 0);
   }
 }

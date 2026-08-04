@@ -408,7 +408,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientEndOperation(bool commit)
 
 void ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange()
 {
-  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("This will adjust the positions of all control points, such that the minimum is at 0 and the maximum at 1.\n\nContinue?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) !=
+  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("This will adjust the positions of all control points, such that the minimum is at 0 and the maximum at 1.\n\nContinue?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Yes) !=
       QMessageBox::StandardButton::Yes)
     return;
 

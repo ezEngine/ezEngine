@@ -167,7 +167,7 @@ void ezQtAssetBrowserWidget::dropEvent(QDropEvent* pEvent)
     {
       if (!overWriteAll && ezOSFile::ExistsDirectory(dstPath))
       {
-        const auto res = ezQtUiServices::MessageBoxQuestion(ezFmt("This folder already exists:\n'{}'\n\nOverwrite existing files inside it?", dstPath), QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Cancel, QMessageBox::Cancel);
+        const auto res = ezQtUiServices::MessageBoxQuestion(ezFmt("This folder already exists:\n'{}'\n\nOverwrite existing files inside it?", dstPath), QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Cancel, QMessageBox::Cancel, QMessageBox::YesToAll);
 
         switch (res)
         {
@@ -194,7 +194,7 @@ void ezQtAssetBrowserWidget::dropEvent(QDropEvent* pEvent)
     {
       if (!overWriteAll && ezOSFile::ExistsFile(dstPath))
       {
-        const auto res = ezQtUiServices::MessageBoxQuestion(ezFmt("This file already exists:\n'{}'\n\nOverwrite it?", dstPath), QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Cancel, QMessageBox::Cancel);
+        const auto res = ezQtUiServices::MessageBoxQuestion(ezFmt("This file already exists:\n'{}'\n\nOverwrite it?", dstPath), QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Cancel, QMessageBox::Cancel, QMessageBox::YesToAll);
 
         switch (res)
         {
@@ -719,7 +719,7 @@ void ezQtAssetBrowserWidget::DeleteSelection(bool bAskUser)
 
   if (bAskUser)
   {
-    QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Delete the selected file?\n\nThis operation cannot be undone."), QMessageBox::StandardButton::Cancel | QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Cancel);
+    QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Delete the selected file?\n\nThis operation cannot be undone."), QMessageBox::StandardButton::Cancel | QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Yes);
     if (choice == QMessageBox::StandardButton::Cancel)
       return;
   }
@@ -792,7 +792,7 @@ void ezQtAssetBrowserWidget::DeleteAndReplaceSelection()
     QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(
       "This asset is not referenced by any other assets.\n\nDo you want to delete it?",
       QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::Cancel,
-      QMessageBox::StandardButton::Cancel);
+      QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Yes);
 
     if (choice == QMessageBox::StandardButton::Yes)
     {
@@ -808,7 +808,7 @@ void ezQtAssetBrowserWidget::DeleteAndReplaceSelection()
           "Do you want to choose a replacement asset and update all references before deleting?",
       uses.GetCount()),
     QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel,
-    QMessageBox::StandardButton::Yes);
+    QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Yes);
 
   if (choice == QMessageBox::StandardButton::Cancel)
     return;

@@ -523,6 +523,41 @@ void ezStandardJSONWriter::BeginObject(ezStringView sName)
   OutputIndentation();
 }
 
+void ezStandardJSONWriter::EndAll()
+{
+  // Works top down through whatever is open, using the public functions so that commas, indentation
+  // and the NamedObject/NamedArray cascade into EndVariable() all behave as during normal writing.
+  while (m_StateStack.GetCount() > 1)
+  {
+    switch (m_StateStack.PeekBack().m_State)
+    {
+      case ezStandardJSONWriter::Variable:
+        // EndVariable() asserts unless something was written for it, and an object member without a
+        // value is not representable, so the unfinished variable becomes null.
+        if (!m_StateStack.PeekBack().m_bValueWasWritten)
+          WriteNULL();
+
+        EndVariable();
+        break;
+
+      case ezStandardJSONWriter::Object:
+      case ezStandardJSONWriter::NamedObject:
+        EndObject();
+        break;
+
+      case ezStandardJSONWriter::Array:
+      case ezStandardJSONWriter::NamedArray:
+        EndArray();
+        break;
+
+      default:
+        // Nothing else can be on the stack above the initial Empty state. Bailing out rather than
+        // looping forever, since this runs on an error path where an assert would be unhelpful.
+        return;
+    }
+  }
+}
+
 void ezStandardJSONWriter::EndObject()
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;

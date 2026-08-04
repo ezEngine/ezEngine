@@ -12,6 +12,8 @@ public:
   ezQtExportProjectDlg(QWidget* pParent);
 
   static bool s_bTransformAll;
+  static bool s_bCreateLaunchScripts;
+  static bool s_bOpenOutputFolder;
 
 private Q_SLOTS:
   void on_ExportProjectButton_clicked();

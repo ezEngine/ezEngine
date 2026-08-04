@@ -81,7 +81,7 @@ ezResult ezQtModifiedDocumentsDlg::SaveDocument(ezDocument* pDoc)
       if (ezQtUiServices::MessageBoxQuestion("Warning! This document contained unknown object types that could not be loaded. Saving the "
                                              "document means those objects will get lost permanently.\n\nDo you really want to save this "
                                              "document?",
-            QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
+            QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
         return EZ_SUCCESS; // failed successfully
     }
   }

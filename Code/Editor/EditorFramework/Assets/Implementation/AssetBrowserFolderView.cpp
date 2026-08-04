@@ -314,7 +314,7 @@ void eqQtAssetBrowserFolderView::dropEvent(QDropEvent* e)
     return;
   }
 
-  QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Move {} items into '{}'?", files.GetCount(), sTargetFolder), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No);
+  QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Move {} items into '{}'?", files.GetCount(), sTargetFolder), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes);
   if (choice == QMessageBox::StandardButton::No)
     return;
 
@@ -402,7 +402,7 @@ void eqQtAssetBrowserFolderView::DeleteFolder()
     QModelIndex id = indexFromItem(pCurrentItem);
     QString sQtAbsPath = id.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
     ezString sAbsPath = qtToEzString(sQtAbsPath);
-    QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Do you want to delete the folder\n'{}'?", sAbsPath), QMessageBox::StandardButton::Cancel | QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Cancel);
+    QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Do you want to delete the folder\n'{}'?", sAbsPath), QMessageBox::StandardButton::Cancel | QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Yes);
     if (choice == QMessageBox::StandardButton::Cancel)
       return;
 

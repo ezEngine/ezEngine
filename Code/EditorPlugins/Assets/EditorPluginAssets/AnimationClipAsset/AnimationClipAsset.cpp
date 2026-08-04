@@ -281,38 +281,41 @@ void ezAnimationClipAssetDocumentGenerator::GetImportModes(ezStringView sAbsInpu
   }
 }
 
+bool ezAnimationClipAssetDocumentGenerator::NeedsImport(ezStringView sInputFileAbs, ezStringView sMode) const
+{
+  // In this mode the clip documents are named after the animations inside the file, which are only
+  // known after parsing it. Always import, the loop over the clips skips the ones that exist.
+  if (sMode == "AnimationClipImport_All")
+    return true;
+
+  return SUPER::NeedsImport(sInputFileAbs, sMode);
+}
+
 ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
-  ezStringBuilder sOutFile = sInputFileAbs;
-  sOutFile.ChangeFileExtension(GetDocumentExtension());
+  const ezStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
   ezStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
 
-  if (sMode == "AnimationClipImport_Single")
-  {
-    if (ezOSFile::ExistsFile(sOutFile))
-    {
-      ezLog::Info("Skipping animation clip import, file has been imported before: '{}'", sOutFile);
-      return ezStatus(EZ_SUCCESS);
-    }
-
-    // skip the dialog below, if nothing will be imported anyway
-  }
-
   ezStringBuilder title;
   title.SetFormat("Select Preview Mesh for Animation Clip '{}'", sInputFileAbs.GetFileName());
 
   ezStringBuilder sPreviewMesh;
 
-  ezQtAssetBrowserDlg dlg(nullptr, ezUuid::MakeInvalid(), "CompatibleAsset_Mesh_Skinned", title);
-  if (dlg.exec() != 0)
+  // The preview mesh is only used for previewing the clip in the editor, so leaving it empty is fine.
+  // Without a user there is nobody to close this dialog, which would block the editor indefinitely.
+  if (!pApp->IsInUnattendedMode())
   {
-    if (dlg.GetSelectedAssetGuid().IsValid())
+    ezQtAssetBrowserDlg dlg(nullptr, ezUuid::MakeInvalid(), "CompatibleAsset_Mesh_Skinned", title);
+    if (dlg.exec() != 0)
     {
-      ezConversionUtils::ToString(dlg.GetSelectedAssetGuid(), sPreviewMesh);
+      if (dlg.GetSelectedAssetGuid().IsValid())
+      {
+        ezConversionUtils::ToString(dlg.GetSelectedAssetGuid(), sPreviewMesh);
+      }
     }
   }
 

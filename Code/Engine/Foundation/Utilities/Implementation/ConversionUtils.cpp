@@ -791,6 +791,15 @@ namespace ezConversionUtils
     return true;
   }
 
+  ezResult TryConvertStringToUuid(ezStringView sText, ezUuid& out_uuid)
+  {
+    if (!IsStringUuid(sText))
+      return EZ_FAILURE;
+
+    out_uuid = ConvertStringToUuid(sText);
+    return EZ_SUCCESS;
+  }
+
   ezUuid ConvertStringToUuid(ezStringView sText)
   {
     EZ_ASSERT_DEBUG(IsStringUuid(sText), "The given string is not in the correct Uuid format: '{0}'", sText);

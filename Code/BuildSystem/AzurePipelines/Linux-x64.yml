@@ -115,7 +115,7 @@ jobs:
     inputs:
       targetType: inline
       script: |
-        ./Output/Bin/LinuxNinjaGccDev64/FoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/FoundationTest
+        ./Output/Bin/LinuxNinjaGccDev64/FoundationTest -nogui -outputDir $(Build.ArtifactStagingDirectory)/FoundationTest
 
   - task: Bash@3
     displayName: CoreTest
@@ -132,7 +132,7 @@ jobs:
           exec lightdm-session &
           sleep 2
         fi
-        ./Output/Bin/LinuxNinjaGccDev64/CoreTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/CoreTest
+        ./Output/Bin/LinuxNinjaGccDev64/CoreTest -nogui -outputDir $(Build.ArtifactStagingDirectory)/CoreTest
 
   - task: Bash@3
     displayName: ToolsFoundationTest
@@ -140,7 +140,7 @@ jobs:
     inputs:
       targetType: inline
       script: |
-        ./Output/Bin/LinuxNinjaGccDev64/ToolsFoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/ToolsFoundationTest
+        ./Output/Bin/LinuxNinjaGccDev64/ToolsFoundationTest -nogui -outputDir $(Build.ArtifactStagingDirectory)/ToolsFoundationTest
 
   - task: Bash@3
     displayName: RendererTest
@@ -153,7 +153,7 @@ jobs:
           export VK_ICD_FILENAMES=/usr/local/share/vulkan/icd.d/lvp_icd.x86_64.json
         fi
         sudo sysctl -w kernel.yama.ptrace_scope=0 # Required for shared texture access
-        ./Output/Bin/LinuxNinjaGccDev64/RendererTest -debugdevice -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/RendererTest
+        ./Output/Bin/LinuxNinjaGccDev64/RendererTest -debugdevice -nogui -outputDir $(Build.ArtifactStagingDirectory)/RendererTest
 
   - task: Bash@3
     displayName: EditorTest
@@ -166,7 +166,7 @@ jobs:
           export DISPLAY=:1
           export VK_ICD_FILENAMES=/usr/local/share/vulkan/icd.d/lvp_icd.x86_64.json
         fi
-        ./Output/Bin/LinuxNinjaGccDev64/EditorTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/EditorTest
+        ./Output/Bin/LinuxNinjaGccDev64/EditorTest -nogui -outputDir $(Build.ArtifactStagingDirectory)/EditorTest
         
   - task: Bash@3
     displayName: GameEngineTest
@@ -179,7 +179,7 @@ jobs:
           export DISPLAY=:1
           export VK_ICD_FILENAMES=/usr/local/share/vulkan/icd.d/lvp_icd.x86_64.json
         fi
-        ./Output/Bin/LinuxNinjaGccDev64/GameEngineTest -debugdevice -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/GameEngineTest
+        ./Output/Bin/LinuxNinjaGccDev64/GameEngineTest -debugdevice -nogui -outputDir $(Build.ArtifactStagingDirectory)/GameEngineTest
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'

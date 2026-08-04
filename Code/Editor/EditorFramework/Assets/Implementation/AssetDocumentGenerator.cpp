@@ -260,7 +260,19 @@ void ezAssetDocumentGenerator::SortAndSelectBestImportOption(ezDynamicArray<ezAs
   }
 }
 
-ezStatus ezAssetDocumentGenerator::Import(ezStringView sInputFileAbs, ezStringView sMode, bool bOpenDocument)
+ezStringBuilder ezAssetDocumentGenerator::GetImportTargetPath(ezStringView sInputFileAbs) const
+{
+  ezStringBuilder sOutFile = sInputFileAbs;
+  sOutFile.ChangeFileExtension(GetDocumentExtension());
+  return sOutFile;
+}
+
+bool ezAssetDocumentGenerator::NeedsImport(ezStringView sInputFileAbs, ezStringView sMode) const
+{
+  return !ezOSFile::ExistsFile(GetImportTargetPath(sInputFileAbs));
+}
+
+ezStatus ezAssetDocumentGenerator::Import(ezStringView sInputFileAbs, ezStringView sMode, bool bOpenDocument, ImportResult* out_pResult, ezStringBuilder* out_pDocumentPath)
 {
   ezStringBuilder ext = sInputFileAbs.GetFileExtension();
   ext.ToLower();
@@ -268,8 +280,35 @@ ezStatus ezAssetDocumentGenerator::Import(ezStringView sInputFileAbs, ezStringVi
   if (!m_SupportedFileTypes.Contains(ext))
     return ezStatus(ezFmt("Files of type '{}' cannot be imported as '{}' documents.", ext, GetDocumentExtension()));
 
+  const ezStringBuilder sTargetPath = GetImportTargetPath(sInputFileAbs);
+
+  if (out_pDocumentPath != nullptr)
+    *out_pDocumentPath = sTargetPath;
+
+  if (!NeedsImport(sInputFileAbs, sMode))
+  {
+    ezLog::Info("Skipping import, file has been imported before: '{}'", sTargetPath);
+
+    if (out_pResult != nullptr)
+      *out_pResult = ImportResult::AlreadyExists;
+
+    return ezStatus(EZ_SUCCESS);
+  }
+
   ezTempHybridArray<ezDocument*, 16> pGeneratedDocs;
   EZ_SUCCEED_OR_RETURN(Generate(sInputFileAbs, sMode, pGeneratedDocs));
+
+  if (out_pResult != nullptr)
+  {
+    // Generating nothing without failing means everything that would have been created was already
+    // there. This is how modes that create several documents report that all of them existed.
+    *out_pResult = pGeneratedDocs.IsEmpty() ? ImportResult::AlreadyExists : ImportResult::Imported;
+  }
+
+  // For modes that create several documents the nominal target path may never be created at all,
+  // so prefer what was actually generated.
+  if (out_pDocumentPath != nullptr && !pGeneratedDocs.IsEmpty())
+    *out_pDocumentPath = pGeneratedDocs[0]->GetDocumentPath();
 
   for (ezDocument* pDoc : pGeneratedDocs)
   {

@@ -97,6 +97,14 @@ struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
 
   void UpdateExistingActions();
 
+  /// The action instances that currently exist for this descriptor.
+  ///
+  /// One descriptor can have any number of live instances, because the same action may be mapped into
+  /// several windows, menus and toolbars at once, each with its own context. State such as
+  /// ezButtonAction::IsEnabled() lives on these instances, not on the descriptor, so this is the only
+  /// way to observe an action's current state without creating an instance.
+  ezArrayPtr<ezAction* const> GetCreatedActions() const { return m_CreatedActions; }
+
 private:
   CreateActionFunc m_CreateAction;
   DeleteActionFunc m_DeleteAction;

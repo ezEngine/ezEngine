@@ -97,6 +97,11 @@ void ezQtEditorApp::SlotAutoSave()
       if (pHistory && (pHistory->IsInTransaction() || pHistory->IsInUndoRedo()))
         continue;
 
+      // Documents without a window are not being edited by the user - they are opened programmatically, e.g. by the asset curator during a transform.
+      // Auto-saving those would write changes to disk that whoever opened the document has not asked to save yet.
+      if (!pDoc->HasWindowBeenRequested())
+        continue;
+
       const ezTime tModified = pDoc->GetModifiedTime();
       if (tModified.IsPositive() && (tNow - tModified) >= tAutoSaveThreshold && tModified < tOldestTime)
       {

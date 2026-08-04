@@ -45,14 +45,11 @@ struct TestSettings
   bool m_bAutoDisableSuccessfulTests = false;
 
   // The following settings are only set via command-line.
-  bool m_bRunTests = false;          /// Only needed for GUI applications, in console mode tests are always run automatically.
-  bool m_bNoAutomaticSaving = false; /// Allows to run the test with settings through the command line without saving those settings for later.
-  bool m_bCloseOnSuccess = false;    /// Closes the application upon success immediately.
-  bool m_bNoGUI = false;             /// Starts the tests in console mode, test are started automatically.
-  bool m_bListTests = false;         /// List all test names and exit.
-  bool m_bShowHelp = false;          /// Show command line help.
-  int m_iRevision = -1;              /// Revision in the RCS of this test run. Will be written into the test results json file for later reference.
-  std::string m_sJsonOutput;         /// Absolute path to the json file the results should be written to.
-  bool m_bEnableAllTests = false;    /// Enables all test.
-  std::string m_sTestFilter;         /// Filter that does a 'contains' test on each test name.
+  bool m_bSaveState = true;  ///< Whether the test order and settings are written back to disk. Off in console mode and whenever a custom order or settings file was given.
+  bool m_bNoGUI = false;     ///< Starts the tests in console mode, tests are started automatically and the process exits when they are done.
+  bool m_bListTests = false; ///< List all test names and exit.
+  bool m_bShowHelp = false;  ///< Show command line help.
+  int m_iRevision = -1;      ///< Revision in the RCS of this test run. Will be written into the test results json file for later reference.
+  std::string m_sJsonOutput; ///< Absolute path to the json file the results should be written to.
+  std::string m_sTestFilter; ///< Filter for which tests to run. A 'contains' check, or a full wildcard match if it contains '*' or '?'. Case insensitive.
 };

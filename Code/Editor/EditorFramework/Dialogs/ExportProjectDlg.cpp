@@ -17,6 +17,8 @@
 
 
 bool ezQtExportProjectDlg::s_bTransformAll = true;
+bool ezQtExportProjectDlg::s_bCreateLaunchScripts = true;
+bool ezQtExportProjectDlg::s_bOpenOutputFolder = true;
 
 ezQtExportProjectDlg::ezQtExportProjectDlg(QWidget* pParent)
   : QDialog(pParent)
@@ -33,6 +35,8 @@ void ezQtExportProjectDlg::showEvent(QShowEvent* e)
   QDialog::showEvent(e);
 
   TransformAll->setChecked(s_bTransformAll);
+  CreateLaunchScripts->setChecked(s_bCreateLaunchScripts);
+  OpenOutputFolder->setChecked(s_bOpenOutputFolder);
 
   if (!ezCppProject::ExistsProjectCMakeListsTxt())
   {
@@ -64,6 +68,10 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   // filter out unused runtime/game plugins
   // select asset profile for export
   // copy inputs into resource: RML files
+
+  s_bTransformAll = TransformAll->isChecked();
+  s_bCreateLaunchScripts = CreateLaunchScripts->isChecked();
+  s_bOpenOutputFolder = OpenOutputFolder->isChecked();
 
   if (CompileCpp->isChecked())
   {
@@ -107,13 +115,17 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   ezLogSystemScope logScope(&logFile);
   EZ_SCOPE_EXIT(WriteLogFile());
 
-  if (ezProjectExport::ExportProject(szDstFolder, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), ezQtEditorApp::GetSingleton()->GetFileSystemConfig()).Failed())
+  if (ezProjectExport::ExportProject(szDstFolder, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), ezQtEditorApp::GetSingleton()->GetFileSystemConfig(), s_bCreateLaunchScripts).Failed())
   {
     ezQtUiServices::GetSingleton()->MessageBoxWarning("Project export failed. See log for details.");
   }
   else
   {
     ezQtUiServices::GetSingleton()->MessageBoxInformation("Project export successful.", "project-export-success");
-    ezQtUiServices::GetSingleton()->OpenInExplorer(szDstFolder, false);
+
+    if (s_bOpenOutputFolder)
+    {
+      ezQtUiServices::GetSingleton()->OpenInExplorer(szDstFolder, false);
+    }
   }
 }

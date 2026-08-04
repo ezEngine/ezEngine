@@ -466,14 +466,7 @@ void ezSkeletonAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile
 
 ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
-  ezStringBuilder sOutFile = sInputFileAbs;
-  sOutFile.ChangeFileExtension(GetDocumentExtension());
-
-  if (ezOSFile::ExistsFile(sOutFile))
-  {
-    ezLog::Info("Skipping skeleton import, file has been imported before: '{}'", sOutFile);
-    return ezStatus(EZ_SUCCESS);
-  }
+  const ezStringBuilder sOutFile = GetImportTargetPath(sInputFileAbs);
 
   auto pApp = ezQtEditorApp::GetSingleton();
 

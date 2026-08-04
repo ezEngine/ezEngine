@@ -261,6 +261,18 @@ public:
   /// If any error was encountered at any time during writing, this will return true
   bool HadWriteError() const;
 
+  /// \brief Gives up on the output, so that the writer may be destroyed with containers still open.
+  ///
+  /// Derived writers are allowed to assert on destruction that every BeginObject() / BeginArray() was
+  /// matched, because an unbalanced stream is usually a bug. That check makes an early return between
+  /// Begin and End fatal, which is a problem for code that discovers half way through writing that it
+  /// cannot continue - a failed lookup, an object that turned out to be invalid.
+  ///
+  /// Calling this marks the output as unusable and suppresses that check. The written text is not
+  /// valid JSON afterwards and must not be used. To bail out and still produce usable output, use
+  /// ezStandardJSONWriter::EndAll() instead.
+  void Abandon() { SetWriteErrorState(); }
+
 protected:
   WhitespaceMode m_WhitespaceMode = WhitespaceMode::All;
   ArrayMode m_ArrayMode = ArrayMode::InOneLine;
@@ -390,6 +402,16 @@ public:
   /// \brief \copydoc ezJSONWriter::EndObject()
   virtual void EndObject() override; // [tested]
 
+  /// \brief Closes every object and array that is still open, so that the output becomes valid JSON.
+  ///
+  /// For code that has to stop writing part way through - a lookup failed, the data turned out to be
+  /// unusable - but still wants to return what it has. Without this, the only options are matching
+  /// every Begin with an End on the error path or letting the destructor assert.
+  ///
+  /// A variable that was begun but has no value yet gets a null written for it, because a JSON object
+  /// member without a value cannot be represented. Does nothing if nothing is open.
+  void EndAll(); // [tested]
+
 protected:
   void End();
 
@@ -413,7 +435,7 @@ protected:
     bool m_bValueWasWritten;
   };
 
-  struct CommaWriter
+  struct EZ_FOUNDATION_DLL CommaWriter
   {
     CommaWriter(ezStandardJSONWriter* pWriter);
     ~CommaWriter();

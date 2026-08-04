@@ -159,7 +159,11 @@ ezStatus ezVariantStorageAccessor::RemoveValue(const ezVariant& index)
   {
     ezVariantArray& values = m_Value.GetWritable<ezVariantArray>();
     const ezUInt32 uiIndex = index.ConvertTo<ezUInt32>();
-    if (uiIndex > values.GetCount())
+
+    // '>=', not '>': index == GetCount() addresses one past the last element, which is a valid
+    // position to insert at but not one to remove from. With '>' it reached RemoveAtAndCopy() and
+    // read out of bounds.
+    if (uiIndex >= values.GetCount())
       return ezStatus(ezFmt("RemoveValue: index '{0}' for property '{1}' is out of bounds.", uiIndex, m_sProperty));
 
     values.RemoveAtAndCopy(uiIndex);

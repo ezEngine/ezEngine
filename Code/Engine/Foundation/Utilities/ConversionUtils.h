@@ -166,7 +166,13 @@ namespace ezConversionUtils
   inline void ConvertBinaryToHex(const void* pBinaryData, ezUInt32 uiBytes, APPEND_CONTAINER_LAMBDA append); // [tested]
 
   /// \brief Converts a string that was written with ezConversionUtils::ToString(ezUuid) back to an ezUuid object.
+  ///
+  /// Asserts that the string actually is a UUID.
+  /// Use TryConvertStringToUuid() when the input is not guaranteed.
   EZ_FOUNDATION_DLL ezUuid ConvertStringToUuid(ezStringView sText); // [tested]
+
+  /// \brief Converts a string to an ezUuid and returns whether it was one.
+  EZ_FOUNDATION_DLL ezResult TryConvertStringToUuid(ezStringView sText, ezUuid& out_uuid); // [tested]
 
   /// \brief Returns true when the given string is in the exact format "{ 05af8d07-0b38-44a6-8d50-49731ae2625d }"
   /// This includes braces, whitespaces and dashes. This is the format that ToString produces.

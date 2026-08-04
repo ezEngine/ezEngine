@@ -148,7 +148,7 @@ void ezLayerAction::ToggleLayerLoaded(ezScene2Document* pSceneDocument, ezUuid l
         }
       }
       sMsg.SetFormat("The layer '{}' has been modified.\nSave before unloading?", sLayerName);
-      QMessageBox::StandardButton res = ezQtUiServices::MessageBoxQuestion(sMsg, QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::No);
+      QMessageBox::StandardButton res = ezQtUiServices::MessageBoxQuestion(sMsg, QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes);
       switch (res)
       {
         case QMessageBox::Yes:

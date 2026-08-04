@@ -137,7 +137,7 @@ void ezQtFmodProjectSettingsDlg::on_ButtonBox_clicked(QAbstractButton* pButton)
 
     if (m_ConfigsOld.m_AssetProfiles != m_Configs.m_AssetProfiles)
     {
-      if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Save the changes to the FMOD configuration?\nYou need to reload the project for the changes to take effect.", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+      if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Save the changes to the FMOD configuration?\nYou need to reload the project for the changes to take effect.", QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
       {
         ezQtEditorApp::GetSingleton()->AddReloadProjectRequiredReason("FMOD configuration was modified.");
 
