@@ -56,6 +56,8 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedPropertyDescriptor : public ezAttribute
   ezString m_sName; ///< The name of this property. E.g. what ezAbstractProperty::GetPropertyName() returns.
   ezString m_sType; ///< The name of the type of the property. E.g. ezAbstractProperty::GetSpecificType().GetTypeName()
 
+  /// ezPropertyFlags::Phantom is not part of a descriptor: it is added by the ezPhantom*Property classes when the
+  /// descriptor is registered, so setting it here has no effect other than writing it into serialized documents.
   ezBitflags<ezPropertyFlags> m_Flags;
   ezVariant m_ConstantValue;
 };
@@ -99,6 +101,8 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeDescriptor : public ezAttributeHold
   ezString m_sPluginName;
   ezString m_sParentTypeName;
 
+  /// ezTypeFlags::Phantom is not part of a descriptor: ezPhantomRTTI adds it to every type it creates, so setting it
+  /// here has no effect other than writing it into serialized documents.
   ezBitflags<ezTypeFlags> m_Flags;
   ezDynamicArray<ezReflectedPropertyDescriptor> m_Properties;
   ezDynamicArray<ezReflectedFunctionDescriptor> m_Functions;

@@ -376,6 +376,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
       const ezRTTI* NewInnerHandle = ezPhantomRttiManager::RegisterType(descInner);
       EZ_TEST_BOOL(NewInnerHandle == pRttiInnerP);
 
+      // updating a type must not make it stop being phantom - descriptors don't carry that flag
+      EZ_TEST_BOOL(NewInnerHandle->GetTypeFlags().IsSet(ezTypeFlags::Phantom));
+
       // Check that the new property is present.
       AccessorPropertyTest(innerAccessor, "IP2", ezVariant::Type::Vector4);
 

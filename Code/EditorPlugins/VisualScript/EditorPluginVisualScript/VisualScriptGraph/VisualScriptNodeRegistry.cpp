@@ -313,7 +313,7 @@ void ezVisualScriptNodeRegistry::UpdateNodeTypes()
     desc.m_sTypeName = "ezVisualScriptNodeBase";
     desc.m_sPluginName = szPluginName;
     desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
-    desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;
+    desc.m_Flags = ezTypeFlags::Abstract | ezTypeFlags::Class;
 
     m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
   }
@@ -2070,7 +2070,7 @@ void ezVisualScriptNodeRegistry::FillDesc(ezReflectedTypeDescriptor& desc, ezStr
   desc.m_sTypeName = sTypeNameFull;
   desc.m_sPluginName = szPluginName;
   desc.m_sParentTypeName = m_pBaseType->GetTypeName();
-  desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
+  desc.m_Flags = ezTypeFlags::Class;
 
   // Color
   {

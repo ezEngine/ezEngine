@@ -234,7 +234,7 @@ void ezVisualShaderTypeRegistry::LoadNodeData()
     desc.m_sTypeName = "ezVisualShaderNodeBase";
     desc.m_sPluginName = "VisualShaderTypes";
     desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
-    desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;
+    desc.m_Flags = ezTypeFlags::Abstract | ezTypeFlags::Class;
     desc.m_uiTypeVersion = 1;
 
     m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
@@ -246,7 +246,7 @@ void ezVisualShaderTypeRegistry::LoadNodeData()
     desc.m_sTypeName = "ezVisualShaderSamplerPin";
     desc.m_sPluginName = "VisualShaderTypes";
     desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
-    desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
+    desc.m_Flags = ezTypeFlags::Class;
     desc.m_uiTypeVersion = 1;
 
     m_pSamplerPinType = ezPhantomRttiManager::RegisterType(desc);
@@ -264,7 +264,7 @@ const ezRTTI* ezVisualShaderTypeRegistry::GenerateTypeFromDesc(const ezVisualSha
   desc.m_sTypeName = temp;
   desc.m_sPluginName = "VisualShaderTypes";
   desc.m_sParentTypeName = m_pBaseType->GetTypeName();
-  desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
+  desc.m_Flags = ezTypeFlags::Class;
   desc.m_uiTypeVersion = 1;
   desc.m_Properties = nd.m_Properties;
 
@@ -491,7 +491,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
       {
         pin.m_PropertyDesc.m_sName = pin.m_sName;
         pin.m_PropertyDesc.m_Category = ezPropertyCategory::Member;
-        pin.m_PropertyDesc.m_Flags.SetValue((ezUInt16)ezPropertyFlags::Phantom | (ezUInt16)ezPropertyFlags::StandardType);
+        pin.m_PropertyDesc.m_Flags.SetValue((ezUInt16)ezPropertyFlags::StandardType);
 
         // For "auto" type pins, use float as the fallback type for the property GUI
         const ezRTTI* pPropertyType = pin.m_pDataType != nullptr ? pin.m_pDataType : ezGetStaticRTTI<float>();
@@ -520,7 +520,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
 
       ezReflectedPropertyDescriptor prop;
       prop.m_Category = ezPropertyCategory::Member;
-      prop.m_Flags.SetValue((ezUInt16)ezPropertyFlags::Phantom | (ezUInt16)ezPropertyFlags::StandardType);
+      prop.m_Flags.SetValue((ezUInt16)ezPropertyFlags::StandardType);
 
       if (!pElement->HasName())
       {
