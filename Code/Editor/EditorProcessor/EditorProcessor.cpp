@@ -195,7 +195,9 @@ public:
   {
     {
       ezStringBuilder cmdHelp;
-      if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_EditorProcessor;cvar"))
+      // '_Editor' is included because the editor's own startup options - '-createProject' among them - are
+      // handled by ezQtEditorApp::StartupEditor(), which this application runs as well
+      if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_EditorProcessor;_Editor;cvar"))
       {
         ezQtUiServices::GetSingleton()->MessageBoxInformation(cmdHelp);
         QuitApplication();
@@ -214,7 +216,10 @@ public:
     const bool bCompile = opt_Compile.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified) || bRecompile;
     const bool bResave = opt_Resave.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
     const ezString sExportDir = opt_Export.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
-    const bool bBackgroundMode = sTransformProfile.IsEmpty() && !bResave && !bCompile && sExportDir.IsEmpty();
+    // '-createProject' belongs to the editor application, which handles it during StartupEditor() - it is only
+    // read here to tell "this run has work to do" from "this run waits for IPC jobs"
+    const bool bCreateProject = !ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-createProject").IsEmpty();
+    const bool bBackgroundMode = sTransformProfile.IsEmpty() && !bResave && !bCompile && sExportDir.IsEmpty() && !bCreateProject;
     const ezString sOutputDir = opt_OutputDir.GetOptionValue(ezCommandLineOption::LogMode::Always);
     const ezBitflags<ezQtEditorApp::StartupFlags> startupFlags = bBackgroundMode ? ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::Background : ezQtEditorApp::StartupFlags::Headless;
     ezQtEditorApp::GetSingleton()->StartupEditor(startupFlags, sOutputDir);
@@ -235,7 +240,14 @@ public:
       return;
     }
 
-    if (!sTransformProfile.IsEmpty() || bCompile || !sExportDir.IsEmpty())
+    // same for a newly created one - StartupEditor() creates and opens it, so a closed project means it failed
+    if (bCreateProject && !ezToolsProject::IsProjectOpen())
+    {
+      SetReturnCode(5);
+      return;
+    }
+
+    if (!sTransformProfile.IsEmpty() || bCompile || !sExportDir.IsEmpty() || bCreateProject)
     {
       // before we transform any assets or if specifically asked, make sure the C++ code is built
       {

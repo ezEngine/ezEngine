@@ -19,6 +19,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/EditorApp/StackTraceLogParser.h>
 #include <EditorFramework/GUI/DynamicDefaultStateProvider.h>
+#include <EditorFramework/Project/ProjectCreation.h>
 #include <EditorFramework/GUI/ExposedParametersDefaultStateProvider.h>
 #include <EditorFramework/Manipulators/BoneManipulatorAdapter.h>
 #include <EditorFramework/Manipulators/BoxManipulatorAdapter.h>
@@ -259,6 +260,84 @@ ezCommandLineOptionBool opt_Unattended("_Editor", "-unattended",
   "Without this, a dialog that nobody closes blocks the editor indefinitely.",
   false);
 
+ezCommandLineOptionPath opt_CreateProject("_Editor", "-createProject",
+  "Creates a new project in the given (absolute) directory and opens it.\n"
+  "\n"
+  "The directory must not exist yet or must be empty. Use -projectTemplate to create the project from a project\n"
+  "template, and -pluginTemplate to choose which plugins a project without a project template starts with.\n"
+  "\n"
+  "Example:\n"
+  "  -createProject \"C:/Projects/MyGame\" -projectTemplate \"Basic FPS\"\n",
+  "");
+
+ezCommandLineOptionString opt_ProjectTemplate("_Editor", "-projectTemplate",
+  "Name of the project template that -createProject copies, e.g. 'Basic FPS'.\n"
+  "\n"
+  "Without this, a blank project is created. Use -listTemplates to see which templates exist.\n"
+  "A project template brings its own plugin selection, so -pluginTemplate is ignored when this is given.",
+  "");
+
+ezCommandLineOptionString opt_PluginTemplate("_Editor", "-pluginTemplate",
+  "Name of the plugin template that -createProject enables in a blank project, e.g. 'General3D'.\n"
+  "\n"
+  "Only used when no -projectTemplate is given. Use -listTemplates to see which templates exist.",
+  "General3D");
+
+ezCommandLineOptionBool opt_ListTemplates("_Editor", "-listTemplates",
+  "Logs the available project templates and plugin templates for -createProject, then continues as usual.", false);
+
+void ezQtEditorApp::LogAvailableTemplates()
+{
+  DetectAvailablePluginBundles(ezOSFile::GetApplicationDirectory());
+
+  {
+    ezDynamicArray<ezString> templates;
+    ezProjectCreation::FindProjectTemplates(templates);
+
+    ezLog::Info("Project templates ({}):", templates.GetCount());
+    ezLog::Info("  <none> (blank project)");
+
+    for (const ezString& sName : templates)
+    {
+      ezLog::Info("  {}", sName);
+    }
+  }
+
+  {
+    ezDynamicArray<ezString> templates;
+    ezProjectCreation::FindPluginTemplates(GetPluginBundles(), templates);
+
+    ezLog::Info("Plugin templates ({}):", templates.GetCount());
+
+    for (const ezString& sName : templates)
+    {
+      ezLog::Info("  {}", sName);
+    }
+  }
+}
+
+ezResult ezQtEditorApp::CreateProjectFromCommandLine(ezStringView sTargetDirectory)
+{
+  // the bundles have to be known before a plugin selection can be written for a blank project
+  DetectAvailablePluginBundles(ezOSFile::GetApplicationDirectory());
+
+  ezProjectCreationOptions options;
+  options.m_sTargetDirectory = sTargetDirectory;
+  options.m_sProjectTemplate = opt_ProjectTemplate.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+  options.m_sPluginTemplate = opt_PluginTemplate.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+
+  const ezStatus res = ezProjectCreation::CreateProject(options, GetPluginBundles());
+
+  if (res.Failed())
+  {
+    ezLog::Error("Failed to create project '{}': {}", sTargetDirectory, res.GetMessageString());
+    return EZ_FAILURE;
+  }
+
+  ezLog::Success("Created project '{}'.", sTargetDirectory);
+  return EZ_SUCCESS;
+}
+
 void ezQtEditorApp::StartupEditor()
 {
   // Has to happen before anything below can ask a question - the startup flags, which the other
@@ -462,7 +541,26 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
-  if (pCmd->GetStringOptionArguments("-newproject") > 0)
+  if (opt_ListTemplates.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified))
+  {
+    LogAvailableTemplates();
+  }
+
+  const ezString sCreateProject = opt_CreateProject.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+
+  if (!sCreateProject.IsEmpty())
+  {
+    if (CreateProjectFromCommandLine(sCreateProject).Succeeded())
+    {
+      // a project template already brings an 'ezProject' file, a blank project does not, and only the
+      // 'create' path writes one - so which one this is decides how the new project has to be opened
+      ezStringBuilder sProjectFile = sCreateProject;
+      sProjectFile.AppendPath("ezProject");
+
+      CreateOrOpenProject(!ezOSFile::ExistsFile(sProjectFile), sProjectFile).IgnoreResult();
+    }
+  }
+  else if (pCmd->GetStringOptionArguments("-newproject") > 0)
   {
     CreateOrOpenProject(true, pCmd->GetAbsolutePathOption("-newproject")).IgnoreResult();
   }

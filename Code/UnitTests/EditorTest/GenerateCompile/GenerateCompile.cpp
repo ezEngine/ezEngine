@@ -74,37 +74,6 @@ ezStatus ezEditorTestGenerateCompile::PrepareCompile(ezStringBuilder& dllPath)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezString ezEditorTestGenerateCompile::GetEditorProcessorPath() const
-{
-  ezStringBuilder path;
-  // Get the directory where EditorTest.exe is located
-  path = ezOSFile::GetApplicationDirectory();
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  path.AppendPath("ezEditorProcessor.exe");
-#else
-  path.AppendPath("ezEditorProcessor");
-#endif
-  return path;
-}
-
-ezStatus ezEditorTestGenerateCompile::RunEditorProcessor(const ezDynamicArray<ezString>& arguments)
-{
-  ezProcessOptions processOptions;
-  processOptions.m_sProcess = GetEditorProcessorPath();
-  processOptions.m_Arguments = arguments;
-  processOptions.m_bHideConsoleWindow = true;
-
-  ezInt32 exitCode = 0;
-  ezResult result = ezProcess::Execute(processOptions, &exitCode);
-
-  if (result.Failed() || exitCode != 0)
-  {
-    return ezStatus(ezFmt("ezEditorProcessor failed with exit code: {}", exitCode));
-  }
-
-  return ezStatus(EZ_SUCCESS);
-}
-
 ezStatus ezEditorTestGenerateCompile::EditorProcessorCompileOnly()
 {
   ezStringBuilder dllPath;
