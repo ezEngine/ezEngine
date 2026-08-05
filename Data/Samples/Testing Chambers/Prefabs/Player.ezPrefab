@@ -53,7 +53,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{16035491556350564044}
+		u4 %Hash{8179774754410222}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -73,6 +73,7 @@ o
 			s{"{ c545bd5c-582b-4f26-8344-a8460587948c }"}
 			s{"{ d3446478-77cf-49bb-a6db-c8f65307deac }"}
 			s{"{ e2374f5b-ff29-4d06-8264-12b55f5d0176 }"}
+			s{"{ f7d39d08-49f8-4c00-96da-3aaf38330e14 }"}
 		}
 		VarArray %References
 		{
@@ -793,6 +794,22 @@ o
 }
 o
 {
+	Uuid %id{u4{4267648823810317239,5708783262235228621}}
+	s %t{"ezScriptComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		b %HandleGlobalEvents{0}
+		VarDict %Parameters{}
+		b %PassThroughUnhandledEvents{0}
+		s %ScriptClass{"{ f7d39d08-49f8-4c00-96da-3aaf38330e14 }"}
+		Time %UpdateInterval{d{0}}
+		b %UpdateOnlyWhenSimulating{1}
+	}
+}
+o
+{
 	Uuid %id{u4{14533035257435161515,5758214449907519538}}
 	s %t{"ezJoltDynamicActorComponent"}
 	u3 %v{8}
@@ -899,7 +916,10 @@ o
 			Uuid{u4{18334765152918242439,5544760844148596969}}
 			Uuid{u4{4048982691901164177,4999962066616314334}}
 		}
-		VarArray %Components{}
+		VarArray %Components
+		{
+			Uuid{u4{4267648823810317239,5708783262235228621}}
+		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
