@@ -242,7 +242,9 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
       case ezPropertyCategory::Map:
       {
         const ezRTTI* pPropRtti = prop->GetSpecificType();
-        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(), prop->GetFlags(), prop->GetAttributes()));
+        ezBitflags<ezPropertyFlags> flags = prop->GetFlags();
+        flags.Remove(ezPropertyFlags::Phantom);
+        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(), flags, prop->GetAttributes()));
       }
       break;
 
@@ -261,7 +263,9 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
   for (ezUInt32 i = 0; i < uiFuncCount; ++i)
   {
     const ezAbstractFunctionProperty* prop = rttiFunc[i];
-    out_desc.m_Functions.PushBack(ezReflectedFunctionDescriptor(prop->GetPropertyName(), prop->GetFlags(), prop->GetFunctionType(), prop->GetAttributes()));
+    ezBitflags<ezPropertyFlags> funcFlags = prop->GetFlags();
+    funcFlags.Remove(ezPropertyFlags::Phantom);
+    out_desc.m_Functions.PushBack(ezReflectedFunctionDescriptor(prop->GetPropertyName(), funcFlags, prop->GetFunctionType(), prop->GetAttributes()));
     ezReflectedFunctionDescriptor& desc = out_desc.m_Functions.PeekBack();
     desc.m_ReturnValue = ezFunctionArgumentDescriptor(prop->GetReturnType() ? prop->GetReturnType()->GetTypeName() : "", prop->GetReturnFlags());
     const ezUInt32 uiArguments = prop->GetArgumentCount();
@@ -282,6 +286,10 @@ void ezToolsReflectionUtils::GetMinimalReflectedTypeDescriptorFromRtti(const ezR
   out_desc.m_sTypeName = pRtti->GetTypeName();
   out_desc.m_sPluginName = pRtti->GetPluginName();
   out_desc.m_Flags = pRtti->GetTypeFlags() | ezTypeFlags::Minimal;
+  // Phantom describes how a type is represented in the current process, not the type itself: it is added by
+  // ezPhantomRTTI and the ezPhantom*Property classes when a descriptor is registered, so it must not travel
+  // with the descriptor (it would be written into every document that references a phantom type).
+  out_desc.m_Flags.Remove(ezTypeFlags::Phantom);
   out_desc.m_uiTypeVersion = pRtti->GetTypeVersion();
   const ezRTTI* pParentRtti = pRtti->GetParentType();
   out_desc.m_sParentTypeName = pParentRtti ? pParentRtti->GetTypeName() : nullptr;

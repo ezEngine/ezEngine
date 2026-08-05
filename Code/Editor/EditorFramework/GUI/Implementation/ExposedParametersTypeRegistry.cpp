@@ -44,7 +44,7 @@ ezExposedParametersTypeRegistry::ezExposedParametersTypeRegistry()
   desc.m_sTypeName = "ezExposedParametersTypeBase";
   desc.m_sPluginName = "ExposedParametersTypes";
   desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
-  desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;
+  desc.m_Flags = ezTypeFlags::Abstract | ezTypeFlags::Class;
   desc.m_uiTypeVersion = 0;
 
   m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
@@ -100,7 +100,7 @@ void ezExposedParametersTypeRegistry::UpdateExposedParametersType(ParamData& dat
   desc.m_sTypeName = name;
   desc.m_sPluginName = "ExposedParametersTypes";
   desc.m_sParentTypeName = m_pBaseType->GetTypeName();
-  desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
+  desc.m_Flags = ezTypeFlags::Class;
   desc.m_uiTypeVersion = 2;
 
   for (const auto* parameter : params.m_Parameters)
@@ -116,7 +116,7 @@ void ezExposedParametersTypeRegistry::UpdateExposedParametersType(ParamData& dat
       ezLog::Warning("The exposed parameter '{}' on type '{}' does not have a type defined as is skipped.", parameter->m_sName, name);
       continue;
     }
-    ezBitflags<ezPropertyFlags> flags = ezPropertyFlags::Phantom;
+    ezBitflags<ezPropertyFlags> flags;
     if (pType->IsDerivedFrom<ezEnumBase>())
       flags |= ezPropertyFlags::IsEnum;
     if (pType->IsDerivedFrom<ezBitflagsBase>())

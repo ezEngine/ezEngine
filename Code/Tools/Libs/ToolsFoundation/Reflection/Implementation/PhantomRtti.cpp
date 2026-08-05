@@ -130,7 +130,9 @@ void ezPhantomRTTI::SetAttributes(ezDynamicArray<const ezPropertyAttribute*>& at
 
 void ezPhantomRTTI::UpdateType(ezReflectedTypeDescriptor& desc)
 {
-  ezRTTI::UpdateType(ezRTTI::FindTypeByName(desc.m_sParentTypeName), 0, desc.m_uiTypeVersion, ezVariantType::Invalid, desc.m_Flags);
+  // ezRTTI::UpdateType overwrites the type flags, so Phantom has to be added here just like in the constructor,
+  // otherwise a type would stop being phantom when it is registered a second time with a changed descriptor
+  ezRTTI::UpdateType(ezRTTI::FindTypeByName(desc.m_sParentTypeName), 0, desc.m_uiTypeVersion, ezVariantType::Invalid, desc.m_Flags | ezTypeFlags::Phantom);
 
   m_sPluginNameStorage = desc.m_sPluginName;
   m_sPluginName = m_sPluginNameStorage.GetData();
