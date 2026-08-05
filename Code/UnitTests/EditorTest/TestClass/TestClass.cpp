@@ -176,6 +176,37 @@ ezResult ezEditorTest::DeInitializeTest()
   return EZ_SUCCESS;
 }
 
+ezString ezEditorTest::GetEditorProcessorPath() const
+{
+  ezStringBuilder path;
+  // Get the directory where EditorTest.exe is located
+  path = ezOSFile::GetApplicationDirectory();
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  path.AppendPath("ezEditorProcessor.exe");
+#else
+  path.AppendPath("ezEditorProcessor");
+#endif
+  return path;
+}
+
+ezStatus ezEditorTest::RunEditorProcessor(const ezDynamicArray<ezString>& arguments)
+{
+  ezProcessOptions processOptions;
+  processOptions.m_sProcess = GetEditorProcessorPath();
+  processOptions.m_Arguments = arguments;
+  processOptions.m_bHideConsoleWindow = true;
+
+  ezInt32 exitCode = 0;
+  ezResult result = ezProcess::Execute(processOptions, &exitCode);
+
+  if (result.Failed() || exitCode != 0)
+  {
+    return ezStatus(ezFmt("ezEditorProcessor failed with exit code: {}", exitCode));
+  }
+
+  return ezStatus(EZ_SUCCESS);
+}
+
 ezResult ezEditorTest::CreateAndLoadProject(const char* name)
 {
   EZ_PROFILE_SCOPE("CreateAndLoadProject");

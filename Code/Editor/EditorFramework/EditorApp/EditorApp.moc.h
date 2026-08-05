@@ -189,6 +189,14 @@ public:
 
   ezResult CreateOrOpenProject(bool bCreate, ezStringView sFile);
 
+  /// \brief Creates a project as described by the '-createProject', '-projectTemplate' and '-pluginTemplate' command line options.
+  ///
+  /// Only creates the files, the caller opens the result. Failures are logged, since a command line caller has no other channel.
+  ezResult CreateProjectFromCommandLine(ezStringView sTargetDirectory);
+
+  /// \brief Logs the project templates and plugin templates that '-createProject' accepts ('-listTemplates').
+  void LogAvailableTemplates();
+
   /// \brief If this project is remote, ie coming from another repository that is not checked-out by default, make sure it exists locally on disk.
   ///
   /// Adjusts inout_sFilePath from pointing to an ezRemoteProject file to a ezProject file, if necessary.

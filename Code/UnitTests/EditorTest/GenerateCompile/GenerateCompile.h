@@ -13,8 +13,6 @@ public:
 
 protected:
   ezStatus PrepareCompile(ezStringBuilder& dllPath);
-  ezString GetEditorProcessorPath() const;
-  ezStatus RunEditorProcessor(const ezDynamicArray<ezString>& arguments);
 
   ezStatus GenerateAndCompile();
   ezStatus EditorProcessorCompileOnly();

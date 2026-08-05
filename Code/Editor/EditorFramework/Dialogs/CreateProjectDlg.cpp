@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Dialogs/CreateProjectDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Project/ProjectCreation.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
@@ -115,36 +116,20 @@ void ezQtCreateProjectDlg::UpdateUI()
   }
 }
 
-void ezQtCreateProjectDlg::FindProjectTemplates(ezDynamicArray<ezString>& out_Projects)
-{
-  out_Projects.Clear();
-
-  ezStringBuilder sTemplatesFolder = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
-  sTemplatesFolder.AppendPath("ProjectTemplates");
-
-  ezFileSystemIterator fsIt;
-  fsIt.StartSearch(sTemplatesFolder, ezFileSystemIteratorFlags::ReportFolders);
-
-  ezStringBuilder path;
-
-  while (fsIt.IsValid())
-  {
-    fsIt.GetStats().GetFullPath(path);
-    path.AppendPath("ezProject");
-
-    if (ezOSFile::ExistsFile(path))
-    {
-      out_Projects.PushBack(path);
-    }
-
-    fsIt.Next();
-  }
-}
-
 void ezQtCreateProjectDlg::FillProjectTemplatesList()
 {
+  ezDynamicArray<ezString> templateNames;
+  ezProjectCreation::FindProjectTemplates(templateNames);
+
   ezTempHybridArray<ezString, 32> templates;
-  FindProjectTemplates(templates);
+  for (const ezString& sName : templateNames)
+  {
+    ezStringBuilder sProjectFile;
+    if (ezProjectCreation::FindProjectTemplate(sName, sProjectFile).Succeeded())
+    {
+      templates.PushBack(sProjectFile);
+    }
+  }
 
   ProjectTemplates->clear();
 
@@ -288,52 +273,39 @@ void ezQtCreateProjectDlg::on_Next_clicked()
 
   if (m_State == State::Create)
   {
-    CreateProject();
+    const ezStatus res = CreateProject();
+
+    if (res.Failed())
+    {
+      ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Creating the project failed.");
+
+      // back to the summary page, so that the user can change the name or folder and try again
+      m_State = State::Summary;
+      UpdateUI();
+      return;
+    }
 
     QDialog::accept();
   }
 }
 
-void ezQtCreateProjectDlg::CreateProject()
+ezStatus ezQtCreateProjectDlg::CreateProject()
 {
-  const ezString sFullPath = GetFullTargetPath();
-
-  if (ezOSFile::CreateDirectoryStructure(sFullPath).Failed())
-  {
-    // TODO
-  }
+  ezProjectCreationOptions options;
+  options.m_sTargetDirectory = GetFullTargetPath();
 
   if (m_sProjectTemplate.IsEmpty())
   {
-    // set up plugin selection
-    ezStringBuilder path = sFullPath;
-    path.AppendPath("Editor/PluginSelection.ddl");
-
-    ezFileWriter file;
-    file.Open(path).AssertSuccess();
-
-    ezOpenDdlWriter ddl;
-    ddl.SetOutputStream(&file);
-
-    m_LocalPluginSet.WriteStateToDDL(ddl);
+    // the plugin page wrote its state into m_LocalPluginSet, so pass that on as it is rather than
+    // letting the creation apply a plugin template again
+    return ezProjectCreation::CreateProject(options, m_LocalPluginSet);
   }
-  else
-  {
-    // copy over project template
 
-    ezStringBuilder srcFolder = m_sProjectTemplate;
-    srcFolder.PathParentDirectory();
-    if (ezOSFile::CopyFolder(srcFolder, sFullPath).Failed())
-    {
-      // TODO
-    }
+  // m_sProjectTemplate is the path of the template's 'ezProject' file, the creation takes the name
+  ezStringBuilder sTemplateName = m_sProjectTemplate;
+  sTemplateName.PathParentDirectory();
+  sTemplateName.TrimRight("/\\");
+  options.m_sProjectTemplate = sTemplateName.GetFileName();
 
-    // make sure, that in case we copied an AssetCache, it gets deleted
-    // so that the project definitely starts fresh
-    ezStringBuilder sAssetCache(sFullPath, "/AssetCache");
-    if (ezOSFile::DeleteFolder(sAssetCache).Failed())
-    {
-      // TODO
-    }
-  }
+  return ezProjectCreation::CreateProject(options, m_LocalPluginSet);
 }

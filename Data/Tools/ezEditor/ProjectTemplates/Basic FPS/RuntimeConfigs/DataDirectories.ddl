@@ -6,13 +6,13 @@ DataDir
 }
 DataDir
 {
-	string %Path{">sdk/Data/Plugins/RmlUiPlugin"}
+	string %Path{">sdk/Data/Plugins/ParticlePlugin"}
 	string %RootName{""}
 	bool %Writable{false}
 }
 DataDir
 {
-	string %Path{">sdk/Data/Plugins/ParticlePlugin"}
+	string %Path{">sdk/Data/Plugins/RmlUiPlugin"}
 	string %RootName{""}
 	bool %Writable{false}
 }
