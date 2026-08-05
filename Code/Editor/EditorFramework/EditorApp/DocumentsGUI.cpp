@@ -6,6 +6,11 @@
 
 void ezQtEditorApp::GuiCreateOrOpenDocument(bool bCreate)
 {
+  // The file picker below is a native window, so it is not covered by ezQtDialog. Automated callers
+  // have to name the document, i.e. go through CreateDocument()/OpenDocument() directly.
+  if (ezQtUiServices::SuppressModalWindow(bCreate ? "Create Document (file picker)" : "Open Document (file picker)"))
+    return;
+
   const ezString sAllFilters = BuildDocumentTypeFileFilter(bCreate);
 
   if (sAllFilters.IsEmpty())

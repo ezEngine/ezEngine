@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Foundation/Math/Color.h>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/UIServices/ColorDlgWidgets.moc.h>
 #include <GuiFoundation/ui_ColorDialog.h>
-#include <QDialog>
 
 class QLineEdit;
 class ezQtDoubleSpinBox;
@@ -12,7 +12,7 @@ class QPushButton;
 class QSlider;
 
 
-class EZ_GUIFOUNDATION_DLL ezQtColorDialog : public QDialog, Ui_ColorDialog
+class EZ_GUIFOUNDATION_DLL ezQtColorDialog : public ezQtDialog, Ui_ColorDialog
 {
   Q_OBJECT
 public:

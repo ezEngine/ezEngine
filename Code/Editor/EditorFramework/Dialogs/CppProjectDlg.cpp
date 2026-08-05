@@ -13,7 +13,7 @@
 
 
 ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

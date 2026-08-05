@@ -10,7 +10,7 @@ void UpdateWeightCategoryDynamicEnumValues();
 void UpdateImpulseTypeDynamicEnumValues();
 
 ezQtJoltProjectSettingsDlg::ezQtJoltProjectSettingsDlg(const ezVariant& startup, QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

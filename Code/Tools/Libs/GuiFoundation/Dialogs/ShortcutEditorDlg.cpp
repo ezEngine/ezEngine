@@ -9,7 +9,7 @@
 #include <ToolsFoundation/Utilities/SearchPatternFilter.h>
 
 ezQtShortcutEditorDlg::ezQtShortcutEditorDlg(QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

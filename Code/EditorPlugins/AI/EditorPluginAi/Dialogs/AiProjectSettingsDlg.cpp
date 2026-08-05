@@ -11,7 +11,7 @@
 void UpdateGroundTypeDynamicEnumValues();
 
 ezQtAiProjectSettingsDlg::ezQtAiProjectSettingsDlg(QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

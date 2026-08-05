@@ -4,7 +4,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 ezQtTagsDlg::ezQtTagsDlg(const ezVariant& startup, QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

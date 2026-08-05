@@ -3,9 +3,9 @@
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/ui_AssetImportDlg.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezQtAssetImportDlg : public QDialog, public Ui_AssetImportDlg
+class ezQtAssetImportDlg : public ezQtDialog, public Ui_AssetImportDlg
 {
   Q_OBJECT
 

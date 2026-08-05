@@ -2,11 +2,11 @@
 
 #include <EditorPluginScene/EditorPluginSceneDLL.h>
 #include <EditorPluginScene/ui_DeltaTransformDlg.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
 class ezSceneDocument;
 
-class ezQtDeltaTransformDlg : public QDialog, public Ui_DeltaTransformDlg
+class ezQtDeltaTransformDlg : public ezQtDialog, public Ui_DeltaTransformDlg
 {
   Q_OBJECT
 

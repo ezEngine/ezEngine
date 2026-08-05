@@ -1,13 +1,13 @@
 #pragma once
 
 #include <Foundation/Strings/String.h>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/ui_PickDocumentObjectDlg.h>
-#include <QDialog>
 
 class ezDocumentObject;
 
-class EZ_GUIFOUNDATION_DLL ezQtPickDocumentObjectDlg : public QDialog, public Ui_PickDocumentObjectDlg
+class EZ_GUIFOUNDATION_DLL ezQtPickDocumentObjectDlg : public ezQtDialog, public Ui_PickDocumentObjectDlg
 {
   Q_OBJECT
 

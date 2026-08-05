@@ -4,11 +4,11 @@
 
 #include <EditorFramework/ui_EditDynamicEnumsDlg.h>
 #include <Foundation/Strings/String.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
 class ezDynamicStringEnum;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtEditDynamicEnumsDlg : public QDialog, public Ui_ezQtEditDynamicEnumsDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtEditDynamicEnumsDlg : public ezQtDialog, public Ui_ezQtEditDynamicEnumsDlg
 {
 public:
   Q_OBJECT

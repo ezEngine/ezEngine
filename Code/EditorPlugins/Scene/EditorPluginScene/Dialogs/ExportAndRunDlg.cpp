@@ -14,7 +14,7 @@ bool ezQtExportAndRunDlg::s_bCompileCpp = true;
 static int s_iLastPlayerApp = 0;
 
 ezQtExportAndRunDlg::ezQtExportAndRunDlg(QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

@@ -5,11 +5,11 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
 #include <GameEngine/Configuration/InputConfig.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
 class QTreeWidgetItem;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtInputConfigDlg : public QDialog, public Ui_InputConfigDialog
+class EZ_EDITORFRAMEWORK_DLL ezQtInputConfigDlg : public ezQtDialog, public Ui_InputConfigDialog
 {
 public:
   Q_OBJECT

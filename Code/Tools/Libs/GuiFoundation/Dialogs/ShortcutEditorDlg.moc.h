@@ -4,13 +4,13 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/ui_ShortcutEditorDlg.h>
-#include <QDialog>
 
 struct ezActionDescriptor;
 
-class EZ_GUIFOUNDATION_DLL ezQtShortcutEditorDlg : public QDialog, public Ui_ShortcutEditor
+class EZ_GUIFOUNDATION_DLL ezQtShortcutEditorDlg : public ezQtDialog, public Ui_ShortcutEditor
 {
 public:
   Q_OBJECT

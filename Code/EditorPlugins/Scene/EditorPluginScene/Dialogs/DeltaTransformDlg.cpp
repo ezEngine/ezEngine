@@ -26,7 +26,7 @@ float ezQtDeltaTransformDlg::s_fNaturalDeviationZ = 10.0f;
 bool ezQtDeltaTransformDlg::s_bUseCurrentSnapSettings = false;
 
 ezQtDeltaTransformDlg::ezQtDeltaTransformDlg(QWidget* pParent, ezSceneDocument* pSceneDoc)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   m_pSceneDocument = pSceneDoc;
 

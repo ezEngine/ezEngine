@@ -4,9 +4,9 @@
 
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/ui_PluginSelectionDlg.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtPluginSelectionDlg : public QDialog, public Ui_PluginSelectionDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtPluginSelectionDlg : public ezQtDialog, public Ui_PluginSelectionDlg
 {
 public:
   Q_OBJECT

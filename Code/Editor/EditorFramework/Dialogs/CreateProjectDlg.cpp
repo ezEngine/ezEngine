@@ -6,7 +6,7 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezQtCreateProjectDlg::ezQtCreateProjectDlg(QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

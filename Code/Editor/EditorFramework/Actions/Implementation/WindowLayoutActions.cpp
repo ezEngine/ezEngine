@@ -327,6 +327,13 @@ void ezSaveLayoutMenuAction::Execute(const ezVariant& value)
   const QString sStateKey = QString("UserSlot_%1_State").arg(iSlot);
   const QString sExistingName = settings.value(sNameKey, QString()).toString();
 
+  // native window, so not covered by ezQtDialog
+  if (ezQtUiServices::SuppressModalWindow("Save Layout (name prompt)"))
+  {
+    settings.endGroup();
+    return;
+  }
+
   bool bOk = false;
   const QString sName = QInputDialog::getText(pContainer, QStringLiteral("Save Layout"), QStringLiteral("Layout name:"), QLineEdit::Normal, sExistingName, &bOk);
 

@@ -3,9 +3,9 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/ui_RemoteConnectionDlg.h>
 #include <Foundation/Strings/String.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtRemoteConnectionDlg : public QDialog, public Ui_ezQtRemoteConnectionDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtRemoteConnectionDlg : public ezQtDialog, public Ui_ezQtRemoteConnectionDlg
 {
 public:
   Q_OBJECT

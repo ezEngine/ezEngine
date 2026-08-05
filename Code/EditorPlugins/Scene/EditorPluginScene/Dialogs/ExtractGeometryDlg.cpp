@@ -13,7 +13,7 @@ int ezQtExtractGeometryDlg::s_iCoordinateSystem = 1;
 
 ezQtExtractGeometryDlg::ezQtExtractGeometryDlg(QWidget* pParent)
 
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

@@ -3,9 +3,9 @@
 #include <EditorPluginScene/EditorPluginSceneDLL.h>
 #include <EditorPluginScene/ui_DuplicateDlg.h>
 
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezQtDuplicateDlg : public QDialog, public Ui_DuplicateDlg
+class ezQtDuplicateDlg : public ezQtDialog, public Ui_DuplicateDlg
 {
   Q_OBJECT
 

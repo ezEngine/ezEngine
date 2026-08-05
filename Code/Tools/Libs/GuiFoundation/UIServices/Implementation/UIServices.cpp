@@ -3,6 +3,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
@@ -24,6 +25,7 @@ ezMap<ezString, QImage> ezQtUiServices::s_ImagesCache;
 ezMap<ezString, QPixmap> ezQtUiServices::s_PixmapsCache;
 bool ezQtUiServices::s_bHeadless;
 bool ezQtUiServices::s_bUnattended;
+ezHybridArray<ezString, 4> ezQtUiServices::s_SuppressedDialogs;
 ezQtUiServices::TickEvent ezQtUiServices::s_LastTickEvent;
 
 static ezQtUiServices* g_pInstance = nullptr;
@@ -73,6 +75,50 @@ bool ezQtUiServices::IsUnattended()
 void ezQtUiServices::SetUnattended()
 {
   s_bUnattended = true;
+}
+
+void ezQtUiServices::ReportSuppressedDialog(ezStringView sDescription)
+{
+  ezLog::Warning("Dialog not shown, because no user is present: {}", sDescription);
+
+  // A suppressed dialog often means an operation didn't do what it was asked to, and code reacting to
+  // that may well open the next one. Dropping the excess keeps the first, most relevant entries.
+  constexpr ezUInt32 uiMaxEntries = 16;
+
+  if (s_SuppressedDialogs.GetCount() < uiMaxEntries)
+  {
+    s_SuppressedDialogs.PushBack(sDescription);
+  }
+}
+
+bool ezQtUiServices::SuppressModalWindow(ezStringView sDescription)
+{
+  if (!IsUnattended())
+    return false;
+
+  ReportSuppressedDialog(sDescription);
+  return true;
+}
+
+ezArrayPtr<const ezString> ezQtUiServices::GetSuppressedDialogs()
+{
+  return s_SuppressedDialogs;
+}
+
+void ezQtUiServices::ClearSuppressedDialogs()
+{
+  s_SuppressedDialogs.Clear();
+}
+
+ezQtScopedUnattended::ezQtScopedUnattended()
+{
+  m_bPrevUnattended = ezQtUiServices::s_bUnattended;
+  ezQtUiServices::s_bUnattended = true;
+}
+
+ezQtScopedUnattended::~ezQtScopedUnattended()
+{
+  ezQtUiServices::s_bUnattended = m_bPrevUnattended;
 }
 
 void ezQtUiServices::SaveState()

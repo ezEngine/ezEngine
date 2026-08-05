@@ -2,9 +2,9 @@
 
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/ui_AssetBrowserDlg.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserDlg : public QDialog, public Ui_AssetBrowserDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserDlg : public ezQtDialog, public Ui_AssetBrowserDlg
 {
   Q_OBJECT
 

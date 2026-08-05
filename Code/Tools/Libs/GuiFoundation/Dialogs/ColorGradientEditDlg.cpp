@@ -10,7 +10,7 @@
 QByteArray ezQtColorGradientEditDlg::s_LastDialogGeometry;
 
 ezQtColorGradientEditDlg::ezQtColorGradientEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pGradientObject, QWidget* pParent, ezStringView sTitle)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   m_pObjectAccessor = pObjectAccessor;
   m_pGradientObject = pGradientObject;

@@ -11,7 +11,7 @@ enum Columns
 };
 
 ezQtAssetImportDlg::ezQtAssetImportDlg(QWidget* pParent, ezDynamicArray<ezAssetDocumentGenerator::ImportGroupOptions>& ref_allImports)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
   , m_AllImports(ref_allImports)
 {
   setupUi(this);

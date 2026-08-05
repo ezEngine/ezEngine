@@ -3,9 +3,9 @@
 #include <EditorPluginFmod/EditorPluginFmodDLL.h>
 #include <EditorPluginFmod/ui_FmodProjectSettingsDlg.h>
 #include <FmodPlugin/FmodSingleton.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class ezQtFmodProjectSettingsDlg : public QDialog, public Ui_FmodProjectSettingsDlg
+class ezQtFmodProjectSettingsDlg : public ezQtDialog, public Ui_FmodProjectSettingsDlg
 {
 public:
   Q_OBJECT

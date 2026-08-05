@@ -4,9 +4,9 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/ui_WindowCfgDlg.h>
 #include <Foundation/Application/Config/FileSystemConfig.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtWindowCfgDlg : public QDialog, public Ui_ezQtWindowCfgDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtWindowCfgDlg : public ezQtDialog, public Ui_ezQtWindowCfgDlg
 {
 public:
   Q_OBJECT

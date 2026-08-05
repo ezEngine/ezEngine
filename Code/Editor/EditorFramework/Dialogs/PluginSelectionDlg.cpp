@@ -6,7 +6,7 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 
 ezQtPluginSelectionDlg::ezQtPluginSelectionDlg(ezPluginBundleSet* pPluginSet, QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
 

@@ -5,9 +5,9 @@
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/ui_CreateProjectDlg.h>
 #include <Foundation/Strings/String.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtCreateProjectDlg : public QDialog, public Ui_ezQtCreateProjectDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtCreateProjectDlg : public ezQtDialog, public Ui_ezQtCreateProjectDlg
 {
 public:
   Q_OBJECT

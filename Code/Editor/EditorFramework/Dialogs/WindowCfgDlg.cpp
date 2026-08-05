@@ -6,7 +6,7 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezQtWindowCfgDlg::ezQtWindowCfgDlg(QWidget* pParent)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   setupUi(this);
   LoadDescs();

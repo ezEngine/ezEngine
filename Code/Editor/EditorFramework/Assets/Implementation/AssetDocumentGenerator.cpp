@@ -132,6 +132,11 @@ void ezAssetDocumentGenerator::GetSupportsFileTypes(ezSet<ezString>& out_extensi
 
 void ezAssetDocumentGenerator::ImportAssets()
 {
+  // The file picker below is a native window, so it is not covered by ezQtDialog and would block
+  // indefinitely. Use the overload taking the file list when there is no user to pick them.
+  if (ezQtUiServices::SuppressModalWindow("Import Assets (file picker)"))
+    return;
+
   ezTempHybridArray<ezAssetDocumentGenerator*, 16> generators;
   CreateGenerators(generators);
 

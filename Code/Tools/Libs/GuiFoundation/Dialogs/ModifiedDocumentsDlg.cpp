@@ -6,7 +6,7 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 ezQtModifiedDocumentsDlg::ezQtModifiedDocumentsDlg(QWidget* pParent, const ezHybridArray<ezDocument*, 32>& modifiedDocs)
-  : QDialog(pParent)
+  : ezQtDialog(pParent)
 {
   m_ModifiedDocs = modifiedDocs;
 

@@ -3,9 +3,9 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/ui_LaunchFileserveDlg.h>
 #include <Foundation/Strings/String.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtLaunchFileserveDlg : public QDialog, public Ui_ezQtLaunchFileserveDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtLaunchFileserveDlg : public ezQtDialog, public Ui_ezQtLaunchFileserveDlg
 {
 public:
   Q_OBJECT

@@ -2,6 +2,7 @@
 
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/FormatString.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Status.h>
@@ -82,10 +83,44 @@ public:
   /// Set if the application runs without a user present, e.g. driven by a script or an AI agent.
   ///
   /// The UI is still shown, but everything that would block waiting for input must not be displayed. The
-  /// message box functions below therefore only log their message and return their unattended answer. Code
-  /// that opens a modal dialog directly (file pickers, custom ezQtDialog, ...) has to check this itself,
-  /// otherwise it stalls the application indefinitely.
+  /// message box functions below therefore only log their message and return their unattended answer, and
+  /// ezQtDialog::exec() returns without showing anything. Code that opens a modal window in some other way
+  /// (QFileDialog, QInputDialog, ...) has to check this itself, otherwise it stalls the application
+  /// indefinitely.
+  ///
+  /// This is one-way, for a process that is unattended for its entire runtime (the '-unattended' command
+  /// line option). To make only part of a normal editor session unattended, use ezQtScopedUnattended.
   static void SetUnattended();
+
+  /// Records that a dialog or message box was not shown, because IsUnattended() is set.
+  ///
+  /// Whoever triggered the operation would otherwise have no way to tell a suppressed dialog apart from
+  /// the operation simply doing nothing. sDescription should identify what was suppressed well enough to
+  /// act on it, i.e. the dialog's class name or the text of the message box.
+  ///
+  /// Called by ezQtDialog and the MessageBox* functions; call it manually when suppressing a modal window
+  /// that goes through neither.
+  static void ReportSuppressedDialog(ezStringView sDescription);
+
+  /// Checks whether a modal window may be opened at all, and records its suppression when it may not.
+  ///
+  /// For modal windows that do not go through ezQtDialog and therefore have to check for themselves:
+  /// QFileDialog, QInputDialog, QMessageBox used directly, and anything else that enters a nested event
+  /// loop. Returns true when the window must NOT be shown - the caller then continues as if the user had
+  /// cancelled it, which for a file picker means an empty selection.
+  ///
+  /// Only worth adding where an automated caller can actually reach the window, i.e. in code triggered by
+  /// a global ezAction. A picker that only opens from a button inside another dialog is already covered,
+  /// because that dialog never opens.
+  static bool SuppressModalWindow(ezStringView sDescription);
+
+  /// The dialogs suppressed since the last ClearSuppressedDialogs(), oldest first.
+  ///
+  /// The list has an upper bound, so that a loop opening dialogs cannot grow it without limit. Once that
+  /// is reached, further entries are dropped, not rotated.
+  static ezArrayPtr<const ezString> GetSuppressedDialogs();
+
+  static void ClearSuppressedDialogs();
 
   /// Shows a non-modal color dialog. The Qt slots are called when the selected color is changed or when the dialog is closed and the result
   /// accepted or rejected.
@@ -195,6 +230,27 @@ private:
   static ezMap<ezString, QPixmap> s_PixmapsCache;
   static bool s_bHeadless;
   static bool s_bUnattended;
+  static ezHybridArray<ezString, 4> s_SuppressedDialogs;
   static TickEvent s_LastTickEvent;
   bool m_bIsDrawingATM = false;
+
+  friend class ezQtScopedUnattended;
+};
+
+/// Makes the enclosed code run as if no user were present, see ezQtUiServices::IsUnattended().
+///
+/// For automated calls into an editor that a user is otherwise sitting in front of - an MCP tool call,
+/// for instance. Their dialogs must not block, while the same dialogs opened by the user's own menu
+/// clicks still have to appear, so the state cannot be set globally.
+///
+/// Scopes nest and restore the previous state. Note that this does not undo ezQtUiServices::SetUnattended()
+/// or headless mode: those stay in effect for the whole process.
+class EZ_GUIFOUNDATION_DLL ezQtScopedUnattended
+{
+public:
+  ezQtScopedUnattended();
+  ~ezQtScopedUnattended();
+
+private:
+  bool m_bPrevUnattended;
 };

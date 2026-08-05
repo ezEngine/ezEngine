@@ -1,15 +1,15 @@
 #pragma once
 
 #include <Foundation/Tracks/CurveEditData.h>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/ui_CurveEditDlg.h>
-#include <QDialog>
 
 class ezCurveGroupData;
 class ezObjectAccessorBase;
 class ezDocumentObject;
 
-class EZ_GUIFOUNDATION_DLL ezQtCurveEditDlg : public QDialog, Ui_CurveEditDlg
+class EZ_GUIFOUNDATION_DLL ezQtCurveEditDlg : public ezQtDialog, Ui_CurveEditDlg
 {
   Q_OBJECT
 public:

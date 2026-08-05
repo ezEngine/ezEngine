@@ -5,7 +5,7 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 
 class ezAssetProfilesDocument;
 class ezPlatformProfile;
@@ -13,7 +13,7 @@ class ezQtDocumentTreeView;
 class ezDocument;
 struct ezDocumentObjectPropertyEvent;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtAssetProfilesDlg : public QDialog, public Ui_ezQtAssetProfilesDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtAssetProfilesDlg : public ezQtDialog, public Ui_ezQtAssetProfilesDlg
 {
 public:
   Q_OBJECT

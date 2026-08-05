@@ -4,10 +4,10 @@
 #include <EditorFramework/ui_TagsDlg.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
-#include <QDialog>
+#include <GuiFoundation/Dialogs/Dialog.moc.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtTagsDlg : public QDialog, public Ui_ezQtTagsDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtTagsDlg : public ezQtDialog, public Ui_ezQtTagsDlg
 {
 public:
   Q_OBJECT
