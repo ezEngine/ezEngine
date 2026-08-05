@@ -9,6 +9,7 @@
 #include <EditorFramework/CodeGen/CppProject.h>
 #include <EditorFramework/CodeGen/CppSettings.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Project/ProjectExport.h>
 #include <Foundation/Application/Application.h>
 #include <Foundation/System/CrashHandler.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
@@ -26,6 +27,21 @@ Example:\n\
 ",
   "");
 ezCommandLineOptionBool opt_Compile("_EditorProcessor", "-compile", "If specified, the C++ project will be generated and compiled.", false);
+ezCommandLineOptionBool opt_Recompile("_EditorProcessor", "-recompile", "Like -compile, but re-runs CMake and compiles unconditionally.\n\
+\n\
+Use this when files were added to or removed from the C++ source directory, which -compile does not notice.\n\
+",
+  false);
+ezCommandLineOptionPath opt_Export("_EditorProcessor", "-export", "If specified, the project is exported to the given (absolute) directory.\n\
+\n\
+The target directory is deleted first. The C++ project is built and all assets are transformed beforehand,\n\
+the latter unless -transform already did so in the same run. An 'ExportLog.txt' is written into the target\n\
+directory.\n\
+\n\
+Example:\n\
+  -export \"C:/Temp/MyGame\"\n\
+",
+  "");
 
 class ezEditorProcessorApplication : public ezApplication
 {
@@ -194,9 +210,11 @@ public:
     SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 #endif
     const ezString sTransformProfile = opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
-    const bool bCompile = opt_Compile.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+    const bool bRecompile = opt_Recompile.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+    const bool bCompile = opt_Compile.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified) || bRecompile;
     const bool bResave = opt_Resave.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
-    const bool bBackgroundMode = sTransformProfile.IsEmpty() && !bResave && !bCompile;
+    const ezString sExportDir = opt_Export.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+    const bool bBackgroundMode = sTransformProfile.IsEmpty() && !bResave && !bCompile && sExportDir.IsEmpty();
     const ezString sOutputDir = opt_OutputDir.GetOptionValue(ezCommandLineOption::LogMode::Always);
     const ezBitflags<ezQtEditorApp::StartupFlags> startupFlags = bBackgroundMode ? ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::Background : ezQtEditorApp::StartupFlags::Headless;
     ezQtEditorApp::GetSingleton()->StartupEditor(startupFlags, sOutputDir);
@@ -217,14 +235,32 @@ public:
       return;
     }
 
-    if (!sTransformProfile.IsEmpty() || bCompile)
+    if (!sTransformProfile.IsEmpty() || bCompile || !sExportDir.IsEmpty())
     {
       // before we transform any assets or if specifically asked, make sure the C++ code is built
       {
         ezCppSettings cppSettings;
         if (cppSettings.Load().Succeeded())
         {
-          if (ezCppProject::BuildCodeIfNecessary(cppSettings).Failed())
+          // -recompile exists because BuildCodeIfNecessary() only runs CMake when the solution is missing
+          // or its cache is outdated, which does not cover source files being added or removed.
+          ezResult res = EZ_SUCCESS;
+
+          if (bRecompile)
+          {
+            res = ezCppProject::RunCMake(cppSettings);
+
+            if (res.Succeeded())
+            {
+              res = ezCppProject::CompileSolution(cppSettings);
+            }
+          }
+          else
+          {
+            res = ezCppProject::BuildCodeIfNecessary(cppSettings);
+          }
+
+          if (res.Failed())
           {
             SetReturnCode(3);
             return;
@@ -234,36 +270,71 @@ public:
         }
       }
 
-      if (!sTransformProfile.IsEmpty())
+      if (!sTransformProfile.IsEmpty() || !sExportDir.IsEmpty())
       {
-        bool bTransform = true;
+        // Both steps need the editor to be idle, so they share one handler - and they have to run in this
+        // order, because an export picks up whatever the last transform produced.
+        bool bWorkPending = true;
 
-        ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform, &sTransformProfile]()
+        ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bWorkPending, &sTransformProfile, &sExportDir]()
           {
-          if (!bTransform)
+          if (!bWorkPending)
             return;
 
-          bTransform = false;
+          bWorkPending = false;
 
-          const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(sTransformProfile);
+          bool bTransformed = false;
 
-          if (uiPlatform == ezInvalidIndex)
+          if (!sTransformProfile.IsEmpty())
           {
-            ezLog::Error("Asset platform config '{0}' is unknown", sTransformProfile);
-          }
-          else
-          {
-            ezStatus status = ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
-            if (status.Failed())
+            const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(sTransformProfile);
+
+            if (uiPlatform == ezInvalidIndex)
             {
-              status.LogFailure();
+              ezLog::Error("Asset platform config '{0}' is unknown", sTransformProfile);
               SetReturnCode(1);
+            }
+            else
+            {
+              // so that a following export writes the assets of the profile that was just transformed,
+              // rather than those of whatever profile the project happens to start up with
+              ezAssetCurator::GetSingleton()->SetActiveAssetProfileByIndex(uiPlatform);
+
+              ezStatus status = ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+              if (status.Failed())
+              {
+                status.LogFailure();
+                SetReturnCode(1);
+              }
+
+              bTransformed = true;
             }
 
             if (opt_SaveProfilingData.GetOptionValue(ezCommandLineOption::LogMode::Always))
             {
               ezActionContext context;
               ezActionManager::ExecuteAction("Engine", "Editor.SaveProfiling", context).IgnoreResult();
+            }
+          }
+
+          if (!sExportDir.IsEmpty() && GetReturnCode() == 0)
+          {
+            ezProjectExportOptions options;
+            // both already done above: the C++ plugin by the block before the event loop, the assets by
+            // the transform step, for the explicitly requested profile
+            options.m_bCompileCppPlugin = false;
+            options.m_bTransformAssets = !bTransformed;
+
+            const ezStatus status = ezProjectExport::ExportProjectComplete(sExportDir, options);
+
+            if (status.Failed())
+            {
+              status.LogFailure();
+              SetReturnCode(4);
+            }
+            else
+            {
+              ezLog::Success("Exported project to '{}'.", sExportDir);
             }
           }
 

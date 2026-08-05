@@ -993,10 +993,10 @@ ezResult ezCppProject::BuildCodeIfNecessary(const ezCppSettings& cfg)
   if (!ezCppProject::ExistsProjectCMakeListsTxt())
     return EZ_SUCCESS;
 
-  if (!ezCppProject::ExistsSolution(cfg) || ezCppProject::CheckCMakeCache(cfg).Failed())
-  {
-    EZ_SUCCEED_OR_RETURN(ezCppProject::RunCMake(cfg));
-  }
+  // Also re-runs CMake when the generated CMakeUserPresets.json no longer matches the current
+  // configuration - a missing solution and a stale cache are not the only reasons to regenerate, e.g.
+  // the SDK's output directories change when the editor is started from a different build.
+  EZ_SUCCEED_OR_RETURN(ezCppProject::RunCMakeIfNecessary(cfg));
 
   return CompileSolution(cfg);
 }
@@ -1240,6 +1240,57 @@ namespace
     }
   }
 
+  /// Reads the output directories of the SDK build that this application belongs to.
+  ///
+  /// A plugin has to be built into the same directories, otherwise the editor does not find it. They
+  /// cannot be derived from the SDK root: an SDK built with a custom output directory (a separate
+  /// workspace, CI) puts its binaries elsewhere, and then '<sdk>/Output/Bin' is a directory of some
+  /// other build, or does not exist. 'ezExportInfo.cmake' is written next to the binaries by the SDK
+  /// build itself and is therefore the authoritative answer.
+  ///
+  /// Returns EZ_FAILURE when the file is missing or unreadable, in which case the caller should not
+  /// specify the directories at all and let the plugin's CMakeLists.txt fall back to its default.
+  ezResult ReadSdkOutputDirectories(ezStringBuilder& out_sDllDir, ezStringBuilder& out_sLibDir)
+  {
+    ezStringBuilder sFile = ezOSFile::GetApplicationDirectory();
+    sFile.PathParentDirectory(); // strip the '<platform><compiler><config>' folder
+    sFile.AppendPath("ezExportInfo.cmake");
+    sFile.MakeCleanPath();
+
+    ezOSFile file;
+    EZ_SUCCEED_OR_RETURN(file.Open(sFile, ezFileOpenMode::Read));
+
+    ezStringBuilder sContent;
+    {
+      ezDataBuffer content;
+      file.ReadAll(content);
+      sContent = ezStringView((const char*)content.GetData(), content.GetCount());
+    }
+
+    auto ReadValue = [&](ezStringView sVariable, ezStringBuilder& out_sValue) -> ezResult
+    {
+      ezStringBuilder sPrefix("set(", sVariable, " ");
+
+      const char* szStart = sContent.FindSubString(sPrefix);
+      if (szStart == nullptr)
+        return EZ_FAILURE;
+
+      szStart += sPrefix.GetElementCount();
+
+      const char* szEnd = sContent.FindSubString(")", szStart);
+      if (szEnd == nullptr)
+        return EZ_FAILURE;
+
+      out_sValue.SetSubString_FromTo(szStart, szEnd);
+      out_sValue.Trim(" \t\r\n\"");
+      return out_sValue.IsEmpty() ? EZ_FAILURE : EZ_SUCCESS;
+    };
+
+    EZ_SUCCEED_OR_RETURN(ReadValue("EXPINP_OUTPUT_DIRECTORY_DLL", out_sDllDir));
+    EZ_SUCCEED_OR_RETURN(ReadValue("EXPINP_OUTPUT_DIRECTORY_LIB", out_sLibDir));
+    return EZ_SUCCESS;
+  }
+
 } // namespace
 
 ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppSettings& cfg, ezVariantDictionary& inout_json)
@@ -1269,6 +1320,19 @@ ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppS
       return ModifyResult::FAILURE;
 
     Modify(*cacheVariables, "EZ_SDK_DIR", ezFileSystem::GetSdkRootDirectory(), result);
+
+    // Without these the plugin is built into '<sdk>/Output/Bin', which is not where this application
+    // was loaded from when the SDK was built into a custom output directory. The plugin would compile
+    // and the editor would still not find it.
+    {
+      ezStringBuilder sDllDir, sLibDir;
+      if (ReadSdkOutputDirectories(sDllDir, sLibDir).Succeeded())
+      {
+        Modify(*cacheVariables, "EZ_OUTPUT_DIRECTORY_DLL", sDllDir, result);
+        Modify(*cacheVariables, "EZ_OUTPUT_DIRECTORY_LIB", sLibDir, result);
+      }
+    }
+
     Modify(*cacheVariables, "EZ_BUILDTYPE_ONLY", BUILDSYSTEM_BUILDTYPE, result);
     Modify(*cacheVariables, "CMAKE_BUILD_TYPE", BUILDSYSTEM_BUILDTYPE, result);
 

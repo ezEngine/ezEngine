@@ -5,6 +5,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Types/Status.h>
 
 struct ezPathPatternFilter;
 class ezAssetCurator;
@@ -14,8 +15,39 @@ class ezProgressRange;
 
 //////////////////////////////////////////////////////////////////////////
 
+/// The steps around ezProjectExport::ExportProjectComplete(), all of which can be skipped.
+///
+/// The defaults are what the 'Export Project' dialog starts out with, ie. do everything.
+struct EZ_EDITORFRAMEWORK_DLL ezProjectExportOptions
+{
+  /// Build the project's C++ plugin first, so that the exported binaries match the current code.
+  /// Has no effect on a project without C++ code.
+  bool m_bCompileCppPlugin = true;
+
+  /// Transform all assets first. Without this, assets that were modified since the last transform are
+  /// exported in their previous state, and assets never transformed for the active profile are missing
+  /// from the export entirely.
+  bool m_bTransformAssets = true;
+
+  /// See ezProjectExport::ExportProject().
+  bool m_bCreateLaunchScripts = true;
+};
+
 struct EZ_EDITORFRAMEWORK_DLL ezProjectExport
 {
+  /// Runs the full export, as triggered by the 'Export Project' dialog.
+  ///
+  /// Does the optional steps in ezProjectExportOptions, then ExportProject() for the currently active
+  /// asset profile and the editor's data directory configuration. The target directory is *cleared*
+  /// first - see ExportProject().
+  ///
+  /// Everything that the export logs is captured and written to 'ExportLog.txt' in the target directory,
+  /// and returned through out_pLog when that is not null. That means it does not show up in the editor's
+  /// log window, so the returned status is the only indication of failure a caller gets without reading
+  /// the log.
+  static ezStatus ExportProjectComplete(ezStringView sTargetDirectory, const ezProjectExportOptions& options, ezStringBuilder* out_pLog = nullptr);
+
+
   /// Exports the project to szTargetDirectory.
   ///
   /// If bCreateLaunchScripts is true, .bat files for launching the exported project are written to the target
