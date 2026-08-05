@@ -121,7 +121,16 @@ namespace
     if (splitResult.IsEmpty())
       return EZ_FAILURE;
 
-    ezStringView version = splitResult.PeekBack();
+    ezStringView version;
+    do
+    {
+      version = splitResult.PeekBack();
+      if (version.FindSubString("."))
+      {
+        break;
+      }
+      splitResult.PopBack();
+    } while (!splitResult.IsEmpty());
     splitResult.Clear();
     version.Split(false, splitResult, ".");
     if (splitResult.GetCount() < 3)
