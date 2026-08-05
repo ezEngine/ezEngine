@@ -285,17 +285,16 @@ private:
 };
 
 
-/// \brief Standard-compliant JSON writer implementation with MongoDB-style binary data extension.
+/// \brief Standard-compliant JSON writer implementation.
 ///
-/// StandardJSONWriter produces fully compliant JSON output that can be read by any standard JSON parser.
-/// It extends the base functionality with support for binary data using MongoDB's binary data convention,
-/// allowing ezEngine-specific types to be represented in a standardized way.
+/// Produces fully compliant JSON that any standard parser reads. The ez types that JSON has no
+/// representation for are written as ordinary objects, arrays and strings - a vector as
+/// {"x":1,"y":2,"z":3}, a matrix as an array of rows, a uuid as its hyphenated string form, an angle
+/// in degrees. Which ez type a value came from is therefore not recorded, so a reader has to know
+/// what it is reading; in particular ezColor (linear) and ezColorGammaUB (gamma, 0-255) are
+/// indistinguishable from the JSON alone.
 ///
-/// Binary data handling:
-/// - ezEngine types (Vec2, Vec3, matrices, etc.) encoded as MongoDB binary objects
-/// - Format: {"$type": "typename", "$binary": "hexdata"}
-/// - Little-endian hex encoding for cross-platform compatibility
-/// - Custom data types supported via WriteBinaryData()
+/// WriteBinaryData() writes MongoDB-style {"$type":..,"$binary":"hexdata"} for callers that want raw bytes.
 class EZ_FOUNDATION_DLL ezStandardJSONWriter : public ezJSONWriter
 {
 public:
@@ -338,46 +337,46 @@ public:
   /// \brief Writes the time value as a double (i.e. redirects to WriteDouble()).
   virtual void WriteTime(ezTime value) override; // [tested]
 
-  /// \brief Outputs the value via WriteVec4().
+  /// \brief Writes {"r":..,"g":..,"b":..,"a":..} with the linear float components.
   virtual void WriteColor(const ezColor& value) override; // [tested]
 
-  /// \brief Outputs the value via WriteVec4().
+  /// \brief Writes {"r":..,"g":..,"b":..,"a":..} with the gamma space components, i.e. 0 to 255.
   virtual void WriteColorGamma(const ezColorGammaUB& value) override; // [tested]
 
-  /// \brief Outputs the value via WriteBinaryData().
+  /// \brief Writes {"x":..,"y":..}.
   virtual void WriteVec2(const ezVec2& value) override; // [tested]
 
-  /// \brief Outputs the value via WriteBinaryData().
+  /// \brief Writes {"x":..,"y":..,"z":..}.
   virtual void WriteVec3(const ezVec3& value) override; // [tested]
 
-  /// \brief Outputs the value via WriteBinaryData().
+  /// \brief Writes {"x":..,"y":..,"z":..,"w":..}.
   virtual void WriteVec4(const ezVec4& value) override; // [tested]
 
-  /// \brief Outputs the value via WriteBinaryData().
+  /// \brief Writes {"x":..,"y":..}.
   virtual void WriteVec2I32(const ezVec2I32& value) override; // [tested]
 
-  /// \brief Outputs the value via WriteBinaryData().
+  /// \brief Writes {"x":..,"y":..,"z":..}.
   virtual void WriteVec3I32(const ezVec3I32& value) override; // [tested]
 
-  /// \brief Outputs the value via WriteBinaryData().
+  /// \brief Writes {"x":..,"y":..,"z":..,"w":..}.
   virtual void WriteVec4I32(const ezVec4I32& value) override; // [tested]
 
-  /// \brief Outputs the value via WriteBinaryData().
+  /// \brief Writes {"x":..,"y":..,"z":..,"w":..}, the same layout the property system uses.
   virtual void WriteQuat(const ezQuat& value) override; // [tested]
 
-  /// \brief Outputs the value via WriteBinaryData().
+  /// \brief Writes the matrix row by row, as an array of arrays.
   virtual void WriteMat3(const ezMat3& value) override; // [tested]
 
-  /// \brief Outputs the value via WriteBinaryData().
+  /// \brief Writes the matrix row by row, as an array of arrays.
   virtual void WriteMat4(const ezMat4& value) override; // [tested]
 
-  /// \brief Outputs the value via WriteBinaryData().
+  /// \brief Writes the hyphenated string form, i.e. what ezConversionUtils::ToString() produces.
   virtual void WriteUuid(const ezUuid& value) override; // [tested]
 
-  /// \brief \copydoc ezJSONWriter::WriteFloat()
+  /// \brief Writes the angle in degrees (i.e. redirects to WriteFloat()).
   virtual void WriteAngle(ezAngle value) override; // [tested]
 
-  /// \brief Outputs the value via WriteBinaryData().
+  /// \brief Writes the bytes as a hex string, which is twice the size of the data.
   virtual void WriteDataBuffer(const ezDataBuffer& value) override; // [tested]
 
   /// \brief Implements the MongoDB way of writing binary data. First writes a "$type" variable, then a "$binary" variable that represents the raw
@@ -402,6 +401,19 @@ public:
   /// \brief \copydoc ezJSONWriter::EndObject()
   virtual void EndObject() override; // [tested]
 
+  /// \brief Writes text that is already valid JSON in place, without any escaping of special characters.
+  ///
+  /// For values that were authored as JSON elsewhere and are embedded in this document.
+  /// Anything else, in particular a plain string or data from outside, produces a malformed document,
+  /// use WriteString() for that instead.
+  ///
+  /// Counts as one value, so it can be used wherever WriteBool() and friends can. Indentation and the
+  /// whitespace mode do not apply to the embedded text.
+  void WriteRawJson(ezStringView sJson); // [tested]
+
+  /// \brief Shorthand for "BeginVariable(sName); WriteRawJson(sJson); EndVariable();"
+  void AddVariableRawJson(ezStringView sName, ezStringView sJson); // [tested]
+
   /// \brief Closes every object and array that is still open, so that the output becomes valid JSON.
   ///
   /// For code that has to stop writing part way through - a lookup failed, the data turned out to be
@@ -414,6 +426,14 @@ public:
 
 protected:
   void End();
+
+  /// \brief Writes an object with one float member per component, e.g. {"x":1,"y":2}.
+  ///
+  /// \param sComponentNames One character per component, in order, e.g. "xyzw" or "rgba".
+  void WriteFloatComponents(const float* pValues, ezUInt32 uiCount, ezStringView sComponentNames);
+
+  /// \brief Writes a square matrix row by row, as an array of arrays.
+  void WriteMatrix(const float* pValues, ezUInt32 uiRowsAndColumns);
 
   enum State
   {

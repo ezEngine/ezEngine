@@ -154,7 +154,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     val[1] = 0x99AABBCCDDEEFF00;
     ezMemoryUtils::Copy(reinterpret_cast<ezUInt64*>(&guid), val, 2);
 
-    StreamComparer sc("\"uuid_var\" : { \"$t\" : \"uuid\", \"$b\" : \"0x887766554433221100FFEEDDCCBBAA99\" }");
+    StreamComparer sc("\"uuid_var\" : \"{ 55667788-3344-1122-00ff-eeddccbbaa99 }\"");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -177,8 +177,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableColor")
   {
-    StreamComparer sc("\"var1\" : { \"$t\" : \"color\", \"$v\" : \"(1.0000, 2.0000, 3.0000, 4.0000)\", \"$b\" : "
-                      "\"0x0000803F000000400000404000008040\" }");
+    StreamComparer sc("\"var1\" : {\n  \"r\" : 1,\n  \"g\" : 2,\n  \"b\" : 3,\n  \"a\" : 4\n}");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -186,9 +185,19 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     js.AddVariableColor("var1", ezColor(1, 2, 3, 4));
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableColorGamma")
+  {
+    StreamComparer sc("\"var1\" : {\n  \"r\" : 1,\n  \"g\" : 2,\n  \"b\" : 3,\n  \"a\" : 4\n}");
+
+    ezStandardJSONWriter js;
+    js.SetOutputStream(&sc);
+
+    js.AddVariableColorGamma("var1", ezColorGammaUB(1, 2, 3, 4));
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec2")
   {
-    StreamComparer sc("\"var1\" : { \"$t\" : \"vec2\", \"$v\" : \"(1.0000, 2.0000)\", \"$b\" : \"0x0000803F00000040\" }");
+    StreamComparer sc("\"var1\" : {\n  \"x\" : 1,\n  \"y\" : 2\n}");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -198,7 +207,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec3")
   {
-    StreamComparer sc("\"var1\" : { \"$t\" : \"vec3\", \"$v\" : \"(1.0000, 2.0000, 3.0000)\", \"$b\" : \"0x0000803F0000004000004040\" }");
+    StreamComparer sc("\"var1\" : {\n  \"x\" : 1,\n  \"y\" : 2,\n  \"z\" : 3\n}");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -208,8 +217,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec4")
   {
-    StreamComparer sc(
-      "\"var1\" : { \"$t\" : \"vec4\", \"$v\" : \"(1.0000, 2.0000, 3.0000, 4.0000)\", \"$b\" : \"0x0000803F000000400000404000008040\" }");
+    StreamComparer sc("\"var1\" : {\n  \"x\" : 1,\n  \"y\" : 2,\n  \"z\" : 3,\n  \"w\" : 4\n}");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -219,7 +227,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec2I32")
   {
-    StreamComparer sc("\"var1\" : { \"$t\" : \"vec2i\", \"$v\" : \"(1, 2)\", \"$b\" : \"0x0100000002000000\" }");
+    StreamComparer sc("\"var1\" : {\n  \"x\" : 1,\n  \"y\" : 2\n}");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -229,7 +237,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec3I32")
   {
-    StreamComparer sc("\"var1\" : { \"$t\" : \"vec3i\", \"$v\" : \"(1, 2, 3)\", \"$b\" : \"0x010000000200000003000000\" }");
+    StreamComparer sc("\"var1\" : {\n  \"x\" : 1,\n  \"y\" : 2,\n  \"z\" : 3\n}");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -239,7 +247,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec4I32")
   {
-    StreamComparer sc("\"var1\" : { \"$t\" : \"vec4i\", \"$v\" : \"(1, 2, 3, 4)\", \"$b\" : \"0x01000000020000000300000004000000\" }");
+    StreamComparer sc("\"var1\" : {\n  \"x\" : 1,\n  \"y\" : 2,\n  \"z\" : 3,\n  \"w\" : 4\n}");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -249,7 +257,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableDataBuffer")
   {
-    StreamComparer sc("\"var1\" : { \"$t\" : \"data\", \"$b\" : \"0xFF00DA\" }");
+    StreamComparer sc("\"var1\" : \"ff00da\"");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -263,7 +271,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableQuat")
   {
-    StreamComparer sc("\"var1\" : { \"$t\" : \"quat\", \"$b\" : \"0x0000803F000000400000404000008040\" }");
+    StreamComparer sc("\"var1\" : {\n  \"x\" : 1,\n  \"y\" : 2,\n  \"z\" : 3,\n  \"w\" : 4\n}");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -273,7 +281,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableMat3")
   {
-    StreamComparer sc("\"var1\" : { \"$t\" : \"mat3\", \"$b\" : \"0x0000803F000080400000E040000000400000A04000000041000040400000C04000001041\" }");
+    StreamComparer sc("\"var1\" : [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -283,9 +291,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableMat4")
   {
-    StreamComparer sc("\"var1\" : { \"$t\" : \"mat4\", \"$b\" : "
-                      "\"0x0000803F0000A0400000104100005041000000400000C0400000204100006041000040400000E04000003041000070410000804000000041"
-                      "0000404100008041\" }");
+    StreamComparer sc("\"var1\" : [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ], [ 13, 14, 15, 16 ] ]");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -310,6 +316,36 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     js.AddVariableVariant("var3", ezVariant(21.25));
     js.AddVariableVariant("var4", ezVariant(true));
     js.AddVariableVariant("var5", ezVariant("pups"));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableRawJson")
+  {
+    StreamComparer sc("\
+{\n\
+  \"schema\" : {\"type\":\"object\"},\n\
+  \"after\" : 23,\n\
+  \"array\" : [ 1, [2,3], \"four\" ]\n\
+}");
+
+    ezStandardJSONWriter js;
+    js.SetOutputStream(&sc);
+
+    js.BeginObject();
+
+    // spliced in unchanged: no quotes, no escaping, and the writer's own whitespace mode does not
+    // reach inside it
+    js.AddVariableRawJson("schema", "{\"type\":\"object\"}");
+
+    // the raw value counts as a value, so the following member is separated by a comma as usual
+    js.AddVariableInt32("after", 23);
+
+    js.BeginArray("array");
+    js.WriteInt32(1);
+    js.WriteRawJson("[2,3]");
+    js.WriteString("four");
+    js.EndArray();
+
+    js.EndObject();
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Arrays")
