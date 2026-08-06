@@ -11,7 +11,7 @@ o
 		s %AssetType{"VisualScriptClass"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1445148848983562902,5476458480541080840}}
-		u4 %Hash{13707513439010987236}
+		u4 %Hash{3268341205841402440}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13407952061783642248,11489212860099758958}}
@@ -1029,7 +1029,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Expression{"horz = sin(time*rate)\nhorz *= amount * velocity_horz\nhorz *= touching_ground\n\nfloat vert_rate_mod = touching_ground ? 1 : 0.08\nfloat vert_amnt_mod = touching_ground ? 1 : 35\nfloat velocity_vert_mod = touching_ground ? velocity_horz : jump_time\nfloat time_vert = touching_ground ? time : jump_time+1\nfloat vert_mod = touching_ground ? 0 : 0.03\nvert = sin(time_vert*rate*2*vert_rate_mod)\nvert *= amount * velocity_vert_mod * vert_amnt_mod\nvert += vert_mod\n\n// breathing animation\n//vert += sin(time*2)*0.003\n"}
+		s %Expression{"horz = sin(time*rate)\nhorz *= amount * velocity_horz\nhorz *= touching_ground\n\nfloat vert_rate_mod = touching_ground ? 1 : 0.08\nfloat vert_amnt_mod = touching_ground ? 1 : 35\nfloat velocity_vert_mod = touching_ground ? velocity_horz : min(jump_time, 1)\nfloat time_vert = touching_ground ? time : jump_time+1\nfloat vert_mod = touching_ground ? 0 : 0.03\nvert = sin(time_vert*rate*2*vert_rate_mod)\nvert *= amount * velocity_vert_mod * vert_amnt_mod\nvert += vert_mod\n\n// breathing animation\n//vert += sin(time*2)*0.003\n"}
 		VarArray %Inputs
 		{
 			Uuid{u4{1607128280572131238,5115496898090991288}}
