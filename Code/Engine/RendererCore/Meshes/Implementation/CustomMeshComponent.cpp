@@ -37,7 +37,7 @@ bool ezCustomMeshRenderData::CanBatch(const ezRenderData& other0) const
 /////////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezCustomMeshComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezCustomMeshComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -49,6 +49,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCustomMeshComponent, 3, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new ezDefaultValueAttribute(ezVec4(0, 1, 0, 1))),
     EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material"), new ezRequiredAttribute()),
+    EZ_ACCESSOR_PROPERTY("SortingDepthOffset", GetSortingDepthOffset, SetSortingDepthOffset),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -127,6 +128,7 @@ void ezCustomMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   s << m_hMaterial;
 
   s << m_vCustomData;
+  s << m_fSortingDepthOffset;
 }
 
 void ezCustomMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -148,6 +150,11 @@ void ezCustomMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
   if (uiVersion >= 3)
   {
     s >> m_vCustomData;
+  }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_fSortingDepthOffset;
   }
 }
 
@@ -228,6 +235,16 @@ const ezVec4& ezCustomMeshComponent::GetCustomData() const
   return m_vCustomData;
 }
 
+void ezCustomMeshComponent::SetSortingDepthOffset(float fOffset)
+{
+  if (m_fSortingDepthOffset != fOffset)
+  {
+    m_fSortingDepthOffset = fOffset;
+
+    InvalidateCachedRenderData();
+  }
+}
+
 void ezCustomMeshComponent::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg)
 {
   SetMaterial(ref_msg.m_hMaterial);
@@ -270,7 +287,7 @@ void ezCustomMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
     pRenderData->m_uiNumInstances = 1;
     pRenderData->m_DataOffsets.m_uiInstance = m_InstanceDataOffset.m_uiOffset;
     pRenderData->m_hInstanceDataBuffer = hInstanceDataBuffer;
-    pRenderData->m_fSortingDepthOffset = 0.0f;
+    pRenderData->m_fSortingDepthOffset = m_fSortingDepthOffset;
 
     pRenderData->m_hMaterial = m_hMaterial;
     pRenderData->m_hDynamicMeshBuffer = m_hDynamicMesh;
