@@ -26,6 +26,7 @@ ezMap<ezString, QPixmap> ezQtUiServices::s_PixmapsCache;
 bool ezQtUiServices::s_bHeadless;
 bool ezQtUiServices::s_bUnattended;
 ezHybridArray<ezString, 4> ezQtUiServices::s_SuppressedDialogs;
+ezHybridArray<ezString, 4> ezQtUiServices::s_FailedAsserts;
 ezQtUiServices::TickEvent ezQtUiServices::s_LastTickEvent;
 
 static ezQtUiServices* g_pInstance = nullptr;
@@ -98,6 +99,56 @@ bool ezQtUiServices::SuppressModalWindow(ezStringView sDescription)
 
   ReportSuppressedDialog(sDescription);
   return true;
+}
+
+namespace
+{
+  ezAssertHandler g_PreviousAssertHandler = nullptr;
+
+  bool UnattendedAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+  {
+    if (!ezQtUiServices::IsUnattended())
+    {
+      // A user is sitting in front of this: the normal dialog and debugger break are what they want.
+      if (g_PreviousAssertHandler != nullptr)
+        return g_PreviousAssertHandler(szSourceFile, uiLine, szFunction, szExpression, szAssertMsg);
+
+      return true;
+    }
+
+    ezStringBuilder sReport;
+    sReport.SetFormat("{}({}) in {}: '{}' {}", szSourceFile, uiLine, szFunction, szExpression, szAssertMsg);
+
+    ezQtUiServices::ReportFailedAssert(sReport);
+
+    // false means 'do not break'. The assert dialog would block the main thread with nobody there to
+    // dismiss it, which is worse than continuing into whatever the assert was guarding against.
+    return false;
+  }
+} // namespace
+
+void ezQtUiServices::ReportFailedAssert(ezStringView sReport)
+{
+  ezLog::Error("Assert failed with no user present: {}", sReport);
+
+  // One broken invariant tends to trip the next assert immediately, so the list is bounded the same way
+  // the dialog list is. The first entry is the one that explains the rest.
+  constexpr ezUInt32 uiMaxEntries = 8;
+
+  if (s_FailedAsserts.GetCount() < uiMaxEntries)
+  {
+    s_FailedAsserts.PushBack(sReport);
+  }
+}
+
+ezArrayPtr<const ezString> ezQtUiServices::GetFailedAsserts()
+{
+  return s_FailedAsserts;
+}
+
+void ezQtUiServices::ClearFailedAsserts()
+{
+  s_FailedAsserts.Clear();
 }
 
 ezArrayPtr<const ezString> ezQtUiServices::GetSuppressedDialogs()
@@ -341,6 +392,14 @@ void ezQtUiServices::GotoLinkTarget(ezStringView sLinkTarget)
 
 void ezQtUiServices::Init()
 {
+  // Installed unconditionally, because unattended mode is entered and left again at runtime
+  // (ezQtScopedUnattended) - the handler decides per assert, rather than being swapped in and out.
+  if (g_PreviousAssertHandler == nullptr)
+  {
+    g_PreviousAssertHandler = ezGetAssertHandler();
+    ezSetAssertHandler(UnattendedAssertHandler);
+  }
+
   s_LastTickEvent.m_fRefreshRate = 60.0;
   if (QScreen* pScreen = QApplication::primaryScreen())
   {

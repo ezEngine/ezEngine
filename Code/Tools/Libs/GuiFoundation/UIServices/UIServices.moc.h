@@ -114,6 +114,23 @@ public:
   /// because that dialog never opens.
   static bool SuppressModalWindow(ezStringView sDescription);
 
+  /// Records a failed assert instead of letting it open its dialog, and returns whether it was handled.
+  ///
+  /// Installed as the global assert handler by Init(). While a user is present nothing changes - the
+  /// assert goes to the previous handler, which breaks into the debugger or shows the usual dialog. It
+  /// is only unattended that an assert has nowhere to go: the dialog blocks the main thread, so the
+  /// application stops answering entirely and whoever triggered the assert never learns that it fired.
+  ///
+  /// The failed condition is logged and collected like a suppressed dialog, and execution continues past
+  /// an assert that was meant to stop it. That is a deliberate trade: continuing is not safe, but the
+  /// caller does get told, whereas a hung process tells nobody anything. Anything reporting these should
+  /// say that the application's state is now questionable and that it should be restarted.
+  static void ReportFailedAssert(ezStringView sReport);
+
+  static ezArrayPtr<const ezString> GetFailedAsserts();
+
+  static void ClearFailedAsserts();
+
   /// The dialogs suppressed since the last ClearSuppressedDialogs(), oldest first.
   ///
   /// The list has an upper bound, so that a loop opening dialogs cannot grow it without limit. Once that
@@ -231,6 +248,7 @@ private:
   static bool s_bHeadless;
   static bool s_bUnattended;
   static ezHybridArray<ezString, 4> s_SuppressedDialogs;
+  static ezHybridArray<ezString, 4> s_FailedAsserts;
   static TickEvent s_LastTickEvent;
   bool m_bIsDrawingATM = false;
 
