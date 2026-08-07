@@ -317,6 +317,49 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
     case ezVariant::Type::Vector4I:
       WriteVec4I32(value.Get<ezVec4I32>());
       return;
+    // The unsigned vectors have no Write function of their own, because nothing else needs to
+    // distinguish them from the signed ones. Written directly so they do not end up at the failure
+    // below - the values do not fit an ezVec*I32 across their whole range.
+    case ezVariant::Type::Vector2U:
+    {
+      const ezVec2U32 v = value.Get<ezVec2U32>();
+      BeginObject();
+      AddVariableUInt32("x", v.x);
+      AddVariableUInt32("y", v.y);
+      EndObject();
+      return;
+    }
+    case ezVariant::Type::Vector3U:
+    {
+      const ezVec3U32 v = value.Get<ezVec3U32>();
+      BeginObject();
+      AddVariableUInt32("x", v.x);
+      AddVariableUInt32("y", v.y);
+      AddVariableUInt32("z", v.z);
+      EndObject();
+      return;
+    }
+    case ezVariant::Type::Vector4U:
+    {
+      const ezVec4U32 v = value.Get<ezVec4U32>();
+      BeginObject();
+      AddVariableUInt32("x", v.x);
+      AddVariableUInt32("y", v.y);
+      AddVariableUInt32("z", v.z);
+      AddVariableUInt32("w", v.w);
+      EndObject();
+      return;
+    }
+    case ezVariant::Type::Transform:
+    {
+      const ezTransform t = value.Get<ezTransform>();
+      BeginObject();
+      AddVariableVec3("position", t.m_vPosition);
+      AddVariableQuat("rotation", t.m_qRotation);
+      AddVariableVec3("scale", t.m_vScale);
+      EndObject();
+      return;
+    }
     case ezVariant::Type::Quaternion:
       WriteQuat(value.Get<ezQuat>());
       return;
@@ -335,6 +378,14 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
       WriteString(s.GetData());
       return;
     }
+    case ezVariant::Type::HashedString:
+      WriteString(value.Get<ezHashedString>().GetView());
+      return;
+    case ezVariant::Type::TempHashedString:
+      // Only the hash exists here - an ezTempHashedString does not keep the text it was built from, so
+      // this is as much as can be written, and it does not round trip back into a string.
+      WriteUInt64(value.Get<ezTempHashedString>().GetHash());
+      return;
     case ezVariant::Type::Time:
       WriteTime(value.Get<ezTime>());
       return;
