@@ -101,5 +101,11 @@ private:
   ezTime m_AutoFreeUnusedTimeout = ezTime::MakeZero();
   ezTime m_AutoFreeUnusedThreshold = ezTime::MakeZero();
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  // How often a resource was freed again without ever having been acquired. Used to warn about inefficient resource usage.
+  // See ezResourceManager::FreeUnusedResources.
+  ezHashTable<ezTempHashedString, ezUInt8> m_NeverAcquiredResources;
+#endif
+
   ezMap<const ezRTTI*, ezResourceManager::ResourceTypeInfo> m_TypeInfo;
 };

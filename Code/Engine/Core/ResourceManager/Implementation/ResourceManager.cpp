@@ -296,9 +296,32 @@ ezUInt32 ezResourceManager::FreeUnusedResources(ezTime timeout, ezTime lastAcqui
     {
       sResourceName = pResource->GetResourceID();
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+      // A zero acquire timestamp means the resource was created (a handle was made for it) but never
+      // acquired even once, so 'lastAcquireThreshold' could not protect it - it becomes eligible for
+      // freeing on the very next sweep. Harmless once, but a caller that does this in an update loop
+      // (typically: ezResourceManager::LoadResource into a *local* handle that is dropped again, on a
+      // code path that then doesn't use it) recreates and frees the resource forever. Warn about that,
+      // but only from the second time on, so that a one-off create-and-discard stays quiet.
+      const bool bNeverAcquired = pResource->GetLastAcquireTime().IsZero();
+#endif
+
       if (DeallocateResource(pResource).Succeeded())
       {
         ezLog::Debug("Freed '{}'", ezArgSensitive(sResourceName, "ResourceID"));
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+        if (bNeverAcquired)
+        {
+          ezUInt8& uiState = s_pState->m_NeverAcquiredResources[ezTempHashedString(sResourceName.GetView())];
+          uiState = uiState + 1; // allow wrap around -> repeated warnings
+
+          if (uiState == 5)
+          {
+            ezLog::Warning("Resource '{}' is repeatedly created and freed without ever being acquired. Keep the resource handle around instead of recreating it, otherwise it is reloaded from scratch every time.", ezArgSensitive(sResourceName, "ResourceID"));
+          }
+        }
+#endif
 
         ++uiDeallocatedCount;
         itResourceID = itResourceType.Value().m_Resources.Remove(itResourceID);
