@@ -2,8 +2,9 @@
 
 #include <RmlUiPlugin/RmlUiPluginDLL.h>
 
-#include <RmlUi/Include/RmlUi/Core.h>
 #include <Core/Input/Declarations.h>
+#include <Foundation/Strings/String.h>
+#include <RmlUi/Include/RmlUi/Core.h>
 
 struct ezRmlUiInputButtons
 {
@@ -108,11 +109,11 @@ EZ_DECLARE_FLAGS_OPERATORS(ezRmlUiInputButtons);
 struct EZ_RMLUIPLUGIN_DLL ezRmlUiInputSnapshot
 {
   ezBitflags<ezRmlUiInputButtons> m_Buttons;
-  ezUInt32 m_uiLastCharacter = 0;
+  ezString m_sLastCharacters;
 
   EZ_ALWAYS_INLINE bool operator==(const ezRmlUiInputSnapshot& rhs) const
   {
-    return m_Buttons == rhs.m_Buttons && m_uiLastCharacter == rhs.m_uiLastCharacter;
+    return m_Buttons == rhs.m_Buttons && m_sLastCharacters == rhs.m_sLastCharacters;
   }
 
   EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezRmlUiInputSnapshot&);
@@ -134,7 +135,7 @@ struct EZ_RMLUIPLUGIN_DLL ezRmlUiInputProvider
 
   EZ_ALWAYS_INLINE bool IsAnyButtonDown() const
   {
-    return m_Buttons.IsAnyFlagSet() || m_uiLastCharacter != 0;
+    return m_Buttons.IsAnyFlagSet() || !m_sLastCharacters.IsEmpty();
   }
 
   EZ_ALWAYS_INLINE bool HasAnyInput() const
@@ -142,6 +143,6 @@ struct EZ_RMLUIPLUGIN_DLL ezRmlUiInputProvider
     return IsAnyButtonDown() || m_PrevButtons.IsAnyFlagSet();
   }
 
-  ezUInt32 m_uiLastCharacter = 0;
+  ezString m_sLastCharacters;
   ezBitflags<ezRmlUiInputButtons> m_Buttons, m_PrevButtons;
 };

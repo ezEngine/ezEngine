@@ -377,10 +377,8 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
 
   if (m_bPassInputToImgui)
   {
-    char szUtf8[8] = "";
-    char* pChar = szUtf8;
-    ezUnicodeUtils::EncodeUtf32ToUtf8(ezInputManager::RetrieveLastCharacter(false), pChar);
-    cfg.AddInputCharactersUTF8(szUtf8);
+    const ezString sChars = ezInputManager::RetrieveLastCharacters(false);
+    cfg.AddInputCharactersUTF8(sChars.GetData());
 
     float mousex, mousey;
     if (ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint0) != ezKeyState::Up)

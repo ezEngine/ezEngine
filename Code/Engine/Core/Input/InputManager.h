@@ -129,12 +129,12 @@ public:
   /// Returns an array that contains all the names of all currently known input slots.
   static void RetrieveAllKnownInputSlots(ezDynamicArray<ezStringView>& out_inputSlots);
 
-  /// Returns the last typed character as the OS has reported it. Thus supports Unicode etc.
+  /// Returns everything typed since the last reset, as the OS has reported it, in order, as one UTF-8 string. Supports Unicode etc.
   ///
-  /// If \a bResetCurrent is true, the internal last character will be reset to '\0'.
-  /// If it is false, the internal state will not be changed. This should only be used, if the calling code does not do anything meaningful
-  /// with the value.
-  static ezUInt32 RetrieveLastCharacter(bool bResetCurrent = true); // [tested]
+  /// If \a bResetCurrent is true, the internal buffer will be cleared. If it is false, the internal state will not be changed.
+  /// This should only be used if the calling code does not do anything meaningful with the value - a second caller peeking
+  /// with bResetCurrent == false still sees whatever a later reset call already consumed.
+  static ezString RetrieveLastCharacters(bool bResetCurrent = true); // [tested]
 
   /// Makes sure that hardware input is processed at this moment, which allows to do this more often than Update() is called.
   ///
@@ -417,8 +417,8 @@ private:
     ezMap<ezString, float> s_InjectedInputSlots;
   };
 
-  /// The last (Unicode) character that was typed by the user, as reported by the OS (on Windows: WM_CHAR).
-  static ezUInt32 s_uiLastCharacter;
+  /// Everything (Unicode) typed by the user since the last reset, as reported by the OS (on Windows: WM_CHAR).
+  static ezString s_sLastCharacters;
 
   static bool s_bInputSlotResetRequired;
 

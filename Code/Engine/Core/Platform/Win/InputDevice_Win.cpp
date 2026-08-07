@@ -489,12 +489,15 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
     }
 
     case WM_CHAR:
-      m_uiLastCharacter = (wchar_t)wparam;
-      if (m_uiLastCharacter == 13) // turn '\r' into '\n'
+    {
+      ezUInt32 uiCharacter = (wchar_t)wparam;
+      if (uiCharacter == 13) // turn '\r' into '\n'
       {
-        m_uiLastCharacter = '\n';
+        uiCharacter = '\n';
       }
+      m_sLastCharacters.Append(uiCharacter);
       return;
+    }
 
       // these messages would only arrive, if the window had the flag CS_DBLCLKS
       // see https://docs.microsoft.com/windows/win32/inputdev/wm-lbuttondblclk

@@ -37,7 +37,7 @@ ezRmlUiInputSnapshot ezRmlUiInputSnapshot::MakeFromCurrentInput()
     snapshot.m_Buttons |= ezRmlUiInputButtons::MouseWheelUp;
   }
 
-  snapshot.m_uiLastCharacter = ezInputManager::RetrieveLastCharacter(false);
+  snapshot.m_sLastCharacters = ezInputManager::RetrieveLastCharacters(false);
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(ezRmlUiInputButtons::s_KeyMappings); ++i)
   {
@@ -52,10 +52,10 @@ ezRmlUiInputSnapshot ezRmlUiInputSnapshot::MakeFromCurrentInput()
 
 bool ezRmlUiInputProvider::Update(ezRmlUiInputSnapshot input)
 {
-  bool bHasChanged = m_Buttons != input.m_Buttons || m_uiLastCharacter != input.m_uiLastCharacter;
+  bool bHasChanged = m_Buttons != input.m_Buttons || m_sLastCharacters != input.m_sLastCharacters;
   m_PrevButtons = m_Buttons;
   m_Buttons = input.m_Buttons;
-  m_uiLastCharacter = input.m_uiLastCharacter;
+  m_sLastCharacters = input.m_sLastCharacters;
   return bHasChanged;
 }
 

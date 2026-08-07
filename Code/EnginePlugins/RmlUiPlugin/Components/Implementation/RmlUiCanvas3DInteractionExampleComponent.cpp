@@ -103,7 +103,7 @@ void ezRmlUiCanvas3DInteractionExampleComponent::Update()
     input.m_Buttons |= ezRmlUiInputButtons::MouseWheelUp;
   if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelDown) == ezKeyState::Pressed)
     input.m_Buttons |= ezRmlUiInputButtons::MouseWheelDown;
-  input.m_uiLastCharacter = ezInputManager::RetrieveLastCharacter(false);
+  input.m_sLastCharacters = ezInputManager::RetrieveLastCharacters(false);
 
   Interact(input);
 }
