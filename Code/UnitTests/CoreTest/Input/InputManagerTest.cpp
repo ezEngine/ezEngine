@@ -49,7 +49,7 @@ public:
     m_InputSlotValues["testdevice_stick"] = 0.2f;
     m_InputSlotValues["testdevice_wheel"] = 0.3f;
     m_InputSlotValues["testdevice_touchpoint"] = 0.4f;
-    m_uiLastCharacter = '\42';
+    m_sLastCharacters.Append('\42');
   }
 
 private:
@@ -424,13 +424,13 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     ezTestInputDevide dev;
     dev.ActivateAll();
 
-    EZ_TEST_BOOL(ezInputManager::RetrieveLastCharacter(true) == '\0');
+    EZ_TEST_BOOL(ezInputManager::RetrieveLastCharacters(true).IsEmpty());
 
     ezInputManager::Update(ezTime::MakeFromSeconds(1.0 / 60.0));
 
-    EZ_TEST_BOOL(ezInputManager::RetrieveLastCharacter(false) == '\42');
-    EZ_TEST_BOOL(ezInputManager::RetrieveLastCharacter(true) == '\42');
-    EZ_TEST_BOOL(ezInputManager::RetrieveLastCharacter(true) == '\0');
+    EZ_TEST_STRING(ezInputManager::RetrieveLastCharacters(false), "\42");
+    EZ_TEST_STRING(ezInputManager::RetrieveLastCharacters(true), "\42");
+    EZ_TEST_BOOL(ezInputManager::RetrieveLastCharacters(true).IsEmpty());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Time Scaling")

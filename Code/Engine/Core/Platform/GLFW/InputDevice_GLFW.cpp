@@ -453,7 +453,7 @@ void ezInputDeviceMouseKeyboard_GLFW::OnKey(int key, int scancode, int action, i
 {
   if (key == GLFW_KEY_BACKSPACE && (action == GLFW_PRESS || action == GLFW_REPEAT))
   {
-    m_uiLastCharacter = 0x00000008;
+    m_sLastCharacters.Append(0x00000008u);
   }
 
   // TODO: if (key != scancode) -> use scancode, (ConvertScanCodeToEngineName), only if they are the same, use ConvertGLFWKeyToEngineName
@@ -471,7 +471,7 @@ void ezInputDeviceMouseKeyboard_GLFW::OnKey(int key, int scancode, int action, i
 
 void ezInputDeviceMouseKeyboard_GLFW::OnCharacter(unsigned int codepoint)
 {
-  m_uiLastCharacter = codepoint;
+  m_sLastCharacters.Append(codepoint);
 }
 
 void ezInputDeviceMouseKeyboard_GLFW::OnCursorPosition(double xpos, double ypos)

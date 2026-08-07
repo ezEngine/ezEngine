@@ -97,12 +97,21 @@ public:
   const ezColor& GetColor() const; // [ property ]
 
   /// \brief An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
-  void SetCustomData(const ezVec4& vData);                  // [ property ]
-  const ezVec4& GetCustomData() const;                      // [ property ]
+  void SetCustomData(const ezVec4& vData); // [ property ]
+  const ezVec4& GetCustomData() const;     // [ property ]
 
-  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
-  void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
-  void OnMsgSetCustomData(ezMsgSetCustomData& ref_msg);     // [ msg handler ]
+  /// \brief Sets the sorting depth offset value.
+  ///
+  /// The effect of sorting depth depends on the RenderDataCategory that the mesh is rendered in.
+  /// E.g. if the sorting function of the render data category is ezRenderSortingFunctions::ByDepthOffsetOnly
+  /// the offset is the *only* thing that decides the order, which makes it a way to give overlapping transparent meshes a fixed draw order.
+  /// With the typical distance based sorting functions this has little impact.
+  void SetSortingDepthOffset(float fOffset);                            // [ property ]
+  float GetSortingDepthOffset() const { return m_fSortingDepthOffset; } // [ property ]
+
+  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg);             // [ msg handler ]
+  void OnMsgSetColor(ezMsgSetColor& ref_msg);                           // [ msg handler ]
+  void OnMsgSetCustomData(ezMsgSetCustomData& ref_msg);                 // [ msg handler ]
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
@@ -110,6 +119,7 @@ protected:
   ezMaterialResourceHandle m_hMaterial; // [ property ]
   ezColor m_Color = ezColor::White;
   ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
+  float m_fSortingDepthOffset = 0.0f;
   ezBoundingBoxSphere m_Bounds = ezBoundingBoxSphere::MakeInvalid();
 
   mutable ezInstanceDataOffset m_InstanceDataOffset;

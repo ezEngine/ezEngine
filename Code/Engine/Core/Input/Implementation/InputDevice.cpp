@@ -27,7 +27,6 @@ ezKeyState::Enum ezKeyState::GetNewKeyState(ezKeyState::Enum prevState, bool bKe
 ezInputDevice::ezInputDevice()
 {
   m_bInitialized = false;
-  m_uiLastCharacter = '\0';
 }
 
 void ezInputDevice::RegisterInputSlot(ezStringView sName, ezStringView sDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags)
@@ -81,24 +80,24 @@ void ezInputDevice::ResetAllDevices()
   }
 }
 
-ezUInt32 ezInputDevice::RetrieveLastCharacter()
+ezString ezInputDevice::RetrieveLastCharacters()
 {
-  ezUInt32 Temp = m_uiLastCharacter;
-  m_uiLastCharacter = L'\0';
-  return Temp;
+  ezString sResult = m_sLastCharacters;
+  m_sLastCharacters.Clear();
+  return sResult;
 }
 
-ezUInt32 ezInputDevice::RetrieveLastCharacterFromAllDevices()
+ezString ezInputDevice::RetrieveLastCharactersFromAllDevices()
 {
   for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
   {
-    const ezUInt32 Char = pDevice->RetrieveLastCharacter();
+    ezString sChars = pDevice->RetrieveLastCharacters();
 
-    if (Char != L'\0')
-      return Char;
+    if (!sChars.IsEmpty())
+      return sChars;
   }
 
-  return '\0';
+  return ezString();
 }
 
 float ezInputDevice::GetInputSlotState(ezStringView sSlot) const

@@ -101,16 +101,19 @@ bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos, const ezRmlUiInputProv
 
   // Keyboard
   {
-    ezUInt32 uiLastChar = input.m_uiLastCharacter;
-    if (uiLastChar >= 32 || uiLastChar == '\n') // >= space (+ enter/return)
+    ezStringBuilder sFiltered;
+    for (auto it = input.m_sLastCharacters.GetIteratorFront(); it.IsValid(); ++it)
     {
-      char szUtf8[8] = "";
-      char* pChar = szUtf8;
-      ezUnicodeUtils::EncodeUtf32ToUtf8(uiLastChar, pChar);
-      if (!ezStringUtils::IsNullOrEmpty(szUtf8))
+      const ezUInt32 uiChar = it.GetCharacter();
+      if (uiChar >= 32 || uiChar == '\n') // >= space (+ enter/return)
       {
-        bKeyboardInputConsumed |= !ProcessTextInput(szUtf8);
+        sFiltered.Append(uiChar);
       }
+    }
+
+    if (!sFiltered.IsEmpty())
+    {
+      bKeyboardInputConsumed |= !ProcessTextInput(sFiltered.GetData());
     }
 
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(ezRmlUiInputButtons::s_KeyMappings); ++i)

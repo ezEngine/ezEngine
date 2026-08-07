@@ -5,6 +5,7 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 
@@ -57,15 +58,15 @@ public:
 private:
   friend class ezInputManager;
 
-  /// \brief If this type of input device handles character input (typed text with all its formatting), this function returns the last typed
-  /// character.
+  /// \brief If this type of input device handles character input (typed text with all its formatting), this function returns
+  /// every character typed since the last call, in order, as one UTF-8 string, and clears the buffer.
   ///
-  /// An input device that handles keyboard input should also have a way to query the real typed character. I.e. by default only the
-  /// individual state of each key is handled, such that we know that the shift key and the a key are pressed. However, the fact that
-  /// this results in an upper case A in typed text also needs to be handled. An OS usually has a way to compute this, for example
-  /// on Windows the WM_CHAR message sends this information. An ezInputDevice derived class should never try to compute this
-  /// itself, but instead query this information from the OS, which will also handle localization.
-  ezUInt32 RetrieveLastCharacter();
+  /// An input device that handles keyboard input should also have a way to query the real typed character(s). I.e. by default
+  /// only the individual state of each key is handled, such that we know that the shift key and the a key are pressed. However,
+  /// the fact that this results in an upper case A in typed text also needs to be handled. An OS usually has a way to compute
+  /// this, for example on Windows the WM_CHAR message sends this information. An ezInputDevice derived class should never try
+  /// to compute this itself, but instead query this information from the OS, which will also handle localization.
+  ezString RetrieveLastCharacters();
 
   /// \brief Calls UpdateHardwareState() on all devices.
   static void UpdateAllHardwareStates(ezTime tTimeDifference);
@@ -76,12 +77,28 @@ private:
   /// \brief Calls ResetInputSlotValues() on all devices.
   static void ResetAllDevices();
 
-  /// \brief Calls RetrieveLastCharacter() on all devices. Returns the first non-null character that any device returned.
-  static ezUInt32 RetrieveLastCharacterFromAllDevices();
+  /// \brief Calls RetrieveLastCharacters() on all devices. Returns the string from the first device that had one, draining
+  /// that device's buffer; devices after it are left untouched for this call.
+  static ezString RetrieveLastCharactersFromAllDevices();
 
 protected:
   /// \brief Calls RegisterInputSlot() on the ezInputManager and passes the parameters through.
   static void RegisterInputSlot(ezStringView sName, ezStringView sDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags); // [tested]
+
+  /// \brief Whether this device is authoritative for absolute-value slots (a position, not a delta) it writes,
+  /// such as the mouse position - see ezInputManager::GatherDeviceInputSlotValues().
+  ///
+  /// Ordinary slots from multiple devices are merged by taking the largest value, which is what lets real
+  /// hardware and synthetic input coexist: whichever is more insistent wins, and neither can lock the other
+  /// out. That merge makes no sense for an absolute value - two devices both claiming a cursor position and
+  /// taking the larger of the two coordinates does not produce a meaningful position, it produces whichever
+  /// device happens to report the larger number on each axis independently.
+  ///
+  /// A device that sets this to true instead replaces the value ordinary devices reported for such a slot,
+  /// for exactly the frames it is actively writing that slot - a virtual input device driving the mouse to a
+  /// specific spot (e.g. to click a UI element) is the intended use, not something a real hardware device
+  /// should ever need.
+  bool m_bOverridesAbsoluteInput = false;
 
   /// \brief Stores all the values for all input slots that this device handles.
   ///
@@ -97,9 +114,12 @@ protected:
   /// will reset to zero anyway.
   ezMap<ezString, float> m_InputSlotValues; // [tested]
 
-  /// \brief If this input device type handles character input, it should write the last typed character into this variable.
-  /// The ezInputManager calls RetrieveLastCharacter() to query what the user typed last.
-  ezUInt32 m_uiLastCharacter; // [tested]
+  /// \brief If this input device type handles character input, append every typed character (Unicode codepoint) it
+  /// receives to this, one Append() call per character event. Append rather than overwrite, so several characters
+  /// typed within one frame - which happens whenever the OS delivers input faster than the game updates - are all
+  /// preserved instead of all but the last being silently dropped.
+  /// The ezInputManager calls RetrieveLastCharacters() to query what the user typed since the last update.
+  ezStringBuilder m_sLastCharacters; // [tested]
 
   /// \brief Override this if you need to do device specific initialization before the first use.
   virtual void InitializeDevice() = 0;

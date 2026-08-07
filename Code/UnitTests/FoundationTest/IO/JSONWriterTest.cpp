@@ -318,6 +318,27 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     js.AddVariableVariant("var5", ezVariant("pups"));
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Control character escaping, exact output")
+  {
+    // Checked as text rather than by parsing, because what matters is the exact escape sequence, and
+    // because a string with an embedded zero does not survive being read back into an ezString.
+    StreamComparer sc("\
+\"var1\" : \"a\\u0007b\",\n\
+\"var2\" : \"a\\u0000b\",\n\
+\"var3\" : \"\\\\\\u0001\"");
+
+    ezStandardJSONWriter js;
+    js.SetOutputStream(&sc);
+
+    js.AddVariableString("var1", "a\x07"
+                                 "b");
+    js.AddVariableString("var2", ezStringView("a\0b", 3));
+
+    // The backslash is escaped once, by the pass that runs before this one - the \uXXXX sequence must
+    // not be fed through it again.
+    js.AddVariableString("var3", "\\\x01");
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableRawJson")
   {
     StreamComparer sc("\
@@ -590,5 +611,88 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter_EarlyOut)
     js.Abandon();
 
     EZ_TEST_BOOL(js.HadWriteError());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Control characters are escaped as \\uXXXX")
+  {
+    // A raw control character in a JSON string is invalid and parsers reject the whole document. Log
+    // text and user-entered strings contain them, so the writer has to escape them rather than hope.
+    ezVariantDictionary result;
+    EZ_TEST_BOOL(WriteAndParse([](ezStandardJSONWriter& js)
+      {
+        js.BeginObject();
+        js.AddVariableString("bell", "a\x07"
+                                     "b");
+
+        // The ones with a named escape keep it, and a backslash the caller wrote stays a single
+        // backslash rather than being escaped twice by the \uXXXX pass.
+        js.AddVariableString("named", "tab\there\nnewline");
+        js.AddVariableString("backslash", "a\\b\x01");
+        js.EndObject(); }, result)
+                   .Succeeded());
+
+    ezVariant value;
+
+    EZ_TEST_BOOL(result.TryGetValue("bell", value));
+    EZ_TEST_STRING(value.ConvertTo<ezString>(), "a\x07"
+                                                "b");
+
+    EZ_TEST_BOOL(result.TryGetValue("named", value));
+    EZ_TEST_STRING(value.ConvertTo<ezString>(), "tab\there\nnewline");
+
+    EZ_TEST_BOOL(result.TryGetValue("backslash", value));
+    EZ_TEST_STRING(value.ConvertTo<ezString>(), "a\\b\x01");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteVariant covers standard types")
+  {
+    ezVariantDictionary result;
+    EZ_TEST_BOOL(WriteAndParse([](ezStandardJSONWriter& js)
+      {
+        ezHashedString sHashed;
+        sHashed.Assign("text");
+
+        js.BeginObject();
+        js.AddVariableVariant("hashed", ezVariant(sHashed));
+        js.AddVariableVariant("tempHashed", ezVariant(ezTempHashedString("text")));
+        js.AddVariableVariant("vec2u", ezVariant(ezVec2U32(1, 2)));
+        js.AddVariableVariant("vec3u", ezVariant(ezVec3U32(1, 2, 3)));
+        js.AddVariableVariant("vec4u", ezVariant(ezVec4U32(1, 2, 3, 4)));
+        js.AddVariableVariant("transform", ezVariant(ezTransform(ezVec3(1, 2, 3))));
+        js.EndObject(); }, result)
+                   .Succeeded());
+
+    ezVariant value;
+
+    EZ_TEST_BOOL(result.TryGetValue("hashed", value));
+    EZ_TEST_STRING(value.ConvertTo<ezString>(), "text");
+
+    // Only the hash survives - an ezTempHashedString does not keep the text it was built from. Compared
+    // as a double, because that is what the value came back through: ezJSONReader parses every number
+    // into a double, so a 64 bit hash does not survive the round trip exactly. The writer is not what
+    // loses it, and writing it as a string instead would make it indistinguishable from a real one.
+    EZ_TEST_BOOL(result.TryGetValue("tempHashed", value));
+    EZ_TEST_DOUBLE(value.ConvertTo<double>(), static_cast<double>(ezTempHashedString("text").GetHash()), 4096.0);
+
+    EZ_TEST_BOOL(result.TryGetValue("vec3u", value));
+    EZ_TEST_BOOL(value.IsA<ezVariantDictionary>());
+    EZ_TEST_INT(value.Get<ezVariantDictionary>().GetValue("z")->ConvertTo<ezUInt32>(), 3);
+
+    EZ_TEST_BOOL(result.TryGetValue("vec4u", value));
+    EZ_TEST_BOOL(value.IsA<ezVariantDictionary>());
+    EZ_TEST_INT(value.Get<ezVariantDictionary>().GetValue("w")->ConvertTo<ezUInt32>(), 4);
+
+    EZ_TEST_BOOL(result.TryGetValue("vec2u", value));
+    EZ_TEST_BOOL(value.IsA<ezVariantDictionary>());
+    EZ_TEST_INT(value.Get<ezVariantDictionary>().GetValue("y")->ConvertTo<ezUInt32>(), 2);
+
+    EZ_TEST_BOOL(result.TryGetValue("transform", value));
+    EZ_TEST_BOOL(value.IsA<ezVariantDictionary>());
+
+    const ezVariantDictionary& transform = value.Get<ezVariantDictionary>();
+    EZ_TEST_BOOL(transform.Contains("position"));
+    EZ_TEST_BOOL(transform.Contains("rotation"));
+    EZ_TEST_BOOL(transform.Contains("scale"));
+    EZ_TEST_INT(transform.GetValue("position")->Get<ezVariantDictionary>().GetValue("x")->ConvertTo<ezInt32>(), 1);
   }
 }

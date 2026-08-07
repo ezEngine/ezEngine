@@ -348,6 +348,7 @@ void ezQtEditorApp::StartupEditor()
     ezQtUiServices::SetUnattended();
   }
 
+  if (!bUnattended)
   {
     ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
     sTemp.AppendPath("ezEditorCrashIndicator");

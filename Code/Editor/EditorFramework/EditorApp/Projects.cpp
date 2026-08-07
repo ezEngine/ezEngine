@@ -164,14 +164,17 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
       // once we start loading any plugins, we can't reuse the same instance again for another project
       m_bAnyProjectOpened = true;
 
-      ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
-      sTemp.AppendPath("ezEditorCrashIndicator");
-      ezOSFile f;
-      if (f.Open(sTemp, ezFileOpenMode::Write, ezFileShareMode::Exclusive).Succeeded())
+      if (!IsInUnattendedMode())
       {
-        f.Write(sTemp.GetData(), sTemp.GetElementCount()).IgnoreResult();
-        f.Close();
-        m_bWroteCrashIndicatorFile = true;
+        ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
+        sTemp.AppendPath("ezEditorCrashIndicator");
+        ezOSFile f;
+        if (f.Open(sTemp, ezFileOpenMode::Write, ezFileShareMode::Exclusive).Succeeded())
+        {
+          f.Write(sTemp.GetData(), sTemp.GetElementCount()).IgnoreResult();
+          f.Close();
+          m_bWroteCrashIndicatorFile = true;
+        }
       }
 
       {

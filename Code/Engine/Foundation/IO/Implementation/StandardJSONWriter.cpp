@@ -106,6 +106,53 @@ void ezStandardJSONWriter::OutputEscapedString(ezStringView s)
   sEscaped.ReplaceAll("\n", "\\n");
   sEscaped.ReplaceAll("\t", "\\t");
 
+  // Everything below 0x20 that has no named escape has to be written as \uXXXX - JSON forbids raw
+  // control characters in a string, and parsers reject them rather than skipping them. Text coming out
+  // of a log or a user-entered string does contain them.
+  //
+  // Done last, and by rebuilding rather than with ReplaceAll, because the backslashes inserted here
+  // must not go through the escaping above a second time. Control characters are single bytes in UTF-8
+  // (continuation bytes are >= 0x80), so scanning bytes cannot cut a multi-byte character in half.
+  bool bNeedsUnicodeEscape = false;
+
+  for (ezUInt32 i = 0; i < sEscaped.GetElementCount(); ++i)
+  {
+    if (static_cast<ezUInt8>(sEscaped.GetData()[i]) < 0x20)
+    {
+      bNeedsUnicodeEscape = true;
+      break;
+    }
+  }
+
+  if (bNeedsUnicodeEscape)
+  {
+    ezStringBuilder sResult;
+    sResult.Reserve(sEscaped.GetElementCount());
+
+    const char* szCur = sEscaped.GetData();
+    const char* szEnd = szCur + sEscaped.GetElementCount();
+    const char* szChunkStart = szCur;
+
+    for (; szCur < szEnd; ++szCur)
+    {
+      const ezUInt8 uiByte = static_cast<ezUInt8>(*szCur);
+
+      if (uiByte >= 0x20)
+        continue;
+
+      sResult.Append(ezStringView(szChunkStart, szCur));
+
+      char szEscape[8];
+      ezStringUtils::snprintf(szEscape, EZ_ARRAY_SIZE(szEscape), "\\u%04x", uiByte);
+      sResult.Append(szEscape);
+
+      szChunkStart = szCur + 1;
+    }
+
+    sResult.Append(ezStringView(szChunkStart, szEnd));
+    sEscaped = sResult;
+  }
+
   OutputString("\"");
   OutputString(sEscaped);
   OutputString("\"");

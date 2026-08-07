@@ -6,7 +6,7 @@
 
 ezInputManager::ezEventInput ezInputManager::s_InputEvents;
 ezInputManager::InternalData* ezInputManager::s_pData = nullptr;
-ezUInt32 ezInputManager::s_uiLastCharacter = '\0';
+ezString ezInputManager::s_sLastCharacters;
 bool ezInputManager::s_bInputSlotResetRequired = true;
 ezString ezInputManager::s_sExclusiveInputSet;
 ezMouseCursorDesc ezInputManager::s_MouseCursor;
@@ -365,7 +365,7 @@ void ezInputManager::Update(ezTime timeDifference)
 
   UpdateInputSlotStates();
 
-  s_uiLastCharacter = ezInputDevice::RetrieveLastCharacterFromAllDevices();
+  s_sLastCharacters = ezInputDevice::RetrieveLastCharactersFromAllDevices();
 
   UpdateInputActions(timeDifference);
 
@@ -401,6 +401,15 @@ void ezInputManager::ResetInputSlotValues()
 
 void ezInputManager::GatherDeviceInputSlotValues()
 {
+  struct AbsValue
+  {
+    float fOrdinary = 0.0f;
+    float fOverride = 0.0f;
+    bool bHasOverride = false;
+  };
+
+  ezMap<ezString, AbsValue> absValues(ezTempAllocator::Get());
+
   for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
   {
     pDevice->m_bGeneratedInputRecently = false;
@@ -415,7 +424,23 @@ void ezInputManager::GatherDeviceInputSlotValues()
         // do not store a value larger than 0 unless it exceeds the dead-zone threshold
         if (it.Value() > Slot.m_fDeadZone)
         {
-          Slot.m_fValue = ezMath::Max(Slot.m_fValue, it.Value()); // 'accumulate' the values for one slot from all the connected devices
+          const bool bAbsolute = Slot.m_SlotFlags.IsSet(ezInputSlotFlags::FullAxis) && !Slot.m_SlotFlags.IsSet(ezInputSlotFlags::ReportsRelativeValues);
+
+          if (bAbsolute && pDevice->m_bOverridesAbsoluteInput)
+          {
+            auto& val = absValues[it.Key()];
+            val.fOverride = ezMath::Max(val.fOverride, it.Value());
+            val.bHasOverride = true;
+          }
+          else if (bAbsolute)
+          {
+            auto& val = absValues[it.Key()];
+            val.fOrdinary = ezMath::Max(val.fOrdinary, it.Value());
+          }
+          else
+          {
+            Slot.m_fValue = ezMath::Max(Slot.m_fValue, it.Value()); // 'accumulate' the values for one slot from all the connected devices
+          }
 
           // Only count as recent input if the slot represents something the user actively interacted with.
           // This includes buttons/keys (Pressable/Holdable)
@@ -428,6 +453,19 @@ void ezInputManager::GatherDeviceInputSlotValues()
           }
         }
       }
+    }
+  }
+
+  for (auto it = absValues.GetIterator(); it.IsValid(); ++it)
+  {
+    auto& val = it.Value();
+    if (val.bHasOverride)
+    {
+      GetInternals().s_InputSlots[it.Key()].m_fValue = val.fOverride;
+    }
+    else
+    {
+      GetInternals().s_InputSlots[it.Key()].m_fValue = val.fOrdinary;
     }
   }
 
@@ -478,14 +516,14 @@ void ezInputManager::RetrieveAllKnownInputSlots(ezDynamicArray<ezStringView>& ou
   }
 }
 
-ezUInt32 ezInputManager::RetrieveLastCharacter(bool bResetCurrent)
+ezString ezInputManager::RetrieveLastCharacters(bool bResetCurrent)
 {
   if (!bResetCurrent)
-    return s_uiLastCharacter;
+    return s_sLastCharacters;
 
-  ezUInt32 Temp = s_uiLastCharacter;
-  s_uiLastCharacter = L'\0';
-  return Temp;
+  ezString sResult = s_sLastCharacters;
+  s_sLastCharacters.Clear();
+  return sResult;
 }
 
 void ezInputManager::InjectInputSlotValue(ezStringView sInputSlot, float fValue)

@@ -474,14 +474,19 @@ void ezQuakeConsole::DoDefaultInputHandling(bool bConsoleOpen)
       m_iCaretPosition = m_sInputLine.GetCharacterCount();
     }
 
-    const ezUInt32 uiChar = ezInputManager::RetrieveLastCharacter();
+    const ezString sChars = ezInputManager::RetrieveLastCharacters();
 
-    if (uiChar != '\0')
-      AddInputCharacter(uiChar);
+    for (auto it = sChars.GetIteratorFront(); it.IsValid(); ++it)
+    {
+      AddInputCharacter(it.GetCharacter());
+    }
   }
   else
   {
-    const ezUInt32 uiChar = ezInputManager::RetrieveLastCharacter(false);
+    // Only the first character of whatever was typed this frame binds a quick-execute command; peek
+    // rather than consume, since the console being closed means nobody else is waiting for this input.
+    const ezString sChars = ezInputManager::RetrieveLastCharacters(false);
+    const ezUInt32 uiChar = sChars.GetIteratorFront().GetCharacter();
 
     char szCmd[16] = "";
     char* szIterator = szCmd;
