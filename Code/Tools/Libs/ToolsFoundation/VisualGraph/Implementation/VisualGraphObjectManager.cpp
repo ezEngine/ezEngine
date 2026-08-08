@@ -914,13 +914,6 @@ void ezVisualGraphObjectManager::StructureEventHandler(const ezDocumentObjectStr
     {
       if (IsNode(e.m_pObject))
       {
-        auto& nodeInternal = m_ObjectToNode[e.m_pObject->GetGuid()];
-        if (nodeInternal.m_Inputs.IsEmpty() && nodeInternal.m_Outputs.IsEmpty())
-        {
-          InternalCreatePins(e.m_pObject, nodeInternal);
-          // TODO: Sanity check pins (duplicate names etc).
-        }
-
         ezVisualGraphObjectManagerEvent e2(ezVisualGraphObjectManagerEvent::Type::BeforeNodeAdded, e.m_pObject);
         m_NodeEvents.Broadcast(e2);
       }
@@ -928,6 +921,16 @@ void ezVisualGraphObjectManager::StructureEventHandler(const ezDocumentObjectStr
     break;
     case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
     {
+      if (IsNode(e.m_pObject))
+      {
+        auto& nodeInternal = m_ObjectToNode[e.m_pObject->GetGuid()];
+        if (nodeInternal.m_Inputs.IsEmpty() && nodeInternal.m_Outputs.IsEmpty())
+        {
+          InternalCreatePins(e.m_pObject, nodeInternal);
+          // TODO: Sanity check pins (duplicate names etc).
+        }
+      }
+
       if (IsNode(e.m_pObject) || IsComment(e.m_pObject))
       {
         ezVisualGraphObjectManagerEvent e2(ezVisualGraphObjectManagerEvent::Type::AfterNodeAdded, e.m_pObject);
