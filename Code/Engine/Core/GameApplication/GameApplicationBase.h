@@ -263,6 +263,17 @@ public:
 
   ezCopyOnBroadcastEvent<const ezGameApplicationExecutionEvent&> m_ExecutionEvents;
 
+  /// \brief Lets a plugin report that it has work which nothing else is going to wake the app up for.
+  ///
+  /// Only relevant to an application whose main loop *blocks* when it has nothing to do. A game that
+  /// free-runs never asks. The one that does is the editor's engine process, which normally sleeps
+  /// until the editor sends it a message - a plugin listening on a socket there would otherwise not be
+  /// serviced until the user happens to touch the editor.
+  ///
+  /// Returning true makes such an application come around again promptly instead of sleeping. Kept as a
+  /// delegate so that neither side needs to know what the other's work is.
+  ezDelegate<bool()> m_HasPendingExternalWork;
+
   ezTime GetFrameTime() const { return m_FrameTime; }
 
   /// The overridden version also quits the application when the active game state signals to quit.

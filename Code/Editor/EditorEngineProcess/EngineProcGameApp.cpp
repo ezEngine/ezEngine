@@ -246,8 +246,15 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
     else
     {
       EZ_PROFILE_SCOPE("WaitForMessages");
+
+      // A plugin may have work that no IPC message is going to announce - see m_HasPendingExternalWork.
+      // Waiting with a short timeout then keeps the frame loop turning, at the cost of a wake-up every
+      // 20 ms while such work is outstanding. When nothing is pending this still blocks indefinitely,
+      // so an idle engine process costs nothing.
+      const bool bExternalWork = m_HasPendingExternalWork.IsValid() && m_HasPendingExternalWork();
+
       // Only suspend and wait if no more pending ops need to be done.
-      m_IPC.WaitForMessages();
+      m_IPC.WaitForMessages(bExternalWork ? ezTime::MakeFromMilliseconds(20) : ezTime::MakeZero());
     }
   }
   return true;

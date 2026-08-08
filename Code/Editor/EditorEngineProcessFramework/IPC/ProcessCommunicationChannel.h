@@ -29,7 +29,12 @@ public:
 
   /// \brief Returns true if any message was processed
   bool ProcessMessages();
-  void WaitForMessages();
+
+  /// \brief Blocks until a message arrives.
+  ///
+  /// \param timeout Zero blocks indefinitely. Pass a short one when the caller has other work that a
+  ///        message is not going to wake it up for.
+  void WaitForMessages(ezTime timeout = ezTime::MakeZero());
 
   struct Event
   {

@@ -1,0 +1,21 @@
+// for a description of the options see:
+// https://ezengine.net/pages/docs/editor/editor-plugins.html
+
+PluginInfo
+{
+	string %DisplayName{"MCP Server"}
+	string %Description{"Exposes the editor and the running game to AI agents through an MCP server over HTTP."}
+	string %EditorPlugins{"ezEditorPluginMcp"}
+	// deliberately an editor-engine plugin rather than a runtime plugin: this way the engine process that the
+	// editor runs the game in loads the server, but it never enters the project's RuntimeConfigs/Plugins.ddl
+	// and is never packaged on export - MCP is a development-only feature and must not reach a shipping build.
+	// The other host, a standalone game (ezPlayer), loads it on demand instead, see
+	// ezGameApplication::Init_LoadRequiredPlugins.
+	string %EditorEnginePlugins{"ezMcpPlugin"}
+	string %RuntimePlugins{}
+	string %PackageDependencies{}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{}
+	bool %Mandatory{true}
+}

@@ -45,12 +45,12 @@ bool ezProcessCommunicationChannel::ProcessMessages()
 }
 
 
-void ezProcessCommunicationChannel::WaitForMessages()
+void ezProcessCommunicationChannel::WaitForMessages(ezTime timeout /*= ezTime::MakeZero()*/)
 {
   if (!m_pProtocol)
     return;
 
-  m_pProtocol->WaitForMessages().IgnoreResult();
+  m_pProtocol->WaitForMessages(timeout).IgnoreResult();
 }
 
 void ezProcessCommunicationChannel::OnIpcProtocolEvent(const ezIpcProcessMessageProtocol::Event& msg)
