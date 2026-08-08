@@ -111,7 +111,7 @@ void ezMcpAppTool::Execute(ezStringView sToolName, const ezVariantDictionary& ar
   }
 }
 
-void ezMcpAppTool::ExecutePing(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void ezMcpAppTool::ExecutePing(const ezVariantDictionary& /*arguments*/, ezMcpToolResult& out_result)
 {
   ezMcpJsonWriter writer;
   writer.BeginObject();
@@ -212,7 +212,7 @@ void ezMcpAppTool::ExecuteCommandLineOptions(const ezVariantDictionary& argument
   out_result.m_sText = writer.GetResult();
 }
 
-void ezMcpAppTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMcpToolResult& out_result)
+void ezMcpAppTool::ExecuteInfo(const ezVariantDictionary& /*arguments*/, ezMcpToolResult& out_result)
 {
   const ezMcpServer* pServer = ezMcpServer::GetInstance();
   const ezUInt16 uiPort = pServer != nullptr ? pServer->GetPort() : 0;
