@@ -124,7 +124,7 @@ private:
       }
 
       if (iHeaderEnd >= 0 && buffer.GetCount() >= uiBodyStart + static_cast<ezUInt32>(iContentLength))
-        break; // request is complete
+        break;  // request is complete
 
       if (buffer.GetCount() > uiMaxRequestSize)
         return; // hang up on something that is not going to become a valid request

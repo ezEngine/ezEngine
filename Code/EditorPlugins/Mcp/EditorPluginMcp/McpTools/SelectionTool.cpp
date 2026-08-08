@@ -1,9 +1,9 @@
 #include <EditorPluginMcp/EditorPluginMcpPCH.h>
 
 #include <EditorPluginMcp/McpDocument.h>
+#include <EditorPluginMcp/McpTools/SelectionTool.h>
 #include <Mcp/McpJson.h>
 #include <Mcp/McpJsonWriter.h>
-#include <EditorPluginMcp/McpTools/SelectionTool.h>
 
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <ToolsFoundation/Document/Document.h>

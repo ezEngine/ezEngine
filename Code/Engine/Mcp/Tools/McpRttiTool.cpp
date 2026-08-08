@@ -599,8 +599,7 @@ void ezMcpRttiTool::ExecuteDerivedTypes(const ezVariantDictionary& arguments, ez
   ezUInt32 uiTotalMatches = 0;
   ezHybridArray<ezStringView, 32> names;
 
-  ezRTTI::ForEachDerivedType(pType,
-    [&](const ezRTTI* pDerived)
+  ezRTTI::ForEachDerivedType(pType, [&](const ezRTTI* pDerived)
     {
       // ForEachDerivedType includes the base type itself, which is not what 'derived types' means here
       if (pDerived == pType)
@@ -611,9 +610,7 @@ void ezMcpRttiTool::ExecuteDerivedTypes(const ezVariantDictionary& arguments, ez
       if (names.GetCount() < s_uiMaxResults)
       {
         names.PushBack(pDerived->GetTypeName());
-      }
-    },
-    options);
+      } }, options);
 
   ezMcpJsonWriter writer;
   writer.BeginObject();

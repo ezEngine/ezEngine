@@ -1,9 +1,9 @@
 #include <EditorPluginMcp/EditorPluginMcpPCH.h>
 
+#include <EditorPluginMcp/McpTools/AssetTool.h>
 #include <Mcp/McpJson.h>
 #include <Mcp/McpJsonWriter.h>
 #include <Mcp/McpTranslation.h>
-#include <EditorPluginMcp/McpTools/AssetTool.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
@@ -50,14 +50,22 @@ namespace
   {
     switch (type)
     {
-      case ezLogMsgType::ErrorMsg: return "error";
-      case ezLogMsgType::SeriousWarningMsg: return "serious-warning";
-      case ezLogMsgType::WarningMsg: return "warning";
-      case ezLogMsgType::SuccessMsg: return "success";
-      case ezLogMsgType::InfoMsg: return "info";
-      case ezLogMsgType::DevMsg: return "dev";
-      case ezLogMsgType::DebugMsg: return "debug";
-      default: return "other";
+      case ezLogMsgType::ErrorMsg:
+        return "error";
+      case ezLogMsgType::SeriousWarningMsg:
+        return "serious-warning";
+      case ezLogMsgType::WarningMsg:
+        return "warning";
+      case ezLogMsgType::SuccessMsg:
+        return "success";
+      case ezLogMsgType::InfoMsg:
+        return "info";
+      case ezLogMsgType::DevMsg:
+        return "dev";
+      case ezLogMsgType::DebugMsg:
+        return "debug";
+      default:
+        return "other";
     }
   }
 
@@ -1503,10 +1511,18 @@ void ezMcpAssetTool::ExecuteListImporters(const ezVariantDictionary& arguments, 
       // What the import dialog would preselect. An agent with no opinion should use the highest.
       switch (mode.m_Priority)
       {
-        case ezAssetDocGeneratorPriority::HighPriority: writer.AddVariableString("priority", "high"); break;
-        case ezAssetDocGeneratorPriority::DefaultPriority: writer.AddVariableString("priority", "default"); break;
-        case ezAssetDocGeneratorPriority::LowPriority: writer.AddVariableString("priority", "low"); break;
-        default: writer.AddVariableString("priority", "undecided"); break;
+        case ezAssetDocGeneratorPriority::HighPriority:
+          writer.AddVariableString("priority", "high");
+          break;
+        case ezAssetDocGeneratorPriority::DefaultPriority:
+          writer.AddVariableString("priority", "default");
+          break;
+        case ezAssetDocGeneratorPriority::LowPriority:
+          writer.AddVariableString("priority", "low");
+          break;
+        default:
+          writer.AddVariableString("priority", "undecided");
+          break;
       }
 
       ezMcpTranslation::AddOptionalString(writer, "displayName", ezMcpTranslation::GetDisplayName(mode.m_sName));

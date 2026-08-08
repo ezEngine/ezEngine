@@ -18,11 +18,16 @@ namespace
   {
     switch (type)
     {
-      case ezCVarType::Int: return "int";
-      case ezCVarType::Float: return "float";
-      case ezCVarType::Bool: return "bool";
-      case ezCVarType::String: return "string";
-      default: return "unknown";
+      case ezCVarType::Int:
+        return "int";
+      case ezCVarType::Float:
+        return "float";
+      case ezCVarType::Bool:
+        return "bool";
+      case ezCVarType::String:
+        return "string";
+      default:
+        return "unknown";
     }
   }
 
@@ -65,11 +70,16 @@ namespace
   {
     switch (pCVar->GetType())
     {
-      case ezCVarType::Int: return static_cast<const ezCVarInt*>(pCVar)->HasDelayedSyncValueChanged();
-      case ezCVarType::Float: return static_cast<const ezCVarFloat*>(pCVar)->HasDelayedSyncValueChanged();
-      case ezCVarType::Bool: return static_cast<const ezCVarBool*>(pCVar)->HasDelayedSyncValueChanged();
-      case ezCVarType::String: return static_cast<const ezCVarString*>(pCVar)->HasDelayedSyncValueChanged();
-      default: return false;
+      case ezCVarType::Int:
+        return static_cast<const ezCVarInt*>(pCVar)->HasDelayedSyncValueChanged();
+      case ezCVarType::Float:
+        return static_cast<const ezCVarFloat*>(pCVar)->HasDelayedSyncValueChanged();
+      case ezCVarType::Bool:
+        return static_cast<const ezCVarBool*>(pCVar)->HasDelayedSyncValueChanged();
+      case ezCVarType::String:
+        return static_cast<const ezCVarString*>(pCVar)->HasDelayedSyncValueChanged();
+      default:
+        return false;
     }
   }
 } // namespace

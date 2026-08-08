@@ -1,8 +1,8 @@
 #include <EditorPluginMcp/EditorPluginMcpPCH.h>
 
+#include <EditorPluginMcp/McpTools/CppTool.h>
 #include <Mcp/McpJson.h>
 #include <Mcp/McpJsonWriter.h>
-#include <EditorPluginMcp/McpTools/CppTool.h>
 
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>

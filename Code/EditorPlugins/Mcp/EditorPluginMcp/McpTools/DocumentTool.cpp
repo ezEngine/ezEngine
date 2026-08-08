@@ -1,9 +1,9 @@
 #include <EditorPluginMcp/EditorPluginMcpPCH.h>
 
 #include <EditorPluginMcp/McpDocument.h>
+#include <EditorPluginMcp/McpTools/DocumentTool.h>
 #include <Mcp/McpJson.h>
 #include <Mcp/McpJsonWriter.h>
-#include <EditorPluginMcp/McpTools/DocumentTool.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <Foundation/IO/OSFile.h>

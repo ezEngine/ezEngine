@@ -17,26 +17,41 @@ namespace
   {
     switch (type)
     {
-      case ezLogMsgType::ErrorMsg: return "error";
-      case ezLogMsgType::SeriousWarningMsg: return "serious-warning";
-      case ezLogMsgType::WarningMsg: return "warning";
-      case ezLogMsgType::SuccessMsg: return "success";
-      case ezLogMsgType::InfoMsg: return "info";
-      case ezLogMsgType::DevMsg: return "dev";
-      case ezLogMsgType::DebugMsg: return "debug";
-      default: return "other";
+      case ezLogMsgType::ErrorMsg:
+        return "error";
+      case ezLogMsgType::SeriousWarningMsg:
+        return "serious-warning";
+      case ezLogMsgType::WarningMsg:
+        return "warning";
+      case ezLogMsgType::SuccessMsg:
+        return "success";
+      case ezLogMsgType::InfoMsg:
+        return "info";
+      case ezLogMsgType::DevMsg:
+        return "dev";
+      case ezLogMsgType::DebugMsg:
+        return "debug";
+      default:
+        return "other";
     }
   }
 
   ezLogMsgType::Enum SeverityFromString(ezStringView sSeverity, ezLogMsgType::Enum fallback)
   {
-    if (sSeverity.IsEqual_NoCase("error")) return ezLogMsgType::ErrorMsg;
-    if (sSeverity.IsEqual_NoCase("serious-warning")) return ezLogMsgType::SeriousWarningMsg;
-    if (sSeverity.IsEqual_NoCase("warning")) return ezLogMsgType::WarningMsg;
-    if (sSeverity.IsEqual_NoCase("success")) return ezLogMsgType::SuccessMsg;
-    if (sSeverity.IsEqual_NoCase("info")) return ezLogMsgType::InfoMsg;
-    if (sSeverity.IsEqual_NoCase("dev")) return ezLogMsgType::DevMsg;
-    if (sSeverity.IsEqual_NoCase("debug")) return ezLogMsgType::DebugMsg;
+    if (sSeverity.IsEqual_NoCase("error"))
+      return ezLogMsgType::ErrorMsg;
+    if (sSeverity.IsEqual_NoCase("serious-warning"))
+      return ezLogMsgType::SeriousWarningMsg;
+    if (sSeverity.IsEqual_NoCase("warning"))
+      return ezLogMsgType::WarningMsg;
+    if (sSeverity.IsEqual_NoCase("success"))
+      return ezLogMsgType::SuccessMsg;
+    if (sSeverity.IsEqual_NoCase("info"))
+      return ezLogMsgType::InfoMsg;
+    if (sSeverity.IsEqual_NoCase("dev"))
+      return ezLogMsgType::DevMsg;
+    if (sSeverity.IsEqual_NoCase("debug"))
+      return ezLogMsgType::DebugMsg;
 
     return fallback;
   }
@@ -148,13 +163,27 @@ void ezMcpLogTool::ExecuteWrite(const ezVariantDictionary& arguments, ezMcpToolR
   // the tag makes it obvious in the log where this came from
   switch (severity)
   {
-    case ezLogMsgType::ErrorMsg: ezLog::Error("MCP: {}", sMessage); break;
-    case ezLogMsgType::SeriousWarningMsg: ezLog::SeriousWarning("MCP: {}", sMessage); break;
-    case ezLogMsgType::WarningMsg: ezLog::Warning("MCP: {}", sMessage); break;
-    case ezLogMsgType::SuccessMsg: ezLog::Success("MCP: {}", sMessage); break;
-    case ezLogMsgType::DevMsg: ezLog::Dev("MCP: {}", sMessage); break;
-    case ezLogMsgType::DebugMsg: ezLog::Debug("MCP: {}", sMessage); break;
-    default: ezLog::Info("MCP: {}", sMessage); break;
+    case ezLogMsgType::ErrorMsg:
+      ezLog::Error("MCP: {}", sMessage);
+      break;
+    case ezLogMsgType::SeriousWarningMsg:
+      ezLog::SeriousWarning("MCP: {}", sMessage);
+      break;
+    case ezLogMsgType::WarningMsg:
+      ezLog::Warning("MCP: {}", sMessage);
+      break;
+    case ezLogMsgType::SuccessMsg:
+      ezLog::Success("MCP: {}", sMessage);
+      break;
+    case ezLogMsgType::DevMsg:
+      ezLog::Dev("MCP: {}", sMessage);
+      break;
+    case ezLogMsgType::DebugMsg:
+      ezLog::Debug("MCP: {}", sMessage);
+      break;
+    default:
+      ezLog::Info("MCP: {}", sMessage);
+      break;
   }
 
   out_result.m_sText = "ok";

@@ -1,9 +1,9 @@
 #include <EditorPluginMcp/EditorPluginMcpPCH.h>
 
 #include <EditorPluginMcp/McpDocument.h>
+#include <EditorPluginMcp/McpTools/ObjectTool.h>
 #include <Mcp/McpJson.h>
 #include <Mcp/McpJsonWriter.h>
-#include <EditorPluginMcp/McpTools/ObjectTool.h>
 
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
@@ -32,13 +32,20 @@ namespace
     // does not have to map one vocabulary onto another.
     switch (category)
     {
-      case ezPropertyCategory::Constant: return "constant";
-      case ezPropertyCategory::Member: return "member";
-      case ezPropertyCategory::Function: return "function";
-      case ezPropertyCategory::Array: return "array";
-      case ezPropertyCategory::Set: return "set";
-      case ezPropertyCategory::Map: return "map";
-      default: return "unknown";
+      case ezPropertyCategory::Constant:
+        return "constant";
+      case ezPropertyCategory::Member:
+        return "member";
+      case ezPropertyCategory::Function:
+        return "function";
+      case ezPropertyCategory::Array:
+        return "array";
+      case ezPropertyCategory::Set:
+        return "set";
+      case ezPropertyCategory::Map:
+        return "map";
+      default:
+        return "unknown";
     }
   }
 
