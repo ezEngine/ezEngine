@@ -58,7 +58,7 @@ public:
     {
       Headless = EZ_BIT(0),   ///< The app does not do any rendering.
       SafeMode = EZ_BIT(1),   ///< '-safe' : Prevent automatic loading of projects, scenes, etc. to minimize risk of crashing.
-      NoRecent = EZ_BIT(2),   ///< '-norecent' : Do not modify recent file lists. Used for modes such as tests, where the user does not do any interactions.
+      Dashboard = EZ_BIT(2),  ///< '-dashboard' : Don't restore the previous session, i.e. neither load the most recent project nor reopen its documents.
       UnitTest = EZ_BIT(3),   ///< Specified when the process is running as a unit test
       Background = EZ_BIT(4), ///< This process is an editor processor background process handling IPC tasks of the editor parent process.
       Unattended = EZ_BIT(5), ///< '-unattended' : No user is present, don't show anything that would block waiting for input.
@@ -69,7 +69,7 @@ public:
     {
       StorageType Headless : 1;
       StorageType SafeMode : 1;
-      StorageType NoRecent : 1;
+      StorageType Dashboard : 1;
       StorageType UnitTest : 1;
       StorageType Background : 1;
       StorageType Unattended : 1;

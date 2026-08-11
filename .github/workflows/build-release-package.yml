@@ -30,9 +30,10 @@ jobs:
 
       - name: Read SDK Version
         id: sdk-version
-        uses: juliangruber/read-file-action@v1.1.7
-        with:
-          path: repo/version.txt
+        shell: pwsh
+        run: |
+          $content = (Get-Content repo/version.txt -Raw).Trim()
+          "content=$content" >> $env:GITHUB_OUTPUT
 
       - name: Echo SDK Version
         run: echo "SDK Version is ${{ steps.sdk-version.outputs.content }}"
@@ -45,7 +46,13 @@ jobs:
           token: ${{ secrets.API_TOKEN_GITHUB }} 
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $msbuild = & $vswhere -latest -prerelease -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
+          if (-not $msbuild) { throw "MSBuild.exe not found via vswhere" }
+          Write-Host "Using $msbuild"
+          Add-Content -Path $env:GITHUB_PATH -Value (Split-Path $msbuild)
 
       - name: Exclude Unwanted Files
         shell: pwsh

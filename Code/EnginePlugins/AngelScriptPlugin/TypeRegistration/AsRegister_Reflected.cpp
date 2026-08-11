@@ -497,7 +497,8 @@ void ezAngelScriptEngineSingleton::RegisterSingleGenericFunction(const char* szF
 
         if (defaultValue.IsValid())
         {
-          ezVariantType::Enum expectedType = bIsEnum ? ezVariantType::Int64 : pArgType->GetVariantType();
+          // AngelScript enums are 32 bit, so bitflag defaults like 0xFFFFFFFF have to be written as -1
+          ezVariantType::Enum expectedType = bIsEnum ? ezVariantType::Int32 : pArgType->GetVariantType();
           decl.Append(ezAngelScriptUtils::DefaultValueToString(defaultValue, expectedType));
         }
         else

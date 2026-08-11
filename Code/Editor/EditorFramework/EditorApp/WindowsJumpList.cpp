@@ -177,7 +177,7 @@ void ezWindowsJumpList::UpdateJumpList(const ezRecentFilesList& recentProjects)
   {
     // Create "New Window" task
     IShellLink* pNewWindowLink = nullptr;
-    hr = CreateShellLink(szExePath, L"-noRecent", L"New Window", L"Open editor without loading a project", pNewWindowLink);
+    hr = CreateShellLink(szExePath, L"-dashboard", L"New Window", L"Open editor without loading a project", pNewWindowLink);
     if (SUCCEEDED(hr))
     {
       pTasksCollection->AddObject(pNewWindowLink);

@@ -12,12 +12,6 @@ DataDir
 }
 DataDir
 {
-	string %Path{">sdk/Data/Plugins/RmlUiPlugin"}
-	string %RootName{""}
-	bool %Writable{false}
-}
-DataDir
-{
 	string %Path{">project/"}
 	string %RootName{"project"}
 	bool %Writable{true}

@@ -232,7 +232,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
       // don't try to open the same documents when the user switches to another project
       m_DocumentsToOpen.Clear();
     }
-    else if (!m_StartupFlags.IsSet(StartupFlags::NoRecent))
+    else if (!m_StartupFlags.IsSet(StartupFlags::Dashboard))
     {
       const ezRecentFilesList allDocs = LoadOpenDocumentsList();
 

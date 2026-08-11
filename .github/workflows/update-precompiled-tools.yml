@@ -30,7 +30,13 @@ jobs:
           submodules: 'recursive'
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $msbuild = & $vswhere -latest -prerelease -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
+          if (-not $msbuild) { throw "MSBuild.exe not found via vswhere" }
+          Write-Host "Using $msbuild"
+          Add-Content -Path $env:GITHUB_PATH -Value (Split-Path $msbuild)
 
       - name: Run CMake
         run: |

@@ -246,7 +246,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ezCommandLineOptionBool opt_Safe("_Editor", "-safe", "In safe-mode the editor minimizes the risk of crashing, for instance by not loading previous projects and scenes.", false);
-ezCommandLineOptionBool opt_NoRecent("_Editor", "-noRecent", "Disables automatic loading of recent projects and documents.", false);
+ezCommandLineOptionBool opt_Dashboard("_Editor", "-dashboard", "Starts the editor without loading the last project and its documents, so that the dashboard is shown instead.", false);
 
 /// Tells the editor that no user is present to interact with it.
 ///
@@ -371,7 +371,7 @@ void ezQtEditorApp::StartupEditor()
   ezBitflags<StartupFlags> startupFlags;
 
   startupFlags.AddOrRemove(StartupFlags::SafeMode, opt_Safe.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
-  startupFlags.AddOrRemove(StartupFlags::NoRecent, opt_NoRecent.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
+  startupFlags.AddOrRemove(StartupFlags::Dashboard, opt_Dashboard.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
   startupFlags.AddOrRemove(StartupFlags::Unattended, bUnattended);
 
   StartupEditor(startupFlags);
@@ -412,7 +412,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
     pCmd->InjectCustomArgument("-fs_off");
   }
 
-  const bool bNoRecent = m_StartupFlags.IsAnySet(StartupFlags::UnitTest | StartupFlags::SafeMode | StartupFlags::Headless | StartupFlags::NoRecent);
+  const bool bNoRestore = m_StartupFlags.IsAnySet(StartupFlags::UnitTest | StartupFlags::SafeMode | StartupFlags::Headless | StartupFlags::Dashboard);
 
   const ezString sApplicationName = pCmd->GetStringOption("-appname", 0, ezApplication::GetApplicationInstance()->GetApplicationName());
   ezApplication::GetApplicationInstance()->SetApplicationName(sApplicationName);
@@ -574,7 +574,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
     CreateOrOpenProject(false, pCmd->GetAbsolutePathOption("-project")).IgnoreResult();
   }
-  else if (!bNoRecent && pPreferences->m_bLoadLastProjectAtStartup)
+  else if (!bNoRestore && pPreferences->m_bLoadLastProjectAtStartup)
   {
     if (!m_RecentProjects.GetFileList().IsEmpty())
     {

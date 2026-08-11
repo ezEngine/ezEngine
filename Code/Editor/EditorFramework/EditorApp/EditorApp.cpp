@@ -901,8 +901,8 @@ void ezQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
 
   if (m_StartupFlags.IsSet(StartupFlags::SafeMode))
     args << "-safe";
-  if (m_StartupFlags.IsSet(StartupFlags::NoRecent))
-    args << "-noRecent";
+  if (m_StartupFlags.IsSet(StartupFlags::Dashboard))
+    args << "-dashboard";
 
   if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-renderer"))
   {

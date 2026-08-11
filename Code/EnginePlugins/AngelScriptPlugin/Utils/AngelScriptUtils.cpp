@@ -508,15 +508,42 @@ ezString ezAngelScriptUtils::DefaultValueToString(const ezVariant& value, ezVari
     case ezVariantType::Int16:
     case ezVariantType::Int32:
     case ezVariantType::Int64:
-      s.SetFormat("{}", value.ConvertTo<ezInt64>());
+    {
+      // the value may be stored with a different signedness or width than the argument
+      // (e.g. ezInvalidIndex as ezUInt32 for an ezInt32 argument), so truncate it to the
+      // argument's width - otherwise AngelScript reports "Value is too large for data type"
+      // at every call site that uses the default argument
+      ezInt64 iValue = value.ConvertTo<ezInt64>();
+
+      if (expectedType == ezVariantType::Int8)
+        iValue = static_cast<ezInt8>(iValue & 0xFF);
+      else if (expectedType == ezVariantType::Int16)
+        iValue = static_cast<ezInt16>(iValue & 0xFFFF);
+      else if (expectedType == ezVariantType::Int32)
+        iValue = static_cast<ezInt32>(iValue & 0xFFFFFFFF);
+
+      s.SetFormat("{}", iValue);
       return s;
+    }
 
     case ezVariantType::UInt8:
     case ezVariantType::UInt16:
     case ezVariantType::UInt32:
     case ezVariantType::UInt64:
-      s.SetFormat("{}", value.ConvertTo<ezUInt64>());
+    {
+      // same as above: e.g. (ezInt32)ezInvalidIndex == -1 would sign-extend to a 64 bit value
+      ezUInt64 uiValue = value.ConvertTo<ezUInt64>();
+
+      if (expectedType == ezVariantType::UInt8)
+        uiValue &= 0xFFu;
+      else if (expectedType == ezVariantType::UInt16)
+        uiValue &= 0xFFFFu;
+      else if (expectedType == ezVariantType::UInt32)
+        uiValue &= 0xFFFFFFFFu;
+
+      s.SetFormat("{}", uiValue);
       return s;
+    }
 
     case ezVariantType::Matrix3:
       s.Set("ezMat3::MakeIdentity()");

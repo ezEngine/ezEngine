@@ -154,8 +154,8 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
       // Said out loud because there is nothing else to notice it by: without a server there is no
       // log_read either, so an agent that cannot connect has no way to find out why. The usual cause is
       // another editor already holding the port.
-      ezLog::Error("MCP: The server could not listen on port {}. This editor is not reachable through MCP. Another editor may already "
-                   "be using that port - pass a different '-editor-mcpport'.",
+      ezLog::Warning("MCP: The server could not listen on port {}. This editor is not reachable through MCP. Another editor may already "
+                     "be using that port - pass a different '-editor-mcpport'.",
         uiPort);
     }
   }
