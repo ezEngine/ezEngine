@@ -32,6 +32,13 @@ ezCommandLineOptionBool opt_Recompile("_EditorProcessor", "-recompile", "Like -c
 Use this when files were added to or removed from the C++ source directory, which -compile does not notice.\n\
 ",
   false);
+ezCommandLineOptionBool opt_FailOnError("_EditorProcessor", "-failonerror",
+  "Set the return code to 1 if any error was logged during the run.\n\
+\n\
+Without this, an operation that logged errors but still completed exits with 0, which a script cannot\n\
+tell apart from a clean run.\n\
+",
+  false);
 ezCommandLineOptionPath opt_Export("_EditorProcessor", "-export", "If specified, the project is exported to the given (absolute) directory.\n\
 \n\
 The target directory is deleted first. The C++ project is built and all assets are transformed beforehand,\n\
@@ -70,7 +77,44 @@ public:
     ezCrashHandler_WriteMiniDump::g_Instance.SetDumpFilePath(sOutputFolder.IsEmpty() ? sUserDataFolder : sOutputFolder, "EditorProcessor");
     ezCrashHandler::SetCrashHandler(&ezCrashHandler_WriteMiniDump::g_Instance);
 
+    m_bFailOnError = opt_FailOnError.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+
+    if (m_bFailOnError)
+    {
+      m_LogErrorCounterID = ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezEditorProcessorApplication::OnLogEvent, this));
+    }
+
     return EZ_SUCCESS;
+  }
+
+  virtual void BeforeCoreSystemsShutdown() override
+  {
+    if (m_bFailOnError && m_iLoggedErrors > 0)
+    {
+      ezLog::Info("{} errors were logged.", (ezInt32)m_iLoggedErrors);
+
+      // an explicitly reported failure is more specific than 'something was logged', so it wins
+      if (GetReturnCode() == 0)
+      {
+        SetReturnCode(1);
+      }
+    }
+
+    SUPER::BeforeCoreSystemsShutdown();
+
+    if (m_LogErrorCounterID != 0)
+    {
+      ezGlobalLog::RemoveLogWriter(m_LogErrorCounterID);
+      m_LogErrorCounterID = 0;
+    }
+  }
+
+  void OnLogEvent(const ezLoggingEventData& e)
+  {
+    if (e.m_EventType == ezLogMsgType::ErrorMsg || e.m_EventType == ezLogMsgType::SeriousWarningMsg)
+    {
+      m_iLoggedErrors.Increment();
+    }
   }
 
   virtual void AfterCoreSystemsShutdown() override
@@ -415,6 +459,11 @@ private:
   ezQtEditorApp* m_pEditorApp;
   ezEngineProcessCommunicationChannel m_IPC;
   ezUniquePtr<ezEditorEngineProcessApp> m_pEditorEngineProcessAppDummy;
+
+  bool m_bFailOnError = false;
+  // written from every thread that logs
+  ezAtomicInteger32 m_iLoggedErrors = 0;
+  ezEventSubscriptionID m_LogErrorCounterID = 0;
 };
 
 EZ_APPLICATION_ENTRY_POINT(ezEditorProcessorApplication);

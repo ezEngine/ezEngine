@@ -52,30 +52,34 @@ void ezMiniAudioSingleton::Startup()
 
 void ezMiniAudioSingleton::Shutdown()
 {
-  EZ_LOCK(m_pData->m_Mutex);
-
-  if (m_bInitialized)
+  // the lock must be released before m_pData (and thus m_pData->m_Mutex) is destroyed below,
+  // otherwise the lock guard's destructor unlocks an already-freed mutex
   {
-    m_bInitialized = false;
+    EZ_LOCK(m_pData->m_Mutex);
 
-    for (ezUInt32 i = 0; i < m_pData->m_SoundInstancesStorage.GetCount(); ++i)
+    if (m_bInitialized)
     {
-      auto* pInst = &m_pData->m_SoundInstancesStorage[i];
+      m_bInitialized = false;
 
-      if (pInst->m_bInUse)
+      for (ezUInt32 i = 0; i < m_pData->m_SoundInstancesStorage.GetCount(); ++i)
       {
-        FreeSoundInstance(pInst);
+        auto* pInst = &m_pData->m_SoundInstancesStorage[i];
+
+        if (pInst->m_bInUse)
+        {
+          FreeSoundInstance(pInst);
+        }
       }
+
+      for (auto& group : m_pData->m_SoundGroups)
+      {
+        ma_sound_group_uninit(group.m_pGroup.Borrow());
+      }
+
+      m_pData->m_SoundGroups.Clear();
+
+      ma_engine_uninit(&m_pData->m_Engine);
     }
-
-    for (auto& group : m_pData->m_SoundGroups)
-    {
-      ma_sound_group_uninit(group.m_pGroup.Borrow());
-    }
-
-    m_pData->m_SoundGroups.Clear();
-
-    ma_engine_uninit(&m_pData->m_Engine);
   }
 
   // finally delete all data

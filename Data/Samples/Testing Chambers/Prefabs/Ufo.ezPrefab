@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7885917526367686325,5166844528193650739}}
-		u4 %Hash{15125028223103911042}
+		u4 %Hash{8304946513743430047}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{16812304856148921221,10389549716759088900}}
@@ -123,27 +123,6 @@ o
 }
 o
 {
-	Uuid %id{u4{3792821303601474021,528434892125550742}}
-	s %t{"ezSplineMeshComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
-		s %DistributionMode{"ezSplineMeshDistributionMode::ScaleEvenly"}
-		Uuid %EndPart{u4{1644987623408685395,10798316604199140551}}
-		VarArray %Materials{}
-		VarArray %MiddleParts{}
-		f %OffsetY{0}
-		f %OffsetZ{0}
-		i3 %Seed{-1}
-		f %SortingDepthOffset{0}
-		Uuid %StartPart{u4{6754700150071917337,11218516546119391366}}
-	}
-}
-o
-{
 	Uuid %id{u4{9415083713578086363,613593292754329987}}
 	s %t{"ezSplineNodeComponent"}
 	u3 %v{1}
@@ -242,7 +221,6 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{8082325371051670733,649958788466551263}}
-			Uuid{u4{3792821303601474021,528434892125550742}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -346,30 +324,6 @@ o
 			Uuid{u4{14967803957849931280,13836557836430837801}}
 		}
 		Uuid %Settings{u4{4735141334137892529,5288632820023436946}}
-	}
-}
-o
-{
-	Uuid %id{u4{1644987623408685395,10798316604199140551}}
-	s %t{"ezSplineMeshPart"}
-	u3 %v{1}
-	p
-	{
-		s %Mesh{""}
-		f %PaddingBack{0}
-		f %PaddingFront{0}
-	}
-}
-o
-{
-	Uuid %id{u4{6754700150071917337,11218516546119391366}}
-	s %t{"ezSplineMeshPart"}
-	u3 %v{1}
-	p
-	{
-		s %Mesh{""}
-		f %PaddingBack{0}
-		f %PaddingFront{0}
 	}
 }
 o
@@ -523,23 +477,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezVariantArray"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{15388199123637218352,1914060720950627631}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSplineMeshDistributionMode"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -851,23 +788,6 @@ o
 }
 o
 {
-	Uuid %id{u4{15218117170958510790,9219705807120169885}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezMeshComponentBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSplineMeshComponent"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{14543630447052729839,9459039542380974471}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -880,23 +800,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezObjectMode"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{18012328506811541689,9685144911892260155}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{""}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSplineMeshPart"}
 		u3 %TypeVersion{1}
 	}
 }

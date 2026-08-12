@@ -92,6 +92,14 @@ void ezRun(ezApplication* pApplicationInstance)
   if (ezRun_Startup(pApplicationInstance).Succeeded())
   {
     ezRun_MainLoop(pApplicationInstance);
+    ezRun_Shutdown(pApplicationInstance);
   }
-  ezRun_Shutdown(pApplicationInstance);
+  else
+  {
+    // nothing was started up, so only the bookkeeping at the end of ezRun_Shutdown() applies
+    fflush(stdout);
+    fflush(stderr);
+
+    ezApplication::s_pApplicationInstance = nullptr;
+  }
 }

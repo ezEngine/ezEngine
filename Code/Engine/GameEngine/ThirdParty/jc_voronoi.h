@@ -925,8 +925,8 @@ static int jcv_pq_moveup(jcv_priorityqueue* pq, int pos)
   jcv_halfedge* node = items[pos];
 
   for (int parent = (pos >> 1);
-       pos > 1 && jcv_halfedge_compare(items[parent], node);
-       pos = parent, parent = parent >> 1)
+    pos > 1 && jcv_halfedge_compare(items[parent], node);
+    pos = parent, parent = parent >> 1)
   {
     items[pos] = items[parent];
     items[pos]->pqpos = pos;

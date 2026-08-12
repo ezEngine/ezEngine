@@ -9,11 +9,14 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/System/Process.h>
+#include <Foundation/Time/Clock.h>
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <GameEngine/Configuration/InputConfig.h>
 #include <GameEngine/Console/ConsoleActions.h>
 #include <GameEngine/Console/QuakeConsole.h>
@@ -25,6 +28,7 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <Texture/Image/Formats/ImageFileFormat.h>
 #include <Texture/Image/Formats/TgaFileFormat.h>
 #include <Texture/Image/Image.h>
 
@@ -72,6 +76,321 @@ void ezGameApplication::SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(
 {
   s_DefaultDeviceCreator = creator;
 }
+
+ezResult ezGameApplication::BeforeCoreSystemsStartup()
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  // before anything else may log, so that '-logfile' contains the entire startup
+  Unattended_Setup();
+#endif
+
+  return SUPER::BeforeCoreSystemsStartup();
+}
+
+void ezGameApplication::AfterCoreSystemsStartup()
+{
+  SUPER::AfterCoreSystemsStartup();
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  // the base class returns early when initialization went wrong, in which case there is no game state
+  // and no world to set up
+  if (!ShouldApplicationQuit())
+  {
+    // after the game state, because seeding the random number generators needs the worlds to exist
+    Unattended_Start();
+  }
+#endif
+}
+
+void ezGameApplication::BeforeCoreSystemsShutdown()
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  // while the log writers are still attached, so that the summary ends up in '-logfile'
+  Unattended_Finish();
+#endif
+
+  SUPER::BeforeCoreSystemsShutdown();
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  // after the base class, which shuts the logging down
+  Unattended_DetachLog();
+#endif
+}
+
+void ezGameApplication::Run()
+{
+  SUPER::Run();
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  Unattended_CheckTimeout();
+#endif
+}
+
+void ezGameApplication::StoreScreenshot(ezImage&& image, ezStringView sContext /*= {}*/)
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  // '-screenshot' names one specific file, so it takes precedence over the path the base class generates
+  if (Unattended_StoreScreenshot(image))
+    return;
+#endif
+
+  SUPER::StoreScreenshot(std::move(image), sContext);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+
+// These options exist to run an application unattended, e.g. as a smoke test from a script.
+// They are implemented here, rather than in ezPlayer, so that every application built with the engine
+// has them - an exported game as much as the player.
+ezCommandLineOptionInt opt_RunFrames("_App", "-runframes", "Quit automatically after this many rendered frames.\nUse this to check that a project starts up and renders at all.", -1, -1);
+ezCommandLineOptionFloat opt_Timeout("_App", "-timeout", "Quit automatically after this many seconds, no matter what.\nSafety net in case startup hangs. Sets the return code to 2 when it triggers.", 0.0f, 0.0f);
+ezCommandLineOptionPath opt_Screenshot("_App", "-screenshot", "Absolute path to a PNG file to write a screenshot to, right before quitting.\nOnly useful together with -runframes or -timeout.", "");
+ezCommandLineOptionPath opt_LogFile("_App", "-logfile", "Absolute path to a text file to write the full log to.", "");
+ezCommandLineOptionBool opt_FailOnError("_App", "-failonerror", "Set the return code to 1 if any error was logged during the run.", false);
+ezCommandLineOptionFloat opt_FixedTimeStep("_App", "-fixedtimestep",
+  "Advance the clock by a fixed 1/N seconds per frame, instead of by the time that really elapsed.\n\
+\n\
+Together with -seed this makes consecutive runs produce identical frames, which is what a screenshot\n\
+has to be for comparing it against a reference image. The application then no longer runs in real time.\n\
+\n\
+Example:\n\
+  -fixedtimestep 30\n",
+  0.0f, 0.0f);
+ezCommandLineOptionInt opt_Seed("_App", "-seed",
+  "Seed for the random number generator of every world, so that random behavior repeats between runs.\n\
+Only useful together with -fixedtimestep.",
+  -1, -1);
+
+void ezGameApplication::Unattended_Setup()
+{
+  const ezStringBuilder sLogFile = opt_LogFile.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+
+  if (!sLogFile.IsEmpty())
+  {
+    // uses ezOSFile, so this works before the ezFileSystem is configured
+    if (m_UnattendedLogFile.BeginLog(sLogFile).Succeeded())
+    {
+      m_UnattendedLogFile.SetTimestampMode(ezLog::TimestampMode::TimeOnly);
+      m_UnattendedLogToFileID = ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezLogWriter::TextFile::LogMessageHandler, &m_UnattendedLogFile));
+    }
+    else
+    {
+      ezLog::Error("Could not open log file '{}' for writing.", sLogFile);
+    }
+  }
+
+  m_bFailOnError = opt_FailOnError.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+
+  if (m_bFailOnError)
+  {
+    m_UnattendedLogErrorCounterID = ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezGameApplication::Unattended_OnLogEvent, this));
+  }
+
+  m_iRunFrames = opt_RunFrames.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+  m_UnattendedTimeout = ezTime::MakeFromSeconds(opt_Timeout.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
+  m_sScreenshotPath = opt_Screenshot.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+  m_iRandomSeed = opt_Seed.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+
+  const float fFixedTimeStepHz = opt_FixedTimeStep.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+
+  if (fFixedTimeStepHz > 0.0f)
+  {
+    m_FixedTimeStep = ezTime::MakeFromSeconds(1.0 / fFixedTimeStepHz);
+  }
+
+  m_bUnattended = m_iRunFrames >= 0 || m_UnattendedTimeout.IsPositive() || !m_sScreenshotPath.IsEmpty() ||
+                  m_bFailOnError || !sLogFile.IsEmpty() || m_FixedTimeStep.IsPositive() || m_iRandomSeed >= 0;
+}
+
+void ezGameApplication::Unattended_Start()
+{
+  // ezTime is only usable once the core systems are up, so the timeout can't start any earlier than this
+  m_UnattendedStartTime = ezTime::Now();
+
+  if (m_FixedTimeStep.IsPositive())
+  {
+    ezClock::GetGlobalClock()->SetFixedTimeStep(m_FixedTimeStep);
+  }
+
+  if (m_iRandomSeed >= 0)
+  {
+    // the worlds that exist at this point are the ones the game state created; a world created later
+    // is not covered, seeding it is then up to that code
+    for (ezUInt32 i = 0; i < ezWorld::GetWorldCount(); ++i)
+    {
+      if (ezWorld* pWorld = ezWorld::GetWorld(static_cast<ezUInt8>(i)))
+      {
+        EZ_LOCK(pWorld->GetWriteMarker());
+        pWorld->GetRandomNumberGenerator().Initialize(static_cast<ezUInt64>(m_iRandomSeed));
+        pWorld->GetClock().SetFixedTimeStep(m_FixedTimeStep);
+      }
+    }
+  }
+
+  if (m_iRunFrames >= 0 || !m_sScreenshotPath.IsEmpty())
+  {
+    m_UnattendedExecutionEventsID = m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezGameApplication::Unattended_OnExecutionEvent, this));
+  }
+}
+
+void ezGameApplication::Unattended_Finish()
+{
+  if (m_UnattendedExecutionEventsID != 0)
+  {
+    m_ExecutionEvents.RemoveEventHandler(m_UnattendedExecutionEventsID);
+    m_UnattendedExecutionEventsID = 0;
+  }
+
+  if (m_bFailOnError && m_iLoggedErrors > 0)
+  {
+    ezLog::Info("{} errors were logged.", (ezInt32)m_iLoggedErrors);
+
+    // a more specific failure that was already reported wins
+    if (GetReturnCode() == 0)
+    {
+      SetReturnCode(1);
+    }
+  }
+}
+
+void ezGameApplication::Unattended_DetachLog()
+{
+  if (m_UnattendedLogErrorCounterID != 0)
+  {
+    ezGlobalLog::RemoveLogWriter(m_UnattendedLogErrorCounterID);
+    m_UnattendedLogErrorCounterID = 0;
+  }
+
+  if (m_UnattendedLogToFileID != 0)
+  {
+    ezGlobalLog::RemoveLogWriter(m_UnattendedLogToFileID);
+    m_UnattendedLogToFileID = 0;
+    m_UnattendedLogFile.EndLog();
+  }
+}
+
+void ezGameApplication::Unattended_CheckTimeout()
+{
+  if (m_UnattendedTimeout.IsPositive() && ezTime::Now() - m_UnattendedStartTime > m_UnattendedTimeout)
+  {
+    ezLog::Error("Timeout of {} seconds reached, quitting.", m_UnattendedTimeout.GetSeconds());
+    SetReturnCode(2);
+    QuitApplication();
+  }
+}
+
+void ezGameApplication::Unattended_OnLogEvent(const ezLoggingEventData& e)
+{
+  if (e.m_EventType == ezLogMsgType::ErrorMsg || e.m_EventType == ezLogMsgType::SeriousWarningMsg)
+  {
+    m_iLoggedErrors.Increment();
+  }
+}
+
+void ezGameApplication::Unattended_OnExecutionEvent(const ezGameApplicationExecutionEvent& e)
+{
+  // BeforePresent, not AfterPresent: Run_FinishFrame() resets the 'take screenshot' flag at the end of each
+  // frame, so the request has to be made before the frame is presented
+  if (e.m_Type != ezGameApplicationExecutionEvent::Type::BeforePresent)
+    return;
+
+  ++m_uiRenderedFrames;
+
+  if (m_bScreenshotRequested)
+  {
+    // the capture is started during the present of the frame in which it was requested and can only be
+    // retrieved one or more frames later, so wait for it, rather than quitting with no (or a broken) file
+    if (m_bScreenshotDone)
+    {
+      QuitApplication();
+    }
+
+    return;
+  }
+
+  if (m_iRunFrames < 0 || m_uiRenderedFrames < (ezUInt32)m_iRunFrames)
+    return;
+
+  if (m_sScreenshotPath.IsEmpty())
+  {
+    ezLog::Info("Rendered {} frames, quitting.", m_uiRenderedFrames);
+    QuitApplication();
+    return;
+  }
+
+  m_bScreenshotRequested = true;
+  TakeScreenshot();
+}
+
+bool ezGameApplication::Unattended_StoreScreenshot(ezImage& ref_image)
+{
+  if (m_sScreenshotPath.IsEmpty())
+    return false;
+
+  m_bScreenshotDone = true;
+
+  if (ref_image.Convert(ezImageFormat::R8G8B8_UNORM_SRGB).Failed())
+  {
+    ezLog::Error("Could not convert the screenshot to RGB8.");
+    return true;
+  }
+
+  const ezStringView sExtension = ezPathUtils::GetFileExtension(m_sScreenshotPath);
+  const ezImageFileFormat* pFormat = ezImageFileFormat::GetWriterFormat(sExtension);
+
+  if (pFormat == nullptr)
+  {
+    ezLog::Error("No image file format is available to write '{}'.", m_sScreenshotPath);
+    return true;
+  }
+
+  ezDefaultMemoryStreamStorage storage;
+  ezMemoryStreamWriter memoryWriter(&storage);
+
+  if (pFormat->WriteImage(memoryWriter, ref_image, sExtension).Failed())
+  {
+    ezLog::Error("Could not encode the screenshot as '{}'.", sExtension);
+    return true;
+  }
+
+  ezStringBuilder sFolder = m_sScreenshotPath;
+  sFolder.PathParentDirectory();
+
+  if (!sFolder.IsEmpty() && ezOSFile::CreateDirectoryStructure(sFolder).Failed())
+  {
+    ezLog::Error("Could not create the folder for screenshot '{}'.", m_sScreenshotPath);
+    return true;
+  }
+
+  ezOSFile file;
+  if (file.Open(m_sScreenshotPath, ezFileOpenMode::Write).Failed())
+  {
+    ezLog::Error("Could not open screenshot file '{}' for writing.", m_sScreenshotPath);
+    return true;
+  }
+
+  ezMemoryStreamReader memoryReader(&storage);
+  ezHybridArray<ezUInt8, 4096> chunk;
+  chunk.SetCountUninitialized(4096);
+
+  while (const ezUInt64 uiRead = memoryReader.ReadBytes(chunk.GetData(), chunk.GetCount()))
+  {
+    if (file.Write(chunk.GetData(), uiRead).Failed())
+    {
+      ezLog::Error("Could not write screenshot file '{}'.", m_sScreenshotPath);
+      return true;
+    }
+  }
+
+  ezLog::Success("Screenshot: '{}'", m_sScreenshotPath);
+  return true;
+}
+
+#endif
+
+//////////////////////////////////////////////////////////////////////////
 
 namespace
 {

@@ -1249,20 +1249,33 @@ namespace
     }
   }
 
-  /// Reads the output directories of the SDK build that this application belongs to.
+  /// Determines the output directories of the SDK build that this application belongs to.
   ///
   /// A plugin has to be built into the same directories, otherwise the editor does not find it. They
   /// cannot be derived from the SDK root: an SDK built with a custom output directory (a separate
   /// workspace, CI) puts its binaries elsewhere, and then '<sdk>/Output/Bin' is a directory of some
-  /// other build, or does not exist. 'ezExportInfo.cmake' is written next to the binaries by the SDK
-  /// build itself and is therefore the authoritative answer.
+  /// other build, or does not exist.
+  ///
+  /// The DLL directory is therefore taken from where this application actually runs - the parent of
+  /// the '<platform><compiler><config>' folder that the executable sits in. It must NOT be taken from
+  /// 'ezExportInfo.cmake': the paths in that file are those of the machine that built the SDK, and
+  /// serve as the patterns that ez_include_ezExport() replaces. In a release package they point at the
+  /// build server and nothing exists there.
+  ///
+  /// The file is still needed for the LIB directory, which cannot be observed at runtime. Only the
+  /// position of that directory *relative to* the DLL directory is used from it, so that a build with
+  /// an unusual layout keeps its layout.
   ///
   /// Returns EZ_FAILURE when the file is missing or unreadable, in which case the caller should not
   /// specify the directories at all and let the plugin's CMakeLists.txt fall back to its default.
   ezResult ReadSdkOutputDirectories(ezStringBuilder& out_sDllDir, ezStringBuilder& out_sLibDir)
   {
-    ezStringBuilder sFile = ezOSFile::GetApplicationDirectory();
-    sFile.PathParentDirectory(); // strip the '<platform><compiler><config>' folder
+    ezStringBuilder sDllDir = ezOSFile::GetApplicationDirectory();
+    sDllDir.MakeCleanPath();
+    sDllDir.PathParentDirectory(); // strip the '<platform><compiler><config>' folder
+    sDllDir.Trim(nullptr, "/");
+
+    ezStringBuilder sFile = sDllDir;
     sFile.AppendPath("ezExportInfo.cmake");
     sFile.MakeCleanPath();
 
@@ -1295,8 +1308,22 @@ namespace
       return out_sValue.IsEmpty() ? EZ_FAILURE : EZ_SUCCESS;
     };
 
-    EZ_SUCCEED_OR_RETURN(ReadValue("EXPINP_OUTPUT_DIRECTORY_DLL", out_sDllDir));
-    EZ_SUCCEED_OR_RETURN(ReadValue("EXPINP_OUTPUT_DIRECTORY_LIB", out_sLibDir));
+    ezStringBuilder sBuildDllDir, sBuildLibDir;
+    EZ_SUCCEED_OR_RETURN(ReadValue("EXPINP_OUTPUT_DIRECTORY_DLL", sBuildDllDir));
+    EZ_SUCCEED_OR_RETURN(ReadValue("EXPINP_OUTPUT_DIRECTORY_LIB", sBuildLibDir));
+
+    sBuildDllDir.MakeCleanPath();
+    sBuildLibDir.MakeCleanPath();
+
+    // typically '../Lib'
+    EZ_SUCCEED_OR_RETURN(sBuildLibDir.MakeRelativeTo(sBuildDllDir));
+
+    out_sDllDir = sDllDir;
+
+    out_sLibDir = sDllDir;
+    out_sLibDir.AppendPath(sBuildLibDir);
+    out_sLibDir.MakeCleanPath();
+
     return EZ_SUCCESS;
   }
 
@@ -1392,6 +1419,7 @@ ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppS
 ezCppProject::ezCppProject()
   : ezPreferences(ezPreferences::Domain::Application, "C++ Projects")
 {
+  m_CompilerPreferences.m_Compiler = GetSdkCompiler();
 }
 void ezCppProject::LoadPreferences()
 {

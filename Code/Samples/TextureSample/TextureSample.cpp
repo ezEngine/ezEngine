@@ -87,7 +87,7 @@ public:
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
     ezTelemetry::CreateServer();
-    ezPlugin::LoadPlugin("ezInspectorPlugin").IgnoreResult();
+    ezPlugin::LoadPlugin("ezInspectorPlugin", ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
 
 
 #ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT

@@ -5,6 +5,7 @@
 #include <Core/Console/ConsoleFunction.h>
 #include <Core/GameApplication/GameApplicationBase.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Logging/TextFileWriter.h>
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/UniquePtr.h>
 
@@ -118,7 +119,27 @@ public:
   /// and override ezGameState::ConfigureInputActions() to not register all the developer options.
   void RegisterGameApplicationInputActions(ezBitflags<ezGameApplicationInputFlags> flags);
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  /// \brief Whether the application was started with any of the unattended command line options.
+  ///
+  /// Unattended mode is what makes an application usable as a smoke test from a script: it quits on its own
+  /// ('-runframes', '-timeout'), writes a screenshot ('-screenshot') and a log ('-logfile'), and reports
+  /// logged errors through the return code ('-failonerror'). '-fixedtimestep' and '-seed' additionally make
+  /// consecutive runs produce the same frames, so that a screenshot can be compared against a reference.
+  ///
+  /// The options only exist in development builds.
+  bool IsUnattended() const { return m_bUnattended; }
+#endif
+
+public:
+  virtual void Run() override;
+
 protected:
+  virtual ezResult BeforeCoreSystemsStartup() override;
+  virtual void AfterCoreSystemsStartup() override;
+  virtual void BeforeCoreSystemsShutdown() override;
+  virtual void StoreScreenshot(ezImage&& image, ezStringView sContext = {}) override;
+
   virtual void Init_ConfigureAssetManagement() override;
   virtual void Init_LoadRequiredPlugins() override;
   virtual void Init_SetupDefaultResources() override;
@@ -151,4 +172,51 @@ protected:
 
   bool m_bShowConsole = false;
   ezUniquePtr<ezConsole> m_pConsole;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+protected:
+  /// \brief Reads the unattended options and starts writing the log file. Called before anything else may log.
+  void Unattended_Setup();
+
+  /// \brief Starts the frame counting, the timeout and the deterministic mode. Called once the game state is active.
+  void Unattended_Start();
+
+  /// \brief Applies '-failonerror' to the return code. Called during shutdown, while the log still exists.
+  void Unattended_Finish();
+
+  /// \brief Detaches the log writers of '-logfile' and '-failonerror'. Called after all logging is done.
+  void Unattended_DetachLog();
+
+  /// \brief Quits with return code 2 if '-timeout' has elapsed.
+  ///
+  /// Checked outside the frame events, because those don't fire while the window is minimized or while
+  /// the application hangs during startup.
+  void Unattended_CheckTimeout();
+
+  /// \brief Writes the image to the path given with '-screenshot'. Returns false if no path was given.
+  ///
+  /// The file is written synchronously and through ezOSFile, so that it is guaranteed to exist when the
+  /// process exits, and so that the path does not have to be inside a writable data directory.
+  bool Unattended_StoreScreenshot(ezImage& ref_image);
+
+  void Unattended_OnExecutionEvent(const ezGameApplicationExecutionEvent& e);
+  void Unattended_OnLogEvent(const ezLoggingEventData& e);
+
+  bool m_bUnattended = false;
+  bool m_bFailOnError = false;
+  bool m_bScreenshotRequested = false;
+  bool m_bScreenshotDone = false;
+  ezInt32 m_iRunFrames = -1;  ///< negative = run until the application is quit normally
+  ezInt32 m_iRandomSeed = -1; ///< negative = don't touch the random number generators
+  ezTime m_UnattendedTimeout; ///< zero = disabled
+  ezTime m_UnattendedStartTime;
+  ezTime m_FixedTimeStep;     ///< zero = use the real elapsed time
+  ezString m_sScreenshotPath; ///< empty = don't take one
+  ezUInt32 m_uiRenderedFrames = 0;
+  ezAtomicInteger32 m_iLoggedErrors;
+  ezLogWriter::TextFile m_UnattendedLogFile;
+  ezEventSubscriptionID m_UnattendedExecutionEventsID = 0;
+  ezEventSubscriptionID m_UnattendedLogToFileID = 0;
+  ezEventSubscriptionID m_UnattendedLogErrorCounterID = 0;
+#endif
 };

@@ -964,6 +964,11 @@ void ezSplineMeshComponent::UpdateSplineMesh()
   }
   else
   {
+    // mirrors GenerateDistribution's own early-out (editor path above) - without at least one valid
+    // middle part it never generates/caches a mesh in the first place, so don't try to load it either
+    if (m_MiddleParts.IsEmpty() || m_MiddleParts[0].IsValid() == false)
+      return;
+
     auto hSplineMesh = ezResourceManager::LoadResource<ezMeshResource>(sMeshPath);
     SetMesh(hSplineMesh);
   }

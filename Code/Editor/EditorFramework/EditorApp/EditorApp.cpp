@@ -9,11 +9,24 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlWriter.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
 #include <QFileDialog>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+
+ezCommandLineOptionPath opt_RemoteProjectDir("_Editor", "-remoteProjectDir",
+  "Directory into which a 'remote' project is downloaded, instead of asking the user for one.\n"
+  "\n"
+  "The project ends up in a subfolder named after the project. Opening a remote project needs a download\n"
+  "location, which is normally picked in a folder dialog - without this option, opening one from a script\n"
+  "fails. A project that was downloaded before is opened from wherever it was put, this option has no\n"
+  "effect then.\n"
+  "\n"
+  "Example:\n"
+  "  -project \"Data/Samples/Bistro\" -remoteProjectDir \"C:/Projects\"\n",
+  "");
 
 EZ_IMPLEMENT_SINGLETON(ezQtEditorApp);
 
@@ -578,24 +591,38 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
     return ezStatus(ezFmt("Remote project '{}' DDL configuration is invalid.", inout_sFilePath));
   }
 
-  ezQtUiServices::GetSingleton()->MessageBoxInformation("This is a 'remote' project, meaning the data is not yet available on your machine.\n\nPlease select a folder where the project should be downloaded to.");
+  ezStringBuilder sTargetDir = opt_RemoteProjectDir.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
 
-  static QString sPreviousFolder = ezOSFile::GetUserDocumentsFolder().GetData();
-
-  // native window, so not covered by ezQtDialog - there is no automated path for downloading a remote
-  // project, the target folder has to come from a user
-  if (ezQtUiServices::SuppressModalWindow("Remote project download folder (file picker)"))
-    return ezStatus("A remote project needs a download folder, which cannot be chosen without a user present.");
-
-  QString sSelectedDir = QFileDialog::getExistingDirectory(QApplication::activeWindow(), QLatin1String("Choose Folder"), sPreviousFolder, QFileDialog::Option::ShowDirsOnly | QFileDialog::Option::DontResolveSymlinks);
-
-  if (sSelectedDir.isEmpty())
+  if (sTargetDir.IsEmpty())
   {
-    return ezStatus("");
-  }
+    ezQtUiServices::GetSingleton()->MessageBoxInformation("This is a 'remote' project, meaning the data is not yet available on your machine.\n\nPlease select a folder where the project should be downloaded to.");
 
-  sPreviousFolder = sSelectedDir;
-  ezStringBuilder sTargetDir = sSelectedDir.toUtf8().data();
+    static QString sPreviousFolder = ezOSFile::GetUserDocumentsFolder().GetData();
+
+    // native window, so not covered by ezQtDialog - without '-remoteProjectDir' the target folder
+    // has to come from a user
+    if (ezQtUiServices::SuppressModalWindow("Remote project download folder (file picker)"))
+      return ezStatus("A remote project needs a download folder. Pass '-remoteProjectDir' to give one without a user present.");
+
+    QString sSelectedDir = QFileDialog::getExistingDirectory(QApplication::activeWindow(), QLatin1String("Choose Folder"), sPreviousFolder, QFileDialog::Option::ShowDirsOnly | QFileDialog::Option::DontResolveSymlinks);
+
+    if (sSelectedDir.isEmpty())
+    {
+      return ezStatus("");
+    }
+
+    sPreviousFolder = sSelectedDir;
+    sTargetDir = sSelectedDir.toUtf8().data();
+  }
+  else
+  {
+    sTargetDir.MakeCleanPath();
+
+    if (ezOSFile::CreateDirectoryStructure(sTargetDir).Failed())
+    {
+      return ezStatus(ezFmt("Could not create the download directory '{}'.", sTargetDir));
+    }
+  }
 
   // if it is a git repository, clone it
   if (sType == "git" && !sUrl.IsEmpty())
@@ -645,7 +672,11 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
         return ezStatus(ezFmt("Running 'git' to download the remote project failed."));
       }
 
-      while (true)
+      // Without a user there is no progress bar to cancel, and its 'was canceled' state would end the
+      // clone right away, so just wait for git to finish.
+      const bool bHeadless = ezQtUiServices::IsHeadless();
+
+      while (!bHeadless)
       {
         // Process stderr output from git to update the progress bar.
         if (strings.GetCount() > 0)
@@ -691,7 +722,7 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
 
       res = pgroup.WaitToFinish();
 
-      if (cloneProgress.WasCanceled())
+      if (!bHeadless && cloneProgress.WasCanceled())
       {
         return ezStatus("Project downloading cancelled by user. Please remove the incomplete project directory manually.");
       }

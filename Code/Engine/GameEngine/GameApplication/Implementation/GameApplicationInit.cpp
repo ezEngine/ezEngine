@@ -284,7 +284,7 @@ void ezGameApplication::Init_LoadRequiredPlugins()
   ezShaderManager::Configure(szShaderModel, true);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  ezPlugin::LoadPlugin("ezInspectorPlugin").IgnoreResult();
+  ezPlugin::LoadPlugin("ezInspectorPlugin", ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
 
   // The MCP server is a development-only tool, so it is not part of the project's plugin config and thus
   // never ends up in a shipping build. Load it on demand instead, when a port was actually requested.

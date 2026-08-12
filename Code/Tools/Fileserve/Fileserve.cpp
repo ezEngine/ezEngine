@@ -3,6 +3,7 @@
 #include <Fileserve/Fileserve.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
@@ -38,11 +39,12 @@ int main(int iArgc, const char** pArgv)
   pQtApplication->setOrganizationName("ezEngine Project");
   pQtApplication->setApplicationVersion("1.0.0");
 
-  ezRun_Startup(pApp).IgnoreResult();
-
-  CreateFileserveMainWindow(pApp);
-  pQtApplication->exec();
-  ezRun_Shutdown(pApp);
+  if (ezRun_Startup(pApp).Succeeded())
+  {
+    CreateFileserveMainWindow(pApp);
+    pQtApplication->exec();
+    ezRun_Shutdown(pApp);
+  }
 #else
   pApp->SetCommandLineArguments((ezUInt32)iArgc, pArgv);
   ezRun(pApp);
@@ -69,6 +71,18 @@ int main(int iArgc, const char** pArgv)
 
 ezResult ezFileserverApp::BeforeCoreSystemsStartup()
 {
+  // before anything else: with '-help' the application only prints its options and exits, it must not
+  // ask for a project folder and must not start serving
+  {
+    ezStringBuilder cmdHelp;
+    if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested))
+    {
+      ezLog::Print(cmdHelp);
+      SetReturnCode(-1);
+      return EZ_FAILURE;
+    }
+  }
+
   ezStartup::AddApplicationTag("tool");
   ezStartup::AddApplicationTag("fileserve");
 

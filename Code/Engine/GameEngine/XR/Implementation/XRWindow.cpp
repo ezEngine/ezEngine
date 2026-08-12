@@ -225,5 +225,3 @@ const ezWindowOutputTargetBase* ezWindowOutputTargetXR::GetCompanionWindowOutput
 {
   return m_pCompanionWindowOutputTarget.Borrow();
 }
-
-

@@ -28,7 +28,7 @@ ezResult ezCommandLineOption::RequireOptions(ezStringView sRequiredOptions, ezSt
 {
   ezStringBuilder tmp;
   ezStringBuilder allOpts = sRequiredOptions;
-  ezTempHybridArray<ezStringView, 16> options;
+  ezHybridArray<ezStringView, 16> options;
   allOpts.Split(false, options, ";");
 
   for (auto opt : options)
@@ -62,6 +62,9 @@ bool ezCommandLineOption::LogAvailableOptions(LogAvailableModes mode, ezStringVi
       return false;
   }
 
+  // Note: nothing in here may use the temp allocator. Printing the command line help is the typical
+  // reason for an application to abort in BeforeCoreSystemsStartup(), i.e. before the core systems -
+  // and with them the temp allocator - exist.
   ezMap<ezString, ezHybridArray<ezCommandLineOption*, 16>> sorted;
 
   ezStringBuilder sGroupFilter;
@@ -113,7 +116,7 @@ bool ezCommandLineOption::LogAvailableOptions(LogAvailableModes mode, ezStringVi
       pOpt->GetParamDefaultValueDesc(sParamDefault);
       pOpt->GetLongDesc(sLongDesc);
 
-      ezTempHybridArray<ezStringView, 4> lines;
+      ezHybridArray<ezStringView, 4> lines;
 
       sOptions.Split(false, lines, ";", "|");
 
@@ -206,7 +209,7 @@ void ezCommandLineOptionDoc::GetLongDesc(ezStringBuilder& ref_sOut) const
 bool ezCommandLineOptionDoc::IsOptionSpecified(ezStringBuilder* out_pWhich, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
 {
   ezStringBuilder sOptions, tmp;
-  ezTempHybridArray<ezStringView, 4> eachOption;
+  ezHybridArray<ezStringView, 4> eachOption;
   GetSplitOptions(sOptions, eachOption);
 
   for (auto o : eachOption)
@@ -488,7 +491,7 @@ ezInt32 ezCommandLineOptionEnum::GetOptionValue(LogMode logMode, const ezCommand
   ezStringBuilder sOption;
   const bool bSpecified = IsOptionSpecified(&sOption, pUtils);
 
-  ezTempHybridArray<EnumKeyValue, 16> keysAndValues;
+  ezHybridArray<EnumKeyValue, 16> keysAndValues;
   GetEnumKeysAndValues(keysAndValues);
 
   if (bSpecified)
@@ -533,7 +536,7 @@ found:
 
 void ezCommandLineOptionEnum::GetParamShortDesc(ezStringBuilder& ref_sOut) const
 {
-  ezTempHybridArray<EnumKeyValue, 16> keysAndValues;
+  ezHybridArray<EnumKeyValue, 16> keysAndValues;
   GetEnumKeysAndValues(keysAndValues);
 
   for (const auto& e : keysAndValues)
@@ -547,7 +550,7 @@ void ezCommandLineOptionEnum::GetParamShortDesc(ezStringBuilder& ref_sOut) const
 
 void ezCommandLineOptionEnum::GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const
 {
-  ezTempHybridArray<EnumKeyValue, 16> keysAndValues;
+  ezHybridArray<EnumKeyValue, 16> keysAndValues;
   GetEnumKeysAndValues(keysAndValues);
 
   for (const auto& e : keysAndValues)
@@ -564,7 +567,7 @@ void ezCommandLineOptionEnum::GetEnumKeysAndValues(ezDynamicArray<EnumKeyValue>&
 {
   ezStringBuilder tmp = m_sEnumKeysAndValues;
 
-  ezTempHybridArray<ezStringView, 16> enums;
+  ezHybridArray<ezStringView, 16> enums;
   tmp.Split(false, enums, ";", "|");
 
   out_keysAndValues.SetCount(enums.GetCount());

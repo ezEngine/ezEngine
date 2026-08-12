@@ -67,8 +67,8 @@ public:
   void RetrievePose(ezDynamicArray<ezMat4>& out_modelTransforms, ezTransform& out_rootTransform, const ezSkeleton& skeleton);
 
 protected:
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);     // [ msg handler ]
-  void OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg); // [ msg handler ]
+  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);                          // [ msg handler ]
+  void OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg);                      // [ msg handler ]
   void OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& msg); // [ msg handler ]
 
   void InitializeAnimationPose();
