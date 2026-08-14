@@ -39,11 +39,6 @@ ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* pParent)
   UpdateUI();
 }
 
-void ezQtCppProjectDlg::on_Result_rejected()
-{
-  reject();
-}
-
 void ezQtCppProjectDlg::on_OpenPluginLocation_clicked()
 {
   ezQtUiServices::OpenInExplorer(PluginLocation->text().toUtf8().data(), false);

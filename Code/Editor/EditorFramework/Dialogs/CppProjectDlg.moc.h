@@ -16,7 +16,6 @@ public:
   ezQtCppProjectDlg(QWidget* pParent);
 
 private Q_SLOTS:
-  void on_Result_rejected();
   void on_OpenPluginLocation_clicked();
   void on_OpenBuildFolder_clicked();
   void on_OpenSolution_clicked();
