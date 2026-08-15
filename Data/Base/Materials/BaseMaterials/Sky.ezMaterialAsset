@@ -94,7 +94,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"InverseTonemap"}
 		s %Type{"bool"}
 	}
@@ -107,7 +107,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::IsEnum"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezEnumBase"}
 		s %PluginName{"ShaderTypes"}
@@ -149,7 +149,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"VirtualDistance"}
 		s %Type{"float"}
 	}
@@ -162,7 +162,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezShaderTypeBase"}
 		s %PluginName{"ShaderTypes"}
@@ -231,7 +231,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"BaseColor"}
 		s %Type{"ezColor"}
 	}
@@ -310,7 +310,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"MaskThreshold"}
 		s %Type{"float"}
 	}
@@ -328,7 +328,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"ExposureBias"}
 		s %Type{"float"}
 	}
@@ -398,7 +398,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezReflectedClass"}
 		s %PluginName{"ShaderTypes"}
@@ -431,7 +431,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"UseFog"}
 		s %Type{"bool"}
 	}
@@ -450,7 +450,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"CubeMap"}
 		s %Type{"ezString"}
 	}
@@ -468,7 +468,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::IsEnum"}
 		s %Name{"BLEND_MODE"}
 		s %Type{"BLEND_MODE"}
 	}

@@ -2,12 +2,23 @@ HeaderV2
 {
 o
 {
+	Uuid %id{u4{16721119671949071853,2669612884139762327}}
+	s %t{"ezExposeColorAlphaAttribute"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{15028993582803273405,5204916304801994968}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{16721119671949071853,2669612884139762327}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
 		Color %DefaultValue{f{0x92C8B140,0xE9E4723F,0x3BA4BF41,0x0000803F}}
 		s %Name{"Color"}
 		s %Type{""}
@@ -24,7 +35,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17674349881833858187,5721672531791499156}}
-		u4 %Hash{11758021409404167347}
+		u4 %Hash{6882634020657547946}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2850136604030941723,13816356582122382121}}
@@ -74,6 +85,7 @@ o
 	{
 		s %Material{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
 		s %Mesh{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
+		f %Scale{0x0000803F}
 		s %TintColorParam{""}
 	}
 }
@@ -86,6 +98,7 @@ o
 	{
 		s %Material{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
 		s %Mesh{"{ 27f2417c-593a-4389-a4e2-34711e03d8d5 }"}
+		f %Scale{0x0000803F}
 		s %TintColorParam{""}
 	}
 }
@@ -102,13 +115,14 @@ o
 			f %Variance{0}
 			f %Value{0x00008040}
 		}
+		s %SpeedScaleParam{""}
 	}
 }
 o
 {
 	Uuid %id{u4{575269784762506884,5413865065265677104}}
 	s %t{"ezParticleInitializerFactory_RandomSize"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		ezVarianceTypeFloat %Size
@@ -117,6 +131,7 @@ o
 			f %Value{0xCDCCCC3D}
 		}
 		s %SizeCurve{""}
+		HashedString %SizeScaleParameter{s{""}}
 	}
 }
 o
@@ -149,6 +164,7 @@ o
 		}
 		VarArray %EventReactions{}
 		VarDict %FloatParameters{}
+		Vec3u %NumWindSamples{u3{1,1,1}}
 		VarArray %ParticleSystems
 		{
 			Uuid{u4{4409231840297536375,5616588167602266811}}
@@ -265,7 +281,7 @@ o
 {
 	Uuid %id{u4{13300565057489192842,6221519434670967183}}
 	s %t{"ezParticleInitializerFactory_RandomSize"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		ezVarianceTypeFloat %Size
@@ -274,6 +290,7 @@ o
 			f %Value{0xCDCCCC3D}
 		}
 		s %SizeCurve{""}
+		HashedString %SizeScaleParameter{s{""}}
 	}
 }
 o
@@ -511,7 +528,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomSize"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

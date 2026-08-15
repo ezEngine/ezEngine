@@ -21,7 +21,7 @@ o
 		s %AssetType{"VisualScriptClass"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4519995140533116596,4737827471010930942}}
-		u4 %Hash{15264177602753762098}
+		u4 %Hash{1222824509970656860}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{9160296932833830145,1470699902330266564}}
@@ -328,7 +328,7 @@ o
 		{
 			Uuid{u4{7910004600926234202,9282368297401984412}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"EditorPluginVisualScript"}
@@ -351,7 +351,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"GlobalKey"}
 		s %Type{"ezHashedString"}
 	}
@@ -369,7 +369,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"TypeName"}
 		s %Type{"ezString"}
 	}
@@ -408,7 +408,7 @@ o
 		s %PluginName{"ezEditorPluginVisualScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptVariable"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -431,7 +431,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Condition"}
 		s %Type{"bool"}
 	}
@@ -444,7 +444,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezReflectedClass"}
 		s %PluginName{"EditorPluginVisualScript"}
@@ -464,7 +464,7 @@ o
 		{
 			Uuid{u4{6484908058475040475,14232279686010375764}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"EditorPluginVisualScript"}
@@ -508,7 +508,7 @@ o
 			Uuid{u4{7865500580002751258,9895635149437256022}}
 			Uuid{u4{17844189781719464535,2072705836331660830}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"EditorPluginVisualScript"}
@@ -534,7 +534,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Array"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Cases"}
 		s %Type{"ezHashedString"}
 	}
@@ -592,6 +592,23 @@ o
 }
 o
 {
+	Uuid %id{u4{5514559133848394859,6944786798886162182}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginVisualScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptVariableCategory"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{6526503867102557786,7663609270377699277}}
 	s %t{"ezColorAttribute"}
 	u3 %v{1}
@@ -623,7 +640,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Color"}
 		s %Type{"ezColor"}
 	}
@@ -638,7 +655,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Text"}
 		s %Type{"ezString"}
 	}
@@ -653,7 +670,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::IsEnum"}
 		s %Name{"CoroutineMode"}
 		s %Type{"ezScriptCoroutineCreationMode"}
 	}
@@ -687,6 +704,23 @@ o
 }
 o
 {
+	Uuid %id{u4{17031262981869958585,9370940739905747393}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginVisualScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptVariableType"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{11585296638612324594,9613964548900872686}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -695,7 +729,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::IsEnum"}
 		s %Name{"Placement"}
 		s %Type{"ezDebugTextPlacement"}
 	}
@@ -722,7 +756,7 @@ o
 			Uuid{u4{15304472644124173010,6216515844444936540}}
 			Uuid{u4{515609856170651669,1807874004967509988}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"EditorPluginVisualScript"}
@@ -744,7 +778,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"LocalOffset"}
 		s %Type{"ezVec3"}
 	}
@@ -778,7 +812,7 @@ o
 			Uuid{u4{17247465324588118270,2861120749470977998}}
 			Uuid{u4{17386427117057227741,1518914288004348374}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"EditorPluginVisualScript"}
@@ -835,7 +869,7 @@ o
 		{
 			Uuid{u4{14219360545286752206,16799587305735830470}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"EditorPluginVisualScript"}
@@ -867,7 +901,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"IgnoreSpawnDelay"}
 		s %Type{"bool"}
 	}
@@ -891,6 +925,23 @@ o
 }
 o
 {
+	Uuid %id{u4{16046955658216964626,14620062218799320494}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginVisualScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptVariableTypeDeclaration"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{1168119700194062183,14661564159162857747}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -899,7 +950,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Group"}
 		s %Type{"ezString"}
 	}
@@ -931,7 +982,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::IsEnum"}
 		s %Name{"CoroutineMode"}
 		s %Type{"ezScriptCoroutineCreationMode"}
 	}
@@ -957,7 +1008,7 @@ o
 		{
 			Uuid{u4{16417871099758723538,8079155816296021377}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"EditorPluginVisualScript"}
@@ -1042,7 +1093,7 @@ o
 			Uuid{u4{6526503867102557786,7663609270377699277}}
 			Uuid{u4{3450499664863967133,16336996643790209850}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"EditorPluginVisualScript"}

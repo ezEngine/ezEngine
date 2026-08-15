@@ -15,7 +15,7 @@ o
 			s{"Textures/NeutralNormal.tga"}
 		}
 		Uuid %DocumentID{u4{564436818408481945,5529401707406468969}}
-		u4 %Hash{3979393175335835839}
+		u4 %Hash{9471977455413317606}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -34,7 +34,7 @@ o
 {
 	Uuid %id{u4{5286122521236107153,5246840845093292321}}
 	s %t{"ezDecalAssetProperties"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		s %AlphaMask{""}
@@ -43,6 +43,8 @@ o
 		s %Emissive{""}
 		s %Mode{"ezDecalMode::BaseColor"}
 		s %Normal{"Textures/NeutralNormal.tga"}
+		u1 %NumVariationsX{1}
+		u1 %NumVariationsY{1}
 		s %ORM{""}
 	}
 }
@@ -77,7 +79,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalAssetProperties"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9942389368597704355,5056955079846159374}}
-		u4 %Hash{2676840108898303840}
+		u4 %Hash{6042199615680581066}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -7123,7 +7123,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Array"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::Class"}
 		s %Name{"Legs"}
 		s %Type{"ezCreatureLeg"}
 	}
@@ -7277,7 +7277,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"CastDown"}
 		s %Type{"float"}
 	}
@@ -7293,7 +7293,7 @@ o
 		{
 			Uuid{u4{11536689509362653935,8893128062147713816}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"ezEnginePluginScene"}
@@ -7389,7 +7389,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"GenerateCollision"}
 		s %Type{"bool"}
 	}
@@ -7407,7 +7407,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const"}
 		s %Name{"Body"}
 		s %Type{"ezConstCharPtr"}
 	}
@@ -7422,7 +7422,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"StepGroup"}
 		s %Type{"ezUInt8"}
 	}
@@ -7486,7 +7486,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{""}
 		s %PluginName{"ezGameComponentsPlugin"}
@@ -7973,7 +7973,7 @@ o
 		{
 			Uuid{u4{4680273556486097404,9028572383430993757}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"ezGameComponentsPlugin"}
@@ -8021,7 +8021,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Material"}
 		s %Type{"ezStringView"}
 	}
@@ -8073,7 +8073,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"TexCoordOffset"}
 		s %Type{"ezVec2"}
 	}
@@ -8092,7 +8092,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"HeightfieldImage"}
 		s %Type{"ezStringView"}
 	}
@@ -8227,7 +8227,7 @@ o
 		{
 			Uuid{u4{11135730192525964575,4819325472927372842}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"ezEnginePluginScene"}
@@ -8266,7 +8266,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"CastUp"}
 		s %Type{"float"}
 	}
@@ -8335,7 +8335,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"ColMeshTesselation"}
 		s %Type{"ezVec2U32"}
 	}
@@ -8362,7 +8362,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"LegName"}
 		s %Type{"ezHashedString"}
 	}
@@ -8380,7 +8380,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"StepDistance"}
 		s %Type{"float"}
 	}
@@ -8405,7 +8405,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"HalfExtents"}
 		s %Type{"ezVec2"}
 	}
@@ -8447,7 +8447,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const"}
 		s %Name{"Comment"}
 		s %Type{"ezConstCharPtr"}
 	}
@@ -8483,7 +8483,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"MinLegDistance"}
 		s %Type{"float"}
 	}
@@ -8527,7 +8527,7 @@ o
 		{
 			Uuid{u4{17654592137702273444,14514761658005918797}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezRenderComponent"}
 		s %PluginName{"ezGameComponentsPlugin"}
@@ -8560,7 +8560,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Tesselation"}
 		s %Type{"ezVec2U32"}
 	}
@@ -8707,7 +8707,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"TexCoordScale"}
 		s %Type{"ezVec2"}
 	}
@@ -8759,7 +8759,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Height"}
 		s %Type{"float"}
 	}

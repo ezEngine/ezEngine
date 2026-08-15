@@ -11,6 +11,8 @@ o
 		s %AssetType{"RmlUi"}
 		VarArray %Dependencies
 		{
+			s{"UI/worldui-example.rcss"}
+			s{"UI/worldui-example.rml"}
 			s{"rmlui-default/assets.rcss"}
 			s{"rmlui-default/button.rcss"}
 			s{"rmlui-default/common.rcss"}
@@ -28,8 +30,6 @@ o
 			s{"rmlui-default/template.rml"}
 			s{"rmlui-default/textarea.rcss"}
 			s{"rmlui-default/window.rcss"}
-			s{"UI/worldui-example.rcss"}
-			s{"UI/worldui-example.rml"}
 		}
 		Uuid %DocumentID{u4{8562727052900731054,4703681621695519470}}
 		u4 %Hash{15534666862754515642}
@@ -37,6 +37,8 @@ o
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
+			s{"UI/worldui-example.rcss"}
+			s{"UI/worldui-example.rml"}
 			s{"rmlui-default/assets.png"}
 			s{"rmlui-default/assets.rcss"}
 			s{"rmlui-default/button.rcss"}
@@ -55,11 +57,11 @@ o
 			s{"rmlui-default/template.rml"}
 			s{"rmlui-default/textarea.rcss"}
 			s{"rmlui-default/window.rcss"}
-			s{"UI/worldui-example.rcss"}
-			s{"UI/worldui-example.rml"}
 		}
 		VarArray %References
 		{
+			s{"UI/worldui-example.rcss"}
+			s{"UI/worldui-example.rml"}
 			s{"rmlui-default/assets.png"}
 			s{"rmlui-default/assets.rcss"}
 			s{"rmlui-default/button.rcss"}
@@ -78,8 +80,6 @@ o
 			s{"rmlui-default/template.rml"}
 			s{"rmlui-default/textarea.rcss"}
 			s{"rmlui-default/window.rcss"}
-			s{"UI/worldui-example.rcss"}
-			s{"UI/worldui-example.rml"}
 		}
 		s %Tags{""}
 	}

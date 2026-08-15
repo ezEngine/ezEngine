@@ -14,13 +14,14 @@ o
 			s{"Quaternius/Monsters/glTF/Ghost.gltf"}
 		}
 		Uuid %DocumentID{u4{7380177275452422788,5612665315909530043}}
-		u4 %Hash{5705513286623554333}
+		u4 %Hash{2047749363442149806}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
 		VarArray %References
 		{
 			s{"Quaternius/Monsters/glTF/Ghost.gltf"}
+			s{"{ 72216d7c-f56c-4a1b-9c67-f93ad7146a18 }"}
 		}
 		s %Tags{""}
 	}
@@ -42,30 +43,22 @@ o
 {
 	Uuid %id{u4{1158479732199110590,5601960289179290614}}
 	s %t{"ezAnimationClipAssetProperties"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Additive{0}
-		VarArray %AvailableClips
-		{
-			s{"Bite_Front"}
-			s{"Bite_InPlace"}
-			s{"Dance"}
-			s{"Death"}
-			s{"HitRecieve"}
-			s{"Idle"}
-			s{"Jump"}
-			s{"No"}
-			s{"Walk"}
-			s{"Yes"}
-		}
+		s %AdditiveReference{"ezAdditiveAnimationReference::FirstKeyFrame"}
+		f %AdjustScale{0x0000803F}
+		s %BasePreviewAnim{""}
 		Vec3 %ConstantRootMotion{f{0,0,0}}
+		VarArray %Curves{}
 		Uuid %EventTrack{u4{15015405889671043163,2899492319994489107}}
 		s %File{"Quaternius/Monsters/glTF/Ghost.gltf"}
 		u3 %FirstFrame{0}
 		u3 %NumFrames{0}
 		s %PreviewMesh{"{ 72216d7c-f56c-4a1b-9c67-f93ad7146a18 }"}
 		s %RootMotion{"ezRootMotionSource::None"}
+		f %RootMotionDistance{0}
 		s %UseAnimationClip{"Walk"}
 	}
 }
@@ -86,6 +79,91 @@ o
 }
 Types
 {
+o
+{
+	Uuid %id{u4{14722461902623688675,2098269905474166124}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSingleCurveData"}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{6978840138548522775,2217290670471061858}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezAnimationClipCurveData"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4976983466369834828,2223514201630482789}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCurveControlPointData"}
+		u3 %TypeVersion{5}
+	}
+}
+o
+{
+	Uuid %id{u4{3552612722790702332,2420538729568060994}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezAdditiveAnimationReference"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13216943865831982294,3766144591255929939}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCurveTangentMode"}
+		u3 %TypeVersion{1}
+	}
+}
 o
 {
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
@@ -185,7 +263,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimationClipAssetProperties"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

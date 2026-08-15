@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8039367201664816052,4948728097403116774}}
-		u4 %Hash{13043965700738406655}
+		u4 %Hash{17588370986578825311}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17490555078048832028,14942492985838378214}}
@@ -20,12 +20,10 @@ o
 		VarArray %PackageDeps
 		{
 			s{"{ 90e278a4-c3bd-4d0f-8e00-66821a4560e5 }"}
-			s{"{ eb1b7c7d-236f-4601-a92e-4903567d7ad3 }"}
 		}
 		VarArray %References
 		{
 			s{"{ 90e278a4-c3bd-4d0f-8e00-66821a4560e5 }"}
-			s{"{ eb1b7c7d-236f-4601-a92e-4903567d7ad3 }"}
 		}
 		s %Tags{""}
 	}
@@ -83,17 +81,23 @@ o
 	u3 %v{2}
 	p
 	{
+		f %CameraProximityFadeOut{0x0000003F}
+		HashedString %CustomMaterial{s{""}}
 		Angle %Deviation{f{0}}
-		f %DistortionStrength{0x0000C842}
-		s %DistortionTexture{""}
+		f %GeometryProximityFadeOut{0xCDCCCC3D}
+		f %LightDirectionality{0x0000003F}
+		s %LightingMode{"ezParticleLightingMode::Fullbright"}
+		f %NormalCurvature{0x0000003F}
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
 		s %Orientation{"ezQuadParticleOrientation::Billboard"}
 		f %ParticleStretch{0x0000803F}
 		s %RenderMode{"ezParticleTypeRenderMode::Opaque"}
-		s %Texture{"{ eb1b7c7d-236f-4601-a92e-4903567d7ad3 }"}
+		HashedString %Texture{s{"{ eb1b7c7d-236f-4601-a92e-4903567d7ad3 }"}}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
-		s %TintColorParam{""}
+		s %TextureOrientation{"ezParticleTextureAtlasOrientation::Up"}
+		HashedString %TintColorParam{s{""}}
+		b %UseCustomMaterial{0}
 	}
 }
 o
@@ -108,6 +112,7 @@ o
 		VarDict %ColorParameters{}
 		VarArray %EventReactions{}
 		VarDict %FloatParameters{}
+		Vec3u %NumWindSamples{u3{1,1,1}}
 		VarArray %ParticleSystems
 		{
 			Uuid{u4{16716283010135482077,4745584229815391411}}
@@ -121,7 +126,7 @@ o
 {
 	Uuid %id{u4{13448376677732907468,5066060130023065416}}
 	s %t{"ezParticleInitializerFactory_RandomSize"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		ezVarianceTypeFloat %Size
@@ -130,18 +135,21 @@ o
 			f %Value{0xCDCC4C3D}
 		}
 		s %SizeCurve{""}
+		HashedString %SizeScaleParameter{s{""}}
 	}
 }
 o
 {
 	Uuid %id{u4{9655303115326740411,5326638523936877045}}
 	s %t{"ezParticleInitializerFactory_RandomColor"}
-	u3 %v{1}
+	u3 %v{3}
 	p
 	{
 		Color %Color1{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Color %Color2{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		s %Gradient{"{ 90e278a4-c3bd-4d0f-8e00-66821a4560e5 }"}
+		Uuid %Gradient{u4{11508243774270441584,16312751883169076595}}
+		s %GradientSource{"ezGradientSource::SharedGradient"}
+		s %SharedGradient{"{ 90e278a4-c3bd-4d0f-8e00-66821a4560e5 }"}
 	}
 }
 o
@@ -193,6 +201,18 @@ o
 		}
 	}
 }
+o
+{
+	Uuid %id{u4{11508243774270441584,16312751883169076595}}
+	s %t{"ezColorGradient"}
+	u3 %v{1}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
 }
 Types
 {
@@ -210,7 +230,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomColor"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -266,6 +286,40 @@ o
 }
 o
 {
+	Uuid %id{u4{15147521710602410338,4960047299275334667}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezGradientSource"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9692001477283607726,5375904088218900509}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleLightingMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{5814284155980160751,5759191340344101956}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -312,6 +366,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezVarianceTypeBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6631209941035484764,6473122775586822239}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorGradientIntensityCP"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -385,6 +456,23 @@ o
 }
 o
 {
+	Uuid %id{u4{16010672675562525890,8910430727997280259}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorGradient"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13880744943763730395,10489507546417127904}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -414,7 +502,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomSize"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -487,6 +575,23 @@ o
 }
 o
 {
+	Uuid %id{u4{16412282250269376247,15152311001237269853}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleTextureAtlasOrientation"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{2971759590607246163,15191316629823599218}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -534,6 +639,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{11071188783797134895,15407408096802728321}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorGradientColorCP"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -601,6 +723,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBasisAxis"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6447122151843742996,17608929579605804179}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorGradientAlphaCP"}
 		u3 %TypeVersion{1}
 	}
 }

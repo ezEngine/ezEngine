@@ -14,7 +14,7 @@ o
 			s{"Kenney.nl/Decals/scratch_01.png"}
 		}
 		Uuid %DocumentID{u4{5875641870803069570,5576853079923981033}}
-		u4 %Hash{16609686674124528273}
+		u4 %Hash{12017443483089541532}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -32,7 +32,7 @@ o
 {
 	Uuid %id{u4{8239239242168460440,4932593019102862848}}
 	s %t{"ezDecalAssetProperties"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		s %AlphaMask{""}
@@ -41,6 +41,8 @@ o
 		s %Emissive{""}
 		s %Mode{"ezDecalMode::BaseColor"}
 		s %Normal{""}
+		u1 %NumVariationsX{1}
+		u1 %NumVariationsY{1}
 		s %ORM{""}
 	}
 }
@@ -75,7 +77,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalAssetProperties"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

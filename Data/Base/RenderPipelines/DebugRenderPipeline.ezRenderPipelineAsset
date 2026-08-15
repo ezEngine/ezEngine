@@ -1215,7 +1215,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezEngineProcessDocumentContext"}
 		s %PluginName{"ezEnginePluginScene"}
@@ -1242,7 +1242,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"MaxScreenSize"}
 		s %Type{"float"}
 	}
@@ -1323,7 +1323,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezSelectedObjectsExtractorBase"}
 		s %PluginName{"ezEnginePluginScene"}
@@ -1551,7 +1551,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Pointer|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Pointer"}
 		s %Name{"SceneContext"}
 		s %Type{"ezSceneContext"}
 	}
@@ -1566,7 +1566,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Pointer|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Pointer"}
 		s %Name{"SceneContext"}
 		s %Type{"ezSceneContext"}
 	}
@@ -1793,7 +1793,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezExtractor"}
 		s %PluginName{"ezEnginePluginScene"}
@@ -1830,7 +1830,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezExtractor"}
 		s %PluginName{"ezEnginePluginScene"}
@@ -1871,7 +1871,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Pointer|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Pointer"}
 		s %Name{"SceneContext"}
 		s %Type{"ezSceneContext"}
 	}
@@ -1891,7 +1891,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Size"}
 		s %Type{"float"}
 	}

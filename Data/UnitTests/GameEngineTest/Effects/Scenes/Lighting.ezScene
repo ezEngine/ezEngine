@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{23830366674596395,8143917137296465112}}
-		u4 %Hash{14543836669585187170}
+		u4 %Hash{2530411109823746200}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -936,11 +936,12 @@ o
 {
 	Uuid %id{u4{6279989168300578668,6165284291992798398}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{1}
@@ -1228,11 +1229,12 @@ o
 {
 	Uuid %id{u4{16518181608542951478,7857839263189514273}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{1}
@@ -2146,11 +2148,12 @@ o
 {
 	Uuid %id{u4{17054545001296370375,16234642203889928623}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{1}
@@ -2628,7 +2631,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeVersion{10}
+		u3 %TypeVersion{11}
 	}
 }
 o

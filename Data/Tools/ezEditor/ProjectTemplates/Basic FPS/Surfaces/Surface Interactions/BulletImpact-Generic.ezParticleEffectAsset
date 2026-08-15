@@ -11,20 +11,14 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11454469672500940705,5161971015384049622}}
-		u4 %Hash{6075287520795286012}
+		u4 %Hash{11524734983853211964}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{18278280244345930442,13116566373112533555}}
 		}
 		VarArray %Outputs{}
-		VarArray %PackageDeps
-		{
-			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
-		}
-		VarArray %References
-		{
-			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
-		}
+		VarArray %PackageDeps{}
+		VarArray %References{}
 		s %Tags{""}
 	}
 }
@@ -45,7 +39,7 @@ o
 {
 	Uuid %id{u4{7366212454068925409,940474799953591098}}
 	s %t{"ezParticleInitializerFactory_RandomSize"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		ezVarianceTypeFloat %Size
@@ -54,6 +48,7 @@ o
 			f %Value{0xCDCC4C3D}
 		}
 		s %SizeCurve{""}
+		HashedString %SizeScaleParameter{s{""}}
 	}
 }
 o
@@ -121,12 +116,14 @@ o
 {
 	Uuid %id{u4{6378883058314099100,4862164427224041149}}
 	s %t{"ezParticleInitializerFactory_RandomColor"}
-	u3 %v{1}
+	u3 %v{3}
 	p
 	{
 		Color %Color1{f{0x690FAF3E,0x690FAF3E,0x690FAF3E,0x0000803F}}
 		Color %Color2{f{0x812C083E,0x812C083E,0x812C083E,0x0000803F}}
-		s %Gradient{""}
+		Uuid %Gradient{u4{5048945491134708878,10371694107217806753}}
+		s %GradientSource{"ezGradientSource::SharedGradient"}
+		s %SharedGradient{""}
 	}
 }
 o
@@ -157,6 +154,7 @@ o
 			f %Variance{0xEC51B83E}
 			f %Value{0x00000040}
 		}
+		s %SpeedScaleParam{""}
 	}
 }
 o
@@ -188,9 +186,10 @@ o
 	u3 %v{2}
 	p
 	{
+		f %CameraProximityFadeOut{0x0000003F}
+		HashedString %CustomMaterial{s{""}}
 		Angle %Deviation{f{0}}
-		f %DistortionStrength{0x0000C842}
-		s %DistortionTexture{""}
+		f %GeometryProximityFadeOut{0xCDCCCC3D}
 		f %LightDirectionality{0x0000003F}
 		s %LightingMode{"ezParticleLightingMode::VertexLit"}
 		f %NormalCurvature{0x0000003F}
@@ -199,9 +198,11 @@ o
 		s %Orientation{"ezQuadParticleOrientation::Rotating_OrthoEmitterDir"}
 		f %ParticleStretch{0x0000803F}
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
-		s %Texture{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
+		HashedString %Texture{s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
-		s %TintColorParam{""}
+		s %TextureOrientation{"ezParticleTextureAtlasOrientation::Up"}
+		HashedString %TintColorParam{s{""}}
+		b %UseCustomMaterial{0}
 	}
 }
 o
@@ -216,6 +217,18 @@ o
 		{
 			Uuid{u4{16057517257147562623,5276515891249885420}}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{5048945491134708878,10371694107217806753}}
+	s %t{"ezColorGradient"}
+	u3 %v{1}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
 	}
 }
 }
@@ -269,7 +282,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomColor"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -337,6 +350,23 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15147521710602410338,4960047299275334667}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezGradientSource"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -410,6 +440,23 @@ o
 }
 o
 {
+	Uuid %id{u4{6631209941035484764,6473122775586822239}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorGradientIntensityCP"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{18327411855245510474,6668321287849544166}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -478,6 +525,23 @@ o
 }
 o
 {
+	Uuid %id{u4{16010672675562525890,8910430727997280259}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorGradient"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13880744943763730395,10489507546417127904}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -507,7 +571,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomSize"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -580,6 +644,23 @@ o
 }
 o
 {
+	Uuid %id{u4{16412282250269376247,15152311001237269853}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleTextureAtlasOrientation"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{431725564760097241,15194337309386663092}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -610,6 +691,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{11071188783797134895,15407408096802728321}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorGradientColorCP"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -694,6 +792,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBasisAxis"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6447122151843742996,17608929579605804179}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorGradientAlphaCP"}
 		u3 %TypeVersion{1}
 	}
 }

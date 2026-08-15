@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11845974537797661067,5568151536736489769}}
-		u4 %Hash{18404100807123679829}
+		u4 %Hash{7021577126866553313}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -40,6 +40,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -52,6 +53,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -64,6 +66,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -76,6 +79,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -88,6 +92,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -100,6 +105,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -112,6 +118,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -124,6 +131,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -136,6 +144,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -174,6 +183,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -186,6 +196,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -198,6 +209,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -236,6 +248,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -248,6 +261,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -286,6 +300,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -298,6 +313,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -310,6 +326,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -322,6 +339,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -360,6 +378,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -372,6 +391,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -384,6 +404,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -396,6 +417,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -408,6 +430,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -446,6 +469,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -458,6 +482,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -496,6 +521,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -508,6 +534,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -520,6 +547,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -532,6 +560,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -544,6 +573,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -608,6 +638,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -620,6 +651,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -658,6 +690,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -670,6 +703,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -708,6 +742,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -746,6 +781,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -758,6 +794,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -770,6 +807,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -782,6 +820,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -846,6 +885,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -858,6 +898,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -870,6 +911,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -908,6 +950,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -920,6 +963,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -932,6 +976,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -944,6 +989,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -956,6 +1002,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -968,6 +1015,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1084,6 +1132,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1096,6 +1145,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1108,6 +1158,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1120,6 +1171,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1158,6 +1210,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1170,6 +1223,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1208,6 +1262,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1220,6 +1275,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1310,6 +1366,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1348,6 +1405,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1384,6 +1442,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1448,6 +1507,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1460,6 +1520,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1498,6 +1559,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1588,6 +1650,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1600,6 +1663,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1664,6 +1728,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1676,6 +1741,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1740,6 +1806,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1778,6 +1845,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1790,6 +1858,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1852,6 +1921,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1890,6 +1960,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1902,6 +1973,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1966,6 +2038,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2004,6 +2077,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2016,6 +2090,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2028,6 +2103,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2066,6 +2142,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2130,6 +2207,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2142,6 +2220,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2206,6 +2285,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2296,6 +2376,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2386,6 +2467,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2398,6 +2480,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2410,6 +2493,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2498,6 +2582,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2614,6 +2699,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2652,6 +2738,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2742,6 +2829,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2754,6 +2842,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2766,6 +2855,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2778,6 +2868,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2842,6 +2933,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2930,6 +3022,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2968,6 +3061,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2980,6 +3074,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3044,6 +3139,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3082,6 +3178,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3120,6 +3217,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3132,6 +3230,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3144,6 +3243,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3182,6 +3282,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3221,6 +3322,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3233,6 +3335,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3323,6 +3426,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3335,6 +3439,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3529,6 +3634,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3541,6 +3647,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3707,6 +3814,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3745,6 +3853,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3835,6 +3944,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3873,6 +3983,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3911,6 +4022,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -4053,6 +4165,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -4065,6 +4178,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -4103,6 +4217,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -4167,6 +4282,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -4362,6 +4478,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -4478,6 +4595,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -4594,6 +4712,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -4606,6 +4725,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -4644,6 +4764,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -4708,6 +4829,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -4772,6 +4894,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -4940,6 +5063,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5030,6 +5154,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5146,6 +5271,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5316,23 +5442,24 @@ o
 {
 	Uuid %id{u4{10302277681940548002,5238272716654397167}}
 	s %t{"ezSkyLightComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		s %CubeMap{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+		f %DiffuseIntensity{0xCDCCCC3D}
+		f %DiffuseSaturation{0x0000803F}
 		VarArray %ExcludeTags{}
 		f %FarPlane{0x0000C842}
 		VarArray %IncludeTags
 		{
 			s{"SkyLight"}
 		}
-		f %Intensity{0xCDCCCC3D}
 		f %NearPlane{0}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
-		f %Saturation{0x0000803F}
 		b %ShowDebugInfo{0}
 		b %ShowMipMaps{0}
+		f %SpecularIntensity{0x0000803F}
 	}
 }
 o
@@ -5457,12 +5584,13 @@ o
 {
 	Uuid %id{u4{5402173007543805616,5374977747770218258}}
 	s %t{"ezDirectionalLightComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
+		ColorGamma %EffectiveColor{u1{255,255,255,255}}
 		f %FadeOutStart{0xCDCC4C3F}
 		f %Intensity{0x00000040}
 		ColorGamma %LightColor{u1{255,255,255,255}}
@@ -5470,10 +5598,13 @@ o
 		f %NearPlaneOffset{0x0000C842}
 		u3 %NumCascades{2}
 		f %PenumbraSize{0xCDCCCC3D}
+		b %ScreenSpaceShadows{0}
 		f %SlopeBias{0x0000803E}
+		Angle %SourceAngle{f{0}}
 		f %SpecularMultiplier{0x0000803F}
 		f %SplitModeWeight{0x3333333F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -5806,6 +5937,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5818,6 +5950,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5891,6 +6024,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5964,6 +6098,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5976,6 +6111,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5988,6 +6124,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -6026,6 +6163,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -6038,6 +6176,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -6137,6 +6276,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -6149,6 +6289,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -6248,17 +6389,19 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
 {
 	Uuid %id{u4{2948877671354905678,9963401680686831648}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{1}
@@ -6545,6 +6688,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -6635,6 +6779,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -6699,6 +6844,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -6711,6 +6857,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7041,6 +7188,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7053,6 +7201,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7065,6 +7214,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7077,6 +7227,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7089,6 +7240,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7101,6 +7253,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7113,6 +7266,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7125,6 +7279,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7163,6 +7318,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7175,6 +7331,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7187,6 +7344,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7199,6 +7357,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7237,6 +7396,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7249,6 +7409,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7261,6 +7422,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7273,6 +7435,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7285,6 +7448,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7297,6 +7461,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7309,6 +7474,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7347,6 +7513,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7359,6 +7526,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7397,6 +7565,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7409,6 +7578,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7447,6 +7617,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7485,6 +7656,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7523,6 +7695,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7535,17 +7708,19 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
 {
 	Uuid %id{u4{18159956329779135444,14852565115074175932}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{1}
@@ -7601,6 +7776,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7613,6 +7789,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7651,6 +7828,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7689,6 +7867,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7701,6 +7880,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7713,6 +7893,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7725,6 +7906,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7789,6 +7971,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7801,6 +7984,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7813,6 +7997,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7875,6 +8060,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7913,6 +8099,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7925,6 +8112,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7989,6 +8177,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8001,6 +8190,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8013,6 +8203,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8077,6 +8268,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8167,6 +8359,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8179,6 +8372,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8243,6 +8437,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8255,6 +8450,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8293,6 +8489,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8409,6 +8606,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8473,6 +8671,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8485,6 +8684,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8573,6 +8773,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8713,6 +8914,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8725,6 +8927,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8841,6 +9044,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8853,6 +9057,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8891,6 +9096,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -9005,6 +9211,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -9069,6 +9276,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -9107,6 +9315,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -9119,6 +9328,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -9157,6 +9367,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -9196,6 +9407,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -9286,6 +9498,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -9298,6 +9511,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -9336,6 +9550,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -9453,6 +9668,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -9465,6 +9681,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -9553,6 +9770,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -9799,6 +10017,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -9941,6 +10160,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -9979,6 +10199,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -10148,6 +10369,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -10212,6 +10434,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 36eb4a1f-8289-45fc-875f-0c4e1823a24f }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -10604,6 +10827,23 @@ o
 }
 o
 {
+	Uuid %id{u4{14561188410025902030,6776644216668443091}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDirectionalLightVisualizerAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13649880205026559927,7297274558339895637}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -10735,7 +10975,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeVersion{10}
+		u3 %TypeVersion{11}
 	}
 }
 o
@@ -10769,7 +11009,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDirectionalLightComponent"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -10922,7 +11162,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLightComponent"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o
@@ -10939,7 +11179,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSkyLightComponent"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

@@ -11,6 +11,8 @@ o
 		s %AssetType{"RmlUi"}
 		VarArray %Dependencies
 		{
+			s{"UI/app-menu.rcss"}
+			s{"UI/app-menu.rml"}
 			s{"rmlui-default/assets.rcss"}
 			s{"rmlui-default/button.rcss"}
 			s{"rmlui-default/common.rcss"}
@@ -28,8 +30,6 @@ o
 			s{"rmlui-default/template.rml"}
 			s{"rmlui-default/textarea.rcss"}
 			s{"rmlui-default/window.rcss"}
-			s{"UI/app-menu.rcss"}
-			s{"UI/app-menu.rml"}
 		}
 		Uuid %DocumentID{u4{4962706044385365397,5452667371218815941}}
 		u4 %Hash{7490952393100317776}
@@ -37,6 +37,8 @@ o
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
+			s{"UI/app-menu.rcss"}
+			s{"UI/app-menu.rml"}
 			s{"rmlui-default/assets.png"}
 			s{"rmlui-default/assets.rcss"}
 			s{"rmlui-default/button.rcss"}
@@ -55,11 +57,11 @@ o
 			s{"rmlui-default/template.rml"}
 			s{"rmlui-default/textarea.rcss"}
 			s{"rmlui-default/window.rcss"}
-			s{"UI/app-menu.rcss"}
-			s{"UI/app-menu.rml"}
 		}
 		VarArray %References
 		{
+			s{"UI/app-menu.rcss"}
+			s{"UI/app-menu.rml"}
 			s{"rmlui-default/assets.png"}
 			s{"rmlui-default/assets.rcss"}
 			s{"rmlui-default/button.rcss"}
@@ -78,8 +80,6 @@ o
 			s{"rmlui-default/template.rml"}
 			s{"rmlui-default/textarea.rcss"}
 			s{"rmlui-default/window.rcss"}
-			s{"UI/app-menu.rcss"}
-			s{"UI/app-menu.rml"}
 		}
 		s %Tags{""}
 	}

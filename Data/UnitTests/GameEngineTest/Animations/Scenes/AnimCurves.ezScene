@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6737221474832565165,5594092286149133378}}
-		u4 %Hash{17214627176446734519}
+		u4 %Hash{8950599860336947749}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -269,11 +269,12 @@ o
 {
 	Uuid %id{u4{7207892056901027226,5228498728051847248}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{-1}
@@ -535,7 +536,7 @@ o
 {
 	Uuid %id{u4{5736761515076520850,6040067089425636001}}
 	s %t{"ezDirectionalLightComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -549,7 +550,9 @@ o
 		f %NearPlaneOffset{0x0000C842}
 		u3 %NumCascades{2}
 		f %PenumbraSize{0xCDCCCC3D}
+		b %ScreenSpaceShadows{0}
 		f %SlopeBias{0x0000803E}
+		Angle %SourceAngle{f{0}}
 		f %SpecularMultiplier{0x0000803F}
 		f %SplitModeWeight{0x3333333F}
 		u3 %Temperature{6550}
@@ -1181,6 +1184,23 @@ o
 }
 o
 {
+	Uuid %id{u4{14561188410025902030,6776644216668443091}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDirectionalLightVisualizerAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{3793674575974708228,6951555356482165156}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1346,7 +1366,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeVersion{10}
+		u3 %TypeVersion{11}
 	}
 }
 o
@@ -1380,7 +1400,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDirectionalLightComponent"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{5}
 	}
 }
 o

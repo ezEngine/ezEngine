@@ -16,7 +16,7 @@ o
 			s{"Textures/cc0Textures.com/Gravel05/Gravel05_nrm.jpg"}
 		}
 		Uuid %DocumentID{u4{3646434324422589873,4796895704925058077}}
-		u4 %Hash{8023990327991361606}
+		u4 %Hash{11694830902088464369}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -36,7 +36,7 @@ o
 {
 	Uuid %id{u4{12669874536896540341,5206161081714815390}}
 	s %t{"ezDecalAssetProperties"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		s %AlphaMask{"Kenney.nl/Decals/dirt_03.png"}
@@ -45,6 +45,8 @@ o
 		s %Emissive{""}
 		s %Mode{"ezDecalMode::BaseColorNormal"}
 		s %Normal{"Textures/cc0Textures.com/Gravel05/Gravel05_nrm.jpg"}
+		u1 %NumVariationsX{1}
+		u1 %NumVariationsY{1}
 		s %ORM{""}
 	}
 }
@@ -79,7 +81,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalAssetProperties"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

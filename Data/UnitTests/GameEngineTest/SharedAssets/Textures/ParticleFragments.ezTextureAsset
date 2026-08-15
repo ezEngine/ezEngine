@@ -15,7 +15,7 @@ o
 			s{"Textures/Wood05_col.jpg"}
 		}
 		Uuid %DocumentID{u4{5968746122287565489,5439601218912679928}}
-		u4 %Hash{8004113193367087442}
+		u4 %Hash{17661370713704182698}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -44,6 +44,7 @@ o
 		s %AddressModeV{"ezImageAddressMode::Clamp"}
 		s %AddressModeW{"ezImageAddressMode::Repeat"}
 		f %AlphaThreshold{0x0000003F}
+		VarArray %ArraySlices{}
 		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		s %CompressionMode{"ezTexConvCompressionMode::Medium"}
@@ -55,6 +56,7 @@ o
 		s %Input2{"Textures/FragmentMask.png"}
 		s %Input3{""}
 		s %Input4{""}
+		b %IsArrayTexture{0}
 		b %IsRenderTarget{0}
 		s %MipmapMode{"ezTexConvMipmapMode::Kaiser"}
 		b %PremultipliedAlpha{0}

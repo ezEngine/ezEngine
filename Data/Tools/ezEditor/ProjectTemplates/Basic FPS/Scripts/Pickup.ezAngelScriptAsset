@@ -4,10 +4,11 @@ o
 {
 	Uuid %id{u4{1741191760525315406,1280851677329448731}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		i3 %DefaultValue{0}
 		s %Name{"PickupType"}
 		s %Type{""}
@@ -42,10 +43,11 @@ o
 {
 	Uuid %id{u4{6704993171290264430,6253106898382438576}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		i3 %DefaultValue{10}
 		s %Name{"PickupAmount"}
 		s %Type{""}

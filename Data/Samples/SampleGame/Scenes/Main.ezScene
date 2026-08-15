@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10991936023139991684,4849455965415217685}}
-		u4 %Hash{503404682665130119}
+		u4 %Hash{6594166650692969325}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -392,9 +392,9 @@ o
 		u1 %Columns{4}
 		f %Framerate{0x00000041}
 		b %IsAnimated{1}
-		s %LoopEndAction{"ezOnComponentFinishedAction::None"}
 		u3 %Loops{0}
 		f %MaxScreenSize{0x00008042}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		u1 %Rows{2}
 		f %Size{0x00000040}
 		s %Texture{"{ 96de5ab9-1132-4473-be58-5a01b38209b1 }"}
@@ -836,11 +836,12 @@ o
 {
 	Uuid %id{u4{5728468246473021375,5640181270981460914}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{1}
@@ -5906,7 +5907,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Size"}
 		s %Type{"float"}
 	}
@@ -6231,7 +6232,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::Bitflags|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::Bitflags"}
 		s %Name{"Render"}
 		s %Type{"DebugRenderComponentMask"}
 	}
@@ -6475,7 +6476,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Texture"}
 		s %Type{"ezStringView"}
 	}
@@ -6536,7 +6537,7 @@ o
 		{
 			Uuid{u4{5292690746013776366,4464503012585147109}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"ezSampleGamePlugin"}
@@ -6597,7 +6598,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeVersion{10}
+		u3 %TypeVersion{11}
 	}
 }
 o
@@ -6610,7 +6611,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Array"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Strings"}
 		s %Type{"ezString"}
 	}
@@ -6672,7 +6673,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Speed"}
 		s %Type{"ezAngle"}
 	}
@@ -6705,7 +6706,7 @@ o
 		{
 			Uuid{u4{81258828423743736,10323764175126307326}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"ezSampleGamePlugin"}
@@ -6727,7 +6728,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"CustomData"}
 		s %Type{"ezStringView"}
 	}
@@ -6778,7 +6779,7 @@ o
 		{
 			Uuid{u4{6645067030409768681,4773580002673947494}}
 		}
-		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Flags{""}
 		s %Name{"SetRandomColor"}
 		Uuid %ReturnValue{u4{4987448888517896210,15488457795622515183}}
 		s %Type{"ezFunctionType::Member"}
@@ -6839,7 +6840,7 @@ o
 		{
 			Uuid{u4{11135730192525964575,4819325472927372842}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"ezEnginePluginScene"}
@@ -6918,7 +6919,7 @@ o
 		{
 			Uuid{u4{9307616656214398778,74060862440038773}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions
 		{
 			Uuid{u4{10817056501268642884,11785006206826796245}}
@@ -6963,7 +6964,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Amplitude"}
 		s %Type{"float"}
 	}
@@ -7213,7 +7214,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Bitflags"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezBitflagsBase"}
 		s %PluginName{"ezSampleGamePlugin"}
@@ -7240,7 +7241,7 @@ o
 		{
 			Uuid{u4{4394186426002207539,11995537277210967360}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"ezSampleGamePlugin"}
@@ -7265,7 +7266,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Color"}
 		s %Type{"ezColor"}
 	}

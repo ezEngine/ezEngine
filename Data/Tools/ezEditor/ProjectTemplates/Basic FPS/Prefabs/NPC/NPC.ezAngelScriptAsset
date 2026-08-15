@@ -14,7 +14,7 @@ o
 			s{"Prefabs/NPC/NPC.as"}
 		}
 		Uuid %DocumentID{u4{981445140453169296,5367442747384822956}}
-		u4 %Hash{16021514562684625639}
+		u4 %Hash{4644843852738274058}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17676759846518942032,15911768711045899477}}
@@ -32,10 +32,11 @@ o
 {
 	Uuid %id{u4{17624284939711917475,9430845691497370294}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		i3 %DefaultValue{20}
 		s %Name{"Health"}
 		s %Type{""}

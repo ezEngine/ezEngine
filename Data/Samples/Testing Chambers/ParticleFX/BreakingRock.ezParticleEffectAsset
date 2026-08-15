@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7797394691505756328,5717546376087507856}}
-		u4 %Hash{16862432451753868699}
+		u4 %Hash{11215671853034649391}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4938144042801778044,16029806634705731007}}
@@ -233,6 +233,7 @@ o
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
 		HashedString %Texture{s{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
+		s %TextureOrientation{"ezParticleTextureAtlasOrientation::Up"}
 		HashedString %TintColorParam{s{""}}
 		b %UseCustomMaterial{0}
 	}
@@ -364,6 +365,7 @@ o
 		s %RenderMode{"ezParticleTypeRenderMode::Opaque"}
 		HashedString %Texture{s{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
+		s %TextureOrientation{"ezParticleTextureAtlasOrientation::Up"}
 		HashedString %TintColorParam{s{""}}
 		b %UseCustomMaterial{0}
 	}
@@ -415,6 +417,7 @@ o
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
 		HashedString %Texture{s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
+		s %TextureOrientation{"ezParticleTextureAtlasOrientation::Up"}
 		HashedString %TintColorParam{s{""}}
 		b %UseCustomMaterial{0}
 	}
@@ -731,6 +734,7 @@ o
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
 		HashedString %Texture{s{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
+		s %TextureOrientation{"ezParticleTextureAtlasOrientation::Up"}
 		HashedString %TintColorParam{s{""}}
 		b %UseCustomMaterial{0}
 	}
@@ -1392,6 +1396,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16412282250269376247,15152311001237269853}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleTextureAtlasOrientation"}
 		u3 %TypeVersion{1}
 	}
 }

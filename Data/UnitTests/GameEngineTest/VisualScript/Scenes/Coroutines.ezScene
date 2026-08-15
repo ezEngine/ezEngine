@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1558508307185436176,10609967440189914702}}
-		u4 %Hash{14234312799322815557}
+		u4 %Hash{16922124122869006096}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -24,7 +24,6 @@ o
 		{
 			s{"{ 1e3694a1-abdf-46e6-81fe-bf87a86ccb89 }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
-			s{"{ ae151f5f-7bb2-439d-8618-0107c8b14abf }"}
 		}
 		s %Tags{""}
 	}
@@ -78,7 +77,7 @@ o
 {
 	Uuid %id{u4{5928311170045813427,5736078378357511095}}
 	s %t{"ezScriptComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -90,6 +89,7 @@ o
 		b %PassThroughUnhandledEvents{0}
 		s %ScriptClass{"{ ae151f5f-7bb2-439d-8618-0107c8b14abf }"}
 		Time %UpdateInterval{d{0}}
+		b %UpdateOnlyWhenSimulating{1}
 	}
 }
 o
@@ -163,11 +163,12 @@ o
 {
 	Uuid %id{u4{18052859549053791259,10323889566082963863}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{0}
@@ -233,7 +234,7 @@ o
 {
 	Uuid %id{u4{13762237868283746926,10634896645953069832}}
 	s %t{"ezScriptComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -245,6 +246,7 @@ o
 		b %PassThroughUnhandledEvents{0}
 		s %ScriptClass{"{ ae151f5f-7bb2-439d-8618-0107c8b14abf }"}
 		Time %UpdateInterval{d{0}}
+		b %UpdateOnlyWhenSimulating{1}
 	}
 }
 o
@@ -296,7 +298,7 @@ o
 {
 	Uuid %id{u4{746858302912539229,11422594526920820630}}
 	s %t{"ezScriptComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -308,6 +310,7 @@ o
 		b %PassThroughUnhandledEvents{0}
 		s %ScriptClass{"{ ae151f5f-7bb2-439d-8618-0107c8b14abf }"}
 		Time %UpdateInterval{d{0}}
+		b %UpdateOnlyWhenSimulating{1}
 	}
 }
 o
@@ -436,7 +439,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezScriptComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -657,7 +660,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeVersion{10}
+		u3 %TypeVersion{11}
 	}
 }
 o

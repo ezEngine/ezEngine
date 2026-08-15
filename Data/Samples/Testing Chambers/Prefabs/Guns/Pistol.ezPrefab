@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2349339074366315434,4906677151402437899}}
-		u4 %Hash{1898323386774219959}
+		u4 %Hash{7957647423920308261}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{11367373151189106590,2371794861992361142}}
@@ -447,7 +447,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"ChangeNotificationMsg"}
 		s %Type{"ezHashedString"}
 	}
@@ -498,7 +498,7 @@ o
 		{
 			Uuid{u4{11637971117603006084,14292030950317958728}}
 		}
-		s %Flags{"ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::Const"}
 		s %Name{"GetCurrentEndPosition"}
 		Uuid %ReturnValue{u4{632586425533189285,11093487834925551082}}
 		s %Type{"ezFunctionType::Member"}
@@ -656,7 +656,7 @@ o
 			Uuid{u4{332770216676690207,9811877866925304636}}
 			Uuid{u4{5718272066365183534,168166218017990600}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions
 		{
 			Uuid{u4{11394303463960899770,15952487219636143288}}
@@ -691,7 +691,7 @@ o
 		{
 			Uuid{u4{16400533205280224957,7746136023949980391}}
 		}
-		s %Flags{"ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::Const"}
 		s %Name{"HasHit"}
 		Uuid %ReturnValue{u4{12776570162159086252,5585968534977463480}}
 		s %Type{"ezFunctionType::Member"}
@@ -707,7 +707,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"ForceTargetParentless"}
 		s %Type{"bool"}
 	}
@@ -825,7 +825,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::Bitflags|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::Bitflags"}
 		s %Name{"ShapeTypesToHit"}
 		s %Type{"ezPhysicsShapeType"}
 	}
@@ -933,7 +933,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const"}
 		s %Name{"RaycastEndObject"}
 		s %Type{"ezConstCharPtr"}
 	}
@@ -1115,7 +1115,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"CollisionLayerEndPoint"}
 		s %Type{"ezUInt8"}
 	}
@@ -1181,7 +1181,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"DisableTargetObjectOnNoHit"}
 		s %Type{"bool"}
 	}
@@ -1236,7 +1236,7 @@ o
 		{
 			Uuid{u4{8309512214903188888,6629470180994253561}}
 		}
-		s %Flags{"ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::Const"}
 		s %Name{"GetCurrentDistance"}
 		Uuid %ReturnValue{u4{13356499679824981814,8306341926714315077}}
 		s %Type{"ezFunctionType::Member"}
@@ -1307,7 +1307,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"MaxDistance"}
 		s %Type{"float"}
 	}

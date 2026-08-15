@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8884069562381893537,5133694489471110196}}
-		u4 %Hash{1679580433601388862}
+		u4 %Hash{8749304629873784033}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{9423080552313415996,6970566037223323295}}
@@ -107,6 +107,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ c7199d47-7252-4516-80ed-ff340bace24c }"}
 		f %SortingDepthOffset{0}
@@ -116,19 +117,24 @@ o
 {
 	Uuid %id{u4{11854936073178270135,4842934235913119802}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{2}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
+		ColorGamma %EffectiveColor{u1{255,255,255,255}}
 		f %Intensity{0x0000803F}
+		f %Length{0}
 		ColorGamma %LightColor{u1{234,255,0,255}}
 		f %PenumbraSize{0xCDCCCC3D}
+		f %Radius{0}
 		f %Range{0}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -141,6 +147,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ f78d56a7-c36c-4c44-bcc2-4cf619cecbe9 }"}
 		f %SortingDepthOffset{0}
@@ -247,6 +254,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 873e3738-dc4d-40b0-93e8-236c2dd3165d }"}
@@ -332,6 +340,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 873e3738-dc4d-40b0-93e8-236c2dd3165d }"}
@@ -378,19 +387,24 @@ o
 {
 	Uuid %id{u4{5731749485467625796,9630732751161409669}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{2}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
+		ColorGamma %EffectiveColor{u1{255,255,255,255}}
 		f %Intensity{0x0000803F}
+		f %Length{0}
 		ColorGamma %LightColor{u1{234,255,0,255}}
 		f %PenumbraSize{0xCDCCCC3D}
+		f %Radius{0}
 		f %Range{0}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -486,6 +500,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 873e3738-dc4d-40b0-93e8-236c2dd3165d }"}
@@ -498,19 +513,24 @@ o
 {
 	Uuid %id{u4{12076590051557296486,10412259809486932053}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{2}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
+		ColorGamma %EffectiveColor{u1{255,255,255,255}}
 		f %Intensity{0x0000803F}
+		f %Length{0}
 		ColorGamma %LightColor{u1{234,255,0,255}}
 		f %PenumbraSize{0xCDCCCC3D}
+		f %Radius{0}
 		f %Range{0}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -542,6 +562,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 873e3738-dc4d-40b0-93e8-236c2dd3165d }"}
@@ -600,19 +621,24 @@ o
 {
 	Uuid %id{u4{5953403463846652147,15200058324735221920}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{2}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
+		ColorGamma %EffectiveColor{u1{255,255,255,255}}
 		f %Intensity{0x0000803F}
+		f %Length{0}
 		ColorGamma %LightColor{u1{234,255,0,255}}
 		f %PenumbraSize{0xCDCCCC3D}
+		f %Radius{0}
 		f %Range{0}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -824,7 +850,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -953,7 +979,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"SelectionRadius"}
 		s %Type{"float"}
 	}
@@ -1006,7 +1032,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPointLightComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -1091,7 +1117,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLightComponent"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o
@@ -1122,10 +1148,10 @@ o
 		{
 			Uuid{u4{17906083898790416704,16927462418403001468}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"ezRtsGamePlugin"}
+		s %PluginName{"RTSPlugin"}
 		VarArray %Properties
 		{
 			Uuid{u4{17236878414024740744,10236477642501144816}}

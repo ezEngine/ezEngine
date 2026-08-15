@@ -15,7 +15,7 @@ o
 			s{"{ 62d40fa4-f74f-462b-a5de-84941069cdd2 }"}
 		}
 		Uuid %DocumentID{u4{486148939000192446,5710267355810385475}}
-		u4 %Hash{2021479710797104281}
+		u4 %Hash{407583407003416225}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -1742,7 +1742,7 @@ o
 		{
 			Uuid{u4{5802617769852181817,18308485572063932567}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezRenderComponent"}
 		s %PluginName{"ezGameComponentsPlugin"}
@@ -1919,7 +1919,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Damping"}
 		s %Type{"float"}
 	}
@@ -2147,7 +2147,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Color"}
 		s %Type{"ezColor"}
 	}
@@ -2250,7 +2250,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Slack"}
 		s %Type{"ezVec2"}
 	}
@@ -2341,7 +2341,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Material"}
 		s %Type{"ezStringView"}
 	}
@@ -2356,7 +2356,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::Bitflags|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::Bitflags"}
 		s %Name{"Flags"}
 		s %Type{"ezClothSheetFlags"}
 	}
@@ -2369,7 +2369,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Bitflags"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezBitflagsBase"}
 		s %PluginName{"ezGameComponentsPlugin"}
@@ -2491,7 +2491,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Size"}
 		s %Type{"ezVec2"}
 	}
@@ -2599,7 +2599,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"WindInfluence"}
 		s %Type{"float"}
 	}
@@ -2678,7 +2678,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Segments"}
 		s %Type{"ezVec2U32"}
 	}

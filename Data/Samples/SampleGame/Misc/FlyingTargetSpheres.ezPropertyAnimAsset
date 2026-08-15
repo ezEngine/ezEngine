@@ -11,7 +11,7 @@ o
 		s %AssetType{"PropertyAnim"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5128363452708663971,5303639935987779633}}
-		u4 %Hash{15982282927142561844}
+		u4 %Hash{4598357480561526960}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -24,9 +24,9 @@ Objects
 {
 o
 {
-	Uuid %id{u4{2025567277842583838,863267675226247267}}
-	s %t{"ezColorGradientAssetData"}
-	u3 %v{2}
+	Uuid %id{u4{17047070547183785616,237831806799317608}}
+	s %t{"ezColorGradient"}
+	u3 %v{1}
 	p
 	{
 		VarArray %AlphaCPs{}
@@ -36,9 +36,29 @@ o
 }
 o
 {
+	Uuid %id{u4{2025567277842583838,863267675226247267}}
+	s %t{"ezColorGradientAssetData"}
+	u3 %v{3}
+	p
+	{
+		Uuid %Gradient{u4{18271125949779662135,8823042412396366326}}
+	}
+}
+o
+{
 	Uuid %id{u4{11650168429668162493,1232657814387603344}}
 	s %t{"ezColorGradientAssetData"}
-	u3 %v{2}
+	u3 %v{3}
+	p
+	{
+		Uuid %Gradient{u4{10381276528360001690,5739764777356164608}}
+	}
+}
+o
+{
+	Uuid %id{u4{17950385669993783288,1725971996795142127}}
+	s %t{"ezColorGradient"}
+	u3 %v{1}
 	p
 	{
 		VarArray %AlphaCPs{}
@@ -50,12 +70,10 @@ o
 {
 	Uuid %id{u4{16006015172906670806,2749191619980266560}}
 	s %t{"ezColorGradientAssetData"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
-		VarArray %AlphaCPs{}
-		VarArray %ColorCPs{}
-		VarArray %IntensityCPs{}
+		Uuid %Gradient{u4{6309606649591894511,10444211416483781954}}
 	}
 }
 o
@@ -88,12 +106,10 @@ o
 {
 	Uuid %id{u4{9411180607548521182,3038008874084446276}}
 	s %t{"ezColorGradientAssetData"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
-		VarArray %AlphaCPs{}
-		VarArray %ColorCPs{}
-		VarArray %IntensityCPs{}
+		Uuid %Gradient{u4{13634825484634651300,16298755442134306321}}
 	}
 }
 o
@@ -118,6 +134,18 @@ o
 			Uuid{u4{8986966661232988826,5337198681310581627}}
 			Uuid{u4{18371290994398282427,5287981424752841650}}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{13817346130085004223,4490126011366594214}}
+	s %t{"ezColorGradient"}
+	u3 %v{1}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
 	}
 }
 o
@@ -2215,6 +2243,18 @@ o
 }
 o
 {
+	Uuid %id{u4{10381276528360001690,5739764777356164608}}
+	s %t{"ezColorGradient"}
+	u3 %v{1}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
 	Uuid %id{u4{3962214357495183499,5758978598781991980}}
 	s %t{"ezCurveControlPointData"}
 	u3 %v{5}
@@ -2263,19 +2303,27 @@ o
 {
 	Uuid %id{u4{11341709027873161474,6816110972756365774}}
 	s %t{"ezColorGradientAssetData"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
-		VarArray %AlphaCPs{}
-		VarArray %ColorCPs{}
-		VarArray %IntensityCPs{}
+		Uuid %Gradient{u4{7840405158336505098,10055049525066443127}}
 	}
 }
 o
 {
 	Uuid %id{u4{17920981004725202737,6910932745215946542}}
 	s %t{"ezColorGradientAssetData"}
-	u3 %v{2}
+	u3 %v{3}
+	p
+	{
+		Uuid %Gradient{u4{7848098407359862712,10946817920181580679}}
+	}
+}
+o
+{
+	Uuid %id{u4{432745095367763147,7907028507016330444}}
+	s %t{"ezColorGradient"}
+	u3 %v{1}
 	p
 	{
 		VarArray %AlphaCPs{}
@@ -2306,9 +2354,67 @@ o
 }
 o
 {
+	Uuid %id{u4{18271125949779662135,8823042412396366326}}
+	s %t{"ezColorGradient"}
+	u3 %v{1}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
+	Uuid %id{u4{7840405158336505098,10055049525066443127}}
+	s %t{"ezColorGradient"}
+	u3 %v{1}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
+	Uuid %id{u4{505539594710597009,10109883774949713181}}
+	s %t{"ezColorGradient"}
+	u3 %v{1}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
 	Uuid %id{u4{15596115972570261692,10425453435356020658}}
 	s %t{"ezColorGradientAssetData"}
-	u3 %v{2}
+	u3 %v{3}
+	p
+	{
+		Uuid %Gradient{u4{13817346130085004223,4490126011366594214}}
+	}
+}
+o
+{
+	Uuid %id{u4{6309606649591894511,10444211416483781954}}
+	s %t{"ezColorGradient"}
+	u3 %v{1}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs{}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
+	Uuid %id{u4{7848098407359862712,10946817920181580679}}
+	s %t{"ezColorGradient"}
+	u3 %v{1}
 	p
 	{
 		VarArray %AlphaCPs{}
@@ -2423,31 +2529,37 @@ o
 {
 	Uuid %id{u4{15672834365303949156,14543475401296534441}}
 	s %t{"ezColorGradientAssetData"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
-		VarArray %AlphaCPs{}
-		VarArray %ColorCPs{}
-		VarArray %IntensityCPs{}
+		Uuid %Gradient{u4{17047070547183785616,237831806799317608}}
 	}
 }
 o
 {
 	Uuid %id{u4{896935904810067951,15359406525082911798}}
 	s %t{"ezColorGradientAssetData"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
-		VarArray %AlphaCPs{}
-		VarArray %ColorCPs{}
-		VarArray %IntensityCPs{}
+		Uuid %Gradient{u4{17950385669993783288,1725971996795142127}}
 	}
 }
 o
 {
 	Uuid %id{u4{5009551657683557007,15707664854609950044}}
 	s %t{"ezColorGradientAssetData"}
-	u3 %v{2}
+	u3 %v{3}
+	p
+	{
+		Uuid %Gradient{u4{505539594710597009,10109883774949713181}}
+	}
+}
+o
+{
+	Uuid %id{u4{13634825484634651300,16298755442134306321}}
+	s %t{"ezColorGradient"}
+	u3 %v{1}
 	p
 	{
 		VarArray %AlphaCPs{}
@@ -2459,7 +2571,17 @@ o
 {
 	Uuid %id{u4{4687249596319950022,17227911799916197592}}
 	s %t{"ezColorGradientAssetData"}
-	u3 %v{2}
+	u3 %v{3}
+	p
+	{
+		Uuid %Gradient{u4{432745095367763147,7907028507016330444}}
+	}
+}
+o
+{
+	Uuid %id{u4{14708870843466626478,17372970513725252526}}
+	s %t{"ezColorGradient"}
+	u3 %v{1}
 	p
 	{
 		VarArray %AlphaCPs{}
@@ -2471,12 +2593,10 @@ o
 {
 	Uuid %id{u4{3246497072773978850,17874028905028045775}}
 	s %t{"ezColorGradientAssetData"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
-		VarArray %AlphaCPs{}
-		VarArray %ColorCPs{}
-		VarArray %IntensityCPs{}
+		Uuid %Gradient{u4{14708870843466626478,17372970513725252526}}
 	}
 }
 o
@@ -2598,23 +2718,6 @@ o
 }
 o
 {
-	Uuid %id{u4{9491473581377719452,4451399860225586302}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginAssets"}
-		VarArray %Properties{}
-		s %TypeName{"ezAlphaControlPoint"}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
 	Uuid %id{u4{10475186617569707554,5730318259636107165}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -2649,7 +2752,7 @@ o
 }
 o
 {
-	Uuid %id{u4{4645803681883095669,7506122234867881289}}
+	Uuid %id{u4{6631209941035484764,6473122775586822239}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -2657,11 +2760,11 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginAssets"}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezIntensityControlPoint"}
-		u3 %TypeVersion{2}
+		s %TypeName{"ezColorGradientIntensityCP"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -2678,6 +2781,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16010672675562525890,8910430727997280259}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorGradient"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2712,7 +2832,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezColorGradientAssetData"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -2730,23 +2850,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPropertyAnimationTrackGroup"}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{13088963179257465887,12792043508414429321}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginAssets"}
-		VarArray %Properties{}
-		s %TypeName{"ezColorControlPoint"}
-		u3 %TypeVersion{2}
 	}
 }
 o
@@ -2780,6 +2883,40 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11071188783797134895,15407408096802728321}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorGradientColorCP"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6447122151843742996,17608929579605804179}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorGradientAlphaCP"}
 		u3 %TypeVersion{1}
 	}
 }

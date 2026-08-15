@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5847927432981833100,4649527612073338994}}
-		u4 %Hash{710452690054549743}
+		u4 %Hash{12302043942107728893}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5992425805781726611,8562620191701079606}}
@@ -95,7 +95,7 @@ o
 {
 	Uuid %id{u4{1600636503591165623,5661635018392561255}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -103,8 +103,10 @@ o
 		f %ConstantBias{0xCDCCCC3D}
 		ColorGamma %EffectiveColor{u1{255,255,255,255}}
 		f %Intensity{0x0000A040}
+		f %Length{0}
 		ColorGamma %LightColor{u1{242,255,0,255}}
 		f %PenumbraSize{0xCDCCCC3D}
+		f %Radius{0}
 		f %Range{0x0000A040}
 		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
@@ -189,7 +191,7 @@ o
 		{
 			Uuid{u4{15968480430941414509,9943324065167619333}}
 		}
-		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Flags{""}
 		s %Name{"Stop"}
 		Uuid %ReturnValue{u4{9929403954837631675,12518282729196522558}}
 		s %Type{"ezFunctionType::Member"}
@@ -261,10 +263,11 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{16119137772014719694,9589609959097633653}}
+			Uuid{u4{11787699256205479902,12697099033542640329}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Sound"}
 		s %Type{"ezStringView"}
 	}
@@ -297,7 +300,7 @@ o
 		{
 			Uuid{u4{10927651418804751325,12514111582462821626}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions
 		{
 			Uuid{u4{4065944160951397251,4543404691927671867}}
@@ -335,7 +338,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Pitch"}
 		s %Type{"float"}
 	}
@@ -352,7 +355,7 @@ o
 		{
 			Uuid{u4{9735481140438559066,13461405738053266214}}
 		}
-		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Flags{""}
 		s %Name{"Play"}
 		Uuid %ReturnValue{u4{17953891867419186591,2041200610504206215}}
 		s %Type{"ezFunctionType::Member"}
@@ -390,7 +393,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::IsEnum"}
 		s %Name{"OnFinishedAction"}
 		s %Type{"ezOnComponentFinishedAction2"}
 	}
@@ -467,7 +470,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"NoGlobalPitch"}
 		s %Type{"bool"}
 	}
@@ -599,7 +602,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Volume"}
 		s %Type{"float"}
 	}
@@ -643,7 +646,7 @@ o
 		{
 			Uuid{u4{14104805980652648570,8426172019457079889}}
 		}
-		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Flags{""}
 		s %Name{"Pause"}
 		Uuid %ReturnValue{u4{12947991332431115400,9904619820678688557}}
 		s %Type{"ezFunctionType::Member"}
@@ -680,7 +683,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPointLightComponent"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -712,7 +715,7 @@ o
 		{
 			Uuid{u4{17464991445712172678,15761822338941112025}}
 		}
-		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Flags{""}
 		s %Name{"StartOneShot"}
 		Uuid %ReturnValue{u4{5944452786959486061,314585235827350796}}
 		s %Type{"ezFunctionType::Member"}
@@ -738,6 +741,13 @@ o
 		s %Flags{""}
 		s %Type{""}
 	}
+}
+o
+{
+	Uuid %id{u4{11787699256205479902,12697099033542640329}}
+	s %t{"ezRequiredAttribute"}
+	u3 %v{1}
+	p{}
 }
 o
 {
@@ -809,7 +819,7 @@ o
 		{
 			Uuid{u4{10472113501323793213,11660486632732281280}}
 		}
-		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Flags{""}
 		s %Name{"FadeOut"}
 		Uuid %ReturnValue{u4{16920252989059572756,5938961656698343188}}
 		s %Type{"ezFunctionType::Member"}
@@ -825,7 +835,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Paused"}
 		s %Type{"bool"}
 	}

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{13150164362031170641}
+		u4 %Hash{6430462486152975807}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -4976,7 +4976,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -6048,7 +6048,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -6818,7 +6818,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -7707,7 +7707,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -8984,7 +8984,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -9717,7 +9717,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -9819,7 +9819,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -10340,7 +10340,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{1}
 	}
 }
@@ -10891,7 +10891,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{1}
 	}
 }
@@ -11178,7 +11178,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -11700,7 +11700,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeY"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -12324,7 +12324,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -12406,7 +12406,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -12511,7 +12511,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -12730,7 +12730,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -13082,7 +13082,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0x000000C0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{1}
 	}
 }
@@ -15687,7 +15687,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{1}
 	}
 }
@@ -16024,7 +16024,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -17030,7 +17030,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -17345,7 +17345,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -17489,7 +17489,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -21346,7 +21346,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -23676,7 +23676,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0x000080BF}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -25425,7 +25425,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{1}
 	}
 }
@@ -26320,7 +26320,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -27442,7 +27442,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -28490,7 +28490,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{1}
 	}
 }
@@ -28730,7 +28730,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -29227,7 +29227,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -29753,7 +29753,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -33219,7 +33219,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -35949,7 +35949,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -38772,7 +38772,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -40118,7 +40118,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -40482,7 +40482,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
-		u1 %Variation{0}
+		i1 %Variation{0}
 		b %WrapAround{0}
 	}
 }
@@ -41777,7 +41777,7 @@ o
 		{
 			Uuid{u4{5802617769852181817,18308485572063932567}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezRenderComponent"}
 		s %PluginName{"ezGameComponentsPlugin"}
@@ -41912,7 +41912,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Slack"}
 		s %Type{"float"}
 	}
@@ -42166,7 +42166,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Damping"}
 		s %Type{"float"}
 	}
@@ -42184,7 +42184,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const"}
 		s %Name{"Anchor2"}
 		s %Type{"ezConstCharPtr"}
 	}
@@ -42567,7 +42567,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"GenerateCollision"}
 		s %Type{"bool"}
 	}
@@ -42881,7 +42881,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"WindInfluence"}
 		s %Type{"float"}
 	}
@@ -43089,7 +43089,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Color"}
 		s %Type{"ezColor"}
 	}
@@ -43367,7 +43367,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Slack"}
 		s %Type{"ezVec2"}
 	}
@@ -43542,7 +43542,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const"}
 		s %Name{"Anchor1"}
 		s %Type{"ezConstCharPtr"}
 	}
@@ -43561,7 +43561,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Material"}
 		s %Type{"ezStringView"}
 	}
@@ -43580,7 +43580,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Material"}
 		s %Type{"ezStringView"}
 	}
@@ -43595,7 +43595,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::Bitflags|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::Bitflags"}
 		s %Name{"Flags"}
 		s %Type{"ezClothSheetFlags"}
 	}
@@ -43657,7 +43657,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"TexCoordOffset"}
 		s %Type{"ezVec2"}
 	}
@@ -43686,7 +43686,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"HeightfieldImage"}
 		s %Type{"ezStringView"}
 	}
@@ -43716,7 +43716,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Bitflags"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezBitflagsBase"}
 		s %PluginName{"ezGameComponentsPlugin"}
@@ -43928,7 +43928,7 @@ o
 		{
 			Uuid{u4{11135730192525964575,4819325472927372842}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"ezEnginePluginScene"}
@@ -44018,7 +44018,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"AttachToAnchor2"}
 		s %Type{"bool"}
 	}
@@ -44060,7 +44060,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"ColMeshTesselation"}
 		s %Type{"ezVec2U32"}
 	}
@@ -44125,7 +44125,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Pieces"}
 		s %Type{"ezUInt16"}
 	}
@@ -44143,7 +44143,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Size"}
 		s %Type{"ezVec2"}
 	}
@@ -44276,7 +44276,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"HalfExtents"}
 		s %Type{"ezVec2"}
 	}
@@ -44435,7 +44435,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"WindInfluence"}
 		s %Type{"float"}
 	}
@@ -44451,7 +44451,7 @@ o
 		{
 			Uuid{u4{17654592137702273444,14514761658005918797}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezRenderComponent"}
 		s %PluginName{"ezGameComponentsPlugin"}
@@ -44516,7 +44516,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Tesselation"}
 		s %Type{"ezVec2U32"}
 	}
@@ -44679,7 +44679,7 @@ o
 		{
 			Uuid{u4{16926606112713825711,15125819195690914266}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"ezGameComponentsPlugin"}
@@ -44711,7 +44711,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"AttachToAnchor1"}
 		s %Type{"bool"}
 	}
@@ -44756,7 +44756,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"TexCoordScale"}
 		s %Type{"ezVec2"}
 	}
@@ -44792,7 +44792,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Segments"}
 		s %Type{"ezVec2U32"}
 	}
@@ -44811,7 +44811,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Damping"}
 		s %Type{"float"}
 	}
@@ -44863,7 +44863,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Height"}
 		s %Type{"float"}
 	}

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10056465815060854913,4878055157009074052}}
-		u4 %Hash{10008101256517026674}
+		u4 %Hash{6833501262256082698}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{10134795862493884603,10855970841238033761}}
@@ -400,7 +400,7 @@ o
 {
 	Uuid %id{u4{15771705246605106901,18423748970861364448}}
 	s %t{"ezAiVoxelNavigationComponent"}
-	u3 %v{5}
+	u3 %v{1}
 	p
 	{
 		f %Acceleration{0x00007041}
@@ -1031,7 +1031,7 @@ o
 		s %PluginName{"ezEditorPluginAi"}
 		VarArray %Properties{}
 		s %TypeName{"ezAiVoxelNavigationComponent"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{1}
 	}
 }
 o

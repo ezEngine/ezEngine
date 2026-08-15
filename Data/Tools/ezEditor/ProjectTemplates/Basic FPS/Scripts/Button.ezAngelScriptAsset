@@ -4,10 +4,11 @@ o
 {
 	Uuid %id{u4{9802559758680817375,368654209392245806}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		HashedString %DefaultValue{s{"button"}}
 		s %Name{"ButtonName"}
 		s %Type{""}
@@ -24,7 +25,7 @@ o
 		s %AssetType{"AngelScript"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1661616328889315726,4787509409258167820}}
-		u4 %Hash{11005517562791313844}
+		u4 %Hash{4626631658830565382}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3032508835187416422,9359457324231832586}}

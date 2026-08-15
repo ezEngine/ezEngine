@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11063916223884150186,5309000951926907106}}
-		u4 %Hash{16284529534401557415}
+		u4 %Hash{12554362884665974105}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{12875955975058824341,16279626489739883300}}
@@ -49,7 +49,7 @@ o
 {
 	Uuid %id{u4{2640027058983626685,4927981230267584556}}
 	s %t{"ezScriptComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -58,6 +58,7 @@ o
 		b %PassThroughUnhandledEvents{0}
 		s %ScriptClass{"{ c03c8f0d-cf77-4718-a0c4-b5ec87934ad3 }"}
 		Time %UpdateInterval{d{0}}
+		b %UpdateOnlyWhenSimulating{1}
 	}
 }
 o
@@ -298,7 +299,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezScriptComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

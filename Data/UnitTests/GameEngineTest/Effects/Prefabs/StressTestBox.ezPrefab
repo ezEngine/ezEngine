@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5738187462519054215,5043049208591632927}}
-		u4 %Hash{14288594841490473839}
+		u4 %Hash{13725003750781223099}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{12253424252229723543,6232657564107333162}}
@@ -53,7 +53,7 @@ o
 {
 	Uuid %id{u4{9080154956556165420,264605384929865824}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -78,6 +78,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		i1 %Variation{-1}
 		b %WrapAround{0}
 	}
 }
@@ -137,19 +138,24 @@ o
 {
 	Uuid %id{u4{5511756960517546770,550361347887170877}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{2}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
+		ColorGamma %EffectiveColor{u1{255,255,255,255}}
 		f %Intensity{0x00000041}
+		f %Length{0}
 		ColorGamma %LightColor{u1{0,246,255,255}}
 		f %PenumbraSize{0xCDCCCC3D}
+		f %Radius{0}
 		f %Range{0}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -219,21 +225,29 @@ o
 {
 	Uuid %id{u4{3000765331577319077,5310546531101743469}}
 	s %t{"ezSpotLightComponent"}
-	u3 %v{2}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
+		s %Cookie{""}
+		ColorGamma %EffectiveColor{u1{255,255,255,255}}
 		Angle %InnerSpotAngle{f{0xFF915D3F}}
 		f %Intensity{0x00000041}
 		ColorGamma %LightColor{u1{255,0,0,255}}
+		s %Material{""}
+		u3 %MaterialResolution{512}
+		Time %MaterialUpdateInterval{d{0}}
 		Angle %OuterSpotAngle{f{0x67A8BB3F}}
 		f %PenumbraSize{0xCDCCCC3D}
+		f %Radius{0}
 		f %Range{0}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -241,19 +255,24 @@ o
 {
 	Uuid %id{u4{9205515601979607231,5353507289837204484}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{2}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
+		ColorGamma %EffectiveColor{u1{255,255,255,255}}
 		f %Intensity{0x00000041}
+		f %Length{0}
 		ColorGamma %LightColor{u1{0,255,238,255}}
 		f %PenumbraSize{0xCDCCCC3D}
+		f %Radius{0}
 		f %Range{0}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -313,7 +332,7 @@ o
 {
 	Uuid %id{u4{9919238228125523081,5660812124147776176}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -338,6 +357,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		i1 %Variation{-1}
 		b %WrapAround{0}
 	}
 }
@@ -345,7 +365,7 @@ o
 {
 	Uuid %id{u4{13380091108202149513,5672644163530117425}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -370,6 +390,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
+		i1 %Variation{-1}
 		b %WrapAround{0}
 	}
 }
@@ -429,6 +450,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
@@ -522,7 +544,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalComponent"}
-		u3 %TypeVersion{8}
+		u3 %TypeVersion{9}
 	}
 }
 o
@@ -658,7 +680,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -828,7 +850,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPointLightComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -896,7 +918,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSpotLightComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -930,7 +952,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLightComponent"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o

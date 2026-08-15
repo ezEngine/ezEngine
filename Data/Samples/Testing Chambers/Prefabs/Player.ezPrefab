@@ -53,7 +53,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{8179774754410222}
+		u4 %Hash{1062140857996545025}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -1037,7 +1037,7 @@ o
 		{
 			Uuid{u4{8083278282235990733,2757185883630152316}}
 		}
-		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Flags{""}
 		s %Name{"ChangeVerticalRotation"}
 		Uuid %ReturnValue{u4{2448407772555898851,17265378229107787244}}
 		s %Type{"ezFunctionType::Member"}
@@ -1278,7 +1278,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"VerticalRotation"}
 		s %Type{"ezAngle"}
 	}
@@ -1294,7 +1294,7 @@ o
 		{
 			Uuid{u4{15997051750376851395,14668084013972423355}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions
 		{
 			Uuid{u4{15093611370804606315,7580360147947761007}}
@@ -1563,7 +1563,7 @@ o
 		{
 			Uuid{u4{17779299188105832332,15834962022850149140}}
 		}
-		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Flags{""}
 		s %Name{"SetVerticalRotation"}
 		Uuid %ReturnValue{u4{17048005995112613167,12709093908070255887}}
 		s %Type{"ezFunctionType::Member"}

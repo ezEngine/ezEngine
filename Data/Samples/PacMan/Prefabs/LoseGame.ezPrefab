@@ -196,7 +196,7 @@ o
 		{
 			Uuid{u4{15968480430941414509,9943324065167619333}}
 		}
-		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Flags{""}
 		s %Name{"Stop"}
 		Uuid %ReturnValue{u4{9929403954837631675,12518282729196522558}}
 		s %Type{"ezFunctionType::Member"}
@@ -268,10 +268,11 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{16119137772014719694,9589609959097633653}}
+			Uuid{u4{11787699256205479902,12697099033542640329}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Sound"}
 		s %Type{"ezStringView"}
 	}
@@ -304,7 +305,7 @@ o
 		{
 			Uuid{u4{10927651418804751325,12514111582462821626}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions
 		{
 			Uuid{u4{4065944160951397251,4543404691927671867}}
@@ -342,7 +343,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Pitch"}
 		s %Type{"float"}
 	}
@@ -359,7 +360,7 @@ o
 		{
 			Uuid{u4{9735481140438559066,13461405738053266214}}
 		}
-		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Flags{""}
 		s %Name{"Play"}
 		Uuid %ReturnValue{u4{17953891867419186591,2041200610504206215}}
 		s %Type{"ezFunctionType::Member"}
@@ -397,7 +398,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::IsEnum"}
 		s %Name{"OnFinishedAction"}
 		s %Type{"ezOnComponentFinishedAction2"}
 	}
@@ -440,7 +441,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"NoGlobalPitch"}
 		s %Type{"bool"}
 	}
@@ -589,7 +590,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Volume"}
 		s %Type{"float"}
 	}
@@ -633,7 +634,7 @@ o
 		{
 			Uuid{u4{14104805980652648570,8426172019457079889}}
 		}
-		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Flags{""}
 		s %Name{"Pause"}
 		Uuid %ReturnValue{u4{12947991332431115400,9904619820678688557}}
 		s %Type{"ezFunctionType::Member"}
@@ -685,7 +686,7 @@ o
 		{
 			Uuid{u4{17464991445712172678,15761822338941112025}}
 		}
-		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Flags{""}
 		s %Name{"StartOneShot"}
 		Uuid %ReturnValue{u4{5944452786959486061,314585235827350796}}
 		s %Type{"ezFunctionType::Member"}
@@ -711,6 +712,13 @@ o
 		s %Flags{""}
 		s %Type{""}
 	}
+}
+o
+{
+	Uuid %id{u4{11787699256205479902,12697099033542640329}}
+	s %t{"ezRequiredAttribute"}
+	u3 %v{1}
+	p{}
 }
 o
 {
@@ -765,7 +773,7 @@ o
 		{
 			Uuid{u4{10472113501323793213,11660486632732281280}}
 		}
-		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Flags{""}
 		s %Name{"FadeOut"}
 		Uuid %ReturnValue{u4{16920252989059572756,5938961656698343188}}
 		s %Type{"ezFunctionType::Member"}
@@ -781,7 +789,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Paused"}
 		s %Type{"bool"}
 	}

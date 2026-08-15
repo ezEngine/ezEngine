@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17452682337642202802,5103648586153821917}}
-		u4 %Hash{8431741769381933055}
+		u4 %Hash{8785050554661053055}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2167383663703894676,15535504703904649329}}
@@ -103,7 +103,7 @@ o
 {
 	Uuid %id{u4{4825807929396864935,5520841212548323490}}
 	s %t{"ezDecalComponent"}
-	u3 %v{8}
+	u3 %v{9}
 	p
 	{
 		b %Active{1}
@@ -128,6 +128,7 @@ o
 		s %ProjectionAxis{"ezBasisAxis::NegativeX"}
 		f %SizeVariance{0x0000003F}
 		f %SortOrder{0}
+		i1 %Variation{-1}
 		b %WrapAround{1}
 	}
 }
@@ -231,7 +232,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalComponent"}
-		u3 %TypeVersion{8}
+		u3 %TypeVersion{9}
 	}
 }
 o

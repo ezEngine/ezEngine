@@ -45,10 +45,11 @@ o
 {
 	Uuid %id{u4{7371034840279917490,15762888113277113178}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		f %DefaultValue{0x00004040}
 		s %Name{"Range"}
 		s %Type{""}

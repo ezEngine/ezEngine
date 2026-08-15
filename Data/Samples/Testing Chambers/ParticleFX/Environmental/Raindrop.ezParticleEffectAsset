@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2149927829687121805,5257663571342636890}}
-		u4 %Hash{3391978385965321101}
+		u4 %Hash{5355706925341675635}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14493055794658865245,11170587866975433041}}
@@ -248,6 +248,7 @@ o
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
 		HashedString %Texture{s{"{ b6b27ea0-a039-42d6-834c-555de0f90c65 }"}}
 		s %TextureAtlas{"ezParticleTextureAtlasType::RandomVariations"}
+		s %TextureOrientation{"ezParticleTextureAtlasOrientation::Up"}
 		HashedString %TintColorParam{s{""}}
 		b %UseCustomMaterial{0}
 	}
@@ -273,6 +274,7 @@ o
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
 		HashedString %Texture{s{"{ 78b2bb14-5ff1-45e4-9699-73519b967a62 }"}}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
+		s %TextureOrientation{"ezParticleTextureAtlasOrientation::Up"}
 		HashedString %TintColorParam{s{""}}
 		b %UseCustomMaterial{0}
 	}
@@ -735,6 +737,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16412282250269376247,15152311001237269853}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleTextureAtlasOrientation"}
 		u3 %TypeVersion{1}
 	}
 }

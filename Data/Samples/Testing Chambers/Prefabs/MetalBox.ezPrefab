@@ -245,7 +245,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"BaseColorTexture"}
 		s %Type{"ezStringView"}
 	}
@@ -346,7 +346,7 @@ o
 		{
 			Uuid{u4{16042029265769598148,11405978919055105991}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"ezGameComponentsPlugin"}
@@ -371,7 +371,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Index"}
 		s %Type{"ezUInt16"}
 	}
@@ -384,7 +384,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{""}
 		s %PluginName{"ezGameComponentsPlugin"}
@@ -712,7 +712,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Array"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Const|ezPropertyFlags::Reference|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Const|ezPropertyFlags::Reference"}
 		s %Name{"Decals"}
 		s %Type{"ezMeshDecalDescription"}
 	}

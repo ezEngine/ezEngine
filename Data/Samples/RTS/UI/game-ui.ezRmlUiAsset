@@ -11,6 +11,8 @@ o
 		s %AssetType{"RmlUi"}
 		VarArray %Dependencies
 		{
+			s{"UI/game-ui.rml"}
+			s{"UI/game-widget.rcss"}
 			s{"rmlui-default/assets.rcss"}
 			s{"rmlui-default/button.rcss"}
 			s{"rmlui-default/common.rcss"}
@@ -28,17 +30,56 @@ o
 			s{"rmlui-default/template.rml"}
 			s{"rmlui-default/textarea.rcss"}
 			s{"rmlui-default/window.rcss"}
-			s{"UI/game-ui.rml"}
-			s{"UI/game-widget.rcss"}
 		}
 		Uuid %DocumentID{u4{16179479873965521045,4671898762287297159}}
 		u4 %Hash{13751952887758144531}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %PackageDeps{}
+		VarArray %PackageDeps
+		{
+			s{"UI/game-ui.rml"}
+			s{"UI/game-widget.rcss"}
+			s{"rmlui-default/assets.png"}
+			s{"rmlui-default/assets.rcss"}
+			s{"rmlui-default/button.rcss"}
+			s{"rmlui-default/common.rcss"}
+			s{"rmlui-default/expand.rcss"}
+			s{"rmlui-default/input-checkbox.rcss"}
+			s{"rmlui-default/input-radio.rcss"}
+			s{"rmlui-default/input-range.rcss"}
+			s{"rmlui-default/input-submit.rcss"}
+			s{"rmlui-default/input-text.rcss"}
+			s{"rmlui-default/progress.rcss"}
+			s{"rmlui-default/scrollbar.rcss"}
+			s{"rmlui-default/select.rcss"}
+			s{"rmlui-default/table.rcss"}
+			s{"rmlui-default/tabs.rcss"}
+			s{"rmlui-default/template.rml"}
+			s{"rmlui-default/textarea.rcss"}
+			s{"rmlui-default/window.rcss"}
+		}
 		VarArray %References
 		{
 			s{"UI/game-ui.rml"}
+			s{"UI/game-widget.rcss"}
+			s{"rmlui-default/assets.png"}
+			s{"rmlui-default/assets.rcss"}
+			s{"rmlui-default/button.rcss"}
+			s{"rmlui-default/common.rcss"}
+			s{"rmlui-default/expand.rcss"}
+			s{"rmlui-default/input-checkbox.rcss"}
+			s{"rmlui-default/input-radio.rcss"}
+			s{"rmlui-default/input-range.rcss"}
+			s{"rmlui-default/input-submit.rcss"}
+			s{"rmlui-default/input-text.rcss"}
+			s{"rmlui-default/progress.rcss"}
+			s{"rmlui-default/scrollbar.rcss"}
+			s{"rmlui-default/select.rcss"}
+			s{"rmlui-default/table.rcss"}
+			s{"rmlui-default/tabs.rcss"}
+			s{"rmlui-default/template.rml"}
+			s{"rmlui-default/textarea.rcss"}
+			s{"rmlui-default/window.rcss"}
 		}
 		s %Tags{""}
 	}
