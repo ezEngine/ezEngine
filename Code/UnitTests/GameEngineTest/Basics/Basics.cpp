@@ -237,7 +237,7 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformProcGen)
 #  ifdef BUILDSYSTEM_ENABLE_RMLUI_SUPPORT
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformRmlUi)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/RmlUi/ezProject", 2).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/RmlUi/ezProject", 3).Succeeded());
 }
 #  endif
 
