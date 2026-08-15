@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8846720698952834453,5476089759165932354}}
-		u4 %Hash{15687303006826359682}
+		u4 %Hash{4116087046740771158}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{1900942828116034033,12647424558827208139}}
@@ -34,13 +34,14 @@ o
 {
 	Uuid %id{u4{12951072122691354437,7272857191140831627}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes
 		{
 			Uuid{u4{14483740789142682876,12624397466703368772}}
 		}
+		s %Category{"ezPropertyCategory::Member"}
 		s %DefaultValue{""}
 		s %Name{"Target1"}
 		s %Type{"ezConstCharPtr"}
@@ -82,13 +83,14 @@ o
 {
 	Uuid %id{u4{15006566230373315479,16218083703078742447}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes
 		{
 			Uuid{u4{1825664665499181352,18049097059486140025}}
 		}
+		s %Category{"ezPropertyCategory::Member"}
 		s %DefaultValue{""}
 		s %Name{"Target2"}
 		s %Type{"ezConstCharPtr"}
@@ -98,13 +100,14 @@ o
 {
 	Uuid %id{u4{1162782013833031118,16318409170451572454}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes
 		{
 			Uuid{u4{7956524787049327956,8788672854009564939}}
 		}
+		s %Category{"ezPropertyCategory::Member"}
 		Color %DefaultValue{f{0x7EFF3A3F,0xA1515B3B,0xA1515B3B,0x0000803F}}
 		s %Name{"Color"}
 		s %Type{"ezColor"}
@@ -178,6 +181,7 @@ o
 			Color %Color{f{0x49413E3C,0x2DBD003F,0x70944E3F,0x0000803F}}
 		}
 		s %Prefab{"{ 6e3be7db-b34a-8a05-2ebf-fc6e9f78df2d }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o

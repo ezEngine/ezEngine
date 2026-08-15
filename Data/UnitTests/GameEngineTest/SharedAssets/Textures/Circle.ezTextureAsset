@@ -14,7 +14,7 @@ o
 			s{"Textures/Circle.png"}
 		}
 		Uuid %DocumentID{u4{15238630097537281705,5044352021224455293}}
-		u4 %Hash{9075153756953415966}
+		u4 %Hash{1342656292336928167}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -42,6 +42,7 @@ o
 		s %AddressModeV{"ezImageAddressMode::Clamp"}
 		s %AddressModeW{"ezImageAddressMode::Repeat"}
 		f %AlphaThreshold{0x0000003F}
+		VarArray %ArraySlices{}
 		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		s %CompressionMode{"ezTexConvCompressionMode::None"}
@@ -53,6 +54,7 @@ o
 		s %Input2{"Textures/Circle.png"}
 		s %Input3{""}
 		s %Input4{""}
+		b %IsArrayTexture{0}
 		b %IsRenderTarget{0}
 		s %MipmapMode{"ezTexConvMipmapMode::Linear"}
 		b %PremultipliedAlpha{0}

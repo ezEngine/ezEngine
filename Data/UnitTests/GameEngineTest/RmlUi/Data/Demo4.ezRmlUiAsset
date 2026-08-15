@@ -21,10 +21,25 @@ o
 		u4 %Hash{5802010018247625397}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %PackageDeps{}
+		VarArray %PackageDeps
+		{
+			s{"Data/demo.rcss"}
+			s{"Data/demo4.rml"}
+			s{"Data/invader.png"}
+			s{"Data/invader.rcss"}
+			s{"Data/rml.rcss"}
+			s{"Data/test.svg"}
+			s{"Data/window.rml"}
+		}
 		VarArray %References
 		{
+			s{"Data/demo.rcss"}
 			s{"Data/demo4.rml"}
+			s{"Data/invader.png"}
+			s{"Data/invader.rcss"}
+			s{"Data/rml.rcss"}
+			s{"Data/test.svg"}
+			s{"Data/window.rml"}
 		}
 		s %Tags{""}
 	}

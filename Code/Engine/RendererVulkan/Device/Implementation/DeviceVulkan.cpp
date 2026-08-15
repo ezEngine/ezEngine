@@ -265,7 +265,7 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
   EZ_LOG_BLOCK("DeviceExtensions");
   for (auto& ext : extensionProperties)
   {
-    ezLog::Info("{}", ext.extensionName.data());
+    ezLog::Debug("{}", ext.extensionName.data());
   }
 
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
@@ -571,7 +571,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
       for (ezUInt32 i = 0; i < queueFamilyProperties.GetCount(); ++i)
       {
         const vk::QueueFamilyProperties& queueFamilyProperty = queueFamilyProperties[i];
-        ezLog::Info("Queue count: {}, flags: {}", queueFamilyProperty.queueCount, vk::to_string(queueFamilyProperty.queueFlags).data());
+        ezLog::Debug("Queue count: {}, flags: {}", queueFamilyProperty.queueCount, vk::to_string(queueFamilyProperty.queueFlags).data());
       }
     }
 

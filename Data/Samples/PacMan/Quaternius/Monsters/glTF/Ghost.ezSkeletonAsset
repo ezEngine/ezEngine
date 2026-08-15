@@ -4,10 +4,11 @@ o
 {
 	Uuid %id{u4{9501953559980242528,227799408573179659}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"MonsterArmature"}
@@ -22,10 +23,11 @@ o
 {
 	Uuid %id{u4{751838748171243601,297213461534947018}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"<root-transform>"}
@@ -40,10 +42,11 @@ o
 {
 	Uuid %id{u4{12971268810478211572,2906874325408585982}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Body"}
@@ -80,10 +83,11 @@ o
 {
 	Uuid %id{u4{11093778486390060265,3345274483742723127}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Eyebrow.L"}
@@ -108,7 +112,7 @@ o
 			s{"Quaternius/Monsters/glTF/Ghost.gltf"}
 		}
 		Uuid %DocumentID{u4{6510468707466734261,5467167879789472161}}
-		u4 %Hash{479372537728608303}
+		u4 %Hash{7761393629388096570}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{1923082955317225570,3123759083079832468}}
@@ -126,10 +130,11 @@ o
 {
 	Uuid %id{u4{14826748266803435988,7938445750890930310}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Head3"}
@@ -144,10 +149,11 @@ o
 {
 	Uuid %id{u4{17039760924668205752,9129676176326352724}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Mouth"}
@@ -162,10 +168,11 @@ o
 {
 	Uuid %id{u4{12097648110419901932,9525795416598745148}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Eyebrow.R"}
@@ -180,10 +187,11 @@ o
 {
 	Uuid %id{u4{12345143589522099211,10779650958348714525}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Head2"}
@@ -198,10 +206,11 @@ o
 {
 	Uuid %id{u4{5912861841646719647,13765286089721425244}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Ghost"}
@@ -216,10 +225,11 @@ o
 {
 	Uuid %id{u4{7019359148874468918,16343185797733704576}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		ezExposedBone %DefaultValue
 		{
 			s %Name{"Head"}
@@ -410,7 +420,7 @@ o
 {
 	Uuid %id{u4{1991487840704323720,5240466334743372755}}
 	s %t{"ezEditableSkeleton"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		s %BoneDirection{"ezBasisAxis::PositiveY"}
@@ -421,9 +431,12 @@ o
 		u1 %CollisionLayer{0}
 		s %File{"Quaternius/Monsters/glTF/Ghost.gltf"}
 		b %FlipForwardDir{1}
+		s %ImportTransform{"ezMeshImportTransform::Custom"}
+		s %LeftFootJoint{""}
 		f %MaxImpulse{0x0000C842}
 		s %PreviewMesh{""}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		s %RightFootJoint{""}
 		s %Surface{""}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}
@@ -619,6 +632,23 @@ o
 }
 o
 {
+	Uuid %id{u4{16959510582460493866,8962221111705621108}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshImportTransform"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13569856615221415969,9151104531254943604}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -665,7 +695,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEditableSkeleton"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

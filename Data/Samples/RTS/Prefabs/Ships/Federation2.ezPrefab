@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17857676686640486312,5759284195937129141}}
-		u4 %Hash{8188724119551835436}
+		u4 %Hash{15594273499726701032}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17539108441160881296,11092404351432651642}}
@@ -88,6 +88,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 81470810-3802-47d2-b88c-658bdbdf2924 }"}
 		f %SortingDepthOffset{0}
@@ -219,10 +220,10 @@ o
 		{
 			Uuid{u4{11863720829018176176,9232120980589382714}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"ezRtsGamePlugin"}
+		s %PluginName{"RTSPlugin"}
 		VarArray %Properties
 		{
 			Uuid{u4{17007879977171893387,10648129406085773990}}
@@ -334,10 +335,10 @@ o
 		{
 			Uuid{u4{4176199798226028616,3372066861580375653}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"ezRtsGamePlugin"}
+		s %PluginName{"RTSPlugin"}
 		VarArray %Properties
 		{
 			Uuid{u4{16239008778672854862,9830051036797178764}}
@@ -362,7 +363,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Deceleration"}
 		s %Type{"float"}
 	}
@@ -392,7 +393,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Acceleration"}
 		s %Type{"float"}
 	}
@@ -421,7 +422,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -546,7 +547,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"MaxHealth"}
 		s %Type{"ezUInt16"}
 	}
@@ -565,7 +566,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"SelectionRadius"}
 		s %Type{"float"}
 	}
@@ -584,7 +585,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Speed"}
 		s %Type{"float"}
 	}
@@ -686,7 +687,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"TurnSpeed"}
 		s %Type{"ezAngle"}
 	}
@@ -718,7 +719,7 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"CurHealth"}
 		s %Type{"ezUInt16"}
 	}
@@ -734,10 +735,10 @@ o
 		{
 			Uuid{u4{17906083898790416704,16927462418403001468}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"ezRtsGamePlugin"}
+		s %PluginName{"RTSPlugin"}
 		VarArray %Properties
 		{
 			Uuid{u4{17236878414024740744,10236477642501144816}}
@@ -779,9 +780,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"OnDestroyedPrefab"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o

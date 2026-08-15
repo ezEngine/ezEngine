@@ -46,10 +46,11 @@ o
 {
 	Uuid %id{u4{2169529642507719607,17222174003940398047}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		Time %DefaultValue{d{0x9A9999999999C93F}}
 		s %Name{"RenderDelay"}
 		s %Type{""}

@@ -14,7 +14,7 @@ o
 			s{"Textures/Explosion.jpg"}
 		}
 		Uuid %DocumentID{u4{15768789185513003451,4920043893049495347}}
-		u4 %Hash{13962866298383959524}
+		u4 %Hash{9170727747591343004}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -42,6 +42,7 @@ o
 		s %AddressModeV{"ezImageAddressMode::Clamp"}
 		s %AddressModeW{"ezImageAddressMode::Repeat"}
 		f %AlphaThreshold{0x0000003F}
+		VarArray %ArraySlices{}
 		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		s %CompressionMode{"ezTexConvCompressionMode::Medium"}
@@ -53,6 +54,7 @@ o
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
+		b %IsArrayTexture{0}
 		b %IsRenderTarget{0}
 		s %MipmapMode{"ezTexConvMipmapMode::Kaiser"}
 		b %PremultipliedAlpha{0}

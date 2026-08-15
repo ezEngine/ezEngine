@@ -11,7 +11,7 @@ o
 		s %AssetType{"BlackboardTemplate"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5840789953856331920,5365145387547261496}}
-		u4 %Hash{18287615363730200976}
+		u4 %Hash{15315898736410561237}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}

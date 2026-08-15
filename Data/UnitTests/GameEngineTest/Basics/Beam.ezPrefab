@@ -46,13 +46,14 @@ o
 {
 	Uuid %id{u4{12557842353289434,12474015974825890368}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes
 		{
 			Uuid{u4{16570605036470580386,13791457146305890933}}
 		}
+		s %Category{"ezPropertyCategory::Member"}
 		Color %DefaultValue{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		s %Name{"Color"}
 		s %Type{"ezColor"}
@@ -79,13 +80,14 @@ o
 {
 	Uuid %id{u4{15714684646307943370,16081171863019148422}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes
 		{
 			Uuid{u4{17894831874407428722,15604349892362245406}}
 		}
+		s %Category{"ezPropertyCategory::Member"}
 		s %DefaultValue{""}
 		s %Name{"TargetObject"}
 		s %Type{"ezConstCharPtr"}

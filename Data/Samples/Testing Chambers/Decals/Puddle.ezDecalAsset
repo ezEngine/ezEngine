@@ -16,7 +16,7 @@ o
 			s{"Textures/NeutralNormal.tga"}
 		}
 		Uuid %DocumentID{u4{7371726246850188726,4788450646210355712}}
-		u4 %Hash{9501760047640051321}
+		u4 %Hash{10144548173183964193}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -36,7 +36,7 @@ o
 {
 	Uuid %id{u4{6566365757669349293,4623191254261592491}}
 	s %t{"ezDecalAssetProperties"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		s %AlphaMask{""}
@@ -45,6 +45,8 @@ o
 		s %Emissive{""}
 		s %Mode{"ezDecalMode::BaseColorNormalORM"}
 		s %Normal{"Textures/NeutralNormal.tga"}
+		u1 %NumVariationsX{1}
+		u1 %NumVariationsY{1}
 		s %ORM{"Decals/WaterPuddle_ORM.png"}
 	}
 }
@@ -79,7 +81,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalAssetProperties"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

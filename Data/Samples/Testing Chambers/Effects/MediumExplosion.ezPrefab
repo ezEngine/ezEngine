@@ -191,7 +191,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Radius"}
 		s %Type{"float"}
 	}
@@ -260,7 +260,7 @@ o
 			Uuid{u4{12829794898117584490,2193219042134724059}}
 			Uuid{u4{2543483289478794046,10950133442725446041}}
 		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions
 		{
 			Uuid{u4{2509385703962331115,17064148421625420984}}
@@ -311,7 +311,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"CollisionLayer"}
 		s %Type{"ezUInt8"}
 	}
@@ -380,7 +380,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"ImpulseType"}
 		s %Type{"ezUInt8"}
 	}
@@ -425,7 +425,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"OnCreation"}
 		s %Type{"bool"}
 	}
@@ -453,7 +453,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Impulse"}
 		s %Type{"float"}
 	}
@@ -661,7 +661,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Damage"}
 		s %Type{"float"}
 	}
@@ -895,7 +895,7 @@ o
 		{
 			Uuid{u4{13236797337584137504,17285590966545223855}}
 		}
-		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Flags{""}
 		s %Name{"ApplyAreaDamage"}
 		Uuid %ReturnValue{u4{2270339114012451990,13726907170441679063}}
 		s %Type{"ezFunctionType::Member"}

@@ -16,7 +16,7 @@ o
 			s{"Textures/cc0Textures.com/Leaking004/Leaking004_Opacity.jpg"}
 		}
 		Uuid %DocumentID{u4{11956572882605652905,5001164200007033681}}
-		u4 %Hash{5222297534536743809}
+		u4 %Hash{5190502006957266319}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -36,7 +36,7 @@ o
 {
 	Uuid %id{u4{8889934348167120802,5726226917236795770}}
 	s %t{"ezDecalAssetProperties"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		s %AlphaMask{"Textures/cc0Textures.com/Leaking004/Leaking004_Opacity.jpg"}
@@ -45,6 +45,8 @@ o
 		s %Emissive{""}
 		s %Mode{"ezDecalMode::BaseColorNormal"}
 		s %Normal{"Textures/cc0Textures.com/Leaking004/Leaking004_Normal.jpg"}
+		u1 %NumVariationsX{1}
+		u1 %NumVariationsY{1}
 		s %ORM{""}
 	}
 }
@@ -79,7 +81,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalAssetProperties"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

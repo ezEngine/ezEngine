@@ -17,10 +17,11 @@ o
 {
 	Uuid %id{u4{10893059809548317527,5125277697132607708}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		i3 %DefaultValue{-1}
 		s %Name{"Participant"}
 		s %Type{""}

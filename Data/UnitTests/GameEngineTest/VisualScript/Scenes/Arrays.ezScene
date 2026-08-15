@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16927455850298769950,10486899710480667627}}
-		u4 %Hash{9631990123865255145}
+		u4 %Hash{4092203567143616573}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -24,7 +24,6 @@ o
 		{
 			s{"{ 1e3694a1-abdf-46e6-81fe-bf87a86ccb89 }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
-			s{"{ f9f1e91f-448e-4976-92d8-031812410488 }"}
 		}
 		s %Tags{""}
 	}
@@ -78,7 +77,7 @@ o
 {
 	Uuid %id{u4{17465664588377618632,5469186144658985364}}
 	s %t{"ezScriptComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -90,6 +89,7 @@ o
 		b %PassThroughUnhandledEvents{0}
 		s %ScriptClass{"{ f9f1e91f-448e-4976-92d8-031812410488 }"}
 		Time %UpdateInterval{d{0}}
+		b %UpdateOnlyWhenSimulating{1}
 	}
 }
 o
@@ -164,11 +164,12 @@ o
 {
 	Uuid %id{u4{11143468893676044848,10056997332384438132}}
 	s %t{"ezCameraComponent"}
-	u3 %v{10}
+	u3 %v{11}
 	p
 	{
 		b %Active{1}
 		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
 		i1 %EditorShortcut{0}
@@ -234,7 +235,7 @@ o
 {
 	Uuid %id{u4{6852847212906000515,10368004412254544101}}
 	s %t{"ezScriptComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -246,6 +247,7 @@ o
 		b %PassThroughUnhandledEvents{0}
 		s %ScriptClass{"{ f9f1e91f-448e-4976-92d8-031812410488 }"}
 		Time %UpdateInterval{d{0}}
+		b %UpdateOnlyWhenSimulating{1}
 	}
 }
 o
@@ -294,7 +296,7 @@ o
 {
 	Uuid %id{u4{12284211721244344434,11155702293222294899}}
 	s %t{"ezScriptComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -306,6 +308,7 @@ o
 		b %PassThroughUnhandledEvents{0}
 		s %ScriptClass{"{ f9f1e91f-448e-4976-92d8-031812410488 }"}
 		Time %UpdateInterval{d{0}}
+		b %UpdateOnlyWhenSimulating{1}
 	}
 }
 o
@@ -354,7 +357,7 @@ o
 {
 	Uuid %id{u4{1671394345772726317,16054520560817853636}}
 	s %t{"ezScriptComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -366,6 +369,7 @@ o
 		b %PassThroughUnhandledEvents{0}
 		s %ScriptClass{"{ f9f1e91f-448e-4976-92d8-031812410488 }"}
 		Time %UpdateInterval{d{0}}
+		b %UpdateOnlyWhenSimulating{1}
 	}
 }
 }
@@ -453,7 +457,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezScriptComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -674,7 +678,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeVersion{10}
+		u3 %TypeVersion{11}
 	}
 }
 o

@@ -33,10 +33,11 @@ o
 {
 	Uuid %id{u4{12406689444552430097,13054045346747751592}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		i3 %DefaultValue{2}
 		s %Name{"NumUpdates"}
 		s %Type{""}
