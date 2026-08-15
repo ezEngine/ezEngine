@@ -104,6 +104,12 @@ ezStringView FindNextSrcValue(ezStringView& ref_sContent)
   }
 }
 
+static ezStringView SanitizePath(ezStringView sPath)
+{
+  sPath.Trim("/\\", "");
+  return sPath;
+}
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -195,7 +201,7 @@ ezStatus ezRmlUiAssetDocument::FindDependencies(ezDependencyFile& ref_Dependenci
 
   while (true)
   {
-    const ezStringView href = FindNextHREF(sContentView);
+    const ezStringView href = SanitizePath(FindNextHREF(sContentView));
     if (href.IsEmpty())
       break;
 
@@ -241,7 +247,7 @@ void ezRmlUiAssetDocument::FindPackageDependencies(ezSet<ezString>& ref_packageD
     ezStringView sContentView = sContent;
     while (true)
     {
-      const ezStringView href = FindNextHREF(sContentView);
+      const ezStringView href = SanitizePath(FindNextHREF(sContentView));
       if (href.IsEmpty())
         break;
 
@@ -263,7 +269,7 @@ void ezRmlUiAssetDocument::FindPackageDependencies(ezSet<ezString>& ref_packageD
     ezStringView sContentView = sContent;
     while (true)
     {
-      const ezStringView src = FindNextSrcValue(sContentView);
+      const ezStringView src = SanitizePath(FindNextSrcValue(sContentView));
       if (src.IsEmpty())
         break;
 

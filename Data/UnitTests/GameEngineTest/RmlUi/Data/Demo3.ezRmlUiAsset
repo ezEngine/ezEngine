@@ -11,16 +11,33 @@ o
 		s %AssetType{"RmlUi"}
 		VarArray %Dependencies
 		{
+			s{"Data/demo.rcss"}
 			s{"Data/demo3.rml"}
+			s{"Data/invader.rcss"}
+			s{"Data/rml.rcss"}
+			s{"Data/window.rml"}
 		}
 		Uuid %DocumentID{u4{2835267991162190992,5136924492124758713}}
 		u4 %Hash{739659075238663043}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %PackageDeps{}
+		VarArray %PackageDeps
+		{
+			s{"Data/demo.rcss"}
+			s{"Data/demo3.rml"}
+			s{"Data/invader.png"}
+			s{"Data/invader.rcss"}
+			s{"Data/rml.rcss"}
+			s{"Data/window.rml"}
+		}
 		VarArray %References
 		{
+			s{"Data/demo.rcss"}
 			s{"Data/demo3.rml"}
+			s{"Data/invader.png"}
+			s{"Data/invader.rcss"}
+			s{"Data/rml.rcss"}
+			s{"Data/window.rml"}
 		}
 		s %Tags{""}
 	}
