@@ -253,21 +253,23 @@ void ezGameGridWithEdges<CellData, EdgeData>::ConvertEdgeIndexToCellCoords(ezUIn
 
   if (uiEdgeIndex < uiOffsetY)
   {
-    out_vCell1.y = uiEdgeIndex / (this->m_uiGridSizeX + 1);
-    out_vCell1.x = uiEdgeIndex - out_vCell1.y * (this->m_uiGridSizeX + 1);
+    // this index is the NegX edge of out_vCell2, so the cell before it is on the other side
+    out_vCell2.y = uiEdgeIndex / (this->m_uiGridSizeX + 1);
+    out_vCell2.x = uiEdgeIndex - out_vCell2.y * (this->m_uiGridSizeX + 1);
 
-    out_vCell2 = out_vCell1;
-    out_vCell2.x += 1;
+    out_vCell1 = out_vCell2;
+    out_vCell1.x -= 1;
   }
   else
   {
     uiEdgeIndex -= uiOffsetY;
 
-    out_vCell1.x = uiEdgeIndex / (this->m_uiGridSizeY + 1);
-    out_vCell1.y = uiEdgeIndex - out_vCell1.x * (this->m_uiGridSizeY + 1);
+    // this index is the NegY edge of out_vCell2
+    out_vCell2.x = uiEdgeIndex / (this->m_uiGridSizeY + 1);
+    out_vCell2.y = uiEdgeIndex - out_vCell2.x * (this->m_uiGridSizeY + 1);
 
-    out_vCell2 = out_vCell1;
-    out_vCell2.y += 1;
+    out_vCell1 = out_vCell2;
+    out_vCell1.y -= 1;
   }
 }
 
