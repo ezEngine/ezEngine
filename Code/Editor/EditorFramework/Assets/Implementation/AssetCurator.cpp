@@ -1769,7 +1769,10 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
     pDoc = ezQtEditorApp::GetSingleton()->OpenDocument(pAssetInfo->m_Path.GetAbsolutePath(), ezDocumentFlags::None);
 
   if (pDoc == nullptr)
+  {
+    UpdateAssetTransformState(pAssetInfo->m_Info->m_DocumentID, ezAssetInfo::TransformState::TransformError);
     return ezTransformStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_Path.GetDataDirParentRelativePath()));
+  }
 
   EZ_SCOPE_EXIT(if (!pDoc->HasWindowBeenRequested() && !bWasOpen) pDoc->GetDocumentManager()->CloseDocument(pDoc););
 
@@ -1786,6 +1789,14 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
       {
         m_pAssetTableWriter->NeedsReloadResource(subAssetUuid);
       }
+    }
+    else if (ret.m_Result == ezTransformResult::NeedsImport)
+    {
+      UpdateAssetTransformState(pAssetInfo->m_Info->m_DocumentID, ezAssetInfo::TransformState::NeedsImport);
+    }
+    else
+    {
+      UpdateAssetTransformState(pAssetInfo->m_Info->m_DocumentID, ezAssetInfo::TransformState::TransformError);
     }
   }
 

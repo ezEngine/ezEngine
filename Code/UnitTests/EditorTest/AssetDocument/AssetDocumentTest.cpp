@@ -3,6 +3,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorTest/AssetDocument/AssetDocumentTest.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
 #include <TestFramework/Utilities/TestLogInterface.h>
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
@@ -163,6 +164,33 @@ void ezEditorAssetDocumentTest::SaveOnTransform()
 
     ezString sLabel = pAcc->GetByName<ezString>(pSubObject, "Label");
     EZ_TEST_STRING(sLabel, "initialShadingGroup");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Verify Failed Transform State")
+  {
+    ezStringBuilder sInvalidMeshFile = m_sProjectPath;
+    sInvalidMeshFile.AppendPath("Meshes", "Invalid.obj");
+    ezFileWriter file;
+    EZ_TEST_BOOL(file.Open(sInvalidMeshFile) == EZ_SUCCESS);
+    file.WriteString("invalid mesh data").AssertSuccess();
+    file.Close();
+
+    pAcc->StartTransaction("Set Invalid Mesh");
+    EZ_TEST_BOOL(pAcc->SetValueByName(pMeshAsset, "MeshFile", "Meshes/Invalid.obj").Succeeded());
+    pAcc->FinishTransaction();
+    EZ_TEST_BOOL(pDoc->SaveDocument().Succeeded());
+
+    const ezTransformStatus res = ezAssetCurator::GetSingleton()->TransformAsset(pDoc->GetGuid(), ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
+    EZ_TEST_BOOL(res.Failed());
+
+    ezAssetInfo* pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(pDoc->GetGuid());
+    EZ_TEST_BOOL(pAssetInfo != nullptr);
+    if (pAssetInfo != nullptr)
+    {
+      EZ_TEST_BOOL(pAssetInfo->m_TransformState == ezAssetInfo::TransformState::TransformError);
+    }
+
+    ezOSFile::DeleteFile(sInvalidMeshFile).IgnoreResult();
   }
   pDoc->GetDocumentManager()->CloseDocument(pDoc);
 }
