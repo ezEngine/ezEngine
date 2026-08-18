@@ -183,11 +183,10 @@ void ezEditorAssetDocumentTest::SaveOnTransform()
     const ezTransformStatus res = ezAssetCurator::GetSingleton()->TransformAsset(pDoc->GetGuid(), ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
     EZ_TEST_BOOL(res.Failed());
 
-    ezAssetInfo* pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(pDoc->GetGuid());
-    EZ_TEST_BOOL(pAssetInfo != nullptr);
-    if (pAssetInfo != nullptr)
+    const ezAssetCurator::ezLockedSubAsset subAsset = ezAssetCurator::GetSingleton()->GetSubAsset(pDoc->GetGuid());
+    if (EZ_TEST_BOOL(subAsset))
     {
-      EZ_TEST_BOOL(pAssetInfo->m_TransformState == ezAssetInfo::TransformState::TransformError);
+      EZ_TEST_BOOL(subAsset->m_pAssetInfo->m_TransformState == ezAssetInfo::TransformState::TransformError);
     }
 
     ezOSFile::DeleteFile(sInvalidMeshFile).IgnoreResult();
