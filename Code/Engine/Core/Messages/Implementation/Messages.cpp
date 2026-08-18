@@ -133,6 +133,20 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetColorParameter);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetColorParameter, 1, ezRTTIDefaultAllocator<ezMsgSetColorParameter>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Name", m_sParameterName),
+    EZ_MEMBER_PROPERTY("Value", m_Value),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgGenericEvent);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgGenericEvent, 1, ezRTTIDefaultAllocator<ezMsgGenericEvent>)
 {
