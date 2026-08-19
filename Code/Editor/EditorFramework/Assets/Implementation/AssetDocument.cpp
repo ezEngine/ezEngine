@@ -107,6 +107,22 @@ ezTaskGroupID ezAssetDocument::InternalSaveDocument(AfterSaveCallback callback)
   pInfo->m_ThumbnailDependencies.Remove(ezString());
   pInfo->m_PackageDependencies.Remove(ezString());
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  // Dependencies must be either an asset GUID or a path that other machines can resolve as well,
+  // so a data directory relative path or a ':rootname/...' path. An absolute path only works on this machine.
+  auto CheckForAbsolutePaths = [this](const ezSet<ezString>& deps, const char* szWhich)
+  {
+    for (const ezString& sDep : deps)
+    {
+      EZ_ASSERT_DEV(!ezPathUtils::IsAbsolutePath(sDep), "The {} of asset '{}' contain the absolute path '{}'. Asset dependencies must not be absolute paths.", szWhich, GetDocumentPath(), sDep);
+    }
+  };
+
+  CheckForAbsolutePaths(pInfo->m_TransformDependencies, "transform dependencies");
+  CheckForAbsolutePaths(pInfo->m_ThumbnailDependencies, "thumbnail dependencies");
+  CheckForAbsolutePaths(pInfo->m_PackageDependencies, "package dependencies");
+#endif
+
   return ezDocument::InternalSaveDocument(callback);
 }
 

@@ -77,10 +77,10 @@ namespace
         ezLog::Debug("VK: {}", pCallbackData->pMessage);
         break;
       case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-        ezLog::Info("VK: {}", pCallbackData->pMessage);
+        ezLog::Dev("VK: {}", pCallbackData->pMessage);
         break;
       case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-        ezLog::Warning("VK: {}", pCallbackData->pMessage);
+        ezLog::Info("VK: {}", pCallbackData->pMessage);
         break;
       case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
         ezLog::Error("VK: {}", pCallbackData->pMessage);
@@ -193,7 +193,7 @@ vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezDynamicArray<ezString>&
   EZ_LOG_BLOCK("InstanceExtensions");
   for (auto& ext : extensionProperties)
   {
-    ezLog::Info("{}", ext.extensionName.data());
+    ezLog::Debug("{}", ext.extensionName.data());
   }
 
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
@@ -438,7 +438,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
       }
       else
       {
-        ezLog::Warning("The khronos validation layer is not supported on this device. Will run without validation layer.");
+        ezLog::Dev("The Khronos validation layer is not supported on this device. Will run without validation layer.");
       }
 
       if (m_Extensions.m_bDebugUtils)

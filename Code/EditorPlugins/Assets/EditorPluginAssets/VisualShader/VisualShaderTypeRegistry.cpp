@@ -162,6 +162,35 @@ void ezVisualShaderTypeRegistry::UpdateNodeData()
   LoadProjectNodeData();
 }
 
+// Config file paths are stored in the node descriptors and end up as asset transform dependencies.
+// Therefore they must never be absolute - make them ':rootname/...' relative to their data directory.
+static void MakeConfigFilePathPortable(ezStringBuilder& ref_sPath)
+{
+  if (!ezPathUtils::IsAbsolutePath(ref_sPath))
+    return;
+
+  ezStringBuilder sRelative;
+  const ezDataDirectoryInfo* pDataDir = nullptr;
+
+  if (ezFileSystem::ResolvePath(ref_sPath, nullptr, &sRelative, &pDataDir).Failed())
+  {
+    ezLog::Warning("Visual Shader config file '{}' is not inside a data directory, its path can't be stored in a portable way.", ref_sPath);
+    return;
+  }
+
+  ref_sPath = sRelative;
+
+  if (!pDataDir->m_sRootName.IsEmpty())
+  {
+    // the file system stores root names in upper case, but rooted paths are matched case insensitive,
+    // so write them in lower case to match the style of all the other paths
+    ezStringBuilder sRootName = pDataDir->m_sRootName;
+    sRootName.ToLower();
+
+    ref_sPath.Prepend(":", sRootName, "/");
+  }
+}
+
 void ezVisualShaderTypeRegistry::LoadProjectNodeData()
 {
   if (!ezToolsProject::IsProjectOpen())
@@ -183,6 +212,7 @@ void ezVisualShaderTypeRegistry::LoadProjectNodeData()
     for (it.StartSearch(sSearchDir, ezFileSystemIteratorFlags::ReportFiles); it.IsValid(); it.Next())
     {
       it.GetStats().GetFullPath(sNodeFile);
+      MakeConfigFilePathPortable(sNodeFile);
 
       LoadConfigFile(sNodeFile, true);
     }
@@ -220,6 +250,16 @@ void ezVisualShaderTypeRegistry::UpdateNodeData(ezStringView sCfgFileRelative)
 
     sPath.MakeCleanPath();
     bProjectNode = !sPath.StartsWith_NoCase(sAppDir);
+
+    if (bProjectNode)
+    {
+      MakeConfigFilePathPortable(sPath);
+    }
+    else
+    {
+      sPath.MakeRelativeTo(sAppDir).IgnoreResult();
+      sPath.Prepend(":app/VisualShader/");
+    }
   }
 
   LoadConfigFile(sPath, bProjectNode);
