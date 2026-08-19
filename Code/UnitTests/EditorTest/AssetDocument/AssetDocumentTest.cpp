@@ -3,7 +3,6 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorTest/AssetDocument/AssetDocumentTest.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
 #include <TestFramework/Utilities/TestLogInterface.h>
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
@@ -168,15 +167,8 @@ void ezEditorAssetDocumentTest::SaveOnTransform()
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Verify Failed Transform State")
   {
-    ezStringBuilder sInvalidMeshFile = m_sProjectPath;
-    sInvalidMeshFile.AppendPath("Meshes", "Invalid.obj");
-    ezFileWriter file;
-    EZ_TEST_BOOL(file.Open(sInvalidMeshFile) == EZ_SUCCESS);
-    file.WriteString("invalid mesh data").AssertSuccess();
-    file.Close();
-
     pAcc->StartTransaction("Set Invalid Mesh");
-    EZ_TEST_BOOL(pAcc->SetValueByName(pMeshAsset, "MeshFile", "Meshes/Invalid.obj").Succeeded());
+    EZ_TEST_BOOL(pAcc->SetValueByName(pMeshAsset, "MeshFile", "Meshes/Missing.obj").Succeeded());
     pAcc->FinishTransaction();
     EZ_TEST_BOOL(pDoc->SaveDocument().Succeeded());
 
@@ -188,8 +180,6 @@ void ezEditorAssetDocumentTest::SaveOnTransform()
     {
       EZ_TEST_BOOL(subAsset->m_pAssetInfo->m_TransformState == ezAssetInfo::TransformState::TransformError);
     }
-
-    ezOSFile::DeleteFile(sInvalidMeshFile).IgnoreResult();
   }
   pDoc->GetDocumentManager()->CloseDocument(pDoc);
 }

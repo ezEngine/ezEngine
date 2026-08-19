@@ -1790,11 +1790,7 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
         m_pAssetTableWriter->NeedsReloadResource(subAssetUuid);
       }
     }
-    else if (ret.m_Result == ezTransformResult::NeedsImport)
-    {
-      UpdateAssetTransformState(pAssetInfo->m_Info->m_DocumentID, ezAssetInfo::TransformState::NeedsImport);
-    }
-    else
+    else if (ret.m_Result != ezTransformResult::NeedsImport)
     {
       UpdateAssetTransformState(pAssetInfo->m_Info->m_DocumentID, ezAssetInfo::TransformState::TransformError);
     }
