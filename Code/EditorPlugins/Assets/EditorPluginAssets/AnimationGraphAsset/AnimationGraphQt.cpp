@@ -21,8 +21,7 @@ void ezQtAnimationGraphNode::UpdateState()
 
   ezStringBuilder sTitle;
   ezTokenParseUtils::RenderTemplate(sTemplate, [&](ezStringView sPlaceholder, ezVariant index, bool bOptional, ezStringBuilder& ref_sOutput)
-    { ResolvePropertyPlaceholder(sPlaceholder, index, bOptional, format, ref_sOutput); },
-    sTitle);
+    { ResolvePropertyPlaceholder(sPlaceholder, index, bOptional, format, ref_sOutput); }, sTitle);
 
   // placeholders that resolved to nothing leave empty quotes and duplicate spaces behind
   sTitle.ReplaceAll("''", "");

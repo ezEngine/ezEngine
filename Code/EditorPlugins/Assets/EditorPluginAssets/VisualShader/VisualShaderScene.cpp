@@ -127,8 +127,7 @@ void ezQtVisualShaderNode::UpdateState()
 
   ezStringBuilder sTitle;
   ezTokenParseUtils::RenderTemplate(sTemplate, [&](ezStringView sPlaceholder, ezVariant index, bool bOptional, ezStringBuilder& ref_sOutput)
-    { ResolvePlaceholder(sPlaceholder, index, bOptional, format, ref_sOutput); },
-    sTitle);
+    { ResolvePlaceholder(sPlaceholder, index, bOptional, format, ref_sOutput); }, sTitle);
 
   SetTitleAndSubtitle(sTitle, format);
 }
