@@ -41,6 +41,9 @@ public:
   ezQtVisualScriptNode();
 
   virtual void UpdateState() override;
+
+private:
+  void ResolvePlaceholder(ezStringView sPlaceholder, const ezVariant& index, bool bOptional, const TitleFormat& format, ezStringBuilder& ref_sOutput);
 };
 
 /// Qt scene for visual script graphs.

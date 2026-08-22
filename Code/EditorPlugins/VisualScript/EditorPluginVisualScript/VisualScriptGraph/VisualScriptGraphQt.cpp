@@ -1,9 +1,9 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptGraph.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptGraphQt.moc.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptNodeRegistry.h>
+#include <Foundation/CodeUtils/TokenParseUtils.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginVisualScript, Factories)
@@ -112,125 +112,30 @@ ezQtVisualScriptNode::ezQtVisualScriptNode() = default;
 
 void ezQtVisualScriptNode::UpdateState()
 {
+  const TitleFormat format;
+
+  ezStringBuilder sTemplate;
+  if (!TryGetTitleTemplateFromAttribute(sTemplate))
+  {
+    sTemplate = ezVisualScriptNodeManager::GetNiceTypeName(GetObject());
+  }
+
   ezStringBuilder sTitle;
+  ezTokenParseUtils::RenderTemplate(sTemplate, [&](ezStringView sPlaceholder, ezVariant index, bool bOptional, ezStringBuilder& ref_sOutput)
+    { ResolvePlaceholder(sPlaceholder, index, bOptional, format, ref_sOutput); },
+    sTitle);
+
+  SetTitleAndSubtitle(sTitle, format);
 
   auto pManager = static_cast<const ezVisualScriptNodeManager*>(GetObject()->GetDocumentObjectManager());
-  auto pType = GetObject()->GetType();
 
-  if (auto pTitleAttribute = pType->GetAttributeByType<ezTitleAttribute>())
+  if (m_pSubtitleLabel->toPlainText().isEmpty())
   {
-    sTitle = pTitleAttribute->GetTitle();
-
-    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
-    GetObject()->GetType()->GetAllProperties(properties);
-
-    ezStringBuilder temp;
-    for (const auto& pin : GetInputPins())
-    {
-      if (pin->HasAnyConnections())
-      {
-        temp.Set("{", pin->GetPin()->GetName(), "}");
-        if (static_cast<const ezVisualScriptPin*>(pin->GetPin())->GetScriptDataType() == ezVisualScriptDataType::String)
-        {
-          sTitle.ReplaceAll(temp, "");
-        }
-        else
-        {
-          sTitle.ReplaceAll(temp, pin->GetPin()->GetName());
-        }
-
-        temp.Set("{?", pin->GetPin()->GetName(), "}");
-        sTitle.ReplaceAll(temp, "");
-      }
-    }
-
-    ezVariant val;
-    ezStringBuilder sVal;
-    for (const auto& prop : properties)
-    {
-      val = GetObject()->GetTypeAccessor().GetValue(prop->GetPropertyName());
-
-      if (prop->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || prop->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
-      {
-        ezReflectionUtils::EnumerationToString(prop->GetSpecificType(), val.ConvertTo<ezInt64>(), sVal);
-        sVal = ezTranslate(sVal);
-      }
-      else if (val.IsA<ezString>() || val.IsA<ezHashedString>())
-      {
-        sVal = val.ConvertTo<ezString>();
-
-        if (prop->GetAttributeByType<ezAssetBrowserAttribute>())
-        {
-          if (ezConversionUtils::IsStringUuid(sVal))
-          {
-            const ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(sVal);
-
-            auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(AssetGuid);
-
-            if (pAsset)
-              sVal = pAsset->m_pAssetInfo->m_Path.GetDataDirRelativePath().GetFileName();
-            else
-              sVal = "<unknown>";
-          }
-        }
-
-        sVal.ReplaceAll("\n", " ");
-        sVal.ReplaceAll("\t", " ");
-
-        if (sVal.GetCharacterCount() > 23)
-        {
-          sVal.Shrink(0, sVal.GetCharacterCount() - 21);
-          sVal.Append("...");
-        }
-        sVal.Prepend("\"");
-        sVal.Append("\"");
-      }
-      else if (val.CanConvertTo<ezString>())
-      {
-        sVal = val.ConvertTo<ezString>();
-      }
-      else
-      {
-        sVal = "<Invalid>";
-      }
-
-      temp.Set("{", prop->GetPropertyName(), "}");
-      sTitle.ReplaceAll(temp, sVal);
-
-      temp.Set("{?", prop->GetPropertyName(), "}");
-      if (val == ezVariant(0))
-      {
-        sTitle.ReplaceAll(temp, "");
-      }
-      else
-      {
-        sTitle.ReplaceAll(temp, sVal);
-      }
-    }
-  }
-  else
-  {
-    sTitle = ezVisualScriptNodeManager::GetNiceTypeName(GetObject());
-  }
-
-  if (const char* szSeparator = sTitle.FindSubString("::"))
-  {
-    m_pTitleLabel->setPlainText(szSeparator + 2);
-
-    ezStringBuilder sSubTitle = ezStringView(sTitle.GetData(), szSeparator);
-    sSubTitle.Trim("\"");
-    m_pSubtitleLabel->setPlainText(sSubTitle.GetData());
-  }
-  else
-  {
-    m_pTitleLabel->setPlainText(sTitle.GetData());
-
-    auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pType);
+    auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(GetObject()->GetType());
     if (pNodeDesc != nullptr && pNodeDesc->NeedsTypeDeduction())
     {
       ezVisualScriptDataType::Enum deductedType = pManager->GetDeductedType(GetObject());
-      const char* sSubTitle = deductedType != ezVisualScriptDataType::Invalid ? ezVisualScriptDataType::GetName(deductedType) : "Unknown";
-      m_pSubtitleLabel->setPlainText(sSubTitle);
+      m_pSubtitleLabel->setPlainText(deductedType != ezVisualScriptDataType::Invalid ? ezVisualScriptDataType::GetName(deductedType) : "Unknown");
     }
   }
 
@@ -250,6 +155,25 @@ void ezQtVisualScriptNode::UpdateState()
   {
     m_pIcon->setPixmap(QPixmap());
   }
+}
+
+void ezQtVisualScriptNode::ResolvePlaceholder(ezStringView sPlaceholder, const ezVariant& index, bool bOptional, const TitleFormat& format, ezStringBuilder& ref_sOutput)
+{
+  for (const auto& pin : GetInputPins())
+  {
+    if (pin->GetPin()->GetName() != sPlaceholder || !pin->HasAnyConnections())
+      continue;
+
+    // the value of a connected string pin is unknown here, so nothing is shown for it
+    if (!bOptional && static_cast<const ezVisualScriptPin*>(pin->GetPin())->GetScriptDataType() != ezVisualScriptDataType::String)
+    {
+      ref_sOutput.Append(sPlaceholder);
+    }
+
+    return;
+  }
+
+  ResolvePropertyPlaceholder(sPlaceholder, index, bOptional, format, ref_sOutput);
 }
 
 //////////////////////////////////////////////////////////////////////////

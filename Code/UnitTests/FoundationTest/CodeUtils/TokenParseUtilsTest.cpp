@@ -199,4 +199,157 @@ Identifier
     EZ_TEST_BOOL(ezTokenParseUtils::Accept(result, uiCurToken, templatePattern, nullptr));
     EZ_TEST_INT(uiCurToken, 5);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RenderTemplate")
+  {
+    // Renders every placeholder as '<NAME>' or '<NAME:INDEX>' so that both the resolved name and index are visible in the result. Optional placeholders use '(..)' instead of '<..>'.
+    auto Resolver = [](ezStringView sPlaceholder, ezVariant index, bool bOptional, ezStringBuilder& ref_sOutput)
+    {
+      ref_sOutput.Append(bOptional ? "(" : "<", sPlaceholder);
+      if (index.IsValid())
+      {
+        const ezString sIndex = index.ConvertTo<ezString>();
+        ref_sOutput.Append(":", sIndex.GetView());
+      }
+      ref_sOutput.Append(bOptional ? ")" : ">");
+    };
+
+    ezStringBuilder sOutput;
+
+    struct TemplateTest
+    {
+      ezStringView m_sTemplate;
+      ezStringView m_sExpected;
+    };
+
+    TemplateTest tests[] = {
+      // trivial cases
+      {""_ezsv, ""_ezsv},
+      {"Perlin Noise"_ezsv, "Perlin Noise"_ezsv},
+      {"{Name}"_ezsv, "<Name>"_ezsv},
+
+      // examples taken from existing ezTitleAttribute usages
+      {"Random: {Seed}"_ezsv, "Random: <Seed>"_ezsv},
+      {"Subgraph: {Name}"_ezsv, "Subgraph: <Name>"_ezsv},
+      {"{Active} Placement Output: {Name}"_ezsv, "<Active> Placement Output: <Name>"_ezsv},
+      {"{Operator}({A}, {B})"_ezsv, "<Operator>(<A>, <B>)"_ezsv},
+      {"Remap: [{InputMin}, {InputMax}] -> [{OutputMin}, {OutputMax}]"_ezsv, "Remap: [<InputMin>, <InputMax>] -> [<OutputMin>, <OutputMax>]"_ezsv},
+      {"Height: [{MinHeight}, {MaxHeight}]"_ezsv, "Height: [<MinHeight>, <MaxHeight>]"_ezsv},
+      {"Coroutine::MoveTo {TargetPos}"_ezsv, "Coroutine::MoveTo <TargetPos>"_ezsv},
+      {"= {Expression}"_ezsv, "= <Expression>"_ezsv},
+      {"Compare: Number {Comparison} {ReferenceValue}"_ezsv, "Compare: Number <Comparison> <ReferenceValue>"_ezsv},
+      {"{Type}::Set {Property} = {Value}"_ezsv, "<Type>::Set <Property> = <Value>"_ezsv},
+      {"ForLoop [{FirstIndex}..{LastIndex}]"_ezsv, "ForLoop [<FirstIndex>..<LastIndex>]"_ezsv},
+      {"Array::GetElement[{Index}]"_ezsv, "Array::GetElement[<Index>]"_ezsv},
+      {"Clamp({X}, {Min}, {Max})"_ezsv, "Clamp(<X>, <Min>, <Max>)"_ezsv},
+      {"{Condition} ? {A} : {B}"_ezsv, "<Condition> ? <A> : <B>"_ezsv},
+      {"Expression::{Expression}"_ezsv, "Expression::<Expression>"_ezsv},
+      {"Variant::ConvertTo {Type}"_ezsv, "Variant::ConvertTo <Type>"_ezsv},
+
+      // indexed placeholders
+      {"BlendSpace 1D: {Clips[0]} {Clips[1]} {Clips[2]}"_ezsv, "BlendSpace 1D: <Clips:0> <Clips:1> <Clips:2>"_ezsv},
+      {"Bone Weights {RootBones[10]}"_ezsv, "Bone Weights <RootBones:10>"_ezsv},
+
+      // whitespace between the placeholder tokens is tolerated and stripped
+      {"{ Name }"_ezsv, "<Name>"_ezsv},
+      {"{ Clips [ 2 ] }"_ezsv, "<Clips:2>"_ezsv},
+
+      // the optional '$' prefix is stripped, as used by the visual shader titles
+      {"{$Name}"_ezsv, "<Name>"_ezsv},
+      {"{$Clips[0]}"_ezsv, "<Clips:0>"_ezsv},
+      {"{$in0} + {$in1}"_ezsv, "<in0> + <in1>"_ezsv},
+      {"Color: {$prop0}"_ezsv, "Color: <prop0>"_ezsv},
+      {"Lerp: {$in0} -> {$in1} ({$in2})"_ezsv, "Lerp: <in0> -> <in1> (<in2>)"_ezsv},
+      {"{ $ Name }"_ezsv, "<Name>"_ezsv},
+
+      // the optional '?' prefix marks a placeholder as optional and can be combined with '$'
+      {"{?Name}"_ezsv, "(Name)"_ezsv},
+      {"{?Clips[2]}"_ezsv, "(Clips:2)"_ezsv},
+      {"{?$in0}"_ezsv, "(in0)"_ezsv},
+      {"{?$Clips[1]}"_ezsv, "(Clips:1)"_ezsv},
+      {"{ ? Name }"_ezsv, "(Name)"_ezsv},
+      {"Set Bool: '{BlackboardEntry}' to {?Bool}"_ezsv, "Set Bool: '<BlackboardEntry>' to (Bool)"_ezsv},
+
+      // placeholders don't need to be separated by anything
+      {"{A}{B}"_ezsv, "<A><B>"_ezsv},
+
+      // the index goes through the integer conversion, which strips leading zeros
+      {"{Clips[007]}"_ezsv, "<Clips:7>"_ezsv},
+
+      // a template may span several lines
+      {"{A}\n{B}"_ezsv, "<A>\n<B>"_ezsv},
+
+      // non-ASCII text is passed through unchanged
+      {"Gr\u00f6\u00dfe: {Size}"_ezsv, "Gr\u00f6\u00dfe: <Size>"_ezsv},
+
+      // comments count as whitespace inside a placeholder and are swallowed with it
+      {"{ /*c*/ Name }"_ezsv, "<Name>"_ezsv},
+
+      // a comment is a single token, so a placeholder inside one is not resolved
+      {"/* {Name} */"_ezsv, "/* {Name} */"_ezsv},
+
+      // nothing that doesn't form a complete placeholder is touched
+      {"{Name"_ezsv, "{Name"_ezsv},
+      {"Name}"_ezsv, "Name}"_ezsv},
+      {"{}"_ezsv, "{}"_ezsv},
+      {"{123}"_ezsv, "{123}"_ezsv},
+      {"{Clips[]}"_ezsv, "{Clips[]}"_ezsv},
+      {"{Clips[a]}"_ezsv, "{Clips[a]}"_ezsv},
+      {"{Clips[-1]}"_ezsv, "{Clips[-1]}"_ezsv},
+      {"{Clips[99999999999999]}"_ezsv, "{Clips[99999999999999]}"_ezsv},
+      {"{$}"_ezsv, "{$}"_ezsv},
+      {"{$$Name}"_ezsv, "{$$Name}"_ezsv},
+      {"{$0}"_ezsv, "{$0}"_ezsv},
+      {"{?}"_ezsv, "{?}"_ezsv},
+      {"{??Name}"_ezsv, "{??Name}"_ezsv},
+      {"{$?Name}"_ezsv, "{$?Name}"_ezsv},
+      {"{{Name}}"_ezsv, "{<Name>}"_ezsv},
+      {"100% {Name} & <stuff>"_ezsv, "100% <Name> & <stuff>"_ezsv},
+
+      // placeholders inside quoted sections are resolved as well, the quotes are preserved
+      {"Sample Clip: '{Clip}'"_ezsv, "Sample Clip: '<Clip>'"_ezsv},
+      {"Log: \"{Text}\""_ezsv, "Log: \"<Text>\""_ezsv},
+      {"Set Number: '{BlackboardEntry}' to {Number}"_ezsv, "Set Number: '<BlackboardEntry>' to <Number>"_ezsv},
+      {"BlendSpace 1D: '{Clips[0]}' '{Clips[1]}'"_ezsv, "BlendSpace 1D: '<Clips:0>' '<Clips:1>'"_ezsv},
+      {"'\"{A}\"'"_ezsv, "'\"<A>\"'"_ezsv},
+      {"'{?A}'"_ezsv, "'(A)'"_ezsv},
+      {"Log: 'nothing here'"_ezsv, "Log: 'nothing here'"_ezsv},
+      {"''"_ezsv, "''"_ezsv},
+      {"\"\""_ezsv, "\"\""_ezsv},
+    };
+
+    for (const auto& test : tests)
+    {
+      ezTokenParseUtils::RenderTemplate(test.m_sTemplate, Resolver, sOutput);
+      EZ_TEST_STRING(sOutput, test.m_sExpected);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RenderTemplate: optional flag")
+  {
+    // Mimics a node title that omits optional placeholders.
+    auto Resolver = [](ezStringView sPlaceholder, ezVariant index, bool bOptional, ezStringBuilder& ref_sOutput)
+    {
+      EZ_IGNORE_UNUSED(index);
+      if (!bOptional)
+      {
+        ref_sOutput.Append(sPlaceholder);
+      }
+    };
+
+    ezStringBuilder sOutput;
+
+    ezTokenParseUtils::RenderTemplate("{?A}"_ezsv, Resolver, sOutput);
+    EZ_TEST_STRING(sOutput, "");
+
+    ezTokenParseUtils::RenderTemplate("{?A}{?B}{C}"_ezsv, Resolver, sOutput);
+    EZ_TEST_STRING(sOutput, "C");
+
+    ezTokenParseUtils::RenderTemplate("Set {Name} to {?Value}"_ezsv, Resolver, sOutput);
+    EZ_TEST_STRING(sOutput, "Set Name to ");
+
+    // the quotes around a dropped placeholder remain, which is what callers have to clean up afterwards
+    ezTokenParseUtils::RenderTemplate("['{?A}' '{?B}']"_ezsv, Resolver, sOutput);
+    EZ_TEST_STRING(sOutput, "['' '']");
+  }
 }

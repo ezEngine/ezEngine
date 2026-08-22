@@ -7,6 +7,7 @@
 #include <GuiFoundation/VisualGraph/Scene.moc.h>
 
 class ezQtVisualGraphView;
+struct ezVisualShaderPinDescriptor;
 
 /// Qt scene for visual shader asset editing.
 ///
@@ -43,4 +44,9 @@ public:
   virtual void InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject) override;
 
   virtual void UpdateState() override;
+
+private:
+  static bool TryParseSlotPlaceholder(ezStringView sPlaceholder, ezStringView sPrefix, ezUInt32 uiSlotCount, ezUInt32& out_uiSlot);
+  void ResolvePlaceholder(ezStringView sPlaceholder, const ezVariant& index, bool bOptional, const TitleFormat& format, ezStringBuilder& ref_sOutput);
+  void AppendInputPinValue(const ezVisualShaderPinDescriptor& pinDesc, ezUInt32 uiPin, const TitleFormat& format, ezStringBuilder& ref_sOutput);
 };

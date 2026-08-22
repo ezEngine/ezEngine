@@ -15,6 +15,9 @@ public:
   virtual void InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject) override;
 
   virtual void UpdateState() override;
+
+private:
+  void ResolvePlaceholder(ezStringView sPlaceholder, const ezVariant& index, bool bOptional, const TitleFormat& format, ezStringBuilder& ref_sOutput);
 };
 
 /// Qt graphics item for procedural generation pins.
