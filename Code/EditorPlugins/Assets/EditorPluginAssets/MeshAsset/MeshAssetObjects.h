@@ -60,6 +60,7 @@ public:
   ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::NegativeX;
   ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveY;
   bool m_bFlipForwardDir = false;
+  ezVec3 m_vPositionOffset = ezVec3::MakeZero();
 
   ezMeshPrimitive::Enum m_PrimitiveType = ezMeshPrimitive::Default;
 

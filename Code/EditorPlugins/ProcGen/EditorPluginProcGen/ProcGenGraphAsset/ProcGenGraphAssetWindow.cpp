@@ -183,7 +183,13 @@ void ezProcGenGraphAssetDocumentWindow::SelectionEventHandler(const ezSelectionM
         // Check again if the selection is empty. This could have changed due to the delayed execution.
         if (pSelectionManager->IsSelectionEmpty())
         {
-          pSelectionManager->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
+          EZ_ASSERT_DEV(pDocument, "");
+          EZ_ASSERT_DEV(pDocument->GetObjectManager(), "");
+          EZ_ASSERT_DEV(pDocument->GetObjectManager()->GetRootObject(), "");
+          if (pDocument->GetObjectManager()->GetRootObject()->GetChildren().IsEmpty() == false)
+          {
+            pSelectionManager->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
+          }
         }
       });
   }

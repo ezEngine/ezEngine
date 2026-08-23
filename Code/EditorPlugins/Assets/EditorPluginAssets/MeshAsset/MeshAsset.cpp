@@ -75,7 +75,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
   // const ezMat4 mTrans(mTransformation, ezVec3::MakeZero());
 
   ezGeometry::GeoOptions opt;
-  opt.m_Transform = ezMat4(mTransformation, ezVec3::MakeZero());
+  opt.m_Transform = ezMat4(mTransformation, pProp->m_vPositionOffset);
 
   auto detail1 = pProp->m_uiDetail;
   auto detail2 = pProp->m_uiDetail2;
@@ -227,6 +227,7 @@ ezTransformStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties*
   opt.m_bHighPrecision = pProp->m_bHighPrecision;
   opt.m_MeshVertexColorConversion = pProp->m_VertexColorConversion;
   opt.m_RootTransform = CalculateTransformationMatrix(pProp);
+  opt.m_vRootPosition = pProp->m_vPositionOffset;
   opt.m_pMeshOutput = &desc;
 
   // include tags

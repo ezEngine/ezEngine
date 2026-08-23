@@ -1702,7 +1702,7 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
     m_Capabilities.m_uiDedicatedVRAM = static_cast<ezUInt64>(dedicatedMemory);
     m_Capabilities.m_uiDedicatedSystemRAM = static_cast<ezUInt64>(systemMemory);
     m_Capabilities.m_uiSharedSystemRAM = static_cast<ezUInt64>(0); // TODO
-    m_Capabilities.m_bHardwareAccelerated = m_Properties.properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu;
+    m_Capabilities.m_bHardwareAccelerated = m_Properties.properties.deviceType != vk::PhysicalDeviceType::eCpu;
     m_Capabilities.m_bSupportsTexelBuffer = true;
     m_Capabilities.m_bSupportsMultiSampledArrays = true;
   }
