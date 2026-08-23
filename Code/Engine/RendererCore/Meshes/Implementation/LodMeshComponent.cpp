@@ -20,7 +20,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLodMeshLod, ezNoBase, 2, ezRTTIDefaultAllocator
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezLodMeshComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezLodMeshComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
