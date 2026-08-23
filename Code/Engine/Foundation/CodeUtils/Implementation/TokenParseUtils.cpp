@@ -2,6 +2,8 @@
 
 #include <Foundation/CodeUtils/TokenParseUtils.h>
 #include <Foundation/CodeUtils/Tokenizer.h>
+#include <Foundation/Types/Variant.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
 namespace ezTokenParseUtils
 {
@@ -258,5 +260,103 @@ namespace ezTokenParseUtils
       sTemp = Tokens[t]->m_DataView;
       ref_sResult.Append(sTemp.GetView());
     }
+  }
+
+  void RenderTemplate(ezStringView sTemplate, const ezDelegate<void(ezStringView sPlaceholder, ezVariant index, bool bOptional, ezStringBuilder& ref_sOutput)>& resolveAndAppendPlaceholder, ezStringBuilder& out_sOutput)
+  {
+    ezTokenizer tokenizer(ezTempAllocator::Get());
+    tokenizer.Tokenize(ezMakeByteArrayPtr(sTemplate.GetStartPointer(), sTemplate.GetElementCount()), ezLog::GetThreadLocalLogSystem(), false);
+
+    ezUInt32 uiCurToken = 0;
+    ezTempHybridArray<const ezToken*, 32> tokens;
+    tokens.Reserve(tokenizer.GetTokens().GetCount());
+    for (const ezToken& token : tokenizer.GetTokens())
+    {
+      tokens.PushBack(&token);
+    }
+
+    out_sOutput.Clear();
+    out_sOutput.Reserve(sTemplate.GetElementCount());
+
+    const char* szStart = sTemplate.GetStartPointer();
+    while (!Accept(tokens, uiCurToken, ezTokenType::EndOfFile))
+    {
+      const ezToken* pToken = tokens[uiCurToken];
+
+      // Find '{', an optional '?' and '$', a NAME, an optional '[INDEX]' and finally '}'.
+      ezUInt32 uiNextToken = uiCurToken;
+      ezUInt32 uiOpenToken = 0;
+      ezUInt32 uiNameToken = 0;
+      ezUInt32 uiCloseToken = 0;
+      bool bOptional = false;
+      bool bMatched = false;
+      ezVariant index;
+
+      if (Accept(tokens, uiNextToken, "{"_ezsv, &uiOpenToken))
+      {
+        bOptional = Accept(tokens, uiNextToken, "?"_ezsv);
+
+        // the '$' carries no meaning, {$NAME} and {NAME} are equivalent
+        Accept(tokens, uiNextToken, "$"_ezsv);
+
+        if (Accept(tokens, uiNextToken, ezTokenType::Identifier, &uiNameToken))
+        {
+          bool bIndexValid = true;
+
+          ezUInt32 uiIndexToken = 0;
+          if (Accept(tokens, uiNextToken, "["_ezsv))
+          {
+            bIndexValid = Accept(tokens, uiNextToken, ezTokenType::Integer, &uiIndexToken) && Accept(tokens, uiNextToken, "]"_ezsv);
+
+            if (bIndexValid)
+            {
+              // an integer token that doesn't fit into ezInt32 is not treated as a placeholder
+              ezInt32 iIndex = 0;
+              bIndexValid = ezConversionUtils::StringToInt(tokens[uiIndexToken]->m_DataView, iIndex).Succeeded();
+
+              if (bIndexValid)
+              {
+                index = iIndex;
+              }
+            }
+          }
+
+          bMatched = bIndexValid && Accept(tokens, uiNextToken, "}"_ezsv, &uiCloseToken);
+        }
+      }
+
+      if (bMatched)
+      {
+        out_sOutput.Append(ezStringView(szStart, tokens[uiOpenToken]->m_DataView.GetStartPointer()));
+        resolveAndAppendPlaceholder(tokens[uiNameToken]->m_DataView, index, bOptional, out_sOutput);
+        szStart = tokens[uiCloseToken]->m_DataView.GetEndPointer();
+        uiCurToken = uiNextToken;
+      }
+      else if (pToken->m_iType == ezTokenType::String1 || pToken->m_iType == ezTokenType::String2)
+      {
+        // The tokenizer turns a quoted section into a single string token, so placeholders inside it have to be resolved by rendering the string content (without the enclosing quotes) separately.
+        const char* szContentStart = pToken->m_DataView.GetStartPointer() + 1;
+        const char* szContentEnd = pToken->m_DataView.GetEndPointer();
+
+        // an unterminated string literal has no closing quote to exclude
+        if (szContentEnd > szContentStart && *(szContentEnd - 1) == *pToken->m_DataView.GetStartPointer())
+        {
+          --szContentEnd;
+        }
+
+        ezStringBuilder sContent(ezTempAllocator::Get());
+        RenderTemplate(ezStringView(szContentStart, szContentEnd), resolveAndAppendPlaceholder, sContent);
+
+        out_sOutput.Append(ezStringView(szStart, szContentStart));
+        out_sOutput.Append(sContent.GetView());
+        szStart = szContentEnd;
+        ++uiCurToken;
+      }
+      else
+      {
+        ++uiCurToken;
+      }
+    }
+    out_sOutput.Append(ezStringView(szStart, sTemplate.GetEndPointer()));
   }
 } // namespace ezTokenParseUtils

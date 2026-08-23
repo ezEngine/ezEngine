@@ -2,6 +2,7 @@
 
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAsset.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphQt.h>
+#include <Foundation/CodeUtils/TokenParseUtils.h>
 
 
 #include <QMenu>
@@ -41,98 +42,61 @@ void ezQtProcGenNode::InitNode(const ezVisualGraphObjectManager* pManager, const
 
 void ezQtProcGenNode::UpdateState()
 {
+  TitleFormat format;
+  format.m_uiMaxStringLength = 0;
+  format.m_bQuoteStrings = false;
+  format.m_bSplitAtDoubleColon = false;
+  format.m_bBoolsAsTicks = true;
+
+  ezStringBuilder sTemplate;
+  if (!TryGetTitleTemplateFromAttribute(sTemplate))
+  {
+    sTemplate = GetObject()->GetType()->GetTypeName();
+    if (sTemplate.StartsWith_NoCase("ezProcGen"))
+    {
+      sTemplate.Shrink(9, 0);
+    }
+    sTemplate.TrimLeft("_");
+  }
+
   ezStringBuilder sTitle;
+  ezTokenParseUtils::RenderTemplate(sTemplate, [&](ezStringView sPlaceholder, ezVariant index, bool bOptional, ezStringBuilder& ref_sOutput)
+    { ResolvePlaceholder(sPlaceholder, index, bOptional, format, ref_sOutput); }, sTitle);
 
-  const ezRTTI* pRtti = GetObject()->GetType();
-  auto& typeAccessor = GetObject()->GetTypeAccessor();
+  SetTitleAndSubtitle(sTitle, format);
 
-  if (const ezTitleAttribute* pAttr = pRtti->GetAttributeByType<ezTitleAttribute>())
+  ezVariant active = GetObject()->GetTypeAccessor().GetValue("Active");
+  if (active.IsA<bool>())
   {
-    ezStringBuilder temp;
-    ezStringBuilder temp2;
-
-    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
-    pRtti->GetAllProperties(properties);
-
-    sTitle = pAttr->GetTitle();
-
-    for (const auto& pin : GetInputPins())
-    {
-      temp.Set("{", pin->GetPin()->GetName(), "}");
-
-      if (pin->HasAnyConnections())
-      {
-        sTitle.ReplaceAll(temp, pin->GetPin()->GetName());
-      }
-      else
-      {
-        temp2.Set("{Input", pin->GetPin()->GetName(), "}");
-        sTitle.ReplaceAll(temp, temp2);
-      }
-    }
-
-    ezVariant val;
-    ezStringBuilder sVal;
-    ezStringBuilder sEnumVal;
-
-    for (const auto& prop : properties)
-    {
-      if (prop->GetCategory() == ezPropertyCategory::Set)
-      {
-        sVal = "{";
-
-        ezTempHybridArray<ezVariant, 16> values;
-        typeAccessor.GetValues(prop->GetPropertyName(), values);
-        for (auto& setVal : values)
-        {
-          if (sVal.GetElementCount() > 1)
-          {
-            sVal.Append(", ");
-          }
-          sVal.Append(setVal.ConvertTo<ezString>().GetView());
-        }
-
-        sVal.Append("}");
-      }
-      else
-      {
-        val = typeAccessor.GetValue(prop->GetPropertyName());
-
-        if (prop->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || prop->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
-        {
-          ezReflectionUtils::EnumerationToString(prop->GetSpecificType(), val.ConvertTo<ezInt64>(), sEnumVal);
-          sVal = ezTranslate(sEnumVal);
-        }
-        else if (prop->GetSpecificType() == ezGetStaticRTTI<bool>())
-        {
-          sVal = val.Get<bool>() ? "[x]" : "[ ]";
-
-          if (ezStringUtils::IsEqual(prop->GetPropertyName(), "Active"))
-          {
-            SetActive(val.Get<bool>());
-          }
-        }
-        else if (val.CanConvertTo<ezString>())
-        {
-          sVal = val.ConvertTo<ezString>();
-        }
-      }
-
-      temp.Set("{", prop->GetPropertyName(), "}");
-      sTitle.ReplaceAll(temp, sVal);
-    }
+    SetActive(active.Get<bool>());
   }
-  else
+}
+
+void ezQtProcGenNode::ResolvePlaceholder(ezStringView sPlaceholder, const ezVariant& index, bool bOptional, const TitleFormat& format, ezStringBuilder& ref_sOutput)
+{
+  for (const auto& pin : GetInputPins())
   {
-    sTitle = pRtti->GetTypeName();
-    if (sTitle.StartsWith_NoCase("ezProcGen"))
+    if (pin->GetPin()->GetName() != sPlaceholder)
+      continue;
+
+    if (pin->HasAnyConnections())
     {
-      sTitle.Shrink(9, 0);
+      if (!bOptional)
+      {
+        ref_sOutput.Append(sPlaceholder);
+      }
     }
-    sTitle.TrimLeft("_");
+    else
+    {
+      // an unconnected pin falls back to the constant stored in the matching 'Input<PinName>' property
+      ezStringBuilder sInputProperty("Input", sPlaceholder);
+      ResolvePropertyPlaceholder(sInputProperty, index, bOptional, format, ref_sOutput);
+    }
+
+    return;
   }
 
-  m_pTitleLabel->setPlainText(sTitle.GetData());
+  ResolvePropertyPlaceholder(sPlaceholder, index, bOptional, format, ref_sOutput);
 }
 
 //////////////////////////////////////////////////////////////////////////
