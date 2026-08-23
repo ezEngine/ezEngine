@@ -95,7 +95,7 @@ ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStr
 
       ezGeometry geom;
       ezGeometry::GeoOptions opt;
-      opt.m_Transform = ezMat4(mTransformation, ezVec3::MakeZero());
+      opt.m_Transform = ezMat4(mTransformation, pProp->m_vPositionOffset);
 
       meshDesc.m_bFlipNormals = ezGraphicsUtils::IsTriangleFlipRequired(mTransformation);
 
@@ -192,6 +192,7 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltMeshDesc& ou
   opt.m_sSourceFile = sAbsFilename;
   opt.m_pMeshOutput = &meshDesc;
   opt.m_RootTransform = CalculateTransformationMatrix(pProp);
+  opt.m_vRootPosition = pProp->m_vPositionOffset;
 
   // include tags
   {

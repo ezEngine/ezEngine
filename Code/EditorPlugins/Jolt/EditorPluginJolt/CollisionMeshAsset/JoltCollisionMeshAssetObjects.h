@@ -68,6 +68,7 @@ public:
   ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::NegativeX;
   ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveY;
   bool m_bFlipForwardDir = false;
+  ezVec3 m_vPositionOffset = ezVec3::MakeZero();
   bool m_bIsConvexMesh = false;
   ezEnum<ezJoltConvexCollisionMeshType> m_ConvexMeshType;
   ezUInt16 m_uiMaxConvexPieces = 2;
