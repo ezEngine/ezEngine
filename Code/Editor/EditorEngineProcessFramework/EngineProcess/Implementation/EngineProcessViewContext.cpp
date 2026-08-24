@@ -132,7 +132,19 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
       SetupRenderTarget(pOutput->m_hSwapChain, nullptr, static_cast<ezUInt16>(wndSize.width), static_cast<ezUInt16>(wndSize.height));
     }
 
-    m_hEditorWindow = pWinMan->Register("EditorView", this, std::move(pWindow));
+    // The document guid goes into the name because this process registers one window per open document
+    // window, and they are otherwise indistinguishable: anything that picks a window by index or by
+    // name (app_info and app_screenshot over MCP) could only ever guess which document it got.
+    ezStringBuilder sWindowName("EditorView");
+
+    if (m_pDocumentContext != nullptr)
+    {
+      ezStringBuilder sGuid;
+      ezConversionUtils::ToString(m_pDocumentContext->GetDocumentGuid(), sGuid);
+      sWindowName.AppendFormat(" {}", sGuid);
+    }
+
+    m_hEditorWindow = pWinMan->Register(sWindowName, this, std::move(pWindow));
     pWinMan->SetOutputTarget(m_hEditorWindow, std::move(pOutput));
   }
 }

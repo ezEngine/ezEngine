@@ -84,11 +84,25 @@ Nothing works on a closed document, and nothing opens implicitly:
 
 1. `asset_find` → path or guid. Its paths start with the data directory name
    (`Testing Chambers/Scenes/DynamicFog.ezScene`) - that is the form other tools want.
-2. `document_open` with `focus` false, unless the user is meant to look at it.
+2. `document_open` with `path` (not `document` - see below) and `focus` false, unless the user is meant
+   to look at it.
 3. `object_tree` → guids. Asset documents have one top level object, so `object_properties` with only
    `document` already reads an asset's whole configuration. Scenes have many.
 4. `object_properties` / `object_modify`.
 5. `document_save` - nothing saves on its own, and the asset system sees nothing until it is saved.
+
+**Which argument names a tool takes**, because guessing costs a round trip and they follow a rule:
+
+| Argument | Tools | Why |
+| --- | --- | --- |
+| `path` | `document_open`, `document_create`, `document_delete` | act on a file that need not be open yet |
+| `document` | `object_*`, `selection_*`, `document_save`/`_close`/`_focus`, and the `document` argument of the action tools | act on an already open document |
+| `asset` | `asset_info`, `asset_transform`, `asset_thumbnail`, `asset_uses` | act on the asset database, open or not |
+| `name` | `action_execute`, `action_state`, `rtti_*`, `cvar_set` | the thing named is not a document at all |
+
+So it is `document_open` `path`, `action_execute` `name`, `rtti_derived_types` `name`. When in doubt read
+the schema from `tools/list` rather than guessing - and note that a wrong name fails with a message that
+says the right one.
 
 A scene's game objects and components live in the same hierarchy, told apart by the parent property they
 sit in. Building one is all `object_modify`:
