@@ -18,6 +18,7 @@ private:
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return false; }
+  virtual void AppendAssetInfoSummary(ezStringBuilder& ref_sOut, const ezAssetInfoFile& info, ezStringView sLinePrefix = "\n"_ezsv) const override;
 
   ezAssetDocumentTypeDescriptor m_DocTypeDesc;
 };

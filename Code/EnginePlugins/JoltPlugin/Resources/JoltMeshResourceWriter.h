@@ -61,6 +61,14 @@ struct ezJoltMeshDesc
   ezDynamicArray<ezString> m_Surfaces;
 };
 
+/// Stats for the geometry that cooking produced.
+struct ezJoltCookedMeshStats
+{
+  ezUInt32 m_uiNumVertices = 0;  ///< Summed over all parts, for a decomposition or hull group.
+  ezUInt32 m_uiNumTriangles = 0; ///< Summed over all parts, for a decomposition or hull group.
+  ezUInt32 m_uiNumParts = 0;     ///< How many convex pieces were produced. 1 for a single hull, 0 for a triangle mesh.
+};
+
 /// \brief Helper class for writing ezJoltMeshResource and ezJoltHeightfieldResource files.
 class EZ_JOLTPLUGIN_DLL ezJoltMeshResourceWriter
 {
@@ -68,7 +76,7 @@ public:
   /// \brief Writes the given mesh description to the provided stream so that it can be loaded as an ezJoltMeshResource.
   ///
   /// Set bWriteAssetHeader to false if the asset header has already been written to the stream, e.g. in case of an asset transformation.
-  static ezResult WriteMeshResource(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream, bool bWriteAssetHeader = true, ezUInt64 uiAssetHash = 0);
+  static ezResult WriteMeshResource(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream, bool bWriteAssetHeader = true, ezUInt64 uiAssetHash = 0, ezJoltCookedMeshStats* out_pStats = nullptr);
 
   /// Cooks the Jolt heightfield shape and writes it to the provided stream so that it can be loaded as an ezJoltHeightfieldResource.
   ///
@@ -78,10 +86,10 @@ public:
 private:
   static ezResult ComputeConvexHull(const ezDynamicArray<ezVec3>& vertices, ezDynamicArray<ezVec3>& out_hullVertices);
 
-  static ezResult CookSingleConvexJoltMesh(const ezDynamicArray<ezVec3>& vertices, ezStreamWriter& inout_stream);
+  static ezResult CookSingleConvexJoltMesh(const ezDynamicArray<ezVec3>& vertices, ezStreamWriter& inout_stream, ezJoltCookedMeshStats& ref_stats);
 
   static ezResult CookTriangleMesh(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream);
-  static ezResult CookConvexMesh(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream);
-  static ezResult CookDecomposedConvexMesh(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream);
-  static ezResult CookConvexHullGroup(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream);
+  static ezResult CookConvexMesh(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream, ezJoltCookedMeshStats& ref_stats);
+  static ezResult CookDecomposedConvexMesh(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream, ezJoltCookedMeshStats& ref_stats);
+  static ezResult CookConvexHullGroup(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream, ezJoltCookedMeshStats& ref_stats);
 };

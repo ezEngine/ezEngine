@@ -66,3 +66,9 @@ ezUInt64 ezTextureCubeAssetDocumentManager::ComputeAssetProfileHashImpl(const ez
   // don't have any settings yet, but assets that generate profile specific output must not return 0 here
   return 1;
 }
+
+void ezTextureCubeAssetDocumentManager::AppendAssetInfoSummary(ezStringBuilder& ref_sOut, const ezAssetInfoFile& info, ezStringView sLinePrefix) const
+{
+  const ezStringView keys[] = {ezAssetInfoFile::Keys::ImageWidth, ezAssetInfoFile::Keys::Format};
+  info.AppendValuesToDisplayString(ref_sOut, keys, sLinePrefix);
+}

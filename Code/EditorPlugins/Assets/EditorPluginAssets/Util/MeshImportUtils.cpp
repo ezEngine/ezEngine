@@ -7,6 +7,7 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/JSONReader.h>
+#include <Foundation/Utilities/AssetInfoFile.h>
 #include <Foundation/Utilities/Progress.h>
 #include <ModelImporter2/Importer/Importer.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
@@ -208,6 +209,40 @@ namespace ezMeshImportUtils
     {
       ref_desc.SetMaterial(i, materialSlots[i].m_sResource);
     }
+  }
+
+  void RecordMeshTransformInfo(ezAssetInfoFile& ref_info, const ezMeshResourceDescriptor& desc)
+  {
+    const auto& mbd = desc.MeshBufferDesc();
+
+    ref_info.SetValue(ezAssetInfoFile::Keys::NumVertices, mbd.GetVertexCount());
+    ref_info.SetValue(ezAssetInfoFile::Keys::NumTriangles, mbd.GetPrimitiveCount());
+    ref_info.SetValue(ezAssetInfoFile::Keys::NumSubMeshes, desc.GetSubMeshes().GetCount());
+
+    const ezBoundingBoxSphere& bounds = desc.GetBounds();
+
+    if (bounds.IsValid())
+    {
+      ref_info.SetValue(ezAssetInfoFile::Keys::BoundsCenter, bounds.m_vCenter);
+      ref_info.SetValue(ezAssetInfoFile::Keys::BoundsHalfExtents, bounds.m_vBoxHalfExtents);
+      ref_info.SetValue(ezAssetInfoFile::Keys::BoundsRadius, bounds.m_fSphereRadius);
+    }
+  }
+
+  void RecordAvailableMeshes(ezAssetInfoFile& ref_info, const ezModelImporter2::Importer* pImporter)
+  {
+    if (pImporter == nullptr || pImporter->m_OutputMeshNames.IsEmpty())
+      return;
+
+    ezVariantArray meshNames;
+    meshNames.Reserve(pImporter->m_OutputMeshNames.GetCount());
+
+    for (const auto& sName : pImporter->m_OutputMeshNames)
+    {
+      meshNames.PushBack(ezVariant(sName));
+    }
+
+    ref_info.SetValue(ezAssetInfoFile::Keys::AvailableMeshes, ezVariant(meshNames));
   }
 
   static void ImportMeshAssetMaterialProperties(ezMaterialAssetDocument* pMaterialDoc, const ezModelImporter2::OutputMaterial& material, const char* szImportSourceFolder, const char* szImportTargetFolder, const ezModelImporter2::Importer* pImporter)

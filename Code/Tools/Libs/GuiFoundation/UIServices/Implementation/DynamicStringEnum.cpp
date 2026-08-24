@@ -6,6 +6,7 @@
 
 ezMap<ezString, ezDynamicStringEnum> ezDynamicStringEnum::s_DynamicEnums;
 ezDelegate<void(ezStringView sEnumName, ezDynamicStringEnum& e)> ezDynamicStringEnum::s_RequestUnknownCallback;
+ezEvent<ezDynamicStringEnum::RefreshValuesEvent&> ezDynamicStringEnum::s_RefreshValuesEvent;
 
 // static
 ezDynamicStringEnum& ezDynamicStringEnum::GetDynamicEnum(ezStringView sEnumName)

@@ -6,7 +6,7 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 6, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 7, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -173,6 +173,13 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   arguments << "-out";
   arguments << szTargetFile;
+
+  // TexConv writes this itself, because only it knows the resolution and format it chose.
+  {
+    const ezStringBuilder sInfoFile = ezAssetInfoFile::GetInfoFilePathForOutput(szTargetFile);
+    arguments << "-assetInfoOut";
+    arguments << sInfoFile.GetData();
+  }
 
   const ezStringBuilder sThumbnail = GetThumbnailFilePath();
   if (bUpdateThumbnail)

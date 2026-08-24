@@ -79,3 +79,9 @@ ezUInt64 ezJoltCollisionMeshAssetDocumentManager::ComputeAssetProfileHashImpl(co
   // don't have any settings yet, but assets that generate profile specific output must not return 0 here
   return 1;
 }
+
+void ezJoltCollisionMeshAssetDocumentManager::AppendAssetInfoSummary(ezStringBuilder& ref_sOut, const ezAssetInfoFile& info, ezStringView sLinePrefix) const
+{
+  const ezStringView keys[] = {ezAssetInfoFile::Keys::CollisionMeshType, ezAssetInfoFile::Keys::NumConvexParts, ezAssetInfoFile::Keys::NumTriangles};
+  info.AppendValuesToDisplayString(ref_sOut, keys, sLinePrefix);
+}

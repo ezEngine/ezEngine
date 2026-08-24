@@ -149,6 +149,14 @@ ezString ezAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocument
   return sRelativePath;
 }
 
+ezResult ezAssetDocumentManager::ReadAssetInfoFile(ezAssetInfoFile& out_info, const ezAssetDocumentTypeDescriptor* pTypeDesc, ezStringView sDocumentPath, ezUInt64 uiHash, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile) const
+{
+  const ezString sOutputFile = GetAbsoluteOutputFileName(pTypeDesc, sDocumentPath, sOutputTag, pAssetProfile);
+  const ezStringBuilder sInfoFile = ezAssetInfoFile::GetInfoFilePathForOutput(sOutputFile);
+
+  return out_info.ReadFromFile(sInfoFile, uiHash, static_cast<ezUInt16>(pTypeDesc->m_pDocumentType->GetTypeVersion()));
+}
+
 bool ezAssetDocumentManager::IsOutputUpToDate(ezStringView sDocumentPath, const ezDynamicArray<ezString>& outputs, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor)
 {
   CURATOR_PROFILE(sDocumentPath);

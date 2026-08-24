@@ -128,3 +128,9 @@ void ezMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArra
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
+
+void ezMeshAssetDocumentManager::AppendAssetInfoSummary(ezStringBuilder& ref_sOut, const ezAssetInfoFile& info, ezStringView sLinePrefix) const
+{
+  const ezStringView keys[] = {ezAssetInfoFile::Keys::NumTriangles, ezAssetInfoFile::Keys::BoundsHalfExtents};
+  info.AppendValuesToDisplayString(ref_sOut, keys, sLinePrefix);
+}

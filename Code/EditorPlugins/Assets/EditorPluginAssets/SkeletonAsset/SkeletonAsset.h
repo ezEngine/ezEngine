@@ -31,7 +31,7 @@ public:
 
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
-  ezStatus WriteResource(ezStreamWriter& inout_stream, const ezEditableSkeleton& skeleton) const;
+  ezStatus WriteResource(ezStreamWriter& inout_stream, const ezEditableSkeleton& skeleton, ezUInt16* out_pNumBones = nullptr) const;
 
   bool m_bIsTransforming = false;
 

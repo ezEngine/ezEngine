@@ -5,6 +5,7 @@
 #include <Mcp/McpJsonWriter.h>
 #include <Mcp/McpTranslation.h>
 
+#include <Core/Configuration/PlatformProfile.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
@@ -410,10 +411,19 @@ void ezMcpAssetTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools)
     desc.m_sDescription = "Returns the details of one asset: its absolute and relative paths, type, transform state, tags, "
                           "sub-assets, its dependencies, a link to the documentation of its type, and - if the last transform "
                           "failed - the log messages explaining why. "
-                          "The log messages are the reason to call this on a broken asset instead of searching the editor log.";
+                          "The log messages are the reason to call this on a broken asset instead of searching the editor log. "
+                          "For some asset types an 'info' object reports what the last transform measured, e.g. 'Triangles', "
+                          "'Vertices' and the bounding box ('Center' and 'Extents', so the full size is twice "
+                          "the extents) for a mesh, or 'Width', 'Height' and 'Format' for a texture. Use this to size a "
+                          "collider to a mesh instead of parsing the source file. It is absent when the asset type records "
+                          "nothing or the asset has not been transformed yet. "
+                          "Some asset types produce different output per asset profile, most notably textures, whose format and "
+                          "resolution are chosen per profile. For those the 'info' object carries an 'assetProfile' field naming "
+                          "the profile the values belong to.";
     desc.m_sInputSchema = R"({"type":"object","properties":{)"
                           R"("asset":{"type":"string","description":"The asset GUID or its path, as returned by asset_find. Either form works."},)"
-                          R"("dependencies":{"type":"boolean","description":"If true, include the transform, thumbnail and package dependency lists. Default true. Set to false on assets with many references to keep the result small."})"
+                          R"("dependencies":{"type":"boolean","description":"If true, include the transform, thumbnail and package dependency lists. Default true. Set to false on assets with many references to keep the result small."},)"
+                          R"("profile":{"type":"string","description":"Name of the asset profile to report the 'info' values for, for asset types that transform differently per profile. Defaults to the editor's active profile. A profile that has never been transformed has no values to report."})"
                           R"(},"required":["asset"]})";
   }
 
@@ -988,6 +998,37 @@ void ezMcpAssetTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMcpTool
   }
 
   const bool bDependencies = ezMcpJson::GetBool(arguments, "dependencies", true);
+
+  // Null means 'the active profile', which DetermineFinalTargetProfile() resolves it to later.
+  const ezPlatformProfile* pRequestedProfile = nullptr;
+
+  if (const ezStringView sProfile = ezMcpJson::GetString(arguments, "profile"); !sProfile.IsEmpty())
+  {
+    ezStringBuilder sKnownProfiles;
+
+    for (ezUInt32 i = 0; i < pCurator->GetNumAssetProfiles(); ++i)
+    {
+      const ezPlatformProfile* pCandidate = pCurator->GetAssetProfile(i);
+
+      if (pCandidate->GetConfigName().IsEqual_NoCase(sProfile))
+      {
+        pRequestedProfile = pCandidate;
+        break;
+      }
+
+      sKnownProfiles.AppendWithSeparator(", ", pCandidate->GetConfigName());
+    }
+
+    // Falling back to the active profile would look plausible while being about the wrong platform.
+    if (pRequestedProfile == nullptr)
+    {
+      ezStringBuilder sError;
+      sError.SetFormat("There is no asset profile named '{}'. Known profiles: {}.", sProfile, sKnownProfiles);
+      out_result.SetError(sError);
+      return;
+    }
+  }
+
   const ezAssetInfo* pAssetInfo = asset->m_pAssetInfo;
 
   ezMcpJsonWriter writer;
@@ -1022,6 +1063,34 @@ void ezMcpAssetTool::ExecuteInfo(const ezVariantDictionary& arguments, ezMcpTool
       WriteStringSet(writer, "transformDependencies", pInfo->m_TransformDependencies);
       WriteStringSet(writer, "thumbnailDependencies", pInfo->m_ThumbnailDependencies);
       WriteStringSet(writer, "packageDependencies", pInfo->m_PackageDependencies);
+    }
+  }
+
+  // Facts recorded by the last transform. Most asset types record nothing, so this is frequently absent.
+  if (pAssetInfo->m_pDocumentTypeDescriptor != nullptr && pAssetInfo->m_AssetHash != 0)
+  {
+    if (auto* pManager = static_cast<ezAssetDocumentManager*>(pAssetInfo->m_pDocumentTypeDescriptor->m_pManager))
+    {
+      // Some asset types transform differently per profile, and then these values describe one profile only.
+      const ezPlatformProfile* pProfile = ezAssetDocumentManager::DetermineFinalTargetProfile(pRequestedProfile);
+
+      if (const ezAssetInfoFile* pAssetInfoFile = pAssetInfo->GetTransformInfo({}, pProfile))
+      {
+        writer.BeginObject("info");
+
+        // Named explicitly, so that a profile specific value is not read as if it were the only answer.
+        if (pManager->GeneratesProfileSpecificAssets() && pProfile != nullptr)
+        {
+          writer.AddVariableString("assetProfile", pProfile->GetConfigName());
+        }
+
+        for (auto it = pAssetInfoFile->GetValues().GetIterator(); it.IsValid(); ++it)
+        {
+          writer.AddVariableVariant(it.Key(), it.Value());
+        }
+
+        writer.EndObject();
+      }
     }
   }
 

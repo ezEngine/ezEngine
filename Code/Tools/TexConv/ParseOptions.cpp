@@ -69,6 +69,13 @@ ezCommandLineOptionPath opt_ThumbnailOut("_TexConv", "-thumbnailOut",
 ",
   "");
 
+ezCommandLineOptionPath opt_AssetInfoOut("_TexConv", "-assetInfoOut",
+  "\
+  Path to a file that receives information about the generated texture, such as its final resolution and format.\n\
+  Written only when the output is an ez texture format.\n\
+",
+  "");
+
 ezCommandLineOptionPath opt_LowOut("_TexConv", "-lowOut",
   "\
   Path to low-resolution output file.\n\
@@ -408,6 +415,8 @@ ezResult ezTexConv::ParseOutputFiles()
   {
     m_Processor.m_Descriptor.m_uiThumbnailOutputResolution = opt_ThumbnailRes.GetOptionValue(ezCommandLineOption::LogMode::Always);
   }
+
+  m_sOutputAssetInfoFile = opt_AssetInfoOut.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
   m_sOutputLowResFile = opt_LowOut.GetOptionValue(ezCommandLineOption::LogMode::Always);
 

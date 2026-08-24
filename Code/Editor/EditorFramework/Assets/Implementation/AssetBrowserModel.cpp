@@ -4,6 +4,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <Foundation/Utilities/AssetInfoFile.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
@@ -598,6 +599,15 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int iRole) const
             break;
           default:
             break;
+        }
+
+        // What the last transform measured, e.g. the triangle count and size of a mesh.
+        if (pSubAsset->m_bMainAsset)
+        {
+          if (const ezAssetInfoFile* pInfo = pSubAsset->m_pAssetInfo->GetTransformInfo())
+          {
+            pSubAsset->m_pAssetInfo->GetManager()->AppendAssetInfoSummary(sToolTip, *pInfo);
+          }
         }
 
         return QString::fromUtf8(sToolTip, sToolTip.GetElementCount());

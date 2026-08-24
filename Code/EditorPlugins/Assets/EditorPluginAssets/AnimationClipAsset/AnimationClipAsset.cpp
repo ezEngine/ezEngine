@@ -1,7 +1,9 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
+#include <Foundation/Utilities/AssetInfoFile.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
@@ -38,7 +40,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 4, ezRTTIDefault
   {
     EZ_MEMBER_PROPERTY("File", m_sSourceFile)->AddAttributes(new ezFileBrowserAttribute("Select Animation", ezFileBrowserAttribute::MeshesWithAnimations), new ezRequiredAttribute()),
     EZ_MEMBER_PROPERTY("PreviewMesh", m_sPreviewMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned", ezDependencyFlags::Thumbnail)),
-    EZ_MEMBER_PROPERTY("UseAnimationClip", m_sAnimationClipToExtract),
+    // \see ezAnimationClipAssetDocument::OnRefreshDynamicStringEnum()
+    EZ_MEMBER_PROPERTY("UseAnimationClip", m_sAnimationClipToExtract)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipsInSourceFile")),
     EZ_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame),
     EZ_MEMBER_PROPERTY("NumFrames", m_uiNumFrames),
     EZ_MEMBER_PROPERTY("Additive", m_bAdditive),
@@ -49,19 +52,49 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 4, ezRTTIDefault
     EZ_MEMBER_PROPERTY("RootMotionDistance", m_fConstantRootMotionLength),
     EZ_MEMBER_PROPERTY("AdjustScale", m_fAnimationPositionScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0001f, 10000.0f), new ezGroupAttribute("Adjustments")),
     EZ_ARRAY_MEMBER_PROPERTY("Curves", m_Curves),
-    EZ_ARRAY_MEMBER_PROPERTY("AvailableClips", m_AvailableClips)->AddAttributes(new ezReadOnlyAttribute, new ezTemporaryAttribute(), new ezContainerAttribute(false, false, false), new ezGroupAttribute("Infos")),
     EZ_MEMBER_PROPERTY("EventTrack", m_EventTrack)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetDocument, 5, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetDocument, 6, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezAnimationClipAssetProperties::ezAnimationClipAssetProperties() = default;
 ezAnimationClipAssetProperties::~ezAnimationClipAssetProperties() = default;
+
+void ezAnimationClipAssetDocument::OnRefreshDynamicStringEnum(ezDynamicStringEnum::RefreshValuesEvent& e)
+{
+  if (e.m_sEnumName != "AnimationClipsInSourceFile"_ezsv)
+    return;
+
+  e.m_pEnum->Clear();
+
+  if (e.m_pDocument == nullptr)
+    return;
+
+  const ezAssetCurator::ezLockedSubAsset asset = ezAssetCurator::GetSingleton()->GetSubAsset(e.m_pDocument->GetGuid());
+
+  if (!asset.isValid())
+    return;
+
+  const ezAssetInfoFile* pInfo = asset->m_pAssetInfo->GetTransformInfo();
+
+  if (pInfo == nullptr)
+    return;
+
+  const ezVariant clips = pInfo->GetValue(ezAssetInfoFile::Keys::AvailableClips);
+
+  if (!clips.IsA<ezVariantArray>())
+    return;
+
+  for (const ezVariant& clip : clips.Get<ezVariantArray>())
+  {
+    e.m_pEnum->AddValidValue(clip.ConvertTo<ezString>());
+  }
+}
 
 void ezAnimationClipAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
@@ -187,17 +220,19 @@ ezTransformStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamW
     EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
   }
 
-  // if we found information about animation clips, update the UI, even if the transform failed
+  // Fills the drop down of the 'UseAnimationClip' property, so that a clip can be picked without
+  // opening the source file again.
   if (!pImporter->m_OutputAnimationNames.IsEmpty())
   {
-    pProp->m_AvailableClips.SetCount(pImporter->m_OutputAnimationNames.GetCount());
-    for (ezUInt32 clip = 0; clip < pImporter->m_OutputAnimationNames.GetCount(); ++clip)
+    ezVariantArray clipNames;
+    clipNames.Reserve(pImporter->m_OutputAnimationNames.GetCount());
+
+    for (const auto& sName : pImporter->m_OutputAnimationNames)
     {
-      pProp->m_AvailableClips[clip] = pImporter->m_OutputAnimationNames[clip];
+      clipNames.PushBack(ezVariant(sName));
     }
 
-    // merge the new data with the actual asset document
-    ApplyNativePropertyChangesToObjectManager(true);
+    GetTransformInfo().SetValue(ezAssetInfoFile::Keys::AvailableClips, ezVariant(clipNames));
   }
 
   if (res.Failed())

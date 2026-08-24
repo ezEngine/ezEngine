@@ -116,6 +116,14 @@ void ezQtDynamicStringEnumPropertyWidget::onMenuAboutToShow()
     [this](const QString& sText)
     { s_LastSearch[m_sEnumAttribute] = sText; });
 
+  {
+    ezDynamicStringEnum::RefreshValuesEvent e;
+    e.m_sEnumName = m_sEnumAttribute;
+    e.m_pDocument = m_pGrid->GetDocument();
+    e.m_pEnum = m_pEnum;
+    ezDynamicStringEnum::s_RefreshValuesEvent.Broadcast(e);
+  }
+
   const auto& AllValues = m_pEnum->GetAllValidValues();
 
   for (const auto& val : AllValues)

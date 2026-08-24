@@ -8,6 +8,7 @@
 #include <Foundation/Algorithm/HashHelperString.h>
 #include <Foundation/Application/Config/FileSystemConfig.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/IO/DirectoryWatcher.h>
 #include <Foundation/Logging/LogEntry.h>
@@ -18,6 +19,7 @@
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Timestamp.h>
+#include <Foundation/Utilities/AssetInfoFile.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <ToolsFoundation/FileSystem/DataDirPath.h>
 #include <ToolsFoundation/FileSystem/Declarations.h>
@@ -101,7 +103,32 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
 
   ezSet<ezUuid> m_SubAssets; ///< Main asset uses the same GUID as this (see m_Info), but is NOT stored in m_SubAssets
 
+  /// Returns the values that the last transform recorded. \see ezAssetInfoFile
+  ///
+  /// Returns nullptr when the asset type recorded nothing, when the asset was never transformed, or when the file on
+  /// disk belongs to an older transform.
+  ///
+  /// Only call this while holding the ezAssetCurator lock (see ezLockedSubAsset and ezLockedAssetTable).
+  const ezAssetInfoFile* GetTransformInfo(ezStringView sOutputTag = {}, const ezPlatformProfile* pAssetProfile = nullptr) const;
+
+  /// Drops what GetTransformInfo() cached.
+  void ClearTransformInfoCache() { m_TransformInfoCache.Clear(); }
+
 private:
+  // Filled on demand by GetTransformInfo(). Mutable, because reading a file lazily is not a logical change to the asset.
+  // Keyed by everything that selects a different file: an asset type that transforms per profile has one file per profile.
+  struct TransformInfoCache
+  {
+    ezUInt64 m_uiAssetHash = 0;
+    ezString m_sOutputTag;
+    const ezPlatformProfile* m_pAssetProfile = nullptr;
+    bool m_bValid = false; ///< Whether a file was found. A miss is cached too, so it is not retried on every call.
+    ezAssetInfoFile m_Info;
+  };
+
+  // A deque, so that adding an entry does not invalidate pointers that GetTransformInfo() handed out earlier.
+  mutable ezDeque<TransformInfoCache> m_TransformInfoCache;
+
   EZ_DISALLOW_COPY_AND_ASSIGN(ezAssetInfo);
 };
 

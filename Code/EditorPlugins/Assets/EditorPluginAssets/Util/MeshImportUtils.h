@@ -5,6 +5,7 @@
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 
 class ezMeshResourceDescriptor;
+class ezAssetInfoFile;
 
 namespace ezModelImporter2
 {
@@ -19,6 +20,14 @@ namespace ezMeshImportUtils
   EZ_EDITORPLUGINASSETS_DLL void SetMeshAssetMaterialSlots(ezDynamicArray<ezMaterialResourceSlot>& inout_materialSlots, const ezModelImporter2::Importer* pImporter);
   EZ_EDITORPLUGINASSETS_DLL void CopyMeshAssetMaterialSlotToResource(ezMeshResourceDescriptor& ref_desc, const ezArrayPtr<ezMaterialResourceSlot>& materialSlots);
   EZ_EDITORPLUGINASSETS_DLL void ImportMeshAssetMaterials(ezDynamicArray<ezMaterialResourceSlot>& inout_materialSlots, ezStringView sDocumentDirectory, const ezModelImporter2::Importer* pImporter);
+
+  /// Records vertex and triangle counts, sub-mesh count and the bounding box of a transformed mesh.
+  ///
+  /// Call this after the descriptor has been saved, because saving computes the bounds if they were not set explicitly.
+  EZ_EDITORPLUGINASSETS_DLL void RecordMeshTransformInfo(ezAssetInfoFile& ref_info, const ezMeshResourceDescriptor& desc);
+
+  /// Records the names of the meshes that the source file contains.
+  EZ_EDITORPLUGINASSETS_DLL void RecordAvailableMeshes(ezAssetInfoFile& ref_info, const ezModelImporter2::Importer* pImporter);
 
   /// \brief Extracts external buffer file dependencies from a glTF file and adds them to the transform dependencies set.
   ///

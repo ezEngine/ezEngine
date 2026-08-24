@@ -4,6 +4,7 @@
 #include <EditorPluginJolt/CollisionMeshAsset/JoltCollisionMeshAsset.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetInfoFile.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
 #include <JoltPlugin/Resources/JoltMeshResourceWriter.h>
@@ -15,9 +16,26 @@
 #endif
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshAssetDocument, 10, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshAssetDocument, 11, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
+
+static ezStringView ezJoltMeshTypeToString(ezJoltMeshDesc::Type type)
+{
+  switch (type)
+  {
+    case ezJoltMeshDesc::Type::Triangle:
+      return "Triangle"_ezsv;
+    case ezJoltMeshDesc::Type::ConvexHull:
+      return "ConvexHull"_ezsv;
+    case ezJoltMeshDesc::Type::ConvexDecomposition:
+      return "ConvexDecomposition"_ezsv;
+    case ezJoltMeshDesc::Type::ConvexHullGroup:
+      return "ConvexHullGroup"_ezsv;
+  }
+
+  return "Unknown"_ezsv;
+}
 
 static ezMat3 CalculateTransformationMatrix(const ezJoltCollisionMeshAssetProperties* pProp)
 {
@@ -163,13 +181,49 @@ ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStr
     }
   }
 
+  // Surfaces and bounds are properties of the input mesh and do not change during cooking. The vertex
+  // and triangle counts are taken from the cooking statistics below instead. \see ezJoltCookedMeshStats
+  {
+    ezAssetInfoFile& info = GetTransformInfo();
+    info.SetValue(ezAssetInfoFile::Keys::NumSurfaces, meshDesc.m_Surfaces.GetCount());
+    info.SetValue(ezAssetInfoFile::Keys::CollisionMeshType, ezJoltMeshTypeToString(meshDesc.m_Type));
+
+    if (!meshDesc.m_Vertices.IsEmpty())
+    {
+      const ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeFromPoints(meshDesc.m_Vertices.GetData(), meshDesc.m_Vertices.GetCount());
+
+      if (bounds.IsValid())
+      {
+        info.SetValue(ezAssetInfoFile::Keys::BoundsCenter, bounds.m_vCenter);
+        info.SetValue(ezAssetInfoFile::Keys::BoundsHalfExtents, bounds.m_vBoxHalfExtents);
+        info.SetValue(ezAssetInfoFile::Keys::BoundsRadius, bounds.m_fSphereRadius);
+      }
+    }
+  }
+
   // Please check that the code here is in sync with ezJoltMeshResourceWriter::WriteMeshResource()
-  EZ_ASSERT_DEV(AssetHeader.GetFileVersion() == 10, "Version change");
+  EZ_ASSERT_DEV(AssetHeader.GetFileVersion() == 11, "Version change");
 
   range.BeginNextStep("Writing Result");
 
   const bool bWriteAssetHeader = false; // already written outside of InternalTransformAsset
-  return ezJoltMeshResourceWriter::WriteMeshResource(std::move(meshDesc), stream, bWriteAssetHeader);
+
+  ezJoltCookedMeshStats stats;
+  EZ_SUCCEED_OR_RETURN(ezJoltMeshResourceWriter::WriteMeshResource(std::move(meshDesc), stream, bWriteAssetHeader, 0, &stats));
+
+  {
+    ezAssetInfoFile& info = GetTransformInfo();
+    info.SetValue(ezAssetInfoFile::Keys::NumVertices, stats.m_uiNumVertices);
+    info.SetValue(ezAssetInfoFile::Keys::NumTriangles, stats.m_uiNumTriangles);
+
+    // Only interesting when the mesh was split into several hulls.
+    if (stats.m_uiNumParts > 1)
+    {
+      info.SetValue(ezAssetInfoFile::Keys::NumConvexParts, stats.m_uiNumParts);
+    }
+  }
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltMeshDesc& outMesh)
@@ -226,6 +280,8 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltMeshDesc& ou
 
   if (pImporter->Import(opt).Failed())
     return ezStatus("Model importer was unable to read this asset.");
+
+  ezMeshImportUtils::RecordAvailableMeshes(GetTransformInfo(), pImporter.Borrow());
 
   const auto& meshBuffer = meshDesc.MeshBufferDesc();
 

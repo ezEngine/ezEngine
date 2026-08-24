@@ -55,3 +55,9 @@ void ezSkeletonAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamic
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
+
+void ezSkeletonAssetDocumentManager::AppendAssetInfoSummary(ezStringBuilder& ref_sOut, const ezAssetInfoFile& info, ezStringView sLinePrefix) const
+{
+  const ezStringView keys[] = {ezAssetInfoFile::Keys::NumBones};
+  info.AppendValuesToDisplayString(ref_sOut, keys, sLinePrefix);
+}

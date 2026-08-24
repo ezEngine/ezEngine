@@ -614,6 +614,7 @@ void ezAssetCurator::InvalidateAssetTransformState(const ezUuid& assetGuid)
       pAssetInfo->m_AssetHash = 0;
       pAssetInfo->m_ThumbHash = 0;
       pAssetInfo->m_PackageHash = 0;
+      pAssetInfo->ClearTransformInfoCache();
     }
   }
 }

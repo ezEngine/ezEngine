@@ -2,6 +2,7 @@
 
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetInfoFile.h>
 #include <TexConv/TexConv.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/Image/Formats/StbImageFileFormats.h>
@@ -548,6 +549,29 @@ void ezTexConv::Run()
       }
 
       ezLog::Success("Wrote thumbnail to '{}'", m_sOutputThumbnailFile);
+    }
+
+    if (!m_sOutputAssetInfoFile.IsEmpty() && m_Processor.m_OutputImage.IsValid())
+    {
+      const ezImageHeader& header = m_Processor.m_OutputImage.GetHeader();
+
+      ezAssetInfoFile info;
+      info.SetValue(ezAssetInfoFile::Keys::ImageWidth, header.GetWidth());
+      info.SetValue(ezAssetInfoFile::Keys::ImageHeight, header.GetHeight());
+      info.SetValue(ezAssetInfoFile::Keys::Format, ezImageFormat::GetName(header.GetImageFormat()));
+      info.SetValue("MipLevels", header.GetNumMipLevels());
+
+      ezAssetFileHeader assetHeader;
+      assetHeader.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
+
+      if (info.WriteToFile(m_sOutputAssetInfoFile, assetHeader).Failed())
+      {
+        ezLog::Error("Failed to write asset info to '{}'", m_sOutputAssetInfoFile);
+        QuitApplication();
+        return;
+      }
+
+      ezLog::Success("Wrote asset info to '{}'", m_sOutputAssetInfoFile);
     }
 
     if (!m_sOutputLowResFile.IsEmpty())

@@ -8,7 +8,7 @@
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 14, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 15, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -63,9 +63,10 @@ ezTransformStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
   range.BeginNextStep("Writing Result");
   desc.Save(stream);
 
+  ezMeshImportUtils::RecordMeshTransformInfo(GetTransformInfo(), desc);
+
   return ezStatus(EZ_SUCCESS);
 }
-
 
 void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor& desc)
 {
@@ -262,6 +263,8 @@ ezTransformStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties*
 
   if (pImporter->Import(opt).Failed())
     return ezStatus("Model importer was unable to read this asset.");
+
+  ezMeshImportUtils::RecordAvailableMeshes(GetTransformInfo(), pImporter.Borrow());
 
   if (desc.GetSubMeshes().IsEmpty() || !desc.GetBounds().IsValid())
     return ezStatus("Imported mesh is empty.");
