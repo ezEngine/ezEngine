@@ -26,6 +26,8 @@ namespace
   /// How many objects one object_tree call may report before it says it truncated.
   constexpr ezUInt32 c_uiMaxTreeObjects = 200;
 
+  constexpr ezInt32 c_iMaxReportedElements = 64;
+
   ezStringView ObjectToolCategoryToString(ezPropertyCategory::Enum category)
   {
     // Deliberately the same words rtti_type_properties reports, so an agent that looked a type up
@@ -491,8 +493,36 @@ void ezMcpObjectTool::WritePropertyValue(ezMcpJsonWriter& ref_writer, ezObjectAc
     case ezPropertyCategory::Set:
     {
       ezInt32 iCount = 0;
-      if (pAccessor->GetCountByName(pObject, pProp->GetPropertyName(), iCount).Succeeded())
-        ref_writer.AddVariableInt32("count", iCount);
+      if (pAccessor->GetCountByName(pObject, pProp->GetPropertyName(), iCount).Failed())
+        break;
+
+      ref_writer.AddVariableInt32("count", iCount);
+
+      if (flags.IsAnySet(ezPropertyFlags::Class | ezPropertyFlags::Pointer) && !flags.IsSet(ezPropertyFlags::StandardType))
+        break;
+
+      const ezInt32 iWritten = ezMath::Min(iCount, c_iMaxReportedElements);
+
+      ref_writer.BeginArray("values");
+      for (ezInt32 i = 0; i < iWritten; ++i)
+      {
+        ezVariant value;
+        if (pAccessor->GetValueByName(pObject, pProp->GetPropertyName(), value, i).Failed())
+          break;
+        ezStringBuilder sName;
+        if (flags.IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags) && pPropType != nullptr && value.CanConvertTo<ezInt64>() &&
+            ezReflectionUtils::EnumerationToString(pPropType, value.ConvertTo<ezInt64>(), sName, ezReflectionUtils::EnumConversionMode::ValueNameOnly))
+        {
+          ref_writer.WriteString(sName);
+          continue;
+        }
+
+        ref_writer.WriteVariant(value);
+      }
+      ref_writer.EndArray();
+
+      if (iWritten < iCount)
+        ref_writer.AddVariableInt32("valuesTruncated", iCount - iWritten);
 
       break;
     }
@@ -682,9 +712,10 @@ void ezMcpObjectTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools
       "Reads the properties of one object inside an open document, with their current values. With no 'object' argument this is the "
       "document's top level object, which for most asset types is the single object holding all of the asset's settings - so reading "
       "an asset's configuration is one call with just 'document'. "
-      "Only direct properties are returned: a property whose value is another object reports that object's guid under 'objectGuid', "
-      "and arrays, sets and maps report a count (and, for maps, their keys) rather than their elements. Pass 'property' with an "
-      "'index' to read one element. The document has to be open - use 'document_open' with 'focus' false to open it invisibly.";
+      "Only direct properties are returned: a property whose value is another object reports that object's guid under 'objectGuid'. "
+      "An array or set of plain values reports them under 'values' (capped, with 'valuesTruncated' saying how many were left out); "
+      "one holding objects reports only a count, and maps report a count and their keys. Pass 'property' with an 'index' to read one "
+      "element. The document has to be open - use 'document_open' with 'focus' false to open it invisibly.";
     desc.m_sInputSchema = R"({"type":"object","properties":{)"
                           R"("document":{"type":"string","description":"Guid or path of an open document. 'document_list' reports both."},)"
                           R"("object":{"type":"string","description":"Guid of the object to read, as reported by a previous call. Omit for the document's top level object."},)"

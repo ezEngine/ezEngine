@@ -67,6 +67,9 @@ private:
   ezString m_sCapturePath;
   ezUInt32 m_uiCaptureMaxWidth = 0;
   ezInt32 m_iCaptureWindow = 0;
+  /// Name of the window the capture was started on, so the result can say what was captured. Recorded
+  /// up front because a window can go away while the capture is in flight.
+  ezString m_sCaptureWindowName;
   ezTime m_CaptureStarted;
   ezEventSubscriptionID m_FrameSubscription = 0;
 
