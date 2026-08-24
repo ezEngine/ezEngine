@@ -64,7 +64,7 @@ public:
     mutable ezUInt32 m_uiForceCancelFrame = 0; ///< Only valid for Type::BeforeFrame. Increased by an event handler to cancel the frame. Regardless of m_uiFrameRequest, no frame is started if != zero.
   };
 
-  static ezEvent<const ezQtUiServices::TickEvent&> s_TickEvent;
+  static ezCopyOnBroadcastEvent<const ezQtUiServices::TickEvent&> s_TickEvent;
 
 public:
   ezQtUiServices();

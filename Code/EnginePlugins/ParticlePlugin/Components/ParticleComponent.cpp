@@ -86,6 +86,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 5, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnMsgSetPlaying),
     EZ_MESSAGE_HANDLER(ezMsgInterruptPlaying, OnMsgInterruptPlaying),
+    EZ_MESSAGE_HANDLER(ezMsgSetFloatParameter, OnMsgSetFloatParameter),
+    EZ_MESSAGE_HANDLER(ezMsgSetColorParameter, OnMsgSetColorParameter),
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
   }
@@ -270,6 +272,16 @@ void ezParticleComponent::OnMsgSetPlaying(ezMsgSetPlaying& ref_msg)
   }
 }
 
+void ezParticleComponent::OnMsgSetFloatParameter(ezMsgSetFloatParameter& ref_msg)
+{
+  SetFloatParameter(ref_msg.m_sParameterName, ref_msg.m_fValue);
+}
+
+void ezParticleComponent::OnMsgSetColorParameter(ezMsgSetColorParameter& ref_msg)
+{
+  SetColorParameter(ref_msg.m_sParameterName, ref_msg.m_Value);
+}
+
 void ezParticleComponent::OnMsgInterruptPlaying(ezMsgInterruptPlaying& ref_msg)
 {
   InterruptEffect();
@@ -449,56 +461,63 @@ const ezRangeView<const char*, ezUInt32> ezParticleComponent::GetParameters() co
 
 void ezParticleComponent::SetParameter(const char* szKey, const ezVariant& var)
 {
-  const ezTempHashedString th(szKey);
   if (var.CanConvertTo<float>())
   {
-    float value = var.ConvertTo<float>();
-
-    for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
-    {
-      if (m_FloatParams[i].m_sName == th)
-      {
-        if (m_FloatParams[i].m_Value != value)
-        {
-          m_bFloatParamsChanged = true;
-          m_FloatParams[i].m_Value = value;
-        }
-        return;
-      }
-    }
-
-    m_bFloatParamsChanged = true;
-    auto& e = m_FloatParams.ExpandAndGetRef();
-    e.m_sName.Assign(szKey);
-    e.m_Value = value;
-
+    SetFloatParameter(ezStringView(szKey), var.ConvertTo<float>());
     return;
   }
 
   if (var.CanConvertTo<ezColor>())
   {
-    ezColor value = var.ConvertTo<ezColor>();
-
-    for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
-    {
-      if (m_ColorParams[i].m_sName == th)
-      {
-        if (m_ColorParams[i].m_Value != value)
-        {
-          m_bColorParamsChanged = true;
-          m_ColorParams[i].m_Value = value;
-        }
-        return;
-      }
-    }
-
-    m_bColorParamsChanged = true;
-    auto& e = m_ColorParams.ExpandAndGetRef();
-    e.m_sName.Assign(szKey);
-    e.m_Value = value;
-
+    SetColorParameter(ezStringView(szKey), var.ConvertTo<ezColor>());
     return;
   }
+}
+
+void ezParticleComponent::SetFloatParameter(ezStringView sName, float fValue)
+{
+  const ezTempHashedString tmp(sName);
+
+  for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+  {
+    if (m_FloatParams[i].m_sName == tmp)
+    {
+      if (m_FloatParams[i].m_Value != fValue)
+      {
+        m_bFloatParamsChanged = true;
+        m_FloatParams[i].m_Value = fValue;
+      }
+      return;
+    }
+  }
+
+  m_bFloatParamsChanged = true;
+  auto& e = m_FloatParams.ExpandAndGetRef();
+  e.m_sName.Assign(sName);
+  e.m_Value = fValue;
+}
+
+void ezParticleComponent::SetColorParameter(ezStringView sName, const ezColor& value)
+{
+  const ezTempHashedString tmp(sName);
+
+  for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
+  {
+    if (m_ColorParams[i].m_sName == tmp)
+    {
+      if (m_ColorParams[i].m_Value != value)
+      {
+        m_bColorParamsChanged = true;
+        m_ColorParams[i].m_Value = value;
+      }
+      return;
+    }
+  }
+
+  m_bColorParamsChanged = true;
+  auto& e = m_ColorParams.ExpandAndGetRef();
+  e.m_sName.Assign(sName);
+  e.m_Value = value;
 }
 
 void ezParticleComponent::RemoveParameter(const char* szKey)

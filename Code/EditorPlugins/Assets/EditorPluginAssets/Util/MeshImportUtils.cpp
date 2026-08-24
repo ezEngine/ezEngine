@@ -18,6 +18,33 @@ namespace ezMeshImportUtils
     sSeparated.Split(false, out_list, ";", "*", ".");
   }
 
+  static ezStringView TextureSemanticToString(ezModelImporter2::TextureSemantic semantic)
+  {
+    switch (semantic)
+    {
+      case ezModelImporter2::TextureSemantic::DiffuseMap:
+        return "diffuse";
+      case ezModelImporter2::TextureSemantic::DiffuseAlphaMap:
+        return "diffuse+alpha";
+      case ezModelImporter2::TextureSemantic::OcclusionMap:
+        return "occlusion";
+      case ezModelImporter2::TextureSemantic::RoughnessMap:
+        return "roughness";
+      case ezModelImporter2::TextureSemantic::MetallicMap:
+        return "metallic";
+      case ezModelImporter2::TextureSemantic::OrmMap:
+        return "ORM";
+      case ezModelImporter2::TextureSemantic::DisplacementMap:
+        return "displacement";
+      case ezModelImporter2::TextureSemantic::NormalMap:
+        return "normal";
+      case ezModelImporter2::TextureSemantic::EmissiveMap:
+        return "emissive";
+      default:
+        return "unknown";
+    }
+  }
+
   ezString ImportOrResolveTexture(const char* szImportSourceFolder, const char* szImportTargetFolder, ezStringView sTexturePath, ezModelImporter2::TextureSemantic hint, bool bTextureClamp, const ezModelImporter2::Importer* pImporter)
   {
     if (!ezUnicodeUtils::IsValidUtf8(sTexturePath.GetStartPointer(), sTexturePath.GetEndPointer()))
@@ -78,9 +105,16 @@ namespace ezMeshImportUtils
       pAccessor->StartTransaction("Import Texture");
       ezDocumentObject* pTextureAsset = textureDocument->GetPropertyObject();
 
+      ezStringBuilder sOriginalReference = szImportSourceFolder;
+      sOriginalReference.AppendPath(sTexturePath);
+      sOriginalReference.MakeCleanPath();
+
       if (ezAssetCurator::GetSingleton()->FindBestMatchForFile(relTexturePath, allowedExtensions).Failed())
       {
-        relTexturePath = sFinalTextureName;
+        relTexturePath = sOriginalReference;
+        ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(relTexturePath);
+
+        ezLog::Warning("Could not find the {} texture '{}' referenced by the mesh, in any of the supported image formats. The texture asset is created pointing at '{}', which does not exist, so it has to be corrected manually.", TextureSemanticToString(hint), sTexturePath, relTexturePath);
       }
 
       pAccessor->SetValueByName(pTextureAsset, "Input1", relTexturePath.GetData()).LogFailure();

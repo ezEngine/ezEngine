@@ -122,4 +122,13 @@ namespace ezTokenParseUtils
   /// \param uiCurToken The start location inside 'tokens' from which point the tokens should be copied to 'ref_destination'.
   /// \param ref_destination Target stream to store the cleaned up tokens into.
   EZ_FOUNDATION_DLL void CreateCleanTokenStream(const TokenStream& tokens, ezUInt32 uiCurToken, TokenStream& ref_destination);
+
+  /// \brief Replaces instances of {PLACEHOLDER} or {PLACEHOLDER[INDEX]} inside a template string with the data appended by a given delegate.
+  ///
+  /// The placeholder name may be prefixed with a '?' to mark it as optional and with a '$', which is stripped, so that {$NAME} and {NAME} are equivalent. Both prefixes can be combined as {?$NAME}, in that order. The name must be an identifier and the index must be an integer, otherwise the text is left untouched. Whitespace between the individual tokens of a placeholder is allowed and removed. Placeholders inside quoted sections are resolved as well, the quotes themselves are preserved.
+  ///
+  /// \param sTemplate The string containing the templated placeholders.
+  /// \param resolveAndAppendPlaceholder The callback that is executed for each found placeholder. The implementation needs to resolve the placeholder and append the result to 'ref_sOutput'. The index is invalid for placeholders without an index. 'bOptional' tells the implementation that the placeholder was marked with '?', it is up to the implementation what to do with that information, typically to append nothing for empty or default values.
+  /// \param out_sOutput The resulting output string after placeholder replacement. Cleared before rendering.
+  EZ_FOUNDATION_DLL void RenderTemplate(ezStringView sTemplate, const ezDelegate<void(ezStringView sPlaceholder, ezVariant index, bool bOptional, ezStringBuilder& ref_sOutput)>& resolveAndAppendPlaceholder, ezStringBuilder& out_sOutput); // [tested]
 } // namespace ezTokenParseUtils

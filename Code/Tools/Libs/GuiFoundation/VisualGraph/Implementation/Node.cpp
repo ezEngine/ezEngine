@@ -1,9 +1,12 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <Foundation/CodeUtils/TokenParseUtils.h>
+#include <Foundation/CodeUtils/Tokenizer.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/VisualGraph/Node.h>
 #include <GuiFoundation/VisualGraph/Pin.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
 #include <QApplication>
 #include <QGraphicsDropShadowEffect>
@@ -173,17 +176,217 @@ void ezQtVisualGraphNode::UpdateGeometry()
 
 void ezQtVisualGraphNode::UpdateState()
 {
-  auto& typeAccessor = m_pObject->GetTypeAccessor();
+  const TitleFormat format;
+
+  ezStringBuilder sTemplate;
+  if (!TryGetTitleTemplateFromProperty("CustomTitle", sTemplate) && !TryGetTitleTemplateFromAttribute(sTemplate))
+  {
+    GetDefaultTitleTemplate(sTemplate);
+  }
+
+  ezStringBuilder sTitle;
+  ezTokenParseUtils::RenderTemplate(sTemplate, [&](ezStringView sPlaceholder, ezVariant index, bool bOptional, ezStringBuilder& ref_sOutput)
+    { ResolvePropertyPlaceholder(sPlaceholder, index, bOptional, format, ref_sOutput); }, sTitle);
+
+  SetTitleAndSubtitle(sTitle, format);
+}
+
+bool ezQtVisualGraphNode::TryGetTitleTemplateFromProperty(ezStringView sPropertyName, ezStringBuilder& out_sTemplate)
+{
+  const ezVariant value = GetObject()->GetTypeAccessor().GetValue(sPropertyName);
+  if (!value.IsValid() || !value.CanConvertTo<ezString>())
+    return false;
+
+  out_sTemplate = value.ConvertTo<ezString>();
+  return !out_sTemplate.IsEmpty();
+}
+
+bool ezQtVisualGraphNode::TryGetTitleTemplateFromAttribute(ezStringBuilder& out_sTemplate)
+{
+  auto pTitleAttribute = GetObject()->GetType()->GetAttributeByType<ezTitleAttribute>();
+  if (pTitleAttribute == nullptr)
+    return false;
+
+  out_sTemplate = pTitleAttribute->GetTitle();
+  return true;
+}
+
+void ezQtVisualGraphNode::GetDefaultTitleTemplate(ezStringBuilder& out_sTemplate)
+{
+  auto& typeAccessor = GetObject()->GetTypeAccessor();
 
   ezVariant name = typeAccessor.GetValue("Name");
-  if (name.IsA<ezString>() && name.Get<ezString>().IsEmpty() == false)
+  if (name.IsA<ezString>() && !name.Get<ezString>().IsEmpty())
   {
-    m_pTitleLabel->setPlainText(name.Get<ezString>().GetData());
+    out_sTemplate = name.Get<ezString>();
   }
   else
   {
-    ezStringBuilder tmp;
-    m_pTitleLabel->setPlainText(ezMakeQString(ezTranslate(typeAccessor.GetType()->GetTypeName().GetData(tmp))));
+    out_sTemplate = ezTranslate(typeAccessor.GetType()->GetTypeName());
+  }
+}
+
+void ezQtVisualGraphNode::ResolvePropertyPlaceholder(ezStringView sPlaceholder, const ezVariant& index, bool bOptional, const TitleFormat& format, ezStringBuilder& ref_sOutput)
+{
+  const ezAbstractProperty* pProp = GetObject()->GetType()->FindPropertyByName(sPlaceholder);
+  if (pProp == nullptr)
+    return;
+
+  AppendPropertyValue(pProp, index, bOptional, format, ref_sOutput);
+}
+
+void ezQtVisualGraphNode::AppendPropertyValue(const ezAbstractProperty* pProp, const ezVariant& index, bool bOptional, const TitleFormat& format, ezStringBuilder& ref_sOutput)
+{
+  if ((pProp->GetCategory() == ezPropertyCategory::Set || pProp->GetCategory() == ezPropertyCategory::Array) && !index.IsValid())
+  {
+    ezTempHybridArray<ezVariant, 16> values;
+    GetObject()->GetTypeAccessor().GetValues(pProp->GetPropertyName(), values);
+
+    if (bOptional && values.IsEmpty())
+      return;
+
+    ezStringBuilder sSet("{");
+    for (const auto& setValue : values)
+    {
+      if (sSet.GetElementCount() > 1)
+      {
+        sSet.Append(", ");
+      }
+      sSet.Append(setValue.ConvertTo<ezString>().GetView());
+    }
+    sSet.Append("}");
+
+    ref_sOutput.Append(sSet.GetView());
+    return;
+  }
+
+  const ezVariant value = GetObject()->GetTypeAccessor().GetValue(pProp->GetPropertyName(), index);
+
+  if (!value.IsValid())
+  {
+    if (format.m_bIgnoreInvalidProperties || bOptional)
+      return;
+
+    ref_sOutput.Append("<Invalid>");
+    return;
+  }
+
+  if (bOptional)
+  {
+    if (value == ezVariant(0))
+      return;
+
+    if ((value.IsA<ezString>() || value.IsA<ezHashedString>()) && value.ConvertTo<ezString>().IsEmpty())
+      return;
+  }
+
+
+  ezStringBuilder sValue;
+  if (pProp->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || pProp->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
+  {
+    ezReflectionUtils::EnumerationToString(pProp->GetSpecificType(), value.ConvertTo<ezInt64>(), sValue);
+    sValue = ezTranslate(sValue);
+  }
+  else if (value.IsA<bool>())
+  {
+    if (format.m_bBoolsAsTicks)
+      sValue.Set(value.Get<bool>() ? "[x]" : "[ ]");
+    else
+      sValue.Set(value.Get<bool>() ? "true" : "false");
+  }
+  else if (value.IsA<ezColor>())
+  {
+    sValue = ezConversionUtils::GetColorName(value.Get<ezColor>());
+  }
+  else if (value.IsA<ezColorGammaUB>())
+  {
+    sValue = ezConversionUtils::GetColorName(ezColor(value.Get<ezColorGammaUB>()));
+  }
+  else if (value.IsA<ezVec2>())
+  {
+    const ezVec2 v = value.Get<ezVec2>();
+    sValue.SetFormat("({}, {})", ezArgF(v.x, 2), ezArgF(v.y, 2));
+  }
+  else if (value.IsA<ezVec3>())
+  {
+    const ezVec3 v = value.Get<ezVec3>();
+    sValue.SetFormat("({}, {}, {})", ezArgF(v.x, 2), ezArgF(v.y, 2), ezArgF(v.z, 2));
+  }
+  else if (value.IsA<ezVec4>())
+  {
+    const ezVec4 v = value.Get<ezVec4>();
+    sValue.SetFormat("({}, {}, {}, {})", ezArgF(v.x, 2), ezArgF(v.y, 2), ezArgF(v.z, 2), ezArgF(v.w, 2));
+  }
+  else if (value.IsA<ezString>() || value.IsA<ezHashedString>())
+  {
+    sValue = value.ConvertTo<ezString>();
+
+    // asset references are stored as document GUIDs, which are meaningless to the user
+    if (ezConversionUtils::IsStringUuid(sValue) && ezToolsProject::GetSingleton() != nullptr)
+    {
+      const ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetPathForDocumentGuid(ezConversionUtils::ConvertStringToUuid(sValue));
+
+      if (!sPath.IsEmpty())
+      {
+        sValue = ezPathUtils::GetFileName(sPath);
+      }
+    }
+
+    sValue.ReplaceAll("\n", " ");
+    sValue.ReplaceAll("\t", " ");
+
+    if (format.m_uiMaxStringLength > 0 && sValue.GetCharacterCount() > format.m_uiMaxStringLength)
+    {
+      sValue.Shrink(0, sValue.GetCharacterCount() - (format.m_uiMaxStringLength - 2));
+      sValue.Append("...");
+    }
+
+    if (format.m_bQuoteStrings && !sValue.IsEmpty())
+    {
+      sValue.Prepend("\"");
+      sValue.Append("\"");
+    }
+  }
+  else if (value.CanConvertTo<ezString>())
+  {
+    sValue = value.ConvertTo<ezString>();
+  }
+  else
+  {
+    sValue = "<not-implemented>";
+  }
+
+  ref_sOutput.Append(sValue.GetView());
+}
+
+void ezQtVisualGraphNode::SetTitleAndSubtitle(ezStringView sTitle, const TitleFormat& format)
+{
+  ezStringBuilder sCleaned = sTitle;
+
+  if (format.m_uiMaxTitleLength > 0 && sCleaned.GetCharacterCount() > format.m_uiMaxTitleLength)
+  {
+    sCleaned.Shrink(0, sCleaned.GetCharacterCount() - (format.m_uiMaxTitleLength + 1));
+    sCleaned.Append("...");
+  }
+
+  if (!format.m_bSplitAtDoubleColon)
+  {
+    m_pTitleLabel->setPlainText(ezMakeQString(sCleaned));
+    return;
+  }
+
+  if (const char* szSeparator = sCleaned.FindSubString("::"))
+  {
+    m_pTitleLabel->setPlainText(szSeparator + 2);
+
+    ezStringBuilder sSubTitle = ezStringView(sCleaned.GetData(), szSeparator);
+    sSubTitle.Trim("\"");
+    m_pSubtitleLabel->setPlainText(ezMakeQString(sSubTitle));
+  }
+  else
+  {
+    m_pTitleLabel->setPlainText(ezMakeQString(sCleaned));
+    m_pSubtitleLabel->setPlainText(QString());
   }
 }
 

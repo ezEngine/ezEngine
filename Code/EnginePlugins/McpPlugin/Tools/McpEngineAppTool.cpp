@@ -177,9 +177,13 @@ void ezMcpEngineAppTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_to
       "The path is returned rather than the image data, because a screenshot base64s to megabytes.\n"
       "The capture takes a frame or two, so the call blocks until the image is ready. If the game is not rendering - "
       "which is the normal state of the editor's engine process while nobody is playing the game - this fails after a "
-      "few seconds rather than waiting forever; start play-the-game in the editor first.";
+      "few seconds rather than waiting forever; start play-the-game in the editor first.\n"
+      "The result reports 'window' and 'windowName' for what was actually captured - worth checking, because in the "
+      "editor's engine process there is one window per open document window and the default index 0 is whichever "
+      "document was opened first, which is often a leftover asset preview rather than the scene. Target a specific one "
+      "with 'windowName': an editor view is named 'EditorView <document guid>', so passing the guid alone finds it.";
 
-    desc.m_sInputSchema = R"({"type":"object","properties":{"path":{"type":"string","description":"Absolute path to write to, including the file extension, which selects the format ('.png' unless there is a reason). Defaults to a generated name in the system temp folder."},"maxWidth":{"type":"number","description":"Downscale to at most this width, keeping the aspect ratio. Default 1280. Pass 0 for the full resolution."},"window":{"type":"number","description":"Which window to capture, as its index in app_info's 'windows'. Default 0."}}})";
+    desc.m_sInputSchema = R"({"type":"object","properties":{"path":{"type":"string","description":"Absolute path to write to, including the file extension, which selects the format ('.png' unless there is a reason). Defaults to a generated name in the system temp folder."},"maxWidth":{"type":"number","description":"Downscale to at most this width, keeping the aspect ratio. Default 1280. Pass 0 for the full resolution."},"window":{"type":"number","description":"Which window to capture, as its index in app_info's 'windows'. Default 0. Ignored if 'windowName' is given."},"windowName":{"type":"string","description":"Capture the window whose name contains this, instead of picking by index. An editor view is named 'EditorView <document guid>', so the document guid alone selects that document's view."}}})";
   }
 }
 
@@ -309,17 +313,49 @@ ezResult ezMcpEngineAppTool::BeginScreenshot(const ezVariantDictionary& argument
     return EZ_FAILURE;
   }
 
-  const ezInt32 iWindow = static_cast<ezInt32>(ezMcpJson::GetInt(arguments, "window", 0));
+  ezWindowManager* pWinMan = ezWindowManager::GetSingleton();
 
-  if (iWindow < 0 || iWindow >= static_cast<ezInt32>(windows.GetCount()))
+  ezInt32 iWindow = 0;
+
+  const ezStringBuilder sWantedName = ezMcpJson::GetString(arguments, "windowName");
+
+  if (!sWantedName.IsEmpty())
   {
-    ezStringBuilder sError;
-    sError.SetFormat("There is no window {}. This process has {}; see 'windows' in app_info.", iWindow, windows.GetCount());
-    out_result.SetError(sError);
-    return EZ_FAILURE;
+    iWindow = -1;
+
+    for (ezUInt32 i = 0; i < windows.GetCount(); ++i)
+    {
+      // Substring, so that a document guid alone finds 'EditorView { guid }'.
+      if (pWinMan->GetName(windows[i]).FindSubString_NoCase(sWantedName) != nullptr)
+      {
+        iWindow = static_cast<ezInt32>(i);
+        break;
+      }
+    }
+
+    if (iWindow < 0)
+    {
+      ezStringBuilder sError;
+      sError.SetFormat("No window's name contains '{}'. This process has {}; see 'windows' in app_info for their names.",
+        sWantedName, windows.GetCount());
+      out_result.SetError(sError);
+      return EZ_FAILURE;
+    }
+  }
+  else
+  {
+    iWindow = static_cast<ezInt32>(ezMcpJson::GetInt(arguments, "window", 0));
+
+    if (iWindow < 0 || iWindow >= static_cast<ezInt32>(windows.GetCount()))
+    {
+      ezStringBuilder sError;
+      sError.SetFormat("There is no window {}. This process has {}; see 'windows' in app_info.", iWindow, windows.GetCount());
+      out_result.SetError(sError);
+      return EZ_FAILURE;
+    }
   }
 
-  ezWindowOutputTargetBase* pOutputTarget = ezWindowManager::GetSingleton()->GetOutputTarget(windows[iWindow]);
+  ezWindowOutputTargetBase* pOutputTarget = pWinMan->GetOutputTarget(windows[iWindow]);
 
   if (pOutputTarget == nullptr)
   {
@@ -373,6 +409,7 @@ ezResult ezMcpEngineAppTool::BeginScreenshot(const ezVariantDictionary& argument
   m_State = CaptureState::Pending;
   m_sCapturePath = sPath;
   m_iCaptureWindow = iWindow;
+  m_sCaptureWindowName = pWinMan->GetName(windows[iWindow]);
   m_uiCaptureMaxWidth = static_cast<ezUInt32>(ezMath::Max<ezInt64>(0, ezMcpJson::GetInt(arguments, "maxWidth", 1280)));
   m_CaptureStarted = ezTime::Now();
 
@@ -420,6 +457,10 @@ void ezMcpEngineAppTool::FinishScreenshot(ezMcpToolResult& out_result)
   writer.AddVariableUInt32("width", image.GetWidth());
   writer.AddVariableUInt32("height", image.GetHeight());
   writer.AddVariableUInt64("frame", ezMcpEngineHost::GetFrameCount());
+
+  writer.AddVariableInt32("window", m_iCaptureWindow);
+  writer.AddVariableString("windowName", m_sCaptureWindowName);
+
   writer.AddVariableString("note", "Read this file to look at the frame.");
   writer.EndObject();
 

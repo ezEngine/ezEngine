@@ -16,6 +16,8 @@ class ezParticleSystemInstance;
 class ezParticleComponent;
 struct ezMsgSetPlaying;
 struct ezMsgInterruptPlaying;
+struct ezMsgSetFloatParameter;
+struct ezMsgSetColorParameter;
 
 using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
 
@@ -82,6 +84,16 @@ public:
   /// \brief Forwards to InterruptEffect().
   void OnMsgInterruptPlaying(ezMsgInterruptPlaying& ref_msg); // [ msg handler ]
 
+  /// \brief Sets an exposed float parameter of the effect, the same as SetParameter() does.
+  ///
+  /// A message, so that the effect can be reached without knowing where it sits: a prefab usually has
+  /// its particle component on a child object, thus the owner of the prefab can only send this
+  /// recursively rather than look the component up.
+  void OnMsgSetFloatParameter(ezMsgSetFloatParameter& ref_msg); // [ msg handler ]
+
+  /// \brief Sets an exposed color parameter of the effect, the same as SetParameter() does.
+  void OnMsgSetColorParameter(ezMsgSetColorParameter& ref_msg); // [ msg handler ]
+
   /// \brief Replaces the effect to be played.
   void SetParticleEffect(const ezParticleEffectResourceHandle& hEffect);
   EZ_ALWAYS_INLINE const ezParticleEffectResourceHandle& GetParticleEffect() const { return m_hEffectResource; }
@@ -94,6 +106,9 @@ public:
   void SetParameter(const char* szKey, const ezVariant& value);     // [ property ]
   void RemoveParameter(const char* szKey);                          // [ property ]
   bool GetParameter(const char* szKey, ezVariant& out_value) const; // [ property ]
+
+  void SetFloatParameter(ezStringView sName, float fValue);
+  void SetColorParameter(ezStringView sName, const ezColor& value);
 
   /// \brief If zero, the played effect is randomized each time. Use a fixed seed when the result should be deterministic.
   ezUInt64 m_uiRandomSeed = 0; // [ property ]

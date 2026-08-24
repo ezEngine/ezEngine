@@ -2,6 +2,7 @@
 
 #include <Core/World/Declarations.h>
 #include <Foundation/Communication/Message.h>
+#include <Foundation/Math/Color.h>
 
 /// \brief Common message for components that can be toggled between playing and paused states
 struct EZ_CORE_DLL ezMsgSetPlaying : public ezMessage
@@ -24,6 +25,15 @@ struct EZ_CORE_DLL ezMsgSetFloatParameter : public ezMessage
 
   ezString m_sParameterName;
   float m_fValue = 0;
+};
+
+/// \brief Basic message to set some generic parameter to a color value.
+struct EZ_CORE_DLL ezMsgSetColorParameter : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgSetColorParameter, ezMessage);
+
+  ezString m_sParameterName;
+  ezColor m_Value = ezColor::White;
 };
 
 /// \brief For use in scripts to signal a custom event that some game event has occurred.

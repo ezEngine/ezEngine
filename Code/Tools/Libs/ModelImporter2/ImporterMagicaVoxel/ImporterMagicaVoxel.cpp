@@ -105,7 +105,7 @@ namespace ezModelImporter2
         {
           ezVec3 pos = ezVec3(-mesh->vertices[i].pos.x, mesh->vertices[i].pos.z, mesh->vertices[i].pos.y);
           pos -= originOffset;
-          positions.ExpandAndGetRef() = m_Options.m_RootTransform * pos;
+          positions.ExpandAndGetRef() = (m_Options.m_RootTransform * pos) + m_Options.m_vRootPosition;
 
           ezVec3 norm = ezVec3(-mesh->vertices[i].normal.x, mesh->vertices[i].normal.z, mesh->vertices[i].normal.y);
           normals.ExpandAndGetRef() = m_Options.m_RootTransform.TransformDirection(norm);

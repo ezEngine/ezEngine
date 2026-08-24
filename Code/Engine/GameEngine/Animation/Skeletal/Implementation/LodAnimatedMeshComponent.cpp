@@ -26,7 +26,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLodAnimatedMeshLod, ezNoBase, 2, ezRTTIDefaultA
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezLodAnimatedMeshComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezLodAnimatedMeshComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

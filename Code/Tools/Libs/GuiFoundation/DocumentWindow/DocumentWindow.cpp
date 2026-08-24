@@ -127,6 +127,14 @@ void ezQtDocumentWindow::TriggerRedraw()
 
 void ezQtDocumentWindow::UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e)
 {
+  // s_TickEvent is an ezCopyOnBroadcastEvent, so it iterates a snapshot of the handlers taken before the
+  // first one ran. A window that is destroyed from within a tick (closing a document ends in
+  // 'delete this', and that can be reached from a tick handler) therefore stays in that snapshot for the
+  // rest of the broadcast, and this would be called on freed memory. Only the static registry may be
+  // touched to detect it - by that point 'this' must not be dereferenced.
+  if (!s_AllDocumentWindows.Contains(this))
+    return;
+
   auto ShouldRender = [&]() -> bool
   {
     if (!m_bIsVisibleInContainer)

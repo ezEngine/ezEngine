@@ -30,6 +30,9 @@ namespace ezModelImporter2
     ezEnum<ezMeshVertexColorConversion> m_MeshVertexColorConversion = ezMeshVertexColorConversion::Default;
     bool m_bHighPrecision = false;
     ezMat3 m_RootTransform = ezMat3::MakeIdentity();
+    /// Translation that is applied to the mesh vertices after m_RootTransform.
+    /// Not applied to skinned meshes, animations or skeletons.
+    ezVec3 m_vRootPosition = ezVec3::MakeZero();
 
     // if non-empty, only import meshes whose names start or end with any of these strings
     ezDynamicArray<ezString> m_MeshIncludeTags;

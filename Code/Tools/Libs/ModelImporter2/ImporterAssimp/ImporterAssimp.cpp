@@ -105,9 +105,14 @@ namespace ezModelImporter2
 
     if (aiNode* node = m_pScene->mRootNode)
     {
+      // the position offset is only meant for static geometry,
+      // applying it to skinned meshes would move them away from their skeleton
+      const ezVec3 vRootPosition = m_Options.m_bImportSkinningData ? ezVec3::MakeZero() : m_Options.m_vRootPosition;
+
       ezMat4 tmp;
       tmp.SetIdentity();
       tmp.SetRotationalPart(m_Options.m_RootTransform);
+      tmp.SetTranslationVector(vRootPosition);
       tmp.Transpose(); // aiMatrix4x4 is row-major
 
       const aiMatrix4x4 transform = reinterpret_cast<aiMatrix4x4&>(tmp);
