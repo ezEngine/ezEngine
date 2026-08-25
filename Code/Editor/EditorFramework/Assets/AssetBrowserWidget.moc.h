@@ -1,5 +1,6 @@
 #pragma once
 
+#include <EditorFramework/Assets/AssetBrowserContext.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/ui_AssetBrowserWidget.h>
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
@@ -109,6 +110,7 @@ private:
   void AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedAsset);
   void AddImportedViaMenu(QMenu* pMenu);
   void GetSelectedImportableFiles(ezDynamicArray<ezString>& out_Files) const;
+  ezAssetBrowserSelection GetCurrentSelectionForActions() const;
 
   Mode m_Mode = Mode::Browser;
   ezQtToolBarActionMapView* m_pToolbar = nullptr;

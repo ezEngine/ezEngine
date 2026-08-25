@@ -1,5 +1,6 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/Assets/AssetBrowserContext.h>
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
 #include <EditorFramework/Assets/AssetBrowserFolderView.moc.h>
@@ -12,6 +13,9 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Application/Application.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
+#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
+#include <GuiFoundation/ActionViews/QtProxy.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QFile>
@@ -471,6 +475,35 @@ void ezQtAssetBrowserWidget::GetSelectedImportableFiles(ezDynamicArray<ezString>
       out_Files.PushBack(qtToEzString(id.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString()));
     }
   }
+}
+
+ezAssetBrowserSelection ezQtAssetBrowserWidget::GetCurrentSelectionForActions() const
+{
+  ezAssetBrowserSelection res;
+
+  QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
+  for (const QModelIndex& id : selection)
+  {
+    res.m_AbsolutePaths.PushBack(qtToEzString(id.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString()));
+
+    const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)id.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+    if (!itemType.IsAnySet(ezAssetBrowserItemFlags::Asset | ezAssetBrowserItemFlags::SubAsset))
+      continue;
+
+    const ezUuid subAssetGuid = id.data(ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>();
+    if (subAssetGuid.IsValid())
+    {
+      res.m_SubAssetGuids.PushBack(subAssetGuid);
+    }
+
+    const ezUuid assetGuid = id.data(ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
+    if (assetGuid.IsValid() && !res.m_AssetGuids.Contains(assetGuid))
+    {
+      res.m_AssetGuids.PushBack(assetGuid);
+    }
+  }
+
+  return res;
 }
 
 void ezQtAssetBrowserWidget::on_ListAssets_clicked(const QModelIndex& index)
@@ -1199,6 +1232,11 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
   QMenu m;
   m.setToolTipsVisible(true);
 
+  ezAssetBrowserSelection::SetCurrent(GetCurrentSelectionForActions());
+
+  // the actions below read the selection from here, so it has to stay valid until the menu is closed
+  EZ_SCOPE_EXIT(ezAssetBrowserSelection::SetCurrent(ezAssetBrowserSelection()));
+
   if (ListAssets->selectionModel()->hasSelection())
   {
     bool bShowDocumentActions = false;
@@ -1255,6 +1293,68 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
     }
   }
 
+  // actions that plugins contributed for specific asset types.
+  // Holds the references to the proxies, so it has to outlive m.exec() below.
+  ezHashTable<ezUuid, QSharedPointer<ezQtProxy>> contextMenuProxies;
+  {
+    ezActionContext context;
+    context.m_sMapping = "AssetBrowserContextMenu";
+    context.m_pWindow = this;
+
+    if (ezActionMap* pActionMap = ezActionMapManager::GetActionMap(context.m_sMapping))
+    {
+      const int iActionsBefore = m.actions().count();
+      ezQtMenuActionMapView::AddDocumentObjectToMenu(contextMenuProxies, context, pActionMap, &m, pActionMap->BuildActionTree());
+
+      // the proxies are cached and reused, so they still reflect the selection they were built with
+      for (auto it : contextMenuProxies)
+      {
+        if (ezAction* pAction = it.Value()->GetAction())
+        {
+          pAction->RefreshState();
+        }
+
+        it.Value()->Update();
+      }
+
+      // a sub-menu has no state of its own, so it stays visible even when every entry in it hid itself
+      for (QAction* pAction : m.actions())
+      {
+        QMenu* pSubMenu = pAction->menu();
+        if (pSubMenu == nullptr)
+          continue;
+
+        bool bAnyEntryVisible = false;
+        for (QAction* pEntry : pSubMenu->actions())
+        {
+          if (pEntry->isVisible() && !pEntry->isSeparator())
+          {
+            bAnyEntryVisible = true;
+            break;
+          }
+        }
+
+        pAction->setVisible(bAnyEntryVisible);
+      }
+
+      // Only separate when something is actually shown: the action map adds its own separators around
+      // each category, and an action that hid itself still counts towards actions().
+      bool bAnyVisible = false;
+      for (int i = iActionsBefore; i < m.actions().count(); ++i)
+      {
+        if (m.actions()[i]->isVisible() && !m.actions()[i]->isSeparator())
+        {
+          bAnyVisible = true;
+          break;
+        }
+      }
+
+      if (bAnyVisible)
+      {
+        m.addSeparator();
+      }
+    }
+  }
 
   if (m_Mode == Mode::Browser && ListAssets->selectionModel()->hasSelection())
   {

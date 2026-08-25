@@ -7,10 +7,12 @@
 #include <EditorFramework/Actions/QuadViewActions.h>
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
+#include <EditorFramework/Assets/AssetBrowserContext.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
 #include <EditorPluginScene/Actions/LayerActions.h>
+#include <EditorPluginScene/Actions/MeshPrefabActions.h>
 #include <EditorPluginScene/Actions/SceneActions.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
@@ -158,6 +160,12 @@ void OnLoadPlugin()
   ezSceneGizmoActions::RegisterActions();
   ezSceneActions::RegisterActions();
   ezLayerActions::RegisterActions();
+  ezMeshPrefabActions::RegisterActions();
+
+  // Lives here rather than with the mesh asset, because what it knows about is prefabs, not meshes.
+  ezMeshPrefabActions::MapActions("AssetBrowserContextMenu", ezAssetBrowserContextMenu::s_sAssetMenu).IgnoreResult();
+  ezMeshPrefabActions::MapActions("MeshAssetMenuBar", "G.Asset", true).IgnoreResult();
+  ezMeshPrefabActions::MapActions("AnimatedMeshAssetMenuBar", "G.Asset", true).IgnoreResult();
 
   // misc
   ezQtImageSliderWidget::s_ImageGenerators["LightTemperature"] = SliderImageGenerator_LightTemperature;
@@ -267,6 +275,7 @@ void OnUnloadPlugin()
   ezSceneGizmoActions::UnregisterActions();
   ezLayerActions::UnregisterActions();
   ezSceneActions::UnregisterActions();
+  ezMeshPrefabActions::UnregisterActions();
 }
 
 EZ_PLUGIN_ON_LOADED()

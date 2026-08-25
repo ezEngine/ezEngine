@@ -11,6 +11,8 @@
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/Actions/ViewLightActions.h>
+#include <EditorFramework/Assets/AssetBrowserContext.h>
+#include <EditorPluginAssets/Actions/MeshLodActions.h>
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAssetObjects.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipActions.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
@@ -452,11 +454,23 @@ void OnLoadPlugin()
   ConfigureBlackboardTemplateAsset();
   ConfigureCustomDataAsset();
 
+  // Creating LOD meshes from mesh assets.
+  {
+    ezMeshLodActions::RegisterActions();
+
+    ezMeshLodActions::MapActions("AssetBrowserContextMenu", ezAssetBrowserContextMenu::s_sAssetMenu).IgnoreResult();
+    ezMeshLodActions::MapActions("MeshAssetMenuBar", "G.Asset", true).IgnoreResult();
+    ezMeshLodActions::MapActions("AnimatedMeshAssetMenuBar", "G.Asset", true).IgnoreResult();
+    ezMeshLodActions::MapActions("MeshAssetToolBar", "", true).IgnoreResult();
+    ezMeshLodActions::MapActions("AnimatedMeshAssetToolBar", "", true).IgnoreResult();
+  }
+
   ezDocumentManager::s_CustomActions["CustomAction_CreateShaderFromTemplate"] = CustomAction_CreateShaderFromTemplate;
 }
 
 void OnUnloadPlugin()
 {
+  ezMeshLodActions::UnregisterActions();
   ezTextureAssetActions::UnregisterActions();
   ezLUTAssetActions::UnregisterActions();
   ezVisualShaderActions::UnregisterActions();
