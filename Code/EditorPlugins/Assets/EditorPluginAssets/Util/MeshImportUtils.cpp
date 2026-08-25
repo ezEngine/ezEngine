@@ -226,7 +226,10 @@ namespace ezMeshImportUtils
     ezStatus res = pAccessor->SetValueByName(pMaterialAsset, "BaseMaterial", ezConversionUtils::ToString(ezMaterialAssetDocument::GetLitBaseMaterial(), tmp).GetData());
     res.LogFailure();
     if (res.Failed())
+    {
+      pAccessor->CancelTransaction();
       return;
+    }
 
     // From now on we're setting shader properties.
     ezDocumentObject* pMaterialProperties = pMaterialDoc->GetShaderPropertyObject();
