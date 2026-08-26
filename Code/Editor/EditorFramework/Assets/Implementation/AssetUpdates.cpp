@@ -293,6 +293,7 @@ void ezAssetCurator::TrackDependencies(ezAssetInfo* pAssetInfo)
 {
   UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_TransformDependencies, m_InverseTransformDeps, m_UnresolvedTransformDeps, true);
   UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_ThumbnailDependencies, m_InverseThumbnailDeps, m_UnresolvedThumbnailDeps, true);
+  UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_PackageDependencies, m_InversePackageDeps, m_UnresolvedPackageDeps, true);
 
   const ezString sTargetFile = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_Path, "");
   auto it = m_InverseThumbnailDeps.FindOrAdd(sTargetFile);
@@ -308,12 +309,14 @@ void ezAssetCurator::TrackDependencies(ezAssetInfo* pAssetInfo)
   // If pAssetInfo was previously an unresolved dependency, these two calls will update the inverse dep tables now that it can be resolved.
   UpdateUnresolvedTrackedFiles(m_InverseTransformDeps, m_UnresolvedTransformDeps);
   UpdateUnresolvedTrackedFiles(m_InverseThumbnailDeps, m_UnresolvedThumbnailDeps);
+  UpdateUnresolvedTrackedFiles(m_InversePackageDeps, m_UnresolvedPackageDeps);
 }
 
 void ezAssetCurator::UntrackDependencies(ezAssetInfo* pAssetInfo)
 {
   UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_TransformDependencies, m_InverseTransformDeps, m_UnresolvedTransformDeps, false);
   UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_ThumbnailDependencies, m_InverseThumbnailDeps, m_UnresolvedThumbnailDeps, false);
+  UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_PackageDependencies, m_InversePackageDeps, m_UnresolvedPackageDeps, false);
 
   const ezString sTargetFile = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_Path, "");
   auto it = m_InverseThumbnailDeps.FindOrAdd(sTargetFile);

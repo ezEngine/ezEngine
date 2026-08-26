@@ -316,19 +316,18 @@ public:
   ///   File name (may include a path) to search for. Will be modified both on success and failure to give a 'reasonable' result.
   ezResult FindBestMatchForFile(ezStringBuilder& ref_sFile, ezArrayPtr<ezString> allowedFileExtensions) const;
 
-  /// Finds all uses, either as transform or thumbnail dependencies to a given asset.
-  ///
-  /// Technically this finds all dependencies to this asset but in practice there are no uses of transform dependencies between assets right now so the result is a list of thumbnail dependencies and can be referred to as simply a list of asset references.
+  /// Finds all assets that reference the given asset, as a transform, thumbnail or package dependency.
   ///
   /// \param assetGuid
   ///   The asset to find use cases for.
-  /// \param uses
+  /// \param ref_uses
   ///   List of assets that use 'assetGuid'. Any previous content of the set is not removed.
-  /// \param transitive
+  /// \param bTransitive
   ///   If set, will also find indirect uses of the asset.
   void FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& ref_uses, bool bTransitive) const;
 
-  /// Returns all assets that use a file for transform. Use this to e.g. figure which assets still reference a .tga file in the project.
+  /// Returns all assets that reference a file, as a transform, thumbnail or package dependency. Use this to e.g. figure out which assets still reference a .tga file in the project.
+  ///
   /// \param sAbsolutePath Absolute path to any file inside a data directory.
   /// \param ref_uses List of assets that use 'sAbsolutePath'. Any previous content of the set is not removed.
   void FindAllUses(ezStringView sAbsolutePath, ezSet<ezUuid>& ref_uses) const;
@@ -489,8 +488,10 @@ private:
   // Derived dependency lookup tables
   ezMap<ezString, ezHybridArray<ezUuid, 1>> m_InverseTransformDeps; // [Absolute path -> asset Guid]
   ezMap<ezString, ezHybridArray<ezUuid, 1>> m_InverseThumbnailDeps; // [Absolute path -> asset Guid]
+  ezMap<ezString, ezHybridArray<ezUuid, 1>> m_InversePackageDeps;   // [Absolute path -> asset Guid]
   ezSet<std::tuple<ezUuid, ezUuid>> m_UnresolvedTransformDeps;      ///< If a dependency wasn't known yet when an asset info was loaded, it is put in here.
   ezSet<std::tuple<ezUuid, ezUuid>> m_UnresolvedThumbnailDeps;
+  ezSet<std::tuple<ezUuid, ezUuid>> m_UnresolvedPackageDeps;
 
   // State caches
   ezHashSet<ezUuid> m_TransformState[ezAssetInfo::TransformState::COUNT];
