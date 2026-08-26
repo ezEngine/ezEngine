@@ -5,14 +5,18 @@ inline ezDataDirPath::ezDataDirPath() = default;
 inline ezDataDirPath::ezDataDirPath(ezStringView sAbsPath, ezArrayPtr<ezString> dataDirRoots, ezUInt32 uiLastKnownDataDirIndex /*= 0*/)
 {
   EZ_ASSERT_DEBUG(!sAbsPath.EndsWith_NoCase("/"), "");
-  m_sAbsolutePath = sAbsPath;
+  ezStringBuilder sTmp = sAbsPath;
+  ezPathUtils::NormalizeWindowsDriveLetter(sTmp);
+  m_sAbsolutePath = sTmp;
   UpdateDataDirInfos(dataDirRoots, uiLastKnownDataDirIndex);
 }
 
 inline ezDataDirPath::ezDataDirPath(const ezStringBuilder& sAbsPath, ezArrayPtr<ezString> dataDirRoots, ezUInt32 uiLastKnownDataDirIndex /*= 0*/)
 {
   EZ_ASSERT_DEBUG(!sAbsPath.EndsWith_NoCase("/"), "");
-  m_sAbsolutePath = sAbsPath;
+  ezStringBuilder sTmp = sAbsPath;
+  ezPathUtils::NormalizeWindowsDriveLetter(sTmp);
+  m_sAbsolutePath = sTmp;
   UpdateDataDirInfos(dataDirRoots, uiLastKnownDataDirIndex);
 }
 
@@ -20,6 +24,12 @@ inline ezDataDirPath::ezDataDirPath(ezString&& sAbsPath, ezArrayPtr<ezString> da
 {
   EZ_ASSERT_DEBUG(!sAbsPath.EndsWith_NoCase("/"), "");
   m_sAbsolutePath = std::move(sAbsPath);
+  {
+    ezStringBuilder sTmp = m_sAbsolutePath;
+    ezPathUtils::NormalizeWindowsDriveLetter(sTmp);
+    if (sTmp != m_sAbsolutePath)
+      m_sAbsolutePath = sTmp;
+  }
   UpdateDataDirInfos(dataDirRoots, uiLastKnownDataDirIndex);
 }
 
@@ -94,6 +104,13 @@ inline ezStreamWriter& ezDataDirPath::Write(ezStreamWriter& inout_stream) const
 inline ezStreamReader& ezDataDirPath::Read(ezStreamReader& inout_stream)
 {
   inout_stream >> m_sAbsolutePath;
+  {
+    // Caches written before the drive letter was normalized can still hold the other spelling.
+    ezStringBuilder sTmp = m_sAbsolutePath;
+    ezPathUtils::NormalizeWindowsDriveLetter(sTmp);
+    if (sTmp != m_sAbsolutePath)
+      m_sAbsolutePath = sTmp;
+  }
   inout_stream >> m_uiDataDirParent;
   inout_stream >> m_uiDataDirLength;
   inout_stream >> m_uiDataDirIndex;
