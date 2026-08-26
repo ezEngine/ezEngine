@@ -1374,46 +1374,40 @@ void ezMaterialAssetDocument::RemoveDisconnectedNodes()
   }
 }
 
+namespace
+{
+  /// Looks up one of the fixed Base assets that the importers reference by path.
+  ezUuid FindBaseAsset(ezUuid& inout_cached, const char* szAssetPath, const char* szWhat)
+  {
+    if (inout_cached.IsValid())
+      return inout_cached;
+
+    if (auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(szAssetPath, true))
+    {
+      inout_cached = assetInfo->m_Data.m_Guid;
+    }
+    else
+    {
+      ezLog::Error("Can't find {} {}", szWhat, szAssetPath);
+    }
+
+    return inout_cached;
+  }
+} // namespace
+
 ezUuid ezMaterialAssetDocument::GetLitBaseMaterial()
 {
-  if (!s_LitBaseMaterial.IsValid())
-  {
-    static const char* szLitMaterialAssetPath = ezMaterialResource::GetDefaultMaterialFileName(ezMaterialResource::DefaultMaterialType::Lit);
-    auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(szLitMaterialAssetPath);
-    if (assetInfo)
-      s_LitBaseMaterial = assetInfo->m_Data.m_Guid;
-    else
-      ezLog::Error("Can't find default lit material {0}", szLitMaterialAssetPath);
-  }
-  return s_LitBaseMaterial;
+  return FindBaseAsset(s_LitBaseMaterial, ezMaterialResource::GetDefaultMaterialFileName(ezMaterialResource::DefaultMaterialType::Lit), "default lit material");
 }
 
 ezUuid ezMaterialAssetDocument::GetLitAlphaTestBaseMaterial()
 {
-  if (!s_LitAlphaTextBaseMaterial.IsValid())
-  {
-    static const char* szLitAlphaTestMaterialAssetPath = ezMaterialResource::GetDefaultMaterialFileName(ezMaterialResource::DefaultMaterialType::LitAlphaTest);
-    auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(szLitAlphaTestMaterialAssetPath);
-    if (assetInfo)
-      s_LitAlphaTextBaseMaterial = assetInfo->m_Data.m_Guid;
-    else
-      ezLog::Error("Can't find default lit alpha test material {0}", szLitAlphaTestMaterialAssetPath);
-  }
-  return s_LitAlphaTextBaseMaterial;
+  return FindBaseAsset(s_LitAlphaTextBaseMaterial, ezMaterialResource::GetDefaultMaterialFileName(ezMaterialResource::DefaultMaterialType::LitAlphaTest), "default lit alpha test material");
 }
 
 ezUuid ezMaterialAssetDocument::GetNeutralNormalMap()
 {
-  if (!s_NeutralNormalMap.IsValid())
-  {
-    static const char* szNeutralNormalMapAssetPath = "Base/Textures/NeutralNormal.ezTextureAsset";
-    auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(szNeutralNormalMapAssetPath);
-    if (assetInfo)
-      s_NeutralNormalMap = assetInfo->m_Data.m_Guid;
-    else
-      ezLog::Error("Can't find neutral normal map texture {0}", szNeutralNormalMapAssetPath);
-  }
-  return s_NeutralNormalMap;
+  return FindBaseAsset(s_NeutralNormalMap, "Base/Textures/NeutralNormal.ezTextureAsset", "neutral normal map texture");
 }
 
 void ezMaterialAssetDocument::GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const
