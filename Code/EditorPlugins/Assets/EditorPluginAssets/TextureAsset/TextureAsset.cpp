@@ -625,6 +625,7 @@ ezTextureAssetDocumentGenerator::TextureType ezTextureAssetDocumentGenerator::De
 {
   ezStringBuilder baseFilename = sFile.GetFileName();
 
+  // gets rid of 1K, 2K, etc,
   while (baseFilename.TrimWordEnd("_") ||
          baseFilename.TrimWordEnd("K") ||
          baseFilename.TrimWordEnd("-") ||
@@ -637,10 +638,12 @@ ezTextureAssetDocumentGenerator::TextureType ezTextureAssetDocumentGenerator::De
          baseFilename.TrimWordEnd("7") ||
          baseFilename.TrimWordEnd("8") ||
          baseFilename.TrimWordEnd("9") ||
-         baseFilename.TrimWordEnd("0") ||
-         baseFilename.TrimWordEnd("gl"))
+         baseFilename.TrimWordEnd("0"))
   {
   }
+
+  const bool dx = baseFilename.TrimWordEnd("_dx");
+  const bool gl = baseFilename.TrimWordEnd("_gl");
 
   if (sFile.HasExtension("hdr"))
   {
@@ -656,7 +659,12 @@ ezTextureAssetDocumentGenerator::TextureType ezTextureAssetDocumentGenerator::De
   }
   else if (baseFilename.EndsWith_NoCase("_n") || baseFilename.EndsWith_NoCase("normal") || baseFilename.EndsWith_NoCase("normals") || baseFilename.EndsWith_NoCase("nrm") || baseFilename.EndsWith_NoCase("norm") || baseFilename.EndsWith_NoCase("_nor"))
   {
-    return TextureType::Normal;
+    if (dx)
+      return TextureType::NormalDX;
+    else if (gl)
+      return TextureType::NormalGL;
+
+    return TextureType::NormalDX;
   }
   else if (baseFilename.EndsWith_NoCase("_arm") || baseFilename.EndsWith_NoCase("_orm"))
   {
@@ -697,26 +705,6 @@ void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile,
       info2.m_sIcon = ":/AssetIcons/Texture_2D.svg";
     }
 
-    //{
-    //  ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
-    //  info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    //  info2.m_sName = "TextureImport.Diffuse";
-    //  info2.m_sIcon = ":/AssetIcons/Texture_2D.svg";
-    //}
-
-    //{
-    //  ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
-    //  info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    //  info2.m_sName = "TextureImport.Linear";
-    //  info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
-    //}
-
-    //{
-    //  ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
-    //  info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    //  info2.m_sName = "TextureImport.Normal";
-    //  info2.m_sIcon = ":/AssetIcons/Texture_Normals.svg";
-    //}
     return;
   }
 
@@ -735,9 +723,16 @@ void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile,
       break;
     }
 
-    case TextureType::Normal:
+    case TextureType::NormalDX:
     {
-      info.m_sName = "TextureImport.Normal";
+      info.m_sName = "TextureImport.NormalDX";
+      info.m_sIcon = ":/AssetIcons/Texture_Normals.svg";
+      break;
+    }
+
+    case TextureType::NormalGL:
+    {
+      info.m_sName = "TextureImport.NormalGL";
       info.m_sIcon = ":/AssetIcons/Texture_Normals.svg";
       break;
     }
@@ -810,11 +805,19 @@ void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile,
     info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 
-  if (tt != TextureType::Normal)
+  if (tt != TextureType::NormalDX)
   {
     ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info2.m_sName = "TextureImport.Normal";
+    info2.m_sName = "TextureImport.NormalDX";
+    info2.m_sIcon = ":/AssetIcons/Texture_Normals.svg";
+  }
+
+  if (tt != TextureType::NormalGL)
+  {
+    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
+    info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    info2.m_sName = "TextureImport.NormalGL";
     info2.m_sIcon = ":/AssetIcons/Texture_Normals.svg";
   }
 
@@ -870,8 +873,11 @@ ezStatus ezTextureAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, e
       case TextureType::Diffuse:
         sMode = "TextureImport.Diffuse";
         break;
-      case TextureType::Normal:
-        sMode = "TextureImport.Normal";
+      case TextureType::NormalDX:
+        sMode = "TextureImport.NormalDX";
+        break;
+      case TextureType::NormalGL:
+        sMode = "TextureImport.NormalGL";
         break;
       case TextureType::Occlusion:
         sMode = "TextureImport.Occlusion";
@@ -923,9 +929,13 @@ ezStatus ezTextureAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, e
   {
     accessor.SetValue("Usage", (int)ezTexConvUsage::Color);
   }
-  else if (sMode == "TextureImport.Normal")
+  else if (sMode == "TextureImport.NormalDX")
   {
     accessor.SetValue("Usage", (int)ezTexConvUsage::NormalMap);
+  }
+  else if (sMode == "TextureImport.NormalGL")
+  {
+    accessor.SetValue("Usage", (int)ezTexConvUsage::NormalMap_Inverted);
   }
   else if (sMode == "TextureImport.HDR")
   {

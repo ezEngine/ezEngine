@@ -23,9 +23,9 @@ public:
   float m_fSizeFactor;
   float m_fIntensity;
   ezUInt32 m_uiPercentage;
-  ezString m_sTintColorParameter;
-  ezString m_sIntensityParameter;
-  ezString m_sSizeScaleParameter;
+  ezHashedString m_sTintColorParameter;
+  ezHashedString m_sIntensityParameter;
+  ezHashedString m_sSizeScaleParameter;
 };
 
 /// Renders particles as dynamic point lights.

@@ -62,7 +62,8 @@ public:
   enum class TextureType
   {
     Diffuse,
-    Normal,
+    NormalDX,
+    NormalGL,
     Occlusion,
     Roughness,
     Metalness,

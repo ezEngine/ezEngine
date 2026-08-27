@@ -20,10 +20,13 @@ public:
   virtual void Save(ezStreamWriter& inout_stream) const override;
   virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  ezString m_sMesh;
-  ezString m_sMaterial;
+  ezHashedString m_sMesh;
+  ezHashedString m_sMaterial;
   float m_fScale = 1.0f;
-  ezString m_sTintColorParameter;
+  ezHashedString m_sTintColorParameter;
+
+  ezMeshResourceHandle m_hMesh;
+  ezMaterialResourceHandle m_hMaterial;
 };
 
 /// Renders particles as instanced 3D meshes.

@@ -50,8 +50,8 @@ struct ezTexConvUsage
     Linear,
     Hdr,
 
-    NormalMap,
-    NormalMap_Inverted,
+    NormalMap,          // DirectX convention
+    NormalMap_Inverted, // OpenGL convention
 
     BumpMap,
 

@@ -202,6 +202,31 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST_BOOL(relPath == "");
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "NormalizeWindowsDriveLetter")
+  {
+    auto Normalized = [](const char* szPath) -> ezStringBuilder
+    {
+      ezStringBuilder s = szPath;
+      ezPathUtils::NormalizeWindowsDriveLetter(s);
+      return s;
+    };
+
+    EZ_TEST_STRING(Normalized("c:/DataDir/File.txt"), "C:/DataDir/File.txt");
+    EZ_TEST_STRING(Normalized("C:/DataDir/File.txt"), "C:/DataDir/File.txt");
+    EZ_TEST_STRING(Normalized("z:"), "Z:");
+    EZ_TEST_STRING(Normalized("c:"), "C:");
+
+    // the rest of the path is not touched
+    EZ_TEST_STRING(Normalized("c:/dataDIR/fILE.txt"), "C:/dataDIR/fILE.txt");
+
+    // nothing that looks like a drive letter
+    EZ_TEST_STRING(Normalized(""), "");
+    EZ_TEST_STRING(Normalized("c"), "c");
+    EZ_TEST_STRING(Normalized("/usr/local"), "/usr/local");
+    EZ_TEST_STRING(Normalized("relative/path.txt"), "relative/path.txt");
+    EZ_TEST_STRING(Normalized("1:/foo"), "1:/foo");
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsSubPath")
   {
     EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:/DataDir", "C:/DataDir/SomeFolder"));

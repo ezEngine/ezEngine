@@ -1175,8 +1175,9 @@ void ezAssetCurator::FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& ref_uses, bool
     if (pInfo)
     {
       sCurrentAsset = pInfo->m_Path;
-      GatherReferences(m_InverseThumbnailDeps, sCurrentAsset);
       GatherReferences(m_InverseTransformDeps, sCurrentAsset);
+      GatherReferences(m_InverseThumbnailDeps, sCurrentAsset);
+      GatherReferences(m_InversePackageDeps, sCurrentAsset);
     }
   } while (bTransitive && !todoList.IsEmpty());
 }
@@ -1184,13 +1185,21 @@ void ezAssetCurator::FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& ref_uses, bool
 void ezAssetCurator::FindAllUses(ezStringView sAbsolutePath, ezSet<ezUuid>& ref_uses) const
 {
   EZ_LOCK(m_CuratorMutex);
-  if (auto it = m_InverseTransformDeps.Find(sAbsolutePath); it.IsValid())
+
+  auto GatherReferences = [&](const ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker)
   {
-    for (const ezUuid& guid : it.Value())
+    if (auto it = inverseTracker.Find(sAbsolutePath); it.IsValid())
     {
-      ref_uses.Insert(guid);
+      for (const ezUuid& guid : it.Value())
+      {
+        ref_uses.Insert(guid);
+      }
     }
-  }
+  };
+
+  GatherReferences(m_InverseTransformDeps);
+  GatherReferences(m_InverseThumbnailDeps);
+  GatherReferences(m_InversePackageDeps);
 }
 
 bool ezAssetCurator::IsReferenced(ezStringView sAbsolutePath) const

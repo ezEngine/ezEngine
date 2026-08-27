@@ -34,10 +34,7 @@ void ezParticleTypeEffectFactory::CopyTypeProperties(ezParticleType* pObject, bo
 {
   ezParticleTypeEffect* pType = static_cast<ezParticleTypeEffect*>(pObject);
 
-  pType->m_hEffect.Invalidate();
-
-  if (!m_sEffect.IsEmpty())
-    pType->m_hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(m_sEffect);
+  pType->m_hEffect = m_hEffect;
 
   // pType->m_sSharedInstanceName = m_sSharedInstanceName;
 
@@ -86,6 +83,11 @@ void ezParticleTypeEffectFactory::Load(ezStreamReader& inout_stream, const ezPar
 
     inout_stream >> m_uiRandomSeed;
     inout_stream >> m_sSharedInstanceName;
+  }
+
+  if (!m_sEffect.IsEmpty())
+  {
+    m_hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(m_sEffect);
   }
 }
 
