@@ -49,6 +49,9 @@ public:
   ezHashedString m_sCustomMaterial;
   ezHashedString m_sTintColorParameter;
 
+  ezTexture2DResourceHandle m_hTexture;
+  ezMaterialResourceHandle m_hCustomMaterial;
+
   ezEnum<ezQuadParticleOrientation> m_Orientation;
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezEnum<ezParticleLightingMode> m_LightingMode;

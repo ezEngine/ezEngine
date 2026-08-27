@@ -20,8 +20,10 @@ public:
   virtual void Save(ezStreamWriter& inout_stream) const override;
   virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  ezString m_sEffect;
-  ezString m_sSharedInstanceName; // to be removed
+  ezHashedString m_sEffect;
+  ezHashedString m_sSharedInstanceName; // to be removed
+
+  ezParticleEffectResourceHandle m_hEffect;
 };
 
 /// Spawns nested particle effects at each particle position.

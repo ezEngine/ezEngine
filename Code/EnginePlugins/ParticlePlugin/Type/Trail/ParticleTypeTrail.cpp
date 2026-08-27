@@ -60,13 +60,11 @@ void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject, boo
 
   if (m_bUseCustomMaterial)
   {
-    if (!m_sCustomMaterial.IsEmpty())
-      pType->m_hCustomMaterial = ezResourceManager::LoadResource<ezMaterialResource>(m_sCustomMaterial);
+    pType->m_hCustomMaterial = m_hCustomMaterial;
   }
   else
   {
-    if (!m_sTexture.IsEmpty())
-      pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
+    pType->m_hTexture = m_hTexture;
   }
 
   // fixed 25 FPS for the update rate
@@ -199,6 +197,15 @@ void ezParticleTypeTrailFactory::Load(ezStreamReader& inout_stream, const ezPart
   if (uiVersion >= 8)
   {
     inout_stream >> m_TextureAtlasOrientation;
+  }
+
+  if (m_bUseCustomMaterial && !m_sCustomMaterial.IsEmpty())
+  {
+    m_hCustomMaterial = ezResourceManager::LoadResource<ezMaterialResource>(m_sCustomMaterial);
+  }
+  else if (!m_sTexture.IsEmpty())
+  {
+    m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
   }
 }
 

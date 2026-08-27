@@ -23,17 +23,20 @@ public:
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezUInt16 m_uiMaxPoints;
   ezTime m_UpdateDiff;
-  ezString m_sTexture;
+  ezHashedString m_sTexture;
   ezEnum<ezParticleTextureAtlasType> m_TextureAtlasType;
   ezEnum<ezParticleTextureAtlasOrientation> m_TextureAtlasOrientation;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;
-  ezString m_sTintColorParameter;
+  ezHashedString m_sTintColorParameter;
   ezEnum<ezParticleLightingMode> m_LightingMode;
   float m_fNormalCurvature = 0.5f;
   float m_fLightDirectionality = 0.5f;
   bool m_bUseCustomMaterial = false;
-  ezString m_sCustomMaterial;
+  ezHashedString m_sCustomMaterial;
+
+  ezTexture2DResourceHandle m_hTexture;
+  ezMaterialResourceHandle m_hCustomMaterial;
 };
 
 /// Renders particles as textured ribbons following their movement path.

@@ -39,17 +39,11 @@ void ezParticleTypeMeshFactory::CopyTypeProperties(ezParticleType* pObject, bool
 {
   ezParticleTypeMesh* pType = static_cast<ezParticleTypeMesh*>(pObject);
 
-  pType->m_hMesh.Invalidate();
-  pType->m_hMaterial.Invalidate();
+  pType->m_hMesh = m_hMesh;
+  pType->m_hMaterial = m_hMaterial;
   pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
   pType->m_bMaterialOverride = !m_sMaterial.IsEmpty();
   pType->m_fScale = m_fScale;
-
-  if (!m_sMesh.IsEmpty())
-    pType->m_hMesh = ezResourceManager::LoadResource<ezMeshResource>(m_sMesh);
-
-  if (!m_sMaterial.IsEmpty())
-    pType->m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(m_sMaterial);
 
   pType->m_pRenderDataManager = (ezRenderDataManager*)pType->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezRenderDataManager>());
 }
@@ -99,6 +93,16 @@ void ezParticleTypeMeshFactory::Load(ezStreamReader& inout_stream, const ezParti
   if (uiVersion >= 3)
   {
     inout_stream >> m_fScale;
+  }
+
+  if (!m_sMesh.IsEmpty())
+  {
+    m_hMesh = ezResourceManager::LoadResource<ezMeshResource>(m_sMesh);
+  }
+
+  if (!m_sMaterial.IsEmpty())
+  {
+    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(m_sMaterial);
   }
 }
 
