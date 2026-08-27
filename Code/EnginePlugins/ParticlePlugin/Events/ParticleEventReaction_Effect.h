@@ -24,6 +24,8 @@ public:
   ezString m_sEffect;
   ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
 
+  ezParticleEffectResourceHandle m_hEffect;
+
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters
 public:

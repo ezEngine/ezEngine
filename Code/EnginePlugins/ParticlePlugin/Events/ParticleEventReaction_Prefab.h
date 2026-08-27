@@ -26,6 +26,8 @@ public:
   ezString m_sPrefab;
   ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
 
+  ezPrefabResourceHandle m_hPrefab;
+
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters
 public:

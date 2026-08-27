@@ -108,6 +108,11 @@ void ezParticleEventReactionFactory_Effect::Load(ezStreamReader& inout_stream)
   {
     inout_stream >> m_Alignment;
   }
+
+  if (!m_sEffect.IsEmpty())
+  {
+    m_hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(m_sEffect);
+  }
 }
 
 
@@ -121,11 +126,8 @@ void ezParticleEventReactionFactory_Effect::CopyReactionProperties(ezParticleEve
 {
   ezParticleEventReaction_Effect* pReaction = static_cast<ezParticleEventReaction_Effect*>(pObject);
 
-  pReaction->m_hEffect.Invalidate();
+  pReaction->m_hEffect = m_hEffect;
   pReaction->m_Alignment = m_Alignment;
-
-  if (!m_sEffect.IsEmpty())
-    pReaction->m_hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(m_sEffect);
 
   pReaction->m_Parameters = m_pParameters;
 }

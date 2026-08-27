@@ -66,6 +66,11 @@ void ezParticleEventReactionFactory_Prefab::Load(ezStreamReader& inout_stream)
   {
     inout_stream >> m_Alignment;
   }
+
+  if (!m_sPrefab.IsEmpty())
+  {
+    m_hPrefab = ezResourceManager::LoadResource<ezPrefabResource>(m_sPrefab);
+  }
 }
 
 
@@ -79,11 +84,8 @@ void ezParticleEventReactionFactory_Prefab::CopyReactionProperties(ezParticleEve
 {
   ezParticleEventReaction_Prefab* pReaction = static_cast<ezParticleEventReaction_Prefab*>(pObject);
 
-  pReaction->m_hPrefab.Invalidate();
+  pReaction->m_hPrefab = m_hPrefab;
   pReaction->m_Alignment = m_Alignment;
-
-  if (!m_sPrefab.IsEmpty())
-    pReaction->m_hPrefab = ezResourceManager::LoadResource<ezPrefabResource>(m_sPrefab);
 }
 
 //////////////////////////////////////////////////////////////////////////
