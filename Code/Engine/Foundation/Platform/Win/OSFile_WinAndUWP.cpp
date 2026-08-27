@@ -80,7 +80,13 @@ ezStringView ezOSFile::GetApplicationPath()
       EZ_REPORT_FAILURE("GetModuleFileNameW failed: {0}", ezArgErrorCode(error));
     }
 
-    s_sApplicationPath = ezStringUtf8(tmp.GetData()).GetData();
+    // GetModuleFileNameW returns the drive letter exactly as the process was started with,
+    // so launching the same executable through a lower case and an upper case path yields absolute paths
+    // that differ in that one character.
+    ezStringBuilder sPath = ezStringUtf8(tmp.GetData()).GetView();
+    ezPathUtils::NormalizeWindowsDriveLetter(sPath);
+
+    s_sApplicationPath = sPath;
   }
 
   return s_sApplicationPath;

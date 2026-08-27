@@ -269,6 +269,23 @@ void ezPathUtils::MakeValidFilename(ezStringView sFilename, ezUInt32 uiReplaceme
   }
 }
 
+void ezPathUtils::NormalizeWindowsDriveLetter(ezStringBuilder& ref_sAbsolutePath)
+{
+  if (ref_sAbsolutePath.GetElementCount() >= 2 && ref_sAbsolutePath.GetData()[1] == ':')
+  {
+    const ezUInt32 uiChar = static_cast<ezUInt8>(ref_sAbsolutePath.GetData()[0]);
+
+    // Only ASCII can be a drive letter, which also guarantees that the replacement is a single byte.
+    if (ezUnicodeUtils::IsASCII(uiChar))
+    {
+      const ezUInt32 uiUpper = ezStringUtils::ToUpperChar(uiChar);
+
+      const char szUpper[2] = {static_cast<char>(uiUpper), '\0'};
+      ref_sAbsolutePath.ReplaceSubString(ref_sAbsolutePath.GetData(), ref_sAbsolutePath.GetData() + 1, szUpper);
+    }
+  }
+}
+
 bool ezPathUtils::IsSubPath(ezStringView sPrefixPath, ezStringView sFullPath0)
 {
   if (sPrefixPath.IsEmpty())
