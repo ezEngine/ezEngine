@@ -345,7 +345,9 @@ namespace ezMeshImportUtils
     // Set two-sided property
     if (material.m_Properties.TryGetValue(ezModelImporter2::PropertySemantic::TwosidedValue, propertyValue) && propertyValue.IsNumber())
     {
-      pAccessor->SetValueByName(pMaterialProperties, "TWO_SIDED", propertyValue.ConvertTo<bool>()).LogFailure();
+      // Do NOT set this. A lot of assets from Blender have this set incorrectly and it is not a good idea to set this automatically.
+      // Force the user to change this when needed.
+      // pAccessor->SetValueByName(pMaterialProperties, "TWO_SIDED", propertyValue.ConvertTo<bool>()).LogFailure();
     }
 
     // Set metallic property

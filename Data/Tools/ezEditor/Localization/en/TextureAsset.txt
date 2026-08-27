@@ -11,7 +11,8 @@ TextureAsset.ChannelMode;Channel to Display
 
 TextureImport.Auto;Texture 2D;Guesses the texture type from the file name and imports it accordingly.
 TextureImport.Diffuse;Diffuse Texture;Color data. Stored as sRGB, so the values are gamma corrected when read.
-TextureImport.Normal;Normal Map;A tangent space normal map.
+TextureImport.NormalDX;Normal Map (DX);A tangent space normal map.
+TextureImport.NormalGL;Normal Map (GL);A tangent space normal map.
 TextureImport.HDR;HDR Texture;High dynamic range color data, for values outside the 0 to 1 range.
 TextureImport.Linear;Linear Texture;Data that is not color and must not be gamma corrected, e.g. a mask.
 TextureImport.Occlusion;Occlusion Texture;Ambient occlusion, read from the red channel.
