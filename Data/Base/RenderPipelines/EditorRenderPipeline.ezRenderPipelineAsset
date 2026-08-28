@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{1181292518458477343}
+		u4 %Hash{684074463509839223}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -626,7 +626,7 @@ o
 		b %Active{1}
 		Uuid %Bloom{u4{1231768582810881221,2526286531832075864}}
 		Uuid %Color{u4{17799379459547840194,1402565876006850089}}
-		s %CompareCurve{"ezTonemapMode::None"}
+		s %CompareCurve{"ezTonemapMode::Filmic"}
 		f %Contrast{0}
 		f %FilmicLinearAngle{0xCDCCCC3D}
 		f %FilmicLinearStrength{0x3333B33E}
@@ -636,7 +636,7 @@ o
 		f %LUT1Strength{0}
 		s %LUT2{""}
 		f %LUT2Strength{0}
-		s %Mode{"ezTonemapMode::Filmic"}
+		s %Mode{"ezTonemapMode::ACES"}
 		Color %MoodColor{f{0x0000803F,0x71A5C03E,0,0x0000803F}}
 		f %MoodStrength{0}
 		s %Name{"TonemapPass"}
