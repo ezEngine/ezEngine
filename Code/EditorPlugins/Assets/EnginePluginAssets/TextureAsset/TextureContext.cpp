@@ -50,11 +50,21 @@ void ezTextureContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
     if (pMsg2->m_sWhatToDo == "SetChannelMode")
     {
+      m_iChannelMode = pMsg2->m_iValue;
+      m_fAlphaThreshold = pMsg2->m_fValue;
+
       for (auto& slice : m_SlicePreviews)
       {
         ezResourceLock<ezMaterialResource> pMaterial(slice.m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-        pMaterial->SetParameter("ShowChannelMode", pMsg2->m_iValue);
-        pMaterial->SetParameter("AlphaThreshold", pMsg2->m_fValue);
+        if (pMaterial.GetAcquireResult() != ezResourceAcquireResult::Final)
+        {
+          // Would modify the loading fallback; retry once the real material is loaded.
+          m_bSliceMaterialsDirty = true;
+          break;
+        }
+
+        pMaterial->SetParameter("ShowChannelMode", m_iChannelMode);
+        pMaterial->SetParameter("AlphaThreshold", m_fAlphaThreshold);
       }
     }
     else if (pMsg2->m_sWhatToDo == "SetLodLevel")
@@ -65,7 +75,13 @@ void ezTextureContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
         for (auto& slice : m_SlicePreviews)
         {
           ezResourceLock<ezMaterialResource> pMaterial(slice.m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-          pMaterial->SetParameter("LodLevel", pMsg2->m_iValue);
+          if (pMaterial.GetAcquireResult() != ezResourceAcquireResult::Final)
+          {
+            m_bSliceMaterialsDirty = true;
+            break;
+          }
+
+          pMaterial->SetParameter("LodLevel", m_iLodLevel);
         }
       }
     }
@@ -91,6 +107,13 @@ void ezTextureContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
       }
     }
     RebuildPreviewObjects(uiArraySlices);
+
+    // Applying the material parameters can fail while the materials are still loading (a loading
+    // fallback would be modified instead of the real material). In that case retry on the next redraw.
+    if (m_bSliceMaterialsDirty)
+    {
+      ApplySliceMaterialParameters();
+    }
   }
 
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
@@ -152,10 +175,18 @@ void ezTextureContext::RebuildPreviewObjects(ezUInt32 uiNumArraySlices)
   if (uiNumArraySlices == 0)
     uiNumArraySlices = 1;
 
-  if (uiNumArraySlices == m_uiNumArraySlices)
+  if (uiNumArraySlices == m_uiNumArraySlices && !m_bPreviewObjectsDirty)
     return;
 
   m_uiNumArraySlices = uiNumArraySlices;
+  m_bPreviewObjectsDirty = false;
+
+  // The slice materials are created resources, so they have no data loader and can never be reloaded
+  // once their data was unloaded (which happens when the document is closed and the material loses its
+  // last reference). Reusing such a name would yield a material without base material or shader, which
+  // renders as the fallback texture. A process wide counter keeps every batch of materials distinct.
+  static ezAtomicInteger32 s_uiNextMaterialGeneration = 0;
+  m_uiMaterialGeneration = (ezUInt32)s_uiNextMaterialGeneration.Increment();
 
   ezStringBuilder sTextureGuid;
   ezConversionUtils::ToString(GetDocumentGuid(), sTextureGuid);
@@ -176,24 +207,11 @@ void ezTextureContext::RebuildPreviewObjects(ezUInt32 uiNumArraySlices)
   {
     // Per-slice material
     ezStringBuilder sMaterialName;
-    sMaterialName.SetFormat("{} - Texture Preview Slice {}", sTextureGuid, i);
+    sMaterialName.SetFormat("{}-{} - Texture Preview Slice {}", sTextureGuid, m_uiMaterialGeneration, i);
 
-    ezMaterialResourceHandle hMaterial = ezResourceManager::GetExistingResource<ezMaterialResource>(sMaterialName);
-    if (!hMaterial.IsValid())
-    {
-      ezMaterialResourceDescriptor md;
-      md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Editor/Materials/TexturePreview.ezMaterial");
-      hMaterial = ezResourceManager::GetOrCreateResource<ezMaterialResource>(sMaterialName, std::move(md));
-    }
-
-    {
-      ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-      pMaterial->SetParameter("ArrayIndex", (int)i);
-      pMaterial->SetParameter("LodLevel", m_iLodLevel);
-
-      if (m_hTexture.IsValid())
-        pMaterial->SetTexture2DBinding("BaseTexture", m_hTexture);
-    }
+    ezMaterialResourceDescriptor md;
+    md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Editor/Materials/TexturePreview.ezMaterial");
+    ezMaterialResourceHandle hMaterial = ezResourceManager::GetOrCreateResource<ezMaterialResource>(sMaterialName, std::move(md));
 
     // Game object at stacked position
     ezGameObjectDesc obj;
@@ -213,6 +231,42 @@ void ezTextureContext::RebuildPreviewObjects(ezUInt32 uiNumArraySlices)
     slice.m_hMeshComponent = hMeshComp;
     slice.m_hMaterial = hMaterial;
   }
+
+  m_bSliceMaterialsDirty = true;
+  ApplySliceMaterialParameters();
+}
+
+void ezTextureContext::ApplySliceMaterialParameters()
+{
+  ezUInt32 uiArrayIndex = 0;
+
+  for (auto& slice : m_SlicePreviews)
+  {
+    ezResourceLock<ezMaterialResource> pMaterial(slice.m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+
+    if (pMaterial.GetAcquireResult() != ezResourceAcquireResult::Final)
+      return;
+
+    pMaterial->SetParameter("ArrayIndex", (int)uiArrayIndex);
+    pMaterial->SetParameter("LodLevel", m_iLodLevel);
+    pMaterial->SetParameter("ShowChannelMode", m_iChannelMode);
+    pMaterial->SetParameter("AlphaThreshold", m_fAlphaThreshold);
+
+    if (m_hTexture.IsValid())
+    {
+      pMaterial->SetTexture2DBinding("BaseTexture", m_hTexture);
+
+      ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::PointerOnly);
+      if (pTexture->GetFormat() != ezGALResourceFormat::Invalid)
+      {
+        pMaterial->SetParameter("IsLinear", !ezGALResourceFormat::IsSrgb(pTexture->GetFormat()));
+      }
+    }
+
+    ++uiArrayIndex;
+  }
+
+  m_bSliceMaterialsDirty = false;
 }
 
 void ezTextureContext::SetTexture(ezStringView sTextureFile)
@@ -227,8 +281,8 @@ void ezTextureContext::SetTexture(ezStringView sTextureFile)
     pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this), m_TextureResourceEventSubscriber);
   }
 
-  // Reset slice count so the next redraw triggers a rebuild with the new texture.
-  m_uiNumArraySlices = 0;
+  m_bPreviewObjectsDirty = true;
+  m_bSliceMaterialsDirty = true;
 }
 
 void ezTextureContext::OnResourceEvent(const ezResourceEvent& e)
@@ -238,15 +292,8 @@ void ezTextureContext::OnResourceEvent(const ezResourceEvent& e)
     const ezTexture2DResource* pTexture = static_cast<const ezTexture2DResource*>(e.m_pResource);
     if (pTexture->GetFormat() != ezGALResourceFormat::Invalid)
     {
-      const bool bIsLinear = !ezGALResourceFormat::IsSrgb(pTexture->GetFormat());
-      for (auto& slice : m_SlicePreviews)
-      {
-        ezResourceLock<ezMaterialResource> pMaterial(slice.m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
-        pMaterial->SetParameter("IsLinear", bIsLinear);
-      }
-
-      // Force a rebuild on the next redraw in case the array size changed.
-      m_uiNumArraySlices = 0;
+      m_bPreviewObjectsDirty = true;
+      m_bSliceMaterialsDirty = true;
     }
   }
 }
