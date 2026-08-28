@@ -68,6 +68,9 @@ protected:
 
   const ezEditableSkeleton* MergeWithNewSkeleton(ezEditableSkeleton& newSkeleton);
 
+  /// Whether merging in newSkeleton would change the joint hierarchy stored in this document.
+  bool WouldSkeletonHierarchyChange(const ezEditableSkeleton& newSkeleton) const;
+
   ezEvent<const ezSkeletonAssetEvent&> m_Events;
   bool m_bRenderBones = true;
   bool m_bRenderColliders = true;

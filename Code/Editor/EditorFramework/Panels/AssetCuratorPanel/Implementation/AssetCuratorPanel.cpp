@@ -5,8 +5,10 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
 #include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
 #include <GuiFoundation/Models/LogModel.moc.h>
+#include <QMenu>
 
 ezQtAssetCuratorFilter::ezQtAssetCuratorFilter(QObject* pParent)
   : ezQtAssetFilter(pParent)
@@ -81,6 +83,7 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
 
   connect(ListAssets, &QTreeView::doubleClicked, this, &ezQtAssetCuratorPanel::onListAssetsDoubleClicked);
   connect(CheckIndirect, &QCheckBox::toggled, this, &ezQtAssetCuratorPanel::onCheckIndirectToggled);
+  connect(ListAssets, &QWidget::customContextMenuRequested, this, &ezQtAssetCuratorPanel::onListAssetsContextMenuRequested);
 
   ezAssetProcessor::GetSingleton()->AddLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
 
@@ -142,6 +145,55 @@ void ezQtAssetCuratorPanel::onListAssetsDoubleClicked(const QModelIndex& index)
   QString sAbsPath = m_Model->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
 
   ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAbsPath.toUtf8().data());
+}
+
+QModelIndex ezQtAssetCuratorPanel::GetContextMenuTarget() const
+{
+  return ListAssets->selectionModel()->currentIndex();
+}
+
+void ezQtAssetCuratorPanel::onListAssetsContextMenuRequested(const QPoint& pos)
+{
+  // make the item under the cursor the current one, so that the menu always acts on what was clicked
+  const QModelIndex clicked = ListAssets->indexAt(pos);
+  if (clicked.isValid())
+  {
+    ListAssets->selectionModel()->setCurrentIndex(clicked, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  }
+
+  const QModelIndex index = GetContextMenuTarget();
+  if (!index.isValid())
+    return;
+
+  QMenu menu;
+
+  QAction* pOpen = menu.addAction(ezMakeQString(ezTranslate("AssetCurator.OpenDocument")));
+  connect(pOpen, &QAction::triggered, this, [this]()
+    {
+      const QModelIndex idx = GetContextMenuTarget();
+      if (idx.isValid())
+        onListAssetsDoubleClicked(idx); //
+    });
+
+  QAction* pSelect = menu.addAction(ezMakeQString(ezTranslate("AssetCurator.SelectInAssetBrowser")));
+  connect(pSelect, &QAction::triggered, this, [this]()
+    {
+      const QModelIndex idx = GetContextMenuTarget();
+      if (!idx.isValid())
+        return;
+
+      const ezUuid assetGuid = m_Model->data(idx, ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
+      if (!assetGuid.IsValid())
+        return;
+
+      ezQtAssetBrowserPanel::GetSingleton()->AssetBrowserWidget->SetSelectedAsset(assetGuid);
+      ezQtAssetBrowserPanel::GetSingleton()->EnsureVisible(); //
+    });
+
+  // the double click default action is 'open', so make that the bold default entry as well
+  menu.setDefaultAction(pOpen);
+
+  menu.exec(ListAssets->viewport()->mapToGlobal(pos));
 }
 
 void ezQtAssetCuratorPanel::onCheckIndirectToggled(bool checked)

@@ -29,6 +29,7 @@ ezActionDescriptorHandle ezDocumentActions::s_hClose;
 ezActionDescriptorHandle ezDocumentActions::s_hCloseAll;
 ezActionDescriptorHandle ezDocumentActions::s_hCloseAllButThis;
 ezActionDescriptorHandle ezDocumentActions::s_hOpenContainingFolder;
+ezActionDescriptorHandle ezDocumentActions::s_hCopyDocumentPath;
 ezActionDescriptorHandle ezDocumentActions::s_hUpdatePrefabs;
 
 void ezDocumentActions::RegisterActions()
@@ -41,6 +42,7 @@ void ezDocumentActions::RegisterActions()
   s_hCloseAll = EZ_REGISTER_ACTION_1("Document.CloseAll", ezActionScope::Document, "Document", "Ctrl+Shift+W", ezDocumentAction, ezDocumentAction::ButtonType::CloseAll);
   s_hCloseAllButThis = EZ_REGISTER_ACTION_1("Document.CloseAllButThis", ezActionScope::Document, "Document", "Shift+Alt+W", ezDocumentAction, ezDocumentAction::ButtonType::CloseAllButThis);
   s_hOpenContainingFolder = EZ_REGISTER_ACTION_1("Document.OpenContainingFolder", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::OpenContainingFolder);
+  s_hCopyDocumentPath = EZ_REGISTER_ACTION_1("Document.CopyDocumentPath", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::CopyDocumentPath);
   s_hUpdatePrefabs = EZ_REGISTER_ACTION_1("Prefabs.UpdateAll", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezDocumentAction, ezDocumentAction::ButtonType::UpdatePrefabs);
 }
 
@@ -54,6 +56,7 @@ void ezDocumentActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hCloseAll);
   ezActionManager::UnregisterAction(s_hCloseAllButThis);
   ezActionManager::UnregisterAction(s_hOpenContainingFolder);
+  ezActionManager::UnregisterAction(s_hCopyDocumentPath);
   ezActionManager::UnregisterAction(s_hUpdatePrefabs);
 }
 
@@ -69,6 +72,7 @@ void ezDocumentActions::MapMenuActions(ezStringView sMapping, ezStringView sTarg
   pMap->MapAction(s_hCloseAll, sTargetMenu, 9.0f);
   pMap->MapAction(s_hCloseAllButThis, sTargetMenu, 10.0f);
   pMap->MapAction(s_hOpenContainingFolder, sTargetMenu, 11.0f);
+  pMap->MapAction(s_hCopyDocumentPath, sTargetMenu, 12.0f);
 }
 
 void ezDocumentActions::MapToolbarActions(ezStringView sMapping)
@@ -123,6 +127,9 @@ ezDocumentAction::ezDocumentAction(const ezActionContext& context, const char* s
       break;
     case ezDocumentAction::ButtonType::OpenContainingFolder:
       SetIconPath(":/GuiFoundation/Icons/OpenFolder.svg");
+      break;
+    case ezDocumentAction::ButtonType::CopyDocumentPath:
+      SetIconPath("");
       break;
     case ezDocumentAction::ButtonType::UpdatePrefabs:
       SetIconPath(":/EditorPluginScene/Icons/PrefabUpdate.svg");
@@ -294,6 +301,22 @@ void ezDocumentAction::Execute(const ezVariant& value)
         sPath = m_Context.m_pDocument->GetDocumentPath();
 
       ezQtUiServices::OpenInExplorer(sPath, true);
+    }
+    break;
+
+    case ezDocumentAction::ButtonType::CopyDocumentPath:
+    {
+      if (m_Context.m_pDocument == nullptr)
+        return;
+
+      ezStringBuilder sPath = m_Context.m_pDocument->GetDocumentPath();
+      sPath.MakePathSeparatorsNative();
+
+      QMimeData* pMimeData = new QMimeData();
+      pMimeData->setText(ezMakeQString(sPath));
+      QApplication::clipboard()->setMimeData(pMimeData);
+
+      ezQtUiServices::ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied path: {}", sPath), ezTime::MakeFromSeconds(5));
     }
     break;
 

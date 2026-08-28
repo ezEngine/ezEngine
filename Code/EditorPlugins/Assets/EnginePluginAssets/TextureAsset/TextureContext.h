@@ -32,6 +32,10 @@ protected:
 
 private:
   void SetTexture(ezStringView sTextureFile);
+
+  /// Applies all preview parameters to the slice materials. Does nothing and leaves
+  /// m_bSliceMaterialsDirty set if the materials are not loaded yet, so that it gets retried.
+  void ApplySliceMaterialParameters();
   void OnResourceEvent(const ezResourceEvent& e);
   void RebuildPreviewObjects(ezUInt32 uiNumArraySlices);
 
@@ -49,5 +53,10 @@ private:
   ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_TextureResourceEventSubscriber;
 
   ezUInt32 m_uiNumArraySlices = 0;
+  ezUInt32 m_uiMaterialGeneration = 0;
+  bool m_bPreviewObjectsDirty = true;
+  bool m_bSliceMaterialsDirty = true;
   int m_iLodLevel = -1;
+  int m_iChannelMode = 0;
+  float m_fAlphaThreshold = 0.0f;
 };

@@ -340,6 +340,13 @@ ezTransformStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter
 
       range.BeginNextStep("Importing Skeleton Data");
 
+      // merging rewrites the joint hierarchy in this document, which can't be saved back to disk
+      // during background processing, so the asset has to be transformed in the editor instead
+      if (transformFlags.IsSet(ezTransformFlags::BackgroundProcessing) && WouldSkeletonHierarchyChange(newSkeleton))
+      {
+        return ezTransformStatus(ezTransformResult::NeedsImport);
+      }
+
       // synchronize the old data (collision geometry etc.) with the new hierarchy
       const ezEditableSkeleton* pFinalSkeleton = MergeWithNewSkeleton(newSkeleton);
 
@@ -374,6 +381,39 @@ ezTransformStatus ezSkeletonAssetDocument::InternalCreateThumbnail(const Thumbna
 
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
+}
+
+bool ezSkeletonAssetDocument::WouldSkeletonHierarchyChange(const ezEditableSkeleton& newSkeleton) const
+{
+  auto CompareJoints = [](const auto& self, const ezEditableSkeletonJoint* pOld, const ezEditableSkeletonJoint* pNew) -> bool
+  {
+    if (!ezStringUtils::IsEqual(pOld->GetName(), pNew->GetName()))
+      return true;
+
+    if (pOld->m_Children.GetCount() != pNew->m_Children.GetCount())
+      return true;
+
+    for (ezUInt32 i = 0; i < pOld->m_Children.GetCount(); ++i)
+    {
+      if (self(self, pOld->m_Children[i], pNew->m_Children[i]))
+        return true;
+    }
+
+    return false;
+  };
+
+  const ezEditableSkeleton* pOldSkeleton = GetProperties();
+
+  if (pOldSkeleton->m_Children.GetCount() != newSkeleton.m_Children.GetCount())
+    return true;
+
+  for (ezUInt32 i = 0; i < pOldSkeleton->m_Children.GetCount(); ++i)
+  {
+    if (CompareJoints(CompareJoints, pOldSkeleton->m_Children[i], newSkeleton.m_Children[i]))
+      return true;
+  }
+
+  return false;
 }
 
 const ezEditableSkeleton* ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkeleton)

@@ -81,6 +81,7 @@ Document.Close;Close
 Document.CloseAll;Close All
 Document.CloseAllButThis;Close All But This
 Document.OpenContainingFolder;Open in Explorer
+Document.CopyDocumentPath;Copy Path;Stores the absolute path of the document in the clipboard.
 Document.MoveWindow;Move to Container Window
 Document.NewWindow;New Container Window
 Document.Undo;Undo
@@ -103,6 +104,8 @@ Asset.WriteLookupTable;Write Lookup Table
 Asset.Help;Open Asset Documentation;Open online documentation for this asset type
 Asset.CopyAssetGuid;Copy Asset Guid;Stores the assets GUID in the clipboard.
 Asset.SelectInAssetBrowser;Select in Asset Browser
+AssetCurator.OpenDocument;Open Document
+AssetCurator.SelectInAssetBrowser;Select in Asset Browser
 Asset.CameraMode;Camera Mode
 
 # Prefabs

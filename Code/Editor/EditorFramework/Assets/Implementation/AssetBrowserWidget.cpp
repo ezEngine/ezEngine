@@ -10,6 +10,7 @@
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <Foundation/Application/Application.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
@@ -801,43 +802,59 @@ void ezQtAssetBrowserWidget::DeleteAndReplaceSelection()
     return;
   }
 
-  // Show warning about number of references
-  // Yes = choose replacement, No = delete without replacement, Cancel = abort
-  QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(
-    ezFmt("This asset is referenced by {} other asset(s).\n\n"
-          "Do you want to choose a replacement asset and update all references before deleting?",
-      uses.GetCount()),
-    QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel,
-    QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Yes);
+  // Ask what should happen to the existing references. The three actions are distinct enough that
+  // standard Yes/No/Cancel labels would be ambiguous, so custom button texts are used.
+  enum class RefAction
+  {
+    Abort,
+    Replace,      ///< point all references at another asset
+    Clear,        ///< empty all references, leaving the using assets without one
+    LeaveDangling ///< delete and let the references become invalid
+  };
 
-  if (choice == QMessageBox::StandardButton::Cancel)
+  RefAction refAction = RefAction::Abort;
+
+  ezStringBuilder sQuestion;
+  sQuestion.SetFormat("This asset is referenced by {} other asset(s).\n\n"
+                      "What should happen to those references?",
+    uses.GetCount());
+
+  if (ezQtUiServices::IsUnattended())
+  {
+    // an automated caller must not silently modify other assets
+    ezQtUiServices::ReportSuppressedDialog(ezStringBuilder("Question, answered automatically: ", sQuestion));
+    refAction = RefAction::Abort;
+  }
+  else
+  {
+    QMessageBox box(this);
+    box.setWindowTitle(ezMakeQString(ezApplication::GetApplicationInstance()->GetApplicationName()));
+    box.setText(ezMakeQString(sQuestion));
+    box.setIcon(QMessageBox::Icon::Question);
+
+    QPushButton* pReplaceBtn = box.addButton(QLatin1String("Replace With Other Asset..."), QMessageBox::ButtonRole::AcceptRole);
+    QPushButton* pClearBtn = box.addButton(QLatin1String("Clear References"), QMessageBox::ButtonRole::DestructiveRole);
+    QPushButton* pDeleteBtn = box.addButton(QLatin1String("Delete Anyway"), QMessageBox::ButtonRole::DestructiveRole);
+    box.addButton(QMessageBox::StandardButton::Cancel);
+    box.setDefaultButton(pReplaceBtn);
+
+    box.exec();
+
+    if (box.clickedButton() == pReplaceBtn)
+      refAction = RefAction::Replace;
+    else if (box.clickedButton() == pClearBtn)
+      refAction = RefAction::Clear;
+    else if (box.clickedButton() == pDeleteBtn)
+      refAction = RefAction::LeaveDangling;
+  }
+
+  if (refAction == RefAction::Abort)
     return;
 
-  if (choice == QMessageBox::StandardButton::No)
+  if (refAction == RefAction::LeaveDangling)
   {
-    // Delete without replacement
+    // Delete without touching the references
     DeleteSelection(false);
-    return;
-  }
-
-  // Show asset browser dialog to pick replacement (filtered to same asset type)
-  ezQtAssetBrowserDlg dlg(this, assetGuid, sAssetTypeName, "Select Replacement Asset");
-
-  if (dlg.exec() != QDialog::Accepted)
-    return;
-
-  ezUuid replacementGuid = dlg.GetSelectedAssetGuid();
-
-  // Verify replacement is valid and different
-  if (!replacementGuid.IsValid())
-  {
-    ezQtUiServices::MessageBoxWarning("No replacement asset was selected.");
-    return;
-  }
-
-  if (replacementGuid == assetGuid)
-  {
-    ezQtUiServices::MessageBoxWarning("The replacement asset must be different from the asset being deleted.");
     return;
   }
 
@@ -845,11 +862,40 @@ void ezQtAssetBrowserWidget::DeleteAndReplaceSelection()
   ezStringBuilder sOldReference;
   ezConversionUtils::ToString(assetGuid, sOldReference);
 
+  // An empty string is the 'no asset set' value, so clearing is a replacement with nothing.
   ezStringBuilder sNewReference;
-  ezConversionUtils::ToString(replacementGuid, sNewReference);
+
+  if (refAction == RefAction::Replace)
+  {
+    // Show asset browser dialog to pick replacement (filtered to same asset type)
+    ezQtAssetBrowserDlg dlg(this, assetGuid, sAssetTypeName, "Select Replacement Asset");
+
+    if (dlg.exec() != QDialog::Accepted)
+      return;
+
+    ezUuid replacementGuid = dlg.GetSelectedAssetGuid();
+
+    // Verify replacement is valid and different
+    if (!replacementGuid.IsValid())
+    {
+      ezQtUiServices::MessageBoxWarning("No replacement asset was selected.");
+      return;
+    }
+
+    if (replacementGuid == assetGuid)
+    {
+      ezQtUiServices::MessageBoxWarning("The replacement asset must be different from the asset being deleted.");
+      return;
+    }
+
+    ezConversionUtils::ToString(replacementGuid, sNewReference);
+  }
 
   // Perform replacements in all using documents
   ezAssetCurator::ReplaceAssetResult result = ezAssetCurator::GetSingleton()->ReplaceAssetReferenceInUses(assetGuid, sOldReference, sNewReference);
+
+  const char* szVerbNoun = (refAction == RefAction::Clear) ? "Clearing references" : "Replacement";
+  const char* szVerbPast = (refAction == RefAction::Clear) ? "cleared" : "replaced";
 
   // Build result message
   ezStringBuilder sResultMsg;
@@ -857,15 +903,17 @@ void ezQtAssetBrowserWidget::DeleteAndReplaceSelection()
   if (result.m_uiDocumentsFailed > 0)
   {
     sResultMsg.SetFormat(
-      "Replacement partially completed:\n\n"
+      "{} partially completed:\n\n"
       "- {} document(s) modified successfully\n"
       "- {} document(s) failed\n"
-      "- {} property reference(s) replaced\n\n"
+      "- {} property reference(s) {}\n\n"
       "The original asset was NOT deleted due to errors.\n\n"
       "Errors:\n",
+      szVerbNoun,
       result.m_uiDocumentsModified,
       result.m_uiDocumentsFailed,
-      result.m_uiPropertiesReplaced);
+      result.m_uiPropertiesReplaced,
+      szVerbPast);
 
     for (const ezString& error : result.m_Errors)
     {
@@ -881,13 +929,15 @@ void ezQtAssetBrowserWidget::DeleteAndReplaceSelection()
   if (!QFile::moveToTrash(sQtAbsPath))
   {
     sResultMsg.SetFormat(
-      "Replacements completed successfully:\n"
+      "{} completed successfully:\n"
       "- {} document(s) modified\n"
-      "- {} property reference(s) replaced\n\n"
+      "- {} property reference(s) {}\n\n"
       "However, failed to delete the original file:\n{}\n\n"
       "You may need to delete it manually.",
+      szVerbNoun,
       result.m_uiDocumentsModified,
       result.m_uiPropertiesReplaced,
+      szVerbPast,
       sAbsPath);
 
     ezQtUiServices::MessageBoxWarning(sResultMsg);
@@ -898,12 +948,14 @@ void ezQtAssetBrowserWidget::DeleteAndReplaceSelection()
 
   // Complete success
   sResultMsg.SetFormat(
-    "Delete & Replace completed successfully:\n\n"
+    "{} completed successfully:\n\n"
     "- {} document(s) modified\n"
-    "- {} property reference(s) replaced\n"
+    "- {} property reference(s) {}\n"
     "- Original asset deleted",
+    szVerbNoun,
     result.m_uiDocumentsModified,
-    result.m_uiPropertiesReplaced);
+    result.m_uiPropertiesReplaced,
+    szVerbPast);
 
   ezQtUiServices::MessageBoxInformation(sResultMsg);
 }
