@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{7854262761154706367}
+		u4 %Hash{16614591216123096815}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -638,7 +638,11 @@ o
 		Vec2 %Node::Pos{f{0x7C085144,0xBA1DB8C3}}
 		Uuid %Output{u4{6946315863658569953,11259191255110231988}}
 		f %Saturation{0x0000803F}
+		f %Shoulder{0xB81E853E}
+		f %Slope{0xAE47613F}
+		f %Toe{0x0000803F}
 		s %VignettingTexture{"{ 3edf10b3-36d2-434f-9683-c653909abe7e }"}
+		b %VisualizeCurve{1}
 		f %WhitePoint{0x33333341}
 	}
 }

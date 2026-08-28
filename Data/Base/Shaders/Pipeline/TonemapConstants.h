@@ -22,4 +22,8 @@ CONSTANT_BUFFER(ezTonemapConstants, 3)
 
   INT1(TonemapMode);
   FLOAT1(WhitePoint);
+  FLOAT1(TonemapSlope);
+  FLOAT1(TonemapToe);
+  FLOAT1(TonemapShoulder);
+  BOOL1(VisualizeCurve);
 };
