@@ -5,8 +5,8 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
+#include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
 #include <GuiFoundation/Models/LogModel.moc.h>
 #include <QMenu>
 
@@ -187,7 +187,7 @@ void ezQtAssetCuratorPanel::onListAssetsContextMenuRequested(const QPoint& pos)
         return;
 
       ezQtAssetBrowserPanel::GetSingleton()->AssetBrowserWidget->SetSelectedAsset(assetGuid);
-      ezQtAssetBrowserPanel::GetSingleton()->raise(); //
+      ezQtAssetBrowserPanel::GetSingleton()->EnsureVisible(); //
     });
 
   // the double click default action is 'open', so make that the bold default entry as well

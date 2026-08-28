@@ -327,7 +327,7 @@ void ezQtAssetPropertyWidget::OnOpenAssetDocument()
 void ezQtAssetPropertyWidget::OnSelectInAssetBrowser()
 {
   ezQtAssetBrowserPanel::GetSingleton()->AssetBrowserWidget->SetSelectedAsset(m_AssetGuid);
-  ezQtAssetBrowserPanel::GetSingleton()->raise();
+  ezQtAssetBrowserPanel::GetSingleton()->EnsureVisible();
 }
 
 void ezQtAssetPropertyWidget::OnOpenExplorer()

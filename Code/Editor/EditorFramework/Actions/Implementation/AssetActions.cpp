@@ -198,7 +198,7 @@ void ezAssetAction::Execute(const ezVariant& value)
     case ezAssetAction::ButtonType::SelectInAssetBrowser:
     {
       ezQtAssetBrowserPanel::GetSingleton()->AssetBrowserWidget->SetSelectedAsset(m_Context.m_pDocument->GetGuid());
-      ezQtAssetBrowserPanel::GetSingleton()->raise();
+      ezQtAssetBrowserPanel::GetSingleton()->EnsureVisible();
     }
     break;
   }
