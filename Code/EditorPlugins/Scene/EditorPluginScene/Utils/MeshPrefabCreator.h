@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorPluginScene/EditorPluginSceneDLL.h>
-#include <Foundation/Types/ArrayPtr.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Vec3.h>
+#include <Foundation/Types/ArrayPtr.h>
 #include <Foundation/Types/Status.h>
 #include <Foundation/Types/Uuid.h>
 
