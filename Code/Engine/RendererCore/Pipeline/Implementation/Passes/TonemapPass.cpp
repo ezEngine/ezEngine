@@ -1,25 +1,38 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/IO/TypeVersionContext.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/Passes/TonemapPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/Texture3DResource.h>
-
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Pipeline/TonemapConstants.h>
+#include <Shaders/Pipeline/TonemapConstants.h>
+
+static_assert(ezTonemapMode::None == TONEMAPMODE_NONE);
+static_assert(ezTonemapMode::Linear == TONEMAPMODE_LINEAR);
+static_assert(ezTonemapMode::Reinhard == TONEMAPMODE_REINHARD);
+static_assert(ezTonemapMode::Filmic == TONEMAPMODE_FILMIC);
+static_assert(ezTonemapMode::ACES == TONEMAPMODE_ACES);
+static_assert(ezTonemapMode::AgX == TONEMAPMODE_AGX);
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTonemapPass, 2, ezRTTIDefaultAllocator<ezTonemapPass>)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTonemapMode, 1)
+  EZ_ENUM_CONSTANTS(ezTonemapMode::None, ezTonemapMode::Linear, ezTonemapMode::Reinhard, ezTonemapMode::Filmic, ezTonemapMode::ACES, ezTonemapMode::AgX)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTonemapPass, 3, ezRTTIDefaultAllocator<ezTonemapPass>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Color", m_PinColorInput),
     EZ_MEMBER_PROPERTY("Bloom", m_PinBloomInput),
     EZ_MEMBER_PROPERTY("Output", m_PinOutput),
+
     EZ_RESOURCE_MEMBER_PROPERTY("VignettingTexture", m_hVignettingTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D"), new ezDefaultValueAttribute("White.color")),
     EZ_MEMBER_PROPERTY("MoodColor", m_MoodColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::Orange)),
     EZ_MEMBER_PROPERTY("MoodStrength", m_fMoodStrength)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
@@ -29,7 +42,22 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTonemapPass, 2, ezRTTIDefaultAllocator<ezTonem
     EZ_MEMBER_PROPERTY("LUT2Strength", m_fLut2Strength)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_RESOURCE_MEMBER_PROPERTY("LUT1", m_hLUT1)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_3D")),
     EZ_RESOURCE_MEMBER_PROPERTY("LUT2", m_hLUT2)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_3D")),
+
     EZ_MEMBER_PROPERTY("WhitePoint", m_fWhitePoint)->AddAttributes(new ezClampValueAttribute(0.0f, 50.0f), new ezDefaultValueAttribute(11.2f)),
+
+    EZ_ENUM_MEMBER_PROPERTY("Mode", ezTonemapMode, m_Mode),
+
+    EZ_MEMBER_PROPERTY("FilmicToe", m_fFilmicToe)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.2f)),
+    EZ_MEMBER_PROPERTY("FilmicLinearStrength", m_fFilmicLinearStrength)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.35f)),
+    EZ_MEMBER_PROPERTY("FilmicLinearAngle", m_fFilmicLinearAngle)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.1f)),
+    EZ_MEMBER_PROPERTY("FilmicShoulder", m_fFilmicShoulder)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.15f)),
+
+    EZ_MEMBER_PROPERTY("AcesToe", m_fAcesToe)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.55f)),
+    EZ_MEMBER_PROPERTY("AcesSlope", m_fAcesSlope)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.71f)),
+    EZ_MEMBER_PROPERTY("AcesShoulder", m_fAcesShoulder)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.47f)),
+
+    EZ_MEMBER_PROPERTY("VisualizeCurve", m_bVisualizeCurve),
+    EZ_ENUM_MEMBER_PROPERTY("CompareCurve", ezTonemapMode, m_CompareCurve)->AddAttributes(new ezDefaultValueAttribute(ezTonemapMode::None)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -47,14 +75,6 @@ ezTonemapPass::ezTonemapPass()
   m_hVignettingTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
   m_hNoiseTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/BlueNoise.dds");
   m_hBlackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Black.color");
-
-  m_MoodColor = ezColor::Orange;
-  m_fMoodStrength = 0.0f;
-  m_fSaturation = 1.0f;
-  m_fContrast = 1.0f;
-  m_fLut1Strength = 1.0f;
-  m_fLut2Strength = 0.0f;
-  m_fWhitePoint = 11.2f;
 
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Tonemap.ezShader");
   EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load tonemap shader!");
@@ -97,71 +117,146 @@ ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCame
   if (!hBloomInput.IsInvalidated())
     pass.ReadTexture(hBloomInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
   pass.SetStereoscopic(camera.IsStereoscopic());
-  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+  pass.SetExecuteCallback(
+    [=](const ezRenderGraphContext& ctx)
     {
-    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+      const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
 
-    // Determine how many LUTs are active
-    ezUInt32 numLUTs = 0;
-    ezTexture3DResourceHandle luts[2] = {};
-    float lutStrengths[2] = {};
+      // Determine how many LUTs are active
+      ezUInt32 numLUTs = 0;
+      ezTexture3DResourceHandle luts[2] = {};
+      float lutStrengths[2] = {};
 
-    if (m_hLUT1.IsValid())
-    {
-      luts[numLUTs] = m_hLUT1;
-      lutStrengths[numLUTs] = m_fLut1Strength;
-      numLUTs++;
-    }
+      if (m_hLUT1.IsValid())
+      {
+        luts[numLUTs] = m_hLUT1;
+        lutStrengths[numLUTs] = m_fLut1Strength;
+        numLUTs++;
+      }
 
-    if (m_hLUT2.IsValid())
-    {
-      luts[numLUTs] = m_hLUT2;
-      lutStrengths[numLUTs] = m_fLut2Strength;
-      numLUTs++;
-    }
+      if (m_hLUT2.IsValid())
+      {
+        luts[numLUTs] = m_hLUT2;
+        lutStrengths[numLUTs] = m_fLut2Strength;
+        numLUTs++;
+      }
 
-    {
-      ezTonemapConstants* constants = ezRenderContext::GetConstantBufferData<ezTonemapConstants>(m_hConstantBuffer);
-      constants->AutoExposureParams.SetZero();
-      constants->MoodColor = m_MoodColor;
-      constants->MoodStrength = m_fMoodStrength;
-      constants->Saturation = m_fSaturation;
-      constants->Lut1Strength = lutStrengths[0];
-      constants->Lut2Strength = lutStrengths[1];
-      constants->WhitePoint = m_fWhitePoint;
+      {
+        ezTonemapConstants* constants = ezRenderContext::GetConstantBufferData<ezTonemapConstants>(m_hConstantBuffer);
+        constants->AutoExposureParams.SetZero();
+        constants->MoodColor = m_MoodColor;
+        constants->MoodStrength = m_fMoodStrength;
+        constants->Saturation = m_fSaturation;
+        constants->Lut1Strength = lutStrengths[0];
+        constants->Lut2Strength = lutStrengths[1];
+        constants->TonemapMode = m_Mode != ezTonemapMode::None ? m_Mode.GetValue() : ezTonemapMode::Linear;
+        constants->WhitePoint = m_fWhitePoint;
+        constants->VisualizeCurve = m_bVisualizeCurve;
+        constants->CompareCurve = m_CompareCurve;
 
-      // Pre-calculate factors of a s-shaped polynomial-function
-      const float m = (0.5f - 0.5f * m_fContrast) / (0.5f + 0.5f * m_fContrast);
-      const float a = 2.0f * m - 2.0f;
-      const float b = -3.0f * m + 3.0f;
+        constants->FilmicToe = m_fFilmicToe;
+        constants->FilmicLinearStrength = m_fFilmicLinearStrength;
+        constants->FilmicLinearAngle = m_fFilmicLinearAngle;
+        constants->FilmicShoulder = ezMath::Max(m_fFilmicShoulder, 0.01f);
 
-      constants->ContrastParams = ezVec4(a, b, m, 0.0f);
-    }
+        constants->AcesToe = m_fAcesToe;
+        constants->AcesSlope = ezMath::Max(m_fAcesSlope, 0.1f);
+        constants->AcesShoulder = ezMath::Max(m_fAcesShoulder, 0.01f);
 
-    renderViewContext.m_pRenderContext->BindShader(m_hShader);
-    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+        // Pre-calculate factors of a s-shaped polynomial-function
+        const float m = (0.5f - 0.5f * m_fContrast) / (0.5f + 0.5f * m_fContrast);
+        const float a = 2.0f * m - 2.0f;
+        const float b = -3.0f * m + 3.0f;
 
-    ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-    bindGroup.BindBuffer("ezTonemapConstants", m_hConstantBuffer);
-    bindGroup.BindTexture("VignettingTexture", m_hVignettingTexture, ezResourceAcquireMode::BlockTillLoaded);
-    bindGroup.BindTexture("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
-    bindGroup.BindTexture("SceneColorTexture", ctx.ResolveTexture(hColorInput));
-    bindGroup.BindTexture("Lut1Texture", luts[0]);
-    bindGroup.BindTexture("Lut2Texture", luts[1]);
+        constants->ContrastParams = ezVec4(a, b, m, 0.0f);
+      }
 
-    if (!hBloomInput.IsInvalidated())
-    {
-      bindGroup.BindTexture("BloomTexture", ctx.ResolveTexture(hBloomInput));
-    }
-    else
-    {
-      bindGroup.BindTexture("BloomTexture", m_hBlackTexture, ezResourceAcquireMode::BlockTillLoaded);
-    }
+      renderViewContext.m_pRenderContext->BindShader(m_hShader);
+      renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
-    ezTempHashedString sLUTModeValues[3] = {"LUT_MODE_NONE", "LUT_MODE_ONE", "LUT_MODE_TWO"};
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LUT_MODE", sLUTModeValues[numLUTs]);
+      ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      bindGroup.BindBuffer("ezTonemapConstants", m_hConstantBuffer);
+      bindGroup.BindTexture("VignettingTexture", m_hVignettingTexture, ezResourceAcquireMode::BlockTillLoaded);
+      bindGroup.BindTexture("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
+      bindGroup.BindTexture("SceneColorTexture", ctx.ResolveTexture(hColorInput));
+      bindGroup.BindTexture("Lut1Texture", luts[0]);
+      bindGroup.BindTexture("Lut2Texture", luts[1]);
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
+      if (!hBloomInput.IsInvalidated())
+      {
+        bindGroup.BindTexture("BloomTexture", ctx.ResolveTexture(hBloomInput));
+      }
+      else
+      {
+        bindGroup.BindTexture("BloomTexture", m_hBlackTexture, ezResourceAcquireMode::BlockTillLoaded);
+      }
+
+      ezTempHashedString sLUTModeValues[3] = {"LUT_MODE_NONE", "LUT_MODE_ONE", "LUT_MODE_TWO"};
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LUT_MODE", sLUTModeValues[numLUTs]);
+
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+
+      if (m_bVisualizeCurve)
+      {
+        ezStringBuilder sb;
+
+        const ezVec2 vViewportSize = renderViewContext.m_pViewData->m_ViewPortRect.GetExtents();
+        const ezVec2 vTopLeft = vViewportSize.CompMul(ezVec2(0.03f));
+        const ezVec2 vBottomRight = vViewportSize.CompMul(ezVec2(0.4f));
+        const float fLineLength = 4.0f * ezDebugRenderer::GetTextScale();
+        const ezUInt32 uiTextSize = 16;
+
+        ezTempHybridArray<ezDebugRendererLine, 16> lines;
+
+        // x-axis
+        {
+          lines.PushBack(ezDebugRendererLine(ezVec3(vTopLeft.x, vBottomRight.y, 0.0f), ezVec3(vBottomRight.x, vBottomRight.y, 0.0f), ezColor::White));
+
+          for (float x = 0; x <= 1.0f; x += 0.25f)
+          {
+            const float x2 = x * x;
+            const float xPos = ezMath::Lerp(vTopLeft.x, vBottomRight.x, x2);
+            const ezVec3 lineStart = ezVec3(xPos, vBottomRight.y, 0.0f);
+            const ezVec3 lineEnd = ezVec3(xPos, vBottomRight.y + fLineLength, 0.0f);
+            lines.PushBack(ezDebugRendererLine(lineStart, lineEnd, ezColor::White));
+
+            // Draw label
+            sb.SetFormat("{0}", ezArgF(x * m_fWhitePoint, 1));
+            ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, sb, ezVec2I32(int(lineEnd.x), int(lineEnd.y)), ezColor::White, uiTextSize, ezDebugTextHAlign::Center, ezDebugTextVAlign::Top);
+          }
+        }
+
+        // y-axis
+        {
+          lines.PushBack(ezDebugRendererLine(ezVec3(vTopLeft.x, vTopLeft.y, 0.0f), ezVec3(vTopLeft.x, vBottomRight.y, 0.0f), ezColor::White));
+
+          for (float y = 0; y <= 1.0f; y += 0.25f)
+          {
+            const float yPos = ezMath::Lerp(vBottomRight.y, vTopLeft.y, y);
+            const ezVec3 lineStart = ezVec3(vTopLeft.x, yPos, 0.0f);
+            const ezVec3 lineEnd = ezVec3(vTopLeft.x - fLineLength, yPos, 0.0f);
+            lines.PushBack(ezDebugRendererLine(lineStart, lineEnd, ezColor::White));
+
+            // Draw label
+            sb.SetFormat("{0}", y);
+            ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, sb, ezVec2I32(int(lineEnd.x - fLineLength), int(lineEnd.y)), ezColor::White, uiTextSize, ezDebugTextHAlign::Right, ezDebugTextVAlign::Center);
+          }
+        }
+
+        ezDebugRenderer::Draw2DLines(*renderViewContext.m_pViewDebugContext, lines, ezColor::White);
+
+        ezReflectionUtils::EnumerationToString(m_Mode, sb, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+        sb.Prepend("Active: ");
+        ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, sb, ezVec2I32(int(vTopLeft.x), int(vTopLeft.y)), ezColor::Red, uiTextSize, ezDebugTextHAlign::Left, ezDebugTextVAlign::Bottom);
+
+        if (m_CompareCurve != ezTonemapMode::None)
+        {
+          ezReflectionUtils::EnumerationToString(m_CompareCurve, sb, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+          sb.Prepend("Compare: ");
+          ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, sb, ezVec2I32(int((vTopLeft.x + vBottomRight.x) * 0.5f), int(vTopLeft.y)), ezColor::Lime, uiTextSize, ezDebugTextHAlign::Left, ezDebugTextVAlign::Bottom);
+        }
+      }
+    });
 
   return EZ_SUCCESS;
 }
@@ -182,7 +277,20 @@ ezResult ezTonemapPass::Serialize(ezStreamWriter& inout_stream) const
   inout_stream << sTemp;
   sTemp = GetLUT2TextureFile();
   inout_stream << sTemp;
+
   inout_stream << m_fWhitePoint;
+
+  inout_stream << m_Mode;
+  inout_stream << m_bVisualizeCurve;
+  inout_stream << m_CompareCurve;
+  inout_stream << m_fFilmicToe;
+  inout_stream << m_fFilmicLinearStrength;
+  inout_stream << m_fFilmicLinearAngle;
+  inout_stream << m_fFilmicShoulder;
+  inout_stream << m_fAcesToe;
+  inout_stream << m_fAcesSlope;
+  inout_stream << m_fAcesShoulder;
+
   return EZ_SUCCESS;
 }
 
@@ -208,6 +316,20 @@ ezResult ezTonemapPass::Deserialize(ezStreamReader& inout_stream)
   {
     inout_stream >> m_fWhitePoint;
   }
+
+  if (uiVersion >= 3)
+  {
+    inout_stream >> m_Mode;
+    inout_stream >> m_bVisualizeCurve;
+    inout_stream >> m_CompareCurve;
+    inout_stream >> m_fFilmicToe;
+    inout_stream >> m_fFilmicLinearStrength;
+    inout_stream >> m_fFilmicLinearAngle;
+    inout_stream >> m_fFilmicShoulder;
+    inout_stream >> m_fAcesToe;
+    inout_stream >> m_fAcesSlope;
+    inout_stream >> m_fAcesShoulder;
+  }  
 
   return EZ_SUCCESS;
 }

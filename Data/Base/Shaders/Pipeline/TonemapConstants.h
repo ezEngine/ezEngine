@@ -3,6 +3,13 @@
 #include "../Common/ConstantBufferMacros.h"
 #include "../Common/Platforms.h"
 
+#define TONEMAPMODE_NONE 0
+#define TONEMAPMODE_LINEAR 1
+#define TONEMAPMODE_REINHARD 2
+#define TONEMAPMODE_FILMIC 3
+#define TONEMAPMODE_ACES 4
+#define TONEMAPMODE_AGX 5
+
 CONSTANT_BUFFER(ezTonemapConstants, 3)
 {
   FLOAT4(AutoExposureParams);
@@ -13,5 +20,19 @@ CONSTANT_BUFFER(ezTonemapConstants, 3)
   FLOAT1(Lut1Strength);
   FLOAT1(Lut2Strength);
   FLOAT4(ContrastParams);
+
+  INT1(TonemapMode);
   FLOAT1(WhitePoint);
+
+  FLOAT1(FilmicToe);
+  FLOAT1(FilmicLinearStrength);
+  FLOAT1(FilmicLinearAngle);
+  FLOAT1(FilmicShoulder);
+
+  FLOAT1(AcesToe);
+  FLOAT1(AcesSlope);
+  FLOAT1(AcesShoulder);
+
+  BOOL1(VisualizeCurve);
+  INT1(CompareCurve);
 };

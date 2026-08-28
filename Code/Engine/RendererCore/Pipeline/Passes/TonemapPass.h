@@ -7,6 +7,25 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/Texture3DResource.h>
 
+struct ezTonemapMode
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    None,
+    Linear,
+    Reinhard,
+    Filmic,
+    ACES,
+    AgX,
+
+    Default = Filmic
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezTonemapMode);
+
 /// Render pass that applies tonemapping and color grading to HDR images.
 ///
 /// Converts high dynamic range color values to display-ready output by applying
@@ -39,13 +58,27 @@ protected:
   ezTexture3DResourceHandle m_hLUT1;                                        ///< First 3D lookup table for color grading.
   ezTexture3DResourceHandle m_hLUT2;                                        ///< Second 3D lookup table for color grading.
 
-  ezColor m_MoodColor;                                                      ///< Mood color tint.
-  float m_fMoodStrength;                                                    ///< Strength of mood color effect.
-  float m_fSaturation;                                                      ///< Color saturation multiplier.
-  float m_fContrast;                                                        ///< Contrast adjustment.
-  float m_fLut1Strength;                                                    ///< Blend strength for first LUT.
-  float m_fLut2Strength;                                                    ///< Blend strength for second LUT.
-  float m_fWhitePoint;                                                      ///< White point for tone curve.
+  ezColor m_MoodColor = ezColor::Orange;                                    ///< Mood color tint.
+  float m_fMoodStrength = 0.0f;                                             ///< Strength of mood color effect.
+  float m_fSaturation = 1.0f;                                               ///< Color saturation multiplier.
+  float m_fContrast = 1.0f;                                                 ///< Contrast adjustment.
+  float m_fLut1Strength = 1.0f;                                             ///< Blend strength for first LUT.
+  float m_fLut2Strength = 0.0f;                                             ///< Blend strength for second LUT.
+
+  ezEnum<ezTonemapMode> m_Mode;                                             ///< Tonemap mode to use.
+  bool m_bVisualizeCurve = false;                                           ///< Debug visualization of the tonemap curve.
+  ezEnum<ezTonemapMode> m_CompareCurve = ezTonemapMode::None;               ///< Tonemap curve to compare against when visualizing the tonemap curve.
+
+  float m_fWhitePoint = 11.2f;                                              ///< White point for tone curve.
+
+  float m_fFilmicToe = 0.2f;                                                ///< Toe strength for the filmic tonemap curve.
+  float m_fFilmicLinearStrength = 0.35f;                                    ///< Linear strength for the filmic tonemap curve.
+  float m_fFilmicLinearAngle = 0.1f;                                        ///< Linear angle for the filmic tonemap curve.
+  float m_fFilmicShoulder = 0.15f;                                          ///< Shoulder strength for the filmic tonemap curve.
+
+  float m_fAcesToe = 0.55f;                                                 ///< Toe strength for the ACES tonemap curve.
+  float m_fAcesSlope = 0.71f;                                               ///< Slope for the ACES tonemap curve.
+  float m_fAcesShoulder = 0.47f;                                            ///< Shoulder strength for the ACES tonemap curve.
 
   ezConstantBufferStorageHandle m_hConstantBuffer;                          ///< Constant buffer for tonemap parameters.
   ezShaderResourceHandle m_hShader;                                         ///< Tonemap shader.

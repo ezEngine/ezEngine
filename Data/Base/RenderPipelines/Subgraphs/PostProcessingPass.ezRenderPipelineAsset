@@ -22,7 +22,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10020561646119184533,5683177833828958675}}
-		u4 %Hash{8069360219470237627}
+		u4 %Hash{14265694426779006039}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{1999365951044699738,15951038646261752741}}
@@ -313,16 +313,25 @@ o
 {
 	Uuid %id{u4{17252992080273635882,9918943967061492438}}
 	s %t{"ezTonemapPass"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
+		f %AcesShoulder{0xD7A3F03E}
+		f %AcesSlope{0x8FC2353F}
+		f %AcesToe{0xCDCC0C3F}
 		Uuid %Bloom{u4{8102476945910101606,17954155698102522458}}
 		Uuid %Color{u4{9014048666505654944,1100737762973851873}}
+		s %CompareCurve{"ezTonemapMode::Filmic"}
 		f %Contrast{0}
+		f %FilmicLinearAngle{0xCDCCCC3D}
+		f %FilmicLinearStrength{0x3333B33E}
+		f %FilmicShoulder{0x9A99193E}
+		f %FilmicToe{0xCDCC4C3E}
 		s %LUT1{""}
 		f %LUT1Strength{0}
 		s %LUT2{""}
 		f %LUT2Strength{0}
+		s %Mode{"ezTonemapMode::ACES"}
 		Color %MoodColor{f{0x0000803F,0x71A5C03E,0,0x0000803F}}
 		f %MoodStrength{0}
 		s %Name{"TonemapPass"}
@@ -330,6 +339,7 @@ o
 		Uuid %Output{u4{5003149436786757650,9026808316053870738}}
 		f %Saturation{0x0000803F}
 		s %VignettingTexture{"{ 3edf10b3-36d2-434f-9683-c653909abe7e }"}
+		b %VisualizeCurve{1}
 		f %WhitePoint{0x33333341}
 	}
 }
@@ -563,7 +573,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTonemapPass"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -597,6 +607,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNodeInputPin"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9740982291109535664,7214271377580441755}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTonemapMode"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -750,6 +777,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezColorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
 		u3 %TypeVersion{1}
 	}
 }
