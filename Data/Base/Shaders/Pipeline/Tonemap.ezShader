@@ -23,8 +23,17 @@ CullMode = CullMode_None
 #include <Shaders/Common/GlobalConstants.h>
 #include "TonemapConstants.h"
 
+float3 TonemapReinhard(float3 color)
+{
+	float whiteSqr = WhitePoint * WhitePoint;
+
+    // Could be set to greater than 1.0 for HDR output
+    float OutputMaxValue = 1.0;
+	return color * (1.0f + color / whiteSqr) / (1.0f + color / OutputMaxValue);
+}
+
 // From http://filmicgames.com/archives/75
-float3 FilmicTonemap(float3 x)
+float3 HableFunction(float3 x)
 {
   float A = 0.15;
   float B = 0.35;
@@ -33,7 +42,15 @@ float3 FilmicTonemap(float3 x)
   float E = 0.02;
   float F = 0.30;
 
-  return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
+  return ((x*(A*x+ C*B)+ D*E) / (x*(A*x + B) + D*F)) - E/F;
+}
+
+float3 TonemapFilmic(float3 color)
+{
+  float3 numerator = HableFunction(color);
+  float3 denominator = HableFunction(WhitePoint);
+
+  return numerator / denominator;
 }
 
 float3 AdjustContrast(float3 x)
@@ -55,10 +72,10 @@ Texture2DArray SceneColorTexture;
 Texture2DArray BloomTexture;
 
 #if LUT_MODE == LUT_MODE_ONE
-Texture3D Lut1Texture;
+  Texture3D Lut1Texture;
 #elif LUT_MODE == LUT_MODE_TWO
-Texture3D Lut1Texture;
-Texture3D Lut2Texture;
+  Texture3D Lut1Texture;
+  Texture3D Lut2Texture;
 #endif
 
 float3 ScreenSpaceDither( float2 texCoords )
@@ -76,22 +93,44 @@ float4 main(PS_IN Input) : SV_Target
   s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
 #endif
 
-  float4 sceneColor = SceneColorTexture.Load(int4(Input.Position.xy, s_ActiveCameraEyeIndex, 0));
-  sceneColor.rgb *= Exposure;
+  float3 sceneColor = SceneColorTexture.Load(int4(Input.Position.xy, s_ActiveCameraEyeIndex, 0)).rgb;
+  sceneColor *= Exposure;
 
   float3 bloom = BloomTexture.SampleLevel(LinearClampSampler, float3(Input.TexCoord0.xy, s_ActiveCameraEyeIndex), 0.0).rgb;
-  sceneColor.rgb += bloom;
+  sceneColor += bloom;
 
   // Vignetting
   float3 vignetting = VignettingTexture.SampleLevel(LinearClampSampler, Input.TexCoord0.xy, 0.0).rgb;
-  sceneColor.rgb *= vignetting;
+  sceneColor *= vignetting;
+
+  // Ensure all values passed to tonemapping are non-negative
+  sceneColor = max(sceneColor, 0.0);
 
   // Tonemapping
-  float3 color = FilmicTonemap(sceneColor.rgb);
+  float3 tonemappedColor = 0;
+  if (TonemapMode == TONEMAPMODE_LINEAR)
+  {
+    tonemappedColor = sceneColor;
+  }
+  else if (TonemapMode == TONEMAPMODE_REINHARD)
+  {
+    tonemappedColor = TonemapReinhard(sceneColor);
+  }
+  else if (TonemapMode == TONEMAPMODE_FILMIC)
+  {
+    tonemappedColor = TonemapFilmic(sceneColor);
+  }
+  else if (TonemapMode == TONEMAPMODE_ACES)
+  {
+    
+  }
+  else if (TonemapMode == TONEMAPMODE_AGX)
+  {
+    
+  }
 
-  float3 whiteScale = 1.0 / FilmicTonemap(WhitePoint);
-  color = saturate(color * whiteScale);
-
+  float3 color = saturate(tonemappedColor);
+  
   // Color grading with LUTs if enabled
   #if LUT_MODE != LUT_MODE_NONE
 
@@ -124,5 +163,5 @@ float4 main(PS_IN Input) : SV_Target
   // Convert back to linear
   color *= color;
 
-  return float4(color, sceneColor.a);
+  return float4(color, 1);
 }
