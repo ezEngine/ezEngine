@@ -3,11 +3,12 @@
 #include "../Common/ConstantBufferMacros.h"
 #include "../Common/Platforms.h"
 
-#define TONEMAPMODE_LINEAR 0
-#define TONEMAPMODE_REINHARD 1
-#define TONEMAPMODE_FILMIC 2
-#define TONEMAPMODE_ACES 3
-#define TONEMAPMODE_AGX 4
+#define TONEMAPMODE_NONE 0
+#define TONEMAPMODE_LINEAR 1
+#define TONEMAPMODE_REINHARD 2
+#define TONEMAPMODE_FILMIC 3
+#define TONEMAPMODE_ACES 4
+#define TONEMAPMODE_AGX 5
 
 CONSTANT_BUFFER(ezTonemapConstants, 3)
 {
@@ -22,8 +23,12 @@ CONSTANT_BUFFER(ezTonemapConstants, 3)
 
   INT1(TonemapMode);
   FLOAT1(WhitePoint);
-  FLOAT1(TonemapSlope);
-  FLOAT1(TonemapToe);
-  FLOAT1(TonemapShoulder);
+
+  FLOAT1(FilmicToe);
+  FLOAT1(FilmicLinearStrength);
+  FLOAT1(FilmicLinearAngle);
+  FLOAT1(FilmicShoulder);
+
   BOOL1(VisualizeCurve);
+  INT1(CompareCurve);
 };
