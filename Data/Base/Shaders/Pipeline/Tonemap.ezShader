@@ -35,10 +35,10 @@ float3 TonemapReinhard(float3 color)
 // From http://filmicgames.com/archives/75
 float3 HableFunction(float3 x)
 {
-  float A = TonemapShoulder;
-  float B = 0.35;
-  float C = TonemapSlope;
-  float D = TonemapToe;
+  float A = FilmicShoulder;
+  float B = FilmicLinearStrength;
+  float C = FilmicLinearAngle;
+  float D = FilmicToe;
   float E = 0.02;
   float F = 0.30;
 
@@ -87,10 +87,10 @@ float3 ScreenSpaceDither( float2 texCoords )
   return NoiseTexture.SampleLevel(PointSampler, texCoords, 0.0).rgb * (2.0 / 255.0) - (0.5 / 255.0);
 }
 
-float4 VisualizeTonemapCurve(float2 uv)
+float PlotTonemapCurve(int mode, float2 uv)
 {
-  float lineWidth = 0.005;
-  float offset = 0.005;
+  float lineWidth = 0.002;
+  float offset = 0.001;
 
   float2 p0 = float2(uv.x, 0);
   float2 p1 = float2(uv.x + offset, 0);
@@ -98,31 +98,29 @@ float4 VisualizeTonemapCurve(float2 uv)
   float x0 = p0.x * p0.x * WhitePoint;
   float x1 = p1.x * p1.x * WhitePoint;
 
-  if (TonemapMode == TONEMAPMODE_LINEAR)
+  if (mode == TONEMAPMODE_LINEAR)
   {
-    p0.y = p0.x;
-    p1.y = p1.x;
+    p0.y = x0 / WhitePoint;
+    p1.y = x1 / WhitePoint;
   }
-  else if (TonemapMode == TONEMAPMODE_REINHARD)
+  else if (mode == TONEMAPMODE_REINHARD)
   {
     p0.y = TonemapReinhard(x0).r;
     p1.y = TonemapReinhard(x1).r;
   }
-  else if (TonemapMode == TONEMAPMODE_FILMIC)
+  else if (mode == TONEMAPMODE_FILMIC)
   {
     p0.y = TonemapFilmic(x0).r;
     p1.y = TonemapFilmic(x1).r;
   }
 
-  float2 delta = p1 - p0;
+  float2 delta = (p1 - p0) * ViewportSize.xy;
   float cosPhi = delta.x / length(delta);
   float height = lineWidth / 2.0 / cosPhi;
   float d = abs(1 - uv.y - p0.y) - height;
-  float l = smoothstep(0.0, 0.005, d);
+  float l = smoothstep(0.005, 0.0, d);
 
-  float4 bgColor = float4(0, 0, 0, 0.9);
-  float4 lineColor = float4(1, 0, 0, 1);
-  return lerp(lineColor, bgColor, l);
+  return l;
 }
 
 float4 main(PS_IN Input) : SV_Target
@@ -148,7 +146,7 @@ float4 main(PS_IN Input) : SV_Target
   float3 tonemappedColor = 0;
   if (TonemapMode == TONEMAPMODE_LINEAR)
   {
-    tonemappedColor = sceneColor;
+    tonemappedColor = sceneColor / WhitePoint;
   }
   else if (TonemapMode == TONEMAPMODE_REINHARD)
   {
@@ -206,8 +204,17 @@ float4 main(PS_IN Input) : SV_Target
     float2 uv = (Input.TexCoord0.xy - 0.03) / 0.37;
     if (all(saturate(uv) == uv))
     {
-      float4 curveColor = VisualizeTonemapCurve(uv);
-      color = lerp(color, curveColor.rgb, curveColor.a);
+      // background
+      color = lerp(color, 0, 0.9);
+
+      if (CompareCurve != TONEMAPMODE_NONE)
+      {
+        float curve1 = PlotTonemapCurve(CompareCurve, uv);
+        color = lerp(color, float3(0, 1, 0), curve1);
+      }
+
+      float curve0 = PlotTonemapCurve(TonemapMode, uv);
+      color = lerp(color, float3(1, 0, 0), curve0);      
     }
   }
 

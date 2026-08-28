@@ -13,6 +13,7 @@ struct ezTonemapMode
 
   enum Enum
   {
+    None,
     Linear,
     Reinhard,
     Filmic,
@@ -66,10 +67,13 @@ protected:
 
   ezEnum<ezTonemapMode> m_Mode;                                             ///< Tonemap mode to use.
   bool m_bVisualizeCurve = false;                                           ///< Debug visualization of the tonemap curve.
+  ezEnum<ezTonemapMode> m_CompareCurve = ezTonemapMode::None;               ///< Tonemap curve to compare against when visualizing the tonemap curve.
+
   float m_fWhitePoint = 11.2f;                                              ///< White point for tone curve.
-  float m_fSlope = 0.88f;                                                   ///< Slope for the tonemap curve.
-  float m_fToe = 0.55f;                                                     ///< Toe for the tonemap curve.
-  float m_fShoulder = 0.26f;                                                ///< Shoulder for the tonemap curve.
+  float m_fFilmicToe = 0.2f;                                                ///< Toe strength for the filmic tonemap curve.
+  float m_fFilmicLinearStrength = 0.35f;                                    ///< Linear strength for the filmic tonemap curve.
+  float m_fFilmicLinearAngle = 0.1f;                                        ///< Linear angle for the filmic tonemap curve.
+  float m_fFilmicShoulder = 0.15f;                                          ///< Shoulder strength for the filmic tonemap curve.
 
   ezConstantBufferStorageHandle m_hConstantBuffer;                          ///< Constant buffer for tonemap parameters.
   ezShaderResourceHandle m_hShader;                                         ///< Tonemap shader.

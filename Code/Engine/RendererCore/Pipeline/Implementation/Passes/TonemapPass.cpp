@@ -13,10 +13,16 @@
 
 #include <Shaders/Pipeline/TonemapConstants.h>
 
+static_assert(ezTonemapMode::None == TONEMAPMODE_NONE);
+static_assert(ezTonemapMode::Linear == TONEMAPMODE_LINEAR);
+static_assert(ezTonemapMode::Reinhard == TONEMAPMODE_REINHARD);
+static_assert(ezTonemapMode::Filmic == TONEMAPMODE_FILMIC);
+static_assert(ezTonemapMode::ACES == TONEMAPMODE_ACES);
+static_assert(ezTonemapMode::AgX == TONEMAPMODE_AGX);
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTonemapMode, 1)
-  EZ_ENUM_CONSTANTS(ezTonemapMode::Linear, ezTonemapMode::Reinhard, ezTonemapMode::Filmic, ezTonemapMode::ACES, ezTonemapMode::AgX)
+  EZ_ENUM_CONSTANTS(ezTonemapMode::None, ezTonemapMode::Linear, ezTonemapMode::Reinhard, ezTonemapMode::Filmic, ezTonemapMode::ACES, ezTonemapMode::AgX)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTonemapPass, 3, ezRTTIDefaultAllocator<ezTonemapPass>)
@@ -39,10 +45,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTonemapPass, 3, ezRTTIDefaultAllocator<ezTonem
 
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezTonemapMode, m_Mode),
     EZ_MEMBER_PROPERTY("WhitePoint", m_fWhitePoint)->AddAttributes(new ezClampValueAttribute(0.0f, 50.0f), new ezDefaultValueAttribute(11.2f)),
-    EZ_MEMBER_PROPERTY("Slope", m_fSlope)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.88f)),
-    EZ_MEMBER_PROPERTY("Toe", m_fToe)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.55f)),
-    EZ_MEMBER_PROPERTY("Shoulder", m_fShoulder)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.26f)),
+
+    EZ_MEMBER_PROPERTY("FilmicToe", m_fFilmicToe)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.2f)),
+    EZ_MEMBER_PROPERTY("FilmicLinearStrength", m_fFilmicLinearStrength)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.35f)),
+    EZ_MEMBER_PROPERTY("FilmicLinearAngle", m_fFilmicLinearAngle)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.1f)),
+    EZ_MEMBER_PROPERTY("FilmicShoulder", m_fFilmicShoulder)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.15f)),
+
     EZ_MEMBER_PROPERTY("VisualizeCurve", m_bVisualizeCurve),
+    EZ_ENUM_MEMBER_PROPERTY("CompareCurve", ezTonemapMode, m_CompareCurve)->AddAttributes(new ezDefaultValueAttribute(ezTonemapMode::None)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -135,29 +145,15 @@ ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCame
         constants->Saturation = m_fSaturation;
         constants->Lut1Strength = lutStrengths[0];
         constants->Lut2Strength = lutStrengths[1];
-        constants->TonemapMode = m_Mode;
+        constants->TonemapMode = m_Mode != ezTonemapMode::None ? m_Mode.GetValue() : ezTonemapMode::Linear;
         constants->WhitePoint = m_fWhitePoint;
         constants->VisualizeCurve = m_bVisualizeCurve;
+        constants->CompareCurve = m_CompareCurve;
 
-        if (m_Mode == ezTonemapMode::Filmic)
-        {
-          // remap to filmic range
-          constants->TonemapSlope = m_fSlope / 0.88f * 0.10f;
-          constants->TonemapToe = m_fToe / 0.55f * 0.20f;
-          constants->TonemapShoulder = ezMath::Max(m_fShoulder / 0.26f * 0.15f, 0.01f);
-        }
-        else if (m_Mode == ezTonemapMode::ACES)
-        {
-          constants->TonemapSlope = 0.6f;
-          constants->TonemapToe = 0.5f;
-          constants->TonemapShoulder = 0.1f;
-        }
-        else if (m_Mode == ezTonemapMode::AgX)
-        {
-          constants->TonemapSlope = 0.6f;
-          constants->TonemapToe = 0.5f;
-          constants->TonemapShoulder = 0.1f;
-        }
+        constants->FilmicToe = m_fFilmicToe;
+        constants->FilmicLinearStrength = m_fFilmicLinearStrength;
+        constants->FilmicLinearAngle = m_fFilmicLinearAngle;
+        constants->FilmicShoulder = ezMath::Max(m_fFilmicShoulder, 0.01f);
 
         // Pre-calculate factors of a s-shaped polynomial-function
         const float m = (0.5f - 0.5f * m_fContrast) / (0.5f + 0.5f * m_fContrast);
@@ -210,8 +206,8 @@ ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCame
 
           for (float x = 0; x <= 1.0f; x += 0.25f)
           {
-            const float xVal = (m_Mode == ezTonemapMode::Linear) ? x : x * x;
-            const float xPos = ezMath::Lerp(vTopLeft.x, vBottomRight.x, xVal);
+            const float x2 = x * x;
+            const float xPos = ezMath::Lerp(vTopLeft.x, vBottomRight.x, x2);
             const ezVec3 lineStart = ezVec3(xPos, vBottomRight.y, 0.0f);
             const ezVec3 lineEnd = ezVec3(xPos, vBottomRight.y + fLineLength, 0.0f);
             lines.PushBack(ezDebugRendererLine(lineStart, lineEnd, ezColor::White));
@@ -234,16 +230,22 @@ ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCame
             lines.PushBack(ezDebugRendererLine(lineStart, lineEnd, ezColor::White));
 
             // Draw label
-            sb.SetFormat("{0}", ((m_Mode == ezTonemapMode::Linear) ? y * m_fWhitePoint : y));
+            sb.SetFormat("{0}", y);
             ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, sb, ezVec2I32(int(lineEnd.x - fLineLength), int(lineEnd.y)), ezColor::White, uiTextSize, ezDebugTextHAlign::Right, ezDebugTextVAlign::Center);
           }
         }
 
         ezDebugRenderer::Draw2DLines(*renderViewContext.m_pViewDebugContext, lines, ezColor::White);
 
-        if (ezReflectionUtils::EnumerationToString(m_Mode, sb, ezReflectionUtils::EnumConversionMode::ValueNameOnly))
+        ezReflectionUtils::EnumerationToString(m_Mode, sb, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+        sb.Prepend("Active: ");
+        ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, sb, ezVec2I32(int(vTopLeft.x), int(vTopLeft.y)), ezColor::Red, uiTextSize, ezDebugTextHAlign::Left, ezDebugTextVAlign::Bottom);
+
+        if (m_CompareCurve != ezTonemapMode::None)
         {
-          ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, sb, ezVec2I32(int(vTopLeft.x), int(vTopLeft.y)), ezColor::White, uiTextSize, ezDebugTextHAlign::Left, ezDebugTextVAlign::Bottom);
+          ezReflectionUtils::EnumerationToString(m_CompareCurve, sb, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+          sb.Prepend("Compare: ");
+          ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, sb, ezVec2I32(int((vTopLeft.x + vBottomRight.x) * 0.5f), int(vTopLeft.y)), ezColor::Lime, uiTextSize, ezDebugTextHAlign::Left, ezDebugTextVAlign::Bottom);
         }
       }
     });
@@ -270,9 +272,11 @@ ezResult ezTonemapPass::Serialize(ezStreamWriter& inout_stream) const
 
   inout_stream << m_Mode;
   inout_stream << m_bVisualizeCurve;
-  inout_stream << m_fSlope;
-  inout_stream << m_fToe;
-  inout_stream << m_fShoulder;
+  inout_stream << m_CompareCurve;
+  inout_stream << m_fFilmicToe;
+  inout_stream << m_fFilmicLinearStrength;
+  inout_stream << m_fFilmicLinearAngle;
+  inout_stream << m_fFilmicShoulder;
 
   inout_stream << m_fWhitePoint;
   return EZ_SUCCESS;
@@ -300,9 +304,11 @@ ezResult ezTonemapPass::Deserialize(ezStreamReader& inout_stream)
   {
     inout_stream >> m_Mode;
     inout_stream >> m_bVisualizeCurve;
-    inout_stream >> m_fSlope;
-    inout_stream >> m_fToe;
-    inout_stream >> m_fShoulder;
+    inout_stream >> m_CompareCurve;
+    inout_stream >> m_fFilmicToe;
+    inout_stream >> m_fFilmicLinearStrength;
+    inout_stream >> m_fFilmicLinearAngle;
+    inout_stream >> m_fFilmicShoulder;
   }
 
   if (uiVersion >= 2)
