@@ -281,6 +281,7 @@ static void ConfigureAnimationClipAsset()
   ezAnimationClipActions::RegisterActions();
 
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezAnimationClipAssetProperties::PropertyMetaStateEventHandler);
+  ezDynamicStringEnum::s_RefreshValuesEvent.AddEventHandler(ezAnimationClipAssetDocument::OnRefreshDynamicStringEnum);
 
   // Menu Bar
   {
@@ -471,6 +472,7 @@ void OnUnloadPlugin()
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMaterialAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSkeletonAssetDocument::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezAnimationClipAssetProperties::PropertyMetaStateEventHandler);
+  ezDynamicStringEnum::s_RefreshValuesEvent.RemoveEventHandler(ezAnimationClipAssetDocument::OnRefreshDynamicStringEnum);
 }
 
 EZ_PLUGIN_ON_LOADED()

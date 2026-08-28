@@ -497,13 +497,31 @@ ezTransformStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAs
     auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> ezTransformStatus
     {
       const ezString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), szOutputTag, pAssetProfile);
+
+      m_TransformInfo.Clear();
+
       ezTransformStatus ret = InternalTransformAsset(sTargetFile, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
+
+      const ezStringBuilder sInfoFile = ezAssetInfoFile::GetInfoFilePathForOutput(sTargetFile);
 
       // if writing failed, make sure the output file does not exist
       if (ret.Failed())
       {
         ezFileSystem::DeleteFile(sTargetFile);
+        ezOSFile::DeleteFile(sInfoFile).IgnoreResult();
       }
+      else if (!m_TransformInfo.IsEmpty())
+      {
+        // An empty map is left alone rather than deleting the file, because some asset types have the
+        // external tool that generates the output write this file directly (e.g. TexConv).
+        if (m_TransformInfo.WriteToFile(sInfoFile, AssetHeader).Failed())
+        {
+          ezLog::Warning("Failed to write asset info file '{}'", sInfoFile);
+        }
+      }
+
+      m_TransformInfo.Clear();
+
       ezAssetCurator::GetSingleton()->NotifyOfFileChange(sTargetFile);
       return ret;
     };

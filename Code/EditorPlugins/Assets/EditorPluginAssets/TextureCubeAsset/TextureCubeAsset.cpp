@@ -58,6 +58,12 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
   arguments << "-out";
   arguments << szTargetFile;
 
+  {
+    const ezStringBuilder sInfoFile = ezAssetInfoFile::GetInfoFilePathForOutput(szTargetFile);
+    arguments << "-assetInfoOut";
+    arguments << sInfoFile.GetData();
+  }
+
   const ezStringBuilder sThumbnail = GetThumbnailFilePath();
   if (bUpdateThumbnail)
   {

@@ -4,6 +4,7 @@
 #include <EditorFramework/Assets/Declarations.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Types/Status.h>
+#include <Foundation/Utilities/AssetInfoFile.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 
 struct ezSubAsset;
@@ -76,6 +77,15 @@ public:
   virtual ezStringView GetOutputDocumentType(const ezAssetDocumentTypeDescriptor* pTypeDesc, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const { return pTypeDesc->m_sDocumentTypeName; }
 
   virtual bool GeneratesProfileSpecificAssets() const = 0;
+
+  /// Reads the info that the last transform recorded for the given asset output. \see ezAssetInfoFile
+  ///
+  /// Fails if there is no such file, which is the normal case for most asset types, or if it is stale. Treat a failure
+  /// as 'no information available' rather than as an error.
+  ezResult ReadAssetInfoFile(ezAssetInfoFile& out_info, const ezAssetDocumentTypeDescriptor* pTypeDesc, ezStringView sDocumentPath, ezUInt64 uiHash, ezStringView sOutputTag = {}, const ezPlatformProfile* pAssetProfile = nullptr) const;
+
+  /// Override this to append the values from an ezAssetInfoFile that are worth showing at a glance, e.g. in a tooltip.
+  virtual void AppendAssetInfoSummary(ezStringBuilder& ref_sOut, const ezAssetInfoFile& info, ezStringView sLinePrefix = "\n"_ezsv) const {}
 
   bool IsOutputUpToDate(ezStringView sDocumentPath, const ezDynamicArray<ezString>& outputs, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor);
   virtual bool IsOutputUpToDate(ezStringView sDocumentPath, ezStringView sOutputTag, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor);

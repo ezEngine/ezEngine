@@ -3,6 +3,7 @@
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <Foundation/Tracks/CurveEditData.h>
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <GuiFoundation/Widgets/EventTrackEditData.h>
 
 class ezAnimationClipAssetDocument;
@@ -68,7 +69,6 @@ public:
 
   ezString m_sSourceFile;
   ezString m_sAnimationClipToExtract;
-  ezDynamicArray<ezString> m_AvailableClips;
   bool m_bAdditive = false;
   ezUInt32 m_uiFirstFrame = 0;
   ezUInt32 m_uiNumFrames = 0;
@@ -99,6 +99,11 @@ public:
   virtual double GetCommonAssetUiState(ezCommonAssetUiState::Enum state) const override;
 
   ezUuid InsertEventTrackCpAt(ezInt64 iTickX, const char* szValue);
+
+  /// Fills the 'AnimationClipsInSourceFile' enum with the clips that the last transform found.
+  ///
+  /// Subscribed to ezDynamicStringEnum::s_RefreshValuesEvent, so that the values match the document being shown.
+  static void OnRefreshDynamicStringEnum(ezDynamicStringEnum::RefreshValuesEvent& e);
 
 protected:
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;

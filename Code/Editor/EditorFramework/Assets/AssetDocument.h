@@ -4,6 +4,7 @@
 #include <EditorFramework/Assets/Declarations.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/IPC/IPCObjectMirrorEditor.h>
+#include <Foundation/Utilities/AssetInfoFile.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
@@ -102,6 +103,13 @@ public:
   /// \brief Returns the RTTI type version of this asset document type. E.g. when the algorithm to transform an asset changes,
   /// Increase the RTTI version. This will ensure that assets get re-transformed, even though their settings and dependencies might not have changed.
   ezUInt16 GetAssetTypeVersion() const;
+
+  /// Values that InternalTransformAsset() may fill out, to record facts only known after the transform. \see ezAssetInfoFile
+  ///
+  /// Cleared before each output is generated. Leaving it empty means that no file is written, which is the case for most
+  /// asset types. An asset whose output is produced by an external tool may instead have that tool write the file.
+  ezAssetInfoFile& GetTransformInfo() { return m_TransformInfo; }
+  const ezAssetInfoFile& GetTransformInfo() const { return m_TransformInfo; }
 
   ///@}
   /// \name IPC Functions
@@ -303,4 +311,6 @@ protected:
   mutable ezDeque<ezEditorEngineSyncObject*> m_SyncObjects;
 
   mutable ezHybridArray<ezUuid, 32> m_DeletedObjects;
+
+  ezAssetInfoFile m_TransformInfo;
 };

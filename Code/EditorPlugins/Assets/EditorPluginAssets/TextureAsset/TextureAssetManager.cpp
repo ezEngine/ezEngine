@@ -118,3 +118,9 @@ ezString ezTextureAssetDocumentManager::GetRelativeOutputFileName(const ezAssetD
 
   return SUPER::GetRelativeOutputFileName(pTypeDescriptor, sDataDirectory, sDocumentPath, sOutputTag, pAssetProfile);
 }
+
+void ezTextureAssetDocumentManager::AppendAssetInfoSummary(ezStringBuilder& ref_sOut, const ezAssetInfoFile& info, ezStringView sLinePrefix) const
+{
+  const ezStringView keys[] = {ezAssetInfoFile::Keys::ImageWidth, ezAssetInfoFile::Keys::Format};
+  info.AppendValuesToDisplayString(ref_sOut, keys, sLinePrefix);
+}

@@ -1,11 +1,14 @@
 #pragma once
 
+#include <Foundation/Communication/Event.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/Variant.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
+
+class ezDocument;
 
 /// \brief Stores the valid values and names for 'dynamic' enums.
 ///
@@ -71,6 +74,21 @@ public:
   ///
   /// Can be used to on-demand load those values, before GetDynamicEnum() returns.
   static ezDelegate<void(ezStringView sEnumName, ezDynamicStringEnum& e)> s_RequestUnknownCallback;
+
+  /// \see s_RefreshValuesEvent
+  struct RefreshValuesEvent
+  {
+    ezStringView m_sEnumName;                ///< Which enum is about to be shown.
+    const ezDocument* m_pDocument = nullptr; ///< The document whose property is being edited. May be null.
+    ezDynamicStringEnum* m_pEnum = nullptr;  ///< Modify this in place.
+  };
+
+  /// Broadcast right before the values are presented to the user, so that they can be brought up to date.
+  ///
+  /// Unlike s_RequestUnknownCallback this fires every time, not just once, which makes it usable for values that are
+  /// derived from the document being edited. The enum is modified in place, so a subscriber can add to values that were
+  /// loaded from a file. An enum whose values depend entirely on the document has to Clear() it first.
+  static ezEvent<RefreshValuesEvent&> s_RefreshValuesEvent;
 
 private:
   ezHybridArray<ezString, 16> m_ValidValues;

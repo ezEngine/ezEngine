@@ -55,3 +55,9 @@ void ezAnimatedMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDyn
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
+
+void ezAnimatedMeshAssetDocumentManager::AppendAssetInfoSummary(ezStringBuilder& ref_sOut, const ezAssetInfoFile& info, ezStringView sLinePrefix) const
+{
+  const ezStringView keys[] = {ezAssetInfoFile::Keys::NumTriangles, ezAssetInfoFile::Keys::BoundsHalfExtents};
+  info.AppendValuesToDisplayString(ref_sOut, keys, sLinePrefix);
+}

@@ -81,6 +81,7 @@ public:
 private:
   ezString m_sOutputFile;
   ezString m_sOutputThumbnailFile;
+  ezString m_sOutputAssetInfoFile;
   ezString m_sOutputLowResFile;
   ezString m_sReduceInputFile;
   bool m_bDeleteSource = false;

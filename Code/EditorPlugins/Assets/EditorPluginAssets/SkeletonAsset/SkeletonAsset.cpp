@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 11, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 12, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -156,11 +156,16 @@ void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateE
   }
 }
 
-ezStatus ezSkeletonAssetDocument::WriteResource(ezStreamWriter& inout_stream, const ezEditableSkeleton& skeleton) const
+ezStatus ezSkeletonAssetDocument::WriteResource(ezStreamWriter& inout_stream, const ezEditableSkeleton& skeleton, ezUInt16* out_pNumBones) const
 {
   ezSkeletonResourceDescriptor desc;
   desc.m_RootTransform = CalculateTransformationMatrix(&skeleton);
   skeleton.FillResourceDescriptor(desc);
+
+  if (out_pNumBones != nullptr)
+  {
+    *out_pNumBones = desc.m_Skeleton.GetJointCount();
+  }
 
   EZ_SUCCEED_OR_RETURN(desc.Serialize(inout_stream));
 
@@ -306,12 +311,14 @@ ezTransformStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter
 
     ezEditableSkeleton* pProp = GetProperties();
 
+    ezUInt16 uiNumBones = 0;
+
     ezStringBuilder sAbsFilename = pProp->m_sSourceFile;
 
     if (sAbsFilename.IsEmpty())
     {
       range.BeginNextStep("Writing Result");
-      EZ_SUCCEED_OR_RETURN(WriteResource(stream, *GetProperties()));
+      EZ_SUCCEED_OR_RETURN(WriteResource(stream, *GetProperties(), &uiNumBones));
     }
     else
     {
@@ -351,11 +358,13 @@ ezTransformStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter
       const ezEditableSkeleton* pFinalSkeleton = MergeWithNewSkeleton(newSkeleton);
 
       range.BeginNextStep("Writing Result");
-      EZ_SUCCEED_OR_RETURN(WriteResource(stream, *pFinalSkeleton));
+      EZ_SUCCEED_OR_RETURN(WriteResource(stream, *pFinalSkeleton, &uiNumBones));
 
       // merge the new data with the actual asset document
       ApplyNativePropertyChangesToObjectManager(true);
     }
+
+    GetTransformInfo().SetValue(ezAssetInfoFile::Keys::NumBones, uiNumBones);
   }
 
   ezSkeletonAssetEvent e;

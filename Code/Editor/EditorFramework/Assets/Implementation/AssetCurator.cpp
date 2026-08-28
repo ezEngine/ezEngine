@@ -70,7 +70,60 @@ void ezAssetInfo::Update(ezUniquePtr<ezAssetInfo>& rhs)
   m_MissingPackageDeps = std::move(rhs->m_MissingPackageDeps);
   m_CircularDependencies = std::move(rhs->m_CircularDependencies);
   // Don't copy m_SubAssets, we want to update it independently.
+
+  // Not copied from rhs, which never has one: anything cached may belong to a previous transform.
+  ClearTransformInfoCache();
+
   rhs = nullptr;
+}
+
+const ezAssetInfoFile* ezAssetInfo::GetTransformInfo(ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile) const
+{
+  // Nothing was transformed yet, so there is nothing to describe, and no path to read from either.
+  if (m_pDocumentTypeDescriptor == nullptr || m_AssetHash == 0)
+    return nullptr;
+
+  // Resolved here, so that a null profile and an explicit pointer to the same profile share one entry.
+  const ezPlatformProfile* pProfile = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile);
+
+  TransformInfoCache* pEntry = nullptr;
+
+  for (TransformInfoCache& cache : m_TransformInfoCache)
+  {
+    if (cache.m_pAssetProfile == pProfile && cache.m_sOutputTag == sOutputTag)
+    {
+      // A hit for the current hash. Otherwise the entry is stale and is overwritten below, rather than
+      // added to, so that the cache cannot grow with every transform.
+      if (cache.m_uiAssetHash == m_AssetHash)
+        return cache.m_bValid ? &cache.m_Info : nullptr;
+
+      pEntry = &cache;
+      break;
+    }
+  }
+
+  if (pEntry == nullptr)
+  {
+    pEntry = &m_TransformInfoCache.ExpandAndGetRef();
+  }
+
+  pEntry->m_uiAssetHash = m_AssetHash;
+  pEntry->m_sOutputTag = sOutputTag;
+  pEntry->m_pAssetProfile = pProfile;
+
+  ezAssetDocumentManager* pManager = static_cast<ezAssetDocumentManager*>(m_pDocumentTypeDescriptor->m_pManager);
+
+  // A failure is the normal case, so it is cached as well, otherwise every call would try to open a
+  // file that is known not to be there.
+  pEntry->m_bValid = pManager->ReadAssetInfoFile(pEntry->m_Info, m_pDocumentTypeDescriptor, m_Path, m_AssetHash, sOutputTag, pProfile).Succeeded();
+
+  if (!pEntry->m_bValid)
+  {
+    pEntry->m_Info.Clear();
+    return nullptr;
+  }
+
+  return &pEntry->m_Info;
 }
 
 ezStringView ezSubAsset::GetName() const
