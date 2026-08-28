@@ -81,7 +81,7 @@ public:
     /// are considered opaque for coverage calculations.
     ///
     /// This must match the alpha test threshold that the renderer will later use for this texture.
-    /// Each mip's alpha is rescaled such that this value is the cut-off at which the mip has 
+    /// Each mip's alpha is rescaled such that this value is the cut-off at which the mip has
     /// the same coverage as the full resolution image.
     float m_alphaThreshold = 0.25f;
 
