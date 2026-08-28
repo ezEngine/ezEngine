@@ -53,6 +53,41 @@ float3 TonemapFilmic(float3 color)
   return numerator / denominator;
 }
 
+// Adapted from https://github.com/TheRealMJP/BakingLab/blob/master/BakingLab/ACES.hlsl
+// (MIT License).
+float3 TonemapACES(float3 color)
+{
+  // These constants must match the those in the C++ code that calculates the parameters.
+  const float A = 0.0245786f;
+  const float B = 0.000090537f;
+  const float C = 0.983729f;
+  const float D = 0.432951f;
+  const float E = 0.238081f;
+  
+  const float3x3 ACESInputMat =
+  {
+    {0.59719, 0.35458, 0.04823},
+    {0.07600, 0.90834, 0.01566},
+    {0.02840, 0.13383, 0.83777}
+  };
+
+  const float3x3 ACESOutputMat =
+  {
+    { 1.60475, -0.53108, -0.07367},
+    {-0.10208,  1.10813, -0.00605},
+    {-0.00327, -0.07276,  1.07602}
+  };
+
+  color = mul(ACESInputMat, color);
+  float3 color_tonemapped = (color * (color + A) - B) / (color * (C * color + D) + E);
+  color_tonemapped = mul(ACESOutputMat, color_tonemapped);
+
+  float white = WhitePoint;
+  float white_tonemapped = (white * (white + A) - B) / (white * (C * white + D) + E);
+
+  return color_tonemapped / white_tonemapped;
+}
+
 float3 AdjustContrast(float3 x)
 {
   float3 x2 = x*x;
@@ -113,6 +148,11 @@ float PlotTonemapCurve(int mode, float2 uv)
     p0.y = TonemapFilmic(x0).r;
     p1.y = TonemapFilmic(x1).r;
   }
+  else if (mode == TONEMAPMODE_ACES)
+  {
+    p0.y = TonemapACES(x0).r;
+    p1.y = TonemapACES(x1).r;
+  }
 
   float2 delta = (p1 - p0) * ViewportSize.xy;
   float cosPhi = delta.x / length(delta);
@@ -158,7 +198,7 @@ float4 main(PS_IN Input) : SV_Target
   }
   else if (TonemapMode == TONEMAPMODE_ACES)
   {
-    
+    tonemappedColor = TonemapACES(sceneColor);
   }
   else if (TonemapMode == TONEMAPMODE_AGX)
   {

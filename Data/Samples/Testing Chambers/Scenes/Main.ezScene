@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{6430462486152975807}
+		u4 %Hash{18287759544715026971}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -9942,18 +9942,6 @@ o
 }
 o
 {
-	Uuid %id{u4{11581885833089796518,5040758803811254181}}
-	s %t{"ezVolumeSamplerValue"}
-	u3 %v{1}
-	p
-	{
-		f %DefaultValue{0xCDCCCC3D}
-		Time %InterpolationDuration{d{0}}
-		HashedString %Name{s{"TonemapPass.Contrast"}}
-	}
-}
-o
-{
 	Uuid %id{u4{12310385124625322932,5041087509723627308}}
 	s %t{"ezRotorComponent"}
 	u3 %v{3}
@@ -15774,7 +15762,6 @@ o
 		{
 			Uuid{u4{13082672763754932911,5529218080205743939}}
 			Uuid{u4{9572077330960294577,5060997298317261874}}
-			Uuid{u4{11581885833089796518,5040758803811254181}}
 		}
 		s %VolumeType{"GenericVolume"}
 		b %WriteToBlackboard{1}
