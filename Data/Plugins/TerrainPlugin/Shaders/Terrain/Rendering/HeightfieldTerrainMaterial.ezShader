@@ -91,7 +91,15 @@ INT2(Material7TextureIndex);
 
 VS_OUT main(VS_IN Input)
 {
-  return FillVertexData(Input);
+  VS_OUT Output = FillVertexData(Input);
+
+  // FillVertexData does not know about CUSTOM_INTERPOLATOR, so MatWeightsHi would stay
+  // uninitialized here. The preview mesh also has no baked terrain weights at all, so
+  // pin the blend to material slot 0 at full strength: w0 = 1, all other weights 0.
+  Output.TexCoord0 = float2(1.0, 0.0);
+  Output.MatWeightsHi = float2(0.0, 0.0);
+
+  return Output;
 }
 
 #else
@@ -142,7 +150,17 @@ SamplerState LayerRoughnessTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 /// TERRAIN_LAYER_COUNT controls how many explicit slots are active (3=2 explicit, 4=3 explicit, 5=4 explicit).
 void SampleTerrainMask()
 {
+  // In the material preview there is no terrain: DataOffsets.y carries the mesh's custom
+  // instance data offset rather than packed material indices, and the render push constants
+  // are not bound. Resolve everything to material slot 0 instead.
+#if MATERIAL_PREVIEW
+  const uint packed = 0;
+  const uint fallbackIdx = 0;
+#else
   const uint packed = G.Input.DataOffsets.y;
+  const uint fallbackIdx = GET_PUSH_CONSTANT(HeightfieldRenderConstants, FallbackMaterialSlot);
+#endif
+
   const uint matIdx0 =  packed        & 0xFFu;
   const uint matIdx1 = (packed >>  8) & 0xFFu;
   const uint matIdx2 = (packed >> 16) & 0xFFu;
@@ -152,8 +170,6 @@ void SampleTerrainMask()
   const float w1 = G.Input.TexCoord0.y;
   const float w2 = G.Input.MatWeightsHi.x;
   const float w3 = G.Input.MatWeightsHi.y;
-
-  const uint fallbackIdx = GET_PUSH_CONSTANT(HeightfieldRenderConstants, FallbackMaterialSlot);
 
   int2 MatTextureIndices[8] = { GetMaterialData(Material0TextureIndex), GetMaterialData(Material1TextureIndex), GetMaterialData(Material2TextureIndex), GetMaterialData(Material3TextureIndex), GetMaterialData(Material4TextureIndex), GetMaterialData(Material5TextureIndex), GetMaterialData(Material6TextureIndex), GetMaterialData(Material7TextureIndex) };
 

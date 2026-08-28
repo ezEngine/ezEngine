@@ -86,7 +86,13 @@ INT2(Material7TextureIndex);
 
 VS_OUT main(VS_IN Input)
 {
-  return FillVertexData(Input);
+  VS_OUT Output = FillVertexData(Input);
+
+  // The preview mesh carries no per-vertex material strength. Pin it to 0 so only the
+  // base material contributes, instead of whatever the mesh happens to have in TexCoord0.
+  Output.TexCoord0 = float2(0.0, 0.0);
+
+  return Output;
 }
 
 #else
@@ -135,8 +141,16 @@ void FillCustomGlobals()
   G.TpWeights = TriplanarWeights(G.Input.Normal);
   G.Scale = GetMaterialData(TextureScale);
 
+  // In the material preview there is no volume: DataOffsets.y carries the mesh's custom
+  // instance data offset rather than a material slot, and the render push constants are
+  // not bound. Resolve both layers to material slot 0 instead.
+#if MATERIAL_PREVIEW
+  G.BaseTexIdx = LookupTexIndices(0);
+  G.OverTexIdx = G.BaseTexIdx;
+#else
   G.BaseTexIdx = LookupTexIndices(GET_PUSH_CONSTANT(VoxelMeshRenderConstants, BaseMaterialIndex));
   G.OverTexIdx = LookupTexIndices(G.Input.DataOffsets.y);
+#endif
 
   // Downward-facing surfaces use the side texture for the Z projection instead of the top texture.
   if (G.Input.Normal.z < 0.0)
