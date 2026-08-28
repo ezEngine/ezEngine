@@ -39,10 +39,15 @@ private Q_SLOTS:
   // note, because of the way we set up the widget, auto-connect doesn't work
   void onListAssetsDoubleClicked(const QModelIndex& index);
   void onCheckIndirectToggled(bool checked);
+  void onListAssetsContextMenuRequested(const QPoint& pos);
 
 private:
   void LogWriter(const ezLoggingEventData& e);
   void UpdateIssueInfo();
+
+  /// Returns the index of the item the context menu should operate on, which is the current
+  /// selection. Returns an invalid index if nothing is selected.
+  QModelIndex GetContextMenuTarget() const;
 
   QSharedPointer<ezQtAssetBrowserModel> m_Model;
   ezQtAssetCuratorFilter* m_pFilter;
