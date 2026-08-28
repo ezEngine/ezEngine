@@ -10,16 +10,21 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Pipeline/TonemapConstants.h>
+#include <Shaders/Pipeline/TonemapConstants.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTonemapPass, 2, ezRTTIDefaultAllocator<ezTonemapPass>)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTonemapMode, 1)
+  EZ_ENUM_CONSTANTS(ezTonemapMode::Linear, ezTonemapMode::Reinhard, ezTonemapMode::Filmic, ezTonemapMode::ACES, ezTonemapMode::AgX)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTonemapPass, 3, ezRTTIDefaultAllocator<ezTonemapPass>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Color", m_PinColorInput),
     EZ_MEMBER_PROPERTY("Bloom", m_PinBloomInput),
     EZ_MEMBER_PROPERTY("Output", m_PinOutput),
+
     EZ_RESOURCE_MEMBER_PROPERTY("VignettingTexture", m_hVignettingTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D"), new ezDefaultValueAttribute("White.color")),
     EZ_MEMBER_PROPERTY("MoodColor", m_MoodColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::Orange)),
     EZ_MEMBER_PROPERTY("MoodStrength", m_fMoodStrength)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
@@ -29,6 +34,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTonemapPass, 2, ezRTTIDefaultAllocator<ezTonem
     EZ_MEMBER_PROPERTY("LUT2Strength", m_fLut2Strength)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_RESOURCE_MEMBER_PROPERTY("LUT1", m_hLUT1)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_3D")),
     EZ_RESOURCE_MEMBER_PROPERTY("LUT2", m_hLUT2)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_3D")),
+
+    EZ_ENUM_MEMBER_PROPERTY("Mode", ezTonemapMode, m_Mode),
     EZ_MEMBER_PROPERTY("WhitePoint", m_fWhitePoint)->AddAttributes(new ezClampValueAttribute(0.0f, 50.0f), new ezDefaultValueAttribute(11.2f)),
   }
   EZ_END_PROPERTIES;
@@ -47,14 +54,6 @@ ezTonemapPass::ezTonemapPass()
   m_hVignettingTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
   m_hNoiseTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/BlueNoise.dds");
   m_hBlackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Black.color");
-
-  m_MoodColor = ezColor::Orange;
-  m_fMoodStrength = 0.0f;
-  m_fSaturation = 1.0f;
-  m_fContrast = 1.0f;
-  m_fLut1Strength = 1.0f;
-  m_fLut2Strength = 0.0f;
-  m_fWhitePoint = 11.2f;
 
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Tonemap.ezShader");
   EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load tonemap shader!");
@@ -129,6 +128,7 @@ ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCame
       constants->Saturation = m_fSaturation;
       constants->Lut1Strength = lutStrengths[0];
       constants->Lut2Strength = lutStrengths[1];
+      constants->TonemapMode = m_Mode;
       constants->WhitePoint = m_fWhitePoint;
 
       // Pre-calculate factors of a s-shaped polynomial-function
@@ -183,6 +183,8 @@ ezResult ezTonemapPass::Serialize(ezStreamWriter& inout_stream) const
   inout_stream << sTemp;
   sTemp = GetLUT2TextureFile();
   inout_stream << sTemp;
+
+  inout_stream << m_Mode;
   inout_stream << m_fWhitePoint;
   return EZ_SUCCESS;
 }
@@ -204,6 +206,11 @@ ezResult ezTonemapPass::Deserialize(ezStreamReader& inout_stream)
   SetLUT1TextureFile(sTemp);
   inout_stream >> sTemp;
   SetLUT2TextureFile(sTemp);
+
+  if (uiVersion >= 3)
+  {
+    inout_stream >> m_Mode;
+  }
 
   if (uiVersion >= 2)
   {
