@@ -65,7 +65,11 @@ protected:
   float m_fLut2Strength = 0.0f;                                             ///< Blend strength for second LUT.
 
   ezEnum<ezTonemapMode> m_Mode;                                             ///< Tonemap mode to use.
+  bool m_bVisualizeCurve = false;                                           ///< Debug visualization of the tonemap curve.
   float m_fWhitePoint = 11.2f;                                              ///< White point for tone curve.
+  float m_fSlope = 0.88f;                                                   ///< Slope for the tonemap curve.
+  float m_fToe = 0.55f;                                                     ///< Toe for the tonemap curve.
+  float m_fShoulder = 0.26f;                                                ///< Shoulder for the tonemap curve.
 
   ezConstantBufferStorageHandle m_hConstantBuffer;                          ///< Constant buffer for tonemap parameters.
   ezShaderResourceHandle m_hShader;                                         ///< Tonemap shader.

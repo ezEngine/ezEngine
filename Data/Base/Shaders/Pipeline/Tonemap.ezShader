@@ -35,10 +35,10 @@ float3 TonemapReinhard(float3 color)
 // From http://filmicgames.com/archives/75
 float3 HableFunction(float3 x)
 {
-  float A = 0.15;
+  float A = TonemapShoulder;
   float B = 0.35;
-  float C = 0.10;
-  float D = 0.20;
+  float C = TonemapSlope;
+  float D = TonemapToe;
   float E = 0.02;
   float F = 0.30;
 
@@ -85,6 +85,44 @@ float3 ScreenSpaceDither( float2 texCoords )
 
   // map to -0.5..1.5 bit range for an 8bit output target
   return NoiseTexture.SampleLevel(PointSampler, texCoords, 0.0).rgb * (2.0 / 255.0) - (0.5 / 255.0);
+}
+
+float4 VisualizeTonemapCurve(float2 uv)
+{
+  float lineWidth = 0.005;
+  float offset = 0.005;
+
+  float2 p0 = float2(uv.x, 0);
+  float2 p1 = float2(uv.x + offset, 0);
+
+  float x0 = p0.x * p0.x * WhitePoint;
+  float x1 = p1.x * p1.x * WhitePoint;
+
+  if (TonemapMode == TONEMAPMODE_LINEAR)
+  {
+    p0.y = p0.x;
+    p1.y = p1.x;
+  }
+  else if (TonemapMode == TONEMAPMODE_REINHARD)
+  {
+    p0.y = TonemapReinhard(x0).r;
+    p1.y = TonemapReinhard(x1).r;
+  }
+  else if (TonemapMode == TONEMAPMODE_FILMIC)
+  {
+    p0.y = TonemapFilmic(x0).r;
+    p1.y = TonemapFilmic(x1).r;
+  }
+
+  float2 delta = p1 - p0;
+  float cosPhi = delta.x / length(delta);
+  float height = lineWidth / 2.0 / cosPhi;
+  float d = abs(1 - uv.y - p0.y) - height;
+  float l = smoothstep(0.0, 0.005, d);
+
+  float4 bgColor = float4(0, 0, 0, 0.9);
+  float4 lineColor = float4(1, 0, 0, 1);
+  return lerp(lineColor, bgColor, l);
 }
 
 float4 main(PS_IN Input) : SV_Target
@@ -162,6 +200,16 @@ float4 main(PS_IN Input) : SV_Target
 
   // Convert back to linear
   color *= color;
+
+  if (VisualizeCurve)
+  {
+    float2 uv = (Input.TexCoord0.xy - 0.03) / 0.37;
+    if (all(saturate(uv) == uv))
+    {
+      float4 curveColor = VisualizeTonemapCurve(uv);
+      color = lerp(color, curveColor.rgb, curveColor.a);
+    }
+  }
 
   return float4(color, 1);
 }
