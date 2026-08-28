@@ -1,5 +1,6 @@
 #include <Texture/TexturePCH.h>
 
+#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexConvProcessor.h>
@@ -298,21 +299,29 @@ ezResult ezTexConvProcessor::ClampInputValues(ezImage& image, float maxValue) co
   return EZ_SUCCESS;
 }
 
+/// Alpha value above which a pixel is considered fully opaque and its color is kept as is.
+static constexpr float g_fDilateOpaqueThreshold = 220.0f / 255.0f;
+
+/// Replaces the color of all non-opaque pixels with the average color of all opaque ones.
+///
+/// Returns false, if either all or no pixels are opaque, in which case there is nothing to dilate.
 static bool FillAvgImageColor(ezImage& ref_img)
 {
+  auto pixels = ref_img.GetBlobPtr<ezColor>();
+
   ezColor avg = ezColor::MakeZero();
   ezUInt32 uiValidCount = 0;
 
-  for (const ezColor& col : ref_img.GetBlobPtr<ezColor>())
+  for (const ezColor& col : pixels)
   {
-    if (col.a > 0.0f)
+    if (col.a >= g_fDilateOpaqueThreshold)
     {
       avg += col;
       ++uiValidCount;
     }
   }
 
-  if (uiValidCount == 0 || uiValidCount == ref_img.GetBlobPtr<ezColor>().GetCount())
+  if (uiValidCount == 0 || uiValidCount == pixels.GetCount())
   {
     // nothing to do
     return false;
@@ -320,28 +329,18 @@ static bool FillAvgImageColor(ezImage& ref_img)
 
   avg /= static_cast<float>(uiValidCount);
   avg.NormalizeToLdrRange();
-  avg.a = 0.0f;
 
-  for (ezColor& col : ref_img.GetBlobPtr<ezColor>())
+  for (ezColor& col : pixels)
   {
-    if (col.a == 0.0f)
+    if (col.a < g_fDilateOpaqueThreshold)
     {
+      const float fAlpha = col.a;
       col = avg;
+      col.a = fAlpha;
     }
   }
 
   return true;
-}
-
-static void ClearAlpha(ezImage& ref_img, float fAlphaThreshold)
-{
-  for (ezColor& col : ref_img.GetBlobPtr<ezColor>())
-  {
-    if (col.a <= fAlphaThreshold)
-    {
-      col.a = 0.0f;
-    }
-  }
 }
 
 inline static ezColor GetPixelValue(const ezColor* pPixels, ezInt32 iWidth, ezInt32 x, ezInt32 y)
@@ -354,50 +353,49 @@ inline static void SetPixelValue(ezColor* pPixels, ezInt32 iWidth, ezInt32 x, ez
   pPixels[y * iWidth + x] = col;
 }
 
-static ezColor GetAvgColor(ezColor* pPixels, ezInt32 iWidth, ezInt32 iHeight, ezInt32 x, ezInt32 y, float fMarkAlpha)
+/// Smears the color of valid pixels into their invalid neighbors.
+///
+/// A pixel is valid, if its entry in validPixels is set. Pixels that receive a color this pass are
+/// recorded in out_filledIndices instead of being marked immediately, so that a color doesn't
+/// travel more than one pixel per pass. The alpha channel is never modified.
+static void DilateColors(ezColor* pPixels, ezInt32 iWidth, ezInt32 iHeight, const ezDynamicArray<bool>& validPixels, ezDynamicArray<ezUInt32>& out_filledIndices)
 {
-  ezColor colAt = GetPixelValue(pPixels, iWidth, x, y);
-
-  if (colAt.a > 0)
-    return colAt;
-
-  ezColor avg = ezColor::MakeZero();
-  ezUInt32 uiValidCount = 0;
+  out_filledIndices.Clear();
 
   const ezInt32 iRadius = 1;
 
-  for (ezInt32 cy = ezMath::Max<ezInt32>(0, y - iRadius); cy <= ezMath::Min<ezInt32>(y + iRadius, iHeight - 1); ++cy)
-  {
-    for (ezInt32 cx = ezMath::Max<ezInt32>(0, x - iRadius); cx <= ezMath::Min<ezInt32>(x + iRadius, iWidth - 1); ++cx)
-    {
-      const ezColor col = GetPixelValue(pPixels, iWidth, cx, cy);
-
-      if (col.a > fMarkAlpha)
-      {
-        avg += col;
-        ++uiValidCount;
-      }
-    }
-  }
-
-  if (uiValidCount == 0)
-    return colAt;
-
-  avg /= static_cast<float>(uiValidCount);
-  avg.a = fMarkAlpha;
-
-  return avg;
-}
-
-static void DilateColors(ezColor* pPixels, ezInt32 iWidth, ezInt32 iHeight, float fMarkAlpha)
-{
   for (ezInt32 y = 0; y < iHeight; ++y)
   {
     for (ezInt32 x = 0; x < iWidth; ++x)
     {
-      const ezColor avg = GetAvgColor(pPixels, iWidth, iHeight, x, y, fMarkAlpha);
+      const ezUInt32 uiIndex = static_cast<ezUInt32>(y * iWidth + x);
+
+      if (validPixels[uiIndex])
+        continue;
+
+      ezColor avg = ezColor::MakeZero();
+      ezUInt32 uiValidCount = 0;
+
+      for (ezInt32 cy = ezMath::Max<ezInt32>(0, y - iRadius); cy <= ezMath::Min<ezInt32>(y + iRadius, iHeight - 1); ++cy)
+      {
+        for (ezInt32 cx = ezMath::Max<ezInt32>(0, x - iRadius); cx <= ezMath::Min<ezInt32>(x + iRadius, iWidth - 1); ++cx)
+        {
+          if (!validPixels[cy * iWidth + cx])
+            continue;
+
+          avg += GetPixelValue(pPixels, iWidth, cx, cy);
+          ++uiValidCount;
+        }
+      }
+
+      if (uiValidCount == 0)
+        continue;
+
+      avg /= static_cast<float>(uiValidCount);
+      avg.a = GetPixelValue(pPixels, iWidth, x, y).a;
 
       SetPixelValue(pPixels, iWidth, x, y, avg);
+      out_filledIndices.PushBack(uiIndex);
     }
   }
 }
@@ -418,13 +416,25 @@ ezResult ezTexConvProcessor::DilateColor2D(ezImage& img) const
   const ezInt32 iWidth = static_cast<ezInt32>(img.GetWidth());
   const ezInt32 iHeight = static_cast<ezInt32>(img.GetHeight());
 
-  for (ezUInt32 pass = uiNumPasses; pass > 0; --pass)
+  ezDynamicArray<bool> validPixels;
+  validPixels.SetCount(static_cast<ezUInt32>(img.GetBlobPtr<ezColor>().GetCount()));
+
+  for (ezUInt32 i = 0; i < validPixels.GetCount(); ++i)
   {
-    const float fAlphaThreshold = (static_cast<float>(pass) / uiNumPasses) / 256.0f; // between 0 and 1/256
-    DilateColors(pPixels, iWidth, iHeight, fAlphaThreshold);
+    validPixels[i] = pPixels[i].a >= g_fDilateOpaqueThreshold;
   }
 
-  ClearAlpha(img, 1.0f / 256.0f);
+  ezDynamicArray<ezUInt32> filledIndices;
+
+  for (ezUInt32 pass = 0; pass < uiNumPasses; ++pass)
+  {
+    DilateColors(pPixels, iWidth, iHeight, validPixels, filledIndices);
+
+    for (ezUInt32 uiIndex : filledIndices)
+    {
+      validPixels[uiIndex] = true;
+    }
+  }
 
   return EZ_SUCCESS;
 }

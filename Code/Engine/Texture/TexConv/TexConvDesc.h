@@ -87,7 +87,7 @@ public:
   ezEnum<ezImageAddressMode> m_AddressModeV;   ///< Vertical texture wrapping mode
   ezEnum<ezImageAddressMode> m_AddressModeW;   ///< Depth texture wrapping mode (3D textures)
   bool m_bPreserveMipmapCoverage = false;      ///< Maintain alpha coverage for alpha testing
-  float m_fMipmapAlphaThreshold = 0.5f;        ///< Alpha threshold for coverage preservation
+  float m_fMipmapAlphaThreshold = 0.25f;       ///< Alpha threshold for coverage preservation.
 
   // Image processing options
   ezUInt8 m_uiDilateColor = 0;      ///< Color dilation steps (fills transparent areas)

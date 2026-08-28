@@ -115,7 +115,7 @@ public:
   bool m_bPreserveAlphaCoverage = false;
   float m_fCVarResolutionScale = 1.0f;
   float m_fHdrExposureBias = 0;
-  float m_fAlphaThreshold = 0.5f;
+  float m_fAlphaThreshold = 0.25f;
 
   ezEnum<ezTextureFilterSetting> m_TextureFilter;
   ezEnum<ezImageAddressMode> m_AddressModeU;

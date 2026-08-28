@@ -79,7 +79,11 @@ public:
     ///
     /// Only used when m_preserveCoverage is true. Pixels with alpha >= threshold
     /// are considered opaque for coverage calculations.
-    float m_alphaThreshold = 0.5f;
+    ///
+    /// This must match the alpha test threshold that the renderer will later use for this texture.
+    /// Each mip's alpha is rescaled such that this value is the cut-off at which the mip has
+    /// the same coverage as the full resolution image.
+    float m_alphaThreshold = 0.25f;
 
     /// The address mode for samples when filtering outside of the image dimensions in the horizontal direction.
     ezImageAddressMode::Enum m_addressModeU = ezImageAddressMode::Clamp;
