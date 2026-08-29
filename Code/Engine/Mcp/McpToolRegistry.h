@@ -36,6 +36,16 @@ public:
   /// \brief Destroys all providers. Called when the plugin is unloaded.
   static void Clear();
 
+  /// \brief Destroys the provider of the given type, along with its tools.
+  ///
+  /// A provider may live in a different plugin than the registry, and plugins are not unloaded in any
+  /// particular order. Once its plugin is gone, the provider's vtable and RTTI allocator point into an
+  /// unmapped module, so a plugin that declares a provider has to call this from its unload function,
+  /// while its own code is still mapped. Does nothing if no such provider exists, so it is safe to call
+  /// when the registry was never filled. UpdateProviders() instantiates the type again if the plugin is
+  /// loaded once more.
+  static void RemoveProvider(const ezRTTI* pProviderType);
+
   /// \brief All tools of all providers, in registration order.
   static const ezDynamicArray<ezMcpToolDesc>& GetTools() { return s_Tools; }
 
