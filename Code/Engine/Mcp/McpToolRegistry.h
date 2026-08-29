@@ -6,7 +6,7 @@
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Types/Delegate.h>
 
-/// \brief Wraps every tool call in whatever setup and teardown the host needs.
+/// Wraps every tool call in whatever setup and teardown the host needs.
 ///
 /// The registry itself is host independent, but the editor has to put a call into unattended mode and
 /// turn a failed assert into a tool error, and a game has no equivalent of either. So the host installs
@@ -16,14 +16,14 @@
 ///        result, calling it twice runs the tool twice.
 using ezMcpExecuteWrapper = ezDelegate<void(ezStringView sToolName, ezMcpToolResult& ref_result, ezDelegate<void()> execute)>;
 
-/// \brief Owns one instance of every ezMcpToolProvider and routes calls to them.
+/// Owns one instance of every ezMcpToolProvider and routes calls to them.
 ///
 /// The registry is filled through reflection, so a provider in another plugin needs no registration
 /// call - it only has to exist.
 class EZ_MCP_DLL ezMcpToolRegistry
 {
 public:
-  /// \brief Instantiates every provider type that isn't known yet.
+  /// Instantiates every provider type that isn't known yet.
   ///
   /// Idempotent, and called again when the server starts, because plugins may be loaded after the one
   /// that owns the server and would otherwise never be picked up.
@@ -33,10 +33,10 @@ public:
   /// each host derives the concrete type that is actually instantiated here.
   static void UpdateProviders();
 
-  /// \brief Destroys all providers. Called when the plugin is unloaded.
+  /// Destroys all providers. Called when the plugin is unloaded.
   static void Clear();
 
-  /// \brief Destroys the provider of the given type, along with its tools.
+  /// Destroys the provider of the given type, along with its tools.
   ///
   /// A provider may live in a different plugin than the registry, and plugins are not unloaded in any
   /// particular order. Once its plugin is gone, the provider's vtable and RTTI allocator point into an
@@ -46,13 +46,13 @@ public:
   /// loaded once more.
   static void RemoveProvider(const ezRTTI* pProviderType);
 
-  /// \brief All tools of all providers, in registration order.
+  /// All tools of all providers, in registration order.
   static const ezDynamicArray<ezMcpToolDesc>& GetTools() { return s_Tools; }
 
-  /// \brief Installs the host's wrapper around every tool call. Pass an invalid delegate to remove it.
+  /// Installs the host's wrapper around every tool call. Pass an invalid delegate to remove it.
   static void SetExecuteWrapper(ezMcpExecuteWrapper wrapper) { s_ExecuteWrapper = wrapper; }
 
-  /// \brief Runs a tool. Fails only if no tool of that name exists - a tool that ran but didn't like
+  /// Runs a tool. Fails only if no tool of that name exists - a tool that ran but didn't like
   /// its arguments reports that through out_result instead.
   static ezResult Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
 

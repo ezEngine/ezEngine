@@ -74,7 +74,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltDefaultCharacterComponent, 1, ezComponentMode::Dyn
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-/// \brief Custom contact listener to send ezMsgPhysicCharacterContact to objects that the CC touches.
+/// Custom contact listener to send ezMsgPhysicCharacterContact to objects that the CC touches.
 class ezJoltDefaultCharacterContactListener : public JPH::CharacterContactListener
 {
 public:

@@ -3,7 +3,7 @@
 #include <Core/Utils/Blackboard.h>
 #include <GameEngine/StateMachine/StateMachineResource.h>
 
-/// \brief A state machine state implementation that represents another state machine nested within this state. This can be used to build hierarchical state machines.
+/// A state machine state implementation that represents another state machine nested within this state. This can be used to build hierarchical state machines.
 class EZ_GAMEENGINE_DLL ezStateMachineState_NestedStateMachine : public ezStateMachineState
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState_NestedStateMachine, ezStateMachineState);
@@ -24,7 +24,7 @@ public:
   void SetResource(const ezStateMachineResourceHandle& hResource);                // [ property ]
   const ezStateMachineResourceHandle& GetResource() const { return m_hResource; } // [ property ]
 
-  /// \brief Defines which state should be used as initial state after the state machine was instantiated.
+  /// Defines which state should be used as initial state after the state machine was instantiated.
   /// If empty the state machine resource defines the initial state.
   void SetInitialState(const char* szName);                       // [ property ]
   const char* GetInitialState() const { return m_sInitialState; } // [ property ]
@@ -44,7 +44,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief A state machine state implementation that combines multiple sub states into one.
+/// A state machine state implementation that combines multiple sub states into one.
 ///
 /// Can be used to build states in a more modular way. All calls are simply redirected to all sub states,
 /// e.g. when entered it calls OnEnter on all its sub states.
@@ -73,7 +73,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief An enum that represents the operator of a comparison
+/// An enum that represents the operator of a comparison
 struct EZ_GAMEENGINE_DLL ezStateMachineLogicOperator
 {
   using StorageType = ezUInt8;
@@ -91,7 +91,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezStateMachineLogicOperator);
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief A state machine transition implementation that checks the instance's blackboard for the given conditions.
+/// A state machine transition implementation that checks the instance's blackboard for the given conditions.
 class EZ_GAMEENGINE_DLL ezStateMachineTransition_BlackboardConditions : public ezStateMachineTransition
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineTransition_BlackboardConditions, ezStateMachineTransition);
@@ -111,7 +111,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief A state machine transition implementation that triggers after the given time
+/// A state machine transition implementation that triggers after the given time
 class EZ_GAMEENGINE_DLL ezStateMachineTransition_Timeout : public ezStateMachineTransition
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineTransition_Timeout, ezStateMachineTransition);
@@ -130,7 +130,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief A state machine transition implementation that combines multiple sub transition into one.
+/// A state machine transition implementation that combines multiple sub transition into one.
 ///
 /// Can be used to build transitions in a more modular way. All calls are simply redirected to all sub transitions
 /// and then combined with the given logic operator (AND, OR).
@@ -158,7 +158,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief A state machine transition implementation that triggers when a 'transition event' is sent.
+/// A state machine transition implementation that triggers when a 'transition event' is sent.
 class EZ_GAMEENGINE_DLL ezStateMachineTransition_TransitionEvent : public ezStateMachineTransition
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineTransition_TransitionEvent, ezStateMachineTransition);

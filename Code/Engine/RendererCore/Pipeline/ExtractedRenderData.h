@@ -61,17 +61,17 @@ public:
   /// Should not be called in user code, call ezMsgExtractRenderData::AddDependency instead during extraction of object or call AddViewDependency.
   EZ_ALWAYS_INLINE void AddDependency(const ezBufferDependency& dependency);
 
-  /// \brief Adds a sampler that is added to the EZ_GAL_BIND_GROUP_FRAME during rendering.
+  /// Adds a sampler that is added to the EZ_GAL_BIND_GROUP_FRAME during rendering.
   /// \sa ezBindGroupBuilder
   void AddSamplerBinding(ezTempHashedString sSlotName, ezGALSamplerStateHandle hSampler);
   EZ_ALWAYS_INLINE void AddSamplerBinding(const ezSamplerBinding& binding);
 
-  /// \brief Adds a buffer that is added to the EZ_GAL_BIND_GROUP_FRAME during rendering.
+  /// Adds a buffer that is added to the EZ_GAL_BIND_GROUP_FRAME during rendering.
   /// \sa ezBindGroupBuilder
   void AddBufferBinding(ezTempHashedString sSlotName, ezGALBufferHandle hBuffer, ezGALBufferRange bufferRange = {}, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat = ezGALResourceFormat::Invalid);
   EZ_ALWAYS_INLINE void AddBufferBinding(const ezBufferBinding& binding);
 
-  /// \brief Adds a texture that is added to the EZ_GAL_BIND_GROUP_FRAME during rendering.
+  /// Adds a texture that is added to the EZ_GAL_BIND_GROUP_FRAME during rendering.
   /// \sa ezBindGroupBuilder
   void AddTextureBinding(ezTempHashedString sSlotName, ezGALTextureHandle hTexture, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid, ezEnum<ezGALTextureType> overrideViewType = ezGALTextureType::Invalid);
   EZ_ALWAYS_INLINE void AddTextureBinding(const ezTextureBinding& binding);

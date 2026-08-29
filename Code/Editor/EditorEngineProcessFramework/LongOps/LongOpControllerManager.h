@@ -4,7 +4,7 @@
 
 class ezLongOpProxy;
 
-/// \brief Events about all known long ops. Broadcast by ezLongOpControllerManager.
+/// Events about all known long ops. Broadcast by ezLongOpControllerManager.
 struct ezLongOpControllerEvent
 {
   enum class Type
@@ -18,7 +18,7 @@ struct ezLongOpControllerEvent
   ezUuid m_OperationGuid; ///< Use ezLongOpControllerManager::GetOperation() to resolve the GUID to the actual long op.
 };
 
-/// \brief The LongOp controller is active in the editor process and manages which long ops are available, running, etc.
+/// The LongOp controller is active in the editor process and manages which long ops are available, running, etc.
 ///
 /// All available long ops are registered with the controller, typically automatically by the ezLongOpsAdapter,
 /// although it is theoretically possible to register additional long ops.
@@ -34,7 +34,7 @@ public:
   ezLongOpControllerManager();
   ~ezLongOpControllerManager();
 
-  /// \brief Holds all information about the proxy long op on the editor side
+  /// Holds all information about the proxy long op on the editor side
   struct ProxyOpInfo
   {
     ezUniquePtr<ezLongOpProxy> m_pProxyOp;
@@ -49,29 +49,29 @@ public:
     bool m_bIsRunning = false;  ///< Whether the long op is currently being executed.
   };
 
-  /// \brief Events about the state of all available long ops.
+  /// Events about the state of all available long ops.
   ezEvent<const ezLongOpControllerEvent&> m_Events;
 
-  /// \brief Typically called by ezLongOpsAdapter when a component that has an ezLongOpAttribute is added to a scene
+  /// Typically called by ezLongOpsAdapter when a component that has an ezLongOpAttribute is added to a scene
   void RegisterLongOp(const ezUuid& documentGuid, const ezUuid& componentGuid, const char* szLongOpType);
 
-  /// \brief Typically called by ezLongOpsAdapter when a component that has an ezLongOpAttribute is removed from a scene
+  /// Typically called by ezLongOpsAdapter when a component that has an ezLongOpAttribute is removed from a scene
   void UnregisterLongOp(const ezUuid& documentGuid, const ezUuid& componentGuid, const char* szLongOpType);
 
-  /// \brief Starts executing the given long op. Typically called by the ezQtLongOpsPanel.
+  /// Starts executing the given long op. Typically called by the ezQtLongOpsPanel.
   void StartOperation(ezUuid opGuid);
 
-  /// \brief Cancels a given long op. Typically called by the ezQtLongOpsPanel.
+  /// Cancels a given long op. Typically called by the ezQtLongOpsPanel.
   void CancelOperation(ezUuid opGuid);
 
-  /// \brief Cancels and deletes all operations linked to the given document. Makes sure to wait for all canceled ops.
+  /// Cancels and deletes all operations linked to the given document. Makes sure to wait for all canceled ops.
   /// Typically called by the ezLongOpsAdapter when a document is about to be closed.
   void CancelAndRemoveAllOpsForDocument(const ezUuid& documentGuid);
 
-  /// \brief Returns a pointer to the given long op, or null if the GUID does not exist.
+  /// Returns a pointer to the given long op, or null if the GUID does not exist.
   ProxyOpInfo* GetOperation(const ezUuid& opGuid);
 
-  /// \brief Gives access to all currently available long ops. Make sure the lock m_Mutex (of the ezLongOpManager base class) while accessing this.
+  /// Gives access to all currently available long ops. Make sure the lock m_Mutex (of the ezLongOpManager base class) while accessing this.
   const ezDynamicArray<ezUniquePtr<ProxyOpInfo>>& GetOperations() const { return m_ProxyOps; }
 
 private:

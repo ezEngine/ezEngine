@@ -64,47 +64,47 @@ public:
   static bool IsProjectClosing() { return (GetSingleton() != nullptr && GetSingleton()->m_bIsClosing); }
   static void CloseProject();
   static void SaveProjectState();
-  /// \brief Returns true when the project can be closed. Uses ezToolsProjectRequest::Type::CanCloseProject event.
+  /// Returns true when the project can be closed. Uses ezToolsProjectRequest::Type::CanCloseProject event.
   static bool CanCloseProject();
-  /// \brief Returns true when the given list of documents can be closed. Uses ezToolsProjectRequest::Type::CanCloseDocuments event.
+  /// Returns true when the given list of documents can be closed. Uses ezToolsProjectRequest::Type::CanCloseDocuments event.
   static bool CanCloseDocuments(ezArrayPtr<ezDocument*> documents);
-  /// \brief Returns the unique ID of the container window this document should use for its window. Uses
+  /// Returns the unique ID of the container window this document should use for its window. Uses
   /// ezToolsProjectRequest::Type::SuggestContainerWindow event.
   static ezInt32 SuggestContainerWindow(ezDocument* pDoc);
-  /// \brief Resolve document GUID into an absolute path.
+  /// Resolve document GUID into an absolute path.
   ezStringBuilder GetPathForDocumentGuid(const ezUuid& guid);
   static ezStatus OpenProject(ezStringView sProjectPath);
   static ezStatus CreateProject(ezStringView sProjectPath);
 
-  /// \brief Broadcasts the SaveAll event, though otherwise has no direct effect.
+  /// Broadcasts the SaveAll event, though otherwise has no direct effect.
   static void BroadcastSaveAll();
 
-  /// \brief Sent when global project configuration data was changed and thus certain menus would need to update their content (or just deselect any
+  /// Sent when global project configuration data was changed and thus certain menus would need to update their content (or just deselect any
   /// item, forcing the user to reselect and thus update state)
   static void BroadcastConfigChanged();
 
-  /// \brief Returns the path to the 'ezProject' file
+  /// Returns the path to the 'ezProject' file
   const ezString& GetProjectFile() const { return m_sProjectPath; }
 
-  /// \brief Returns the short name of the project (extracted from the path).
+  /// Returns the short name of the project (extracted from the path).
   ///
   /// \param bSanitize Whether to replace whitespace and other problematic characters, such that it can be used in code.
   const ezString GetProjectName(bool bSanitize) const;
 
-  /// \brief Returns the path in which the 'ezProject' file is stored
+  /// Returns the path in which the 'ezProject' file is stored
   ezString GetProjectDirectory() const;
 
-  /// \brief Returns the directory path in which project settings etc. should be stored
+  /// Returns the directory path in which project settings etc. should be stored
   ezString GetProjectDataFolder() const;
 
-  /// \brief Starts at the  given document and then searches the tree upwards until it finds an ezProject file.
+  /// Starts at the  given document and then searches the tree upwards until it finds an ezProject file.
   static ezString FindProjectDirectoryForDocument(ezStringView sDocumentPath);
 
   bool IsDocumentInAllowedRoot(ezStringView sDocumentPath, ezString* out_pRelativePath = nullptr) const;
 
   void AddAllowedDocumentRoot(ezStringView sPath);
 
-  /// \brief Makes sure the given sub-folder exists inside the project directory
+  /// Makes sure the given sub-folder exists inside the project directory
   void CreateSubFolder(ezStringView sFolder) const;
 
 private:

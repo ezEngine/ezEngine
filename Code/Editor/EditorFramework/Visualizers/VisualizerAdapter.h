@@ -11,7 +11,7 @@ struct ezDocumentObjectPropertyEvent;
 struct ezQtDocumentWindowEvent;
 class ezObjectAccessorBase;
 
-/// \brief Base class for the editor side code that sets up a 'visualizer' for object properties.
+/// Base class for the editor side code that sets up a 'visualizer' for object properties.
 ///
 /// Typically visualizers are configured with ezVisualizerAttribute's on component types.
 /// The adapter reads the attribute values and sets up the necessary code to render them in the engine.
@@ -37,11 +37,11 @@ protected:
   ezObjectAccessorBase* GetObjectAccessor() const;
   const ezAbstractProperty* GetProperty(const char* szProperty) const;
 
-  /// \brief Called to actually properly set up the adapter. All setup code is implemented here.
+  /// Called to actually properly set up the adapter. All setup code is implemented here.
   virtual void Finalize() = 0;
-  /// \brief Called when object properties have changed and the visualizer may need to react.
+  /// Called when object properties have changed and the visualizer may need to react.
   virtual void Update() = 0;
-  /// \brief Called when the object has been moved somehow. More light weight than a full update.
+  /// Called when the object has been moved somehow. More light weight than a full update.
   virtual void UpdateGizmoTransform() = 0;
 
   bool m_bVisualizerIsVisible;

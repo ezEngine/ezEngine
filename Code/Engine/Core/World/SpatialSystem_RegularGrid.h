@@ -10,7 +10,7 @@ namespace ezInternal
   struct QueryHelper;
 }
 
-/// \brief Spatial system implementation using regular grids for organizing objects.
+/// Spatial system implementation using regular grids for organizing objects.
 ///
 /// Divides space into uniform grid cells to enable efficient spatial queries. Supports
 /// multiple grids for different spatial data categories and implements a caching system
@@ -20,14 +20,14 @@ class EZ_CORE_DLL ezSpatialSystem_RegularGrid : public ezSpatialSystem
   EZ_ADD_DYNAMIC_REFLECTION(ezSpatialSystem_RegularGrid, ezSpatialSystem);
 
 public:
-  /// \brief Creates a regular grid spatial system with the given cell size.
+  /// Creates a regular grid spatial system with the given cell size.
   ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize = 128);
   ~ezSpatialSystem_RegularGrid();
 
-  /// \brief Returns the bounding box of the cell associated with the given spatial data. Useful for debug visualizations.
+  /// Returns the bounding box of the cell associated with the given spatial data. Useful for debug visualizations.
   ezResult GetCellBoxForSpatialData(const ezSpatialDataHandle& hData, ezBoundingBox& out_boundingBox) const;
 
-  /// \brief Returns bounding boxes of all existing cells.
+  /// Returns bounding boxes of all existing cells.
   void GetAllCellBoxes(ezDynamicArray<ezBoundingBox>& out_boundingBoxes, ezSpatialData::Category filterCategory = ezInvalidSpatialDataCategory) const;
 
 private:
@@ -73,7 +73,7 @@ private:
   ezDynamicArray<ezUniquePtr<Grid>> m_Grids;
   ezUInt32 m_uiFirstCachedGridIndex = MAX_NUM_GRIDS;
 
-  /// \brief Internal data structure tracking which grids contain a spatial data object.
+  /// Internal data structure tracking which grids contain a spatial data object.
   struct Data
   {
     EZ_DECLARE_POD_TYPE();
@@ -95,7 +95,7 @@ private:
   using CellCallback = ezDelegate<ezVisitorExecution::Enum(const Cell&, const QueryParams&, Stats&, void*, ezVisibilityState::Enum)>;
   void ForEachCellInBoxInMatchingGrids(const ezSimdBBox& box, const QueryParams& queryParams, CellCallback noFilterCallback, CellCallback filterByTagsCallback, void* pUserData, ezVisibilityState::Enum visType) const;
 
-  /// \brief Candidate for grid caching based on query patterns and filtering efficiency.
+  /// Candidate for grid caching based on query patterns and filtering efficiency.
   struct CacheCandidate
   {
     ezTagSet m_IncludeTags;                  ///< Tags that must be included for this cached grid

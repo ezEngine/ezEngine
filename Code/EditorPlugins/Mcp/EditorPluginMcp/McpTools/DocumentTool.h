@@ -6,7 +6,7 @@ class ezDocument;
 class ezMcpJsonWriter;
 struct ezDocumentTypeDescriptor;
 
-/// \brief Lists, opens, creates, saves, closes and focuses editor documents.
+/// Lists, opens, creates, saves, closes and focuses editor documents.
 ///
 /// 'document_types' is the type-level view - what can be created and with which file extension - and
 /// is the call that has to come first, because every other tool here names a document type or a path

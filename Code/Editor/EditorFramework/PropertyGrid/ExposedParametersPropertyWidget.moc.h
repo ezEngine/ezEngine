@@ -10,7 +10,7 @@ class QToolButton;
 class QAction;
 struct ezPhantomRttiManagerEvent;
 
-/// \brief Helper accessor to pretend all exposed parameters always have a value defined.
+/// Helper accessor to pretend all exposed parameters always have a value defined.
 /// The exposed parameters are stored as just a sparse map. Only the elements that are overwritten from their defaults are actually stored in the component. Thus, requesting the value of an exposed parameter that has not been overwritten results in failure. To fix this, this class will automatically return the default value of an exposed parameter. This allows the tooling code to always show every exposed parameter's value independent on whether it was overwritten or remains at the default value.
 class EZ_EDITORFRAMEWORK_DLL ezExposedParameterCommandAccessor : public ezObjectProxyAccessor
 {
@@ -38,7 +38,7 @@ public:
   const ezAbstractProperty* m_pParameterSourceProp = nullptr;
 };
 
-/// \brief Accessor to pretend the exposed parameters map property is an object of the generated phantom type.
+/// Accessor to pretend the exposed parameters map property is an object of the generated phantom type.
 /// This fake type accessor is created by taking the property name and redirecting to the exposed parameter map's element under that name. As long as no code path is looking at the actual type of the object this works with any property widget. An ezQtTypeWidget constructed with the exposed parameter type and this accessor will produce a normal type widget that looks like the exposed parameter type but redirects all read / writes into the exposed parameter map property. Additionally, this class ensures the value stored in the map is converted to match the property type exactly.
 class EZ_EDITORFRAMEWORK_DLL ezExposedParametersAsTypeCommandAccessor : public ezObjectProxyAccessor
 {
@@ -63,11 +63,11 @@ protected:
   ezStatus GetSubValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value);
   ezStatus SetSubValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezDelegate<ezStatus(ezVariant& subValue)>& func);
 
-  /// \brief Make sure that any property retrieved via this accessor matches the expected property type to make sure no invalid data is passed into one of the property widgets generated under the type widget.
+  /// Make sure that any property retrieved via this accessor matches the expected property type to make sure no invalid data is passed into one of the property widgets generated under the type widget.
   void PatchPropertyType(ezVariant& ref_value, const ezAbstractProperty* pProp);
 };
 
-/// \brief Custom widget for properties annotated with the ezExposedParametersAttribute attribute.
+/// Custom widget for properties annotated with the ezExposedParametersAttribute attribute.
 /// Technically exposed parameters are stored as an ezVariantDictionary but that leaves much to be desired for usability. This class uses ezExposedParameterCommandAccessor to always show all exposed parameters in the dictionary even if none were overwritten. Additionally, ezExposedParametersAsTypeCommandAccessor is used to project the exposed parameters into a phantom type widget to make editing exposed parameters indistinguishable from editing a normal type object. A button can be used to switch between the two representations.
 class EZ_EDITORFRAMEWORK_DLL ezQtExposedParametersPropertyWidget : public ezQtPropertyStandardTypeContainerWidget
 {

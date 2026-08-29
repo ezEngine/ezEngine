@@ -17,7 +17,7 @@
 class ezRTTI;
 class ezPropertyAttribute;
 
-/// \brief Determines whether a type is ezIsBitflags.
+/// Determines whether a type is ezIsBitflags.
 template <typename T>
 struct ezIsBitflags
 {
@@ -30,7 +30,7 @@ struct ezIsBitflags<ezBitflags<T>>
   static constexpr bool value = true;
 };
 
-/// \brief Determines whether a type is ezIsBitflags.
+/// Determines whether a type is ezIsBitflags.
 template <typename T>
 struct ezIsEnum
 {
@@ -43,7 +43,7 @@ struct ezIsEnum<ezEnum<T>>
   static constexpr bool value = true;
 };
 
-/// \brief Flags used to describe a property and its type.
+/// Flags used to describe a property and its type.
 struct ezPropertyFlags
 {
   using StorageType = ezUInt16;
@@ -134,7 +134,7 @@ inline ezBitflags<ezPropertyFlags> ezPropertyFlags::GetParameterFlags<void>()
 
 EZ_DECLARE_FLAGS_OPERATORS(ezPropertyFlags)
 
-/// \brief Describes what category a property belongs to.
+/// Describes what category a property belongs to.
 struct ezPropertyCategory
 {
   using StorageType = ezUInt8;
@@ -151,7 +151,7 @@ struct ezPropertyCategory
   };
 };
 
-/// \brief Base interface for all properties in the reflection system.
+/// Base interface for all properties in the reflection system.
 ///
 /// Properties represent accessible data members, functions, or virtual data in reflected types.
 /// This base class provides the common interface and metadata for property introspection.
@@ -174,32 +174,32 @@ struct ezPropertyCategory
 class EZ_FOUNDATION_DLL ezAbstractProperty
 {
 public:
-  /// \brief The constructor must get the name of the property. The string must be a compile-time constant.
+  /// The constructor must get the name of the property. The string must be a compile-time constant.
   ezAbstractProperty(const char* szPropertyName) { m_szPropertyName = szPropertyName; }
 
   virtual ~ezAbstractProperty();
 
-  /// \brief Returns the name of the property.
+  /// Returns the name of the property.
   const char* GetPropertyName() const { return m_szPropertyName; }
 
-  /// \brief Returns the type information of the constant property. Use this to cast this property to a specific version of
+  /// Returns the type information of the constant property. Use this to cast this property to a specific version of
   /// ezTypedConstantProperty.
   virtual const ezRTTI* GetSpecificType() const = 0;
 
-  /// \brief Returns the category of this property. Cast this property to the next higher type for more information.
+  /// Returns the category of this property. Cast this property to the next higher type for more information.
   virtual ezPropertyCategory::Enum GetCategory() const = 0; // [tested]
 
-  /// \brief Returns the flags of the property.
+  /// Returns the flags of the property.
   const ezBitflags<ezPropertyFlags>& GetFlags() const { return m_Flags; };
 
-  /// \brief Adds flags to the property. Returns itself to allow to be called during initialization.
+  /// Adds flags to the property. Returns itself to allow to be called during initialization.
   ezAbstractProperty* AddFlags(ezBitflags<ezPropertyFlags> flags)
   {
     m_Flags.Add(flags);
     return this;
   };
 
-  /// \brief Adds attributes to the property. Returns itself to allow to be called during initialization. Allocate an attribute using
+  /// Adds attributes to the property. Returns itself to allow to be called during initialization. Allocate an attribute using
   /// standard 'new'.
   ezAbstractProperty* AddAttributes(ezPropertyAttribute* pAttrib1, ezPropertyAttribute* pAttrib2 = nullptr, ezPropertyAttribute* pAttrib3 = nullptr,
     ezPropertyAttribute* pAttrib4 = nullptr, ezPropertyAttribute* pAttrib5 = nullptr, ezPropertyAttribute* pAttrib6 = nullptr)
@@ -220,10 +220,10 @@ public:
     return this;
   };
 
-  /// \brief Returns the array of property attributes.
+  /// Returns the array of property attributes.
   ezArrayPtr<const ezPropertyAttribute* const> GetAttributes() const { return m_Attributes; }
 
-  /// \brief Returns the first attribute that derives from the given type, or nullptr if nothing is found.
+  /// Returns the first attribute that derives from the given type, or nullptr if nothing is found.
   template <typename Type>
   const Type* GetAttributeByType() const;
 
@@ -233,27 +233,27 @@ protected:
   ezHybridArray<const ezPropertyAttribute*, 2, ezStaticsAllocatorWrapper> m_Attributes; // Do not track RTTI data.
 };
 
-/// \brief This is the base class for all constant properties that are stored inside the RTTI data.
+/// This is the base class for all constant properties that are stored inside the RTTI data.
 class EZ_FOUNDATION_DLL ezAbstractConstantProperty : public ezAbstractProperty
 {
 public:
-  /// \brief Passes the property name through to ezAbstractProperty.
+  /// Passes the property name through to ezAbstractProperty.
   ezAbstractConstantProperty(const char* szPropertyName)
     : ezAbstractProperty(szPropertyName)
   {
   }
 
-  /// \brief Returns ezPropertyCategory::Constant.
+  /// Returns ezPropertyCategory::Constant.
   virtual ezPropertyCategory::Enum GetCategory() const override { return ezPropertyCategory::Constant; } // [tested]
 
-  /// \brief Returns a pointer to the constant data or nullptr. See ezAbstractMemberProperty::GetPropertyPointer for more information.
+  /// Returns a pointer to the constant data or nullptr. See ezAbstractMemberProperty::GetPropertyPointer for more information.
   virtual void* GetPropertyPointer() const = 0;
 
-  /// \brief Returns the constant value as an ezVariant
+  /// Returns the constant value as an ezVariant
   virtual ezVariant GetConstant() const = 0;
 };
 
-/// \brief Base class for properties that represent data members of a class or struct.
+/// Base class for properties that represent data members of a class or struct.
 ///
 /// Member properties provide access to object data through getter/setter mechanisms or direct memory access.
 /// They support both simple types (int, float) and complex types (classes, structs) with proper type safety.
@@ -273,16 +273,16 @@ public:
 class EZ_FOUNDATION_DLL ezAbstractMemberProperty : public ezAbstractProperty
 {
 public:
-  /// \brief Passes the property name through to ezAbstractProperty.
+  /// Passes the property name through to ezAbstractProperty.
   ezAbstractMemberProperty(const char* szPropertyName)
     : ezAbstractProperty(szPropertyName)
   {
   }
 
-  /// \brief Returns ezPropertyCategory::Member.
+  /// Returns ezPropertyCategory::Member.
   virtual ezPropertyCategory::Enum GetCategory() const override { return ezPropertyCategory::Member; }
 
-  /// \brief Returns a pointer to the property data or nullptr. If a valid pointer is returned, that pointer and the information from
+  /// Returns a pointer to the property data or nullptr. If a valid pointer is returned, that pointer and the information from
   /// GetSpecificType() can be used to step deeper into the type (if required).
   ///
   /// You need to pass the pointer to an object on which you are operating. This function is mostly of interest when the property itself is
@@ -295,17 +295,17 @@ public:
   /// 'accessors' (functions to get / set the property value), it is not possible (or useful) to get the property pointer.
   virtual void* GetPropertyPointer(const void* pInstance) const = 0;
 
-  /// \brief Writes the value of this property in pInstance to pObject.
+  /// Writes the value of this property in pInstance to pObject.
   /// pObject needs to point to an instance of this property's type.
   virtual void GetValuePtr(const void* pInstance, void* out_pObject) const = 0;
 
-  /// \brief Sets the value of pObject to the property in pInstance.
+  /// Sets the value of pObject to the property in pInstance.
   /// pObject needs to point to an instance of this property's type.
   virtual void SetValuePtr(void* pInstance, const void* pObject) const = 0;
 };
 
 
-/// \brief Base class for properties that represent arrays or sequential containers.
+/// Base class for properties that represent arrays or sequential containers.
 ///
 /// Array properties provide indexed access to collections of elements with dynamic or fixed sizing.
 /// They support all standard container operations: access, insertion, removal, and resizing.
@@ -328,34 +328,34 @@ public:
 class EZ_FOUNDATION_DLL ezAbstractArrayProperty : public ezAbstractProperty
 {
 public:
-  /// \brief Passes the property name through to ezAbstractProperty.
+  /// Passes the property name through to ezAbstractProperty.
   ezAbstractArrayProperty(const char* szPropertyName)
     : ezAbstractProperty(szPropertyName)
   {
   }
 
-  /// \brief Returns ezPropertyCategory::Array.
+  /// Returns ezPropertyCategory::Array.
   virtual ezPropertyCategory::Enum GetCategory() const override { return ezPropertyCategory::Array; }
 
-  /// \brief Returns number of elements.
+  /// Returns number of elements.
   virtual ezUInt32 GetCount(const void* pInstance) const = 0;
 
-  /// \brief Writes element at index uiIndex to the target of pObject.
+  /// Writes element at index uiIndex to the target of pObject.
   virtual void GetValue(const void* pInstance, ezUInt32 uiIndex, void* pObject) const = 0;
 
-  /// \brief Writes the target of pObject to the element at index uiIndex.
+  /// Writes the target of pObject to the element at index uiIndex.
   virtual void SetValue(void* pInstance, ezUInt32 uiIndex, const void* pObject) const = 0;
 
-  /// \brief Inserts the target of pObject into the array at index uiIndex.
+  /// Inserts the target of pObject into the array at index uiIndex.
   virtual void Insert(void* pInstance, ezUInt32 uiIndex, const void* pObject) const = 0;
 
-  /// \brief Removes the element in the array at index uiIndex.
+  /// Removes the element in the array at index uiIndex.
   virtual void Remove(void* pInstance, ezUInt32 uiIndex) const = 0;
 
-  /// \brief Clears the array.
+  /// Clears the array.
   virtual void Clear(void* pInstance) const = 0;
 
-  /// \brief Resizes the array to uiCount.
+  /// Resizes the array to uiCount.
   virtual void SetCount(void* pInstance, ezUInt32 uiCount) const = 0;
 
   virtual void* GetValuePointer(void* pInstance, ezUInt32 uiIndex) const
@@ -367,7 +367,7 @@ public:
 };
 
 
-/// \brief Base class for properties that represent sets or unique value collections.
+/// Base class for properties that represent sets or unique value collections.
 ///
 /// Set properties provide collection semantics with unique elements and no ordering guarantees.
 /// They support standard set operations: insertion, removal, membership testing, and enumeration.
@@ -389,36 +389,36 @@ public:
 class EZ_FOUNDATION_DLL ezAbstractSetProperty : public ezAbstractProperty
 {
 public:
-  /// \brief Passes the property name through to ezAbstractProperty.
+  /// Passes the property name through to ezAbstractProperty.
   ezAbstractSetProperty(const char* szPropertyName)
     : ezAbstractProperty(szPropertyName)
   {
   }
 
-  /// \brief Returns ezPropertyCategory::Set.
+  /// Returns ezPropertyCategory::Set.
   virtual ezPropertyCategory::Enum GetCategory() const override { return ezPropertyCategory::Set; }
 
-  /// \brief Returns whether the set is empty.
+  /// Returns whether the set is empty.
   virtual bool IsEmpty(const void* pInstance) const = 0;
 
-  /// \brief Clears the set.
+  /// Clears the set.
   virtual void Clear(void* pInstance) const = 0;
 
-  /// \brief Inserts the target of pObject into the set.
+  /// Inserts the target of pObject into the set.
   virtual void Insert(void* pInstance, const void* pObject) const = 0;
 
-  /// \brief Removes the target of pObject from the set.
+  /// Removes the target of pObject from the set.
   virtual void Remove(void* pInstance, const void* pObject) const = 0;
 
-  /// \brief Returns whether the target of pObject is in the set.
+  /// Returns whether the target of pObject is in the set.
   virtual bool Contains(const void* pInstance, const void* pObject) const = 0;
 
-  /// \brief Writes the content of the set to out_keys.
+  /// Writes the content of the set to out_keys.
   virtual void GetValues(const void* pInstance, ezDynamicArray<ezVariant>& out_keys) const = 0;
 };
 
 
-/// \brief Base class for properties that represent maps or key-value collections.
+/// Base class for properties that represent maps or key-value collections.
 ///
 /// Map properties provide associative container semantics with string keys and typed values.
 /// They support standard map operations: key-based access, insertion, removal, and enumeration.
@@ -445,38 +445,38 @@ public:
 class EZ_FOUNDATION_DLL ezAbstractMapProperty : public ezAbstractProperty
 {
 public:
-  /// \brief Passes the property name through to ezAbstractProperty.
+  /// Passes the property name through to ezAbstractProperty.
   ezAbstractMapProperty(const char* szPropertyName)
     : ezAbstractProperty(szPropertyName)
   {
   }
 
-  /// \brief Returns ezPropertyCategory::Map.
+  /// Returns ezPropertyCategory::Map.
   virtual ezPropertyCategory::Enum GetCategory() const override { return ezPropertyCategory::Map; }
 
-  /// \brief Returns whether the set is empty.
+  /// Returns whether the set is empty.
   virtual bool IsEmpty(const void* pInstance) const = 0;
 
-  /// \brief Clears the set.
+  /// Clears the set.
   virtual void Clear(void* pInstance) const = 0;
 
-  /// \brief Inserts the target of pObject into the set.
+  /// Inserts the target of pObject into the set.
   virtual void Insert(void* pInstance, const char* szKey, const void* pObject) const = 0;
 
-  /// \brief Removes the target of pObject from the set.
+  /// Removes the target of pObject from the set.
   virtual void Remove(void* pInstance, const char* szKey) const = 0;
 
-  /// \brief Returns whether the target of pObject is in the set.
+  /// Returns whether the target of pObject is in the set.
   virtual bool Contains(const void* pInstance, const char* szKey) const = 0;
 
-  /// \brief Writes element at index uiIndex to the target of pObject.
+  /// Writes element at index uiIndex to the target of pObject.
   virtual bool GetValue(const void* pInstance, const char* szKey, void* pObject) const = 0;
 
-  /// \brief Writes the content of the set to out_keys.
+  /// Writes the content of the set to out_keys.
   virtual void GetKeys(const void* pInstance, ezHybridArray<ezString, 16>& out_keys) const = 0;
 };
 
-/// \brief Use getArgument<N, Args...>::Type to get the type of the Nth argument in Args.
+/// Use getArgument<N, Args...>::Type to get the type of the Nth argument in Args.
 template <int _Index, class... Args>
 struct getArgument;
 
@@ -492,7 +492,7 @@ struct getArgument<_Index, Head, Tail...>
   using Type = typename getArgument<_Index - 1, Tail...>::Type;
 };
 
-/// \brief Template that allows to probe a function for a parameter and return type.
+/// Template that allows to probe a function for a parameter and return type.
 template <int I, typename FUNC>
 struct ezFunctionParameterTypeResolver
 {
@@ -534,7 +534,7 @@ struct ezFunctionParameterTypeResolver<I, R (Class::*)(P...) const>
   using ReturnType = R;
 };
 
-/// \brief Template that allows to probe a single parameter function for parameter and return type.
+/// Template that allows to probe a single parameter function for parameter and return type.
 template <typename FUNC>
 struct ezMemberFunctionParameterTypeResolver
 {
@@ -547,7 +547,7 @@ struct ezMemberFunctionParameterTypeResolver<R (Class::*)(P)>
   using ReturnType = R;
 };
 
-/// \brief Template that allows to probe a container for its element type.
+/// Template that allows to probe a container for its element type.
 template <typename CONTAINER>
 struct ezContainerSubTypeResolver
 {
@@ -614,7 +614,7 @@ struct ezContainerSubTypeResolver<ezMap<K, T>>
 };
 
 
-/// \brief Describes what kind of function a property is.
+/// Describes what kind of function a property is.
 struct ezFunctionType
 {
   using StorageType = ezUInt8;
@@ -628,7 +628,7 @@ struct ezFunctionType
   };
 };
 
-/// \brief Base class for properties that represent callable functions or methods.
+/// Base class for properties that represent callable functions or methods.
 ///
 /// Function properties enable runtime invocation of methods with type-safe parameter passing
 /// and return value handling. They support member functions, static functions, and constructors.
@@ -653,27 +653,27 @@ struct ezFunctionType
 class EZ_FOUNDATION_DLL ezAbstractFunctionProperty : public ezAbstractProperty
 {
 public:
-  /// \brief Passes the property name through to ezAbstractProperty.
+  /// Passes the property name through to ezAbstractProperty.
   ezAbstractFunctionProperty(const char* szPropertyName)
     : ezAbstractProperty(szPropertyName)
   {
   }
 
   virtual ezPropertyCategory::Enum GetCategory() const override { return ezPropertyCategory::Function; }
-  /// \brief Returns the type of function, see ezFunctionPropertyType::Enum.
+  /// Returns the type of function, see ezFunctionPropertyType::Enum.
   virtual ezFunctionType::Enum GetFunctionType() const = 0;
-  /// \brief Returns the type of the return value.
+  /// Returns the type of the return value.
   virtual const ezRTTI* GetReturnType() const = 0;
-  /// \brief Returns property flags of the return value.
+  /// Returns property flags of the return value.
   virtual ezBitflags<ezPropertyFlags> GetReturnFlags() const = 0;
-  /// \brief Returns the number of arguments.
+  /// Returns the number of arguments.
   virtual ezUInt32 GetArgumentCount() const = 0;
-  /// \brief Returns the type of the given argument.
+  /// Returns the type of the given argument.
   virtual const ezRTTI* GetArgumentType(ezUInt32 uiParamIndex) const = 0;
-  /// \brief Returns the property flags of the given argument.
+  /// Returns the property flags of the given argument.
   virtual ezBitflags<ezPropertyFlags> GetArgumentFlags(ezUInt32 uiParamIndex) const = 0;
 
-  /// \brief Calls the function. Provide the instance on which the function is supposed to be called.
+  /// Calls the function. Provide the instance on which the function is supposed to be called.
   ///
   /// arguments must be the size of GetArgumentCount, the following rules apply for both arguments and return value:
   /// Any standard type must be provided by value, even if it is a pointer to one. Types must match exactly, no ConvertTo is called.
@@ -688,13 +688,13 @@ public:
 
   virtual const ezRTTI* GetSpecificType() const override { return GetReturnType(); }
 
-  /// \brief Adds flags to the property. Returns itself to allow to be called during initialization.
+  /// Adds flags to the property. Returns itself to allow to be called during initialization.
   ezAbstractFunctionProperty* AddFlags(ezBitflags<ezPropertyFlags> flags)
   {
     return static_cast<ezAbstractFunctionProperty*>(ezAbstractProperty::AddFlags(flags));
   }
 
-  /// \brief Adds attributes to the property. Returns itself to allow to be called during initialization. Allocate an attribute using
+  /// Adds attributes to the property. Returns itself to allow to be called during initialization. Allocate an attribute using
   /// standard 'new'.
   ezAbstractFunctionProperty* AddAttributes(ezPropertyAttribute* pAttrib1, ezPropertyAttribute* pAttrib2 = nullptr, ezPropertyAttribute* pAttrib3 = nullptr,
     ezPropertyAttribute* pAttrib4 = nullptr, ezPropertyAttribute* pAttrib5 = nullptr, ezPropertyAttribute* pAttrib6 = nullptr)

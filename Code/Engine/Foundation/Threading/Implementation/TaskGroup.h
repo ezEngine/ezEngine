@@ -28,7 +28,7 @@ private:
   }
 #endif
 
-  /// \brief Puts the calling thread to sleep until this group is fully finished.
+  /// Puts the calling thread to sleep until this group is fully finished.
   void WaitForFinish(ezTaskGroupID group) const;
   void Reuse(ezTaskPriority::Enum priority, ezOnTaskGroupFinishedCallback callback);
 

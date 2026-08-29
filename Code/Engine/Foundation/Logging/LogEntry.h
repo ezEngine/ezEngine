@@ -7,7 +7,7 @@
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezLogMsgType);
 
-/// \brief A persistent log entry created from a ezLoggingEventData.
+/// A persistent log entry created from a ezLoggingEventData.
 /// Allows for a log event to survive for longer than just the event
 /// and is reflected, allowing for it to be sent to remote targets.
 struct EZ_FOUNDATION_DLL ezLogEntry
@@ -24,7 +24,7 @@ struct EZ_FOUNDATION_DLL ezLogEntry
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezLogEntry);
 
-/// \brief A log interface implementation that converts a log event into
+/// A log interface implementation that converts a log event into
 /// a ezLogEntry and calls a delegate with it.
 ///
 /// A typical use case is to re-route and store log messages in a scope:
@@ -42,7 +42,7 @@ class EZ_FOUNDATION_DLL ezLogEntryDelegate : public ezLogInterface
 {
 public:
   using Callback = ezDelegate<void(ezLogEntry&)>;
-  /// \brief Log events will be delegated to the given callback.
+  /// Log events will be delegated to the given callback.
   ezLogEntryDelegate(Callback callback, ezLogMsgType::Enum logLevel = ezLogMsgType::All);
   virtual void HandleLogMessage(const ezLoggingEventData& le) override;
 

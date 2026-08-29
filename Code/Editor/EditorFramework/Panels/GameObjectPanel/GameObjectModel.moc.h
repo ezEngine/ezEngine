@@ -10,7 +10,7 @@
 class ezSceneDocument;
 
 
-/// \brief Custom delegate for game objects, used in ezQtGameObjectWidget.
+/// Custom delegate for game objects, used in ezQtGameObjectWidget.
 ///
 /// Renders additional icons to display stats.
 class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectDelegate : public ezQtItemDelegate

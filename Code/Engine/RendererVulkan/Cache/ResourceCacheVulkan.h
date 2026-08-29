@@ -16,7 +16,7 @@ class ezRefCounted;
 
 EZ_DEFINE_AS_POD_TYPE(vk::DynamicState);
 
-/// \brief Creates and caches persistent Vulkan resources. Resources are never freed until the device is shut down.
+/// Creates and caches persistent Vulkan resources. Resources are never freed until the device is shut down.
 class EZ_RENDERERVULKAN_DLL ezResourceCacheVulkan
 {
 public:

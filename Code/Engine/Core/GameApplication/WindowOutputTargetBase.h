@@ -4,7 +4,7 @@
 
 class ezImage;
 
-/// \brief Result of polling an asynchronous capture operation.
+/// Result of polling an asynchronous capture operation.
 struct ezCaptureImageResult
 {
   using StorageType = ezUInt8;
@@ -18,7 +18,7 @@ struct ezCaptureImageResult
   };
 };
 
-/// \brief Base class for window output targets
+/// Base class for window output targets
 ///
 /// A window output target is usually tied tightly to a window (\sa ezWindowBase) and represents the
 /// graphics APIs side of the render output.

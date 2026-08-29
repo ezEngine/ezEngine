@@ -7,7 +7,7 @@
 
 struct RENDERDOC_API_1_4_1;
 
-/// \brief RenderDoc implementation of the ezFrameCaptureInterface interface
+/// RenderDoc implementation of the ezFrameCaptureInterface interface
 ///
 /// Adds support for capturing frames through RenderDoc.
 /// When the plugin gets loaded, an ezRenderDoc instance is created and initialized.

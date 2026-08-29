@@ -7,7 +7,7 @@
 
 class ezLogInterface;
 
-/// \brief The primitive data types that OpenDDL supports
+/// The primitive data types that OpenDDL supports
 enum class ezOpenDdlPrimitiveType
 {
   Bool,
@@ -28,7 +28,7 @@ enum class ezOpenDdlPrimitiveType
   Custom
 };
 
-/// \brief Low-level streaming parser for OpenDDL documents
+/// Low-level streaming parser for OpenDDL documents
 ///
 /// This abstract base class provides incremental parsing of OpenDDL (Open Data Description Language) format.
 /// Unlike ezOpenDdlReader which builds a complete in-memory tree, this parser operates in streaming mode,
@@ -41,14 +41,14 @@ public:
   ezOpenDdlParser();
   virtual ~ezOpenDdlParser() = default;
 
-  /// \brief Whether an error occurred during parsing that resulted in cancellation of further parsing.
+  /// Whether an error occurred during parsing that resulted in cancellation of further parsing.
   bool HadFatalParsingError() const { return m_bHadFatalParsingError; } // [tested]
 
 protected:
-  /// \brief Sets an ezLogInterface through which errors and warnings are reported.
+  /// Sets an ezLogInterface through which errors and warnings are reported.
   void SetLogInterface(ezLogInterface* pLog) { m_pLogInterface = pLog; }
 
-  /// \brief Sets the internal cache size for batching primitive data callbacks
+  /// Sets the internal cache size for batching primitive data callbacks
   ///
   /// Data is returned in larger chunks to reduce the number of function calls. The cache size determines
   /// the maximum chunk size per primitive type. Default cache size is 4 KB, allowing up to 1000 integers
@@ -56,31 +56,31 @@ protected:
   /// primitive arrays, otherwise it provides no benefit.
   void SetCacheSize(ezUInt32 uiSizeInKB);
 
-  /// \brief Configures the parser to read from the given stream. This can only be called once on a parser instance.
+  /// Configures the parser to read from the given stream. This can only be called once on a parser instance.
   void SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLineOffset = 0); // [tested]
 
-  /// \brief Parses the next portion of the document and triggers appropriate callbacks
+  /// Parses the next portion of the document and triggers appropriate callbacks
   ///
   /// Returns false when the end of the document has been reached or a fatal parsing error occurred.
   /// Use this for incremental parsing where you want to control when parsing happens.
   bool ContinueParsing(); // [tested]
 
-  /// \brief Calls ContinueParsing() in a loop until that returns false.
+  /// Calls ContinueParsing() in a loop until that returns false.
   ezResult ParseAll(); // [tested]
 
-  /// \brief Skips the rest of the currently open object. No OnEndObject() call will be done for this object either.
+  /// Skips the rest of the currently open object. No OnEndObject() call will be done for this object either.
   void SkipRestOfObject();
 
-  /// \brief Can be used to prevent parsing the rest of the document.
+  /// Can be used to prevent parsing the rest of the document.
   void StopParsing();
 
-  /// \brief Outputs that a parsing error was detected (via OnParsingError) and stops further parsing, if bFatal is set to true.
+  /// Outputs that a parsing error was detected (via OnParsingError) and stops further parsing, if bFatal is set to true.
   void ParsingError(ezStringView sMessage, bool bFatal);
 
   ezLogInterface* m_pLogInterface;
 
 protected:
-  /// \brief Called when something unexpected is encountered in the document.
+  /// Called when something unexpected is encountered in the document.
   ///
   /// The error message describes what was expected and what was encountered.
   /// If bFatal is true, the error has left the parser in an unrecoverable state and thus it will not continue parsing.
@@ -94,52 +94,52 @@ protected:
     EZ_IGNORE_UNUSED(uiColumn);
   }
 
-  /// \brief Called when a new object is encountered.
+  /// Called when a new object is encountered.
   virtual void OnBeginObject(ezStringView sType, ezStringView sName, bool bGlobalName) = 0;
 
-  /// \brief Called when the end of an object is encountered.
+  /// Called when the end of an object is encountered.
   virtual void OnEndObject() = 0;
 
-  /// \brief Called when a new primitive object is encountered.
+  /// Called when a new primitive object is encountered.
   virtual void OnBeginPrimitiveList(ezOpenDdlPrimitiveType type, ezStringView sName, bool bGlobalName) = 0;
 
-  /// \brief Called when the end of a primitive object is encountered.
+  /// Called when the end of a primitive object is encountered.
   virtual void OnEndPrimitiveList() = 0;
 
   /// \todo Currently not supported
   // virtual void OnBeginPrimitiveArrayList(ezOpenDdlPrimitiveType type, ezUInt32 uiGroupSize) = 0;
   // virtual void OnEndPrimitiveArrayList() = 0;
 
-  /// \brief Called when boolean primitive data is available
+  /// Called when boolean primitive data is available
   ///
   /// Multiple values may be reported at once for efficiency. bThisIsAll indicates if this is the final batch
   /// for the current primitive list. Implementations should accumulate data if bThisIsAll is false.
   virtual void OnPrimitiveBool(ezUInt32 count, const bool* pData, bool bThisIsAll) = 0;
 
-  /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
+  /// Called when data for a primitive type is available. More than one value may be reported at a time.
   virtual void OnPrimitiveInt8(ezUInt32 count, const ezInt8* pData, bool bThisIsAll) = 0;
-  /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
+  /// Called when data for a primitive type is available. More than one value may be reported at a time.
   virtual void OnPrimitiveInt16(ezUInt32 count, const ezInt16* pData, bool bThisIsAll) = 0;
-  /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
+  /// Called when data for a primitive type is available. More than one value may be reported at a time.
   virtual void OnPrimitiveInt32(ezUInt32 count, const ezInt32* pData, bool bThisIsAll) = 0;
-  /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
+  /// Called when data for a primitive type is available. More than one value may be reported at a time.
   virtual void OnPrimitiveInt64(ezUInt32 count, const ezInt64* pData, bool bThisIsAll) = 0;
 
-  /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
+  /// Called when data for a primitive type is available. More than one value may be reported at a time.
   virtual void OnPrimitiveUInt8(ezUInt32 count, const ezUInt8* pData, bool bThisIsAll) = 0;
-  /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
+  /// Called when data for a primitive type is available. More than one value may be reported at a time.
   virtual void OnPrimitiveUInt16(ezUInt32 count, const ezUInt16* pData, bool bThisIsAll) = 0;
-  /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
+  /// Called when data for a primitive type is available. More than one value may be reported at a time.
   virtual void OnPrimitiveUInt32(ezUInt32 count, const ezUInt32* pData, bool bThisIsAll) = 0;
-  /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
+  /// Called when data for a primitive type is available. More than one value may be reported at a time.
   virtual void OnPrimitiveUInt64(ezUInt32 count, const ezUInt64* pData, bool bThisIsAll) = 0;
 
-  /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
+  /// Called when data for a primitive type is available. More than one value may be reported at a time.
   virtual void OnPrimitiveFloat(ezUInt32 count, const float* pData, bool bThisIsAll) = 0;
-  /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
+  /// Called when data for a primitive type is available. More than one value may be reported at a time.
   virtual void OnPrimitiveDouble(ezUInt32 count, const double* pData, bool bThisIsAll) = 0;
 
-  /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
+  /// Called when data for a primitive type is available. More than one value may be reported at a time.
   virtual void OnPrimitiveString(ezUInt32 count, const ezStringView* pData, bool bThisIsAll) = 0;
 
 private:

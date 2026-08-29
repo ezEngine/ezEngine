@@ -5,7 +5,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <CoreFoundation/CoreFoundation.h>
 
-/// \brief Helper class to release references of core foundation objects correctly.
+/// Helper class to release references of core foundation objects correctly.
 template <typename T>
 class ezScopedCFRef
 {

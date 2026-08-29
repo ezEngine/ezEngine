@@ -7,7 +7,7 @@
 
 using ezForwardEventsToGameStateComponentManager = ezComponentManager<class ezForwardEventsToGameStateComponent, ezBlockStorageType::Compact>;
 
-/// \brief This event handler component forwards any message that it receives to the active ezGameStateBase.
+/// This event handler component forwards any message that it receives to the active ezGameStateBase.
 ///
 /// Game states can have message handlers just like any other reflected type.
 /// However, since they are not part of the ezWorld, messages are not delivered to them.

@@ -18,7 +18,7 @@ struct ezAssetCuratorEvent;
 class ezTask;
 struct ezAssetInfo;
 
-/// \brief Log for all background processing results
+/// Log for all background processing results
 class ezAssetProcessorLog : public ezLogInterface
 {
 public:
@@ -29,7 +29,7 @@ public:
   ezLoggingEvent m_LoggingEvent;
 };
 
-/// \brief Event type used by ezAssetProcessor::m_Events
+/// Event type used by ezAssetProcessor::m_Events
 struct ezAssetProcessorEvent
 {
   enum class Type
@@ -43,7 +43,7 @@ struct ezAssetProcessorEvent
   ezUInt8 m_uiProcessorID = 0;  ///< The changed process index. Only valid if ProcessStateChanged.
 };
 
-/// \brief Event type used by ezAssetProcessor::m_ProgressEvents
+/// Event type used by ezAssetProcessor::m_ProgressEvents
 struct ezAssetProcessorProgressEvent
 {
   enum class Type : ezUInt8
@@ -63,7 +63,7 @@ struct ezAssetProcessorProgressEvent
   ezTransformStatus m_Result; ///< Only valid when m_Type == ProcessingFinished
 };
 
-/// \brief Thread used by ezAssetProcessor to schedule work items on the ezEditorProcessorProcess instances.
+/// Thread used by ezAssetProcessor to schedule work items on the ezEditorProcessorProcess instances.
 class ezAssetProcessorThread : public ezThread
 {
 public:
@@ -76,7 +76,7 @@ public:
   virtual ezUInt32 Run() override;
 };
 
-/// \brief Encapsulates one ezEditorProcessor process managed by ezAssetProcessor.
+/// Encapsulates one ezEditorProcessor process managed by ezAssetProcessor.
 class ezEditorProcessorProcess
 {
 public:
@@ -101,7 +101,7 @@ public:
 
   bool Tick(bool bStartNewWork); // returns false, if all processing is done, otherwise call Tick again.
 
-  /// \brief Called by the worker thread to restart a crashed process.
+  /// Called by the worker thread to restart a crashed process.
   void RequestRestart();
 
   bool IsConnected() const;
@@ -151,7 +151,7 @@ private:
   ezTime m_FinishedProcessing;
 };
 
-/// \brief Background asset processing is handled by this class.
+/// Background asset processing is handled by this class.
 /// Creates ezEditorProcessor processes which are managed by the ezEditorProcessorProcess class.
 class EZ_EDITORFRAMEWORK_DLL ezAssetProcessor
 {
@@ -174,19 +174,19 @@ public:
   void StartProcessor();
   void StopProcessor(bool bForce);
 
-  /// \brief Returns whether the asset processor is running, stopped or stopping.
+  /// Returns whether the asset processor is running, stopped or stopping.
   ProcessorState GetProcessorState() const
   {
     return m_ProcessorState;
   }
 
-  /// \brief Returns how many ezEditorProcessor processes are managed by the ezAssetProcessor.
+  /// Returns how many ezEditorProcessor processes are managed by the ezAssetProcessor.
   ezUInt32 GetProcessCount() const;
-  /// \brief Returns the state of one of the ezEditorProcessor processes.
+  /// Returns the state of one of the ezEditorProcessor processes.
   /// \param uiProcessIndex The index of the process. Must be smaller than GetProcessCount.
   ezEditorProcessorState GetProcessState(ezUInt32 uiProcessIndex) const;
 
-  /// \brief Requests a restart of a crashed processor.
+  /// Requests a restart of a crashed processor.
   /// This is safe to call from any thread. The restart will be handled by the worker thread.
   /// \param uiProcessIndex The index of the crashed process to restart. Must be smaller than GetProcessCount.
   void RequestRestartProcess(ezUInt32 uiProcessIndex);

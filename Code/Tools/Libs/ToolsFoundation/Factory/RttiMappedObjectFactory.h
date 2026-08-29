@@ -3,7 +3,7 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-/// \brief A factory that creates the closest matching objects according to the passed type.
+/// A factory that creates the closest matching objects according to the passed type.
 ///
 /// Creators can be registered at the factory for a specific type.
 /// When the create function is called for a type, the parent type hierarchy is traversed until

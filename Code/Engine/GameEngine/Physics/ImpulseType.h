@@ -39,13 +39,13 @@ public:
   ezResult Save(ezStringView sFile = s_sConfigFile) const;
   ezResult Load(ezStringView sFile = s_sConfigFile);
 
-  /// \brief Returns the key of the element with the searched name, or InvalidKey, if it doesn't exist.
+  /// Returns the key of the element with the searched name, or InvalidKey, if it doesn't exist.
   ezUInt8 FindByName(ezTempHashedString sName) const;
 
-  /// \brief Returns the next free key, or InvalidKey, if the list is full.
+  /// Returns the next free key, or InvalidKey, if the list is full.
   ezUInt8 GetFreeKey() const;
 
-  /// \brief Looks up the impulse type and returns either the default impulse value or the override impulse for the given weight category.
+  /// Looks up the impulse type and returns either the default impulse value or the override impulse for the given weight category.
   ///
   /// Returns 1 for uiImpulseType == CustomValueKey and for non-existing impulse types.
   /// Returns 0 for uiImpulseType == NoValueKey

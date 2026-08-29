@@ -2,7 +2,7 @@
 
 #include <RendererCore/Pipeline/Renderer.h>
 
-/// \brief Registry to get a renderer for a specific render data type. Instances of all renderers are automatically created and registered.
+/// Registry to get a renderer for a specific render data type. Instances of all renderers are automatically created and registered.
 class EZ_RENDERERCORE_DLL ezRendererRegistry
 {
 public:

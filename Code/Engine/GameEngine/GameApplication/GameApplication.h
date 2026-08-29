@@ -54,7 +54,7 @@ struct ezGameApplicationInputFlags
   };
 };
 
-/// \brief The base class for all typical game applications made with ezEngine
+/// The base class for all typical game applications made with ezEngine
 ///
 /// While ezApplication is an abstraction for the operating system entry point,
 /// ezGameApplication extends this to implement startup and tear down functionality
@@ -89,17 +89,17 @@ public:
   ezGameApplication(const char* szAppName, const char* szProjectPath);
   ~ezGameApplication();
 
-  /// \brief Returns the ezGameApplication singleton
+  /// Returns the ezGameApplication singleton
   static ezGameApplication* GetGameApplicationInstance() { return s_pGameApplicationInstance; }
 
-  /// \brief Returns the active renderer of the current app. Either the default or overridden via -render command line flag.
+  /// Returns the active renderer of the current app. Either the default or overridden via -render command line flag.
   static ezStringView GetActiveRenderer();
 
-  /// \brief When the graphics device is created, by default the game application will pick a platform specific implementation. This
+  /// When the graphics device is created, by default the game application will pick a platform specific implementation. This
   /// function allows to override that by setting a custom function that creates a graphics device.
   static void SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> creator);
 
-  /// \brief Implementation of ezGameApplicationBase::FindProjectDirectory to define the 'project' special data directory.
+  /// Implementation of ezGameApplicationBase::FindProjectDirectory to define the 'project' special data directory.
   ///
   /// The default implementation will try to resolve m_sAppProjectPath to an absolute path. m_sAppProjectPath can be absolute itself,
   /// relative to ">sdk/" or relative to ezOSFile::GetApplicationDirectory().
@@ -108,7 +108,7 @@ public:
   /// Alternatively, ezGameApplication::FindProjectDirectory() must be overwritten.
   virtual ezString FindProjectDirectory() const override;
 
-  /// \brief Returns the project path that was given to the constructor (or modified by an overridden implementation).
+  /// Returns the project path that was given to the constructor (or modified by an overridden implementation).
   ezStringView GetAppProjectPath() const { return m_sAppProjectPath; }
 
   /// Call this to configure which actions the ezGameApplication may handle
@@ -120,7 +120,7 @@ public:
   void RegisterGameApplicationInputActions(ezBitflags<ezGameApplicationInputFlags> flags);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  /// \brief Whether the application was started with any of the unattended command line options.
+  /// Whether the application was started with any of the unattended command line options.
   ///
   /// Unattended mode is what makes an application usable as a smoke test from a script: it quits on its own
   /// ('-runframes', '-timeout'), writes a screenshot ('-screenshot') and a log ('-logfile'), and reports
@@ -154,7 +154,7 @@ protected:
   virtual void Run_PresentImage() override;
   virtual void Run_FinishFrame() override;
 
-  /// \brief Stores what is given to the constructor
+  /// Stores what is given to the constructor
   ezString m_sAppProjectPath;
 
 protected:
@@ -175,25 +175,25 @@ protected:
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 protected:
-  /// \brief Reads the unattended options and starts writing the log file. Called before anything else may log.
+  /// Reads the unattended options and starts writing the log file. Called before anything else may log.
   void Unattended_Setup();
 
-  /// \brief Starts the frame counting, the timeout and the deterministic mode. Called once the game state is active.
+  /// Starts the frame counting, the timeout and the deterministic mode. Called once the game state is active.
   void Unattended_Start();
 
-  /// \brief Applies '-failonerror' to the return code. Called during shutdown, while the log still exists.
+  /// Applies '-failonerror' to the return code. Called during shutdown, while the log still exists.
   void Unattended_Finish();
 
-  /// \brief Detaches the log writers of '-logfile' and '-failonerror'. Called after all logging is done.
+  /// Detaches the log writers of '-logfile' and '-failonerror'. Called after all logging is done.
   void Unattended_DetachLog();
 
-  /// \brief Quits with return code 2 if '-timeout' has elapsed.
+  /// Quits with return code 2 if '-timeout' has elapsed.
   ///
   /// Checked outside the frame events, because those don't fire while the window is minimized or while
   /// the application hangs during startup.
   void Unattended_CheckTimeout();
 
-  /// \brief Writes the image to the path given with '-screenshot'. Returns false if no path was given.
+  /// Writes the image to the path given with '-screenshot'. Returns false if no path was given.
   ///
   /// The file is written synchronously and through ezOSFile, so that it is guaranteed to exist when the
   /// process exits, and so that the path does not have to be inside a writable data directory.

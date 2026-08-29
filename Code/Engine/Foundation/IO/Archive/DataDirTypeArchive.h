@@ -109,7 +109,7 @@ namespace ezDataDirectory
 #endif
 
 #ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
-  /// \brief Allows reading of zip / apk containers.
+  /// Allows reading of zip / apk containers.
   /// Needed to allow Android to read data from the apk.
   class EZ_FOUNDATION_DLL ArchiveReaderZip : public ArchiveReaderUncompressed
   {

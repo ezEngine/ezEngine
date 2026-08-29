@@ -7,11 +7,11 @@
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Time/Time.h>
 
-/// \brief Use this helper macro to easily create a scoped logging group. Will generate unique variable names to make the static code
+/// Use this helper macro to easily create a scoped logging group. Will generate unique variable names to make the static code
 /// analysis happy.
 #define EZ_LOG_BLOCK ezLogBlock EZ_PP_CONCAT(_logblock_, EZ_SOURCE_LINE)
 
-/// \brief Use this helper macro to easily mute all logging in a scope.
+/// Use this helper macro to easily mute all logging in a scope.
 #define EZ_LOG_BLOCK_MUTE()                               \
   ezMuteLog EZ_PP_CONCAT(_logmuteblock_, EZ_SOURCE_LINE); \
   ezLogSystemScope EZ_PP_CONCAT(_logscope_, EZ_SOURCE_LINE)(&EZ_PP_CONCAT(_logmuteblock_, EZ_SOURCE_LINE))
@@ -20,7 +20,7 @@
 class ezLogBlock;
 
 
-/// \brief Describes the types of events that ezLog sends.
+/// Describes the types of events that ezLog sends.
 struct EZ_FOUNDATION_DLL ezLogMsgType
 {
   using StorageType = ezInt8;
@@ -45,45 +45,45 @@ struct EZ_FOUNDATION_DLL ezLogMsgType
   };
 };
 
-/// \brief The data that is sent through ezLogInterface.
+/// The data that is sent through ezLogInterface.
 struct EZ_FOUNDATION_DLL ezLoggingEventData
 {
-  /// \brief The type of information that is sent.
+  /// The type of information that is sent.
   ezLogMsgType::Enum m_EventType = ezLogMsgType::None;
 
-  /// \brief How many "levels" to indent.
+  /// How many "levels" to indent.
   ezUInt8 m_uiIndentation = 0;
 
-  /// \brief The information text.
+  /// The information text.
   ezStringView m_sText;
 
-  /// \brief An optional tag extracted from the log-string (if it started with "[SomeTag]Logging String.") Can be used by log-writers for
+  /// An optional tag extracted from the log-string (if it started with "[SomeTag]Logging String.") Can be used by log-writers for
   /// additional configuration, or simply be ignored.
   ezStringView m_sTag;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  /// \brief Used by log-blocks for profiling the duration of the block
+  /// Used by log-blocks for profiling the duration of the block
   double m_fSeconds = 0;
 #endif
 };
 
 using ezLoggingEvent = ezEvent<const ezLoggingEventData&, ezMutex>;
 
-/// \brief Base class for all logging classes.
+/// Base class for all logging classes.
 ///
 /// You can derive from this class to create your own logging system,
 /// which you can pass to the functions in ezLog.
 class EZ_FOUNDATION_DLL ezLogInterface
 {
 public:
-  /// \brief Override this function to handle logging events.
+  /// Override this function to handle logging events.
   virtual void HandleLogMessage(const ezLoggingEventData& le) = 0;
 
-  /// \brief LogLevel is between ezLogEventType::None and ezLogEventType::All and defines which messages will be logged and which will be
+  /// LogLevel is between ezLogEventType::None and ezLogEventType::All and defines which messages will be logged and which will be
   /// filtered out.
   EZ_ALWAYS_INLINE void SetLogLevel(ezLogMsgType::Enum logLevel) { m_LogLevel = logLevel; }
 
-  /// \brief Returns the currently set log level.
+  /// Returns the currently set log level.
   EZ_ALWAYS_INLINE ezLogMsgType::Enum GetLogLevel() { return m_LogLevel; }
 
 private:
@@ -96,7 +96,7 @@ private:
 };
 
 
-/// \brief Used to ignore all log messages.
+/// Used to ignore all log messages.
 /// \sa EZ_LOG_BLOCK_MUTE
 class ezMuteLog : public ezLogInterface
 {
@@ -110,7 +110,7 @@ public:
 };
 
 
-/// \brief This is the standard log system that ezLog sends all messages to.
+/// This is the standard log system that ezLog sends all messages to.
 ///
 /// It allows to register log writers, such that you can be informed of all log messages and write them
 /// to different outputs.
@@ -119,16 +119,16 @@ class EZ_FOUNDATION_DLL ezGlobalLog : public ezLogInterface
 public:
   virtual void HandleLogMessage(const ezLoggingEventData& le) override;
 
-  /// \brief Allows to register a function as an event receiver.
+  /// Allows to register a function as an event receiver.
   static ezEventSubscriptionID AddLogWriter(ezLoggingEvent::Handler handler);
 
-  /// \brief Unregisters a previously registered receiver. It is an error to unregister a receiver that was not registered.
+  /// Unregisters a previously registered receiver. It is an error to unregister a receiver that was not registered.
   static void RemoveLogWriter(ezLoggingEvent::Handler handler);
 
-  /// \brief Unregisters a previously registered receiver. It is an error to unregister a receiver that was not registered.
+  /// Unregisters a previously registered receiver. It is an error to unregister a receiver that was not registered.
   static void RemoveLogWriter(ezEventSubscriptionID& ref_subscriptionID);
 
-  /// \brief Returns how many message of the given type occurred.
+  /// Returns how many message of the given type occurred.
   static ezUInt32 GetMessageCount(ezLogMsgType::Enum messageType) { return s_uiMessageCount[messageType]; }
 
   /// ezLogInterfaces are thread_local and therefore a dedicated ezGlobalLog is created per thread.
@@ -140,10 +140,10 @@ public:
   static void SetGlobalLogOverride(ezLogInterface* pInterface);
 
 private:
-  /// \brief Counts the number of messages of each type.
+  /// Counts the number of messages of each type.
   static ezAtomicInteger32 s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
 
-  /// \brief Manages all the Event Handlers for the logging events.
+  /// Manages all the Event Handlers for the logging events.
   static ezLoggingEvent s_LoggingEvent;
 
   static ezLogInterface* s_pOverrideLog;
@@ -155,7 +155,7 @@ private:
   ezGlobalLog() = default;
 };
 
-/// \brief Static class that allows to write out logging information.
+/// Static class that allows to write out logging information.
 ///
 /// This class takes logging information, prepares it and then broadcasts it to all interested code
 /// via the event interface. It does not write anything on disk or somewhere else, itself. Instead it
@@ -166,112 +166,112 @@ private:
 class EZ_FOUNDATION_DLL ezLog
 {
 public:
-  /// \brief Allows to change which logging system is used by default on the current thread. If nothing is set, ezGlobalLog is used.
+  /// Allows to change which logging system is used by default on the current thread. If nothing is set, ezGlobalLog is used.
   ///
   /// Replacing the log system on a thread does not delete the previous system, so it can be reinstated later again.
   /// This can be used to temporarily route all logging to a custom system.
   static void SetThreadLocalLogSystem(ezLogInterface* pInterface);
 
-  /// \brief Returns the currently set default logging system, or a thread local instance of ezGlobalLog, if nothing else was set.
+  /// Returns the currently set default logging system, or a thread local instance of ezGlobalLog, if nothing else was set.
   static ezLogInterface* GetThreadLocalLogSystem();
 
-  /// \brief Sets the default log level which is used by all ezLogInterface's that have their log level set to ezLogMsgType::GlobalDefault
+  /// Sets the default log level which is used by all ezLogInterface's that have their log level set to ezLogMsgType::GlobalDefault
   static void SetDefaultLogLevel(ezLogMsgType::Enum logLevel);
 
-  /// \brief Returns the currently set default log level.
+  /// Returns the currently set default log level.
   static ezLogMsgType::Enum GetDefaultLogLevel();
 
-  /// \brief An error that needs to be fixed as soon as possible.
+  /// An error that needs to be fixed as soon as possible.
   static void Error(ezLogInterface* pInterface, const ezFormatString& string);
 
-  /// \brief An error that needs to be fixed as soon as possible.
+  /// An error that needs to be fixed as soon as possible.
   template <typename... ARGS>
   static void Error(ezStringView sFormat, ARGS&&... args)
   {
     Error(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief Overload of Error() to output messages to a specific log.
+  /// Overload of Error() to output messages to a specific log.
   template <typename... ARGS>
   static void Error(ezLogInterface* pInterface, ezStringView sFormat, ARGS&&... args)
   {
     Error(pInterface, ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief Not an error, but definitely a big problem, that should be looked into very soon.
+  /// Not an error, but definitely a big problem, that should be looked into very soon.
   static void SeriousWarning(ezLogInterface* pInterface, const ezFormatString& string);
 
-  /// \brief Not an error, but definitely a big problem, that should be looked into very soon.
+  /// Not an error, but definitely a big problem, that should be looked into very soon.
   template <typename... ARGS>
   static void SeriousWarning(ezStringView sFormat, ARGS&&... args)
   {
     SeriousWarning(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief Overload of SeriousWarning() to output messages to a specific log.
+  /// Overload of SeriousWarning() to output messages to a specific log.
   template <typename... ARGS>
   static void SeriousWarning(ezLogInterface* pInterface, ezStringView sFormat, ARGS&&... args)
   {
     SeriousWarning(pInterface, ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief A potential problem or a performance warning. Might be possible to ignore it.
+  /// A potential problem or a performance warning. Might be possible to ignore it.
   static void Warning(ezLogInterface* pInterface, const ezFormatString& string);
 
-  /// \brief A potential problem or a performance warning. Might be possible to ignore it.
+  /// A potential problem or a performance warning. Might be possible to ignore it.
   template <typename... ARGS>
   static void Warning(ezStringView sFormat, ARGS&&... args)
   {
     Warning(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief Overload of Warning() to output messages to a specific log.
+  /// Overload of Warning() to output messages to a specific log.
   template <typename... ARGS>
   static void Warning(ezLogInterface* pInterface, ezStringView sFormat, ARGS&&... args)
   {
     Warning(pInterface, ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief Status information that something was completed successfully.
+  /// Status information that something was completed successfully.
   static void Success(ezLogInterface* pInterface, const ezFormatString& string);
 
-  /// \brief Status information that something was completed successfully.
+  /// Status information that something was completed successfully.
   template <typename... ARGS>
   static void Success(ezStringView sFormat, ARGS&&... args)
   {
     Success(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief Overload of Success() to output messages to a specific log.
+  /// Overload of Success() to output messages to a specific log.
   template <typename... ARGS>
   static void Success(ezLogInterface* pInterface, ezStringView sFormat, ARGS&&... args)
   {
     Success(pInterface, ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief Status information that is important.
+  /// Status information that is important.
   static void Info(ezLogInterface* pInterface, const ezFormatString& string);
 
-  /// \brief Status information that is important.
+  /// Status information that is important.
   template <typename... ARGS>
   static void Info(ezStringView sFormat, ARGS&&... args)
   {
     Info(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief Overload of Info() to output messages to a specific log.
+  /// Overload of Info() to output messages to a specific log.
   template <typename... ARGS>
   static void Info(ezLogInterface* pInterface, ezStringView sFormat, ARGS&&... args)
   {
     Info(pInterface, ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief Status information that is nice to have during development.
+  /// Status information that is nice to have during development.
   ///
   /// This function is compiled out in non-development builds.
   static void Dev(ezLogInterface* pInterface, const ezFormatString& string);
 
-  /// \brief Status information that is nice to have during development.
+  /// Status information that is nice to have during development.
   ///
   /// This function is compiled out in non-development builds.
   template <typename... ARGS>
@@ -280,19 +280,19 @@ public:
     Dev(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief Overload of Dev() to output messages to a specific log.
+  /// Overload of Dev() to output messages to a specific log.
   template <typename... ARGS>
   static void Dev(ezLogInterface* pInterface, ezStringView sFormat, ARGS&&... args)
   {
     Dev(pInterface, ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief Status information during debugging. Very verbose. Usually only temporarily added to the code.
+  /// Status information during debugging. Very verbose. Usually only temporarily added to the code.
   ///
   /// This function is compiled out in non-debug builds.
   static void Debug(ezLogInterface* pInterface, const ezFormatString& string);
 
-  /// \brief Status information during debugging. Very verbose. Usually only temporarily added to the code.
+  /// Status information during debugging. Very verbose. Usually only temporarily added to the code.
   ///
   /// This function is compiled out in non-debug builds.
   template <typename... ARGS>
@@ -301,14 +301,14 @@ public:
     Debug(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief Overload of Debug() to output messages to a specific log.
+  /// Overload of Debug() to output messages to a specific log.
   template <typename... ARGS>
   static void Debug(ezLogInterface* pInterface, ezStringView sFormat, ARGS&&... args)
   {
     Debug(pInterface, ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief Instructs log writers to flush their caches, to ensure all log output (even non-critical information) is written.
+  /// Instructs log writers to flush their caches, to ensure all log output (even non-critical information) is written.
   ///
   /// On some log writers this has no effect.
   /// Do not call this too frequently as it incurs a performance penalty.
@@ -326,11 +326,11 @@ public:
   /// \return Returns true if the flush is executed.
   static bool Flush(ezUInt32 uiNumNewMsgThreshold = 0, ezTime timeIntervalThreshold = ezTime::MakeFromSeconds(10), ezLogInterface* pInterface = GetThreadLocalLogSystem());
 
-  /// \brief Usually called internally by the other log functions, but can be called directly, if the message type is already known.
+  /// Usually called internally by the other log functions, but can be called directly, if the message type is already known.
   /// pInterface must be != nullptr.
   static void BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, ezStringView sString);
 
-  /// \brief Calls low-level OS functionality to print a string to the typical outputs, e.g. printf and OutputDebugString.
+  /// Calls low-level OS functionality to print a string to the typical outputs, e.g. printf and OutputDebugString.
   ///
   /// Use this function to log unrecoverable errors like asserts, crash handlers etc.
   /// This function is meant for short term debugging when actual printing to the console is desired. Code using it should be temporary.
@@ -338,23 +338,23 @@ public:
   /// overhead.
   static void Print(const char* szText);
 
-  /// \brief Calls low-level OS functionality to print a string to the typical outputs. Forwards to Print.
+  /// Calls low-level OS functionality to print a string to the typical outputs. Forwards to Print.
   /// \note This function uses actual printf formatting, not ezFormatString syntax.
   /// \sa ezLog::Print
   static void Printf(const char* szFormat, ...);
 
-  /// \brief Signature of the custom print function used by ezLog::SetCustomPrintFunction.
+  /// Signature of the custom print function used by ezLog::SetCustomPrintFunction.
   using PrintFunction = void (*)(const char* szText);
 
-  /// \brief Sets a custom function that is called in addition to the default behavior of ezLog::Print.
+  /// Sets a custom function that is called in addition to the default behavior of ezLog::Print.
   static void SetCustomPrintFunction(PrintFunction func);
 
-  /// \brief Shows a simple message box using the OS functionality.
+  /// Shows a simple message box using the OS functionality.
   ///
   /// This should only be used for critical information that can't be conveyed in another way.
   static void OsMessageBox(const ezFormatString& text);
 
-  /// \brief This enum is used in context of outputting timestamp information to indicate a formatting for said timestamps.
+  /// This enum is used in context of outputting timestamp information to indicate a formatting for said timestamps.
   enum class TimestampMode
   {
     None = 0,     ///< No timestamp will be added at all.
@@ -369,10 +369,10 @@ private:
   // Needed to call 'EndLogBlock'
   friend class ezLogBlock;
 
-  /// \brief Which messages to filter out by default.
+  /// Which messages to filter out by default.
   static ezLogMsgType::Enum s_DefaultLogLevel;
 
-  /// \brief Ends grouping log messages.
+  /// Ends grouping log messages.
   static void EndLogBlock(ezLogInterface* pInterface, ezLogBlock* pBlock);
 
   static void WriteBlockHeader(ezLogInterface* pInterface, ezLogBlock* pBlock);
@@ -381,11 +381,11 @@ private:
 };
 
 
-/// \brief Instances of this class will group messages in a scoped block together.
+/// Instances of this class will group messages in a scoped block together.
 class EZ_FOUNDATION_DLL ezLogBlock
 {
 public:
-  /// \brief Creates a named grouping block for log messages.
+  /// Creates a named grouping block for log messages.
   ///
   /// Use the szContextInfo to pass in a string that can give additional context information (e.g. a file name).
   /// This string must point to valid memory until after the log block object is destroyed.
@@ -397,7 +397,7 @@ public:
   /// This constructor will output the log block data to the ezGlobalLog.
   ezLogBlock(ezStringView sName, ezStringView sContextInfo = {});
 
-  /// \brief Creates a named grouping block for log messages.
+  /// Creates a named grouping block for log messages.
   ///
   /// This variant of the constructor takes an explicit ezLogInterface to write the log messages to.
   ezLogBlock(ezLogInterface* pInterface, ezStringView sName, ezStringView sContextInfo = {});
@@ -418,19 +418,19 @@ private:
 #endif
 };
 
-/// \brief A class that sets a custom ezLogInterface as the thread local default log system,
+/// A class that sets a custom ezLogInterface as the thread local default log system,
 /// and resets the previous system when it goes out of scope.
 class EZ_FOUNDATION_DLL ezLogSystemScope
 {
 public:
-  /// \brief The given ezLogInterface is passed to ezLog::SetThreadLocalLogSystem().
+  /// The given ezLogInterface is passed to ezLog::SetThreadLocalLogSystem().
   explicit ezLogSystemScope(ezLogInterface* pInterface)
   {
     m_pPrevious = ezLog::GetThreadLocalLogSystem();
     ezLog::SetThreadLocalLogSystem(pInterface);
   }
 
-  /// \brief Resets the previous ezLogInterface through ezLog::SetThreadLocalLogSystem()
+  /// Resets the previous ezLogInterface through ezLog::SetThreadLocalLogSystem()
   ~ezLogSystemScope() { ezLog::SetThreadLocalLogSystem(m_pPrevious); }
 
 protected:
@@ -441,7 +441,7 @@ private:
 };
 
 
-/// \brief A simple log interface implementation that gathers all messages in a string buffer.
+/// A simple log interface implementation that gathers all messages in a string buffer.
 class ezLogSystemToBuffer : public ezLogInterface
 {
 public:

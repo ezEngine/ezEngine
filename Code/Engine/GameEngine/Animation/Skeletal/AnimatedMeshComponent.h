@@ -23,7 +23,7 @@ private:
   ezDeque<ezComponentHandle> m_ComponentsToUpdate;
 };
 
-/// \brief Instantiates a mesh that can be animated through skeletal animation.
+/// Instantiates a mesh that can be animated through skeletal animation.
 ///
 /// The referenced mesh has to contain skinning information.
 ///

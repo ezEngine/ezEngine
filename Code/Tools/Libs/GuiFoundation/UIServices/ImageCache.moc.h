@@ -14,7 +14,7 @@
 #include <QPixmap>
 #include <QString>
 
-/// \brief A singleton class that caches Qt images that are typically used for thumbnails.
+/// A singleton class that caches Qt images that are typically used for thumbnails.
 ///
 /// When an image is not available right away, a fallback is returned and the requested image goes into a loading queue.
 /// When an image was finished loading, a signal is emitted to inform users to update their UI.
@@ -27,10 +27,10 @@ class EZ_GUIFOUNDATION_DLL ezQtImageCache : public QObject
 public:
   ezQtImageCache();
 
-  /// \brief Specifies which images to return when a requested image is currently not available (loading) or could not be found (unavailable).
+  /// Specifies which images to return when a requested image is currently not available (loading) or could not be found (unavailable).
   void SetFallbackImages(const char* szLoading, const char* szUnavailable);
 
-  /// \brief Queries an image by an absolute path. If the image is cached, it is returned right away.
+  /// Queries an image by an absolute path. If the image is cached, it is returned right away.
   ///
   /// If the image is not cached, a temporary image is returned and it is queued for loading.
   /// Once it is finished loading, the ImageLoaded() signal is emitted and \a index, \a UserData1 and \a UserData2 are passed through.
@@ -39,28 +39,28 @@ public:
   const QPixmap* QueryPixmap(const char* szAbsolutePath, QModelIndex index = QModelIndex(), QVariant userData1 = QVariant(),
     QVariant userData2 = QVariant(), ezUInt32* out_pImageID = nullptr);
 
-  /// \brief Same as QueryPixmap(), but first \a szType is used to call QueryTypeImage() and check whether a type specific image was registerd. If
+  /// Same as QueryPixmap(), but first \a szType is used to call QueryTypeImage() and check whether a type specific image was registerd. If
   /// yes, that is used instead of szAbsolutePath.
   const QPixmap* QueryPixmapForType(const char* szType, const char* szAbsolutePath, QModelIndex index = QModelIndex(),
     QVariant userData1 = QVariant(), QVariant userData2 = QVariant(), ezUInt32* out_pImageID = nullptr);
 
-  /// \brief Invalidate the cached image with the given path. This is typically done when a thumbnail was just written to disk, to inform this system
+  /// Invalidate the cached image with the given path. This is typically done when a thumbnail was just written to disk, to inform this system
   /// to reload the latest image from disk.
   void InvalidateCache(const char* szAbsolutePath);
 
-  /// \brief When this threshold is reached, images that haven't been requested in a while are being evicted from the cache.
+  /// When this threshold is reached, images that haven't been requested in a while are being evicted from the cache.
   void SetMemoryUsageThreshold(ezUInt64 uiMemoryThreshold) { m_iMemoryUsageThreshold = (ezInt64)uiMemoryThreshold; }
 
-  /// \brief Called whenever the application should stop or pause further image loading, e.g. before shutdown or during project loading.
+  /// Called whenever the application should stop or pause further image loading, e.g. before shutdown or during project loading.
   void StopRequestProcessing(bool bPurgeExistingCache);
 
-  /// \brief Re-enables image loading if it was previously stopped.
+  /// Re-enables image loading if it was previously stopped.
   void EnableRequestProcessing();
 
-  /// \brief Registers a pixmap to be used when an image for a certain type is requested. See QueryPixmapForType.
+  /// Registers a pixmap to be used when an image for a certain type is requested. See QueryPixmapForType.
   void RegisterTypeImage(const char* szType, QPixmap pixmap);
 
-  /// \brief Returns a pixmap or nullptr that was registered with RegisterTypeImage()
+  /// Returns a pixmap or nullptr that was registered with RegisterTypeImage()
   const QPixmap* QueryTypeImage(const char* szType) const;
 
 Q_SIGNALS:

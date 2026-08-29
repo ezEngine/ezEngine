@@ -15,7 +15,7 @@ enum class ezAssetDocGeneratorPriority
   ENUM_COUNT
 };
 
-/// \brief Provides functionality for importing files as asset documents.
+/// Provides functionality for importing files as asset documents.
 ///
 /// Derived from this class to add a custom importer (see existing derived classes for examples).
 /// Each importer typically handles one target asset type.
@@ -27,7 +27,7 @@ public:
   ezAssetDocumentGenerator();
   ~ezAssetDocumentGenerator();
 
-  /// \brief Describes one option to import an asset.
+  /// Describes one option to import an asset.
   ///
   /// The name is used to identify which option the user chose.
   /// The priority should be set to pick a 'likely' option for the UI to prefer.
@@ -45,19 +45,19 @@ public:
     AlreadyExists, ///< An asset for this source file already existed. Nothing was created or changed.
   };
 
-  /// \brief Creates a list of all importable file extensions. Note that this is an expensive function so the the result should be cached.
+  /// Creates a list of all importable file extensions. Note that this is an expensive function so the the result should be cached.
   /// \param out_Extensions List of all file extensions that can be imported.
   static void GetSupportsFileTypes(ezSet<ezString>& out_extensions);
 
-  /// \brief Opens a file browse dialog to let the user choose which files to import.
+  /// Opens a file browse dialog to let the user choose which files to import.
   ///
   /// After the user chose one or multiple files, opens the "Asset Import" dialog to let them choose details.
   static void ImportAssets();
 
-  /// \brief Opens the "Asset Import" dialog to let the user choose how to import the given files.
+  /// Opens the "Asset Import" dialog to let the user choose how to import the given files.
   static void ImportAssets(const ezDynamicArray<ezString>& filesToImport);
 
-  /// \brief Imports the given file with the mode. Must be a mode that the generator supports.
+  /// Imports the given file with the mode. Must be a mode that the generator supports.
   ///
   /// Importing a file that was imported before is not an error, it does nothing and reports
   /// ImportResult::AlreadyExists. Distinguishing the two cases is only possible through out_pResult,
@@ -69,14 +69,14 @@ public:
   ezStatus Import(ezStringView sInputFileAbs, ezStringView sMode, bool bOpenDocument, ImportResult* out_pResult = nullptr,
     ezStringBuilder* out_pDocumentPath = nullptr);
 
-  /// \brief Returns the path of the document that importing the given file would produce.
+  /// Returns the path of the document that importing the given file would produce.
   ///
   /// The source path with GetDocumentExtension() substituted, which is the convention every generator
   /// follows. A generator that creates several documents from one file returns the primary one here.
   /// For modes that derive the document names from the file's content, this path may never be created.
   ezStringBuilder GetImportTargetPath(ezStringView sInputFileAbs) const;
 
-  /// \brief Whether Import() should run Generate() at all.
+  /// Whether Import() should run Generate() at all.
   ///
   /// The default returns false if GetImportTargetPath() already exists, which is the correct answer
   /// for every generator that turns one source file into one document.
@@ -86,21 +86,21 @@ public:
   /// return true and skip individual documents while generating.
   virtual bool NeedsImport(ezStringView sInputFileAbs, ezStringView sMode) const;
 
-  /// \brief Used to fill out which import modes may be available for the given asset.
+  /// Used to fill out which import modes may be available for the given asset.
   ///
   /// Note: sAbsInputFile may be empty, in this case it should fill out the array for "general purpose" import (any file of the supported types).
   virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ImportMode>& out_modes) const = 0;
 
-  /// \brief Returns the target asset document file extension.
+  /// Returns the target asset document file extension.
   virtual ezStringView GetDocumentExtension() const = 0;
 
-  /// \brief Allows to merge the import modes of multiple generators in the UI in one group.
+  /// Allows to merge the import modes of multiple generators in the UI in one group.
   ///
   /// Not really used anymore, but theoretically allows to show the same file multiple times in the import dialog,
   /// such that one can import it as multiple different asset types.
   virtual ezStringView GetGeneratorGroup() const = 0;
 
-  /// \brief Tells the generator to create a new asset document with the chosen mode.
+  /// Tells the generator to create a new asset document with the chosen mode.
   ///
   /// Import() only calls this when NeedsImport() said there is something to do, so an implementation
   /// that maps one file to one document doesn't have to check whether its target already exists.
@@ -108,13 +108,13 @@ public:
   /// as ImportResult::AlreadyExists.
   virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) = 0;
 
-  /// \brief Returns whether this generator supports the given file type for import.
+  /// Returns whether this generator supports the given file type for import.
   bool SupportsFileType(ezStringView sFile) const;
 
-  /// \brief Instantiates all currently available generators.
+  /// Instantiates all currently available generators.
   static void CreateGenerators(ezDynamicArray<ezAssetDocumentGenerator*>& out_generators);
 
-  /// \brief Destroys the previously instantiated generators.
+  /// Destroys the previously instantiated generators.
   static void DestroyGenerators(const ezDynamicArray<ezAssetDocumentGenerator*>& generators);
 
 protected:

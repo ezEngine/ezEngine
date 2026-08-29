@@ -6,7 +6,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Variant.h>
 
-/// \brief This class holds a simple map that maps strings (keys) to strings (values), which represent certain stats.
+/// This class holds a simple map that maps strings (keys) to strings (values), which represent certain stats.
 ///
 /// This can be used by a game to store (and continuously update) information about the internal game state. Other tools can then
 /// display this information in a convenient manner. For example the stats can be shown on screen. The data is also transmitted through
@@ -16,12 +16,12 @@ class EZ_FOUNDATION_DLL ezStats
 public:
   using MapType = ezMap<ezString, ezVariant>;
 
-  /// \brief Removes the stat with the given name.
+  /// Removes the stat with the given name.
   ///
   /// This will also send a 'remove' message through ezTelemetry, such that external tools can remove it from their list.
   static void RemoveStat(ezStringView sStatName);
 
-  /// \brief Sets the value of the given stat, adds it if it did not exist before.
+  /// Sets the value of the given stat, adds it if it did not exist before.
   ///
   /// szStatName may contain slashes (but not backslashes) to define groups and subgroups, which can be used by tools such as ezInspector
   /// to display the stats in a hierarchical way.
@@ -29,16 +29,16 @@ public:
   /// changed value.
   static void SetStat(ezStringView sStatName, const ezVariant& value);
 
-  /// \brief Returns the value of the given stat. Returns an invalid ezVariant, if the stat did not exist before.
+  /// Returns the value of the given stat. Returns an invalid ezVariant, if the stat did not exist before.
   static const ezVariant& GetStat(ezStringView sStatName) { return s_Stats[sStatName]; }
 
-  /// \brief Returns the entire map of stats, can be used to display them.
+  /// Returns the entire map of stats, can be used to display them.
   static const MapType& GetAllStats() { return s_Stats; }
 
-  /// \brief The event data that is broadcast whenever a stat is changed.
+  /// The event data that is broadcast whenever a stat is changed.
   struct StatsEventData
   {
-    /// \brief Which type of event this is.
+    /// Which type of event this is.
     enum EventType
     {
       Add,   ///< A variable has been set for the first time.
@@ -53,10 +53,10 @@ public:
 
   using ezEventStats = ezEvent<const StatsEventData&, ezMutex>;
 
-  /// \brief Adds an event handler that is called every time a stat is changed.
+  /// Adds an event handler that is called every time a stat is changed.
   static void AddEventHandler(ezEventStats::Handler handler) { s_StatsEvents.AddEventHandler(handler); }
 
-  /// \brief Removes a previously added event handler.
+  /// Removes a previously added event handler.
   static void RemoveEventHandler(ezEventStats::Handler handler) { s_StatsEvents.RemoveEventHandler(handler); }
 
 private:

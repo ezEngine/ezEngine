@@ -12,7 +12,7 @@
 class ezGALBufferPool;
 class ezRenderContext;
 
-/// \brief Implements rendering of particle systems
+/// Implements rendering of particle systems
 ///
 /// Base class for all particle renderers. Provides common functionality for uploading
 /// particle data to the GPU and binding shaders with particle system constants.

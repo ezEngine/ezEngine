@@ -6,7 +6,7 @@
 #include <Foundation/Strings/HashedString.h>
 #include <RendererCore/Declarations.h>
 
-/// \brief A helper class to iterate over all possible permutations.
+/// A helper class to iterate over all possible permutations.
 ///
 /// Just add all permutation variables and their possible values.
 /// Then the number of possible permutations and each permutation
@@ -14,19 +14,19 @@
 class EZ_RENDERERCORE_DLL ezPermutationGenerator
 {
 public:
-  /// \brief Resets everything.
+  /// Resets everything.
   void Clear();
 
-  /// \brief Removes all permutations for the given variable
+  /// Removes all permutations for the given variable
   void RemovePermutations(const ezHashedString& sPermVarName);
 
-  /// \brief Adds the name and one of the possible values of a permutation variable.
+  /// Adds the name and one of the possible values of a permutation variable.
   void AddPermutation(const ezHashedString& sName, const ezHashedString& sValue);
 
-  /// \brief Returns how many permutations are possible.
+  /// Returns how many permutations are possible.
   ezUInt32 GetPermutationCount() const;
 
-  /// \brief Returns the n-th permutation.
+  /// Returns the n-th permutation.
   void GetPermutation(ezUInt32 uiPerm, ezDynamicArray<ezPermutationVar>& out_permVars) const;
 
 private:

@@ -5,7 +5,7 @@
 #include <Foundation/Communication/RemoteInterface.h>
 #include <Foundation/Types/UniquePtr.h>
 
-/// \brief A stand-alone application for the ezFileServer.
+/// A stand-alone application for the ezFileServer.
 ///
 /// If EZ_USE_QT is defined, the GUI from the EditorPluginFileserve is used. Otherwise the server runs as a console application.
 ///

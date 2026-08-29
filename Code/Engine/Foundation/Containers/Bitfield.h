@@ -6,7 +6,7 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Math/Constants.h>
 
-/// \brief A template interface, that turns any array class into a bitfield.
+/// A template interface, that turns any array class into a bitfield.
 ///
 /// This class provides an interface to work with single bits, to store true/false values.
 /// The underlying container is configurable, though it must support random access and a 'SetCount' function and it must use elements of type
@@ -18,62 +18,62 @@ class ezBitfield
 public:
   ezBitfield() = default;
 
-  /// \brief Returns the number of bits that this bitfield stores.
+  /// Returns the number of bits that this bitfield stores.
   ezUInt32 GetCount() const; // [tested]
 
-  /// \brief Resizes the Bitfield to hold the given number of bits. This version does NOT initialize new bits!
+  /// Resizes the Bitfield to hold the given number of bits. This version does NOT initialize new bits!
   template <typename = void>                       // Template is used to only conditionally compile this function in when it is actually used.
   void SetCountUninitialized(ezUInt32 uiBitCount); // [tested]
 
-  /// \brief Resizes the Bitfield to hold the given number of bits. If \a bSetNew is true, new bits are set to 1, otherwise they are cleared to 0.
+  /// Resizes the Bitfield to hold the given number of bits. If \a bSetNew is true, new bits are set to 1, otherwise they are cleared to 0.
   void SetCount(ezUInt32 uiBitCount, bool bSetNew = false); // [tested]
 
-  /// \brief Returns true, if the bitfield does not store any bits.
+  /// Returns true, if the bitfield does not store any bits.
   bool IsEmpty() const; // [tested]
 
-  /// \brief Returns true, if the bitfield is not empty and any bit is 1.
+  /// Returns true, if the bitfield is not empty and any bit is 1.
   bool IsAnyBitSet(ezUInt32 uiFirstBit = 0, ezUInt32 uiNumBits = 0xFFFFFFFF) const; // [tested]
 
-  /// \brief Returns true, if the bitfield is empty or all bits are set to zero.
+  /// Returns true, if the bitfield is empty or all bits are set to zero.
   bool IsNoBitSet(ezUInt32 uiFirstBit = 0, ezUInt32 uiNumBits = 0xFFFFFFFF) const; // [tested]
 
-  /// \brief Returns true, if the bitfield is not empty and all bits are set to one.
+  /// Returns true, if the bitfield is not empty and all bits are set to one.
   bool AreAllBitsSet(ezUInt32 uiFirstBit = 0, ezUInt32 uiNumBits = 0xFFFFFFFF) const; // [tested]
 
-  /// \brief Discards all bits and sets count to zero.
+  /// Discards all bits and sets count to zero.
   void Clear(); // [tested]
 
-  /// \brief Sets the given bit to 1.
+  /// Sets the given bit to 1.
   void SetBit(ezUInt32 uiBit); // [tested]
 
-  /// \brief Clears the given bit to 0.
+  /// Clears the given bit to 0.
   void ClearBit(ezUInt32 uiBit); // [tested]
 
-  /// \brief Flips the given bit to the opposite value.
+  /// Flips the given bit to the opposite value.
   void FlipBit(ezUInt32 uiBit); // [tested]
 
-  /// \brief Sets the given bit to 1 or 0 depending on the given value.
+  /// Sets the given bit to 1 or 0 depending on the given value.
   void SetBitValue(ezUInt32 uiBit, bool bValue); // [tested]
 
-  /// \brief Returns true, if the given bit is set to 1.
+  /// Returns true, if the given bit is set to 1.
   bool IsBitSet(ezUInt32 uiBit) const; // [tested]
 
-  /// \brief Clears all bits to 0.
+  /// Clears all bits to 0.
   void ClearAllBits(); // [tested]
 
-  /// \brief Sets all bits to 1.
+  /// Sets all bits to 1.
   void SetAllBits(); // [tested]
 
-  /// \brief Sets the range starting at uiFirstBit up to (and including) uiLastBit to 1.
+  /// Sets the range starting at uiFirstBit up to (and including) uiLastBit to 1.
   void SetBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits); // [tested]
 
-  /// \brief Clears the range starting at uiFirstBit up to (and including) uiLastBit to 0.
+  /// Clears the range starting at uiFirstBit up to (and including) uiLastBit to 0.
   void ClearBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits); // [tested]
 
-  /// \brief Flips the range starting at uiFirstBit up to (and including) uiLastBit.
+  /// Flips the range starting at uiFirstBit up to (and including) uiLastBit.
   void FlipBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits); // [tested]
 
-  /// \brief Swaps two bitfields
+  /// Swaps two bitfields
   void Swap(ezBitfield<Container>& other); // [tested]
   struct ConstIterator
   {
@@ -87,22 +87,22 @@ public:
     // Start iterator.
     explicit ConstIterator(const ezBitfield<Container>& bitfield); // [tested]
 
-    /// \brief Checks whether this iterator points to a valid element.
+    /// Checks whether this iterator points to a valid element.
     bool IsValid() const; // [tested]
 
-    /// \brief Returns the 'value' of the element that this iterator points to.
+    /// Returns the 'value' of the element that this iterator points to.
     ezUInt32 Value() const; // [tested]
 
-    /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
+    /// Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
     void Next();                                       // [tested]
 
     bool operator==(const ConstIterator& other) const; // [tested]
     bool operator!=(const ConstIterator& other) const; // [tested]
 
-    /// \brief Returns 'Value()' to enable foreach.
+    /// Returns 'Value()' to enable foreach.
     ezUInt32 operator*() const; // [tested]
 
-    /// \brief Shorthand for 'Next'.
+    /// Shorthand for 'Next'.
     void operator++(); // [tested]
 
   private:
@@ -114,11 +114,11 @@ public:
     const ezBitfield<Container>* m_pBitfield = nullptr;
   };
 
-  /// \brief Returns a constant iterator to the very first set bit.
+  /// Returns a constant iterator to the very first set bit.
   /// Note that due to the way iterating through bits is accelerated, changes to the bitfield while iterating through the bits has undefined behaviour.
   ConstIterator GetIterator() const; // [tested]
 
-  /// \brief Returns an invalid iterator. Needed to support range based for loops.
+  /// Returns an invalid iterator. Needed to support range based for loops.
   ConstIterator GetEndIterator() const; // [tested]
 
 private:
@@ -131,10 +131,10 @@ private:
   Container m_Container;
 };
 
-/// \brief This should be the main type of bitfield to use, although other internal container types are possible.
+/// This should be the main type of bitfield to use, although other internal container types are possible.
 using ezDynamicBitfield = ezBitfield<ezDynamicArray<ezUInt32>>;
 
-/// \brief An ezBitfield that uses a hybrid array as internal container.
+/// An ezBitfield that uses a hybrid array as internal container.
 template <ezUInt32 BITS>
 using ezHybridBitfield = ezBitfield<ezHybridArray<ezUInt32, (BITS + 31) / 32>>;
 
@@ -177,66 +177,66 @@ public:
 
   static constexpr ezUInt32 GetStorageTypeBitCount() { return ezMath::NumBits<T>(); }
 
-  /// \brief Initializes the bitfield to all zero.
+  /// Initializes the bitfield to all zero.
   ezStaticBitfield();
 
   static ezStaticBitfield<T> MakeFromMask(StorageType bits);
 
-  /// \brief Returns true, if the bitfield is not zero.
+  /// Returns true, if the bitfield is not zero.
   bool IsAnyBitSet() const; // [tested]
 
-  /// \brief Returns true, if the bitfield is all zero.
+  /// Returns true, if the bitfield is all zero.
   bool IsNoBitSet() const; // [tested]
 
-  /// \brief Returns true, if the bitfield is not empty and all bits are set to one.
+  /// Returns true, if the bitfield is not empty and all bits are set to one.
   bool AreAllBitsSet() const; // [tested]
 
-  /// \brief Sets the given bit to 1.
+  /// Sets the given bit to 1.
   void SetBit(ezUInt32 uiBit); // [tested]
 
-  /// \brief Clears the given bit to 0.
+  /// Clears the given bit to 0.
   void ClearBit(ezUInt32 uiBit); // [tested]
 
-  /// \brief Sets the given bit to 1 or 0 depending on the given value.
+  /// Sets the given bit to 1 or 0 depending on the given value.
   void SetBitValue(ezUInt32 uiBit, bool bValue); // [tested]
 
-  /// \brief Returns true, if the given bit is set to 1.
+  /// Returns true, if the given bit is set to 1.
   bool IsBitSet(ezUInt32 uiBit) const; // [tested]
 
-  /// \brief Clears all bits to 0. Same as Clear().
+  /// Clears all bits to 0. Same as Clear().
   void ClearAllBits(); // [tested]
 
-  /// \brief Sets all bits to 1.
+  /// Sets all bits to 1.
   void SetAllBits(); // [tested]
 
-  /// \brief Sets the range starting at uiFirstBit up to (and including) uiLastBit to 1.
+  /// Sets the range starting at uiFirstBit up to (and including) uiLastBit to 1.
   void SetBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits); // [tested]
 
-  /// \brief Clears the range starting at uiFirstBit up to (and including) uiLastBit to 0.
+  /// Clears the range starting at uiFirstBit up to (and including) uiLastBit to 0.
   void ClearBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits); // [tested]
 
-  /// \brief Returns the index of the lowest bit that is set. Returns the max index+1 in case no bit is set, at all.
+  /// Returns the index of the lowest bit that is set. Returns the max index+1 in case no bit is set, at all.
   ezUInt32 GetLowestBitSet() const; // [tested]
 
-  /// \brief Returns the index of the highest bit that is set. Returns the max index+1 in case no bit is set, at all.
+  /// Returns the index of the highest bit that is set. Returns the max index+1 in case no bit is set, at all.
   ezUInt32 GetHighestBitSet() const; // [tested]
 
-  /// \brief Returns the count of how many bits are set in total.
+  /// Returns the count of how many bits are set in total.
   ezUInt32 GetNumBitsSet() const; // [tested]
 
-  /// \brief Returns the raw uint that stores all bits.
+  /// Returns the raw uint that stores all bits.
   T GetValue() const; // [tested]
 
-  /// \brief Sets the raw uint that stores all bits.
+  /// Sets the raw uint that stores all bits.
   void SetValue(T value); // [tested]
 
-  /// \brief Swaps two bitfields
+  /// Swaps two bitfields
   void Swap(ezStaticBitfield<T>& other); // [tested]
 
-  /// \brief Modifies \a this to also contain the bits from \a rhs.
+  /// Modifies \a this to also contain the bits from \a rhs.
   EZ_ALWAYS_INLINE void operator|=(const ezStaticBitfield<T>& rhs) { m_Storage |= rhs.m_Storage; }
 
-  /// \brief Modifies \a this to only contain the bits that were set in \a this and \a rhs.
+  /// Modifies \a this to only contain the bits that were set in \a this and \a rhs.
   EZ_ALWAYS_INLINE void operator&=(const ezStaticBitfield<T>& rhs) { m_Storage &= rhs.m_Storage; }
 
   ezResult Serialize(ezStreamWriter& inout_writer) const
@@ -253,14 +253,14 @@ public:
     return EZ_SUCCESS;
   }
 
-  /// \brief Returns a constant iterator to the very first set bit.
+  /// Returns a constant iterator to the very first set bit.
   /// Note that due to the way iterating through bits is accelerated, changes to the bitfield while iterating through the bits has undefined behaviour.
   ConstIterator GetIterator() const // [tested]
   {
     return ConstIterator(m_Storage);
   };
 
-  /// \brief Returns an invalid iterator. Needed to support range based for loops.
+  /// Returns an invalid iterator. Needed to support range based for loops.
   ConstIterator GetEndIterator() const // [tested]
   {
     return ConstIterator();

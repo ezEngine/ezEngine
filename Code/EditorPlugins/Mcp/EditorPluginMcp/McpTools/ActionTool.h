@@ -4,7 +4,7 @@
 
 struct ezActionDescriptor;
 
-/// \brief Tools for listing and triggering editor actions - the things behind menu entries and toolbar buttons.
+/// Tools for listing and triggering editor actions - the things behind menu entries and toolbar buttons.
 ///
 /// Actions of ezActionScope::Global need nothing but their name. Document and window actions act on one
 /// document, which the caller names by guid or path in the 'document' argument; that document has to be
@@ -23,7 +23,7 @@ private:
   void ExecuteState(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
   void ExecuteAction(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
 
-  /// \brief Resolves an action by name, optionally restricted to a category.
+  /// Resolves an action by name, optionally restricted to a category.
   ///
   /// Without a category the name has to be unique across all of them, which is not guaranteed: the same
   /// name may be registered in several categories. out_bAmbiguous reports that case separately from

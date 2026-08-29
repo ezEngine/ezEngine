@@ -60,7 +60,7 @@
 class EZ_FOUNDATION_DLL ezFoundation
 {
 public:
-  /// \brief The default allocator can be used for any kind of allocation if no alignment is required
+  /// The default allocator can be used for any kind of allocation if no alignment is required
   EZ_ALWAYS_INLINE static ezAllocator* GetDefaultAllocator()
   {
     if (s_bIsInitialized)
@@ -69,7 +69,7 @@ public:
       return GetStaticsAllocator();
   }
 
-  /// \brief The aligned allocator should be used for all allocations which need alignment
+  /// The aligned allocator should be used for all allocations which need alignment
   EZ_ALWAYS_INLINE static ezAllocator* GetAlignedAllocator()
   {
     EZ_ASSERT_ALWAYS(s_pAlignedAllocator != nullptr,
@@ -79,7 +79,7 @@ public:
     return s_pAlignedAllocator;
   }
 
-  /// \brief Returns the allocator that is used by global data and static members before the default allocator is created.
+  /// Returns the allocator that is used by global data and static members before the default allocator is created.
   static ezAllocator* GetStaticsAllocator();
 
 private:

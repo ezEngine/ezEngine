@@ -47,7 +47,7 @@ private:
   void Update(const ezWorldModule::UpdateContext& context);
 };
 
-/// \brief With which pose a ragdoll should start.
+/// With which pose a ragdoll should start.
 struct ezJoltRagdollStartMode
 {
   using StorageType = ezUInt8;
@@ -82,7 +82,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltRagdollAnimMode);
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Creates a physics ragdoll for an animated mesh and creates animation poses from the physics simulation.
+/// Creates a physics ragdoll for an animated mesh and creates animation poses from the physics simulation.
 ///
 /// By activating this component on an animated mesh, the component creates the necessary physics shapes to simulate a falling body.
 /// The component queries the bone transforms from the physics engine and sends ezMsgAnimationPoseUpdated with new poses.
@@ -117,39 +117,39 @@ public:
   ezJoltRagdollComponent();
   ~ezJoltRagdollComponent();
 
-  /// \brief Returns the object ID used for all bodies in the ragdoll. This can be used to ignore the entire ragdoll during raycasts and such.
+  /// Returns the object ID used for all bodies in the ragdoll. This can be used to ignore the entire ragdoll during raycasts and such.
   ezUInt32 GetObjectFilterID() const { return m_uiObjectFilterID; } // [ scriptable ]
 
-  /// \brief Adjusts how strongly gravity affects the ragdoll.
+  /// Adjusts how strongly gravity affects the ragdoll.
   ///
   /// Set this to zero to fully disable gravity.
   void SetGravityFactor(float fFactor);                       // [ property ]
   float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
 
-  /// \brief If true, the ragdoll pieces collide with each other.
+  /// If true, the ragdoll pieces collide with each other.
   /// This produces more realistic ragdoll behavior, but requires that the ragdoll shapes are well set up.
   /// It may produce jittering and also cost more performance.
   /// Another option is to set up the joint limits such that the ragdoll can't easily intersect itself.
   bool m_bSelfCollision = false; // [ property ]
 
-  /// \brief How easily the joints move. Note that scaling the ragdoll up or down affects the forces and thus stiffness needs to be adjusted as well.
+  /// How easily the joints move. Note that scaling the ragdoll up or down affects the forces and thus stiffness needs to be adjusted as well.
   float m_fStiffnessFactor = 1.0f; // [ property ]
 
   ezUInt8 m_uiWeightCategory = 0;  // [ property ]
   ezFloat16 m_fWeightScale = 1.0f; // [ property ]
   ezFloat16 m_fWeightMass = 50.0f; // [ property ]
 
-  /// \brief Sets with which pose the ragdoll should start simulating.
+  /// Sets with which pose the ragdoll should start simulating.
   void SetStartMode(ezEnum<ezJoltRagdollStartMode> mode);                     // [ property ]
   ezEnum<ezJoltRagdollStartMode> GetStartMode() const { return m_StartMode; } // [ property ]
 
   void SetAnimMode(ezEnum<ezJoltRagdollAnimMode> mode);                       // [ property ]
   ezEnum<ezJoltRagdollAnimMode> GetAnimMode() const { return m_AnimMode; }    // [ property ]
 
-  /// \brief Applies a force to a specific part of the ragdoll.
+  /// Applies a force to a specific part of the ragdoll.
   void OnMsgPhysicsAddImpulse(ezMsgPhysicsAddImpulse& ref_msg); // [ msg handler ]
 
-  /// \brief Call this function BEFORE activating the ragdoll component to specify an impulse that shall be applied to the closest body part when it activates.
+  /// Call this function BEFORE activating the ragdoll component to specify an impulse that shall be applied to the closest body part when it activates.
   ///
   /// Both position and direction are given in world space.
   ///
@@ -161,10 +161,10 @@ public:
   /// Their impulses are accumulated, so the applied impulse can become quite large.
   void SetInitialImpulse(const ezVec3& vPosition, const ezVec3& vDirectionAndStrength); // [ scriptable ]
 
-  /// \brief Adds to the existing initial impulse. See SetInitialImpulse().
+  /// Adds to the existing initial impulse. See SetInitialImpulse().
   void AddInitialImpulse(const ezVec3& vPosition, const ezVec3& vDirectionAndStrength); // [ scriptable ]
 
-  /// \brief How much of the owner object's velocity to transfer to the new ragdoll bodies.
+  /// How much of the owner object's velocity to transfer to the new ragdoll bodies.
   float m_fOwnerVelocityScale = 1.0f; // [ property ]
 
   /// If non-zero, when the ragdoll starts, all pieces start out with an outward velocity with this speed.
@@ -179,7 +179,7 @@ public:
   /// If center velocity is used, this adds an offset to the object's position to define where the center position should be.
   ezVec3 m_vCenterPosition = ezVec3::MakeZero(); // [ property ]
 
-  /// \brief Allows to override the type of joint to be used for a bone.
+  /// Allows to override the type of joint to be used for a bone.
   ///
   /// This has to be called before the component is activated.
   /// Its intended use case is to make certain joints either stiff (by setting the joints to 'fixed'),

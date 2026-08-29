@@ -10,7 +10,7 @@
 #  define EZ_VEC2_CHECK_FOR_NAN(obj)
 #endif
 
-/// \brief A 2-component vector class.
+/// A 2-component vector class.
 template <typename Type>
 class ezVec2Template
 {
@@ -28,25 +28,25 @@ public:
 
   // *** Constructors ***
 public:
-  /// \brief default-constructed vector is uninitialized (for speed)
+  /// default-constructed vector is uninitialized (for speed)
   ezVec2Template(); // [tested]
 
-  /// \brief Initializes the vector with x,y
+  /// Initializes the vector with x,y
   ezVec2Template(Type x, Type y); // [tested]
 
-  /// \brief Initializes all components with xy
+  /// Initializes all components with xy
   explicit ezVec2Template(Type v); // [tested]
 
   // no copy-constructor and operator= since the default-generated ones will be faster
 
-  /// \brief Returns a vector with all components set to Not-a-Number (NaN).
+  /// Returns a vector with all components set to Not-a-Number (NaN).
   EZ_DECLARE_IF_FLOAT_TYPE
   [[nodiscard]] static const ezVec2Template<Type> MakeNaN() { return ezVec2Template<Type>(ezMath::NaN<Type>()); }
 
-  /// \brief Static function that returns a zero-vector.
+  /// Static function that returns a zero-vector.
   [[nodiscard]] static constexpr ezVec2Template<Type> MakeZero() { return ezVec2Template(0); } // [tested]
 
-  /// \brief Returns a vector initialized to x,y
+  /// Returns a vector initialized to x,y
   [[nodiscard]] static ezVec2Template<Type> Make(Type x, Type y) { return ezVec2Template<Type>(x, y); } // [tested]
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
@@ -59,132 +59,132 @@ public:
 
   // *** Conversions ***
 public:
-  /// \brief Returns an ezVec3Template with x,y from this vector and z set by the parameter.
+  /// Returns an ezVec3Template with x,y from this vector and z set by the parameter.
   const ezVec3Template<Type> GetAsVec3(Type z) const; // [tested]
 
-  /// \brief Returns an ezVec4Template with x,y from this vector and z and w set by the parameters.
+  /// Returns an ezVec4Template with x,y from this vector and z and w set by the parameters.
   const ezVec4Template<Type> GetAsVec4(Type z, Type w) const; // [tested]
 
-  /// \brief Returns the data as an array.
+  /// Returns the data as an array.
   const Type* GetData() const { return &x; }
 
-  /// \brief Returns the data as an array.
+  /// Returns the data as an array.
   Type* GetData() { return &x; }
 
   // *** Functions to set the vector to specific values ***
 public:
-  /// \brief Sets all components to this value.
+  /// Sets all components to this value.
   void Set(Type xy); // [tested]
 
-  /// \brief Sets the vector to these values.
+  /// Sets the vector to these values.
   void Set(Type x, Type y); // [tested]
 
-  /// \brief Sets the vector to all zero.
+  /// Sets the vector to all zero.
   void SetZero(); // [tested]
 
   // *** Functions dealing with length ***
 public:
-  /// \brief Returns the length of the vector.
+  /// Returns the length of the vector.
   EZ_DECLARE_IF_FLOAT_TYPE
   Type GetLength() const; // [tested]
 
-  /// \brief Returns the length between this position and rhs.
+  /// Returns the length between this position and rhs.
   EZ_DECLARE_IF_FLOAT_TYPE
   Type GetDistanceTo(const ezVec2Template<Type>& rhs) const;
 
-  /// \brief Returns the squared length between this position and rhs.
+  /// Returns the squared length between this position and rhs.
   EZ_DECLARE_IF_FLOAT_TYPE
   Type GetSquaredDistanceTo(const ezVec2Template<Type>& rhs) const;
 
-  /// \brief Tries to rescale the vector to the given length. If the vector is too close to zero, EZ_FAILURE is returned and the vector is
+  /// Tries to rescale the vector to the given length. If the vector is too close to zero, EZ_FAILURE is returned and the vector is
   /// set to zero.
   EZ_DECLARE_IF_FLOAT_TYPE
   ezResult SetLength(Type fNewLength, Type fEpsilon = ezMath::DefaultEpsilon<Type>()); // [tested]
 
-  /// \brief Returns the squared length. Faster, since no square-root is taken. Useful, if one only wants to compare the lengths of two
+  /// Returns the squared length. Faster, since no square-root is taken. Useful, if one only wants to compare the lengths of two
   /// vectors.
   Type GetLengthSquared() const; // [tested]
 
-  /// \brief Normalizes this vector and returns its previous length in one operation. More efficient than calling GetLength and then
+  /// Normalizes this vector and returns its previous length in one operation. More efficient than calling GetLength and then
   /// Normalize.
   EZ_DECLARE_IF_FLOAT_TYPE
   Type GetLengthAndNormalize(); // [tested]
 
-  /// \brief Returns a normalized version of this vector, leaves the vector itself unchanged.
+  /// Returns a normalized version of this vector, leaves the vector itself unchanged.
   EZ_DECLARE_IF_FLOAT_TYPE
   const ezVec2Template<Type> GetNormalized() const; // [tested]
 
-  /// \brief Normalizes this vector.
+  /// Normalizes this vector.
   EZ_DECLARE_IF_FLOAT_TYPE
   void Normalize(); // [tested]
 
-  /// \brief Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given
+  /// Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given
   /// fallback value.
   EZ_DECLARE_IF_FLOAT_TYPE
   ezResult NormalizeIfNotZero(const ezVec2Template<Type>& vFallback = ezVec2Template<Type>(1, 0), Type fEpsilon = ezMath::DefaultEpsilon<Type>()); // [tested]
 
-  /// \brief Returns, whether this vector is (0, 0).
+  /// Returns, whether this vector is (0, 0).
   bool IsZero() const; // [tested]
 
-  /// \brief Returns, whether this vector is (0, 0) within a certain threshold.
+  /// Returns, whether this vector is (0, 0) within a certain threshold.
   bool IsZero(Type fEpsilon) const; // [tested]
 
-  /// \brief Returns, whether the squared length of this vector is between 0.999f and 1.001f.
+  /// Returns, whether the squared length of this vector is between 0.999f and 1.001f.
   EZ_DECLARE_IF_FLOAT_TYPE
   bool IsNormalized(Type fEpsilon = ezMath::HugeEpsilon<Type>()) const; // [tested]
 
-  /// \brief Returns true, if any of x or y is NaN
+  /// Returns true, if any of x or y is NaN
   bool IsNaN() const; // [tested]
 
-  /// \brief Checks that all components are finite numbers.
+  /// Checks that all components are finite numbers.
   bool IsValid() const; // [tested]
 
 
   // *** Operators ***
 public:
-  /// \brief Returns the negation of this vector.
+  /// Returns the negation of this vector.
   const ezVec2Template<Type> operator-() const; // [tested]
 
-  /// \brief Adds cc component-wise to this vector
+  /// Adds cc component-wise to this vector
   void operator+=(const ezVec2Template<Type>& vCc); // [tested]
 
-  /// \brief Subtracts cc component-wise from this vector
+  /// Subtracts cc component-wise from this vector
   void operator-=(const ezVec2Template<Type>& vCc); // [tested]
 
-  /// \brief Multiplies all components of this vector with f
+  /// Multiplies all components of this vector with f
   void operator*=(Type f); // [tested]
 
-  /// \brief Divides all components of this vector by f
+  /// Divides all components of this vector by f
   void operator/=(Type f); // [tested]
 
-  /// \brief Equality Check (bitwise)
+  /// Equality Check (bitwise)
   bool IsIdentical(const ezVec2Template<Type>& rhs) const; // [tested]
 
-  /// \brief Equality Check with epsilon
+  /// Equality Check with epsilon
   bool IsEqual(const ezVec2Template<Type>& rhs, Type fEpsilon) const; // [tested]
 
 
   // *** Common vector operations ***
 public:
-  /// \brief Returns the positive angle between *this and rhs.
+  /// Returns the positive angle between *this and rhs.
   ezAngleTemplate<Type> GetAngleBetween(const ezVec2Template<Type>& rhs) const; // [tested]
 
-  /// \brief Returns the Dot-product of the two vectors (commutative, order does not matter)
+  /// Returns the Dot-product of the two vectors (commutative, order does not matter)
   Type Dot(const ezVec2Template<Type>& rhs) const; // [tested]
 
-  /// \brief Returns the component-wise minimum of *this and rhs
+  /// Returns the component-wise minimum of *this and rhs
   const ezVec2Template<Type> CompMin(const ezVec2Template<Type>& rhs) const; // [tested]
 
-  /// \brief Returns the component-wise maximum of *this and rhs
+  /// Returns the component-wise maximum of *this and rhs
   const ezVec2Template<Type> CompMax(const ezVec2Template<Type>& rhs) const; // [tested]
 
-  /// \brief Returns the component-wise clamped value of *this between low and high.
+  /// Returns the component-wise clamped value of *this between low and high.
   const ezVec2Template<Type> CompClamp(const ezVec2Template<Type>& vLow, const ezVec2Template<Type>& vHigh) const; // [tested]
 
-  /// \brief Returns the component-wise multiplication of *this and rhs
+  /// Returns the component-wise multiplication of *this and rhs
   const ezVec2Template<Type> CompMul(const ezVec2Template<Type>& rhs) const; // [tested]
 
-  /// \brief Returns the component-wise division of *this and rhs
+  /// Returns the component-wise division of *this and rhs
   const ezVec2Template<Type> CompDiv(const ezVec2Template<Type>& rhs) const; // [tested]
 
   /// brief Returns the component-wise absolute of *this.
@@ -193,52 +193,52 @@ public:
 
   // *** Other common operations ***
 public:
-  /// \brief Modifies this direction vector to be orthogonal to the given (normalized) direction vector. The result is NOT normalized.
+  /// Modifies this direction vector to be orthogonal to the given (normalized) direction vector. The result is NOT normalized.
   ///
   /// \note This function may fail, e.g. create a vector that is zero, if the given normal is parallel to the vector itself.
   ///       If you need to handle such cases, you should manually check afterwards, whether the result is zero, or cannot be normalized.
   EZ_DECLARE_IF_FLOAT_TYPE
   void MakeOrthogonalTo(const ezVec2Template<Type>& vNormal); // [tested]
 
-  /// \brief Returns some arbitrary vector orthogonal to this one. The vector is NOT normalized.
+  /// Returns some arbitrary vector orthogonal to this one. The vector is NOT normalized.
   const ezVec2Template<Type> GetOrthogonalVector() const; // [tested]
 
-  /// \brief Returns this vector reflected at vNormal.
+  /// Returns this vector reflected at vNormal.
   EZ_DECLARE_IF_FLOAT_TYPE
   const ezVec2Template<Type> GetReflectedVector(const ezVec2Template<Type>& vNormal) const; // [tested]
 };
 
 // *** Operators ***
 
-/// \brief Component-wise addition.
+/// Component-wise addition.
 template <typename Type>
 const ezVec2Template<Type> operator+(const ezVec2Template<Type>& v1, const ezVec2Template<Type>& v2); // [tested]
 
-/// \brief Component-wise subtraction.
+/// Component-wise subtraction.
 template <typename Type>
 const ezVec2Template<Type> operator-(const ezVec2Template<Type>& v1, const ezVec2Template<Type>& v2); // [tested]
 
-/// \brief Returns a scaled vector.
+/// Returns a scaled vector.
 template <typename Type>
 const ezVec2Template<Type> operator*(Type f, const ezVec2Template<Type>& v); // [tested]
 
-/// \brief Returns a scaled vector.
+/// Returns a scaled vector.
 template <typename Type>
 const ezVec2Template<Type> operator*(const ezVec2Template<Type>& v, Type f); // [tested]
 
-/// \brief Returns a scaled vector.
+/// Returns a scaled vector.
 template <typename Type>
 const ezVec2Template<Type> operator/(const ezVec2Template<Type>& v, Type f); // [tested]
 
-/// \brief Returns true, if both vectors are identical.
+/// Returns true, if both vectors are identical.
 template <typename Type>
 bool operator==(const ezVec2Template<Type>& v1, const ezVec2Template<Type>& v2); // [tested]
 
-/// \brief Returns true, if both vectors are not identical.
+/// Returns true, if both vectors are not identical.
 template <typename Type>
 bool operator!=(const ezVec2Template<Type>& v1, const ezVec2Template<Type>& v2); // [tested]
 
-/// \brief Strict weak ordering. Useful for sorting vertices into a map.
+/// Strict weak ordering. Useful for sorting vertices into a map.
 template <typename Type>
 bool operator<(const ezVec2Template<Type>& v1, const ezVec2Template<Type>& v2);
 

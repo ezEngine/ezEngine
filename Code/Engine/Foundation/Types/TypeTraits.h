@@ -6,7 +6,7 @@
 
 /// \file
 
-/// \brief Compile-time type classification system for optimizing container operations.
+/// Compile-time type classification system for optimizing container operations.
 ///
 /// The ezEngine type trait system classifies types into three categories to enable
 /// different optimization strategies for containers and memory operations:
@@ -30,7 +30,7 @@ using ezTypeIsClass = ezTraitInt<0>;          ///< Standard class types
 using ezCompileTimeTrueType = char;
 using ezCompileTimeFalseType = int;
 
-/// \brief Converts a bool condition to CompileTimeTrue/FalseType
+/// Converts a bool condition to CompileTimeTrue/FalseType
 template <bool cond>
 struct ezConditionToCompileTimeBool
 {
@@ -43,33 +43,33 @@ struct ezConditionToCompileTimeBool<true>
   using type = ezCompileTimeTrueType;
 };
 
-/// \brief Default % operator for T and TypeIsPod which returns a CompileTimeFalseType.
+/// Default % operator for T and TypeIsPod which returns a CompileTimeFalseType.
 template <typename T>
 ezCompileTimeFalseType operator%(const T&, const ezTypeIsPod&);
 
-/// \brief If there is an % operator which takes a TypeIsPod and returns a CompileTimeTrueType T is Pod. Default % operator return false.
+/// If there is an % operator which takes a TypeIsPod and returns a CompileTimeTrueType T is Pod. Default % operator return false.
 template <typename T>
 struct ezIsPodType : public ezTraitInt<(sizeof(*((T*)0) % *((const ezTypeIsPod*)0)) == sizeof(ezCompileTimeTrueType)) ? 1 : 0>
 {
 };
 
-/// \brief Pointers are POD types.
+/// Pointers are POD types.
 template <typename T>
 struct ezIsPodType<T*> : public ezTypeIsPod
 {
 };
 
-/// \brief arrays are POD types
+/// arrays are POD types
 template <typename T, int N>
 struct ezIsPodType<T[N]> : public ezTypeIsPod
 {
 };
 
-/// \brief Default % operator for T and ezTypeIsMemRelocatable which returns a CompileTimeFalseType.
+/// Default % operator for T and ezTypeIsMemRelocatable which returns a CompileTimeFalseType.
 template <typename T>
 ezCompileTimeFalseType operator%(const T&, const ezTypeIsMemRelocatable&);
 
-/// \brief If there is an % operator which takes a ezTypeIsMemRelocatable and returns a CompileTimeTrueType T is Pod. Default % operator
+/// If there is an % operator which takes a ezTypeIsMemRelocatable and returns a CompileTimeTrueType T is Pod. Default % operator
 /// return false.
 template <typename T>
 struct ezGetTypeClass
@@ -77,7 +77,7 @@ struct ezGetTypeClass
 {
 };
 
-/// \brief Static Conversion Test
+/// Static Conversion Test
 template <typename From, typename To>
 struct ezConversionTest
 {
@@ -92,7 +92,7 @@ struct ezConversionTest
   };
 };
 
-/// \brief Specialization for above Type.
+/// Specialization for above Type.
 template <typename T>
 struct ezConversionTest<T, T>
 {
@@ -112,28 +112,28 @@ struct ezGetStrongestTypeClass : public ezTraitInt<(T1::value == 0 || T2::value 
 
 #ifdef __INTELLISENSE__
 
-/// \brief Embed this into a class to mark it as a POD type.
+/// Embed this into a class to mark it as a POD type.
 /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
 #  define EZ_DECLARE_POD_TYPE()
 
-/// \brief Embed this into a class to mark it as memory relocatable.
+/// Embed this into a class to mark it as memory relocatable.
 /// Memory relocatable types will get special treatment from allocators and container classes, such that they are faster to construct and
 /// copy. A type is memory relocatable if it does not have any internal references. e.g: struct example { char[16] buffer; char* pCur;
 /// example() pCur(buffer) {} }; A memory relocatable type also must not give out any pointers to its own location. If these two conditions
 /// are met, a type is memory relocatable.
 #  define EZ_DECLARE_MEM_RELOCATABLE_TYPE()
 
-/// \brief mark a class as memory relocatable if the passed type is relocatable or pod.
+/// mark a class as memory relocatable if the passed type is relocatable or pod.
 #  define EZ_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T)
 
-// \brief embed this into a class to automatically detect which type class it belongs to
+// embed this into a class to automatically detect which type class it belongs to
 // This macro is only guaranteed to work for classes / structs which don't have any constructor / destructor / assignment operator!
 // As arguments you have to list the types of all the members of the class / struct.
 #  define EZ_DETECT_TYPE_CLASS(...)
 
 #else
 
-/// \brief Embed this into a class to mark it as a POD type.
+/// Embed this into a class to mark it as a POD type.
 /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
 #  define EZ_DECLARE_POD_TYPE()                               \
     ezCompileTimeTrueType operator%(const ezTypeIsPod&) const \
@@ -141,7 +141,7 @@ struct ezGetStrongestTypeClass : public ezTraitInt<(T1::value == 0 || T2::value 
       return {};                                              \
     }
 
-/// \brief Embed this into a class to mark it as memory relocatable.
+/// Embed this into a class to mark it as memory relocatable.
 /// Memory relocatable types will get special treatment from allocators and container classes, such that they are faster to construct and
 /// copy. A type is memory relocatable if it does not have any internal references. e.g: struct example { char[16] buffer; char* pCur;
 /// example() pCur(buffer) {} }; A memory relocatable type also must not give out any pointers to its own location. If these two conditions
@@ -152,7 +152,7 @@ struct ezGetStrongestTypeClass : public ezTraitInt<(T1::value == 0 || T2::value 
       return {};                                                         \
     }
 
-/// \brief mark a class as memory relocatable if the passed type is relocatable or pod.
+/// mark a class as memory relocatable if the passed type is relocatable or pod.
 #  define EZ_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T)                                                                                       \
     typename ezConditionToCompileTimeBool<ezGetTypeClass<T>::value == ezTypeIsMemRelocatable::value || ezIsPodType<T>::value>::type operator%( \
       const ezTypeIsMemRelocatable&) const                                                                                                     \
@@ -168,7 +168,7 @@ struct ezGetStrongestTypeClass : public ezTraitInt<(T1::value == 0 || T2::value 
 #  define EZ_DETECT_TYPE_CLASS_6(T1, T2, T3, T4, T5, T6) \
     ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_4(T1, T2, T3, T4), EZ_DETECT_TYPE_CLASS_2(T5, T6)>
 
-// \brief embed this into a class to automatically detect which type class it belongs to
+// embed this into a class to automatically detect which type class it belongs to
 // This macro is only guaranteed to work for classes / structs which don't have any constructor / destructor / assignment operator!
 // As arguments you have to list the types of all the members of the class / struct.
 #  define EZ_DETECT_TYPE_CLASS(...)                                                                                                   \
@@ -179,7 +179,7 @@ struct ezGetStrongestTypeClass : public ezTraitInt<(T1::value == 0 || T2::value 
     }
 #endif
 
-/// \brief Defines a type T as Pod.
+/// Defines a type T as Pod.
 /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
 #define EZ_DEFINE_AS_POD_TYPE(T)             \
   template <>                                \
@@ -205,33 +205,33 @@ EZ_DEFINE_AS_POD_TYPE(unsigned long);
 EZ_DEFINE_AS_POD_TYPE(long);
 EZ_DEFINE_AS_POD_TYPE(std::byte);
 
-/// \brief Checks inheritance at compile time.
+/// Checks inheritance at compile time.
 #define EZ_IS_DERIVED_FROM_STATIC(BaseClass, DerivedClass) \
   (ezConversionTest<const DerivedClass*, const BaseClass*>::exists && !ezConversionTest<const BaseClass*, const void*>::sameType)
 
-/// \brief Checks whether A and B are the same type
+/// Checks whether A and B are the same type
 #define EZ_IS_SAME_TYPE(TypeA, TypeB) ezConversionTest<TypeA, TypeB>::sameType
 
-/// \brief Utility template for extracting clean types from decorated types.
+/// Utility template for extracting clean types from decorated types.
 template <typename T>
 struct ezTypeTraits
 {
-  /// \brief Removes const qualifier: const int -> int
+  /// Removes const qualifier: const int -> int
   using NonConstType = typename std::remove_const<T>::type;
 
-  /// \brief Removes reference qualifier: int& -> int, int&& -> int
+  /// Removes reference qualifier: int& -> int, int&& -> int
   using NonReferenceType = typename std::remove_reference<T>::type;
 
-  /// \brief Removes pointer qualifier: int* -> int
+  /// Removes pointer qualifier: int* -> int
   using NonPointerType = typename std::remove_pointer<T>::type;
 
-  /// \brief Removes both reference and const qualifiers: const int& -> int
+  /// Removes both reference and const qualifiers: const int& -> int
   using NonConstReferenceType = typename std::remove_const<typename std::remove_reference<T>::type>::type;
 
-  /// \brief Removes both reference and pointer qualifiers: int*& -> int
+  /// Removes both reference and pointer qualifiers: int*& -> int
   using NonReferencePointerType = typename std::remove_pointer<typename std::remove_reference<T>::type>::type;
 
-  /// \brief Removes reference, const, and pointer qualifiers from the pointed-to type.
+  /// Removes reference, const, and pointer qualifiers from the pointed-to type.
   ///
   /// Note: This operates on the pointed-to type, not the pointer itself.
   /// Example: const int*& -> int (not int*)

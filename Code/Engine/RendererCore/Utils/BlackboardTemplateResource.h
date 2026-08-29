@@ -13,7 +13,7 @@ struct EZ_RENDERERCORE_DLL ezBlackboardTemplateResourceDescriptor
   ezDynamicArray<ezBlackboardEntry> m_Entries;
 };
 
-/// \brief Describes the initial state of a blackboard.
+/// Describes the initial state of a blackboard.
 ///
 /// Used by ezBlackboardComponent to initialize its blackboard from.
 class EZ_RENDERERCORE_DLL ezBlackboardTemplateResource : public ezResource

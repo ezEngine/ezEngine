@@ -3,11 +3,11 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/HashedString.h>
 
-/// \brief A single stream in a stream group holding contiguous data of a given type.
+/// A single stream in a stream group holding contiguous data of a given type.
 class EZ_FOUNDATION_DLL ezProcessingStream
 {
 public:
-  /// \brief The data types which can be stored in the stream.
+  /// The data types which can be stored in the stream.
   /// When adding new data types the GetDataTypeSize() of ezProcessingStream needs to be updated.
   enum class DataType : ezUInt8
   {
@@ -46,41 +46,41 @@ public:
   ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType type);
   ~ezProcessingStream();
 
-  /// \brief Returns a const pointer to the data cast to the type T, note that no type check is done!
+  /// Returns a const pointer to the data cast to the type T, note that no type check is done!
   template <typename T>
   const T* GetData() const
   {
     return static_cast<const T*>(GetData());
   }
 
-  /// \brief Returns a const pointer to the start of the data block.
+  /// Returns a const pointer to the start of the data block.
   const void* GetData() const { return m_pData; }
 
-  /// \brief Returns a non-const pointer to the data cast to the type T, note that no type check is done!
+  /// Returns a non-const pointer to the data cast to the type T, note that no type check is done!
   template <typename T>
   T* GetWritableData() const
   {
     return static_cast<T*>(GetWritableData());
   }
 
-  /// \brief Returns a non-const pointer to the start of the data block.
+  /// Returns a non-const pointer to the start of the data block.
   void* GetWritableData() const { return m_pData; }
 
   ezUInt64 GetDataSize() const { return m_uiDataSize; }
 
-  /// \brief Returns the name of the stream
+  /// Returns the name of the stream
   const ezHashedString& GetName() const { return m_sName; }
 
-  /// \brief Returns the alignment which was used to allocate the stream.
+  /// Returns the alignment which was used to allocate the stream.
   ezUInt16 GetAlignment() const { return m_uiAlignment; }
 
-  /// \brief Returns the data type of the stream.
+  /// Returns the data type of the stream.
   DataType GetDataType() const { return m_Type; }
 
-  /// \brief Returns the size of one stream element in bytes.
+  /// Returns the size of one stream element in bytes.
   ezUInt16 GetElementSize() const { return m_uiTypeSize; }
 
-  /// \brief Returns the stride between two elements of the stream in bytes.
+  /// Returns the stride between two elements of the stream in bytes.
   ezUInt16 GetElementStride() const { return m_uiStride; }
 
   static ezUInt16 GetDataTypeSize(DataType type);

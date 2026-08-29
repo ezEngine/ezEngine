@@ -13,7 +13,7 @@ struct ezLodMeshLod
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezLodMeshLod);
 
-/// \brief Renders one of several level-of-detail meshes depending on the distance to the camera.
+/// Renders one of several level-of-detail meshes depending on the distance to the camera.
 ///
 /// This component is very similar to the ezLodComponent, please read it's description for details.
 /// The difference is, that this component doesn't switch child object on and off, but rather only selects between different render-meshes.
@@ -48,25 +48,25 @@ public:
   ezLodMeshComponent();
   ~ezLodMeshComponent();
 
-  /// \brief An additional tint color passed to the renderer to modify the mesh.
+  /// An additional tint color passed to the renderer to modify the mesh.
   void SetColor(const ezColor& color); // [ property ]
   const ezColor& GetColor() const;     // [ property ]
 
-  /// \brief An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
+  /// An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
   void SetCustomData(const ezVec4& vData); // [ property ]
   const ezVec4& GetCustomData() const;     // [ property ]
 
-  /// \brief The sorting depth offset allows to tweak the order in which this mesh is rendered relative to other meshes.
+  /// The sorting depth offset allows to tweak the order in which this mesh is rendered relative to other meshes.
   ///
   /// This is mainly useful for transparent objects to render them before or after other meshes.
   void SetSortingDepthOffset(float fOffset); // [ property ]
   float GetSortingDepthOffset() const;       // [ property ]
 
-  /// \brief Enables text output to show the current coverage value and selected LOD.
+  /// Enables text output to show the current coverage value and selected LOD.
   void SetShowDebugInfo(bool bShow); // [ property ]
   bool GetShowDebugInfo() const;     // [ property ]
 
-  /// \brief Disabling the LOD range overlap functionality can make it easier to determine the desired coverage thresholds.
+  /// Disabling the LOD range overlap functionality can make it easier to determine the desired coverage thresholds.
   void SetOverlapRanges(bool bOverlap);                 // [ property ]
   bool GetOverlapRanges() const;                        // [ property ]
 

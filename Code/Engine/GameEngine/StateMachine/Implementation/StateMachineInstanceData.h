@@ -8,7 +8,7 @@
 
 namespace ezStateMachineInternal
 {
-  /// \brief Helper class to manage instance data for compound states or transitions
+  /// Helper class to manage instance data for compound states or transitions
   struct EZ_GAMEENGINE_DLL Compound
   {
     EZ_ALWAYS_INLINE ezUInt32 GetBaseOffset() const { return m_InstanceDataOffsets.GetUserData<ezUInt32>(); }

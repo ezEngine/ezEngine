@@ -19,7 +19,7 @@ class ezPropertyAttribute;
 class ezMessage;
 using ezMessageId = ezUInt16;
 
-/// \brief Core class of ezEngine's reflection system that holds complete runtime type information.
+/// Core class of ezEngine's reflection system that holds complete runtime type information.
 ///
 /// Each ezRTTI instance represents one reflected type and contains all metadata needed for runtime
 /// introspection, serialization, and object creation. The reflection system enables:
@@ -50,7 +50,7 @@ using ezMessageId = ezUInt16;
 class EZ_FOUNDATION_DLL ezRTTI
 {
 public:
-  /// \brief The constructor requires all the information about the type that this object represents.
+  /// The constructor requires all the information about the type that this object represents.
   ezRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType,
     ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<const ezAbstractProperty*> properties, ezArrayPtr<const ezAbstractFunctionProperty*> functions,
     ezArrayPtr<const ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers,
@@ -59,25 +59,25 @@ public:
 
   ~ezRTTI();
 
-  /// \brief Can be called in debug builds to check that all reflected objects are correctly set up.
+  /// Can be called in debug builds to check that all reflected objects are correctly set up.
   void VerifyCorrectness() const;
 
-  /// \brief Calls VerifyCorrectness() on all ezRTTI objects.
+  /// Calls VerifyCorrectness() on all ezRTTI objects.
   static void VerifyCorrectnessForAllTypes();
 
-  /// \brief Returns the name of this type.
+  /// Returns the name of this type.
   EZ_ALWAYS_INLINE ezStringView GetTypeName() const { return m_sTypeName; } // [tested]
 
-  /// \brief Returns the hash of the name of this type.
+  /// Returns the hash of the name of this type.
   EZ_ALWAYS_INLINE ezUInt64 GetTypeNameHash() const { return m_uiTypeNameHash; } // [tested]
 
-  /// \brief Returns the type that is the base class of this type. May be nullptr if this type has no base class.
+  /// Returns the type that is the base class of this type. May be nullptr if this type has no base class.
   EZ_ALWAYS_INLINE const ezRTTI* GetParentType() const { return m_pParentType; } // [tested]
 
-  /// \brief Returns the corresponding variant type for this type or Invalid if there is none.
+  /// Returns the corresponding variant type for this type or Invalid if there is none.
   EZ_ALWAYS_INLINE ezVariantType::Enum GetVariantType() const { return static_cast<ezVariantType::Enum>(m_uiVariantType); }
 
-  /// \brief Fast O(1) check if this type is derived from the given type (or is the same type).
+  /// Fast O(1) check if this type is derived from the given type (or is the same type).
   ///
   /// Uses pre-computed parent hierarchy arrays for constant-time inheritance checks.
   /// Returns true if this type inherits from pBaseType or if they are the same type.
@@ -90,80 +90,80 @@ public:
     return thisGeneration >= baseGeneration && m_ParentHierarchy.GetData()[thisGeneration - baseGeneration] == pBaseType;
   }
 
-  /// \brief Returns true if this type is derived from or identical to the given type.
+  /// Returns true if this type is derived from or identical to the given type.
   template <typename BASE>
   EZ_ALWAYS_INLINE bool IsDerivedFrom() const // [tested]
   {
     return IsDerivedFrom(ezGetStaticRTTI<BASE>());
   }
 
-  /// \brief Returns the object through which instances of this type can be allocated.
+  /// Returns the object through which instances of this type can be allocated.
   EZ_ALWAYS_INLINE ezRTTIAllocator* GetAllocator() const { return m_pAllocator; } // [tested]
 
-  /// \brief Returns the array of properties that this type has. Does NOT include properties from base classes.
+  /// Returns the array of properties that this type has. Does NOT include properties from base classes.
   EZ_ALWAYS_INLINE ezArrayPtr<const ezAbstractProperty* const> GetProperties() const { return m_Properties; } // [tested]
 
   EZ_ALWAYS_INLINE ezArrayPtr<const ezAbstractFunctionProperty* const> GetFunctions() const { return m_Functions; }
 
   EZ_ALWAYS_INLINE ezArrayPtr<const ezPropertyAttribute* const> GetAttributes() const { return m_Attributes; }
 
-  /// \brief Returns the first attribute that derives from the given type, or nullptr if nothing is found.
+  /// Returns the first attribute that derives from the given type, or nullptr if nothing is found.
   template <typename Type>
   const Type* GetAttributeByType() const;
 
-  /// \brief Returns the list of properties that this type has, including derived properties from all base classes.
+  /// Returns the list of properties that this type has, including derived properties from all base classes.
   void GetAllProperties(ezDynamicArray<const ezAbstractProperty*>& out_properties) const; // [tested]
 
-  /// \brief Returns the size (in bytes) of an instance of this type.
+  /// Returns the size (in bytes) of an instance of this type.
   EZ_ALWAYS_INLINE ezUInt32 GetTypeSize() const { return m_uiTypeSize; } // [tested]
 
-  /// \brief Returns the version number of this type.
+  /// Returns the version number of this type.
   EZ_ALWAYS_INLINE ezUInt32 GetTypeVersion() const { return m_uiTypeVersion; }
 
-  /// \brief Returns the type flags.
+  /// Returns the type flags.
   EZ_ALWAYS_INLINE const ezBitflags<ezTypeFlags>& GetTypeFlags() const { return m_TypeFlags; } // [tested]
 
-  /// \brief Searches all ezRTTI instances for the one with the given name, or nullptr if no such type exists.
+  /// Searches all ezRTTI instances for the one with the given name, or nullptr if no such type exists.
   static const ezRTTI* FindTypeByName(ezStringView sName); // [tested]
 
-  /// \brief Searches all ezRTTI instances for the one with the given hashed name, or nullptr if no such type exists.
+  /// Searches all ezRTTI instances for the one with the given hashed name, or nullptr if no such type exists.
   static const ezRTTI* FindTypeByNameHash(ezUInt64 uiNameHash); // [tested]
   static const ezRTTI* FindTypeByNameHash32(ezUInt32 uiNameHash);
 
   using PredicateFunc = ezDelegate<bool(const ezRTTI*), 48>;
-  /// \brief Searches all ezRTTI instances for one where the given predicate function returns true
+  /// Searches all ezRTTI instances for one where the given predicate function returns true
   static const ezRTTI* FindTypeIf(PredicateFunc func);
 
-  /// \brief Will iterate over all properties of this type and (optionally) the base types to search for a property with the given name.
+  /// Will iterate over all properties of this type and (optionally) the base types to search for a property with the given name.
   const ezAbstractProperty* FindPropertyByName(ezStringView sName, bool bSearchBaseTypes = true) const; // [tested]
 
-  /// \brief Returns the name of the plugin which this type is declared in.
+  /// Returns the name of the plugin which this type is declared in.
   EZ_ALWAYS_INLINE ezStringView GetPluginName() const { return m_sPluginName; } // [tested]
 
-  /// \brief Returns the array of message handlers that this type has.
+  /// Returns the array of message handlers that this type has.
   EZ_ALWAYS_INLINE const ezArrayPtr<ezAbstractMessageHandler*>& GetMessageHandlers() const { return m_MessageHandlers; }
 
-  /// \brief Dispatches a message to the appropriate handler for this type.
+  /// Dispatches a message to the appropriate handler for this type.
   ///
   /// Uses optimized message dispatch tables for fast O(1) message routing. Returns true if a handler
   /// was found and the message was processed, false if no handler exists for this message type.
   /// The message system enables decoupled communication between components.
   bool DispatchMessage(void* pInstance, ezMessage& ref_msg) const;
 
-  /// \brief Dispatches a message to the appropriate handler (const version).
+  /// Dispatches a message to the appropriate handler (const version).
   ///
   /// Same as the non-const version but for read-only message handlers. Some messages may only
   /// be handled by const handlers for safety reasons.
   bool DispatchMessage(const void* pInstance, ezMessage& ref_msg) const;
 
-  /// \brief Returns whether this type can handle the given message type.
+  /// Returns whether this type can handle the given message type.
   template <typename MessageType>
   EZ_ALWAYS_INLINE bool CanHandleMessage() const
   {
     return CanHandleMessage(MessageType::GetTypeMsgId());
   }
 
-  /// \brief Returns whether this type can handle the message type with the given id.
+  /// Returns whether this type can handle the message type with the given id.
   inline bool CanHandleMessage(ezMessageId id) const
   {
     EZ_ASSERT_DEBUG(m_uiMsgIdOffset != ezSmallInvalidIndex, "Message handler table should have been gathered at this point.\n"
@@ -243,12 +243,12 @@ protected:
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Reflection);
 
-  /// \brief Assigns the given plugin name to every ezRTTI instance that has no plugin assigned yet.
+  /// Assigns the given plugin name to every ezRTTI instance that has no plugin assigned yet.
   static void AssignPlugin(ezStringView sPluginName);
 
   static void SanityCheckType(ezRTTI* pType);
 
-  /// \brief Handles events by ezPlugin, to figure out which types were provided by which plugin
+  /// Handles events by ezPlugin, to figure out which types were provided by which plugin
   static void PluginEventHandler(const ezPluginEvent& EventData);
 };
 
@@ -259,7 +259,7 @@ EZ_DECLARE_FLAGS_OPERATORS(ezRTTI::ForEachOptions);
 // ***** Object Allocator Struct *****
 
 
-/// \brief Interface for allocators that create instances of reflected types.
+/// Interface for allocators that create instances of reflected types.
 ///
 /// The RTTI allocator system provides controlled object creation for reflected types,
 /// enabling features like custom memory management, object pooling, and creation tracking.
@@ -272,24 +272,24 @@ struct EZ_FOUNDATION_DLL ezRTTIAllocator
 {
   virtual ~ezRTTIAllocator();
 
-  /// \brief Returns whether the type that is represented by this allocator, can be dynamically allocated at runtime.
+  /// Returns whether the type that is represented by this allocator, can be dynamically allocated at runtime.
   virtual bool CanAllocate() const { return true; } // [tested]
 
-  /// \brief Allocates one instance.
+  /// Allocates one instance.
   template <typename T>
   ezInternal::NewInstance<T> Allocate(ezAllocator* pAllocator = nullptr)
   {
     return AllocateInternal(pAllocator).Cast<T>();
   }
 
-  /// \brief Clones the given instance.
+  /// Clones the given instance.
   template <typename T>
   ezInternal::NewInstance<T> Clone(const void* pObject, ezAllocator* pAllocator = nullptr)
   {
     return CloneInternal(pObject, pAllocator).Cast<T>();
   }
 
-  /// \brief Deallocates the given instance.
+  /// Deallocates the given instance.
   virtual void Deallocate(void* pObject, ezAllocator* pAllocator = nullptr) = 0; // [tested]
 
 private:
@@ -302,24 +302,24 @@ private:
   }
 };
 
-/// \brief Allocator for types that cannot be dynamically allocated through reflection.
+/// Allocator for types that cannot be dynamically allocated through reflection.
 ///
 /// Used for abstract base classes, static utility classes, or types that should only be
 /// created through specific factory functions. Attempting to allocate objects through
 /// this allocator will trigger assertions in debug builds.
 struct EZ_FOUNDATION_DLL ezRTTINoAllocator : public ezRTTIAllocator
 {
-  /// \brief Returns false, because this type of allocator is used for classes that shall not be allocated dynamically.
+  /// Returns false, because this type of allocator is used for classes that shall not be allocated dynamically.
   virtual bool CanAllocate() const override { return false; } // [tested]
 
-  /// \brief Will trigger an assert.
+  /// Will trigger an assert.
   virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocator* pAllocator) override // [tested]
   {
     EZ_REPORT_FAILURE("This function should never be called.");
     return ezInternal::NewInstance<void>(nullptr, pAllocator);
   }
 
-  /// \brief Will trigger an assert.
+  /// Will trigger an assert.
   virtual void Deallocate(void* pObject, ezAllocator* pAllocator) override // [tested]
   {
     EZ_IGNORE_UNUSED(pObject);
@@ -328,7 +328,7 @@ struct EZ_FOUNDATION_DLL ezRTTINoAllocator : public ezRTTIAllocator
   }
 };
 
-/// \brief Standard RTTI allocator that creates instances using ezEngine's allocator system.
+/// Standard RTTI allocator that creates instances using ezEngine's allocator system.
 ///
 /// This is the default allocator used by most reflected types. It provides standard heap allocation
 /// with proper integration into ezEngine's memory management system. The allocator wrapper allows
@@ -340,7 +340,7 @@ struct EZ_FOUNDATION_DLL ezRTTINoAllocator : public ezRTTIAllocator
 template <typename CLASS, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
 struct ezRTTIDefaultAllocator : public ezRTTIAllocator
 {
-  /// \brief Returns a new instance that was allocated with the given allocator.
+  /// Returns a new instance that was allocated with the given allocator.
   virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocator* pAllocator) override // [tested]
   {
     if (pAllocator == nullptr)
@@ -351,7 +351,7 @@ struct ezRTTIDefaultAllocator : public ezRTTIAllocator
     return EZ_NEW(pAllocator, CLASS);
   }
 
-  /// \brief Clones the given instance with the given allocator.
+  /// Clones the given instance with the given allocator.
   virtual ezInternal::NewInstance<void> CloneInternal(const void* pObject, ezAllocator* pAllocator) override // [tested]
   {
     if (pAllocator == nullptr)
@@ -370,7 +370,7 @@ struct ezRTTIDefaultAllocator : public ezRTTIAllocator
     }
   }
 
-  /// \brief Deletes the given instance with the given allocator.
+  /// Deletes the given instance with the given allocator.
   virtual void Deallocate(void* pObject, ezAllocator* pAllocator) override // [tested]
   {
     if (pAllocator == nullptr)

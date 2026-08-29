@@ -4,7 +4,7 @@
 #include <Core/Input/InputManager.h>
 #include <Foundation/Math/Vec2.h>
 
-/// \brief A Virtual Thumb-stick is an input device that transforms certain types of input (mouse / touch) into input similar to a
+/// A Virtual Thumb-stick is an input device that transforms certain types of input (mouse / touch) into input similar to a
 /// thumb-stick on a controller.
 ///
 /// A virtual thumb-stick can be used to provide an 'input device' on a touch screen, that acts like a controller thumb-stick and thus
@@ -16,13 +16,13 @@ class EZ_CORE_DLL ezVirtualThumbStick final : public ezInputDevice
   EZ_ADD_DYNAMIC_REFLECTION(ezVirtualThumbStick, ezInputDevice);
 
 public:
-  /// \brief Constructor.
+  /// Constructor.
   ezVirtualThumbStick();
 
-  /// \brief Destructor.
+  /// Destructor.
   ~ezVirtualThumbStick();
 
-  /// \brief This enum allows to select either some default input mapping or to select 'Custom'.
+  /// This enum allows to select either some default input mapping or to select 'Custom'.
   struct Input
   {
     enum Enum
@@ -33,7 +33,7 @@ public:
     };
   };
 
-  /// \brief Specifies which type of output the thumb-stick shall generate.
+  /// Specifies which type of output the thumb-stick shall generate.
   struct Output
   {
     enum Enum
@@ -50,7 +50,7 @@ public:
     };
   };
 
-  /// \brief Defines whether the thumb-stick center position is locked or relative to where the user started touching it.
+  /// Defines whether the thumb-stick center position is locked or relative to where the user started touching it.
   struct CenterMode
   {
     enum Enum
@@ -79,7 +79,7 @@ public:
     };
   };
 
-  /// \brief Defines the area on screen where the thumb-stick is located and accepts input.
+  /// Defines the area on screen where the thumb-stick is located and accepts input.
   ///
   /// \param vLowerLeft
   ///   The lower left corner of the input area. Coordinates are in [0; 1] range (normalized screen coordinates).
@@ -99,13 +99,13 @@ public:
   ///   \sa CenterMode.
   void SetInputArea(const ezVec2& vLowerLeft, const ezVec2& vUpperRight, float fThumbstickRadius, float fPriority, CenterMode::Enum center = CenterMode::ActivationPoint);
 
-  /// \brief See the Flags struct for details.
+  /// See the Flags struct for details.
   void SetFlags(ezBitflags<Flags> flags);
 
-  /// \brief See the Flags struct for details.
+  /// See the Flags struct for details.
   ezBitflags<Flags> GetFlags() const { return m_Flags; }
 
-  /// \brief Sets the aspect ratio of the screen on which the input happens.
+  /// Sets the aspect ratio of the screen on which the input happens.
   ///
   /// Mouse and touch input coordinates are in normalized [0; 1] coordinate space.
   /// To calculate correct input values, the aspect ratio of the screen is needed (width divided by height).
@@ -113,49 +113,49 @@ public:
   /// won't have the same influence as moving it up/down the same distance.
   void SetInputCoordinateAspectRatio(float fWidthDivHeight);
 
-  /// \brief Returns the screen aspect ratio that was set. See SetInputCoordinateAspectRatio().
+  /// Returns the screen aspect ratio that was set. See SetInputCoordinateAspectRatio().
   float GetInputCoordinateAspectRatio() const { return m_fAspectRatio; }
 
-  /// \brief Returns the input area of the virtual thumb-stick.
+  /// Returns the input area of the virtual thumb-stick.
   void GetInputArea(ezVec2& out_vLowerLeft, ezVec2& out_vUpperRight) const;
 
-  /// \brief Specifies from which input slots the thumb-stick is activated.
+  /// Specifies from which input slots the thumb-stick is activated.
   ///
   /// If \a Input is 'Custom' the remaining parameters define the filter axes and up to three input slots that trigger the thumb-stick.
   /// Otherwise the remaining parameters are ignored.
   void SetTriggerInputSlot(Input::Enum input, const ezInputActionConfig* pCustomConfig = nullptr);
 
-  /// \brief Specifies which output the thumb-stick generates.
+  /// Specifies which output the thumb-stick generates.
   ///
   /// If \a Output is 'Custom' the remaining parameters define which input slots the thumb-stick triggers for which direction.
   /// Otherwise the remaining parameters are ignored.
   void SetThumbstickOutput(Output::Enum output, ezStringView sOutputLeft = {}, ezStringView sOutputRight = {}, ezStringView sOutputUp = {}, ezStringView sOutputDown = {});
 
-  /// \brief Specifies what happens when the input slots that trigger the thumb-stick are active while entering or leaving the input area.
+  /// Specifies what happens when the input slots that trigger the thumb-stick are active while entering or leaving the input area.
   void SetAreaFocusMode(ezInputActionConfig::OnEnterArea onEnter, ezInputActionConfig::OnLeaveArea onLeave);
 
-  /// \brief Allows to enable or disable the entire thumb-stick temporarily.
+  /// Allows to enable or disable the entire thumb-stick temporarily.
   void SetEnabled(bool bEnabled) { m_bEnabled = bEnabled; }
 
-  /// \brief Returns whether the thumb-stick is currently enabled.
+  /// Returns whether the thumb-stick is currently enabled.
   bool IsEnabled() const { return m_bEnabled; }
 
-  /// \brief Returns whether the thumb-stick is currently active (ie. triggered) and generates output.
+  /// Returns whether the thumb-stick is currently active (ie. triggered) and generates output.
   bool IsActive() const { return m_bIsActive; }
 
-  /// \brief Returns the (normalized screen) coordinate where the current input center is. Depends on CenterMode.
+  /// Returns the (normalized screen) coordinate where the current input center is. Depends on CenterMode.
   ezVec2 GetCurrentCenter() const { return m_vCenter; }
 
-  /// \brief See SetInputArea() for details.
+  /// See SetInputArea() for details.
   float GetThumbstickRadius() const { return m_fRadius; }
 
-  /// \brief Returns the (normalized screen) coordinate where the current touch point is.
+  /// Returns the (normalized screen) coordinate where the current touch point is.
   ezVec2 GetCurrentTouchPos() const { return m_vTouchPos; }
 
-  /// \brief Returns the total strength of input.
+  /// Returns the total strength of input.
   float GetInputStrength() const { return m_fInputStrength; }
 
-  /// \brief Returns the normalized direction of the input.
+  /// Returns the normalized direction of the input.
   ezVec2 GetInputDirection() const { return m_vInputDirection; }
 
 protected:

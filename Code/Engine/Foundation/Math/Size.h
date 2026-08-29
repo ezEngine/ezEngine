@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 
-/// \brief Generic two-dimensional size representation with width and height components
+/// Generic two-dimensional size representation with width and height components
 ///
 /// Provides a simple container for representing rectangular dimensions in 2D space.
 /// The template parameter allows using different numeric types (integers, floats) depending
@@ -22,15 +22,15 @@ public:
 
   // *** Constructors ***
 public:
-  /// \brief Default constructor does not initialize the data.
+  /// Default constructor does not initialize the data.
   ezSizeTemplate();
 
-  /// \brief Constructor to set all values.
+  /// Constructor to set all values.
   ezSizeTemplate(Type width, Type height);
 
   // *** Common Functions ***
 public:
-  /// \brief Returns true if the area described by the size is non zero
+  /// Returns true if the area described by the size is non zero
   bool HasNonZeroArea() const;
 };
 

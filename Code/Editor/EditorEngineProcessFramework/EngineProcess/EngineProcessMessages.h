@@ -16,7 +16,7 @@
 
 ///////////////////////////////////// ezEditorEngineMsg /////////////////////////////////////
 
-/// \brief Base class for all messages between editor and engine that are not bound to any document
+/// Base class for all messages between editor and engine that are not bound to any document
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineMsg : public ezProcessMessage
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineMsg, ezProcessMessage);
@@ -47,7 +47,7 @@ public:
   float m_fDevicePixelRatio = 1.0f;
 };
 
-/// \brief Sent to remote processes to shut them down.
+/// Sent to remote processes to shut them down.
 /// Local processes are simply killed through QProcess::close, but remote processes have to close themselves.
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezShutdownProcessMsgToEngine : public ezEditorEngineMsg
 {
@@ -146,7 +146,7 @@ public:
 
 ///////////////////////////////////// ezEditorEngineDocumentMsg /////////////////////////////////////
 
-/// \brief Base class for all messages that are tied to some document.
+/// Base class for all messages that are tied to some document.
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineDocumentMsg : public ezProcessMessage
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineDocumentMsg, ezProcessMessage);
@@ -202,7 +202,7 @@ public:
   ezUInt32 m_uiViewID;
 };
 
-/// \brief For very simple uses cases where a custom message would be too much
+/// For very simple uses cases where a custom message would be too much
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDocumentConfigMsgToEngine : public ezEditorEngineDocumentMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentConfigMsgToEngine, ezEditorEngineDocumentMsg);
@@ -226,7 +226,7 @@ public:
   ezVariant m_DocumentMetaData;
 };
 
-/// \brief Used to reset the engine side to an empty document before sending the full document state over
+/// Used to reset the engine side to an empty document before sending the full document state over
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDocumentClearMsgToEngine : public ezEditorEngineDocumentMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentClearMsgToEngine, ezEditorEngineDocumentMsg);
@@ -574,7 +574,7 @@ public:
   ezInt32 m_iPurpose;  /// passed through from ezQuerySelectionBBoxMsgToEngine
 };
 
-/// \brief Send between editor documents, such that one document can know about objects in another document.
+/// Send between editor documents, such that one document can know about objects in another document.
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGatherObjectsOfTypeMsgInterDoc : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezGatherObjectsOfTypeMsgInterDoc, ezReflectedClass);

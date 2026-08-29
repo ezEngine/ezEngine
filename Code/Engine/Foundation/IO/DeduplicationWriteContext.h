@@ -11,7 +11,7 @@
 
 class ezStreamWriter;
 
-/// \brief Serialization Context that de-duplicates objects when writing to a stream. Duplicated objects are identified by their address and
+/// Serialization Context that de-duplicates objects when writing to a stream. Duplicated objects are identified by their address and
 /// only the first occurrence is written to the stream while all subsequence occurrences are just written as an index.
 class EZ_FOUNDATION_DLL ezDeduplicationWriteContext : public ezSerializationContext<ezDeduplicationWriteContext>
 {
@@ -21,23 +21,23 @@ public:
   ezDeduplicationWriteContext();
   ~ezDeduplicationWriteContext();
 
-  /// \brief Writes a single object to the stream. Can be either a reference or a pointer to the object.
+  /// Writes a single object to the stream. Can be either a reference or a pointer to the object.
   template <typename T>
   ezResult WriteObject(ezStreamWriter& inout_stream, const T& obj); // [tested]
 
-  /// \brief Writes a single object to the stream.
+  /// Writes a single object to the stream.
   template <typename T>
   ezResult WriteObject(ezStreamWriter& inout_stream, const ezSharedPtr<T>& pObject); // [tested]
 
-  /// \brief Writes a single object to the stream.
+  /// Writes a single object to the stream.
   template <typename T>
   ezResult WriteObject(ezStreamWriter& inout_stream, const ezUniquePtr<T>& pObject); // [tested]
 
-  /// \brief Writes an array of de-duplicated objects.
+  /// Writes an array of de-duplicated objects.
   template <typename ArrayType, typename ValueType>
   ezResult WriteArray(ezStreamWriter& inout_stream, const ezArrayBase<ValueType, ArrayType>& array); // [tested]
 
-  /// \brief Writes a set of de-duplicated objects.
+  /// Writes a set of de-duplicated objects.
   template <typename KeyType, typename Comparer>
   ezResult WriteSet(ezStreamWriter& inout_stream, const ezSetBase<KeyType, Comparer>& set); // [tested]
 
@@ -48,7 +48,7 @@ public:
     DedupBoth
   };
 
-  /// \brief Writes a map. Mode controls whether key or value or both should de-duplicated.
+  /// Writes a map. Mode controls whether key or value or both should de-duplicated.
   template <typename KeyType, typename ValueType, typename Comparer>
   ezResult WriteMap(ezStreamWriter& inout_stream, const ezMapBase<KeyType, ValueType, Comparer>& map, WriteMapMode mode); // [tested]
 

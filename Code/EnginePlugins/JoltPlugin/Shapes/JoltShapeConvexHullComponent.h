@@ -5,7 +5,7 @@
 
 using ezJoltShapeConvexHullComponentManager = ezComponentManager<class ezJoltShapeConvexHullComponent, ezBlockStorageType::FreeList>;
 
-/// \brief Adds a Jolt convex hull shape to a Jolt actor.
+/// Adds a Jolt convex hull shape to a Jolt actor.
 ///
 /// A convex hull is a simple convex shape. It can be used for simulating dynamic rigid bodies.
 /// Often the convex hull of a complex mesh is used to approximate the mesh and make it possible to use it as a dynamic actor.

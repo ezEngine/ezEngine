@@ -40,44 +40,44 @@ public:
     Hide
   };
 
-  /// \brief Creates a new object and attaches all currently selected objects to it.
+  /// Creates a new object and attaches all currently selected objects to it.
   void GroupSelection();
 
-  /// \brief Changes the selection to the parent object.
+  /// Changes the selection to the parent object.
   void SelectParentObject();
 
-  /// \brief Sets the last selected object as the 'active parent'.
+  /// Sets the last selected object as the 'active parent'.
   void SetSelectedAsActiveParent();
-  /// \brief Clears the 'active parent' object.
+  /// Clears the 'active parent' object.
   void ClearActiveParent();
 
-  /// \brief Opens the Duplicate Special dialog
+  /// Opens the Duplicate Special dialog
   void DuplicateSpecial();
 
-  /// \brief Opens the 'Delta Transform' dialog.
+  /// Opens the 'Delta Transform' dialog.
   void DeltaTransform();
 
 
-  /// \brief Moves all selected objects to the editor camera position
+  /// Moves all selected objects to the editor camera position
   void SnapObjectToCamera();
 
 
-  /// \brief Attaches all selected objects to the selected object
+  /// Attaches all selected objects to the selected object
   void AttachToObject();
 
-  /// \brief Detaches all selected objects from their current parent
+  /// Detaches all selected objects from their current parent
   void DetachFromParent();
 
-  /// \brief Sends the ordered child object GUIDs to all selected objects that have a component with ezSyncChildOrderAttribute.
+  /// Sends the ordered child object GUIDs to all selected objects that have a component with ezSyncChildOrderAttribute.
   void SyncChildOrderForSelection();
 
-  /// \brief Iterates all objects in this document and sends child order sync for those that require it.
+  /// Iterates all objects in this document and sends child order sync for those that require it.
   virtual void SyncAllChildOrders();
 
-  /// \brief Puts the GUID of the single selected object into the clipboard
+  /// Puts the GUID of the single selected object into the clipboard
   void CopyReference();
 
-  /// \brief Creates a new empty object, either top-level (selection empty) or as a child of the selected item
+  /// Creates a new empty object, either top-level (selection empty) or as a child of the selected item
   ezStatus CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition, bool bComponentSelectionMenu);
 
   void DuplicateSelection();
@@ -85,16 +85,16 @@ public:
   void ShowOrHideAllObjects(ShowOrHide action);
   void HideUnselectedObjects();
 
-  /// \brief Whether this document represents a prefab or a scene
+  /// Whether this document represents a prefab or a scene
   bool IsPrefab() const { return m_DocumentType == DocumentType::Prefab; }
 
-  /// \brief Determines whether the given object is an editor prefab
+  /// Determines whether the given object is an editor prefab
   bool IsObjectEditorPrefab(const ezUuid& object, ezUuid* out_pPrefabAssetGuid = nullptr) const;
 
-  /// \brief Determines whether the given object is an engine prefab
+  /// Determines whether the given object is an engine prefab
   bool IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_pPrefabAssetGuid = nullptr) const;
 
-  /// \brief Nested prefabs are not allowed
+  /// Nested prefabs are not allowed
   virtual bool ArePrefabsAllowed() const override { return !IsPrefab(); }
 
 
@@ -108,17 +108,17 @@ public:
 
   virtual void UpdatePrefabs() override;
 
-  /// \brief Removes the link to the prefab template, making the editor prefab a simple object
+  /// Removes the link to the prefab template, making the editor prefab a simple object
   virtual void UnlinkPrefabs(ezArrayPtr<const ezDocumentObject*> selection) override;
 
   virtual ezUuid ReplaceByPrefab(const ezDocumentObject* pRootObject, ezStringView sPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab) override;
 
-  /// \brief Reverts all selected editor prefabs to their original template state
+  /// Reverts all selected editor prefabs to their original template state
   virtual ezUuid RevertPrefab(const ezDocumentObject* pObject) override;
 
-  /// \brief Converts all objects in the selection that are engine prefabs to their respective editor prefab representation
+  /// Converts all objects in the selection that are engine prefabs to their respective editor prefab representation
   virtual void ConvertToEditorPrefab(ezArrayPtr<const ezDocumentObject*> selection);
-  /// \brief Converts all objects in the selection that are editor prefabs to their respective engine prefab representation
+  /// Converts all objects in the selection that are editor prefabs to their respective engine prefab representation
   virtual void ConvertToEnginePrefab(ezArrayPtr<const ezDocumentObject*> selection);
 
   virtual ezStatus CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = {}, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB = {}, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB = {}) override;
@@ -166,20 +166,20 @@ public:
   /// \name Editor Camera
   ///@{
 
-  /// \brief Stores the current editor camera position in a user preference. Slot can be 0 to 9.
+  /// Stores the current editor camera position in a user preference. Slot can be 0 to 9.
   ///
   /// Since the preference is stored on disk, this position can be restored in another session.
   void StoreFavoriteCamera(ezUInt8 uiSlot);
 
-  /// \brief Applies the previously stored camera position from slot 0 to 9 to the current camera position.
+  /// Applies the previously stored camera position from slot 0 to 9 to the current camera position.
   ///
   /// The camera will quickly interpolate to the stored position.
   void RestoreFavoriteCamera(ezUInt8 uiSlot);
 
-  /// \brief Searches for an ezCameraComponent with the 'EditorShortcut' property set to \a uiSlot and moves the editor camera to that position.
+  /// Searches for an ezCameraComponent with the 'EditorShortcut' property set to \a uiSlot and moves the editor camera to that position.
   ezResult JumpToLevelCamera(ezUInt8 uiSlot, bool bImmediate);
 
-  /// \brief Creates an object with an ezCameraComponent at the current editor camera position and sets the 'EditorShortcut' property to \a uiSlot.
+  /// Creates an object with an ezCameraComponent at the current editor camera position and sets the 'EditorShortcut' property to \a uiSlot.
   ezResult CreateLevelCamera(ezUInt8 uiSlot);
 
   virtual ezManipulatorSearchStrategy GetManipulatorSearchStrategy() const override
@@ -227,13 +227,13 @@ protected:
   void SyncObjectHiddenState();
   void SyncObjectHiddenState(ezDocumentObject* pObject);
 
-  /// \brief Sends the child order sync message if pObj has a component with ezSyncChildOrderAttribute.
+  /// Sends the child order sync message if pObj has a component with ezSyncChildOrderAttribute.
   void SyncChildOrderForObject(const ezDocumentObject* pObj);
 
-  /// \brief Flushes m_PendingChildOrderSync, sending sync messages for all collected parents.
+  /// Flushes m_PendingChildOrderSync, sending sync messages for all collected parents.
   void SendPendingChildOrderSyncs();
 
-  /// \brief Finds all objects that are actively being 'debugged' (or visualized) by the editor and thus should get the debug visualization flag in
+  /// Finds all objects that are actively being 'debugged' (or visualized) by the editor and thus should get the debug visualization flag in
   /// the runtime.
   void UpdateObjectDebugTargets();
 

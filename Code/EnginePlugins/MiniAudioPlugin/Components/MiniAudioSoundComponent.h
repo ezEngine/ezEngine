@@ -65,7 +65,7 @@ public:
   void SetVolume(float f);                               // [ property ]
   float GetVolume() const { return m_fComponentVolume; } // [ property ]
 
-  /// \brief If set, the global game speed does not affect the pitch of this event.
+  /// If set, the global game speed does not affect the pitch of this event.
   ///
   /// This is important for global sounds, such as music or UI effects, so that they always play at their regular speed,
   /// even when the game is in slow motion.
@@ -74,25 +74,25 @@ public:
 
   ezEnum<ezOnComponentFinishedAction2> m_OnFinishedAction; // [ property ]
 
-  /// \brief Makes the sound play.
+  /// Makes the sound play.
   ///
   /// If it was not yet playing, it starts playing a new sound.
   /// If it was already playing, but paused, playback is resumed.
   /// If it was already playing, there is no change.
   void Play(); // [ scriptable ]
 
-  /// \brief If a sound is playing, it pauses at the current play position.
+  /// If a sound is playing, it pauses at the current play position.
   ///
   /// Call Play() to resume playing.
   void Pause(); // [ scriptable ]
 
-  /// \brief Interrupts the sound playback abruptly.
+  /// Interrupts the sound playback abruptly.
   void Stop(); // [ scriptable ]
 
-  /// \brief Stops the sound, by fading it out over a short period.
+  /// Stops the sound, by fading it out over a short period.
   void FadeOut(ezTime fadeDuration); // [ scriptable ]
 
-  /// \brief Plays a completely new sound at the location of this component and with all its current properties.
+  /// Plays a completely new sound at the location of this component and with all its current properties.
   ///
   /// Pitch, volume, position and direction are copied to the new sound instance.
   /// The new sound then plays to the end and cannot be controlled through this component any further.

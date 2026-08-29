@@ -17,7 +17,7 @@ public:
 
   ezStatus CanOpenDocument(ezStringView sFilePath) const;
 
-  /// \brief Creates a new document.
+  /// Creates a new document.
   /// \param szDocumentTypeName Document type to create. See ezDocumentTypeDescriptor.
   /// \param szPath Absolute path to the document to be created.
   /// \param out_pDocument Out parameter for the resulting ezDocument. Will be nullptr on failure.
@@ -27,7 +27,7 @@ public:
   ezStatus CreateDocument(
     ezStringView sDocumentTypeName, ezStringView sPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::None, const ezDocumentObject* pOpenContext = nullptr);
 
-  /// \brief Opens an existing document.
+  /// Opens an existing document.
   /// \param szDocumentTypeName Document type to open. See ezDocumentTypeDescriptor.
   /// \param szPath Absolute path to the document to be opened.
   /// \param out_pDocument Out parameter for the resulting ezDocument. Will be nullptr on failure.
@@ -42,18 +42,18 @@ public:
   void CloseDocument(ezDocument* pDocument);
   void EnsureWindowRequested(ezDocument* pDocument, const ezDocumentObject* pOpenContext = nullptr);
 
-  /// \brief Returns a list of all currently open documents that are managed by this document manager
+  /// Returns a list of all currently open documents that are managed by this document manager
   const ezDynamicArray<ezDocument*>& GetAllOpenDocuments() const { return m_AllOpenDocuments; }
 
   ezDocument* GetDocumentByPath(ezStringView sPath) const;
 
   static ezDocument* GetDocumentByGuid(const ezUuid& guid);
 
-  /// \brief If the given document is open, it will be closed. User is not asked about it, unsaved changes are discarded. Returns true if the document
+  /// If the given document is open, it will be closed. User is not asked about it, unsaved changes are discarded. Returns true if the document
   /// was open and needed to be closed.
   static bool EnsureDocumentIsClosedInAllManagers(ezStringView sPath);
 
-  /// \brief If the given document is open, it will be closed. User is not asked about it, unsaved changes are discarded. Returns true if the document
+  /// If the given document is open, it will be closed. User is not asked about it, unsaved changes are discarded. Returns true if the document
   /// was open and needed to be closed. This function only operates on documents opened by this manager. Use EnsureDocumentIsClosedInAllManagers() to
   /// close documents of any type.
   bool EnsureDocumentIsClosed(ezStringView sPath);

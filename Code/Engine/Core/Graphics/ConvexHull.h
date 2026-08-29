@@ -5,7 +5,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Vec3.h>
 
-/// \brief Computes convex hulls for 3D meshes.
+/// Computes convex hulls for 3D meshes.
 ///
 /// By default it will also simplify the result to a reasonable degree,
 /// to reduce complexity and vertex/triangle count.
@@ -25,30 +25,30 @@ public:
   ezConvexHullGenerator();
   ~ezConvexHullGenerator();
 
-  /// \brief Used to remove degenerate and unnecessary triangles that have corners with very little angle change.
+  /// Used to remove degenerate and unnecessary triangles that have corners with very little angle change.
   /// Ie. specifying 10 degree, means that all triangle corners must have at least a 10 degree change (and inner angle of 170 degree).
   /// Default is 22 degree.
   void SetSimplificationMinTriangleAngle(ezAngle angle) { m_MinTriangleAngle = angle; }
 
-  /// \brief Used to remove vertices that do not contribute much to the silhouette.
+  /// Used to remove vertices that do not contribute much to the silhouette.
   /// Vertices whose adjacent triangle normals do not differ by more than angle, will be discarded.
   /// Default is 5 degree.
   void SetSimplificationFlatVertexNormalThreshold(ezAngle angle) { m_FlatVertexNormalThreshold = angle; }
 
-  /// \brief The minimum triangle edge length. Every edge shorter than this will be discarded and replaced by a single vertex at the
+  /// The minimum triangle edge length. Every edge shorter than this will be discarded and replaced by a single vertex at the
   /// average position.
   /// \note The length is not in 'mesh space' coordinates, but instead in 'unit cube space'.
   /// That means, every mesh is scaled to fit into a cube of size [-1; +1] for each axis. Thus the exact scale of the mesh does not matter
   /// when setting this value. Default is 0.05.
   void SetSimplificationMinTriangleEdgeLength(double fLen) { m_fMinTriangleEdgeLength = fLen; }
 
-  /// \brief Generates the convex hull. Simplifies the mesh according to the previously specified parameters.
+  /// Generates the convex hull. Simplifies the mesh according to the previously specified parameters.
   ezResult Build(const ezArrayPtr<const ezVec3> vertices);
 
-  /// \brief When Build() was successful this can be called to retrieve the resulting vertices and triangles.
+  /// When Build() was successful this can be called to retrieve the resulting vertices and triangles.
   void Retrieve(ezDynamicArray<ezVec3>& out_vertices, ezDynamicArray<Face>& out_faces);
 
-  /// \brief Same as Retrieve() but only returns the vertices.
+  /// Same as Retrieve() but only returns the vertices.
   void RetrieveVertices(ezDynamicArray<ezVec3>& out_vertices);
 
 private:

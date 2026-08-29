@@ -9,7 +9,7 @@
 class ezParticleStream;
 class ezParticleSystemInstance;
 
-/// \brief Base class for all particle stream factories
+/// Base class for all particle stream factories
 ///
 /// Stream factories are responsible for creating and configuring particle streams.
 /// Each factory specifies the stream name, data type, and the actual stream class to instantiate.
@@ -33,7 +33,7 @@ private:
   const ezRTTI* m_pStreamTypeToCreate = nullptr;
 };
 
-/// \brief Base class for all particle streams
+/// Base class for all particle streams
 ///
 /// Particle streams store per-particle data like position, velocity, color, or size.
 /// Each stream type provides initialization logic for new particles.
@@ -56,7 +56,7 @@ protected:
   /// Particle streams do not process existing elements, they only initialize new ones.
   virtual void Process(ezUInt64 uiNumElements) final override {}
 
-  /// \brief The default implementation initializes all data with zero.
+  /// The default implementation initializes all data with zero.
   ///
   /// Override this to provide custom initialization for new particles.
   /// The implementation should initialize elements in the range [uiStartIndex, uiStartIndex + uiNumElements).

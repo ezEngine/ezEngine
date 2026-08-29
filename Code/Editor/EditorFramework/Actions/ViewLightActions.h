@@ -4,7 +4,7 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
 
-/// \brief Actions for configuring the engine view light settings.
+/// Actions for configuring the engine view light settings.
 class EZ_EDITORFRAMEWORK_DLL ezViewLightActions
 {
 public:

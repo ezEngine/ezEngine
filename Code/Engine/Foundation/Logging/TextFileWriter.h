@@ -7,7 +7,7 @@
 namespace ezLogWriter
 {
 
-  /// \brief A log writer that writes out log messages to a plain text file.
+  /// A log writer that writes out log messages to a plain text file.
   ///
   /// Create an instance of this class, register the LogMessageHandler at ezLog and pass the pointer
   /// to the instance as the pPassThrough argument to it.
@@ -21,19 +21,19 @@ namespace ezLogWriter
   public:
     ~TextFile();
 
-    /// \brief Register this at ezLog to write all log messages to a text file.
+    /// Register this at ezLog to write all log messages to a text file.
     void LogMessageHandler(const ezLoggingEventData& eventData);
 
-    /// \brief Opens the given file (an absolute path) for writing the log. From now on all incoming log messages are written into it.
+    /// Opens the given file (an absolute path) for writing the log. From now on all incoming log messages are written into it.
     ezResult BeginLog(ezStringView sFile);
 
-    /// \brief Closes the file and stops logging the incoming messages.
+    /// Closes the file and stops logging the incoming messages.
     void EndLog();
 
-    /// \brief Whether BeginLog() succeeded and EndLog() hasn't been called yet.
+    /// Whether BeginLog() succeeded and EndLog() hasn't been called yet.
     bool IsOpen() const;
 
-    /// \brief Allows to indicate in what form timestamps should be added to log messages.
+    /// Allows to indicate in what form timestamps should be added to log messages.
     void SetTimestampMode(ezLog::TimestampMode mode);
 
   private:

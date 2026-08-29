@@ -21,7 +21,7 @@ struct ezFillLightMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezFillLightMode);
 
-/// \brief The render data object for fill lights.
+/// The render data object for fill lights.
 class EZ_RENDERERCORE_DLL ezFillLightRenderData : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezFillLightRenderData, ezRenderData);
@@ -39,7 +39,7 @@ public:
 
 using ezFillLightComponentManager = ezComponentManager<class ezFillLightComponent, ezBlockStorageType::Compact>;
 
-/// \brief Adds a fill light to the scene. This can be used to simulate bounced light or to light up dark areas.
+/// Adds a fill light to the scene. This can be used to simulate bounced light or to light up dark areas.
 /// It can also be used to modulate the indirect lighting.
 class EZ_RENDERERCORE_DLL ezFillLightComponent : public ezRenderComponent
 {
@@ -66,12 +66,12 @@ public:
   ezFillLightComponent();
   ~ezFillLightComponent();
 
-  /// \brief In Additive mode the fill light adds light to scene like a regular light source.
+  /// In Additive mode the fill light adds light to scene like a regular light source.
   /// In ModulateIndirect mode it acts as a multiplier to the indirect light.
   void SetLightMode(ezEnum<ezFillLightMode> mode);                     // [ property ]
   ezEnum<ezFillLightMode> GetLightMode() const { return m_LightMode; } // [ property ]
 
-  /// \brief Used to enable kelvin color values. This is a physical representation of light color using.
+  /// Used to enable kelvin color values. This is a physical representation of light color using.
   /// for more detail: https://wikipedia.org/wiki/Color_temperature
   void SetUsingColorTemperature(bool bUseColorTemperature);                // [ property ]
   bool GetUsingColorTemperature() const { return m_bUseColorTemperature; } // [ property ]
@@ -84,20 +84,20 @@ public:
 
   ezColorGammaUB GetEffectiveColor() const;
 
-  /// \brief In Additive mode this controls the brightness of the light source.
+  /// In Additive mode this controls the brightness of the light source.
   /// In ModulateIndirect mode light color times intensity is multiplied with the indirect light,
   /// thus values below 1 darken the indirect light, values above 1 brighten the indirect light.
   void SetIntensity(float fIntensity);                // [ property ]
   float GetIntensity() const { return m_fIntensity; } // [ property ]
 
-  /// \brief Sets the radius of the light source.
+  /// Sets the radius of the light source.
   void SetRange(float fRange);                                    // [ property ]
   float GetRange() const { return m_fRange; }                     // [ property ]
 
   void SetFalloffExponent(float fFalloffExponent);                // [ property ]
   float GetFalloffExponent() const { return m_fFalloffExponent; } // [ property ]
 
-  /// \brief Controls how much the light wraps to the backside of lit objects.
+  /// Controls how much the light wraps to the backside of lit objects.
   /// A directionality of 1 means no light will wrap to the backside and
   /// with a directionality of 0 light will equaly lit front and backsides.
   void SetDirectionality(float fDirectionality);                // [ property ]

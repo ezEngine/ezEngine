@@ -51,7 +51,7 @@ public:
 
   static bool TryGetView(const ezViewHandle& hView, ezView*& out_pView);
 
-  /// \brief Searches for an ezView with the desired usage hint or alternative usage hint.
+  /// Searches for an ezView with the desired usage hint or alternative usage hint.
   static ezView* GetViewByUsageHint(ezCameraUsageHint::Enum usageHint, ezCameraUsageHint::Enum alternativeUsageHint = ezCameraUsageHint::None, const ezWorld* pWorld = nullptr);
 
   static void AddMainView(const ezViewHandle& hView);
@@ -108,7 +108,7 @@ public:
 
   static bool GetUseMultithreadedRendering();
 
-  /// \brief Resets the frame counter to zero. Only for test purposes !
+  /// Resets the frame counter to zero. Only for test purposes !
   EZ_ALWAYS_INLINE static void ResetFrameCounter() { s_uiFrameCounter = 0; }
 
   EZ_ALWAYS_INLINE static ezUInt64 GetFrameCounter() { return s_uiFrameCounter; }

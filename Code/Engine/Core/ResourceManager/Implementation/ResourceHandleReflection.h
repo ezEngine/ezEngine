@@ -3,7 +3,7 @@
 #include <Core/CoreDLL.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
-/// \brief Adds two member functions to a class, GetXyzFile() and SetXyzFile() with Xyz being equal to 'name', which allow to access the handle through strings.
+/// Adds two member functions to a class, GetXyzFile() and SetXyzFile() with Xyz being equal to 'name', which allow to access the handle through strings.
 ///
 /// This macro is just for convenience, so that one doesn't need to write this boilerplate code by hand for every resource handle that
 /// should be exposed through the reflection system.
@@ -29,7 +29,7 @@
     return member.GetResourceID();                                                     \
   }
 
-/// \brief Same as EZ_ADD_RESOURCEHANDLE_ACCESSORS, but calls 'setterFunc' instead of assigning to 'member' directly.
+/// Same as EZ_ADD_RESOURCEHANDLE_ACCESSORS, but calls 'setterFunc' instead of assigning to 'member' directly.
 ///
 /// This can be used, if the setter should do additional validation or bookkeeping.
 #define EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(name, member, setterFunc)             \
@@ -51,7 +51,7 @@
   }
 
 
-/// \brief [internal] Helper class to generate accessor functions for (private) resource handle members
+/// [internal] Helper class to generate accessor functions for (private) resource handle members
 template <typename Class, typename Type, Type Class::*Member>
 struct ezResourceHandlePropertyAccessor
 {
@@ -78,7 +78,7 @@ struct ezResourceHandlePropertyAccessor
   }
 };
 
-/// \brief Similar to EZ_MEMBER_PROPERTY, but makes it convenient to expose resource handle properties
+/// Similar to EZ_MEMBER_PROPERTY, but makes it convenient to expose resource handle properties
 #define EZ_RESOURCE_MEMBER_PROPERTY(PropertyName, MemberName)                                                        \
   (new ezMemberProperty<OwnType, ezStringView>(PropertyName,                                                         \
     &ezResourceHandlePropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetValue, \
@@ -87,7 +87,7 @@ struct ezResourceHandlePropertyAccessor
 
 
 
-/// \brief [internal] An implementation of ezTypedMemberProperty that uses custom getter / setter functions to access a property.
+/// [internal] An implementation of ezTypedMemberProperty that uses custom getter / setter functions to access a property.
 template <typename Class, typename Type>
 class ezResourceAccessorProperty : public ezTypedMemberProperty<ezStringView>
 {
@@ -145,7 +145,7 @@ private:
   SetterFunc m_Setter;
 };
 
-/// \brief Similar to EZ_RESOURCE_MEMBER_PROPERTY, but takes a getter and setter function that access the resource handle.
+/// Similar to EZ_RESOURCE_MEMBER_PROPERTY, but takes a getter and setter function that access the resource handle.
 ///
 /// This can be used to control what other things should happen, if a handle gets modified.
 #define EZ_RESOURCE_ACCESSOR_PROPERTY(PropertyName, Getter, Setter) \

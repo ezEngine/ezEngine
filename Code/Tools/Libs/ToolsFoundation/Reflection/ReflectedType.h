@@ -13,7 +13,7 @@ class ezRTTI;
 class ezPhantomRttiManager;
 class ezReflectedTypeStorageManager;
 
-/// \brief Event message used by the ezPhantomRttiManager.
+/// Event message used by the ezPhantomRttiManager.
 struct EZ_TOOLSFOUNDATION_DLL ezPhantomTypeChange
 {
   const ezRTTI* m_pChangedType = nullptr;
@@ -38,14 +38,14 @@ struct EZ_TOOLSFOUNDATION_DLL ezAttributeHolder
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezAttributeHolder);
 
-/// \brief Stores the description of a reflected property in a serializable form, used by ezReflectedTypeDescriptor.
+/// Stores the description of a reflected property in a serializable form, used by ezReflectedTypeDescriptor.
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedPropertyDescriptor : public ezAttributeHolder
 {
   ezReflectedPropertyDescriptor() = default;
   ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, ezStringView sName, ezStringView sType, ezBitflags<ezPropertyFlags> flags);
   ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, ezStringView sName, ezStringView sType, ezBitflags<ezPropertyFlags> flags,
     ezArrayPtr<const ezPropertyAttribute* const> attributes); // [tested]
-  /// \brief Initialize to a constant.
+  /// Initialize to a constant.
   ezReflectedPropertyDescriptor(ezStringView sName, const ezVariant& constantValue, ezArrayPtr<const ezPropertyAttribute* const> attributes); // [tested]
   ezReflectedPropertyDescriptor(const ezReflectedPropertyDescriptor& rhs);
   ~ezReflectedPropertyDescriptor();
@@ -72,7 +72,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezFunctionArgumentDescriptor
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezFunctionArgumentDescriptor);
 
-/// \brief Stores the description of a reflected function in a serializable form, used by ezReflectedTypeDescriptor.
+/// Stores the description of a reflected function in a serializable form, used by ezReflectedTypeDescriptor.
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedFunctionDescriptor : public ezAttributeHolder
 {
   ezReflectedFunctionDescriptor();
@@ -92,7 +92,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedFunctionDescriptor : public ezAttribute
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezReflectedFunctionDescriptor);
 
 
-/// \brief Stores the description of a reflected type in a serializable form. Used by ezPhantomRttiManager to add new types.
+/// Stores the description of a reflected type in a serializable form. Used by ezPhantomRttiManager to add new types.
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeDescriptor : public ezAttributeHolder
 {
   ~ezReflectedTypeDescriptor();

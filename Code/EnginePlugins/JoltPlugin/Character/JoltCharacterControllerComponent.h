@@ -16,7 +16,7 @@ namespace JPH
 EZ_DECLARE_FLAGS(ezUInt32, ezJoltCharacterDebugFlags, PrintState, VisShape, VisContacts, VisCasts, VisGroundContact, VisFootCheck);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltCharacterDebugFlags);
 
-/// \brief Base class for character controllers (CC).
+/// Base class for character controllers (CC).
 ///
 /// This class provides general functionality for building a character controller.
 /// It tries not to implement things that are game specific.
@@ -44,7 +44,7 @@ public:
   ezJoltCharacterControllerComponent();
   ~ezJoltCharacterControllerComponent();
 
-  /// \brief Describes a point where the CC collided with other geometry.
+  /// Describes a point where the CC collided with other geometry.
   struct ContactPoint
   {
     float m_fCastFraction = 0.0f;
@@ -56,7 +56,7 @@ public:
     JPH::SubShapeID m_SubShapeID;
   };
 
-  /// \brief The CC will move through the given physics body.
+  /// The CC will move through the given physics body.
   ///
   /// Currently only one such object can be set. This is mainly used to ignore an object that the player is currently carrying,
   /// so that there are no unintended collisions.
@@ -77,7 +77,7 @@ public:
   /// What aspects of the CC to visualize.
   ezBitflags<ezJoltCharacterDebugFlags> m_DebugFlags; // [ property ]
 
-  /// \brief The maximum slope that the character can walk up.
+  /// The maximum slope that the character can walk up.
   void SetMaxClimbingSlope(ezAngle slope);                           // [ property ]
   ezAngle GetMaxClimbingSlope() const { return m_MaxClimbingSlope; } // [ property ]
 
@@ -85,7 +85,7 @@ public:
   float m_fWeightMass = 50.0f;                                       // [ property ]
   float m_fWeightScale = 1.0f;                                       // [ property ]
 
-  /// \brief The strength with which the character will push against objects that it is running into.
+  /// The strength with which the character will push against objects that it is running into.
   void SetStrength(float fStrength);                        // [ property ]
   float GetStrength() const { return m_fStrength; }         // [ property ]
 
@@ -101,13 +101,13 @@ private:
   void SetWeight_Scale(float fValue) { m_fWeightScale = fValue; }
 
 protected:
-  /// \brief Returns the time delta to use for updating the character. This may differ from the world delta.
+  /// Returns the time delta to use for updating the character. This may differ from the world delta.
   EZ_ALWAYS_INLINE float GetUpdateTimeDelta() const { return m_fUpdateTimeDelta; }
 
-  /// \brief Returns the inverse of update time delta.
+  /// Returns the inverse of update time delta.
   EZ_ALWAYS_INLINE float GetInverseUpdateTimeDelta() const { return m_fInverseUpdateTimeDelta; }
 
-  /// \brief Returns the shape that the character is supposed to use next.
+  /// Returns the shape that the character is supposed to use next.
   ///
   /// The desired target state (radius, height, etc) has to be stored somewhere else (e.g. as members in derived classes).
   /// The shape can be cached.
@@ -115,48 +115,48 @@ protected:
   /// determined to not fit.
   virtual JPH::Ref<JPH::Shape> MakeNextCharacterShape() = 0;
 
-  /// \brief Returns the radius of the shape. This never changes at runtime.
+  /// Returns the radius of the shape. This never changes at runtime.
   virtual float GetShapeRadius() const = 0;
 
-  /// \brief Called up to once per frame, but potentially less often, if physics updates were skipped due to high framerates.
+  /// Called up to once per frame, but potentially less often, if physics updates were skipped due to high framerates.
   ///
   /// All shape modifications and moves should only be executed during this step.
   /// The given deltaTime should be used, rather than the world's time diff.
   virtual void UpdateCharacter() = 0;
 
-  /// \brief Gives access to the internally used JPH::CharacterVirtual.
+  /// Gives access to the internally used JPH::CharacterVirtual.
   JPH::CharacterVirtual* GetJoltCharacter() { return m_pCharacter; }
   const JPH::CharacterVirtual* GetJoltCharacter() const { return m_pCharacter; }
 
-  /// \brief Attempts to change the character shape to the new one. Fails if the new shape overlaps with surrounding geometry.
+  /// Attempts to change the character shape to the new one. Fails if the new shape overlaps with surrounding geometry.
   ezResult TryChangeShape(JPH::Shape* pNewShape);
 
-  /// \brief Moves the character using the given velocity and timestep, making it collide with and slide along obstacles.
+  /// Moves the character using the given velocity and timestep, making it collide with and slide along obstacles.
   void RawMoveWithVelocity(const ezVec3& vVelocity, float fMaxStairStepUp, float fMaxStepDown);
 
-  /// \brief Variant of RawMoveWithVelocity() that takes a direction vector instead.
+  /// Variant of RawMoveWithVelocity() that takes a direction vector instead.
   void RawMoveIntoDirection(const ezVec3& vDirection);
 
-  /// \brief Variant of RawMoveWithVelocity() that takes a target position instead.
+  /// Variant of RawMoveWithVelocity() that takes a target position instead.
   void RawMoveToPosition(const ezVec3& vTargetPosition);
 
-  /// \brief Teleports the character to the destination position, even if it would get stuck there.
+  /// Teleports the character to the destination position, even if it would get stuck there.
   void TeleportToPosition(const ezVec3& vGlobalFootPos);
 
-  /// \brief If the CC is slightly above the ground, this will move it down so that it touches the ground.
+  /// If the CC is slightly above the ground, this will move it down so that it touches the ground.
   ///
   /// If within the max distance no ground contact is found, the function does nothing and returns false.
   bool StickToGround(float fMaxDist);
 
-  /// \brief Gathers all contact points that are found by sweeping the shape along a direction
+  /// Gathers all contact points that are found by sweeping the shape along a direction
   void CollectCastContacts(ezDynamicArray<ContactPoint>& out_Contacts, const JPH::Shape* pShape, const ezVec3& vQueryPosition, const ezQuat& qQueryRotation, const ezVec3& vSweepDir) const;
 
-  /// \brief Gathers all contact points of the shape at the target position.
+  /// Gathers all contact points of the shape at the target position.
   ///
   /// Use fMaxSeparationDistance > 0 (e.g. 0.02f) to find contacts with walls/ground that the shape is touching but not penetrating.
   void CollectContacts(ezDynamicArray<ContactPoint>& out_Contacts, const JPH::Shape* pShape, const ezVec3& vQueryPosition, const ezQuat& qQueryRotation, float fMaxSeparationDistance) const;
 
-  /// \brief Detects the velocity at the contact point. If it is a dynamic body, a force pushing it away is applied.
+  /// Detects the velocity at the contact point. If it is a dynamic body, a force pushing it away is applied.
   ///
   /// This is mainly used to get the velocity of the kinematic object that a character is standing on.
   /// It can then be incorporated into the movement, such that the character rides along.
@@ -164,15 +164,15 @@ protected:
   /// weight pushes down on it.
   ezVec3 GetContactVelocityAndPushAway(const ContactPoint& contact, float fPushForce);
 
-  /// \brief Spawns a surface interaction prefab at the given contact point.
+  /// Spawns a surface interaction prefab at the given contact point.
   ///
   /// hFallbackSurface is used, if no other surface could be determined from the contact point.
   void SpawnContactInteraction(const ContactPoint& contact, const ezHashedString& sSurfaceInteraction, ezSurfaceResourceHandle hFallbackSurface, const ezVec3& vInteractionNormal = ezVec3(0, 0, 1));
 
-  /// \brief Debug draws the contact point.
+  /// Debug draws the contact point.
   void VisualizeContact(const ContactPoint& contact, const ezColor& color) const;
 
-  /// \brief Debug draws all the contact points.
+  /// Debug draws all the contact points.
   void VisualizeContacts(const ezDynamicArray<ContactPoint>& contacts, const ezColor& color) const;
 
 private:

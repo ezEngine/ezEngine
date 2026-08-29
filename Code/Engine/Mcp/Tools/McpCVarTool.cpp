@@ -31,7 +31,7 @@ namespace
     }
   }
 
-  /// \brief Whether the CVar still holds the value it was declared with.
+  /// Whether the CVar still holds the value it was declared with.
   ///
   /// One place, because both the listing filter and the decision whether to report 'default' need it,
   /// and each type has to be compared through its own pointer cast.
@@ -64,7 +64,7 @@ namespace
     }
   }
 
-  /// \brief Whether a value was written that the engine is not reading yet. Only ever true for CVars
+  /// Whether a value was written that the engine is not reading yet. Only ever true for CVars
   /// flagged RequiresDelayedSync.
   bool HasPendingValue(const ezCVar* pCVar)
   {

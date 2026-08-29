@@ -4,7 +4,7 @@
 
 class ezEventMessageHandlerComponent;
 
-/// \brief A world encapsulates a scene graph of game objects and various component managers and their components.
+/// A world encapsulates a scene graph of game objects and various component managers and their components.
 ///
 /// There can be multiple worlds active at a time, but only 64 at most. The world manages all object storage and might move objects around
 /// in memory. Thus it is not allowed to store pointers to objects. They should be referenced by handles.\n The world has a multi-phase
@@ -20,32 +20,32 @@ class ezEventMessageHandlerComponent;
 class EZ_CORE_DLL ezWorld final
 {
 public:
-  /// \brief Creates a new world with the given name.
+  /// Creates a new world with the given name.
   ezWorld(ezWorldDesc& ref_desc);
   ~ezWorld();
 
-  /// \brief Deletes all game objects in a world
+  /// Deletes all game objects in a world
   void Clear();
 
-  /// \brief Returns the name of this world.
+  /// Returns the name of this world.
   ezStringView GetName() const;
 
-  /// \brief Returns the index of this world.
+  /// Returns the index of this world.
   ezUInt32 GetIndex() const;
 
-  /// \brief Returns a handle to this world. The handle can be used to check whether the world is still valid.
+  /// Returns a handle to this world. The handle can be used to check whether the world is still valid.
   ezWorldHandle GetHandle() const;
 
   /// \name Object Functions
   ///@{
 
-  /// \brief Create a new game object from the given description and returns a handle to it.
+  /// Create a new game object from the given description and returns a handle to it.
   ezGameObjectHandle CreateObject(const ezGameObjectDesc& desc); // [tested]
 
-  /// \brief Create a new game object from the given description, writes a pointer to it to out_pObject and returns a handle to it.
+  /// Create a new game object from the given description, writes a pointer to it to out_pObject and returns a handle to it.
   ezGameObjectHandle CreateObject(const ezGameObjectDesc& desc, ezGameObject*& out_pObject); // [tested]
 
-  /// \brief Deletes the given object, its children and all components.
+  /// Deletes the given object, its children and all components.
   /// \note This function deletes the object immediately! It is unsafe to use this during a game update loop, as other objects
   /// may rely on this object staying valid for the rest of the frame.
   /// Use DeleteObjectDelayed() instead for safe removal at the end of the frame.
@@ -53,32 +53,32 @@ public:
   /// If bAlsoDeleteEmptyParents is set, any ancestor object that has no other children and no components, will also get deleted.
   void DeleteObjectNow(const ezGameObjectHandle& hObject, bool bAlsoDeleteEmptyParents = true); // [tested]
 
-  /// \brief Deletes the given object at the beginning of the next world update. The object and its components and children stay completely
+  /// Deletes the given object at the beginning of the next world update. The object and its components and children stay completely
   /// valid until then.
   ///
   /// If bAlsoDeleteEmptyParents is set, any ancestor object that has no other children and no components, will also get deleted.
   void DeleteObjectDelayed(const ezGameObjectHandle& hObject, bool bAlsoDeleteEmptyParents = true); // [tested]
 
-  /// \brief Returns the event that is triggered before an object is deleted. This can be used for external systems to cleanup data
+  /// Returns the event that is triggered before an object is deleted. This can be used for external systems to cleanup data
   /// which is associated with the deleted object.
   const ezEvent<const ezGameObject*>& GetObjectDeletionEvent() const;
 
-  /// \brief Returns whether the given handle corresponds to a valid object.
+  /// Returns whether the given handle corresponds to a valid object.
   bool IsValidObject(const ezGameObjectHandle& hObject) const; // [tested]
 
-  /// \brief Returns whether an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
+  /// Returns whether an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
   [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& hObject, ezGameObject*& out_pObject); // [tested]
 
-  /// \brief Returns whether an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
+  /// Returns whether an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
   [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& hObject, const ezGameObject*& out_pObject) const; // [tested]
 
-  /// \brief Returns whether an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
+  /// Returns whether an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
   [[nodiscard]] bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject); // [tested]
 
-  /// \brief Returns whether an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
+  /// Returns whether an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
   [[nodiscard]] bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, const ezGameObject*& out_pObject) const; // [tested]
 
-  /// \brief Searches for an object by path. Can find objects through a global key and/or relative to an object. May also search for an object that has a certain component.
+  /// Searches for an object by path. Can find objects through a global key and/or relative to an object. May also search for an object that has a certain component.
   ///
   /// The syntax for \a sSearchPath is as follows:
   /// * All pieces of the path must be separated by slashes (/)
@@ -109,19 +109,19 @@ public:
   /// * "obj/P:name" -> "P:" must be at the very beginning or directly after "G:"
   [[nodiscard]] ezGameObject* SearchForObject(ezStringView sSearchPath, ezGameObject* pReferenceObject = nullptr, const ezRTTI* pExpectedComponent = nullptr); // [tested]
 
-  /// \brief const overload of SearchForObject()
+  /// const overload of SearchForObject()
   [[nodiscard]] const ezGameObject* SearchForObject(ezStringView sSearchPath, const ezGameObject* pReferenceObject = nullptr, const ezRTTI* pExpectedComponent = nullptr) const; // [tested]
 
-  /// \brief Returns the total number of objects in this world.
+  /// Returns the total number of objects in this world.
   ezUInt32 GetObjectCount() const; // [tested]
 
-  /// \brief Returns an iterator over all objects in this world in no specific order.
+  /// Returns an iterator over all objects in this world in no specific order.
   ezInternal::WorldData::ObjectIterator GetObjects(); // [tested]
 
-  /// \brief Returns an iterator over all objects in this world in no specific order.
+  /// Returns an iterator over all objects in this world in no specific order.
   ezInternal::WorldData::ConstObjectIterator GetObjects() const; // [tested]
 
-  /// \brief Defines a visitor function that is called for every game-object when using the traverse method.
+  /// Defines a visitor function that is called for every game-object when using the traverse method.
   /// The function takes a pointer to the game object as argument and returns a bool which indicates whether to continue (true) or abort
   /// (false) traversal.
   using VisitorFunc = ezInternal::WorldData::VisitorFunc;
@@ -132,7 +132,7 @@ public:
     DepthFirst
   };
 
-  /// \brief Traverses the game object tree starting at the top level objects and then recursively all children. The given callback function
+  /// Traverses the game object tree starting at the top level objects and then recursively all children. The given callback function
   /// is called for every object.
   void Traverse(VisitorFunc visitorFunc, TraversalMethod method = DepthFirst); // [tested]
 
@@ -140,110 +140,110 @@ public:
   /// \name Module Functions
   ///@{
 
-  /// \brief Creates an instance of the given module type or derived type or returns a pointer to an already existing instance.
+  /// Creates an instance of the given module type or derived type or returns a pointer to an already existing instance.
   template <typename ModuleType>
   ModuleType* GetOrCreateModule(); // [tested]
 
-  /// \brief Creates an instance of the given module type or derived type or returns a pointer to an already existing instance.
+  /// Creates an instance of the given module type or derived type or returns a pointer to an already existing instance.
   ezWorldModule* GetOrCreateModule(const ezRTTI* pRtti); // [tested]
 
-  /// \brief Deletes the module of the given type or derived types.
+  /// Deletes the module of the given type or derived types.
   template <typename ModuleType>
   void DeleteModule();
 
-  /// \brief Deletes the module of the given type or derived types.
+  /// Deletes the module of the given type or derived types.
   void DeleteModule(const ezRTTI* pRtti);
 
-  /// \brief Returns the instance to the given module type or derived types.
+  /// Returns the instance to the given module type or derived types.
   template <typename ModuleType>
   ModuleType* GetModule();
 
-  /// \brief Returns the instance to the given module type or derived types.
+  /// Returns the instance to the given module type or derived types.
   template <typename ModuleType>
   const ModuleType* GetModule() const;
 
-  /// \brief Returns the instance to the given module type or derived types.
+  /// Returns the instance to the given module type or derived types.
   template <typename ModuleType>
   const ModuleType* GetModuleReadOnly() const;
 
-  /// \brief Returns the instance to the given module type or derived types.
+  /// Returns the instance to the given module type or derived types.
   ezWorldModule* GetModule(const ezRTTI* pRtti);
 
-  /// \brief Returns the instance to the given module type or derived types.
+  /// Returns the instance to the given module type or derived types.
   const ezWorldModule* GetModule(const ezRTTI* pRtti) const;
 
   ///@}
   /// \name Component Functions
   ///@{
 
-  /// \brief Creates an instance of the given component manager type or returns a pointer to an already existing instance.
+  /// Creates an instance of the given component manager type or returns a pointer to an already existing instance.
   template <typename ManagerType>
   ManagerType* GetOrCreateComponentManager();
 
-  /// \brief Returns the component manager that handles the given rtti component type.
+  /// Returns the component manager that handles the given rtti component type.
   ezComponentManagerBase* GetOrCreateManagerForComponentType(const ezRTTI* pComponentRtti);
 
-  /// \brief Deletes the component manager of the given type and all its components.
+  /// Deletes the component manager of the given type and all its components.
   template <typename ManagerType>
   void DeleteComponentManager();
 
-  /// \brief Returns the instance to the given component manager type.
+  /// Returns the instance to the given component manager type.
   template <typename ManagerType>
   ManagerType* GetComponentManager();
 
-  /// \brief Returns the instance to the given component manager type.
+  /// Returns the instance to the given component manager type.
   template <typename ManagerType>
   const ManagerType* GetComponentManager() const;
 
-  /// \brief Returns the component manager that handles the given rtti component type.
+  /// Returns the component manager that handles the given rtti component type.
   ezComponentManagerBase* GetManagerForComponentType(const ezRTTI* pComponentRtti);
 
-  /// \brief Returns the component manager that handles the given rtti component type.
+  /// Returns the component manager that handles the given rtti component type.
   const ezComponentManagerBase* GetManagerForComponentType(const ezRTTI* pComponentRtti) const;
 
-  /// \brief Checks whether the given handle references a valid component.
+  /// Checks whether the given handle references a valid component.
   bool IsValidComponent(const ezComponentHandle& hComponent) const;
 
-  /// \brief Returns whether a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
+  /// Returns whether a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   template <typename ComponentType>
   [[nodiscard]] bool TryGetComponent(const ezComponentHandle& hComponent, ComponentType*& out_pComponent);
 
-  /// \brief Returns whether a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
+  /// Returns whether a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   template <typename ComponentType>
   [[nodiscard]] bool TryGetComponent(const ezComponentHandle& hComponent, const ComponentType*& out_pComponent) const;
 
-  /// \brief Explicitly delete TryGetComponent overload when handle type is not related to a pointer type given by out_pComponent.
+  /// Explicitly delete TryGetComponent overload when handle type is not related to a pointer type given by out_pComponent.
   template <typename T, typename U, std::enable_if_t<!std::disjunction_v<std::is_base_of<U, T>, std::is_base_of<T, U>>, bool> = true>
   [[nodiscard]] bool TryGetComponent(const ezTypedComponentHandle<T>& hComponent, U*& out_pComponent) = delete;
 
-  /// \brief Explicitly delete TryGetComponent overload when handle type is not related to a pointer type given by out_pComponent.
+  /// Explicitly delete TryGetComponent overload when handle type is not related to a pointer type given by out_pComponent.
   template <typename T, typename U, std::enable_if_t<!std::disjunction_v<std::is_base_of<U, T>, std::is_base_of<T, U>>, bool> = true>
   [[nodiscard]] bool TryGetComponent(const ezTypedComponentHandle<T>& hComponent, const U*& out_pComponent) const = delete;
 
-  /// \brief Creates a new component init batch.
+  /// Creates a new component init batch.
   /// It is ensured that the Initialize function is called for all components in a batch before the OnSimulationStarted is called.
   /// If bMustFinishWithinOneFrame is set to false the processing of an init batch can be distributed over multiple frames if
   /// m_MaxComponentInitializationTimePerFrame in the world desc is set to a reasonable value.
   ezComponentInitBatchHandle CreateComponentInitBatch(ezStringView sBatchName, bool bMustFinishWithinOneFrame = true);
 
-  /// \brief Deletes a component init batch. It must be completely processed before it can be deleted.
+  /// Deletes a component init batch. It must be completely processed before it can be deleted.
   void DeleteComponentInitBatch(const ezComponentInitBatchHandle& hBatch);
 
-  /// \brief All components that are created between an BeginAddingComponentsToInitBatch/EndAddingComponentsToInitBatch scope are added to the
+  /// All components that are created between an BeginAddingComponentsToInitBatch/EndAddingComponentsToInitBatch scope are added to the
   /// given init batch.
   void BeginAddingComponentsToInitBatch(const ezComponentInitBatchHandle& hBatch);
 
-  /// \brief End adding components to the given batch. Components created after this call are added to the default init batch.
+  /// End adding components to the given batch. Components created after this call are added to the default init batch.
   void EndAddingComponentsToInitBatch(const ezComponentInitBatchHandle& hBatch);
 
-  /// \brief After all components have been added to the init batch call submit to start processing the batch.
+  /// After all components have been added to the init batch call submit to start processing the batch.
   void SubmitComponentInitBatch(const ezComponentInitBatchHandle& hBatch);
 
-  /// \brief Returns whether the init batch has been completely processed and all corresponding components are initialized
+  /// Returns whether the init batch has been completely processed and all corresponding components are initialized
   /// and their OnSimulationStarted function was called.
   bool IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& hBatch, double* pCompletionFactor = nullptr);
 
-  /// \brief Cancel the init batch if it is still active. This might leave outstanding components in an inconsistent state,
+  /// Cancel the init batch if it is still active. This might leave outstanding components in an inconsistent state,
   /// so this function has be used with care.
   void CancelComponentInitBatch(const ezComponentInitBatchHandle& hBatch);
 
@@ -251,26 +251,26 @@ public:
   /// \name Message Functions
   ///@{
 
-  /// \brief Sends a message to all components of the receiverObject.
+  /// Sends a message to all components of the receiverObject.
   void SendMessage(const ezGameObjectHandle& hReceiverObject, ezMessage& ref_msg);
 
-  /// \brief Sends a message to all components of the receiverObject and all its children.
+  /// Sends a message to all components of the receiverObject and all its children.
   void SendMessageRecursive(const ezGameObjectHandle& hReceiverObject, ezMessage& ref_msg);
 
-  /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding phase.
+  /// Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding phase.
   void PostMessage(const ezGameObjectHandle& hReceiverObject, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
-  /// \brief Queues the message for the given phase. The message is send to the receiverObject and all its children after the given delay in
+  /// Queues the message for the given phase. The message is send to the receiverObject and all its children after the given delay in
   /// the corresponding phase.
   void PostMessageRecursive(const ezGameObjectHandle& hReceiverObject, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
-  /// \brief Sends a message to the component.
+  /// Sends a message to the component.
   void SendMessage(const ezComponentHandle& hReceiverComponent, ezMessage& ref_msg);
 
-  /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding phase.
+  /// Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding phase.
   void PostMessage(const ezComponentHandle& hReceiverComponent, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
-  /// \brief Finds the closest (parent) object, starting at pSearchObject, which has an ezComponent that handles the given message and returns all
+  /// Finds the closest (parent) object, starting at pSearchObject, which has an ezComponent that handles the given message and returns all
   /// matching components owned by that object. If a ezEventMessageHandlerComponent is found the search is stopped even if it doesn't handle the given message.
   ///
   /// If no such parent object exists, it searches for all ezEventMessageHandlerComponent instances that are set to 'handle global events'
@@ -282,89 +282,89 @@ public:
 
   ///@}
 
-  /// \brief If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
+  /// If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
   void SetWorldSimulationEnabled(bool bEnable);
 
-  /// \brief If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
+  /// If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
   bool GetWorldSimulationEnabled() const;
 
-  /// \brief Updates the world by calling the various update methods on the component managers and also updates the transformation data of
+  /// Updates the world by calling the various update methods on the component managers and also updates the transformation data of
   /// the game objects. See ezWorld for a detailed description of the update phases.
   void Update(); // [tested]
 
-  /// \brief Returns a task implementation that calls Update on this world.
+  /// Returns a task implementation that calls Update on this world.
   const ezSharedPtr<ezTask>& GetUpdateTask();
 
-  /// \brief Returns the number of update calls. Can be used to determine whether an operation has already been done during a frame.
+  /// Returns the number of update calls. Can be used to determine whether an operation has already been done during a frame.
   ezUInt32 GetUpdateCounter() const;
 
-  /// \brief Returns the spatial system that is associated with this world.
+  /// Returns the spatial system that is associated with this world.
   ezSpatialSystem* GetSpatialSystem();
 
-  /// \brief Returns the spatial system that is associated with this world.
+  /// Returns the spatial system that is associated with this world.
   const ezSpatialSystem* GetSpatialSystem() const;
 
 
-  /// \brief Returns the coordinate system for the given position.
+  /// Returns the coordinate system for the given position.
   /// By default this always returns a coordinate system with forward = +X, right = +Y and up = +Z.
   /// This can be customized by setting a different coordinate system provider.
   void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const; // [tested]
 
-  /// \brief Sets the coordinate system provider that should be used in this world.
+  /// Sets the coordinate system provider that should be used in this world.
   void SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemProvider>& pProvider); // [tested]
 
-  /// \brief Returns the coordinate system provider that is associated with this world.
+  /// Returns the coordinate system provider that is associated with this world.
   ezCoordinateSystemProvider& GetCoordinateSystemProvider(); // [tested]
 
-  /// \brief Returns the coordinate system provider that is associated with this world.
+  /// Returns the coordinate system provider that is associated with this world.
   const ezCoordinateSystemProvider& GetCoordinateSystemProvider() const; // [tested]
 
 
-  /// \brief Returns the clock that is used for all updates in this game world
+  /// Returns the clock that is used for all updates in this game world
   ezClock& GetClock(); // [tested]
 
-  /// \brief Returns the clock that is used for all updates in this game world
+  /// Returns the clock that is used for all updates in this game world
   const ezClock& GetClock() const; // [tested]
 
-  /// \brief Accesses the default random number generator.
+  /// Accesses the default random number generator.
   /// If more control is desired, individual components should use their own RNG.
   ezRandom& GetRandomNumberGenerator();
 
-  /// \brief Returns the blackboard that is associated with this world.
+  /// Returns the blackboard that is associated with this world.
   const ezSharedPtr<ezBlackboard>& GetBlackboard();
 
-  /// \brief Returns the blackboard that is associated with this world.
+  /// Returns the blackboard that is associated with this world.
   ezSharedPtr<const ezBlackboard> GetBlackboard() const;
 
 
-  /// \brief Returns the allocator used by this world.
+  /// Returns the allocator used by this world.
   ezAllocator* GetAllocator();
 
-  /// \brief Returns the block allocator used by this world.
+  /// Returns the block allocator used by this world.
   ezInternal::WorldLargeBlockAllocator* GetBlockAllocator();
 
-  /// \brief Returns the stack allocator used by this world.
+  /// Returns the stack allocator used by this world.
   ezDoubleBufferedLinearAllocator* GetStackAllocator();
 
-  /// \brief Mark the world for reading by using EZ_LOCK(world.GetReadMarker()). Multiple threads can read simultaneously if none is
+  /// Mark the world for reading by using EZ_LOCK(world.GetReadMarker()). Multiple threads can read simultaneously if none is
   /// writing.
   ezInternal::WorldData::ReadMarker& GetReadMarker() const; // [tested]
 
-  /// \brief Mark the world for writing by using EZ_LOCK(world.GetWriteMarker()). Only one thread can write at a time.
+  /// Mark the world for writing by using EZ_LOCK(world.GetWriteMarker()). Only one thread can write at a time.
   ezInternal::WorldData::WriteMarker& GetWriteMarker(); // [tested]
 
-  /// \brief Allows re-setting the maximum time that is spent on component initialization per frame, which is first configured on construction.
+  /// Allows re-setting the maximum time that is spent on component initialization per frame, which is first configured on construction.
   void SetMaxInitializationTimePerFrame(ezTime maxInitTime);
 
-  /// \brief Associates the given user data with the world. The user is responsible for the life time of user data.
+  /// Associates the given user data with the world. The user is responsible for the life time of user data.
   void SetUserData(void* pUserData);
 
-  /// \brief Returns the associated user data.
+  /// Returns the associated user data.
   void* GetUserData() const;
 
   using ReferenceResolver = ezDelegate<ezGameObjectHandle(const void*, ezComponentHandle hThis, ezStringView sProperty)>;
 
-  /// \brief If set, this delegate can be used to map some data (GUID or string) to an ezGameObjectHandle.
+  /// If set, this delegate can be used to map some data (GUID or string) to an ezGameObjectHandle.
   ///
   /// Currently only used in editor settings, to create a runtime handle from a unique editor reference.
   void SetGameObjectReferenceResolver(const ReferenceResolver& resolver);
@@ -375,7 +375,7 @@ public:
   using ResourceReloadContext = ezInternal::WorldData::ResourceReloadContext;
   using ResourceReloadFunc = ezInternal::WorldData::ResourceReloadFunc;
 
-  /// \brief Add a function that is called when the given resource has been reloaded.
+  /// Add a function that is called when the given resource has been reloaded.
   void AddResourceReloadFunction(ezTypelessResourceHandle hResource, ezComponentHandle hComponent, void* pUserData, ResourceReloadFunc function);
   void RemoveResourceReloadFunction(ezTypelessResourceHandle hResource, ezComponentHandle hComponent, void* pUserData);
 
@@ -390,19 +390,19 @@ public:
   ///@}
 
 public:
-  /// \brief Returns the number of active worlds.
+  /// Returns the number of active worlds.
   static ezUInt32 GetWorldCount();
 
-  /// \brief Returns the world with the given index.
+  /// Returns the world with the given index.
   static ezWorld* GetWorld(ezUInt8 uiIndex);
 
-  /// \brief Returns the world with the given handle.
+  /// Returns the world with the given handle.
   static ezWorld* GetWorld(const ezWorldHandle& hWorld);
 
-  /// \brief Returns the world for the given game object handle.
+  /// Returns the world for the given game object handle.
   static ezWorld* GetWorld(const ezGameObjectHandle& hObject);
 
-  /// \brief Returns the world for the given component handle.
+  /// Returns the world for the given component handle.
   static ezWorld* GetWorld(const ezComponentHandle& hComponent);
 
 private:
@@ -444,7 +444,7 @@ private:
   void RegisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
   void DeregisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
 
-  /// \brief Used by component managers to queue a new component for initialization during the next update
+  /// Used by component managers to queue a new component for initialization during the next update
   void AddComponentToInitialize(ezComponentHandle hComponent);
 
   void UpdateFromThread();
@@ -473,9 +473,9 @@ private:
 
   float GetInvDeltaSeconds() const;
 
-  /// \brief Adds hObject to the deferred bounds update queue. Thread-safe.
+  /// Adds hObject to the deferred bounds update queue. Thread-safe.
   void QueueLocalBoundsUpdate(ezGameObjectHandle hObject);
-  /// \brief Drains the deferred bounds update queue and calls UpdateLocalBounds() on each object.
+  /// Drains the deferred bounds update queue and calls UpdateLocalBounds() on each object.
   void ProcessLocalBoundsUpdateQueue();
 
   ezSharedPtr<ezTask> m_pUpdateTask;

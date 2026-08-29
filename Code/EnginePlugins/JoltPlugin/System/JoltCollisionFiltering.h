@@ -32,10 +32,10 @@ enum class ezJoltBroadphaseLayer : ezUInt8
 
 namespace ezJoltCollisionFiltering
 {
-  /// \brief Constructs the JPH::ObjectLayer value from the desired collision group index and the broadphase into which the object shall be sorted
+  /// Constructs the JPH::ObjectLayer value from the desired collision group index and the broadphase into which the object shall be sorted
   EZ_JOLTPLUGIN_DLL JPH::ObjectLayer ConstructObjectLayer(ezUInt8 uiCollisionGroup, ezJoltBroadphaseLayer broadphase);
 
-  /// \brief Returns the (hard-coded) collision mask that determines which other broad-phases to collide with.
+  /// Returns the (hard-coded) collision mask that determines which other broad-phases to collide with.
   EZ_JOLTPLUGIN_DLL ezUInt32 GetBroadphaseCollisionMask(ezJoltBroadphaseLayer broadphase);
 
 }; // namespace ezJoltCollisionFiltering

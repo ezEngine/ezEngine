@@ -15,7 +15,7 @@ struct EZ_GAMEENGINE_DLL ezMsgSensorDetectedObjectsChanged : public ezMessage
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Base class for sensor components that can be used for AI perception like vision or hearing.
+/// Base class for sensor components that can be used for AI perception like vision or hearing.
 ///
 /// Derived component classes implemented different shapes like sphere cylinder or cone.
 /// All sensors do a query with the specified spatial category in the world's spatial system first, therefore it is necessary to have objects
@@ -65,10 +65,10 @@ public:
   ezTagSet m_IncludeTags;                                     // [ property ]
   ezTagSet m_ExcludeTags;                                     // [ property ]
 
-  /// \brief Returns the list of objects that this sensor has detected during its last update
+  /// Returns the list of objects that this sensor has detected during its last update
   ezArrayPtr<const ezGameObjectHandle> GetLastDetectedObjects() const { return m_LastDetectedObjects; }
 
-  /// \brief Updates the sensor state right now.
+  /// Updates the sensor state right now.
   ///
   /// If the update rate isn't set to 'Never', this is periodically done automatically.
   /// Otherwise, it has to be called manually to update the state on demand.
@@ -83,10 +83,10 @@ public:
   /// Returns true, if there was a change in detected objects, false if the same objects were detected as last time.
   bool RunSensorCheck(ezPhysicsWorldModuleInterface* pPhysicsWorldModule, ezDynamicArray<ezGameObject*>& out_objectsInSensorVolume, ezDynamicArray<ezGameObjectHandle>& ref_detectedObjects, bool bPostChangeMsg) const;
 
-  /// \brief How many objects were detected last.
+  /// How many objects were detected last.
   ezUInt32 GetDetectedObjectsCount() const { return m_LastDetectedObjects.GetCount(); } // [ scriptable ]
 
-  /// \brief Returns a handle to the n-th detected object.
+  /// Returns a handle to the n-th detected object.
   ezGameObjectHandle GetDetectedObject(ezUInt32 uiIndex) const { return m_LastDetectedObjects[uiIndex]; } // [ scriptable ]
 
 protected:

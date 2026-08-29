@@ -7,7 +7,7 @@
 class ezDynamicDefaultValueAttribute;
 class ezPropertyPath;
 
-/// \brief Retrieves the dynamic default state of an object or container attributed with ezDynamicDefaultValueAttribute from an asset's meta data.
+/// Retrieves the dynamic default state of an object or container attributed with ezDynamicDefaultValueAttribute from an asset's meta data.
 class EZ_EDITORFRAMEWORK_DLL ezDynamicDefaultStateProvider : public ezDefaultStateProvider
 {
 public:

@@ -7,7 +7,7 @@
 #include <Mcp/Tools/McpAppTool.h>
 #include <Texture/Image/Image.h>
 
-/// \brief The game process' half of the shared app_* tools, plus taking a screenshot.
+/// The game process' half of the shared app_* tools, plus taking a screenshot.
 ///
 /// The process level questions - port, executable, command line, process id - are answered by the base
 /// class, so an agent driving both an editor and the game it runs asks them the same way in both. What
@@ -34,13 +34,13 @@ protected:
 private:
   void ExecuteScreenshot(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
 
-  /// \brief Starts the capture. Fills out_result and returns EZ_FAILURE if it could not be started.
+  /// Starts the capture. Fills out_result and returns EZ_FAILURE if it could not be started.
   ezResult BeginScreenshot(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
 
-  /// \brief Turns a finished capture into a file. Called once m_State is Ready.
+  /// Turns a finished capture into a file. Called once m_State is Ready.
   void FinishScreenshot(ezMcpToolResult& out_result);
 
-  /// \brief Polls the pending capture, from inside the frame.
+  /// Polls the pending capture, from inside the frame.
   ///
   /// Subscribed to the frame loop rather than done from the tool call, because a capture only completes
   /// once the frame that renders it is about to be presented - which is exactly where the engine polls

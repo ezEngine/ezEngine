@@ -4,7 +4,7 @@
 #include <Foundation/Math/Rect.h>
 #include <Utilities/DataStructures/GameGrid.h>
 
-/// \brief Takes an ezGameGrid and creates an optimized navmesh structure from it, that is more efficient for path searches.
+/// Takes an ezGameGrid and creates an optimized navmesh structure from it, that is more efficient for path searches.
 class EZ_UTILITIES_DLL ezGridNavmesh
 {
 public:
@@ -34,32 +34,32 @@ public:
     ezInt32 m_iNeighborArea;
   };
 
-  /// \brief Callback that determines whether the cell with index \a uiCell1 and the cell with index \a uiCell2 represent the same type of
+  /// Callback that determines whether the cell with index \a uiCell1 and the cell with index \a uiCell2 represent the same type of
   /// terrain.
   using CellComparator = bool (*)(ezUInt32, ezUInt32, void*);
 
-  /// \brief Callback that determines whether the cell with index \a uiCell is blocked entirely (for every type of unit) and therefore can
+  /// Callback that determines whether the cell with index \a uiCell is blocked entirely (for every type of unit) and therefore can
   /// be optimized away.
   using CellBlocked = bool (*)(ezUInt32, void*);
 
-  /// \brief Creates the navmesh from the given ezGameGrid.
+  /// Creates the navmesh from the given ezGameGrid.
   template <class CellData>
   void CreateFromGrid(
     const ezGameGrid<CellData>& grid, CellComparator isSameCellType, void* pPassThroughSame, CellBlocked isCellBlocked, void* pPassThroughBlocked);
 
-  /// \brief Returns the index of the ConvexArea at the given cell coordinates. Negative, if the cell is blocked.
+  /// Returns the index of the ConvexArea at the given cell coordinates. Negative, if the cell is blocked.
   ezInt32 GetAreaAt(const ezVec2I32& vCoord) const { return m_NodesGrid.GetCell(vCoord); }
 
-  /// \brief Returns the number of convex areas that this navmesh consists of.
+  /// Returns the number of convex areas that this navmesh consists of.
   ezUInt32 GetNumConvexAreas() const { return m_ConvexAreas.GetCount(); }
 
-  /// \brief Returns the given convex area by index.
+  /// Returns the given convex area by index.
   const ConvexArea& GetConvexArea(ezInt32 iArea) const { return m_ConvexAreas[iArea]; }
 
-  /// \brief Returns the number of edges between convex areas.
+  /// Returns the number of edges between convex areas.
   ezUInt32 GetNumAreaEdges() const { return m_GraphEdges.GetCount(); }
 
-  /// \brief Returns the given area edge by index.
+  /// Returns the given area edge by index.
   const AreaEdge& GetAreaEdge(ezInt32 iAreaEdge) const { return m_GraphEdges[iAreaEdge]; }
 
 private:

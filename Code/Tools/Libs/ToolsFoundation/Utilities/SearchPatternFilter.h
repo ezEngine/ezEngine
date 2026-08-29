@@ -3,7 +3,7 @@
 #include <Foundation/Strings/String.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-/// \brief A helper class to implement a multi-part, case-insensitive search pattern filter with support for exclusions.
+/// A helper class to implement a multi-part, case-insensitive search pattern filter with support for exclusions.
 ///
 /// The search text is split into multiple parts by spaces. A text passes the filter if it contains all parts.
 /// The check is always case insensitive and the order of the parts does not matter.
@@ -13,18 +13,18 @@
 class EZ_TOOLSFOUNDATION_DLL ezSearchPatternFilter
 {
 public:
-  /// \brief Sets the search text and splits it into its part for faster checks.
+  /// Sets the search text and splits it into its part for faster checks.
   void SetSearchText(ezStringView sSearchText);
 
-  /// \brief Returns the current search text.
+  /// Returns the current search text.
   const ezString& GetSearchText() const { return m_sSearchText; }
-  /// \brief Returns true if the search text is empty.
+  /// Returns true if the search text is empty.
   bool IsEmpty() const { return m_sSearchText.IsEmpty(); }
 
-  /// \brief Returns true if the filter contains any exclusion patterns.
+  /// Returns true if the filter contains any exclusion patterns.
   bool ContainsExclusions() const;
 
-  /// \brief Determines whether the given text matches the filter patterns.
+  /// Determines whether the given text matches the filter patterns.
   bool PassesFilters(ezStringView sText) const;
 
 private:

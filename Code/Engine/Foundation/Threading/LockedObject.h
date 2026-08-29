@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 
-/// \brief RAII wrapper providing thread-safe access to an object with automatic lock management
+/// RAII wrapper providing thread-safe access to an object with automatic lock management
 ///
 /// Combines object access with lock acquisition/release in a single type. The lock is acquired
 /// in the constructor and automatically released in the destructor, ensuring exception-safe
@@ -53,7 +53,7 @@ public:
     }
   }
 
-  /// \brief Whether the encapsulated object exists at all or is nullptr
+  /// Whether the encapsulated object exists at all or is nullptr
   EZ_ALWAYS_INLINE bool isValid() const { return m_pObject != nullptr; }
 
   O* Borrow() { return m_pObject; }

@@ -14,7 +14,7 @@
 
 class ezColor;
 
-/// \brief The ezRenderDevice class is the primary interface for interactions with rendering APIs
+/// The ezRenderDevice class is the primary interface for interactions with rendering APIs
 /// It contains a set of (non-virtual) functions to set state, create resources etc. which rely on
 /// API specific implementations provided by protected virtual functions.
 /// Redundant state changes are prevented at the platform independent level in the non-virtual functions.
@@ -32,9 +32,9 @@ public:
 
   // Commands functions
 
-  /// \brief Begin recording GPU commands on the returned command encoder.
+  /// Begin recording GPU commands on the returned command encoder.
   ezGALCommandEncoder* BeginCommands(const char* szName);
-  /// \brief Stop recording commands on the command encoder.
+  /// Stop recording commands on the command encoder.
   /// \param pCommandEncoder Must match the command encoder returned by BeginCommands.
   void EndCommands(ezGALCommandEncoder* pCommandEncoder);
 
@@ -103,10 +103,10 @@ public:
 
   // Resource update functions
 
-  /// \brief Ensures that the given buffer is updated at the beginning of the next frame.
+  /// Ensures that the given buffer is updated at the beginning of the next frame.
   void UpdateBufferForNextFrame(ezGALBufferHandle hBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset = 0);
 
-  /// \brief Ensures that the given texture is updated at the beginning of the next frame.
+  /// Ensures that the given texture is updated at the beginning of the next frame.
   void UpdateTextureForNextFrame(ezGALTextureHandle hTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource = {}, const ezBoundingBoxu32& destinationBox = ezBoundingBoxu32::MakeZero());
 
   // Render target views
@@ -126,7 +126,7 @@ public:
 
   // GPU -> CPU query functions
 
-  /// \brief Queries the result of a timestamp.
+  /// Queries the result of a timestamp.
   /// Should be called every frame until ezGALAsyncResult::Ready is returned.
   /// \param hTimestamp The timestamp handle to query.
   /// \param out_result If ezGALAsyncResult::Ready is returned, this will be the timestamp at which this handle was inserted into the command encoder.
@@ -134,7 +134,7 @@ public:
   /// \sa ezCommandEncoder::InsertTimestamp
   ezEnum<ezGALAsyncResult> GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& out_result);
 
-  /// \brief Queries the result of an occlusion query.
+  /// Queries the result of an occlusion query.
   /// Should be called every frame until ezGALAsyncResult::Ready is returned.
   /// \param hOcclusion The occlusion query handle to query.
   /// \param out_uiResult If ezGALAsyncResult::Ready is returned, this will be the number of pixels of the occlusion query.
@@ -142,7 +142,7 @@ public:
   /// \sa ezCommandEncoder::BeginOcclusionQuery, ezCommandEncoder::EndOcclusionQuery
   ezEnum<ezGALAsyncResult> GetOcclusionQueryResult(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult);
 
-  /// \brief Queries the result of a fence.
+  /// Queries the result of a fence.
   /// Fences can never expire as they are just monotonically increasing numbers over time.
   /// \param hFence The fence handle to query.
   /// \param timeout If set to > 0, the function will block until the fence is ready or the timeout is reached.
@@ -150,13 +150,13 @@ public:
   /// \sa ezCommandEncoder::InsertFence
   ezEnum<ezGALAsyncResult> GetFenceResult(ezGALFenceHandle hFence, ezTime timeout = ezTime::MakeZero());
 
-  /// \brief Tries to lock a readback buffer for reading. Only fails if the handle is invalid.
+  /// Tries to lock a readback buffer for reading. Only fails if the handle is invalid.
   /// \param hReadbackBuffer The buffer to lock.
   /// \param out_memory If successful, contains the memory of the buffer. Only allowed to be accessed within the lifetime of the returns lock object.
   /// \return Returns the lock. ezReadbackBufferLock::IsValid needs to be called to ensure the locking was successful.
   ezReadbackBufferLock LockBuffer(ezGALReadbackBufferHandle hReadbackBuffer, ezArrayPtr<const ezUInt8>& out_memory);
 
-  /// \brief Tries to lock a readback texture for reading. Only fails if the handle is invalid.
+  /// Tries to lock a readback texture for reading. Only fails if the handle is invalid.
   /// \param hReadbackTexture The texture to lock.
   /// \param subResources The sub-resources that should to be locked.
   /// \param out_memory If successful, contains the memory locations of each sub-resource. Only allowed to be accessed within the lifetime of the returns lock object.
@@ -172,23 +172,23 @@ public:
 
   // Misc functions
 
-  /// \brief Adds a swap-chain to be used for the next frame.
+  /// Adds a swap-chain to be used for the next frame.
   /// Must be called before or during the ezGALDeviceEvent::BeforeBeginFrame event (BeginFrame function) and repeated for every frame the swap-chain is to be used. This approach guarantees that all swap-chains of a frame acquire and present at the same time, which improves frame pacing.
   /// \param hSwapChain Swap-chain used in this frame. The device will ensure to acquire an image from the swap-chain during BeginFrame and present it when calling EndFrame.
   void EnqueueFrameSwapChain(ezGALSwapChainHandle hSwapChain);
 
-  /// \brief Begins rendering of a frame. This needs to be called first before any rendering function can be called.
+  /// Begins rendering of a frame. This needs to be called first before any rendering function can be called.
   /// \param uiAppFrame Frame index for debugging purposes, has no effect on GetCurrentFrame.
   void BeginFrame(const ezUInt64 uiAppFrame = 0);
 
-  /// \brief Ends rendering of a frame and submits all data to the GPU. No further rendering calls are allowed until BeginFrame is called again.
+  /// Ends rendering of a frame and submits all data to the GPU. No further rendering calls are allowed until BeginFrame is called again.
   void EndFrame();
 
-  /// \brief The current rendering frame.
+  /// The current rendering frame.
   /// This is a monotonically increasing number which changes +1 every time EndFrame is called. You can use this to synchronize read/writes between CPU and GPU, see GetSafeFrame.
   /// \sa GetSafeFrame
   ezUInt64 GetCurrentFrame() const;
-  /// \brief The latest frame that has been fully executed on the GPU.
+  /// The latest frame that has been fully executed on the GPU.
   /// Whenever you execute any work that requires synchronization between CPU and GPU, remember the GetCurrentFrame result in which the operation was done. When GetSafeFrame reaches this number, you know for sure that the GPU has completed all operations of that frame.
   /// \sa GetCurrentFrame
   ezUInt64 GetSafeFrame() const;
@@ -232,11 +232,11 @@ public:
   static ezGALDevice* GetDefaultDevice();
   static bool HasDefaultDevice();
 
-  // \brief Sends the queued up commands to the GPU.
+  // Sends the queued up commands to the GPU.
   // Same as ezCommandEncoder:Flush.
   void Flush();
 
-  /// \brief Waits for the GPU to be idle and destroys any pending resources and GPU objects.
+  /// Waits for the GPU to be idle and destroys any pending resources and GPU objects.
   void WaitIdle();
 
   // public in case someone external needs to lock multiple operations
@@ -245,18 +245,18 @@ public:
   /// Internal: Returns the allocator used by the device.
   ezAllocator* GetAllocator();
 
-  /// \brief Sets the texture quality assigned to the given quality slot.
+  /// Sets the texture quality assigned to the given quality slot.
   ///
   /// Quality mode slots are referenced by samplers that opt in via m_useTextureQualitySlot.
   /// Call UpdateTextureQuality() after changing slots to apply the change to existing samplers.
   void SetTextureQualityMode(ezGALTextureQualitySlot::Enum slot, ezGALTextureQuality::Enum quality);
 
-  /// \brief Overrides the filter settings in \a inout_desc using the quality assigned to its quality mode slot.
+  /// Overrides the filter settings in \a inout_desc using the quality assigned to its quality mode slot.
   ///
   /// No-op if inout_desc.m_useTextureQualitySlot is ezGALTextureQualitySlot::None.
   void AdjustSamplerStateDescription(ezGALSamplerStateCreationDescription& inout_desc);
 
-  /// \brief Recreates all quality-adjustable sampler states to reflect the current quality mode settings.
+  /// Recreates all quality-adjustable sampler states to reflect the current quality mode settings.
   ///
   /// Called automatically by ezRenderContext when the texture quality changes.
   void UpdateTextureQuality();
@@ -285,7 +285,7 @@ protected:
 
   void OnBindGroupInvalidatedEventHandler(ezGALBindGroup* pBindGroup);
 
-  /// \brief Asserts that either this device supports multi-threaded resource creation, or that this function is executed on the main thread.
+  /// Asserts that either this device supports multi-threaded resource creation, or that this function is executed on the main thread.
   void VerifyMultithreadedAccess() const;
 
   const ezGALSwapChain* GetSwapChainInternal(ezGALSwapChainHandle hSwapChain, const ezRTTI* pRequestedType) const;
@@ -406,7 +406,7 @@ protected:
 
   virtual ezGALSamplerState* CreateSamplerStatePlatform(const ezGALSamplerStateCreationDescription& Description) = 0;
   virtual void DestroySamplerStatePlatform(ezGALSamplerState* pSamplerState) = 0;
-  /// \brief Destroys and reinitializes a sampler state in-place, applying AdjustSamplerStateDescription to pick up current quality settings.
+  /// Destroys and reinitializes a sampler state in-place, applying AdjustSamplerStateDescription to pick up current quality settings.
   virtual void RecreateSamplerStatePlatform(ezGALSamplerState* pSamplerState) = 0;
 
   virtual ezGALBindGroupLayout* CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description) = 0;
@@ -415,7 +415,7 @@ protected:
   // Bind group platform functions
   virtual ezGALBindGroup* CreateBindGroupPlatform(const ezGALBindGroupCreationDescription& Description) = 0;
   virtual void DestroyBindGroupPlatform(ezGALBindGroup* pBindGroup) = 0;
-  /// \brief Destroys and reinitializes a bind group in-place.
+  /// Destroys and reinitializes a bind group in-place.
   virtual void RecreateBindGroupPlatform(ezGALBindGroup* pBindGroup) = 0;
 
   virtual ezGALPipelineLayout* CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description) = 0;

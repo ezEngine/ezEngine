@@ -23,7 +23,7 @@ protected:
   GPUTimingScope* m_pTimingScope;
 };
 
-/// \brief Profiles the current scope using the given name and also inserts a marker with the given command encoder.
+/// Profiles the current scope using the given name and also inserts a marker with the given command encoder.
 #  define EZ_PROFILE_AND_MARKER(GALCommandEncoder, ScopeName)                                                \
     ezProfilingScopeAndMarker EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(GALCommandEncoder, ScopeName); \
     EZ_TRACY_PROFILE_SCOPE(ScopeName)

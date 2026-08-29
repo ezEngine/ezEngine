@@ -11,7 +11,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezActiveDocumentChange
   const ezDocument* m_pNewDocument;
 };
 
-/// \brief Tracks existing and active ezDocument.
+/// Tracks existing and active ezDocument.
 ///
 /// While the IDocumentManager manages documents of a certain context,
 /// this class simply keeps track of the overall number of documents and the currently active one.

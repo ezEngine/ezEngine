@@ -7,7 +7,7 @@
 
 class ezCameraComponent;
 
-/// \brief ezFallbackGameState is an ezGameState that can handle existing worlds when no other game state is available.
+/// ezFallbackGameState is an ezGameState that can handle existing worlds when no other game state is available.
 ///
 /// This game state returns a priority of 'Fallback' in DeterminePriority() and therefore only takes over when
 /// no other game state is available.
@@ -26,11 +26,11 @@ public:
 
   virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
 
-  /// \brief Reports true for ezFallbackGameState only, not for derived types.
+  /// Reports true for ezFallbackGameState only, not for derived types.
   virtual bool IsFallbackGameState() const override;
 
 protected:
-  /// \brief Called by SwitchToLoadingScreen() to setup a new world that acts as the loading screen while waiting for another scene to finish loading.
+  /// Called by SwitchToLoadingScreen() to setup a new world that acts as the loading screen while waiting for another scene to finish loading.
   virtual void ConfigureInputActions() override;
   virtual ezResult SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
 

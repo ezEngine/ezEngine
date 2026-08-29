@@ -10,7 +10,7 @@
 EZ_DECLARE_FLAGS(ezUInt32, ezAiNavigationDebugFlags, PrintState, VisPathCorridor, VisPathLine, VisTarget);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_AIPLUGIN_DLL, ezAiNavigationDebugFlags);
 
-/// \brief Describes the different states a navigating object may be in.
+/// Describes the different states a navigating object may be in.
 struct ezAiNavigationComponentState
 {
   using StorageType = ezUInt8;
@@ -32,7 +32,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_AIPLUGIN_DLL, ezAiNavigationComponentState);
 
 using ezAiNavigationComponentManager = ezComponentManagerSimple<class ezAiNavigationComponent, ezComponentUpdateType::WhenSimulating>;
 
-/// \brief Adds functionality to navigate on a navmesh.
+/// Adds functionality to navigate on a navmesh.
 ///
 /// Call SetDestination() to have the component move the parent game object along a path towards the goal.
 /// Call GetState() to query whether it is moving and how.
@@ -65,21 +65,21 @@ public:
   ezAiNavigationComponent();
   ~ezAiNavigationComponent();
 
-  /// \brief Sets the target position to reach.
+  /// Sets the target position to reach.
   ///
   /// If bAllowPartialPath is false, and a complete path can't be found (too far or simply not reachable),
   /// the 'Failed' state is used.
   /// Otherwise the 'Moving' state indicates that the character is navigating.
   void SetDestination(const ezVec3& vGlobalPos, bool bAllowPartialPath); ///< [ scriptable ]
 
-  /// \brief Can be called at any time to stop moving.
+  /// Can be called at any time to stop moving.
   void CancelNavigation();                    ///< [ scriptable ]
 
   void StopWalking(float fWithinDistance);    ///< [ scriptable ]
 
   void TurnTowards(const ezVec2& vGlobalPos); ///< [ scriptable ]
 
-  /// \brief How much the object would have to turn, to look at the position.
+  /// How much the object would have to turn, to look at the position.
   ezAngle GetTurnAngleTowards(const ezVec2& vGlobalPos) const; ///< [ scriptable ]
 
   ezHashedString m_sNavmeshConfig;                             ///< [ property ] Which navmesh to walk on.
@@ -95,18 +95,18 @@ public:
 
   ezBitflags<ezAiNavigationDebugFlags> m_DebugFlags;           ///< [ property ] What aspects of the navigation to visualize.
 
-  /// \brief Returns the current navigation state.
+  /// Returns the current navigation state.
   ezEnum<ezAiNavigationComponentState> GetState() const { return m_State; } ///< [ scriptable ]
 
 
-  /// \brief Checks whether the area around the given point is loaded and thus queries would succeed.
+  /// Checks whether the area around the given point is loaded and thus queries would succeed.
   ///
   /// If the area is not fully loaded, the function returns false.
   /// In this case, queries in that area will probably fail and should be delayed to a later point,
   /// since the navmesh first has to be generated.
   bool EnsureNavMeshSectorAvailable(const ezVec3& vCenter, float fRadius); ///< [ scriptable ]
 
-  /// \brief Attempts to find a random point on the navmesh. The circle limits which navmesh polygons are visited.
+  /// Attempts to find a random point on the navmesh. The circle limits which navmesh polygons are visited.
   ///
   /// The result may be outside the circle, if the circle overlaps with a large navmesh polygon.
   bool FindRandomPointAroundCircle(const ezVec3& vCenter, float fRadius, ezVec3& out_vPoint); ///< [ scriptable ]

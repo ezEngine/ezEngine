@@ -28,7 +28,7 @@ private:
   ezDeque<ezComponentHandle> m_ComponentsToReset;
 };
 
-/// \brief Evaluates an ezAnimGraphResource and provides the result through the ezMsgAnimationPoseUpdated.
+/// Evaluates an ezAnimGraphResource and provides the result through the ezMsgAnimationPoseUpdated.
 ///
 /// ezAnimGraph's contain logic to generate an animation pose. This component decides when it is necessary
 /// to reevaluate the state, which mostly means it tracks when the object is visible.

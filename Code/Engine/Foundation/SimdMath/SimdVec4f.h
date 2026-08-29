@@ -3,7 +3,7 @@
 #include <Foundation/SimdMath/SimdFloat.h>
 #include <Foundation/SimdMath/SimdVec4b.h>
 
-/// \brief A 4-component SIMD vector class
+/// A 4-component SIMD vector class
 class EZ_FOUNDATION_DLL ezSimdVec4f
 {
 public:
@@ -19,10 +19,10 @@ public:
 
   ezSimdVec4f(ezInternal::QuadFloat v);                   // [tested]
 
-  /// \brief Creates an ezSimdVec4f that is initialized to zero.
+  /// Creates an ezSimdVec4f that is initialized to zero.
   [[nodiscard]] static ezSimdVec4f MakeZero(); // [tested]
 
-  /// \brief Creates an ezSimdVec4f that is initialized to Not-A-Number (NaN).
+  /// Creates an ezSimdVec4f that is initialized to Not-A-Number (NaN).
   [[nodiscard]] static ezSimdVec4f MakeNaN();   // [tested]
 
   void Set(float fXyzw);                        // [tested]
@@ -36,12 +36,12 @@ public:
 
   void SetZero();                               // [tested]
 
-  /// \brief Loads N floats from pFloats into the vector.
+  /// Loads N floats from pFloats into the vector.
   /// N must be between 1 and 4. Unused components are set to zero.
   template <int N>
   void Load(const float* pFloats);              // [tested]
 
-  /// \brief Stores the first N components to pFloats.
+  /// Stores the first N components to pFloats.
   /// N must be between 1 and 4.
   template <int N>
   void Store(float* pFloats) const;             // [tested]
@@ -74,11 +74,11 @@ public:
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
   void Normalize();                                                                                                   // [tested]
 
-  /// \brief Normalizes the first N components if the squared length is greater than fEpsilon, otherwise sets the vector to zero.
+  /// Normalizes the first N components if the squared length is greater than fEpsilon, otherwise sets the vector to zero.
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
   void NormalizeIfNotZero(const ezSimdFloat& fEpsilon = ezMath::SmallEpsilon<float>());                               // [tested]
 
-  /// \brief Normalizes the first N components if the squared length is greater than fEpsilon, otherwise sets the vector to vFallback.
+  /// Normalizes the first N components if the squared length is greater than fEpsilon, otherwise sets the vector to vFallback.
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
   void NormalizeIfNotZero(const ezSimdVec4f& vFallback, const ezSimdFloat& fEpsilon = ezMath::SmallEpsilon<float>()); // [tested]
 
@@ -98,11 +98,11 @@ public:
   bool IsValid() const;                                                                                               // [tested]
 
 public:
-  /// \brief Creates an ezSimdFloat with all elements set to the given component
+  /// Creates an ezSimdFloat with all elements set to the given component
   template <int N>
   ezSimdFloat GetComponent() const;      // [tested]
 
-  /// \brief Creates an ezSimdFloat with all elements set to the given component
+  /// Creates an ezSimdFloat with all elements set to the given component
   ezSimdFloat GetComponent(int i) const; // [tested]
 
   ezSimdFloat x() const;                 // [tested]
@@ -113,7 +113,7 @@ public:
   template <ezSwizzle::Enum s>
   ezSimdVec4f Get() const;               // [tested]
 
-  ///\brief x = this[s0], y = this[s1], z = other[s2], w = other[s3]
+  ///x = this[s0], y = this[s1], z = other[s2], w = other[s3]
   template <ezSwizzle::Enum s>
   [[nodiscard]] ezSimdVec4f GetCombined(const ezSimdVec4f& other) const;                                                 // [tested]
 
@@ -161,37 +161,37 @@ public:
   [[nodiscard]] ezSimdVec4b operator>=(const ezSimdVec4f& v) const;               // [tested]
   [[nodiscard]] ezSimdVec4b operator>(const ezSimdVec4f& v) const;                // [tested]
 
-  /// \brief Returns the sum of the first N components.
+  /// Returns the sum of the first N components.
   template <int N>
   [[nodiscard]] ezSimdFloat HorizontalSum() const;                                // [tested]
 
-  /// \brief Returns the minimum of the first N components.
+  /// Returns the minimum of the first N components.
   template <int N>
   [[nodiscard]] ezSimdFloat HorizontalMin() const;                                // [tested]
 
-  /// \brief Returns the maximum of the first N components.
+  /// Returns the maximum of the first N components.
   template <int N>
   [[nodiscard]] ezSimdFloat HorizontalMax() const;                                // [tested]
 
-  /// \brief Returns the dot product of the first N components of this vector and v.
+  /// Returns the dot product of the first N components of this vector and v.
   template <int N>
   [[nodiscard]] ezSimdFloat Dot(const ezSimdVec4f& v) const;                      // [tested]
 
-  ///\brief 3D cross product, w is ignored.
+  ///3D cross product, w is ignored.
   [[nodiscard]] ezSimdVec4f CrossRH(const ezSimdVec4f& v) const; // [tested]
 
-  ///\brief Generates an arbitrary vector such that Dot<3>(GetOrthogonalVector()) == 0
+  ///Generates an arbitrary vector such that Dot<3>(GetOrthogonalVector()) == 0
   [[nodiscard]] ezSimdVec4f GetOrthogonalVector() const;                                                     // [tested]
 
-  /// \brief Returns a * b + c
+  /// Returns a * b + c
   [[nodiscard]] static ezSimdVec4f MulAdd(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c); // [tested]
   [[nodiscard]] static ezSimdVec4f MulAdd(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c); // [tested]
 
-  /// \brief Returns a * b - c
+  /// Returns a * b - c
   [[nodiscard]] static ezSimdVec4f MulSub(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c); // [tested]
   [[nodiscard]] static ezSimdVec4f MulSub(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c); // [tested]
 
-  /// \brief Returns a vector with the magnitude from vMagnitude and the sign from vSign.
+  /// Returns a vector with the magnitude from vMagnitude and the sign from vSign.
   [[nodiscard]] static ezSimdVec4f CopySign(const ezSimdVec4f& vMagnitude, const ezSimdVec4f& vSign);        // [tested]
 
 public:

@@ -11,7 +11,7 @@ namespace ezDataDirectory
   class FolderReader;
   class FolderWriter;
 
-  /// \brief A data directory type to handle access to ordinary files.
+  /// A data directory type to handle access to ordinary files.
   ///
   /// Register the 'Factory' function at ezFileSystem to allow it to mount local directories.
   class EZ_FOUNDATION_DLL FolderType : public ezDataDirectoryType
@@ -19,7 +19,7 @@ namespace ezDataDirectory
   public:
     ~FolderType();
 
-    /// \brief The factory that can be registered at ezFileSystem to create data directories of this type.
+    /// The factory that can be registered at ezFileSystem to create data directories of this type.
     static ezDataDirectoryType* Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezDataDirUsage usage);
 
     /// A 'redirection file' is an optional file located inside a data directory that lists which file access is redirected to which other
@@ -34,7 +34,7 @@ namespace ezDataDirectory
     /// access.
     static ezString s_sRedirectionPrefix;
 
-    /// \brief When s_sRedirectionFile and s_sRedirectionPrefix are used to enable file redirection, this will reload those config files.
+    /// When s_sRedirectionFile and s_sRedirectionPrefix are used to enable file redirection, this will reload those config files.
     virtual void ReloadExternalConfigs() override;
 
     virtual const ezString128& GetRedirectedDataDirectoryPath() const override { return m_sRedirectedDataDirPath; }
@@ -53,10 +53,10 @@ namespace ezDataDirectory
     virtual FolderReader* CreateFolderReader() const;
     virtual FolderWriter* CreateFolderWriter() const;
 
-    /// \brief Called by 'ezDataDirectoryType_Folder::Factory'
+    /// Called by 'ezDataDirectoryType_Folder::Factory'
     virtual ezResult InternalInitializeDataDirectory(ezStringView sDirectory) override;
 
-    /// \brief Marks the given reader/writer as reusable.
+    /// Marks the given reader/writer as reusable.
     virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) override;
 
     void LoadRedirectionFile();
@@ -71,7 +71,7 @@ namespace ezDataDirectory
   };
 
 
-  /// \brief Handles reading from ordinary files.
+  /// Handles reading from ordinary files.
   class EZ_FOUNDATION_DLL FolderReader : public ezDataDirectoryReader
   {
     EZ_DISALLOW_COPY_AND_ASSIGN(FolderReader);
@@ -97,7 +97,7 @@ namespace ezDataDirectory
     ezOSFile m_File;
   };
 
-  /// \brief Handles writing to ordinary files.
+  /// Handles writing to ordinary files.
   class EZ_FOUNDATION_DLL FolderWriter : public ezDataDirectoryWriter
   {
     EZ_DISALLOW_COPY_AND_ASSIGN(FolderWriter);

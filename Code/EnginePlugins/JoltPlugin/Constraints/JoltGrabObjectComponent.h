@@ -10,7 +10,7 @@ namespace JPH
 
 using ezJoltGrabObjectComponentManager = ezComponentManagerSimple<class ezJoltGrabObjectComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
 
-/// \brief Used to 'grab' physical objects and attach them to an object. For player objects to pick up objects.
+/// Used to 'grab' physical objects and attach them to an object. For player objects to pick up objects.
 ///
 /// The component does a raycast along its X axis to detect nearby physics objects. If it finds a non-kinematic ezJoltDynamicActor
 /// it connects a dedicated object with the picked object through a 6DOF joint, which is set up to drag the picked object towards its
@@ -40,26 +40,26 @@ public:
   ezJoltGrabObjectComponent();
   ~ezJoltGrabObjectComponent();
 
-  /// \brief Checks whether there is an object nearby. Note that this function reports static and dynamic objects that are within reach.
+  /// Checks whether there is an object nearby. Note that this function reports static and dynamic objects that are within reach.
   /// Whether these objects are interact able or not is up to the caller.
   bool FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_localGrabPoint, bool bIgnoreGrabbedActor = true) const;
 
-  /// \brief Grabs the given object at the given grab point if possible.
+  /// Grabs the given object at the given grab point if possible.
   bool GrabObject(ezGameObject* pObjectToGrab, const ezTransform& localGrabPoint);
 
-  /// \brief Tries to find an object to pick up and do so.
+  /// Tries to find an object to pick up and do so.
   bool GrabNearbyObject(); // [ scriptable ]
 
-  /// \brief Returns whether an object is currently being held.
+  /// Returns whether an object is currently being held.
   bool HasObjectGrabbed() const; // [ scriptable ]
 
-  /// \brief Returns the grabbed object's actor component.
+  /// Returns the grabbed object's actor component.
   ezComponentHandle GetGrabbedActor() const { return m_hGrabbedActor; }
 
-  /// \brief Returns the grabbed object's mass.
+  /// Returns the grabbed object's mass.
   float GetGrabbedActorMass() const { return m_fGrabbedActorInverseMass > 0.0f ? 1.0f / m_fGrabbedActorInverseMass : 0.0f; }
 
-  /// \brief The grabbed object is dropped in place.
+  /// The grabbed object is dropped in place.
   ///
   /// If an impulse type is given (see ezImpulseTypeConfig) the dropped object is allowed to retain as much linear velocity
   /// as a push with such a force would give it.
@@ -69,14 +69,14 @@ public:
   /// However, momentum from the character (this objects owner) is always preserved.
   void DropGrabbedObject(ezUInt8 uiImpulseType = 0); // [ scriptable ]
 
-  /// \brief Throws the held object away.
+  /// Throws the held object away.
   ///
   /// See ezImpulseTypeConfig for impulse types.
   /// If a non-zero impulse type is given, vRelativeDir is scaled by the impulse type,
   /// such that heavy and light objects may get a different impulse.
   void ThrowGrabbedObject(const ezVec3& vRelativeDir, ezUInt8 uiImpulseType = 0); // [ scriptable ]
 
-  /// \brief Similar to DropGrabbedObject() but additionally posts the event message ezMsgPhysicsJointBroke.
+  /// Similar to DropGrabbedObject() but additionally posts the event message ezMsgPhysicsJointBroke.
   ///
   /// This can be used to inform other code that the object was ripped from the hands of the player.
   void BreakObjectGrab(); // [ scriptable ]

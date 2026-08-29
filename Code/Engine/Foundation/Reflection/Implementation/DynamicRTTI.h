@@ -4,7 +4,7 @@
 
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
 
-/// \brief Adds dynamic reflection capabilities to a class declaration.
+/// Adds dynamic reflection capabilities to a class declaration.
 ///
 /// This macro must be placed in the class declaration of every type that needs dynamic reflection.
 /// It adds the necessary infrastructure for runtime type identification, including static RTTI
@@ -54,7 +54,7 @@ public:                                                 \
 #endif
 
 
-/// \brief Begins the implementation block for dynamic reflection of a type.
+/// Begins the implementation block for dynamic reflection of a type.
 ///
 /// This macro starts the definition of the static RTTI object for a type, enabling
 /// runtime type information, property access, and dynamic instantiation. Must be
@@ -74,14 +74,14 @@ public:                                                 \
   ezRTTI Type::s_RTTI = GetRTTI((Type*)0);                            \
   EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, Type::SUPER, AllocatorType)
 
-/// \brief Ends the reflection code block that was opened with EZ_BEGIN_DYNAMIC_REFLECTED_TYPE.
+/// Ends the reflection code block that was opened with EZ_BEGIN_DYNAMIC_REFLECTED_TYPE.
 #define EZ_END_DYNAMIC_REFLECTED_TYPE                                                                                                \
   return ezRTTI(GetTypeName((OwnType*)0), ezGetStaticRTTI<OwnBaseType>(), sizeof(OwnType), GetTypeVersion((OwnType*)0),              \
     ezVariant::TypeDeduction<OwnType>::value, flags, &Allocator, Properties, Functions, Attributes, MessageHandlers, MessageSenders, \
     EZ_REFLECTION_DEBUG_GETPARENTFUNC);                                                                                              \
   }
 
-/// \brief Same as EZ_BEGIN_DYNAMIC_REFLECTED_TYPE but forces the type to be treated as abstract by reflection even though
+/// Same as EZ_BEGIN_DYNAMIC_REFLECTED_TYPE but forces the type to be treated as abstract by reflection even though
 /// it might not be abstract from a C++ perspective.
 #define EZ_BEGIN_ABSTRACT_DYNAMIC_REFLECTED_TYPE(Type, Version)     \
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Type, Version, ezRTTINoAllocator) \
@@ -89,7 +89,7 @@ public:                                                 \
 
 #define EZ_END_ABSTRACT_DYNAMIC_REFLECTED_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE
 
-/// \brief Base class for all types that support dynamic reflection and runtime type identification.
+/// Base class for all types that support dynamic reflection and runtime type identification.
 ///
 /// This class provides the fundamental virtual interface for runtime type queries and
 /// the foundational reflection infrastructure. All types that need dynamic reflection
@@ -110,10 +110,10 @@ public:
   EZ_ALWAYS_INLINE ezReflectedClass() = default;
   EZ_ALWAYS_INLINE virtual ~ezReflectedClass() = default;
 
-  /// \brief Returns whether the type of this instance is of the given type or derived from it.
+  /// Returns whether the type of this instance is of the given type or derived from it.
   bool IsInstanceOf(const ezRTTI* pType) const;
 
-  /// \brief Returns whether the type of this instance is of the given type or derived from it.
+  /// Returns whether the type of this instance is of the given type or derived from it.
   template <typename T>
   EZ_ALWAYS_INLINE bool IsInstanceOf() const
   {

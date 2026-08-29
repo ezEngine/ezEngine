@@ -6,7 +6,7 @@
 
 class ezRTTI;
 
-/// \brief Do not cast into this class or any of its derived classes, use ezTypedArrayProperty instead.
+/// Do not cast into this class or any of its derived classes, use ezTypedArrayProperty instead.
 template <typename Type>
 class ezTypedArrayProperty : public ezAbstractArrayProperty
 {
@@ -24,7 +24,7 @@ public:
   virtual const ezRTTI* GetSpecificType() const override { return ezGetStaticRTTI<typename ezTypeTraits<Type>::NonConstReferencePointerType>(); }
 };
 
-/// \brief Specialization of ezTypedArrayProperty to retain the pointer in const char*.
+/// Specialization of ezTypedArrayProperty to retain the pointer in const char*.
 template <>
 class ezTypedArrayProperty<const char*> : public ezAbstractArrayProperty
 {
@@ -221,7 +221,7 @@ private:
   GetContainerFunc m_Getter;
 };
 
-/// \brief Read only version of ezMemberArrayProperty that does not call any functions that modify the array. This is needed to reflect ezArrayPtr members.
+/// Read only version of ezMemberArrayProperty that does not call any functions that modify the array. This is needed to reflect ezArrayPtr members.
 template <typename Class, typename Container, typename Type>
 class ezMemberArrayReadOnlyProperty : public ezTypedArrayProperty<typename ezTypeTraits<Type>::NonConstReferenceType>
 {

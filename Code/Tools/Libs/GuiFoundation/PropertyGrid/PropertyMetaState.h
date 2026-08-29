@@ -10,7 +10,7 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 
-/// \brief Describes the current meta state of a property for display purposes in the property grid
+/// Describes the current meta state of a property for display purposes in the property grid
 struct ezPropertyUiState
 {
   enum Visibility
@@ -30,7 +30,7 @@ struct ezPropertyUiState
   ezString m_sNewLabelText;
 };
 
-/// \brief Event that is broadcast whenever information about how to present properties is required
+/// Event that is broadcast whenever information about how to present properties is required
 struct ezPropertyMetaStateEvent
 {
   /// The object for which the information is queried
@@ -41,7 +41,7 @@ struct ezPropertyMetaStateEvent
   ezMap<ezString, ezPropertyUiState>* m_pPropertyStates = nullptr;
 };
 
-/// \brief Event that is broadcast whenever information about how to present elements in a container is required
+/// Event that is broadcast whenever information about how to present elements in a container is required
 struct ezContainerElementMetaStateEvent
 {
   /// The object for which the information is queried
@@ -53,7 +53,7 @@ struct ezContainerElementMetaStateEvent
   ezHashTable<ezVariant, ezPropertyUiState>* m_pContainerElementStates = nullptr;
 };
 
-/// \brief This class allows to query additional information about how to present properties in the property grid
+/// This class allows to query additional information about how to present properties in the property grid
 ///
 /// The property grid calls GetTypePropertiesState() and GetContainerElementsState() with the current selection of ezDocumentObject's.
 /// This triggers the ezPropertyMetaStateEvent to be broadcast, which allows for other code to determine additional
@@ -65,18 +65,18 @@ class EZ_GUIFOUNDATION_DLL ezPropertyMetaState
 public:
   ezPropertyMetaState();
 
-  /// \brief Queries the property meta state for a single ezDocumentObject
+  /// Queries the property meta state for a single ezDocumentObject
   void GetTypePropertiesState(const ezDocumentObject* pObject, ezMap<ezString, ezPropertyUiState>& out_propertyStates);
 
-  /// \brief Queries the property meta state for a multi selection of ezDocumentObject's
+  /// Queries the property meta state for a multi selection of ezDocumentObject's
   ///
   /// This will query the information for every single selected object and then merge the result into one.
   void GetTypePropertiesState(const ezArrayPtr<ezPropertySelection>& items, ezMap<ezString, ezPropertyUiState>& out_propertyStates);
 
-  /// \brief Queries the meta state for the elements of a single container property on one ezDocumentObject.
+  /// Queries the meta state for the elements of a single container property on one ezDocumentObject.
   void GetContainerElementsState(const ezDocumentObject* pObject, const char* szProperty, ezHashTable<ezVariant, ezPropertyUiState>& out_propertyStates);
 
-  /// \brief Queries the meta state for the elements of a single container property on a multi selection of ezDocumentObjects.
+  /// Queries the meta state for the elements of a single container property on a multi selection of ezDocumentObjects.
   ///
   /// This will query the information for every single selected object and then merge the result into one.
   void GetContainerElementsState(const ezArrayPtr<ezPropertySelection>& items, const char* szProperty, ezHashTable<ezVariant, ezPropertyUiState>& out_propertyStates);

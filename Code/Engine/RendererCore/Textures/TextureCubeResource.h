@@ -11,7 +11,7 @@
 
 using ezTextureCubeResourceHandle = ezTypedResourceHandle<class ezTextureCubeResource>;
 
-/// \brief Use this descriptor in calls to ezResourceManager::CreateResource<ezTextureCubeResource> to create textures from data in memory.
+/// Use this descriptor in calls to ezResourceManager::CreateResource<ezTextureCubeResource> to create textures from data in memory.
 struct ezTextureCubeResourceDescriptor
 {
   ezTextureCubeResourceDescriptor()

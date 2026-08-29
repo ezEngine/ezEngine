@@ -5,7 +5,7 @@
 
 class ezDocument;
 
-/// \brief Base class for all preferences.
+/// Base class for all preferences.
 ///
 /// Derive from this to implement a custom class containing preferences.
 /// All properties in such a class are exposed in the preferences UI and are automatically stored and restored.
@@ -25,7 +25,7 @@ public:
     Document
   };
 
-  /// \brief Static function to query a preferences object of the given type.
+  /// Static function to query a preferences object of the given type.
   /// If the instance does not exist yet, it is created and the data is restored from file.
   template <typename TYPE>
   static TYPE* QueryPreferences(const ezDocument* pDocument = nullptr)
@@ -34,41 +34,41 @@ public:
     return static_cast<TYPE*>(QueryPreferences(ezGetStaticRTTI<TYPE>(), pDocument));
   }
 
-  /// \brief Static function to query a preferences object of the given type.
+  /// Static function to query a preferences object of the given type.
   /// If the instance does not exist yet, it is created and the data is restored from file.
   static ezPreferences* QueryPreferences(const ezRTTI* pRtti, const ezDocument* pDocument = nullptr);
 
-  /// \brief Saves all preferences that are tied to the given document
+  /// Saves all preferences that are tied to the given document
   static void SaveDocumentPreferences(const ezDocument* pDocument);
 
-  /// \brief Removes all preferences for the given document. Does not save them.
+  /// Removes all preferences for the given document. Does not save them.
   /// Afterwards the preferences will not appear in the UI any further.
   static void ClearDocumentPreferences(const ezDocument* pDocument);
 
-  /// \brief Saves all project specific preferences.
+  /// Saves all project specific preferences.
   static void SaveProjectPreferences();
 
-  /// \brief Removes all project specific preferences. Does not save them.
+  /// Removes all project specific preferences. Does not save them.
   /// Afterwards the preferences will not appear in the UI any further.
   static void ClearProjectPreferences();
 
-  /// \brief Saves all application specific preferences.
+  /// Saves all application specific preferences.
   static void SaveApplicationPreferences();
 
-  /// \brief Removes all application specific preferences. Does not save them.
+  /// Removes all application specific preferences. Does not save them.
   /// Afterwards the preferences will not appear in the UI any further.
   static void ClearApplicationPreferences();
 
-  //// \brief Fills the list with all currently known preferences
+  //// Fills the list with all currently known preferences
   static void GatherAllPreferences(ezDynamicArray<ezPreferences*>& out_allPreferences);
 
-  /// \brief Whether the preferences are app, project or document specific
+  /// Whether the preferences are app, project or document specific
   Domain GetDomain() const { return m_Domain; }
 
-  /// \brief Within the same domain and visibility the name must be unique, but across those it can be reused.
+  /// Within the same domain and visibility the name must be unique, but across those it can be reused.
   ezString GetName() const;
 
-  /// \brief If these preferences are per document, the pointer is valid, otherwise nullptr.
+  /// If these preferences are per document, the pointer is valid, otherwise nullptr.
   const ezDocument* GetDocumentAssociation() const { return m_pDocument; }
 
   /// A simple event that can be fired when any preference property changes. No specific change details are given.

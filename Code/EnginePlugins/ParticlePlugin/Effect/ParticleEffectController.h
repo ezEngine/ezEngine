@@ -32,14 +32,14 @@ public:
 
   void StopImmediate();
 
-  /// \brief Returns the bounding volume of the effect.
+  /// Returns the bounding volume of the effect.
   /// The volume is in the local space of the effect.
   void GetBoundingVolume(ezBoundingBoxSphere& ref_volume) const;
 
   void UpdateWindSamples(ezTime diff);
   void FindNearbyAttractors(ezTime diff);
 
-  /// \brief Ensures that the effect is considered to be 'visible', which affects the update rate.
+  /// Ensures that the effect is considered to be 'visible', which affects the update rate.
   void ForceVisible();
 
   ezUInt64 GetNumActiveParticles() const;
@@ -47,10 +47,10 @@ public:
   /// \name Effect Parameters
   ///@{
 public:
-  /// \brief Passes an effect parameter on to the effect instance
+  /// Passes an effect parameter on to the effect instance
   void SetParameter(const ezTempHashedString& sName, float value);
 
-  /// \brief Passes an effect parameter on to the effect instance
+  /// Passes an effect parameter on to the effect instance
   void SetParameter(const ezTempHashedString& sName, const ezColor& value);
 
   ///@}

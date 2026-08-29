@@ -4,7 +4,7 @@
 
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
 
-/// \brief Default state provider that reflects the default state defined in the prefab template.
+/// Default state provider that reflects the default state defined in the prefab template.
 class EZ_GUIFOUNDATION_DLL ezPrefabDefaultStateProvider : public ezDefaultStateProvider
 {
 public:

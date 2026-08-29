@@ -1014,7 +1014,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Arrays)
   TestSerialization<ezTestArrays>(containers);
 }
 
-/// \brief Determines whether a type is a pointer.
+/// Determines whether a type is a pointer.
 template <typename T>
 struct ezIsPointer
 {

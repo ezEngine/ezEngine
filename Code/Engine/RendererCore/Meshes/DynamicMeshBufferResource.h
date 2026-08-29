@@ -66,7 +66,7 @@ public:
   EZ_ALWAYS_INLINE ezArrayPtr<const ezGALBufferHandle> GetVertexBuffers() const { return ezMakeArrayPtr(m_hVertexBuffers); }
   EZ_ALWAYS_INLINE ezGALBufferHandle GetIndexBuffer() const { return m_hIndexBuffer; }
 
-  /// \brief Grants write access to the position data, and flags the data as 'dirty'.
+  /// Grants write access to the position data, and flags the data as 'dirty'.
   ezArrayPtr<ezVec3> AccessPositionData(ezUInt32 uiFirstVertex = 0, ezUInt32 uiNumVertices = ezInvalidIndex)
   {
     m_ModifiedPositionDataRange.SetToIncludeRange(uiFirstVertex, uiFirstVertex + ezMath::Min(uiNumVertices, m_PositionData.GetCount() - uiFirstVertex) - 1);
@@ -75,7 +75,7 @@ public:
     return m_PositionData;
   }
 
-  /// \brief Grants write access to the normal, tangent and texcoord0 data, and flags the data as 'dirty'.
+  /// Grants write access to the normal, tangent and texcoord0 data, and flags the data as 'dirty'.
   ezArrayPtr<ezDynamicMeshVertexNTT> AccessNormalTangentTexCoord0Data(ezUInt32 uiFirstVertex = 0, ezUInt32 uiNumVertices = ezInvalidIndex)
   {
     m_ModifiedNTTDataRange.SetToIncludeRange(uiFirstVertex, uiFirstVertex + ezMath::Min(uiNumVertices, m_NTTData.GetCount() - uiFirstVertex) - 1);
@@ -84,7 +84,7 @@ public:
     return m_NTTData;
   }
 
-  /// \brief Grants write access to the color data, and flags the data as 'dirty'.
+  /// Grants write access to the color data, and flags the data as 'dirty'.
   ///
   /// Accessing this data is only valid, if creation of the color buffer was enabled.
   ezArrayPtr<ezColorLinear16f> AccessColorData(ezUInt32 uiFirstVertex = 0, ezUInt32 uiNumVertices = ezInvalidIndex)
@@ -95,7 +95,7 @@ public:
     return m_ColorData;
   }
 
-  /// \brief Grants write access to the 16 bit index data, and flags the data as 'dirty'.
+  /// Grants write access to the 16 bit index data, and flags the data as 'dirty'.
   ///
   /// Accessing this data is only valid, if the buffer was created with 16 bit indices.
   ezArrayPtr<ezUInt16> AccessIndex16Data(ezUInt32 uiFirstIndex = 0, ezUInt32 uiNumIndices = ezInvalidIndex)
@@ -109,7 +109,7 @@ public:
     return ezMakeArrayPtr(reinterpret_cast<ezUInt16*>(m_IndexData.GetData()), m_IndexData.GetCount() / uiIndexByteSize);
   }
 
-  /// \brief Grants write access to the 32 bit index data, and flags the data as 'dirty'.
+  /// Grants write access to the 32 bit index data, and flags the data as 'dirty'.
   ///
   /// Accessing this data is only valid, if the buffer was created with 32 bit indices.
   ezArrayPtr<ezUInt32> AccessIndex32Data(ezUInt32 uiFirstIndex = 0, ezUInt32 uiNumIndices = ezInvalidIndex)
@@ -123,13 +123,13 @@ public:
     return ezMakeArrayPtr(reinterpret_cast<ezUInt32*>(m_IndexData.GetData()), m_IndexData.GetCount() / uiIndexByteSize);
   }
 
-  /// \brief Returns the vertex attributes that describes the data layout of the vertex buffers.
+  /// Returns the vertex attributes that describes the data layout of the vertex buffers.
   EZ_ALWAYS_INLINE ezArrayPtr<const ezGALVertexAttribute> GetVertexAttributes() const { return m_VertexAttributes; }
 
-  /// \brief Helper function to create a grid aligned to the XY plane with the given size and number of vertices. The mesh buffer must already have the right number of vertices.
+  /// Helper function to create a grid aligned to the XY plane with the given size and number of vertices. The mesh buffer must already have the right number of vertices.
   static void CreateGridXY(ezDynamicMeshBufferResource* pDynamicMeshBuffer, const ezVec2& vSize, const ezVec2U32& vNumVertices, const ezVec2& vTextureScale = ezVec2(1));
 
-  /// \brief Helper function to calculate smooth normals and tangents for a grid mesh created with the function above after its positions have been updated.
+  /// Helper function to calculate smooth normals and tangents for a grid mesh created with the function above after its positions have been updated.
   static void CalculateGridNormalAndTangents(ezDynamicMeshBufferResource* pDynamicMeshBuffer, const ezVec2U32& vNumVertices);
 
 private:

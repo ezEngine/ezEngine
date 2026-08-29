@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Configuration/StaticSubSystem.h>
 
-/// \brief The time class encapsulates a double value storing the time in seconds.
+/// The time class encapsulates a double value storing the time in seconds.
 ///
 /// It offers convenient functions to get the time in other units.
 /// ezTime is a high-precision time using the OS specific high-precision timing functions
@@ -11,97 +11,97 @@
 struct EZ_FOUNDATION_DLL ezTime
 {
 public:
-  /// \brief Gets the current time
+  /// Gets the current time
   static ezTime Now(); // [tested]
 
-  /// \brief Creates an instance of ezTime that was initialized from nanoseconds.
+  /// Creates an instance of ezTime that was initialized from nanoseconds.
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeFromNanoseconds(double fNanoseconds) { return ezTime(fNanoseconds * 0.000000001); }
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime Nanoseconds(double fNanoseconds) { return ezTime(fNanoseconds * 0.000000001); }
 
-  /// \brief Creates an instance of ezTime that was initialized from microseconds.
+  /// Creates an instance of ezTime that was initialized from microseconds.
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeFromMicroseconds(double fMicroseconds) { return ezTime(fMicroseconds * 0.000001); }
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime Microseconds(double fMicroseconds) { return ezTime(fMicroseconds * 0.000001); }
 
-  /// \brief Creates an instance of ezTime that was initialized from milliseconds.
+  /// Creates an instance of ezTime that was initialized from milliseconds.
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeFromMilliseconds(double fMilliseconds) { return ezTime(fMilliseconds * 0.001); }
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime Milliseconds(double fMilliseconds) { return ezTime(fMilliseconds * 0.001); }
 
-  /// \brief Creates an instance of ezTime that was initialized from seconds.
+  /// Creates an instance of ezTime that was initialized from seconds.
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeFromSeconds(double fSeconds) { return ezTime(fSeconds); }
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime Seconds(double fSeconds) { return ezTime(fSeconds); }
 
-  /// \brief Creates an instance of ezTime that was initialized from minutes.
+  /// Creates an instance of ezTime that was initialized from minutes.
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeFromMinutes(double fMinutes) { return ezTime(fMinutes * 60); }
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime Minutes(double fMinutes) { return ezTime(fMinutes * 60); }
 
-  /// \brief Creates an instance of ezTime that was initialized from hours.
+  /// Creates an instance of ezTime that was initialized from hours.
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeFromHours(double fHours) { return ezTime(fHours * 60 * 60); }
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime Hours(double fHours) { return ezTime(fHours * 60 * 60); }
 
-  /// \brief Creates an instance of ezTime that was initialized with zero.
+  /// Creates an instance of ezTime that was initialized with zero.
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeZero() { return ezTime(0.0); }
 
   EZ_DECLARE_POD_TYPE();
 
-  /// \brief The default constructor sets the time to zero.
+  /// The default constructor sets the time to zero.
   EZ_ALWAYS_INLINE constexpr ezTime() = default;
 
-  /// \brief Returns true if the stored time is exactly zero. That typically means the value was not changed from the default.
+  /// Returns true if the stored time is exactly zero. That typically means the value was not changed from the default.
   EZ_ALWAYS_INLINE constexpr bool IsZero() const { return m_fTime == 0.0; }
 
-  /// \brief Checks for a negative time value.
+  /// Checks for a negative time value.
   EZ_ALWAYS_INLINE constexpr bool IsNegative() const { return m_fTime < 0.0; }
 
-  /// \brief Checks for a positive time value. This does not include zero.
+  /// Checks for a positive time value. This does not include zero.
   EZ_ALWAYS_INLINE constexpr bool IsPositive() const { return m_fTime > 0.0; }
 
-  /// \brief Returns true if the stored time is zero or negative.
+  /// Returns true if the stored time is zero or negative.
   EZ_ALWAYS_INLINE constexpr bool IsZeroOrNegative() const { return m_fTime <= 0.0; }
 
-  /// \brief Returns true if the stored time is zero or positive.
+  /// Returns true if the stored time is zero or positive.
   EZ_ALWAYS_INLINE constexpr bool IsZeroOrPositive() const { return m_fTime >= 0.0; }
 
-  /// \brief Returns the time as a float value (in seconds).
+  /// Returns the time as a float value (in seconds).
   ///
   /// Useful for simulation time steps etc.
   /// Please note that it is not recommended to use the float value for long running
   /// time calculations since the precision can deteriorate quickly. (Only use for delta times is recommended)
   constexpr float AsFloatInSeconds() const;
 
-  /// \brief Returns the nanoseconds value
+  /// Returns the nanoseconds value
   constexpr double GetNanoseconds() const;
 
-  /// \brief Returns the microseconds value
+  /// Returns the microseconds value
   constexpr double GetMicroseconds() const;
 
-  /// \brief Returns the milliseconds value
+  /// Returns the milliseconds value
   constexpr double GetMilliseconds() const;
 
-  /// \brief Returns the seconds value.
+  /// Returns the seconds value.
   constexpr double GetSeconds() const;
 
-  /// \brief Returns the minutes value.
+  /// Returns the minutes value.
   constexpr double GetMinutes() const;
 
-  /// \brief Returns the hours value.
+  /// Returns the hours value.
   constexpr double GetHours() const;
 
-  /// \brief Subtracts the time value of "other" from this instances value.
+  /// Subtracts the time value of "other" from this instances value.
   constexpr void operator-=(const ezTime& other);
 
-  /// \brief Adds the time value of "other" to this instances value.
+  /// Adds the time value of "other" to this instances value.
   constexpr void operator+=(const ezTime& other);
 
-  /// \brief Multiplies the time by the given factor
+  /// Multiplies the time by the given factor
   constexpr void operator*=(double fFactor);
 
-  /// \brief Divides the time by the given factor
+  /// Divides the time by the given factor
   constexpr void operator/=(double fFactor);
 
-  /// \brief Returns the difference: "this instance - other"
+  /// Returns the difference: "this instance - other"
   constexpr ezTime operator-(const ezTime& other) const;
 
-  /// \brief Returns the sum: "this instance + other"
+  /// Returns the sum: "this instance + other"
   constexpr ezTime operator+(const ezTime& other) const;
 
   constexpr ezTime operator-() const;
@@ -114,10 +114,10 @@ public:
   constexpr bool operator!=(const ezTime& rhs) const { return m_fTime != rhs.m_fTime; }
 
 private:
-  /// \brief For internal use only.
+  /// For internal use only.
   constexpr explicit ezTime(double fTime);
 
-  /// \brief The time is stored in seconds
+  /// The time is stored in seconds
   double m_fTime = 0.0;
 
 private:

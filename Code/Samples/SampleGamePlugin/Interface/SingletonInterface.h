@@ -4,7 +4,7 @@
 #include <Foundation/Strings/FormatString.h>
 
 // BEGIN-DOCS-CODE-SNIPPET: singleton-interface
-/// \brief Pure virtual interface for demonstrating the singleton work flow
+/// Pure virtual interface for demonstrating the singleton work flow
 ///
 /// This declaration would typically be in a shared location, that all code can #include
 class PrintInterface
@@ -17,7 +17,7 @@ public:
 // END-DOCS-CODE-SNIPPET
 
 // BEGIN-DOCS-CODE-SNIPPET: singleton-impl-declaration
-/// \brief Implementation of the PrintInterface, just forwards the text to ezLog::Info()
+/// Implementation of the PrintInterface, just forwards the text to ezLog::Info()
 ///
 /// This would typically be in a different plugin than the interface and would be allocated by that plugin on startup.
 class PrintImplementation : public PrintInterface

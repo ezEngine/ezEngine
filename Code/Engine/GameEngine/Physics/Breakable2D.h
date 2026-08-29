@@ -8,7 +8,7 @@
 
 class ezRandom;
 
-/// \brief The pattern with which to break the shard
+/// The pattern with which to break the shard
 enum class ezBreakablePattern
 {
   None = 0,
@@ -17,12 +17,12 @@ enum class ezBreakablePattern
   All = 0xFF,
 };
 
-/// \brief State of a single broken shard.
+/// State of a single broken shard.
 struct EZ_GAMEENGINE_DLL ezBreakableShard2D
 {
-  /// \brief Index for shard edges that are unsupported (need to fall off).
+  /// Index for shard edges that are unsupported (need to fall off).
   static constexpr ezUInt32 LooseEdge = ezInvalidIndex;
-  /// \brief Index for shard edges that are supported (don't fall off), e.g. because they touch a fixed border.
+  /// Index for shard edges that are supported (don't fall off), e.g. because they touch a fixed border.
   static constexpr ezUInt32 FixedEdge = ezInvalidIndex - 1;
 
   struct Edge
@@ -49,7 +49,7 @@ struct EZ_GAMEENGINE_DLL ezBreakableShard2D
   ezHybridArray<Edge, 6> m_Edges;
 };
 
-/// \brief A 2-dimensional shape that can be broken up into many pieces (shards) using different break patterns.
+/// A 2-dimensional shape that can be broken up into many pieces (shards) using different break patterns.
 ///
 /// This class handles breaking 2D shapes into convex shards using various patterns.
 /// It only manages the geometry of the break patterns and does not perform physics simulation.
@@ -73,17 +73,17 @@ public:
   ezBreakable2D();
   ~ezBreakable2D();
 
-  /// \brief Resets all state back to the default.
+  /// Resets all state back to the default.
   void Clear();
 
-  /// \brief Clears the state and sets up a single shard to begin with.
+  /// Clears the state and sets up a single shard to begin with.
   /// Afterwards the calling code has to configure that shard's shape.
   void Initialize();
 
-  /// \brief Sets the given shard to 'shattered' (destroyed).
+  /// Sets the given shard to 'shattered' (destroyed).
   void RemoveShard(ezUInt32 uiShardIdx);
 
-  /// \brief Breaks the given shard further apart, using one of the allowed break patterns.
+  /// Breaks the given shard further apart, using one of the allowed break patterns.
   ///
   /// \param vShatterPosition The world position where the impact occurred that causes the shard to break
   /// \param fImpactRadius The radius of the impact area - affects how far the break pattern spreads
@@ -100,10 +100,10 @@ public:
   /// * Large pieces allow all patterns
   void ShatterShard(ezUInt32 uiShardIdx, const ezVec2& vShatterPosition, ezRandom& ref_rng, float fImpactRadius, float fCellSize, ezUInt8 uiAllowedBreakPatterns = (ezUInt8)ezBreakablePattern::All);
 
-  /// \brief Shatters all shards using the cellular pattern and optionally sets them all to dynamic.
+  /// Shatters all shards using the cellular pattern and optionally sets them all to dynamic.
   void ShatterAll(float fShardSize, ezRandom& ref_rng, bool bMakeAllDynamic);
 
-  /// \brief Calculates which shards are unsupported (not directly or indirectly connected to a fixed edge) and sets them to dynamic.
+  /// Calculates which shards are unsupported (not directly or indirectly connected to a fixed edge) and sets them to dynamic.
   void RecalculateDymamic();
 
   /// The maximum radius of all active shards.

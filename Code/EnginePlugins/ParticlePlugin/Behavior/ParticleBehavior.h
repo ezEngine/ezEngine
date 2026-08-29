@@ -9,7 +9,7 @@ class ezProcessingStream;
 class ezParticleSystemInstance;
 class ezParticleBehavior;
 
-/// \brief Base class for all particle behaviors
+/// Base class for all particle behaviors
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory, ezReflectedClass);

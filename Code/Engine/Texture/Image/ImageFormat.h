@@ -4,7 +4,7 @@
 #include <Texture/Image/ImageEnums.h>
 #include <Texture/TextureDLL.h>
 
-/// \brief Categorizes image formats by their storage and compression method.
+/// Categorizes image formats by their storage and compression method.
 ///
 /// This classification helps determine how image data is laid out in memory
 /// and which processing algorithms are applicable.
@@ -19,7 +19,7 @@ struct EZ_TEXTURE_DLL ezImageFormatType
   };
 };
 
-/// \brief Specifies the data type and interpretation of channel values.
+/// Specifies the data type and interpretation of channel values.
 ///
 /// This determines how raw channel bits are interpreted as numeric values
 /// and affects precision, range, and rendering behavior.
@@ -38,7 +38,7 @@ struct EZ_TEXTURE_DLL ezImageFormatDataType
   };
 };
 
-/// \brief Identifies individual channels within an image format.
+/// Identifies individual channels within an image format.
 struct EZ_TEXTURE_DLL ezImageFormatChannel
 {
   enum Enum
@@ -53,7 +53,7 @@ struct EZ_TEXTURE_DLL ezImageFormatChannel
   };
 };
 
-/// \brief Comprehensive enumeration of all supported pixel formats with utility functions.
+/// Comprehensive enumeration of all supported pixel formats with utility functions.
 ///
 /// This struct provides both format enumeration and extensive utility functions for working with
 /// different pixel formats. It handles format conversion queries, memory layout calculations,
@@ -254,104 +254,104 @@ struct EZ_TEXTURE_DLL ezImageFormat
 
   using StorageType = ezUInt16;
 
-  /// \brief Returns the name of the given format.
+  /// Returns the name of the given format.
   ///
   /// The returned string is guaranteed to be stable across engine versions and thus suitable for serialization.
   static const char* GetName(Enum format);
 
-  /// \brief Returns number of planes in the format, or 1 for non-planar formats.
+  /// Returns number of planes in the format, or 1 for non-planar formats.
   static ezUInt32 GetPlaneCount(Enum format);
 
-  /// \brief Returns the number of bits per pixel of the given format. If the format's bpp is non-integral, the returned value rounded up to
+  /// Returns the number of bits per pixel of the given format. If the format's bpp is non-integral, the returned value rounded up to
   /// to the next integer.
   static ezUInt32 GetBitsPerPixel(Enum format, ezUInt32 uiPlaneIndex = 0);
 
-  /// \brief Exact pixel size in bits. May be non-integral for some compressed formats.
+  /// Exact pixel size in bits. May be non-integral for some compressed formats.
   static float GetExactBitsPerPixel(Enum format, ezUInt32 uiPlaneIndex = 0);
 
-  /// \brief Returns the block size in bits. For uncompressed formats, a block is considered a single pixel.
+  /// Returns the block size in bits. For uncompressed formats, a block is considered a single pixel.
   static ezUInt32 GetBitsPerBlock(Enum format, ezUInt32 uiPlaneIndex = 0);
 
-  /// \brief Number of channels (r, g, b, a, depth, stencil) supported by this format.
+  /// Number of channels (r, g, b, a, depth, stencil) supported by this format.
   static ezUInt32 GetNumChannels(Enum format);
 
-  /// \brief Bitmask of each channel of the format. This is not defined for some formats, and may return 0.
+  /// Bitmask of each channel of the format. This is not defined for some formats, and may return 0.
   static ezUInt32 GetChannelMask(Enum format, ezImageFormatChannel::Enum c);
 
-  /// \brief Returns the number of bits for each channel of the format.
+  /// Returns the number of bits for each channel of the format.
   static ezUInt32 GetBitsPerChannel(Enum format, ezImageFormatChannel::Enum c);
 
-  /// \brief If applicable, returns a bitmask for the red component of the format.
+  /// If applicable, returns a bitmask for the red component of the format.
   static ezUInt32 GetRedMask(Enum format);
 
-  /// \brief If applicable, returns a bitmask for the green component of the format.
+  /// If applicable, returns a bitmask for the green component of the format.
   static ezUInt32 GetGreenMask(Enum format);
 
-  /// \brief If applicable, returns a bitmask for the blue component of the format.
+  /// If applicable, returns a bitmask for the blue component of the format.
   static ezUInt32 GetBlueMask(Enum format);
 
-  /// \brief If applicable, returns a bitmask for the alpha component of the format.
+  /// If applicable, returns a bitmask for the alpha component of the format.
   static ezUInt32 GetAlphaMask(Enum format);
 
-  /// \brief Block width of a compressed format. Defaults to 1 for uncompressed formats.
+  /// Block width of a compressed format. Defaults to 1 for uncompressed formats.
   static ezUInt32 GetBlockWidth(Enum format, ezUInt32 uiPlaneIndex = 0);
 
-  /// \brief Block height of a compressed format. Defaults to 1 for uncompressed formats.
+  /// Block height of a compressed format. Defaults to 1 for uncompressed formats.
   static ezUInt32 GetBlockHeight(Enum format, ezUInt32 uiPlaneIndex = 0);
 
-  /// \brief Block depth of a compressed format. Defaults to 1 for uncompressed formats.
+  /// Block depth of a compressed format. Defaults to 1 for uncompressed formats.
   static ezUInt32 GetBlockDepth(Enum format, ezUInt32 uiPlaneIndex = 0);
 
-  /// \brief Returns the data type represented by a format.
+  /// Returns the data type represented by a format.
   static ezImageFormatDataType::Enum GetDataType(Enum format);
 
-  /// \brief Returns true if the format is compressed.
+  /// Returns true if the format is compressed.
   static bool IsCompressed(Enum format);
 
-  /// \brief Returns true if the format is a depth format.
+  /// Returns true if the format is a depth format.
   static bool IsDepth(Enum format);
 
-  /// \brief Returns whether the given format is an sRGB format.
+  /// Returns whether the given format is an sRGB format.
   static bool IsSrgb(Enum format);
 
-  /// \brief Returns true if the format is a stencil format.
+  /// Returns true if the format is a stencil format.
   static bool IsStencil(Enum format);
 
-  /// \brief Returns the corresponding sRGB format if one exists; otherwise returns the unmodified format.
+  /// Returns the corresponding sRGB format if one exists; otherwise returns the unmodified format.
   static Enum AsSrgb(Enum format);
 
-  /// \brief Returns the corresponding linear format if one exists; otherwise returns the unmodified format.
+  /// Returns the corresponding linear format if one exists; otherwise returns the unmodified format.
   static Enum AsLinear(Enum format);
 
-  /// \brief Computes the number of blocks in X direction (compressed) or pixels (if uncompressed) for a given width (in pixels).
+  /// Computes the number of blocks in X direction (compressed) or pixels (if uncompressed) for a given width (in pixels).
   static ezUInt32 GetNumBlocksX(Enum format, ezUInt32 uiWidth, ezUInt32 uiPlaneIndex = 0);
 
-  /// \brief Computes the number of blocks in Y direction (compressed) or pixels (if uncompressed) for a given height (in pixels).
+  /// Computes the number of blocks in Y direction (compressed) or pixels (if uncompressed) for a given height (in pixels).
   static ezUInt32 GetNumBlocksY(Enum format, ezUInt32 uiHeight, ezUInt32 uiPlaneIndex = 0);
 
-  /// \brief Computes the number of blocks in Z direction (compressed) or pixels (if uncompressed) for a given height (in pixels).
+  /// Computes the number of blocks in Z direction (compressed) or pixels (if uncompressed) for a given height (in pixels).
   static ezUInt32 GetNumBlocksZ(Enum format, ezUInt32 uiDepth, ezUInt32 uiPlaneIndex = 0);
 
-  /// \brief Computes the size in bytes of a row of blocks (compressed) or pixels (if uncompressed) of the given width.
+  /// Computes the size in bytes of a row of blocks (compressed) or pixels (if uncompressed) of the given width.
   static ezUInt64 GetRowPitch(Enum format, ezUInt32 uiWidth, ezUInt32 uiPlaneIndex = 0);
 
-  /// \brief Computes the size in bytes of a 2D slice of blocks (compressed) or pixels (if uncompressed) of the given width and height.
+  /// Computes the size in bytes of a 2D slice of blocks (compressed) or pixels (if uncompressed) of the given width and height.
   static ezUInt64 GetDepthPitch(Enum format, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiPlaneIndex = 0);
 
-  /// \brief Returns the type of the image format.
+  /// Returns the type of the image format.
   static ezImageFormatType::Enum GetType(Enum format);
 
-  /// \brief Finds a format matching the given component masks.
+  /// Finds a format matching the given component masks.
   static ezImageFormat::Enum FromPixelMask(
     ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask, ezUInt32 uiBitsPerPixel);
 
-  /// \brief Returns the format of a subplane of a given format.
+  /// Returns the format of a subplane of a given format.
   static ezImageFormat::Enum GetPlaneSubFormat(ezImageFormat::Enum format, ezUInt32 uiPlaneIndex);
 
-  /// \brief Returns true if the data formats are compatible, i.e. can be copied into one another
+  /// Returns true if the data formats are compatible, i.e. can be copied into one another
   static bool IsCompatible(Enum left, Enum right);
 
-  /// \brief Returns true if the most high-res miplevel requires block alignment
+  /// Returns true if the most high-res miplevel requires block alignment
   static bool RequiresFirstLevelBlockAlignment(Enum format);
 };
 

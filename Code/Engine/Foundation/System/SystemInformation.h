@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 
-/// \brief Flags that tell you which SIMD features are available on this processor / OS
+/// Flags that tell you which SIMD features are available on this processor / OS
 ///
 /// Heavily 'inspired' by https://github.com/Mysticial/FeatureDetector
 struct ezCpuFeatures
@@ -91,29 +91,29 @@ struct ezCpuFeatures
   void Detect();
 };
 
-/// \brief The system configuration class encapsulates information about the system the application is running on.
+/// The system configuration class encapsulates information about the system the application is running on.
 ///
 /// Retrieve the system configuration by using ezSystemInformation::Get(). If you use the system configuration in startup code
 /// make sure to add the correct dependency to the system "SystemInformation" in "Foundation".
 class EZ_FOUNDATION_DLL ezSystemInformation
 {
 public:
-  /// \brief Returns the installed physical memory in bytes
+  /// Returns the installed physical memory in bytes
   ezUInt64 GetInstalledMainMemory() const { return m_uiInstalledMainMemory; }
 
-  /// \brief Returns the currently available physical memory
+  /// Returns the currently available physical memory
   ezUInt64 GetAvailableMainMemory() const;
 
-  /// \brief Returns the size of a memory page in bytes
+  /// Returns the size of a memory page in bytes
   ezUInt32 GetMemoryPageSize() const { return m_uiMemoryPageSize; }
 
-  /// \brief Returns the CPU core count of the system.
+  /// Returns the CPU core count of the system.
   ezUInt32 GetCPUCoreCount() const { return m_uiCPUCoreCount; }
 
-  /// \brief Returns the total utilization of the CPU core in percent
+  /// Returns the total utilization of the CPU core in percent
   float GetCPUUtilization() const;
 
-  /// \brief Returns true if the process is currently running on a 64-bit OS.
+  /// Returns true if the process is currently running on a 64-bit OS.
   bool Is64BitOS() const { return m_bB64BitOS; }
 
   const char* GetPlatformName() const { return m_szPlatformName; }
@@ -122,14 +122,14 @@ public:
 
   const char* GetBuildConfiguration() const { return m_szBuildConfiguration; }
 
-  /// \brief Returns a struct that contains detailed information about the available CPU features (SIMD support).
+  /// Returns a struct that contains detailed information about the available CPU features (SIMD support).
   const ezCpuFeatures& GetCpuFeatures() const { return m_CpuFeatures; }
 
 public:
-  /// \brief Returns whether a debugger is currently attached to this process.
+  /// Returns whether a debugger is currently attached to this process.
   static bool IsDebuggerAttached();
 
-  /// \brief Allows access to the current system configuration.
+  /// Allows access to the current system configuration.
   static const ezSystemInformation& Get()
   {
     if (!s_SystemInformation.m_bIsInitialized)

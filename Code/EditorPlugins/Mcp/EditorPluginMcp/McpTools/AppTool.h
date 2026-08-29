@@ -5,7 +5,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Strings/String.h>
 
-/// \brief The editor's half of the shared app tools.
+/// The editor's half of the shared app tools.
 ///
 /// Everything generic - the process id, the executable, the command line, the bound port - is in
 /// ezMcpAppTool. What is left here is what only the editor has: documents that can be unsaved, a log
@@ -30,7 +30,7 @@ protected:
   virtual void RequestQuit(bool bDiscardChanges) override;
 
 private:
-  /// \brief Appends the names of all open documents with unsaved changes.
+  /// Appends the names of all open documents with unsaved changes.
   static void CollectModifiedDocuments(ezDynamicArray<ezString>& out_documents);
 
   /// Filled by CanQuit() so that the refusal can name them without walking the documents twice, and so

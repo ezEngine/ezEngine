@@ -21,7 +21,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Simulates the behavior of a rope/cable without physical interaction with the world.
+/// Simulates the behavior of a rope/cable without physical interaction with the world.
 ///
 /// This component is mainly used for decorative purposes to add things like power lines, cables and ropes
 /// that hang in a level and should swing in the wind. This component only simulates simple rope physics,
@@ -59,18 +59,18 @@ public:
   void SetAnchor1Reference(const char* szReference); // [ property ]
   void SetAnchor2Reference(const char* szReference); // [ property ]
 
-  /// \brief The first game object to attach to.
+  /// The first game object to attach to.
   void SetAnchor1(ezGameObjectHandle hActor);
-  /// \brief The second game object to attach to.
+  /// The second game object to attach to.
   void SetAnchor2(ezGameObjectHandle hActor);
 
-  /// \brief How much the rope should sag. A value of 0 means it should be absolutely straight. In practice there is always slack, due to imprecision in the simulation.
+  /// How much the rope should sag. A value of 0 means it should be absolutely straight. In practice there is always slack, due to imprecision in the simulation.
   void SetSlack(float fVal);
   float GetSlack() const { return m_fSlack; }
 
-  /// \brief If true, the rope will be fixed to the first anchor, otherwise it will start there but then fall down.
+  /// If true, the rope will be fixed to the first anchor, otherwise it will start there but then fall down.
   void SetAttachToAnchor1(bool bVal);
-  /// \brief If true, the rope will be fixed to the second anchor, otherwise it will start there but then fall down.
+  /// If true, the rope will be fixed to the second anchor, otherwise it will start there but then fall down.
   void SetAttachToAnchor2(bool bVal);
   bool GetAttachToAnchor1() const;
   bool GetAttachToAnchor2() const;

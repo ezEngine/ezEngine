@@ -9,7 +9,7 @@ struct ezMsgUpdateLocalBounds;
 
 using ezBlackboardTemplateResourceHandle = ezTypedResourceHandle<class ezBlackboardTemplateResource>;
 
-/// \brief A volume component can hold generic values either from a blackboard template or set directly on the component.
+/// A volume component can hold generic values either from a blackboard template or set directly on the component.
 ///
 /// The values can be sampled with an ezVolumeSampler and then used for things like e.g. post-processing, reverb etc.
 /// They can also be used to represent knowledge in a scene, like e.g. smell or threat, and can be detected by an ezSensorComponent and then processed by AI.
@@ -35,19 +35,19 @@ public:
   ezVolumeComponent();
   ~ezVolumeComponent();
 
-  /// \brief Sets the blackboard template to use.
+  /// Sets the blackboard template to use.
   void SetTemplate(const ezBlackboardTemplateResourceHandle& hResource);                        // [ property ]
   const ezBlackboardTemplateResourceHandle& GetTemplate() const { return m_hTemplateResource; } // [ property ]
 
-  /// \brief In case two volumes overlap, the one with a higher sort order value has precedence.
+  /// In case two volumes overlap, the one with a higher sort order value has precedence.
   void SetSortOrder(float fOrder);                    // [ property ]
   float GetSortOrder() const { return m_fSortOrder; } // [ property ]
 
-  /// \brief Sets the spatial category under which this volume can be detected.
+  /// Sets the spatial category under which this volume can be detected.
   void SetVolumeType(const char* szType); // [ property ]
   const char* GetVolumeType() const;      // [ property ]
 
-  /// \brief Adds or replaces a value with a given name.
+  /// Adds or replaces a value with a given name.
   void SetValue(const ezHashedString& sName, const ezVariant& value); // [ scriptable ]
   ezVariant GetValue(ezTempHashedString sName) const                  // [ scriptable ]
   {
@@ -78,7 +78,7 @@ protected:
 
 using ezVolumeSphereComponentManager = ezComponentManager<class ezVolumeSphereComponent, ezBlockStorageType::Compact>;
 
-/// \brief A sphere implementation of the ezVolumeComponent
+/// A sphere implementation of the ezVolumeComponent
 class EZ_GAMEENGINE_DLL ezVolumeSphereComponent : public ezVolumeComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezVolumeSphereComponent, ezVolumeComponent, ezVolumeSphereComponentManager);
@@ -100,7 +100,7 @@ public:
   void SetRadius(float fRadius);
   float GetRadius() const { return m_fRadius; }
 
-  /// \brief Values above 1 make the sphere influence drop off more rapidly, below 1 more slowly.
+  /// Values above 1 make the sphere influence drop off more rapidly, below 1 more slowly.
   void SetFalloff(float fFalloff);
   float GetFalloff() const { return m_fFalloff; }
 
@@ -115,7 +115,7 @@ protected:
 
 using ezVolumeBoxComponentManager = ezComponentManager<class ezVolumeBoxComponent, ezBlockStorageType::Compact>;
 
-/// \brief A box implementation of the ezVolumeComponent
+/// A box implementation of the ezVolumeComponent
 class EZ_GAMEENGINE_DLL ezVolumeBoxComponent : public ezVolumeComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezVolumeBoxComponent, ezVolumeComponent, ezVolumeBoxComponentManager);
@@ -134,11 +134,11 @@ public:
   ezVolumeBoxComponent();
   ~ezVolumeBoxComponent();
 
-  /// \brief Sets the size of the box.
+  /// Sets the size of the box.
   void SetExtents(const ezVec3& vExtents);
   const ezVec3& GetExtents() const { return m_vExtents; }
 
-  /// \brief Values above 1 make the box influence drop off more rapidly, below 1 more slowly.
+  /// Values above 1 make the box influence drop off more rapidly, below 1 more slowly.
   ///
   /// Falloff is per cardinal axis.
   void SetFalloff(const ezVec3& vFalloff);

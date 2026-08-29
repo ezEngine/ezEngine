@@ -8,31 +8,31 @@ class EZ_FOUNDATION_DLL ezSimdFloat
 public:
   EZ_DECLARE_POD_TYPE();
 
-  /// \brief Default constructor, leaves the data uninitialized.
+  /// Default constructor, leaves the data uninitialized.
   ezSimdFloat(); // [tested]
 
-  /// \brief Constructs from a given float.
+  /// Constructs from a given float.
   ezSimdFloat(float f); // [tested]
 
-  /// \brief Constructs from a given integer.
+  /// Constructs from a given integer.
   ezSimdFloat(ezInt32 i); // [tested]
 
-  /// \brief Constructs from a given integer.
+  /// Constructs from a given integer.
   ezSimdFloat(ezUInt32 i); // [tested]
 
-  /// \brief Constructs from given angle.
+  /// Constructs from given angle.
   ezSimdFloat(ezAngle a); // [tested]
 
-  /// \brief Constructs from the internal implementation type.
+  /// Constructs from the internal implementation type.
   ezSimdFloat(ezInternal::QuadFloat v); // [tested]
 
-  /// \brief Returns the stored number as a standard float.
+  /// Returns the stored number as a standard float.
   operator float() const; // [tested]
 
-  /// \brief Creates an ezSimdFloat that is initialized to zero.
+  /// Creates an ezSimdFloat that is initialized to zero.
   [[nodiscard]] static ezSimdFloat MakeZero(); // [tested]
 
-  /// \brief Creates an ezSimdFloat that is initialized to Not-A-Number (NaN).
+  /// Creates an ezSimdFloat that is initialized to Not-A-Number (NaN).
   [[nodiscard]] static ezSimdFloat MakeNaN();        // [tested]
 
 public:

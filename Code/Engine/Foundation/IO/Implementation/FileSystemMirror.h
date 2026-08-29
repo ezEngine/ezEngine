@@ -27,27 +27,27 @@ public:
   ezFileSystemMirror();
   ~ezFileSystemMirror();
 
-  // \brief Adds the directory, and all files in it recursively.
+  // Adds the directory, and all files in it recursively.
   ezResult AddDirectory(ezStringView sPath, bool* out_pDirectoryExistsAlready = nullptr);
 
-  // \brief Adds a file. Creates directories if they do not exist.
+  // Adds a file. Creates directories if they do not exist.
   ezResult AddFile(ezStringView sPath, const T& value, bool* out_pFileExistsAlready, T* out_pOldValue);
 
-  // \brief Removes a file.
+  // Removes a file.
   ezResult RemoveFile(ezStringView sPath);
 
-  // \brief Removes a directory. Deletes any files & directories inside.
+  // Removes a directory. Deletes any files & directories inside.
   ezResult RemoveDirectory(ezStringView sPath);
 
-  // \brief Moves a directory. Any files & folders inside are moved with it.
+  // Moves a directory. Any files & folders inside are moved with it.
   ezResult MoveDirectory(ezStringView sFromPath, ezStringView sToPath);
 
   using EnumerateFunc = ezDelegate<void(const ezStringBuilder& path, Type type)>;
 
-  // \brief Enumerates the files & directories under the given path
+  // Enumerates the files & directories under the given path
   ezResult Enumerate(ezStringView sPath, EnumerateFunc callbackFunc);
 
-  // \brief On success, out_Type will contains the type of the object (file or folder).
+  // On success, out_Type will contains the type of the object (file or folder).
   ezResult GetType(ezStringView sPath, Type& out_type);
 
 private:

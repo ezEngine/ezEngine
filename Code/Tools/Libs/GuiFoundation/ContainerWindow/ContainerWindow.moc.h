@@ -23,13 +23,13 @@ namespace ads
   class CDockWidget;
 } // namespace ads
 
-/// \brief Container window that hosts documents and applications panels.
+/// Container window that hosts documents and applications panels.
 class EZ_GUIFOUNDATION_DLL ezQtContainerWindow : public QMainWindow
 {
   Q_OBJECT
 
 public:
-  /// \brief Constructor.
+  /// Constructor.
   ezQtContainerWindow();
   ~ezQtContainerWindow();
 

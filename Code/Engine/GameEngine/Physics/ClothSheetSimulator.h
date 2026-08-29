@@ -7,7 +7,7 @@
 #include <Foundation/Time/Time.h>
 #include <GameEngine/GameEngineDLL.h>
 
-/// \brief A simple simulator for swinging and hanging cloth.
+/// A simple simulator for swinging and hanging cloth.
 ///
 /// Uses Verlet Integration to update the cloth positions from velocities, and the "Jakobsen method" to enforce distance constraints.
 ///

@@ -37,7 +37,7 @@ struct ezXRHandBone
   float m_fRadius;
 };
 
-/// \brief XR Hand tracking interface.
+/// XR Hand tracking interface.
 ///
 /// Aquire interface via ezSingletonRegistry::GetSingletonInstance<ezXRHandTrackingInterface>().
 class ezXRHandTrackingInterface
@@ -50,7 +50,7 @@ public:
     Tracked,      ///< The given hand part is tracked and the bones array was filled successfully.
   };
 
-  /// \brief Returns a array of bones in the given part of the hand.
+  /// Returns a array of bones in the given part of the hand.
   ///
   /// Bones are always ordered from furthest from the body moving inwards. E.g. for a finger index 0 should be the tip
   /// followed by distal, etc. ending in the wrist bone. Depending on the implementation the number

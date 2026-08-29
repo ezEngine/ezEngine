@@ -3,7 +3,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/StringView.h>
 
-/// \brief A very simple string class that should only be used to temporarily convert text to the OSes native wchar_t convention (16 or 32
+/// A very simple string class that should only be used to temporarily convert text to the OSes native wchar_t convention (16 or 32
 /// Bit).
 ///
 /// This should be used when one needs to output text via some function that only accepts wchar_t strings.
@@ -33,7 +33,7 @@ private:
 };
 
 
-/// \brief A small string class that converts any other encoding to Utf8.
+/// A small string class that converts any other encoding to Utf8.
 ///
 /// Use this class only temporarily. Do not use it for storage.
 class EZ_FOUNDATION_DLL ezStringUtf8
@@ -78,7 +78,7 @@ private:
 
 
 
-/// \brief A very simple class to convert text to Utf16 encoding.
+/// A very simple class to convert text to Utf16 encoding.
 ///
 /// Use this class only temporarily, if you need to output something in Utf16 format, e.g. for writing it to a file.
 /// Never use this for storage.
@@ -107,7 +107,7 @@ private:
 
 
 
-/// \brief This class only exists for completeness.
+/// This class only exists for completeness.
 ///
 /// There should be no case where it is preferred over other classes.
 class EZ_FOUNDATION_DLL ezStringUtf32

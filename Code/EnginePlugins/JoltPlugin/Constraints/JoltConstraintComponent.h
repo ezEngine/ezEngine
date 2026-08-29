@@ -15,7 +15,7 @@ namespace JPH
   class Constraint;
 }
 
-/// \brief Configures how a physics constraint's limit acts.
+/// Configures how a physics constraint's limit acts.
 struct ezJoltConstraintLimitMode
 {
   using StorageType = ezInt8;
@@ -32,7 +32,7 @@ struct ezJoltConstraintLimitMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltConstraintLimitMode);
 
-/// \brief Configures how a drive on a constraint works.
+/// Configures how a drive on a constraint works.
 struct ezJoltConstraintDriveMode
 {
   using StorageType = ezInt8;
@@ -51,7 +51,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltConstraintDriveMode);
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Base class for all Jolt physics joints (constraints).
+/// Base class for all Jolt physics joints (constraints).
 ///
 /// A constraint always limits the movement of a dynamic actor.
 /// The actor may be joined to another actor. If the other actor is static or kinematic,
@@ -91,18 +91,18 @@ public:
   ezJoltConstraintComponent();
   ~ezJoltConstraintComponent();
 
-  /// \brief Removes the connection between the joined bodies. This cannot be reversed.
+  /// Removes the connection between the joined bodies. This cannot be reversed.
   void BreakConstraint();
 
-  /// \brief If set to larger than zero, the constraint will break when a linear force larger than this acts onto the constraint.
+  /// If set to larger than zero, the constraint will break when a linear force larger than this acts onto the constraint.
   void SetBreakForce(float value);                      // [ property ]
   float GetBreakForce() const { return m_fBreakForce; } // [ property ]
 
-  /// \brief If set to larger than zero, the constraint will break when a rotational force larger than this acts onto the constraint.
+  /// If set to larger than zero, the constraint will break when a rotational force larger than this acts onto the constraint.
   void SetBreakTorque(float value);                       // [ property ]
   float GetBreakTorque() const { return m_fBreakTorque; } // [ property ]
 
-  /// \brief If disabled, the two joined actors pass through each other, rather than colliding.
+  /// If disabled, the two joined actors pass through each other, rather than colliding.
   void SetPairCollision(bool value);                          // [ property ]
   bool GetPairCollision() const { return m_bPairCollision; }  // [ property ]
 
@@ -110,17 +110,17 @@ public:
   void SetChildActorReference(const char* szReference);       // [ property ]
   void SetChildActorAnchorReference(const char* szReference); // [ property ]
 
-  /// \brief Sets which actor to attach the constraint to.
+  /// Sets which actor to attach the constraint to.
   void SetParentActor(ezGameObjectHandle hActor);
-  /// \brief Sets which actor to attach to the constraint.
+  /// Sets which actor to attach to the constraint.
   void SetChildActor(ezGameObjectHandle hActor);
-  /// \brief Sets an actor as a reference frame so that the constraint can start in a non-default configuration.
+  /// Sets an actor as a reference frame so that the constraint can start in a non-default configuration.
   void SetChildActorAnchor(ezGameObjectHandle hActor);
 
-  /// \brief For manually providing actors and local frames to configure the start state. This is for advanced uses.
+  /// For manually providing actors and local frames to configure the start state. This is for advanced uses.
   void SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB, const ezTransform& localFrameB);
 
-  /// \brief Forwards to BreakConstraint().
+  /// Forwards to BreakConstraint().
   void OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& ref_msg); // [ msg handler ]
 
 protected:

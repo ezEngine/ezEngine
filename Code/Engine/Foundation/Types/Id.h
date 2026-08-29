@@ -4,7 +4,7 @@
 
 #include <Foundation/Basics.h>
 
-/// \brief Declares an id type, see generic id below how to use this
+/// Declares an id type, see generic id below how to use this
 #define EZ_DECLARE_ID_TYPE(name, instanceIndexBits, generationBits)                                                     \
   static const StorageType MAX_INSTANCES = (1ULL << instanceIndexBits);                                                 \
   static const StorageType INVALID_INSTANCE_INDEX = MAX_INSTANCES - 1;                                                  \
@@ -44,7 +44,7 @@
   }
 
 
-/// \brief Generic identifier template that combines instance indexing with generation counting for safe object references.
+/// Generic identifier template that combines instance indexing with generation counting for safe object references.
 ///
 /// This ID system solves the "dangling pointer" problem for object management by using a two-part identifier:
 /// - Instance Index: Points to a slot in an object array or similar data structure

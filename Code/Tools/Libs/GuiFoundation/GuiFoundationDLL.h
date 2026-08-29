@@ -27,7 +27,7 @@ class QKeyEvent;
 
 Q_DECLARE_METATYPE(ezUuid);
 
-/// \brief Calls setUpdatesEnabled(false) on all given QObjects, and the reverse in the destructor. Can be nested.
+/// Calls setUpdatesEnabled(false) on all given QObjects, and the reverse in the destructor. Can be nested.
 class EZ_GUIFOUNDATION_DLL ezQtScopedUpdatesDisabled
 {
 public:
@@ -40,7 +40,7 @@ private:
 };
 
 
-/// \brief Calls blockSignals(true) on all given QObjects, and the reverse in the destructor. Can be nested.
+/// Calls blockSignals(true) on all given QObjects, and the reverse in the destructor. Can be nested.
 class EZ_GUIFOUNDATION_DLL ezQtScopedBlockSignals
 {
 public:

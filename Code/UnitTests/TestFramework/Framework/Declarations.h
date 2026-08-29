@@ -8,7 +8,7 @@
 class ezTestFramework;
 class ezTestBaseClass;
 
-/// \brief Stores the identification of a sub-test.
+/// Stores the identification of a sub-test.
 struct ezSubTestEntry
 {
   ezSubTestEntry() = default;
@@ -18,7 +18,7 @@ struct ezSubTestEntry
   bool m_bEnableTest = true;
 };
 
-/// \brief Stores the identification of a test.
+/// Stores the identification of a test.
 struct ezTestEntry
 {
   ezTestEntry() = default;

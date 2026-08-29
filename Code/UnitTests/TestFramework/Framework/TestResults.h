@@ -8,7 +8,7 @@
 
 struct EZ_TEST_DLL ezTestOutput
 {
-  /// \brief Defines the type of output message for ezTestOutputMessage.
+  /// Defines the type of output message for ezTestOutputMessage.
   enum Enum
   {
     InvalidType = -1,
@@ -32,7 +32,7 @@ struct EZ_TEST_DLL ezTestOutput
   static Enum FromString(const char* szName);
 };
 
-/// \brief A message of type ezTestOutput::Enum, stored in ezResult.
+/// A message of type ezTestOutput::Enum, stored in ezResult.
 struct EZ_TEST_DLL ezTestErrorMessage
 {
   ezTestErrorMessage() = default;
@@ -45,7 +45,7 @@ struct EZ_TEST_DLL ezTestErrorMessage
   std::string m_sMessage;
 };
 
-/// \brief A message of type ezTestOutput::Enum, stored in ezResult.
+/// A message of type ezTestOutput::Enum, stored in ezResult.
 struct EZ_TEST_DLL ezTestOutputMessage
 {
   ezTestOutputMessage() = default;
@@ -57,7 +57,7 @@ struct EZ_TEST_DLL ezTestOutputMessage
 
 struct EZ_TEST_DLL ezTestResultQuery
 {
-  /// \brief Defines what information should be accumulated over the sub-tests in ezTestEntry::GetSubTestCount.
+  /// Defines what information should be accumulated over the sub-tests in ezTestEntry::GetSubTestCount.
   enum Enum
   {
     Count,
@@ -67,7 +67,7 @@ struct EZ_TEST_DLL ezTestResultQuery
   };
 };
 
-/// \brief Stores the results of a test run. Used by both ezTestEntry and ezSubTestEntry.
+/// Stores the results of a test run. Used by both ezTestEntry and ezSubTestEntry.
 struct EZ_TEST_DLL ezTestResultData
 {
   ezTestResultData() = default;

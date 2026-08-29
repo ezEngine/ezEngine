@@ -5,7 +5,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Types/UniquePtr.h>
 
-/// \brief [internal] Worker task for loading resources (typically from disk).
+/// [internal] Worker task for loading resources (typically from disk).
 class EZ_CORE_DLL ezResourceManagerWorkerDataLoad final : public ezTask
 {
 public:
@@ -20,7 +20,7 @@ private:
   virtual void Execute() override;
 };
 
-/// \brief [internal] Worker task for uploading resource data.
+/// [internal] Worker task for uploading resource data.
 /// Depending on the resource type, this may get scheduled to run on the main thread or on any thread.
 class EZ_CORE_DLL ezResourceManagerWorkerUpdateContent final : public ezTask
 {

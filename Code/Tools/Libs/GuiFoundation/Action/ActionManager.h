@@ -3,47 +3,47 @@
 #include <Foundation/Basics.h>
 #include <GuiFoundation/Action/Action.h>
 
-/// \brief Registers an ezAction whose constructor takes no arguments.
+/// Registers an ezAction whose constructor takes no arguments.
 #define EZ_REGISTER_ACTION_0(ActionName, Scope, CategoryName, ShortCut, ActionClass)                                  \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, Scope, ActionName, CategoryName, ShortCut, \
     [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName); }));
 
-/// \brief Registers an ezAction whose constructor takes one argument.
+/// Registers an ezAction whose constructor takes one argument.
 #define EZ_REGISTER_ACTION_1(ActionName, Scope, CategoryName, ShortCut, ActionClass, Param1)                          \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, Scope, ActionName, CategoryName, ShortCut, \
     [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, Param1); }));
 
-/// \brief Registers an ezAction whose constructor takes two arguments.
+/// Registers an ezAction whose constructor takes two arguments.
 #define EZ_REGISTER_ACTION_2(ActionName, Scope, CategoryName, ShortCut, ActionClass, Param1, Param2)                  \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, Scope, ActionName, CategoryName, ShortCut, \
     [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, Param1, Param2); }));
 
-/// \brief Registers an ezDynamicMenuAction
+/// Registers an ezDynamicMenuAction
 #define EZ_REGISTER_DYNAMIC_MENU(ActionName, ActionClass, IconPath)                                                  \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", "", \
     [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, IconPath); }));
 
-/// \brief Registers an ezDynamicActionAndMenuAction.
+/// Registers an ezDynamicActionAndMenuAction.
 #define EZ_REGISTER_ACTION_AND_DYNAMIC_MENU_1(ActionName, Scope, CategoryName, ShortCut, ActionClass, Param1)                \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::ActionAndMenu, Scope, ActionName, CategoryName, ShortCut, \
     [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, Param1); }));
 
-/// \brief Registers a category that should be treated as a sub-menu.
+/// Registers a category that should be treated as a sub-menu.
 #define EZ_REGISTER_MENU(ActionName)                                                                                 \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", "", \
     [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ezMenuAction, context, ActionName, ""); }));
 
-/// \brief Registers a category that should be treated as a sub-menu and specifies a custom QIcon path.
+/// Registers a category that should be treated as a sub-menu and specifies a custom QIcon path.
 #define EZ_REGISTER_MENU_WITH_ICON(ActionName, IconPath)                                                             \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", "", \
     [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ezMenuAction, context, ActionName, IconPath); }));
 
-/// \brief Registers a category that should just be a grouped area in a menu, but no dedicated sub-menu.
+/// Registers a category that should just be a grouped area in a menu, but no dedicated sub-menu.
 #define EZ_REGISTER_CATEGORY(CategoryName)                                                                                 \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Category, ezActionScope::Default, CategoryName, "", "", \
     [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ezCategoryAction, context); }));
 
-/// \brief Stores 'actions' (things that can be triggered from UI).
+/// Stores 'actions' (things that can be triggered from UI).
 ///
 /// Actions are usually represented by a button in a toolbar, or a menu entry.
 /// Actions are unique across the entire application. Each action is registered exactly once,
@@ -64,11 +64,11 @@ public:
   static const ezActionDescriptor* GetActionDescriptor(ezActionDescriptorHandle hAction);
   static ezActionDescriptorHandle GetActionHandle(ezStringView sCategory, ezStringView sActionName);
 
-  /// \brief Searches all action categories for the given action name. Returns the category name in which the action name was found, or an empty
+  /// Searches all action categories for the given action name. Returns the category name in which the action name was found, or an empty
   /// string.
   static ezString FindActionCategory(ezStringView sActionName);
 
-  /// \brief Quick way to execute an action from code
+  /// Quick way to execute an action from code
   ///
   /// The use case is mostly for unit tests, which need to execute actions directly and without a link dependency on
   /// the code that registered the action.

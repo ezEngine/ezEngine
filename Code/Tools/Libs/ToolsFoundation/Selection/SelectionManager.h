@@ -14,7 +14,7 @@ class ezDocument;
 struct ezDocumentObjectStructureEvent;
 
 
-/// \brief Event describing changes to the selection in the selection manager.
+/// Event describing changes to the selection in the selection manager.
 struct ezSelectionManagerEvent
 {
   enum class Type
@@ -37,14 +37,14 @@ struct ezSelectionEntry
   ezUInt32 m_uiSelectionOrder = 0; // the index at which this item was in the selection
 };
 
-/// \brief Selection Manager stores a set of selected document objects.
+/// Selection Manager stores a set of selected document objects.
 class EZ_TOOLSFOUNDATION_DLL ezSelectionManager
 {
 public:
-  /// \brief Event that is broadcast when the selection changes.
+  /// Event that is broadcast when the selection changes.
   ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&> m_Events;
 
-  /// \brief Storage for the selection so it can be swapped when using multiple sub documents.
+  /// Storage for the selection so it can be swapped when using multiple sub documents.
   class Storage : public ezRefCounted
   {
   public:
@@ -65,14 +65,14 @@ public:
   void SetSelection(const ezDeque<const ezDocumentObject*>& selection);
   void ToggleObject(const ezDocumentObject* pObject);
 
-  /// \brief Forces all UI that is bound to the selection to rebuild, without actually changing which objects are selected.
+  /// Forces all UI that is bound to the selection to rebuild, without actually changing which objects are selected.
   ///
   /// Clears and immediately reapplies the current selection, which triggers the same events as SetSelection().
   /// Use this when external state that affects how the selection is displayed (e.g. available tags) has changed,
   /// but the set of selected objects has not, so a plain SetSelection() call would be a no-op.
   void RefreshSelection();
 
-  /// \brief Sets a separate selection (temporarily), which is sent to the engine but not propagated to the editor.
+  /// Sets a separate selection (temporarily), which is sent to the engine but not propagated to the editor.
   ///
   /// This is used for cases where temporarily the engine should use a different selection than the editor.
   /// Currently this is used during drag-and-drop, to already show the dragged object as selected and especially to exclude it from picking,
@@ -81,30 +81,30 @@ public:
   /// To clear a runtime override selection, simply set an empty selection.
   void SetRuntimeOverrideSelection(const ezDeque<const ezDocumentObject*>& selection);
 
-  /// \brief Returns the current runtime override selection.
+  /// Returns the current runtime override selection.
   ///
   /// Valid, if the selection is non-empty.
   /// See SetRuntimeOverrideSelection() for details.
   const ezDeque<const ezDocumentObject*>& GetRuntimeOverrideSelection() const { return m_RuntimeOverrideSelection; }
 
-  /// \brief Returns the last selected object in the selection or null if empty.
+  /// Returns the last selected object in the selection or null if empty.
   const ezDocumentObject* GetCurrentObject() const;
 
-  /// \brief Returns the selection in the same order the objects were added to the list.
+  /// Returns the selection in the same order the objects were added to the list.
   const ezDeque<const ezDocumentObject*>& GetSelection() const { return m_pSelectionStorage->m_SelectionList; }
 
   bool IsSelectionEmpty() const { return m_pSelectionStorage->m_SelectionList.IsEmpty(); }
 
 
 
-  /// \brief Returns the subset of selected items which have no parent selected.
+  /// Returns the subset of selected items which have no parent selected.
   ///
   /// I.e. if an object is selected and one of its ancestors is selected, it is culled from the list.
   /// Items are returned in the order of appearance in an expanded scene tree.
   /// Their order in the selection is returned through ezSelectionEntry.
   void GetTopLevelSelection(ezDynamicArray<ezSelectionEntry>& out_entries) const;
 
-  /// \brief Same as GetTopLevelSelection() but additionally requires that all objects are derived from type pBase.
+  /// Same as GetTopLevelSelection() but additionally requires that all objects are derived from type pBase.
   void GetTopLevelSelectionOfType(const ezRTTI* pBase, ezDynamicArray<ezSelectionEntry>& out_entries) const;
 
   bool IsSelected(const ezDocumentObject* pObject) const;

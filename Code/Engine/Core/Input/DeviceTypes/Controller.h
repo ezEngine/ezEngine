@@ -27,7 +27,7 @@ struct ezPhysicalControllerInput
   };
 };
 
-/// \brief This class is the base class for all controller type input devices.
+/// This class is the base class for all controller type input devices.
 ///
 /// This class is derived from ezInputDevice but adds some interface functions common to most controllers.
 /// This class adds functions to query and modify the state about controller vibration, about the mapping of
@@ -46,7 +46,7 @@ public:
     MaxVibrationSamples = VibrationSamplesPerSecond * VibrationTrackSeconds, // With constant power-of-two samples some code should get more efficient
   };
 
-  /// \brief Describes which vibration motor to configure.
+  /// Describes which vibration motor to configure.
   struct Motor
   {
     enum Enum
@@ -59,14 +59,14 @@ public:
 
   ezInputDeviceController();
 
-  /// \brief Enables or disables vibration on the given controller (virtual index).
+  /// Enables or disables vibration on the given controller (virtual index).
   /// If it is disabled, the controller will never vibrate, even if vibration profiles are sent to it.
   void EnableVibration(ezUInt8 uiVirtual, bool bEnable);
 
-  /// \brief Checks whether vibration is enabled on the given controller (virtual index).
+  /// Checks whether vibration is enabled on the given controller (virtual index).
   bool IsVibrationEnabled(ezUInt8 uiVirtual) const;
 
-  /// \brief Sets the vibration strength for the given controller and motor. \a fValue is a value between 0 and 1.
+  /// Sets the vibration strength for the given controller and motor. \a fValue is a value between 0 and 1.
   ///
   /// From now on the controller will be vibrating (unless vibration is disabled), until the value is reset to zero.
   /// This kind of vibration is always combined with vibration tracks (the maximum of both values is applied at any
@@ -74,10 +74,10 @@ public:
   /// vibration tracks are convenient for the most common (short) effects.
   void SetVibrationStrength(ezUInt8 uiVirtual, Motor::Enum motor, float fValue);
 
-  /// \brief Returns the amount of (constant) vibration that is currently set on this controller.
+  /// Returns the amount of (constant) vibration that is currently set on this controller.
   float GetVibrationStrength(ezUInt8 uiVirtual, Motor::Enum motor);
 
-  /// \brief Sets to which virtual controller a physical controller pushes its input.
+  /// Sets to which virtual controller a physical controller pushes its input.
   ///
   /// If iVirtualController is negative, the given physical controller is not used.
   /// Multiple physical controllers may push their input to the same virtual controller,
@@ -92,17 +92,17 @@ public:
   /// See also GetRecentPhysicalControllerInput() to detect controller usage.
   void SetPhysicalControllerMapping(ezUInt8 uiPhysicalController, ezInt8 iVirtualController);
 
-  /// \brief Returns to which virtual controller the given physical controller pushes its input.
+  /// Returns to which virtual controller the given physical controller pushes its input.
   ///
   /// If negative, that means the physical controller is not used.
   /// Multiple physical controllers may map to the same virtual controller, which would allow two people to control the same object.
   ezInt8 GetPhysicalControllerMapping(ezUInt8 uiPhysical) const;
 
-  /// \brief Queries whether the controller with the given physical index is connected to the computer.
+  /// Queries whether the controller with the given physical index is connected to the computer.
   /// This may change at any time.
   virtual bool IsPhysicalControllerConnected(ezUInt8 uiPhysical) const = 0;
 
-  /// \brief Adds a short 'vibration track' (a sequence of vibrations) to the given controller.
+  /// Adds a short 'vibration track' (a sequence of vibrations) to the given controller.
   ///
   /// Each controller has a short (typically 2 second) buffer for vibration values, that it will play.
   /// This allows to have different 'tracks' for different events, which are simply set on the controller.
@@ -118,14 +118,14 @@ public:
   /// \param fScalingFactor Additional scaling factor to apply to all values in \a fVibrationTrackValue.
   void AddVibrationTrack(ezUInt8 uiVirtual, Motor::Enum motor, float* pVibrationTrackValue, ezUInt32 uiSamples, float fScalingFactor = 1.0f);
 
-  /// \brief Returns a bitmask that specifies what kind of input a controller recently (last frame) had.
+  /// Returns a bitmask that specifies what kind of input a controller recently (last frame) had.
   ///
   /// Use this to identify which controller a user has picked up and wants to use.
   /// This is not meant to be used for handling input, only to know which physical controller to map to which virtual controller.
   ezBitflags<ezPhysicalControllerInput> GetRecentPhysicalControllerInput(ezUInt8 uiPhysical) const;
 
 protected:
-  /// \brief Combines the constant vibration and vibration tracks and applies them on each controller.
+  /// Combines the constant vibration and vibration tracks and applies them on each controller.
   ///
   /// This function needs to be called by a derived implementation in its UpdateInputSlotValues() function.
   /// It will call ApplyVibration() for each controller and motor with the current value. It already takes care
@@ -139,7 +139,7 @@ protected:
   ezBitflags<ezPhysicalControllerInput> m_RecentPhysicalControllerInput[MaxControllers];
 
 private:
-  /// \brief Must be implemented by a derived controller implementation. Should set apply the vibration for the given physical controller
+  /// Must be implemented by a derived controller implementation. Should set apply the vibration for the given physical controller
   /// and motor with the given strength.
   ///
   /// A strength value of zero will be passed in whenever no vibration is required. No extra resetting needs to be implemented.

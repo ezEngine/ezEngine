@@ -7,7 +7,7 @@
 
 class ezDocumentOpenMsgToEngine;
 
-/// \brief Layers that are loaded as sub-documents of a scene share the ezWorld with their main document scene. Thus, this context attaches itself to its parent ezSceneContext.
+/// Layers that are loaded as sub-documents of a scene share the ezWorld with their main document scene. Thus, this context attaches itself to its parent ezSceneContext.
 class EZ_ENGINEPLUGINSCENE_DLL ezLayerContext : public ezEngineProcessDocumentContext
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezLayerContext, ezEngineProcessDocumentContext);

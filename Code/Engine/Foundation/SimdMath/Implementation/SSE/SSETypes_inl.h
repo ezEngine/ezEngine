@@ -66,7 +66,7 @@ namespace ezInternal
 
 
 
-/// \brief Shuffles doubles in the same manner as _mm_shuffle_ps but for doubles using SSE intrinsics on high and low parts.
+/// Shuffles doubles in the same manner as _mm_shuffle_ps but for doubles using SSE intrinsics on high and low parts.
 EZ_ALWAYS_INLINE void EZ_WIDE_SHUFFLE_SSE(__m128d lhsLow, __m128d lhsHigh, __m128d rhsLow, __m128d rhsHigh, int iImm8, __m128d& out_low, __m128d& out_high)
 {
   int sel0 = iImm8 & 3;
@@ -112,7 +112,7 @@ EZ_ALWAYS_INLINE void EZ_WIDE_SWIZZLE_AVX1(__m256d a, ezSwizzle::Enum swizzle, _
 }
 
 
-/// \brief Shuffles doubles in the same manner as _mm_shuffle_ps but for doubles using avx1 intrinsics on high and low parts.
+/// Shuffles doubles in the same manner as _mm_shuffle_ps but for doubles using avx1 intrinsics on high and low parts.
 EZ_ALWAYS_INLINE void EZ_WIDE_SHUFFLE_AVX1(__m256d a, __m256d b, int imm8, __m256d& out)
 {
   /// \todo use direct intrinsics. - remove EZ_WIDE_SHUFFLE_SSE

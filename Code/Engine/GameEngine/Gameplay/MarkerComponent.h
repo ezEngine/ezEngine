@@ -7,7 +7,7 @@
 
 using ezMarkerComponentManager = ezComponentManager<class ezMarkerComponent, ezBlockStorageType::Compact>;
 
-/// \brief This component is used to markup objects and locations with gameplay relevant semantical information.
+/// This component is used to markup objects and locations with gameplay relevant semantical information.
 ///
 /// Objects with marker components can be found through the ezSpatialSystem, making it easy to find all marked objects
 /// in a certain area.
@@ -39,11 +39,11 @@ public:
   ezMarkerComponent();
   ~ezMarkerComponent();
 
-  /// \brief The marker type is passed into ezSpatialData::RegisterCategory() so that these markers can be found through the ezSpatialSystem.
+  /// The marker type is passed into ezSpatialData::RegisterCategory() so that these markers can be found through the ezSpatialSystem.
   void SetMarkerType(const char* szType); // [ property ]
   const char* GetMarkerType() const;      // [ property ]
 
-  /// \brief The size of the marker.
+  /// The size of the marker.
   ///
   /// Often this can be very small to just mark a point, but it may be larger to represent the size of the marked object.
   void SetRadius(float fRadius);                                  // [ property ]

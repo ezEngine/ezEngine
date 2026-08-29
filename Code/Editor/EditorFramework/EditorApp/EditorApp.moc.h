@@ -86,50 +86,50 @@ public:
   // External Tools
   //
 
-  /// \brief Searches for an external tool.
+  /// Searches for an external tool.
   ///
   /// Either uses one from the precompiled tools folder, or from the currently compiled binaries, depending where it finds one.
   /// If the editor preference is set to use precompiled tools, that folder is preferred, otherwise the other folder is preferred.
   ezString FindToolApplication(const char* szToolName);
 
-  /// \brief Executes an external tool as found by FindToolApplication().
+  /// Executes an external tool as found by FindToolApplication().
   ///
   /// The applications output is parsed and forwarded to the given log interface. A custom log level is applied first.
   /// If the tool cannot be found or it takes longer to execute than the allowed timeout, the function returns failure.
   ezStatus ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput = nullptr, ezLogMsgType::Enum logLevel = ezLogMsgType::WarningMsg, const char* szCWD = nullptr);
 
-  /// \brief Creates the string with which to run Fileserve for the currently open project.
+  /// Creates the string with which to run Fileserve for the currently open project.
   ezString BuildFileserveCommandLine() const;
 
-  /// \brief Launches Fileserve with the settings for the current project.
+  /// Launches Fileserve with the settings for the current project.
   void RunFileserve();
 
-  /// \brief Launches ezInspector, connecting to the given port. Pass 0 to use the Inspector's default/last-used connection.
+  /// Launches ezInspector, connecting to the given port. Pass 0 to use the Inspector's default/last-used connection.
   void RunInspector(ezUInt16 uiPort = 0);
 
-  /// \brief Launches Tracy.
+  /// Launches Tracy.
   void RunTracy();
 
   //
   //
   //
 
-  /// \brief Returns whether we are between StartupEditor and ShutdownEditor.
+  /// Returns whether we are between StartupEditor and ShutdownEditor.
   bool IsRunning() const { return m_bIsRunning; }
 
-  /// \brief Can be set via the command line option '-safe'. In this mode the editor will not automatically load recent documents
+  /// Can be set via the command line option '-safe'. In this mode the editor will not automatically load recent documents
   bool IsInSafeMode() const { return m_StartupFlags.IsSet(StartupFlags::SafeMode); }
 
-  /// \brief Returns true if the the app shouldn't display anything. This is the case in an EditorProcessor.
+  /// Returns true if the the app shouldn't display anything. This is the case in an EditorProcessor.
   bool IsInHeadlessMode() const { return m_StartupFlags.IsSet(StartupFlags::Headless); }
 
-  /// \brief Returns true if the editor is started in run in test mode.
+  /// Returns true if the editor is started in run in test mode.
   bool IsInUnitTestMode() const { return m_StartupFlags.IsSet(StartupFlags::UnitTest); }
 
-  /// \brief Returns true if the editor is started in run in background mode.
+  /// Returns true if the editor is started in run in background mode.
   bool IsBackgroundMode() const { return m_StartupFlags.IsSet(StartupFlags::Background); }
 
-  /// \brief Can be set via the command line option '-unattended'. In this mode no user is present to interact with the editor.
+  /// Can be set via the command line option '-unattended'. In this mode no user is present to interact with the editor.
   ///
   /// The editor still shows its UI, but must not display anything modal, since nobody would ever close it and the
   /// editor would stall forever. Message boxes going through ezQtUiServices already handle this, but anything that
@@ -149,10 +149,10 @@ public:
 
   void SaveSettings();
 
-  /// \brief Writes a file containing all the currently open documents
+  /// Writes a file containing all the currently open documents
   void SaveOpenDocumentsList();
 
-  /// \brief Reads the list of last open documents in the current project.
+  /// Reads the list of last open documents in the current project.
   ezRecentFilesList LoadOpenDocumentsList();
 
   void InitQt(int iArgc, char** pArgv);
@@ -189,15 +189,15 @@ public:
 
   ezResult CreateOrOpenProject(bool bCreate, ezStringView sFile);
 
-  /// \brief Creates a project as described by the '-createProject', '-projectTemplate' and '-pluginTemplate' command line options.
+  /// Creates a project as described by the '-createProject', '-projectTemplate' and '-pluginTemplate' command line options.
   ///
   /// Only creates the files, the caller opens the result. Failures are logged, since a command line caller has no other channel.
   ezResult CreateProjectFromCommandLine(ezStringView sTargetDirectory);
 
-  /// \brief Logs the project templates and plugin templates that '-createProject' accepts ('-listTemplates').
+  /// Logs the project templates and plugin templates that '-createProject' accepts ('-listTemplates').
   void LogAvailableTemplates();
 
-  /// \brief If this project is remote, ie coming from another repository that is not checked-out by default, make sure it exists locally on disk.
+  /// If this project is remote, ie coming from another repository that is not checked-out by default, make sure it exists locally on disk.
   ///
   /// Adjusts inout_sFilePath from pointing to an ezRemoteProject file to a ezProject file, if necessary.
   /// If the project is already local, it always succeeds.
@@ -210,12 +210,12 @@ public:
   void LoadPluginBundleDlls(const char* szProjectFile);
   void DetectAvailablePluginBundles(ezStringView sSearchDirectory);
 
-  /// \brief Launches a new instance of the editor to open the given project.
+  /// Launches a new instance of the editor to open the given project.
   void LaunchEditor(const char* szProject, bool bCreate);
 
-  /// \brief Adds a data directory as a hard dependency to the project. Should be used by plugins to ensure their required data is
+  /// Adds a data directory as a hard dependency to the project. Should be used by plugins to ensure their required data is
   /// available. The path must be relative to the SdkRoot folder.
-  /// \brief If uiInsertIndex is not ezInvalidIndex, a newly added directory is inserted at that position instead of appended.
+  /// If uiInsertIndex is not ezInvalidIndex, a newly added directory is inserted at that position instead of appended.
   void AddPluginDataDirDependency(const char* szSdkRootRelativePath, const char* szRootName = nullptr, bool bWriteable = false, ezUInt32 uiInsertIndex = ezInvalidIndex);
 
   const ezApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
@@ -233,13 +233,13 @@ public:
 
   ezStatus SaveTagRegistry();
 
-  /// \brief Reads the known input slots from disk and adds them to the existing list.
+  /// Reads the known input slots from disk and adds them to the existing list.
   ///
   /// All input slots to be exposed by the editor are stored in 'Shared/Tools/ezEditor/InputSlots'
   /// as txt files. Each line names one input slot.
   void GetKnownInputSlots(ezDynamicArray<ezString>& slots) const;
 
-  /// \brief Instructs the engine to reload its resources
+  /// Instructs the engine to reload its resources
   void ReloadEngineResources();
 
   void RestartEngineProcessIfPluginsChanged(bool bForce);
@@ -297,11 +297,11 @@ private:
 
   ezResult AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConfig::PluginConfig>& order, const ezPluginBundleSet& bundles, const ezString& start, bool bEditor, bool bEditorEngine, bool bRuntime) const;
 
-  /// \brief Collects the data directories of all bundles that are currently active (mandatory, selected, or a transitive
+  /// Collects the data directories of all bundles that are currently active (mandatory, selected, or a transitive
   /// requirement of one of those), normalized for comparison.
   void GetActiveBundleDataDirectories(ezSet<ezString>& out_dirs) const;
 
-  /// \brief Collects the data directories declared by every known bundle (active or not), normalized for comparison.
+  /// Collects the data directories declared by every known bundle (active or not), normalized for comparison.
   /// Used to identify and prune stale bundle data directory entries.
   void GetAllKnownBundleDataDirectories(ezSet<ezString>& out_dirs) const;
 

@@ -24,7 +24,7 @@ ezLogInterface* ezGlobalLog::s_pOverrideLog = nullptr;
 static thread_local bool s_bAllowOverrideLog = true;
 static ezMutex s_OverrideLogMutex;
 
-/// \brief The log system that messages are sent to when the user specifies no system himself.
+/// The log system that messages are sent to when the user specifies no system himself.
 static thread_local ezLogInterface* s_DefaultLogSystem = nullptr;
 
 

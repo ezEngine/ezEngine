@@ -2,7 +2,7 @@
 
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
-/// \brief Pulls particles toward a point with distance-based falloff.
+/// Pulls particles toward a point with distance-based falloff.
 ///
 /// Can modify velocity (physically correct acceleration) or position directly (snapping).
 /// MinDistance prevents singularity at the attractor center.
@@ -27,7 +27,7 @@ public:
   float m_fInfluence = 5.0f;
   bool m_bAffectVelocity = true;
 
-  /// \brief Maximum number of nearby attractors to consider. Higher values are more expensive.
+  /// Maximum number of nearby attractors to consider. Higher values are more expensive.
   ezUInt8 m_uiMaxAttractors = 1;
 };
 

@@ -2,7 +2,7 @@
 
 #include <RendererVulkan/RendererVulkanDLL.h>
 
-/// \brief Simple pool for semaphores
+/// Simple pool for semaphores
 ///
 /// Do not call ReclaimSemaphore manually, instead call ezGALDeviceVulkan::ReclaimLater which will make sure to reclaim the semaphore once it is no longer in use.
 /// Usage:

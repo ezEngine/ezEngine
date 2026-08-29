@@ -15,7 +15,7 @@ class ezTaskSystemThreadState;
 class ezDGMLGraph;
 class ezAllocator;
 
-/// \brief Describes the priority with which to execute a task.
+/// Describes the priority with which to execute a task.
 ///
 /// For tasks that you start this frame and that need to finish within the same frame,
 /// use 'EarlyThisFrame', 'ThisFrame' or 'LateThisFrame'.\n
@@ -72,7 +72,7 @@ struct ezTaskPriority
   // clang-format on
 };
 
-/// \brief Enum that describes what to do when waiting for or canceling tasks, that have already started execution.
+/// Enum that describes what to do when waiting for or canceling tasks, that have already started execution.
 struct ezOnTaskRunning
 {
   enum Enum : ezUInt8
@@ -98,17 +98,17 @@ struct ezWorkerThreadType
   static const char* GetThreadTypeName(ezWorkerThreadType::Enum threadType);
 };
 
-/// \brief Given out by ezTaskSystem::CreateTaskGroup to identify a task group.
+/// Given out by ezTaskSystem::CreateTaskGroup to identify a task group.
 class EZ_FOUNDATION_DLL ezTaskGroupID
 {
 public:
   EZ_ALWAYS_INLINE ezTaskGroupID() = default;
   EZ_ALWAYS_INLINE ~ezTaskGroupID() = default;
 
-  /// \brief Returns false, if the GroupID does not reference a valid ezTaskGroup
+  /// Returns false, if the GroupID does not reference a valid ezTaskGroup
   EZ_ALWAYS_INLINE bool IsValid() const { return m_pTaskGroup != nullptr; }
 
-  /// \brief Resets the GroupID into an invalid state.
+  /// Resets the GroupID into an invalid state.
   EZ_ALWAYS_INLINE void Invalidate() { m_pTaskGroup = nullptr; }
 
   EZ_ALWAYS_INLINE bool operator==(const ezTaskGroupID& other) const
@@ -136,10 +136,10 @@ private:
   ezTaskGroup* m_pTaskGroup = nullptr;
 };
 
-/// \brief Callback type when a task group has been finished (or canceled).
+/// Callback type when a task group has been finished (or canceled).
 using ezOnTaskGroupFinishedCallback = ezDelegate<void(ezTaskGroupID)>;
 
-/// \brief Callback type when a task has been finished (or canceled).
+/// Callback type when a task has been finished (or canceled).
 using ezOnTaskFinishedCallback = ezDelegate<void(const ezSharedPtr<ezTask>&)>;
 
 struct ezTaskGroupDependency
@@ -150,7 +150,7 @@ struct ezTaskGroupDependency
   ezTaskGroupID m_DependsOn;
 };
 
-/// \brief Whether a task may wait for the completion of another task.
+/// Whether a task may wait for the completion of another task.
 ///
 /// This is an optimization hint for the ezTaskSystem. Tasks that never wait on other tasks
 /// can be executed more efficiently (without launching a dedicated thread), as they cannot produce
@@ -162,7 +162,7 @@ enum class ezTaskNesting
   Never,
 };
 
-/// \brief Settings for ezTaskSystem::ParallelFor invocations.
+/// Settings for ezTaskSystem::ParallelFor invocations.
 struct EZ_FOUNDATION_DLL ezParallelForParams
 {
   ezParallelForParams() = default; // do not remove, needed for Clang

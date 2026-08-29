@@ -4,7 +4,7 @@
 
 using ezJoltConeConstraintComponentManager = ezComponentManager<class ezJoltConeConstraintComponent, ezBlockStorageType::Compact>;
 
-/// \brief Implements a conical physics constraint.
+/// Implements a conical physics constraint.
 ///
 /// The child actor can swing in a cone with a given angle around the anchor point on the parent actor.
 class EZ_JOLTPLUGIN_DLL ezJoltConeConstraintComponent : public ezJoltConstraintComponent

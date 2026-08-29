@@ -2,7 +2,7 @@
 
 #include <Foundation/SimdMath/SimdVec4i.h>
 
-/// \brief A SIMD 4-component vector class of unsigned 32b integers
+/// A SIMD 4-component vector class of unsigned 32b integers
 class EZ_FOUNDATION_DLL ezSimdVec4u
 {
 public:
@@ -16,7 +16,7 @@ public:
 
   ezSimdVec4u(ezInternal::QuadUInt v);                             // [tested]
 
-  /// \brief Creates an ezSimdVec4u that is initialized to zero.
+  /// Creates an ezSimdVec4u that is initialized to zero.
   [[nodiscard]] static ezSimdVec4u MakeZero();                     // [tested]
 
   void Set(ezUInt32 uiXyzw);                                       // [tested]

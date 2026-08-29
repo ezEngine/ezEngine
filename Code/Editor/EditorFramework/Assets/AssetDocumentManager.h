@@ -18,7 +18,7 @@ public:
   ezAssetDocumentManager();
   ~ezAssetDocumentManager();
 
-  /// \brief Opens the asset file and reads the "Header" into the given ezAssetDocumentInfo.
+  /// Opens the asset file and reads the "Header" into the given ezAssetDocumentInfo.
   virtual ezStatus ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocumentInfo>& out_pInfo, ezStreamReader& inout_stream) const;
   virtual void FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezDynamicArray<ezSubAssetData>& out_subAssets) const {}
 
@@ -33,13 +33,13 @@ public:
   /// \name Asset Profile Functions
   ///@{
 public:
-  /// \brief Called by the ezAssetCurator when the active asset profile changes to re-compute m_uiAssetProfileHash.
+  /// Called by the ezAssetCurator when the active asset profile changes to re-compute m_uiAssetProfileHash.
   void ComputeAssetProfileHash(const ezPlatformProfile* pAssetProfile);
 
-  /// \brief Returns the hash that was previously computed through ComputeAssetProfileHash().
+  /// Returns the hash that was previously computed through ComputeAssetProfileHash().
   EZ_ALWAYS_INLINE ezUInt64 GetAssetProfileHash() const { return m_uiAssetProfileHash; }
 
-  /// \brief Returns pAssetProfile, or if that is null, ezAssetCurator::GetSingleton()->GetActiveAssetProfile().
+  /// Returns pAssetProfile, or if that is null, ezAssetCurator::GetSingleton()->GetActiveAssetProfile().
   static const ezPlatformProfile* DetermineFinalTargetProfile(const ezPlatformProfile* pAssetProfile);
 
 private:
@@ -56,7 +56,7 @@ private:
   /// \name Thumbnail Functions
   ///@{
 public:
-  /// \brief Returns the absolute path to the thumbnail that belongs to the given document.
+  /// Returns the absolute path to the thumbnail that belongs to the given document.
   virtual ezString GenerateResourceThumbnailPath(ezStringView sDocumentPath, ezStringView sSubAssetName = ezStringView());
   virtual bool IsThumbnailUpToDate(ezStringView sDocumentPath, ezStringView sSubAssetName, ezUInt64 uiThumbnailHash, ezUInt32 uiTypeVersion);
 
@@ -67,13 +67,13 @@ public:
   virtual void AddEntriesToAssetTable(ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile, ezDelegate<void(ezStringView sGuid, ezStringView sPath, ezStringView sType)> addEntry) const;
   virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile) const;
 
-  /// \brief Calls GetRelativeOutputFileName and prepends [DataDir]/AssetCache/ .
+  /// Calls GetRelativeOutputFileName and prepends [DataDir]/AssetCache/ .
   ezString GetAbsoluteOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, ezStringView sDocumentPath, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const;
 
-  /// \brief Relative to 'AssetCache' folder.
+  /// Relative to 'AssetCache' folder.
   virtual ezString GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, ezStringView sDataDirectory, ezStringView sDocumentPath, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const;
 
-  /// \brief Should return the document type of the given sOutputTag.
+  /// Should return the document type of the given sOutputTag.
   virtual ezStringView GetOutputDocumentType(const ezAssetDocumentTypeDescriptor* pTypeDesc, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const { return pTypeDesc->m_sDocumentTypeName; }
 
   virtual bool GeneratesProfileSpecificAssets() const = 0;
@@ -107,7 +107,7 @@ public:
   ///@}
 
 
-  /// \brief Called by the editor to try to open a document for the matching picking result
+  /// Called by the editor to try to open a document for the matching picking result
   virtual ezResult OpenPickedDocument(const ezDocumentObject* pPickedComponent, ezUInt32 uiPartIndex) { return EZ_FAILURE; }
 
   static ezResult TryOpenAssetDocument(const char* szPathOrGuid);

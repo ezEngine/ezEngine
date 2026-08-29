@@ -12,7 +12,7 @@ struct ezSubAsset;
 struct ezAssetProcessorProgressEvent;
 class ezMcpJsonWriter;
 
-/// \brief Queries the asset database: which asset types exist, which assets exist, and how they relate.
+/// Queries the asset database: which asset types exist, which assets exist, and how they relate.
 ///
 /// The tools split along the cost of answering. 'asset_types' and 'asset_health' are type-level and
 /// aggregate views that stay cheap on any project. 'asset_find' is the listing half - it narrows

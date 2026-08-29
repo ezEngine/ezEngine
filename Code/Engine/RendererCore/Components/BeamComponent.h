@@ -12,7 +12,7 @@ struct ezMsgExtractRenderData;
 class ezGeometry;
 class ezMeshResourceDescriptor;
 
-/// \brief Renders a thick line from its own location to the position of another game object.
+/// Renders a thick line from its own location to the position of another game object.
 ///
 /// This is meant for simple effects, like laser beams. The geometry is very low resolution and won't look good close up.
 /// When possible, use a highly emissive material without any pattern, where the bloom will hide the simple geometry.
@@ -47,23 +47,23 @@ public:
   ezBeamComponent();
   ~ezBeamComponent();
 
-  /// \brief Sets the GUID of the target object to which to draw the beam.
+  /// Sets the GUID of the target object to which to draw the beam.
   void SetTargetObject(const char* szReference); // [ property ]
 
-  /// \brief How wide to make the beam geometry
+  /// How wide to make the beam geometry
   void SetWidth(float fWidth); // [ property ]
   float GetWidth() const;      // [ property ]
 
-  /// \brief How many world units the texture coordinates should take up, for using a repeatable texture for the beam.
+  /// How many world units the texture coordinates should take up, for using a repeatable texture for the beam.
   void SetUVUnitsPerWorldUnit(float fUVUnitsPerWorldUnit); // [ property ]
   float GetUVUnitsPerWorldUnit() const;                    // [ property ]
 
   ezMaterialResourceHandle GetMaterial() const;
 
-  /// \brief The object to which to draw the beam.
+  /// The object to which to draw the beam.
   ezGameObjectHandle m_hTargetObject; // [ property ]
 
-  /// \brief Optional color to tint the beam.
+  /// Optional color to tint the beam.
   ezColor m_Color = ezColor::White; // [ property ]
 
 protected:
@@ -74,7 +74,7 @@ protected:
   float m_fWidth = 0.1f;               // [ property ]
   float m_fUVUnitsPerWorldUnit = 1.0f; // [ property ]
 
-  /// \brief Which material asset to use for rendering the beam geometry.
+  /// Which material asset to use for rendering the beam geometry.
   ezMaterialResourceHandle m_hMaterial; // [ property ]
 
   const float m_fDistanceUpdateEpsilon = 0.02f;

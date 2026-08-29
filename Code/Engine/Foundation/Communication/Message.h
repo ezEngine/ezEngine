@@ -8,7 +8,7 @@ using ezMessageId = ezUInt16;
 class ezStreamWriter;
 class ezStreamReader;
 
-/// \brief Base class for all message types. Each message type has it's own id which is used to dispatch messages efficiently.
+/// Base class for all message types. Each message type has it's own id which is used to dispatch messages efficiently.
 ///
 /// To implement a custom message type derive from ezMessage and add EZ_DECLARE_MESSAGE_TYPE to the type declaration.
 /// EZ_IMPLEMENT_MESSAGE_TYPE needs to be added to a cpp.
@@ -41,19 +41,19 @@ public:
 
   virtual ~ezMessage() = default;
 
-  /// \brief Derived message types can override this method to influence sorting order. Smaller keys are processed first.
+  /// Derived message types can override this method to influence sorting order. Smaller keys are processed first.
   virtual ezInt32 GetSortingKey() const { return 0; }
 
-  /// \brief Returns the id for this message type.
+  /// Returns the id for this message type.
   EZ_ALWAYS_INLINE ezMessageId GetId() const { return m_Id; }
 
-  /// \brief Returns the size in byte of this message.
+  /// Returns the size in byte of this message.
   EZ_ALWAYS_INLINE ezUInt16 GetSize() const { return m_uiSize; }
 
-  /// \brief Calculates a hash of the message.
+  /// Calculates a hash of the message.
   EZ_ALWAYS_INLINE ezUInt64 GetHash() const { return ezHashingUtils::xxHash64(this, m_uiSize); }
 
-  /// \brief Implement this for efficient transmission across process boundaries (e.g. network transfer etc.)
+  /// Implement this for efficient transmission across process boundaries (e.g. network transfer etc.)
   ///
   /// If the message is only ever sent within the same process between nodes of the same ezWorld,
   /// this does not need to be implemented.
@@ -102,14 +102,14 @@ protected:
   //
 
 public:
-  /// \brief Writes msg to stream in such a way that ReplicatePackedMessage() can restore it even in another process
+  /// Writes msg to stream in such a way that ReplicatePackedMessage() can restore it even in another process
   ///
   /// For this to work the message type has to have the Serialize and Deserialize functions implemented.
   ///
   /// \note This is NOT used by ezWorld. Within the same process messages can be dispatched more efficiently.
   static void PackageForTransfer(const ezMessage& msg, ezStreamWriter& inout_stream);
 
-  /// \brief Restores a message that was written by PackageForTransfer()
+  /// Restores a message that was written by PackageForTransfer()
   ///
   /// If the message type is unknown, nullptr is returned.
   /// \see PackageForTransfer()
@@ -118,7 +118,7 @@ public:
 private:
 };
 
-/// \brief Add this macro to the declaration of your custom message type.
+/// Add this macro to the declaration of your custom message type.
 #define EZ_DECLARE_MESSAGE_TYPE(messageType, baseType)      \
 private:                                                    \
   EZ_ADD_DYNAMIC_REFLECTION(messageType, baseType);         \
@@ -143,11 +143,11 @@ public:                                                     \
   {                                                         \
   }
 
-/// \brief Implements the given message type. Add this macro to a cpp outside of the type declaration.
+/// Implements the given message type. Add this macro to a cpp outside of the type declaration.
 #define EZ_IMPLEMENT_MESSAGE_TYPE(messageType) ezMessageId messageType::MSG_ID = messageType::GetTypeMsgId();
 
 
-/// \brief Base class for all message senders.
+/// Base class for all message senders.
 template <typename T>
 struct ezMessageSenderBase
 {

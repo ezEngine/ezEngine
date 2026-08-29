@@ -42,31 +42,31 @@ public:
 
   ma_engine* GetEngine() { return &m_pData->m_Engine; }
 
-  /// \brief Can be called before startup to load the configuration from a different file.
+  /// Can be called before startup to load the configuration from a different file.
   /// Otherwise will automatically be loaded at startup with the default path.
   virtual void LoadConfiguration(ezStringView sFile) override;
 
-  /// \brief By default the integration will auto-detect the platform (and thus the config) to use.
+  /// By default the integration will auto-detect the platform (and thus the config) to use.
   /// Calling this before startup allows to override which configuration is used.
   virtual void SetOverridePlatform(ezStringView sPlatform) override;
 
-  /// \brief Automatically called by the plugin every time ezGameApplicationExecutionEvent::BeforeUpdatePlugins is fired.
+  /// Automatically called by the plugin every time ezGameApplicationExecutionEvent::BeforeUpdatePlugins is fired.
   virtual void UpdateSound() override;
 
-  /// \brief Adjusts the master volume. This affects all sounds, with no exception. Value must be between 0.0f and 1.0f.
+  /// Adjusts the master volume. This affects all sounds, with no exception. Value must be between 0.0f and 1.0f.
   virtual void SetMasterChannelVolume(float fVolume) override;
   virtual float GetMasterChannelVolume() const override;
 
-  /// \brief Allows to mute all sounds. Useful for when the application goes to a background state.
+  /// Allows to mute all sounds. Useful for when the application goes to a background state.
   virtual void SetMasterChannelMute(bool bMute) override;
   virtual bool GetMasterChannelMute() const override;
 
-  /// \brief Allows to pause all sounds. Useful for when the application goes to a background state and you want to pause all sounds,
+  /// Allows to pause all sounds. Useful for when the application goes to a background state and you want to pause all sounds,
   /// instead of mute them.
   virtual void SetMasterChannelPaused(bool bPaused) override;
   virtual bool GetMasterChannelPaused() const override;
 
-  /// \brief Specifies the volume for a sound group.
+  /// Specifies the volume for a sound group.
   ///
   /// This is used to control the volume of high level sound groups, such as 'Effects', 'Music', 'Ambiance or 'Speech'.
   virtual void SetSoundGroupVolume(ezStringView sGroupName, float fVolume) override;
@@ -81,7 +81,7 @@ public:
 
   SoundGroup& GetSoundGroup(ezStringView sGroupName);
 
-  /// \brief Default is 1. Allows to set how many virtual listeners the sound is mixed for (split screen game play).
+  /// Default is 1. Allows to set how many virtual listeners the sound is mixed for (split screen game play).
   virtual void SetNumListeners(ezUInt8 uiNumListeners) override;
   virtual ezUInt8 GetNumListeners() override;
 

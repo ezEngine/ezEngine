@@ -8,15 +8,15 @@
 
 class ezGALDevice;
 
-/// \brief A cache from pipeline descriptor to handle which holds a reference to each pipeline that is never freed until shutdown. This is just a stopgap solution until the high level interface changes and mostly used by `ezRenderContext` to provide the old interface until further refactoring.
+/// A cache from pipeline descriptor to handle which holds a reference to each pipeline that is never freed until shutdown. This is just a stopgap solution until the high level interface changes and mostly used by `ezRenderContext` to provide the old interface until further refactoring.
 class EZ_RENDERERFOUNDATION_DLL ezGALPipelineCache
 {
   EZ_DECLARE_SINGLETON(ezGALPipelineCache);
 
 public:
-  /// \brief Creates a pipeline or retrieves it from the cache. Ownership remains with the cache so do not call DestroyGraphicsPipeline on the handle.
+  /// Creates a pipeline or retrieves it from the cache. Ownership remains with the cache so do not call DestroyGraphicsPipeline on the handle.
   static ezGALGraphicsPipelineHandle GetPipeline(const ezGALGraphicsPipelineCreationDescription& description);
-  /// \brief Creates a pipeline or retrieves it from the cache. Ownership remains with the cache so do not call DestroyComputePipeline on the handle.
+  /// Creates a pipeline or retrieves it from the cache. Ownership remains with the cache so do not call DestroyComputePipeline on the handle.
   static ezGALComputePipelineHandle GetPipeline(const ezGALComputePipelineCreationDescription& description);
 
 private:

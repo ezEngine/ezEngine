@@ -7,7 +7,7 @@ class QScreen;
 
 namespace ezWidgetUtils
 {
-  /// \brief Contrary to QApplication::screenAt() this function will always succeed with a valid cursor positions
+  /// Contrary to QApplication::screenAt() this function will always succeed with a valid cursor positions
   /// and also with out of bounds cursor positions.
   EZ_GUIFOUNDATION_DLL QScreen& GetClosestScreen(const QPoint& point);
 

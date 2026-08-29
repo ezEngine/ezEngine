@@ -6,7 +6,7 @@
 
 class ezWorld;
 
-/// \brief Defines the different phases during world updates for module execution ordering.
+/// Defines the different phases during world updates for module execution ordering.
 struct ezWorldUpdatePhase
 {
   using StorageType = ezUInt8;
@@ -23,7 +23,7 @@ struct ezWorldUpdatePhase
   };
 };
 
-/// \brief Base class for world modules that extend world functionality.
+/// Base class for world modules that extend world functionality.
 ///
 /// World modules provide additional functionality to worlds such as component management,
 /// physics simulation, or rendering. They can register update functions that are called
@@ -37,13 +37,13 @@ protected:
   virtual ~ezWorldModule();
 
 public:
-  /// \brief Returns the corresponding world to this module.
+  /// Returns the corresponding world to this module.
   ezWorld* GetWorld();
 
-  /// \brief Returns the corresponding world to this module.
+  /// Returns the corresponding world to this module.
   const ezWorld* GetWorld() const;
 
-  /// \brief Same as GetWorld()->GetIndex(). Needed to break circular include dependencies.
+  /// Same as GetWorld()->GetIndex(). Needed to break circular include dependencies.
   ezUInt32 GetWorldIndex() const;
 
 protected:
@@ -51,17 +51,17 @@ protected:
   friend class ezInternal::WorldData;
   friend class ezMemoryUtils;
 
-  /// \brief Context passed to update functions containing information about component range to process.
+  /// Context passed to update functions containing information about component range to process.
   struct UpdateContext
   {
     ezUInt32 m_uiFirstComponentIndex = 0; ///< Index of the first component to process in this batch
     ezUInt32 m_uiComponentCount = 0;      ///< Number of components to process in this batch
   };
 
-  /// \brief Update function delegate.
+  /// Update function delegate.
   using UpdateFunction = ezDelegate<void(const UpdateContext&)>;
 
-  /// \brief Description of an update function that can be registered at the world.
+  /// Description of an update function that can be registered at the world.
   struct UpdateFunctionDesc
   {
     UpdateFunctionDesc(const UpdateFunction& function, ezStringView sFunctionName)
@@ -82,35 +82,35 @@ protected:
     float m_fPriority = 0.0f;                     ///< Higher priority (higher number) means that this function is called earlier than a function with lower priority.
   };
 
-  /// \brief Registers the given update function at the world.
+  /// Registers the given update function at the world.
   void RegisterUpdateFunction(const UpdateFunctionDesc& desc);
 
-  /// \brief De-registers the given update function from the world. Note that only the m_Function and the m_Phase of the description have to
+  /// De-registers the given update function from the world. Note that only the m_Function and the m_Phase of the description have to
   /// be valid for de-registration.
   void DeregisterUpdateFunction(const UpdateFunctionDesc& desc);
 
-  /// \brief Returns the allocator used by the world.
+  /// Returns the allocator used by the world.
   ezAllocator* GetAllocator();
 
-  /// \brief Returns the block allocator used by the world.
+  /// Returns the block allocator used by the world.
   ezInternal::WorldLargeBlockAllocator* GetBlockAllocator();
 
-  /// \brief Returns whether the world simulation is enabled.
+  /// Returns whether the world simulation is enabled.
   bool GetWorldSimulationEnabled() const;
 
 protected:
-  /// \brief This method is called after the constructor. A derived type can override this method to do initialization work. Typically this
+  /// This method is called after the constructor. A derived type can override this method to do initialization work. Typically this
   /// is the method where updates function are registered.
   virtual void Initialize() {}
 
-  /// \brief This method is called before the destructor. A derived type can override this method to do deinitialization work.
+  /// This method is called before the destructor. A derived type can override this method to do deinitialization work.
   virtual void Deinitialize() {}
 
-  /// \brief This method is called at the start of the next world update when the world is simulated. This method will be called after the
+  /// This method is called at the start of the next world update when the world is simulated. This method will be called after the
   /// initialization method.
   virtual void OnSimulationStarted() {}
 
-  /// \brief Called by ezWorld::Clear(). Can be used to clear cached data when a world is completely cleared of objects (but not deleted).
+  /// Called by ezWorld::Clear(). Can be used to clear cached data when a world is completely cleared of objects (but not deleted).
   virtual void WorldClear() {}
 
   ezWorld* m_pWorld;
@@ -118,7 +118,7 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Helper class to get component type ids and create new instances of world modules from rtti.
+/// Helper class to get component type ids and create new instances of world modules from rtti.
 class EZ_CORE_DLL ezWorldModuleFactory
 {
 public:
@@ -127,13 +127,13 @@ public:
   template <typename ModuleType, typename RTTIType>
   ezWorldModuleTypeId RegisterWorldModule();
 
-  /// \brief Returns the module type id to the given rtti module/component type.
+  /// Returns the module type id to the given rtti module/component type.
   ezWorldModuleTypeId GetTypeId(const ezRTTI* pRtti);
 
-  /// \brief Creates a new instance of the world module with the given type id and world.
+  /// Creates a new instance of the world module with the given type id and world.
   ezWorldModule* CreateWorldModule(ezUInt16 uiTypeId, ezWorld* pWorld);
 
-  /// \brief Register explicit a mapping of a world module interface to a specific implementation.
+  /// Register explicit a mapping of a world module interface to a specific implementation.
   ///
   /// This is necessary if there are multiple implementations of the same interface.
   /// If there is only one implementation for an interface this implementation is registered automatically.
@@ -167,7 +167,7 @@ private:
   ezHashTable<ezString, ezString> m_InterfaceImplementations;
 };
 
-/// \brief Add this macro to the declaration of your module type.
+/// Add this macro to the declaration of your module type.
 #define EZ_DECLARE_WORLD_MODULE()                      \
 public:                                                \
   static EZ_ALWAYS_INLINE ezWorldModuleTypeId TypeId() \
@@ -178,11 +178,11 @@ public:                                                \
 private:                                               \
   static ezWorldModuleTypeId s_TypeId;
 
-/// \brief Implements the given module type. Add this macro to a cpp outside of the type declaration.
+/// Implements the given module type. Add this macro to a cpp outside of the type declaration.
 #define EZ_IMPLEMENT_WORLD_MODULE(moduleType) \
   ezWorldModuleTypeId moduleType::s_TypeId = ezWorldModuleFactory::GetInstance()->RegisterWorldModule<moduleType, moduleType>();
 
-/// \brief Helper macro to create an update function description with proper name
+/// Helper macro to create an update function description with proper name
 #define EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(func, instance) ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&func, instance), #func)
 
 #include <Core/World/Implementation/WorldModule_inl.h>

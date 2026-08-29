@@ -12,7 +12,7 @@ using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 
 using ezPlayerStartPointComponentManager = ezComponentManager<class ezPlayerStartPointComponent, ezBlockStorageType::Compact>;
 
-/// \brief Defines a location that the player may start from.
+/// Defines a location that the player may start from.
 ///
 /// This component specifies which prefab to use as the player object and parameters to spawn the player object with.
 ///

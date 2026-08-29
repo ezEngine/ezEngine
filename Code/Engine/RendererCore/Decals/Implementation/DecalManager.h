@@ -14,7 +14,7 @@ public:
   static ezDecalId GetOrCreateRuntimeDecal(const ezMaterialResourceHandle& hMaterial, ezUInt32 uiResolution, ezTime updateInterval);
   static void DeleteRuntimeDecal(ezDecalId& ref_decalId);
 
-  /// \brief Marks the runtime decal as in use with the given screen space size by the given reference view. Should be called every frame.
+  /// Marks the runtime decal as in use with the given screen space size by the given reference view. Should be called every frame.
   /// This is used to calculate how much space the decal needs in the atlas.
   static void MarkRuntimeDecalAsUsed(ezDecalId decalId, float fScreenSpaceSize, const ezView* pReferenceView);
 

@@ -72,7 +72,7 @@ class ezViewHandle
   friend class ezRenderWorld;
 };
 
-/// \brief HashHelper implementation so view handles can be used as key in a hashtable.
+/// HashHelper implementation so view handles can be used as key in a hashtable.
 template <>
 struct ezHashHelper<ezViewHandle>
 {
@@ -81,7 +81,7 @@ struct ezHashHelper<ezViewHandle>
   EZ_ALWAYS_INLINE static bool Equal(ezViewHandle a, ezViewHandle b) { return a == b; }
 };
 
-/// \brief Usage hint of a camera/view.
+/// Usage hint of a camera/view.
 struct EZ_RENDERERCORE_DLL ezCameraUsageHint
 {
   using StorageType = ezUInt8;

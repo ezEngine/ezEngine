@@ -29,7 +29,7 @@ struct ezScreenResolution
   }
 };
 
-/// \brief Describes the properties of a screen
+/// Describes the properties of a screen
 struct EZ_FOUNDATION_DLL ezScreenInfo
 {
   ezString m_sDisplayID;   ///< Internal name used by the OS to identify the monitor.
@@ -44,13 +44,13 @@ struct EZ_FOUNDATION_DLL ezScreenInfo
   ezDynamicArray<ezScreenResolution> m_SupportedResolutions;
 };
 
-/// \brief Provides functionality to detect available monitors
+/// Provides functionality to detect available monitors
 class EZ_FOUNDATION_DLL ezScreen
 {
 public:
-  /// \brief Enumerates all available screens. When it returns EZ_SUCCESS, at least one screen has been found.
+  /// Enumerates all available screens. When it returns EZ_SUCCESS, at least one screen has been found.
   static ezResult EnumerateScreens(ezDynamicArray<ezScreenInfo>& out_screens);
 
-  /// \brief Prints the available screen information to the provided log.
+  /// Prints the available screen information to the provided log.
   static void PrintScreenInfo(const ezArrayPtr<ezScreenInfo>& screens, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem());
 };

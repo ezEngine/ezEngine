@@ -15,7 +15,7 @@ struct ezGALRenderTargets;
 
 using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 
-/// \brief Represents the window inside the editor process, into which the engine process renders
+/// Represents the window inside the editor process, into which the engine process renders
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorProcessViewWindow : public ezWindowBase
 {
 public:
@@ -48,7 +48,7 @@ private:
   ezAtomicInteger32 m_iReferenceCount = 0;
 };
 
-/// \brief Represents the view/window on the engine process side, holds all data necessary for rendering
+/// Represents the view/window on the engine process side, holds all data necessary for rendering
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineProcessViewContext
 {
 public:
@@ -64,7 +64,7 @@ public:
   virtual void Redraw(bool bRenderEditorGizmos);
   virtual bool PendingOperationInProgress() const;
 
-  /// \brief Focuses camera on the given object
+  /// Focuses camera on the given object
   static bool FocusCameraOnObject(ezCamera& inout_camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir);
 
   ezViewHandle GetViewHandle() const { return m_hView; }
@@ -79,13 +79,13 @@ protected:
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg);
   virtual void SetViewProperties(ezView* pView);
 
-  /// \brief Returns the handle to the default render pipeline.
+  /// Returns the handle to the default render pipeline.
   virtual ezRenderPipelineResourceHandle CreateDefaultRenderPipeline();
 
-  /// \brief Returns the handle to the debug render pipeline.
+  /// Returns the handle to the debug render pipeline.
   virtual ezRenderPipelineResourceHandle CreateDebugRenderPipeline();
 
-  /// \brief Create the actual view.
+  /// Create the actual view.
   virtual ezViewHandle CreateView() = 0;
 
 private:

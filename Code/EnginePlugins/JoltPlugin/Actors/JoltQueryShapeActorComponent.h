@@ -21,7 +21,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief A physics actor that can be moved procedurally (like a kinematic actor) but that doesn't affect rigid bodies.
+/// A physics actor that can be moved procedurally (like a kinematic actor) but that doesn't affect rigid bodies.
 ///
 /// It passes right through dynamic actors. However, you can detect it via raycasts or shape casts.
 /// This is useful to represent detail shapes (like the collision shapes of animated meshes) that should be pickable,

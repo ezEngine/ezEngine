@@ -7,7 +7,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/StringUtils.h>
 
-/// \brief Hash helper to be used as a template argument to ezHashTable / ezHashSet for case insensitive string keys.
+/// Hash helper to be used as a template argument to ezHashTable / ezHashSet for case insensitive string keys.
 struct EZ_FOUNDATION_DLL ezHashHelperString_NoCase
 {
   inline static ezUInt32 Hash(ezStringView sValue);                       // [tested]

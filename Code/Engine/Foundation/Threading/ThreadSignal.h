@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Threading/ConditionVariable.h>
 
-/// \brief Waiting on a thread signal puts the waiting thread to sleep. Other threads can wake it up by raising the signal.
+/// Waiting on a thread signal puts the waiting thread to sleep. Other threads can wake it up by raising the signal.
 ///
 /// ezThreadSignal is similar to ezConditionVariable but adds some internal state, which makes it more suitable for common use cases.
 /// For instance, in contrast to ezConditionVariable, one can wait for an ezThreadSignal and get awoken, even if the signal was raised
@@ -35,17 +35,17 @@ public:
   ezThreadSignal(Mode mode = Mode::AutoReset);
   ~ezThreadSignal();
 
-  /// \brief Waits until the signal is raised.
+  /// Waits until the signal is raised.
   ///
   /// The waiting thread is put to sleep in the mean time.
   void WaitForSignal() const;
 
-  /// \brief Waits until either the signal is raised or the timeout is reached.
+  /// Waits until either the signal is raised or the timeout is reached.
   ///
   /// The waiting thread is put to sleep in the mean time.
   WaitResult WaitForSignal(ezTime timeout) const;
 
-  /// \brief Wakes up one thread that is currently waiting for this signal.
+  /// Wakes up one thread that is currently waiting for this signal.
   ///
   /// If no thread is currently waiting for the signal, it stays set, and the next thread that calls 'WaitForSignal'
   /// will continue uninterrupted.
@@ -57,7 +57,7 @@ public:
   /// will immediately continue and not even got to sleep. Only once ClearSignal() is executed, will threads be put to sleep again.
   void RaiseSignal();
 
-  /// \brief Mostly relevant for ManualReset mode, to reset the signal state.
+  /// Mostly relevant for ManualReset mode, to reset the signal state.
   void ClearSignal();
 
 private:

@@ -46,14 +46,14 @@ static_assert(sizeof(long long int) == 8);
 static_assert(sizeof(void*) == EZ_ALIGNMENT_MINIMUM);
 static_assert(alignof(void*) == EZ_ALIGNMENT_MINIMUM);
 
-/// \brief Enum values for success and failure. To be used by functions as return values mostly, instead of bool.
+/// Enum values for success and failure. To be used by functions as return values mostly, instead of bool.
 enum ezResultEnum
 {
   EZ_FAILURE,
   EZ_SUCCESS
 };
 
-/// \brief Default enum for returning failure or success, instead of using a bool.
+/// Default enum for returning failure or success, instead of using a bool.
 struct [[nodiscard]] EZ_FOUNDATION_DLL ezResult
 {
 public:
@@ -69,13 +69,13 @@ public:
   [[nodiscard]] EZ_ALWAYS_INLINE bool Succeeded() const { return m_E == EZ_SUCCESS; }
   [[nodiscard]] EZ_ALWAYS_INLINE bool Failed() const { return m_E == EZ_FAILURE; }
 
-  /// \brief Used to silence compiler warnings, when success or failure doesn't matter.
+  /// Used to silence compiler warnings, when success or failure doesn't matter.
   EZ_ALWAYS_INLINE void IgnoreResult()
   {
     /* dummy to be called when a return value is [[nodiscard]] but the result is not needed */
   }
 
-  /// \brief Asserts that the function succeeded. In case of failure, the program will terminate.
+  /// Asserts that the function succeeded. In case of failure, the program will terminate.
   ///
   /// If \a msg is given, this will be the assert message. If \a details is provided, \a msg should contain a formatting element ({}), e.g. "Error: {}".
   void AssertSuccess(const char* szMsg = nullptr, const char* szDetails = nullptr) const;
@@ -84,7 +84,7 @@ private:
   ezResultEnum m_E;
 };
 
-/// \brief Explicit conversion to ezResult, can be overloaded for arbitrary types.
+/// Explicit conversion to ezResult, can be overloaded for arbitrary types.
 ///
 /// This is intentionally not done via casting operator overload (or even additional constructors) since this usually comes with a
 /// considerable data loss.
@@ -93,7 +93,7 @@ EZ_ALWAYS_INLINE ezResult ezToResult(ezResult result)
   return result;
 }
 
-/// \brief Helper macro to call functions that return ezStatus or ezResult in a function that returns ezStatus (or ezResult) as well.
+/// Helper macro to call functions that return ezStatus or ezResult in a function that returns ezStatus (or ezResult) as well.
 /// If the called function fails, its return value is returned from the calling scope.
 #define EZ_SUCCEED_OR_RETURN(code) \
   do                               \
@@ -103,7 +103,7 @@ EZ_ALWAYS_INLINE ezResult ezToResult(ezResult result)
       return s;                    \
   } while (false)
 
-/// \brief Like EZ_SUCCEED_OR_RETURN, but with error logging.
+/// Like EZ_SUCCEED_OR_RETURN, but with error logging.
 #define EZ_SUCCEED_OR_RETURN_LOG(code)                                       \
   do                                                                         \
   {                                                                          \
@@ -115,7 +115,7 @@ EZ_ALWAYS_INLINE ezResult ezToResult(ezResult result)
     }                                                                        \
   } while (false)
 
-/// \brief Like EZ_SUCCEED_OR_RETURN, but with custom error logging.
+/// Like EZ_SUCCEED_OR_RETURN, but with custom error logging.
 #define EZ_SUCCEED_OR_RETURN_CUSTOM_LOG(code, log)                             \
   do                                                                           \
   {                                                                            \
@@ -132,24 +132,24 @@ EZ_ALWAYS_INLINE ezResult ezToResult(ezResult result)
 class ezRTTI;
 class ezAllocator;
 
-/// \brief Dummy type to pass to templates and macros that expect a base type for a class that has no base.
+/// Dummy type to pass to templates and macros that expect a base type for a class that has no base.
 class ezNoBase
 {
 public:
   static const ezRTTI* GetStaticRTTI() { return nullptr; }
 };
 
-/// \brief Dummy type to pass to templates and macros that expect a base type for an enum class.
+/// Dummy type to pass to templates and macros that expect a base type for an enum class.
 class ezEnumBase
 {
 };
 
-/// \brief Dummy type to pass to templates and macros that expect a base type for an bitflags class.
+/// Dummy type to pass to templates and macros that expect a base type for an bitflags class.
 class ezBitflagsBase
 {
 };
 
-/// \brief Helper struct to get a storage type from a size in byte.
+/// Helper struct to get a storage type from a size in byte.
 template <size_t SizeInByte>
 struct ezSizeToType;
 /// \cond

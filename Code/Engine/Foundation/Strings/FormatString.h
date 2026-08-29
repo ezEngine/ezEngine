@@ -10,7 +10,7 @@ class ezStringBuilder;
 
 #include <Foundation/Strings/Implementation/FormatStringArgs.h>
 
-/// \brief Implements formating of strings with placeholders and formatting options.
+/// Implements formating of strings with placeholders and formatting options.
 ///
 /// ezFormatString can be used anywhere where a string should be formatable when passing it into a function.
 /// Good examples are ezStringBuilder::SetFormat() or ezLog::Info().
@@ -66,7 +66,7 @@ public:
   ezFormatString(const ezStringBuilder& s);
   virtual ~ezFormatString() = default;
 
-  /// \brief Generates the formatted text. Make sure to only call this function once and only when the formatted string is really needed.
+  /// Generates the formatted text. Make sure to only call this function once and only when the formatted string is really needed.
   ///
   /// Requires an ezStringBuilder as storage, ie. POTENTIALLY writes the formatted text into it.
   /// However, if no formatting is required, it may not touch the string builder at all and just return a string directly.
@@ -75,13 +75,13 @@ public:
   /// when necessary.
   [[nodiscard]] virtual ezStringView GetText(ezStringBuilder&) const { return m_sString; }
 
-  /// \brief Similar to GetText() but guaranteed to copy the string into the given string builder,
+  /// Similar to GetText() but guaranteed to copy the string into the given string builder,
   /// and thus guaranteeing that the generated string is zero terminated.
   virtual const char* GetTextCStr(ezStringBuilder& out_sString) const;
 
   bool IsEmpty() const { return m_sString.IsEmpty(); }
 
-  /// \brief Helper function to build the formatted text with the given arguments.
+  /// Helper function to build the formatted text with the given arguments.
   ///
   /// \note We can't use ezArrayPtr here because of include order.
   ezStringView BuildFormattedText(ezStringBuilder& ref_sStorage, ezStringView* pArgs, ezUInt32 uiNumArgs) const;

@@ -26,7 +26,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltSteppingMode);
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Flags for what should happen when two physical bodies touch.
+/// Flags for what should happen when two physical bodies touch.
 ///
 /// The reactions need to be set up through ezSurface's.
 /// For most objects only some reactions make sense.
@@ -87,7 +87,7 @@ struct ezJoltSettings
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief This message can be sent to a constraint component to break the constraint.
+/// This message can be sent to a constraint component to break the constraint.
 struct EZ_JOLTPLUGIN_DLL ezJoltMsgDisconnectConstraints : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezJoltMsgDisconnectConstraints, ezMessage);

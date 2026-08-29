@@ -8,7 +8,7 @@ class ezGALDeviceVulkan;
 class ezCommandBufferPoolVulkan;
 class ezStagingBufferPoolVulkan;
 
-/// \brief Thread-safe context for initializing resources. Records a command buffer that transitions all newly created resources into their initial state.
+/// Thread-safe context for initializing resources. Records a command buffer that transitions all newly created resources into their initial state.
 class ezInitContextVulkan
 {
 public:
@@ -19,38 +19,38 @@ public:
 
   ezMutex& AccessLock() { return m_Lock; }
 
-  /// \brief Returns a finished command buffer of all background loading up to this point.
+  /// Returns a finished command buffer of all background loading up to this point.
   ///    The command buffer is already ended and marked to be reclaimed so the only thing done on it should be to submit it.
   vk::CommandBuffer GetFinishedCommandBuffer();
 
-  /// \brief Initializes a texture and moves it into its default state.
+  /// Initializes a texture and moves it into its default state.
   /// \param pTexture The texture to initialize.
   /// \param createInfo The image creation info for the texture. Needed for initial state information.
   /// \param pInitialData The initial data of the texture. If not set, the initial content will be undefined.
   void InitTexture(const ezGALTextureVulkan* pTexture, vk::ImageCreateInfo& ref_createInfo, ezArrayPtr<ezGALSystemMemoryDescription> initialData);
 
-  /// \brief Initializes a buffer with the given data.
+  /// Initializes a buffer with the given data.
   /// \param pBuffer The buffer to initialize.
   /// \param pInitialData The initial data that the buffer should be filled with.
   void InitBuffer(const ezGALBufferVulkan* pBuffer, ezConstByteArrayPtr initialData);
 
-  /// \brief Updates a texture region
+  /// Updates a texture region
   void UpdateTexture(const ezGALTextureVulkan* pTexture, const ezGALTextureSubresource& subresource, const ezBoundingBoxu32& box, const ezGALSystemMemoryDescription& sourceData);
 
-  /// \brief Updates a buffer range
+  /// Updates a buffer range
   /// \param pBuffer The buffer to update.
   /// \param uiOffset The offset inside the buffer where the new data should be placed.
   /// \param pSourceData The new data to update the buffer with.
   void UpdateBuffer(const ezGALBufferVulkan* pBuffer, ezUInt32 uiOffset, ezConstByteArrayPtr sourceData);
 
-  /// \brief Used by ezUniformBufferPoolVulkan to write the entire uniform scratch pool to the GPU
+  /// Used by ezUniformBufferPoolVulkan to write the entire uniform scratch pool to the GPU
   /// \param gpuBuffer The device local buffer to update.
   /// \param stagingBuffer The staging buffer that contains the data to be copied to gpuBuffer. If null, buffer is CPU writable and already contains the data.
   /// \param uiOffset Offset in the buffer.
   /// \param uiSize The size of the data to be copied from stagingBuffer to gpuBuffer.
   void UpdateDynamicUniformBuffer(vk::Buffer gpuBuffer, vk::Buffer stagingBuffer, ezUInt32 uiOffset, ezUInt32 uiSize);
 
-  /// \brief Executes work generates by ezGALDeviceVulkan::UpdateBufferForNextFramePlatform and UpdateTextureForNextFramePlatform
+  /// Executes work generates by ezGALDeviceVulkan::UpdateBufferForNextFramePlatform and UpdateTextureForNextFramePlatform
   /// \param buffers The pending buffer copies.
   /// \param textures The pending texture copies.
   void ExecutePendingCopies(ezArrayPtr<ezPendingBufferCopyVulkan> buffers, ezArrayPtr<ezPendingTextureCopyVulkan> textures);

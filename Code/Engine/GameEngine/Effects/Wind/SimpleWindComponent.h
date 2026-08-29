@@ -7,7 +7,7 @@
 
 using ezSimpleWindComponentManager = ezComponentManagerSimple<class ezSimpleWindComponent, ezComponentUpdateType::WhenSimulating>;
 
-/// \brief Calculates one global wind force using a very basic formula.
+/// Calculates one global wind force using a very basic formula.
 ///
 /// This component computes a wind vector that varies between a minimum and maximum strength
 /// and around a certain direction.

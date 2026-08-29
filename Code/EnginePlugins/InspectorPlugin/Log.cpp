@@ -5,11 +5,11 @@
 
 namespace ezLogWriter
 {
-  /// \brief This log-writer will broadcast all messages through ezTelemetry, such that external applications can display the log messages.
+  /// This log-writer will broadcast all messages through ezTelemetry, such that external applications can display the log messages.
   class Telemetry
   {
   public:
-    /// \brief Register this at ezLog to broadcast all log messages through ezTelemetry.
+    /// Register this at ezLog to broadcast all log messages through ezTelemetry.
     static void LogMessageHandler(const ezLoggingEventData& eventData)
     {
       ezTelemetryMessage msg;

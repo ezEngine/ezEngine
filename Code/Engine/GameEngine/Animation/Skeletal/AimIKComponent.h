@@ -18,7 +18,7 @@ struct ezIkJointEntry
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezIkJointEntry);
 
-/// \brief Adds inverse kinematics for a single joint of an animated mesh to point towards a target.
+/// Adds inverse kinematics for a single joint of an animated mesh to point towards a target.
 ///
 /// This can be used to make a creature look at something or to aim at a target.
 /// The component has to be attached to a child object of an animated mesh.

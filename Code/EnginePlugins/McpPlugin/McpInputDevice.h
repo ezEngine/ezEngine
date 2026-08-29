@@ -4,7 +4,7 @@
 
 #include <Core/Input/InputDevice.h>
 
-/// \brief A synthetic input device that writes whatever an agent tells it to.
+/// A synthetic input device that writes whatever an agent tells it to.
 ///
 /// A real ezInputDevice rather than ezInputManager::InjectInputSlotValue(), for three reasons that all
 /// fall out of how the manager works:
@@ -30,30 +30,30 @@ public:
   ezMcpInputDevice();
   ~ezMcpInputDevice();
 
-  /// \brief The one instance, or nullptr while the plugin's input tool does not exist.
+  /// The one instance, or nullptr while the plugin's input tool does not exist.
   static ezMcpInputDevice* GetInstance() { return s_pInstance; }
 
-  /// \brief Sets a slot's value, held until it is changed again or cleared.
+  /// Sets a slot's value, held until it is changed again or cleared.
   ///
   /// \param uiFrames How many frames to hold it for, counted down once per input update. 0 means
   ///        indefinitely - which is what a caller who wants to press a key now and release it later
   ///        wants, and also the way to leave a movement axis held down.
   void SetSlotValue(ezStringView sSlot, float fValue, ezUInt32 uiFrames);
 
-  /// \brief Stops writing a slot entirely. Anything else writing it is then the only source again.
+  /// Stops writing a slot entirely. Anything else writing it is then the only source again.
   void ClearSlot(ezStringView sSlot);
 
-  /// \brief Stops writing every slot.
+  /// Stops writing every slot.
   void ClearAllSlots();
 
-  /// \brief Injects typed text in one call, as if the OS had delivered every character within the same frame.
+  /// Injects typed text in one call, as if the OS had delivered every character within the same frame.
   ///
   /// Unlike SetSlotValue(), this is not held: it is consumed the next time something reads
   /// ezInputManager::RetrieveLastCharacters() - same as a real keystroke - and gone afterwards. Queuing
   /// again before that happens appends, it does not replace.
   void QueueText(ezStringView sText);
 
-  /// \brief What this device is currently writing, and for how much longer.
+  /// What this device is currently writing, and for how much longer.
   struct HeldSlot
   {
     ezString m_sSlot;

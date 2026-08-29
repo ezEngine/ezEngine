@@ -11,7 +11,7 @@ namespace JPH
 
 using ezJoltDefaultCharacterComponentManager = ezComponentManager<class ezJoltDefaultCharacterComponent, ezBlockStorageType::FreeList>;
 
-/// \brief An example character controller (CC) implementation build upon ezJoltCharacterControllerComponent
+/// An example character controller (CC) implementation build upon ezJoltCharacterControllerComponent
 ///
 /// This component implements typical behavior for an FPS type of game.
 /// It is mainly meant as an example, as most games would rather implement their own CC to control the exact details.
@@ -105,19 +105,19 @@ public:
   /// How much lateral motion to lose while falling.
   float m_fAirFriction = 0.5f; // [ property ]
 
-  /// \brief Sets an object GUID for an object that is the 'head' (controls the camera).
+  /// Sets an object GUID for an object that is the 'head' (controls the camera).
   void SetHeadObjectReference(const char* szReference); // [ property ]
 
-  /// \brief This message is used to steer the CC.
+  /// This message is used to steer the CC.
   void SetInputState(ezMsgMoveCharacterController& ref_msg); // [ msg handler ]
 
-  /// \brief Returns the current height of the entire capsule (crouching or standing).
+  /// Returns the current height of the entire capsule (crouching or standing).
   float GetCurrentCapsuleHeight() const;
 
-  /// \brief Returns the current height of the cylindrical part of the capsule (crouching or standing).
+  /// Returns the current height of the cylindrical part of the capsule (crouching or standing).
   float GetCurrentCylinderHeight() const;
 
-  /// \brief Returns the radius of the shape. This never changes at runtime.
+  /// Returns the radius of the shape. This never changes at runtime.
   virtual float GetShapeRadius() const override;
 
   GroundState GetGroundState() const { return m_LastGroundState; }
@@ -126,22 +126,22 @@ public:
   bool IsInAir() const { return m_LastGroundState == GroundState::InAir; }               // [ scriptable ]
   bool IsCrouching() const { return m_uiIsCrouchingBit; }                                // [ scriptable ]
 
-  /// \brief Makes the CC jump during the next update (if possible)
+  /// Makes the CC jump during the next update (if possible)
   void Jump(); // [ scriptable ]
 
-  /// \brief Sets the 'run' flag for the next update. Automatically reset by next frame.
+  /// Sets the 'run' flag for the next update. Automatically reset by next frame.
   void Run(); // [ scriptable ]
 
-  /// \brief Makes the CC crouch during the next update (if possible)
+  /// Makes the CC crouch during the next update (if possible)
   void Crouch(); // [ scriptable ]
 
-  /// \brief Sets the movement direction for the next update.
+  /// Sets the movement direction for the next update.
   ///
   /// Note: Values are typically in -1 to 1 range.
   /// The actual movement speed is configured elsewhere and depends on whether the CC crouches, jumps or runs.
   void Move(float fForward, float fRight); // [ scriptable ]
 
-  /// \brief Sets the rotation amount for the next update.
+  /// Sets the rotation amount for the next update.
   ///
   /// Note: The actual rotation speed is another property.
   void RotateZ(float fAmount); // [ scriptable ]
@@ -171,12 +171,12 @@ protected:
   virtual void UpdateCharacter() override;
   virtual void ApplyRotationZ();
 
-  /// \brief Clears the input states to neutral values
+  /// Clears the input states to neutral values
   void ResetInputState();
 
   void ResetInternalState();
 
-  /// \brief Creates a new shape with the given height (and fixed radius)
+  /// Creates a new shape with the given height (and fixed radius)
   virtual JPH::Ref<JPH::Shape> MakeNextCharacterShape() override;
 
   void ApplyCrouchState();

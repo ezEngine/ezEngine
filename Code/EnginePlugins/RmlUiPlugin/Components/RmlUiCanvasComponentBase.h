@@ -42,11 +42,11 @@ public:
   void SetRmlResource(const ezRmlUiResourceHandle& hResource);                // [ property ]
   const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; } // [ property ]
 
-  /// \brief Look for a blackboard component on the owner object and its parent and bind their blackboards during initialization of this component.
+  /// Look for a blackboard component on the owner object and its parent and bind their blackboards during initialization of this component.
   void SetAutobindBlackboards(bool bAutobind);                           // [ property ]
   bool GetAutobindBlackboards() const { return m_bAutobindBlackboards; } // [ property ]
 
-  /// \brief If enabled, the component will send an ezMsgRmlUiEventMessage for each RmlUI event that is triggered on the context.
+  /// If enabled, the component will send an ezMsgRmlUiEventMessage for each RmlUI event that is triggered on the context.
   void SetSendEventMessage(bool bSendEventMessage);                // [ property ]
   bool GetSendEventMessage() const { return m_bSendEventMessage; } // [ property ]
 
@@ -56,7 +56,7 @@ public:
   ezUInt32 AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& pDataBinding);
   void RemoveDataBinding(ezUInt32 uiDataBindingIndex);
 
-  /// \brief Adds the given blackboard as data binding. The name of the board is used as model name for the binding.
+  /// Adds the given blackboard as data binding. The name of the board is used as model name for the binding.
   ezUInt32 AddBlackboardBinding(const ezSharedPtr<ezBlackboard>& pBlackboard);
   void RemoveBlackboardBinding(ezUInt32 uiDataBindingIndex);
 

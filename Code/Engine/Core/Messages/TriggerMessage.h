@@ -19,7 +19,7 @@ struct EZ_CORE_DLL ezTriggerState
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezTriggerState);
 
-/// \brief For internal use by components to trigger some known behavior. Usually components will post this message to themselves with a
+/// For internal use by components to trigger some known behavior. Usually components will post this message to themselves with a
 /// delay, e.g. to trigger self destruction.
 struct EZ_CORE_DLL ezMsgComponentInternalTrigger : public ezMessage
 {
@@ -31,7 +31,7 @@ struct EZ_CORE_DLL ezMsgComponentInternalTrigger : public ezMessage
   ezInt32 m_iPayload = 0;
 };
 
-/// \brief Sent when something enters or leaves a trigger
+/// Sent when something enters or leaves a trigger
 struct EZ_CORE_DLL ezMsgTriggerTriggered : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgTriggerTriggered, ezMessage);

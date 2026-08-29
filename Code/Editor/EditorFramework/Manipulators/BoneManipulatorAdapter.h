@@ -11,7 +11,7 @@
 
 struct ezGizmoEvent;
 
-/// \brief Makes an array of ezExposedBone properties editable in the viewport
+/// Makes an array of ezExposedBone properties editable in the viewport
 ///
 /// Enabled by attaching the ezBoneManipulatorAttribute.
 class ezBoneManipulatorAdapter : public ezManipulatorAdapter

@@ -8,184 +8,184 @@
 #  include <span>
 #endif
 
-/// \brief Value used by containers for indices to indicate an invalid index.
+/// Value used by containers for indices to indicate an invalid index.
 #ifndef ezInvalidIndex
 #  define ezInvalidIndex 0xFFFFFFFF
 #endif
 
-/// \brief Base class for all array containers. Implements all the basic functionality that only requires a pointer and the element count.
+/// Base class for all array containers. Implements all the basic functionality that only requires a pointer and the element count.
 template <typename T, typename Derived>
 class ezArrayBase
 {
 public:
-  /// \brief Constructor.
+  /// Constructor.
   ezArrayBase(); // [tested]
 
-  /// \brief Destructor.
+  /// Destructor.
   ~ezArrayBase(); // [tested]
 
-  /// \brief Copies the data from some other contiguous array into this one.
+  /// Copies the data from some other contiguous array into this one.
   void operator=(const ezArrayPtr<const T>& rhs); // [tested]
 
-  /// \brief Conversion to const ezArrayPtr.
+  /// Conversion to const ezArrayPtr.
   operator ezArrayPtr<const T>() const; // [tested]
 
-  /// \brief Conversion to ezArrayPtr.
+  /// Conversion to ezArrayPtr.
   operator ezArrayPtr<T>(); // [tested]
 
-  /// \brief Compares this array to another contiguous array type.
+  /// Compares this array to another contiguous array type.
   bool operator==(const ezArrayBase<T, Derived>& rhs) const; // [tested]
   EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezArrayBase<T, Derived>&);
 
-  /// \brief Compares this array to another contiguous array type.
+  /// Compares this array to another contiguous array type.
   bool operator<(const ezArrayBase<T, Derived>& rhs) const; // [tested]
 
 #if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
-  /// \brief Compares this array to another contiguous array type.
+  /// Compares this array to another contiguous array type.
   bool operator==(const ezArrayPtr<const T>& rhs) const; // [tested]
   EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezArrayPtr<const T>&);
 #endif
 
-  /// \brief Compares this array to another contiguous array type.
+  /// Compares this array to another contiguous array type.
   bool operator<(const ezArrayPtr<const T>& rhs) const; // [tested]
 
-  /// \brief Returns the element at the given index. Does bounds checks in debug builds.
+  /// Returns the element at the given index. Does bounds checks in debug builds.
   const T& operator[](ezUInt32 uiIndex) const; // [tested]
 
-  /// \brief Returns the element at the given index. Does bounds checks in debug builds.
+  /// Returns the element at the given index. Does bounds checks in debug builds.
   T& operator[](ezUInt32 uiIndex); // [tested]
 
-  /// \brief Resizes the array to have exactly uiCount elements. Default constructs extra elements if the array is grown.
+  /// Resizes the array to have exactly uiCount elements. Default constructs extra elements if the array is grown.
   void SetCount(ezUInt32 uiCount); // [tested]
 
-  /// \brief Resizes the array to have exactly uiCount elements. Constructs all new elements by copying the FillValue.
+  /// Resizes the array to have exactly uiCount elements. Constructs all new elements by copying the FillValue.
   void SetCount(ezUInt32 uiCount, const T& fillValue); // [tested]
 
-  /// \brief Resizes the array to have exactly uiCount elements. Extra elements might be uninitialized.
+  /// Resizes the array to have exactly uiCount elements. Extra elements might be uninitialized.
   ///
   /// This function is only available for types that are trivially constructible. New elements are not initialized,
   template <typename = void>                    // Template is used to only conditionally compile this function in when it is actually used.
   void SetCountUninitialized(ezUInt32 uiCount); // [tested]
 
-  /// \brief Ensures the container has at least \a uiCount elements. Ie. calls SetCount() if the container has fewer elements, does nothing
+  /// Ensures the container has at least \a uiCount elements. Ie. calls SetCount() if the container has fewer elements, does nothing
   /// otherwise.
   void EnsureCount(ezUInt32 uiCount); // [tested]
 
-  /// \brief Returns the number of active elements in the array.
+  /// Returns the number of active elements in the array.
   ezUInt32 GetCount() const; // [tested]
 
-  /// \brief Returns true, if the array does not contain any elements.
+  /// Returns true, if the array does not contain any elements.
   bool IsEmpty() const; // [tested]
 
-  /// \brief Clears the array.
+  /// Clears the array.
   void Clear(); // [tested]
 
-  /// \brief Checks whether the given value can be found in the array. O(n) complexity.
+  /// Checks whether the given value can be found in the array. O(n) complexity.
   bool Contains(const T& value) const; // [tested]
 
-  /// \brief Inserts value at index by shifting all following elements.
+  /// Inserts value at index by shifting all following elements.
   void InsertAt(ezUInt32 uiIndex, const T& value); // [tested]
 
-  /// \brief Inserts value at index by shifting all following elements.
+  /// Inserts value at index by shifting all following elements.
   void InsertAt(ezUInt32 uiIndex, T&& value); // [tested]
 
-  /// \brief Inserts all elements in the range starting at the given index, shifting the elements after the index.
+  /// Inserts all elements in the range starting at the given index, shifting the elements after the index.
   void InsertRangeAt(ezUInt32 uiIndex, const ezArrayPtr<const T>& range); // [tested]
 
-  /// \brief Removes the first occurrence of value and fills the gap by shifting all following elements.
+  /// Removes the first occurrence of value and fills the gap by shifting all following elements.
   ///
   /// This maintains the order of remaining elements but is O(n) due to element shifting.
   /// Returns true if the element was found and removed, false otherwise.
   bool RemoveAndCopy(const T& value); // [tested]
 
-  /// \brief Removes the first occurrence of value and fills the gap by swapping in the last element.
+  /// Removes the first occurrence of value and fills the gap by swapping in the last element.
   ///
   /// This is O(1) but does not preserve element order. The last element takes the place of the removed element.
   /// Returns true if the element was found and removed, false otherwise.
   bool RemoveAndSwap(const T& value); // [tested]
 
-  /// \brief Removes the element at index and fills the gap by shifting all following elements.
+  /// Removes the element at index and fills the gap by shifting all following elements.
   ///
   /// This maintains the order of remaining elements but is O(n) due to element shifting.
   /// Can remove multiple consecutive elements when uiNumElements > 1.
   void RemoveAtAndCopy(ezUInt32 uiIndex, ezUInt32 uiNumElements = 1); // [tested]
 
-  /// \brief Removes the element at index and fills the gap by swapping in the last element.
+  /// Removes the element at index and fills the gap by swapping in the last element.
   ///
   /// This is O(1) but does not preserve element order. When removing multiple elements, each gap is filled
   /// by swapping in elements from the end of the array.
   void RemoveAtAndSwap(ezUInt32 uiIndex, ezUInt32 uiNumElements = 1); // [tested]
 
-  /// \brief Searches for the first occurrence of the given value and returns its index or ezInvalidIndex if not found.
+  /// Searches for the first occurrence of the given value and returns its index or ezInvalidIndex if not found.
   ezUInt32 IndexOf(const T& value, ezUInt32 uiStartIndex = 0) const; // [tested]
 
-  /// \brief Searches for the last occurrence of the given value and returns its index or ezInvalidIndex if not found.
+  /// Searches for the last occurrence of the given value and returns its index or ezInvalidIndex if not found.
   ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezInvalidIndex) const; // [tested]
 
-  /// \brief Grows the array by one element and returns a reference to the newly created element.
+  /// Grows the array by one element and returns a reference to the newly created element.
   T& ExpandAndGetRef(); // [tested]
 
-  /// \brief Expands the array by N new items and returns a pointer to the first new one.
+  /// Expands the array by N new items and returns a pointer to the first new one.
   T* ExpandBy(ezUInt32 uiNumNewItems);
 
-  /// \brief Pushes value at the end of the array.
+  /// Pushes value at the end of the array.
   void PushBack(const T& value); // [tested]
 
-  /// \brief Pushes value at the end of the array.
+  /// Pushes value at the end of the array.
   void PushBack(T&& value); // [tested]
 
-  /// \brief Pushes value at the end of the array. Does NOT ensure capacity.
+  /// Pushes value at the end of the array. Does NOT ensure capacity.
   ///
   /// This is a performance optimization when you know the array has sufficient capacity.
   /// Will cause undefined behavior if the array is already at capacity. Use Reserve() or
   /// ensure sufficient capacity before calling this function.
   void PushBackUnchecked(const T& value); // [tested]
 
-  /// \brief Pushes value at the end of the array. Does NOT ensure capacity.
+  /// Pushes value at the end of the array. Does NOT ensure capacity.
   ///
   /// This is a performance optimization when you know the array has sufficient capacity.
   /// Will cause undefined behavior if the array is already at capacity. Use Reserve() or
   /// ensure sufficient capacity before calling this function.
   void PushBackUnchecked(T&& value); // [tested]
 
-  /// \brief Pushes all elements in range at the end of the array. Increases the capacity if necessary.
+  /// Pushes all elements in range at the end of the array. Increases the capacity if necessary.
   void PushBackRange(const ezArrayPtr<const T>& range); // [tested]
 
-  /// \brief Removes count elements from the end of the array.
+  /// Removes count elements from the end of the array.
   void PopBack(ezUInt32 uiCountToRemove = 1); // [tested]
 
-  /// \brief Returns the last element of the array.
+  /// Returns the last element of the array.
   T& PeekBack(); // [tested]
 
-  /// \brief Returns the last element of the array.
+  /// Returns the last element of the array.
   const T& PeekBack() const; // [tested]
 
-  /// \brief Sort with explicit comparer
+  /// Sort with explicit comparer
   template <typename Comparer>
   void Sort(const Comparer& comparer); // [tested]
 
-  /// \brief Sort with default comparer
+  /// Sort with default comparer
   void Sort(); // [tested]
 
-  /// \brief Returns a pointer to the array data, or nullptr if the array is empty.
+  /// Returns a pointer to the array data, or nullptr if the array is empty.
   T* GetData();
 
-  /// \brief Returns a pointer to the array data, or nullptr if the array is empty.
+  /// Returns a pointer to the array data, or nullptr if the array is empty.
   const T* GetData() const;
 
-  /// \brief Returns an array pointer to the array data, or an empty array pointer if the array is empty.
+  /// Returns an array pointer to the array data, or an empty array pointer if the array is empty.
   ezArrayPtr<T> GetArrayPtr(); // [tested]
 
-  /// \brief Returns an array pointer to the array data, or an empty array pointer if the array is empty.
+  /// Returns an array pointer to the array data, or an empty array pointer if the array is empty.
   ezArrayPtr<const T> GetArrayPtr() const; // [tested]
 
-  /// \brief Returns a byte array pointer to the array data, or an empty array pointer if the array is empty.
+  /// Returns a byte array pointer to the array data, or an empty array pointer if the array is empty.
   ezArrayPtr<typename ezArrayPtr<T>::ByteType> GetByteArrayPtr(); // [tested]
 
-  /// \brief Returns a byte array pointer to the array data, or an empty array pointer if the array is empty.
+  /// Returns a byte array pointer to the array data, or an empty array pointer if the array is empty.
   ezArrayPtr<typename ezArrayPtr<const T>::ByteType> GetByteArrayPtr() const; // [tested]
 
-  /// \brief Returns the reserved number of elements that the array can hold without reallocating.
+  /// Returns the reserved number of elements that the array can hold without reallocating.
   ezUInt32 GetCapacity() const { return m_uiCapacity; }
 
   using const_iterator = const T*;
@@ -218,13 +218,13 @@ public:
 protected:
   void DoSwap(ezArrayBase<T, Derived>& other);
 
-  /// \brief Element-type access to m_Data.
+  /// Element-type access to m_Data.
   T* m_pElements = nullptr;
 
-  /// \brief The number of elements used from the array.
+  /// The number of elements used from the array.
   ezUInt32 m_uiCount = 0;
 
-  /// \brief The number of elements which can be stored in the array without re-allocating.
+  /// The number of elements which can be stored in the array without re-allocating.
   ezUInt32 m_uiCapacity = 0;
 };
 

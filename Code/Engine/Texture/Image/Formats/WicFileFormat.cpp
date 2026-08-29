@@ -23,7 +23,7 @@ EZ_STATICLINK_FORCE static ezImageFileFormatRegistrator<ezWicFileFormat> g_wicFo
 
 namespace
 {
-  /// \brief Try to init COM, return true if we are the first(!) to successfully do so
+  /// Try to init COM, return true if we are the first(!) to successfully do so
   bool InitializeCOM()
   {
     HRESULT result = CoInitializeEx(NULL, COINIT_MULTITHREADED);

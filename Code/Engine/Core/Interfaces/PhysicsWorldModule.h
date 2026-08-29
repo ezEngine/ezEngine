@@ -28,17 +28,17 @@ protected:
   }
 
 public:
-  /// \brief Searches for a collision layer with the given name and returns its index.
+  /// Searches for a collision layer with the given name and returns its index.
   ///
   /// Returns ezInvalidIndex if no such collision layer exists.
   virtual ezUInt32 GetCollisionLayerByName(ezStringView sName) const = 0;
 
-  /// \brief Searches for a weight category with the given name and returns its key.
+  /// Searches for a weight category with the given name and returns its key.
   ///
   /// Returns ezWeightCategoryConfig::InvalidKey if no such category exists.
   virtual ezUInt8 GetWeightCategoryByName(ezStringView sName) const = 0;
 
-  /// \brief Searches for an impulse type with the given name and returns its key.
+  /// Searches for an impulse type with the given name and returns its key.
   ///
   /// Returns ezImpulseTypeConfig::InvalidKey if no such category exists.
   virtual ezUInt8 GetImpulseTypeByName(ezStringView sName) const = 0;
@@ -80,7 +80,7 @@ public:
   // If no physics module is available, they simply do nothing.
   // Add functions on demand.
 
-  /// \brief Adds a static actor with a box shape to pOwner.
+  /// Adds a static actor with a box shape to pOwner.
   virtual void AddStaticCollisionBox(ezGameObject* pOwner, ezVec3 vBoxSize)
   {
     EZ_IGNORE_UNUSED(pOwner);
@@ -144,14 +144,14 @@ public:
   {
   };
 
-  /// \brief Adds a fixed joint to pOwner.
+  /// Adds a fixed joint to pOwner.
   virtual void AddFixedJointComponent(ezGameObject* pOwner, const ezPhysicsWorldModuleInterface::FixedJointConfig& cfg)
   {
     EZ_IGNORE_UNUSED(pOwner);
     EZ_IGNORE_UNUSED(cfg);
   }
 
-  /// \brief Gets world space bounds of a physics object if its shape type is included in shapeTypes and its collision layer interacts with uiCollisionLayer.
+  /// Gets world space bounds of a physics object if its shape type is included in shapeTypes and its collision layer interacts with uiCollisionLayer.
   virtual ezBoundingBoxSphere GetWorldSpaceBounds(ezGameObject* pOwner, ezUInt32 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes, bool bIncludeChildObjects) const
   {
     EZ_IGNORE_UNUSED(pOwner);
@@ -162,7 +162,7 @@ public:
   }
 };
 
-/// \brief Used to apply a physical impulse on the object
+/// Used to apply a physical impulse on the object
 struct EZ_CORE_DLL ezMsgPhysicsAddImpulse : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicsAddImpulse, ezMessage);
@@ -184,7 +184,7 @@ struct EZ_CORE_DLL ezMsgPhysicsJointBroke : public ezMessage
   ezGameObjectHandle m_hJointObject;
 };
 
-/// \brief Sent by components such as ezJoltGrabObjectComponent to indicate that the object has been grabbed or released.
+/// Sent by components such as ezJoltGrabObjectComponent to indicate that the object has been grabbed or released.
 struct EZ_CORE_DLL ezMsgObjectGrabbed : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgObjectGrabbed, ezMessage);
@@ -193,7 +193,7 @@ struct EZ_CORE_DLL ezMsgObjectGrabbed : public ezMessage
   bool m_bGotGrabbed = true;
 };
 
-/// \brief Send this to components such as ezJoltGrabObjectComponent to demand that m_hGrabbedObjectToRelease should no longer be grabbed.
+/// Send this to components such as ezJoltGrabObjectComponent to demand that m_hGrabbedObjectToRelease should no longer be grabbed.
 struct EZ_CORE_DLL ezMsgReleaseObjectGrab : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgReleaseObjectGrab, ezMessage);
@@ -201,7 +201,7 @@ struct EZ_CORE_DLL ezMsgReleaseObjectGrab : public ezMessage
   ezGameObjectHandle m_hGrabbedObjectToRelease;
 };
 
-/// \brief Can be sent by character controllers to inform objects when a CC pushes into them.
+/// Can be sent by character controllers to inform objects when a CC pushes into them.
 ///
 /// Whether this message is sent, depends on the character controller implementation.
 /// This is mainly meant for less important interactions, like breaking decorative things.
@@ -216,7 +216,7 @@ struct EZ_CORE_DLL ezMsgPhysicCharacterContact : public ezMessage
   float m_fImpact;
 };
 
-/// \brief Sent to physics components that have contact reporting enabled (see ezOnJoltContact::SendContactMsg).
+/// Sent to physics components that have contact reporting enabled (see ezOnJoltContact::SendContactMsg).
 ///
 /// Only sent for certain physics object combinations, e.g. debris doesn't trigger this.
 /// The reported contact position and normal is an average of the contact manifold.
@@ -262,6 +262,6 @@ struct EZ_CORE_DLL ezMsgBuildStaticMesh : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgBuildStaticMesh, ezMessage);
 
-  /// \brief Append data to this description to add meshes to the automatic static mesh generation
+  /// Append data to this description to add meshes to the automatic static mesh generation
   ezSmcDescription* m_pStaticMeshDescription = nullptr;
 };

@@ -7,7 +7,7 @@
 
 using ezNavMeshPathTestComponentManager = ezComponentManagerSimple<class ezAiNavMeshPathTestComponent, ezComponentUpdateType::WhenSimulating>;
 
-/// \brief Used to test path-finding through a navmesh.
+/// Used to test path-finding through a navmesh.
 ///
 /// The component takes a reference to another game object as the destination
 /// and then requests a path from the navmesh.
@@ -35,19 +35,19 @@ public:
   void SetPathEndReference(const char* szReference); // [ property ]
   void SetPathEnd(ezGameObjectHandle hObject);
 
-  /// \brief Render the navmesh polygons, through which the path goes.
+  /// Render the navmesh polygons, through which the path goes.
   bool m_bVisualizePathCorridor = true; // [ property ]
 
-  /// \brief Render a line for the shortest path through the corridor.
+  /// Render a line for the shortest path through the corridor.
   bool m_bVisualizePathLine = true; // [ property ]
 
-  /// \brief Render text describing what went wrong during path search.
+  /// Render text describing what went wrong during path search.
   bool m_bVisualizePathState = true; // [ property ]
 
-  /// \brief Name of the ezAiNavmeshConfig to use. See ezAiNavigationConfig.
+  /// Name of the ezAiNavmeshConfig to use. See ezAiNavigationConfig.
   ezHashedString m_sNavmeshConfig; // [ property ]
 
-  /// \brief Name of the ezAiPathSearchConfig to use. See ezAiNavigationConfig.
+  /// Name of the ezAiPathSearchConfig to use. See ezAiNavigationConfig.
   ezHashedString m_sPathSearchConfig; // [ property ]
 
 protected:

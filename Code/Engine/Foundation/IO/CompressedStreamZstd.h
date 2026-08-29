@@ -7,7 +7,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 
-/// \brief A stream reader that will decompress data that was stored using the ezCompressedStreamWriterZstd.
+/// A stream reader that will decompress data that was stored using the ezCompressedStreamWriterZstd.
 ///
 /// The reader takes another reader as its source for the compressed data (e.g. a file or a memory stream).
 class EZ_FOUNDATION_DLL ezCompressedStreamReaderZstd : public ezStreamReader
@@ -15,19 +15,19 @@ class EZ_FOUNDATION_DLL ezCompressedStreamReaderZstd : public ezStreamReader
 public:
   ezCompressedStreamReaderZstd(); // [tested]
 
-  /// \brief Takes an input stream as the source from which to read the compressed data.
+  /// Takes an input stream as the source from which to read the compressed data.
   ezCompressedStreamReaderZstd(ezStreamReader* pInputStream); // [tested]
 
   ~ezCompressedStreamReaderZstd();                            // [tested]
 
-  /// \brief Configures the input stream for decompression
+  /// Configures the input stream for decompression
   ///
   /// Sets or changes the source stream for compressed data. This method can be called multiple times
   /// to reuse the decoder instance, which is more efficient than creating new instances for each
   /// decompression operation.
   void SetInputStream(ezStreamReader* pInputStream); // [tested]
 
-  /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
+  /// Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
   ///
   /// It is valid to pass nullptr for pReadBuffer, in this case the memory stream position is only advanced by the given number of bytes.
   /// However, since this is a compressed stream, the decompression still needs to be done, so this won't save any time.
@@ -51,7 +51,7 @@ private:
   /*ZSTD_inBuffer*/ InBufferImpl m_InBuffer;
 };
 
-/// \brief A stream writer that will compress all incoming data and then passes it on into another stream.
+/// A stream writer that will compress all incoming data and then passes it on into another stream.
 ///
 /// The stream uses an internal cache of 255 Bytes to compress data, before it passes that on to the output stream.
 /// It does not need to compress the entire data first, and it will not do any dynamic memory allocations.
@@ -62,7 +62,7 @@ private:
 class EZ_FOUNDATION_DLL ezCompressedStreamWriterZstd final : public ezStreamWriter
 {
 public:
-  /// \brief Specifies the compression level of the stream.
+  /// Specifies the compression level of the stream.
   enum class Compression
   {
     Fastest = 1,
@@ -76,13 +76,13 @@ public:
 
   ezCompressedStreamWriterZstd();
 
-  /// \brief The constructor takes another stream writer to pass the output into, and a compression level.
+  /// The constructor takes another stream writer to pass the output into, and a compression level.
   ezCompressedStreamWriterZstd(ezStreamWriter* pOutputStream, ezUInt32 uiMaxNumWorkerThreads, Compression ratio = Compression::Default, ezUInt32 uiCompressionCacheSizeKB = 4); // [tested]
 
-  /// \brief Calls FinishCompressedStream() internally.
+  /// Calls FinishCompressedStream() internally.
   ~ezCompressedStreamWriterZstd(); // [tested]
 
-  /// \brief Configures output stream and compression parameters
+  /// Configures output stream and compression parameters
   ///
   /// Sets the destination stream, compression level, worker thread count, and internal cache size.
   /// The cache size (in KB) affects how much data is buffered before compression - adjust only if
@@ -92,12 +92,12 @@ public:
   /// which prevents internal reallocations and allows late binding of output streams.
   void SetOutputStream(ezStreamWriter* pOutputStream, ezUInt32 uiMaxNumWorkerThreads, Compression ratio = Compression::Default, ezUInt32 uiCompressionCacheSizeKB = 4); // [tested]
 
-  /// \brief Compresses \a uiBytesToWrite from \a pWriteBuffer.
+  /// Compresses \a uiBytesToWrite from \a pWriteBuffer.
   ///
   /// Will output bursts of 256 bytes to the output stream every once in a while.
   virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override; // [tested]
 
-  /// \brief Finishes the stream and writes all remaining data to the output stream.
+  /// Finishes the stream and writes all remaining data to the output stream.
   ///
   /// After calling this function, no more data can be written to the stream. GetCompressedSize() will return the final compressed size
   /// of the data.
@@ -105,10 +105,10 @@ public:
   /// which is not the case for FinishCompressedStream().
   ezResult FinishCompressedStream(); // [tested]
 
-  /// \brief Returns the size of the data in its uncompressed state.
+  /// Returns the size of the data in its uncompressed state.
   ezUInt64 GetUncompressedSize() const { return m_uiUncompressedSize; } // [tested]
 
-  /// \brief Returns the current compressed size of the data.
+  /// Returns the current compressed size of the data.
   ///
   /// This value is only accurate after FinishCompressedStream() has been called. Before that it is only a rough value, because a lot of
   /// data might still be cached and not yet accounted for. Note that GetCompressedSize() returns the compressed size of the data, not the
@@ -116,12 +116,12 @@ public:
   /// zero terminator byte).
   ezUInt64 GetCompressedSize() const { return m_uiCompressedSize; } // [tested]
 
-  /// \brief Returns the exact number of bytes written to the output stream so far.
+  /// Returns the exact number of bytes written to the output stream so far.
   ///
   /// This includes bytes written for bookkeeping. It is strictly larger than GetCompressedSize().
   ezUInt64 GetWrittenBytes() const { return m_uiWrittenBytes; } // [tested]
 
-  /// \brief Flushes the internal compressor caches and writes the compressed data to the stream.
+  /// Flushes the internal compressor caches and writes the compressed data to the stream.
   ///
   /// All data that was written to the compressed stream should now also be readable from the output.
   /// However, the stream is not considered 'finished' after a Flush(), since the compressor may write additional data to indicate the end.

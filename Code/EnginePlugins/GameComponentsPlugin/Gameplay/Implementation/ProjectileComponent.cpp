@@ -77,7 +77,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 namespace
 {
-  /// \brief Helper function to recalculate the sphere position from hit position
+  /// Helper function to recalculate the sphere position from hit position
   /// \param vOrigin is expected to be the initial position of the particle before SweepTest
   ezVec3 CalculateSphereCenterPosition(const ezVec3& vOrigin, const ezVec3& vDirection, const ezPhysicsCastResult& castResult, float fPenetrationDepth)
   {

@@ -15,7 +15,7 @@ class ezStreamWriter;
 struct ezViewData;
 class ezCamera;
 
-/// \brief Passed into `ezRenderPipelinePass::AddRenderPasses`. Defines the type and handle of a pin connection.
+/// Passed into `ezRenderPipelinePass::AddRenderPasses`. Defines the type and handle of a pin connection.
 struct EZ_RENDERERCORE_DLL ezRenderPipelinePinConnection
 {
   enum class Connectivity : ezUInt8
@@ -40,7 +40,7 @@ struct EZ_RENDERERCORE_DLL ezRenderPipelinePinConnection
   };
 };
 
-/// \brief Tracks connectivity of one output pin to many input pins. Created when connecting pins.
+/// Tracks connectivity of one output pin to many input pins. Created when connecting pins.
 struct ezRenderPipelinePassConnection
 {
   ezRenderPipelinePassConnection() { m_pOutput = nullptr; }
@@ -75,13 +75,13 @@ public:
   ezRenderPipelinePass(const char* szName, bool bIsStereoAware = false);
   ~ezRenderPipelinePass();
 
-  /// \brief Sets the name of the pass.
+  /// Sets the name of the pass.
   void SetName(const char* szName);
 
-  /// \brief returns the name of the pass.
+  /// returns the name of the pass.
   const char* GetName() const;
 
-  /// \brief True if the render pipeline pass can handle stereo cameras correctly.
+  /// True if the render pipeline pass can handle stereo cameras correctly.
   EZ_ALWAYS_INLINE bool IsStereoAware() const { return m_bIsStereoAware; }
 
   /// \name New Render Graph Interface
@@ -103,7 +103,7 @@ public:
   ///@}
 
 
-  /// \brief Allows for the pass to write data back using ezView::SetRenderPassReadBackProperty. E.g. picking results etc.
+  /// Allows for the pass to write data back using ezView::SetRenderPassReadBackProperty. E.g. picking results etc.
   virtual void ReadBackProperties(ezView* pView);
 
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const;

@@ -4,7 +4,7 @@
 
 using ezJoltShapeCapsuleComponentManager = ezComponentManager<class ezJoltShapeCapsuleComponent, ezBlockStorageType::FreeList>;
 
-/// \brief Adds a Jolt capsule shape to a Jolt actor.
+/// Adds a Jolt capsule shape to a Jolt actor.
 class EZ_JOLTPLUGIN_DLL ezJoltShapeCapsuleComponent : public ezJoltShapeComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezJoltShapeCapsuleComponent, ezJoltShapeComponent, ezJoltShapeCapsuleComponentManager);

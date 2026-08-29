@@ -10,7 +10,7 @@
 
 using ezColorAnimationComponentManager = ezComponentManagerSimple<class ezColorAnimationComponent, ezComponentUpdateType::WhenSimulating>;
 
-/// \brief Samples a color gradient and sends an ezMsgSetColor to the object it is attached to
+/// Samples a color gradient and sends an ezMsgSetColor to the object it is attached to
 ///
 /// The color gradient is sampled linearly over time.
 /// This can be used to animate the color of a light source or mesh.
@@ -32,16 +32,16 @@ protected:
 public:
   ezColorAnimationComponent();
 
-  /// \brief How long it takes to sample the entire color gradient.
+  /// How long it takes to sample the entire color gradient.
   ezTime m_Duration;                                                                                     // [ property ]
 
   void SetColorGradient(const ezColorGradientResourceHandle& hResource);                                 // [ property ]
   EZ_ALWAYS_INLINE const ezColorGradientResourceHandle& GetColorGradient() const { return m_hGradient; } // [ property ]
 
-  /// \brief How the animation should be played and looped.
+  /// How the animation should be played and looped.
   ezEnum<ezPropertyAnimMode> m_AnimationMode; // [ property ]
 
-  /// \brief How the color should be applied to the target.
+  /// How the color should be applied to the target.
   ezEnum<ezSetColorMode> m_SetColorMode; // [ property ]
 
   bool GetApplyRecursive() const;        // [ property ]

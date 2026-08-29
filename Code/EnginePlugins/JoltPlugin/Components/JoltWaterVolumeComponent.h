@@ -22,7 +22,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Creates a water volume that applies a buoyancy force to submerged dynamic actors and triggers surface interactions.
+/// Creates a water volume that applies a buoyancy force to submerged dynamic actors and triggers surface interactions.
 ///
 /// This component needs a trigger component besides it to detect when actors enter or leave the water volume.
 class EZ_JOLTPLUGIN_DLL ezJoltWaterVolumeComponent : public ezJoltShapeComponent
@@ -47,16 +47,16 @@ public:
 
   ezVec3 m_vExtents = ezVec3(10.0f); // [ property ]
 
-  /// \brief Direction and speed of the water flow in local space.
+  /// Direction and speed of the water flow in local space.
   ezVec3 m_vFlow = ezVec3::MakeZero(); // [ property ]
 
-  /// \brief Strength of the noise that is added to vary the water surface height.
+  /// Strength of the noise that is added to vary the water surface height.
   float m_fNoiseStrength = 0.0f; // [ property ]
 
-  /// \brief The surface resource that defines the water surface interaction. No other properties of the surface are used.
+  /// The surface resource that defines the water surface interaction. No other properties of the surface are used.
   ezSurfaceResourceHandle m_hSurface; // [ property ]
 
-  /// \brief Which interaction should be triggered when an actor enters the water volume. See ezSurfaceResource.
+  /// Which interaction should be triggered when an actor enters the water volume. See ezSurfaceResource.
   ezHashedString m_sInteraction;                          // [ property ]
 
 private:

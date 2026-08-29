@@ -2,7 +2,7 @@
 
 /// \file
 
-/// \brief Base class to add the ability to another class to enumerate all active instance of it, across DLL boundaries.
+/// Base class to add the ability to another class to enumerate all active instance of it, across DLL boundaries.
 ///
 /// This creates a new class-type that has the static information
 /// about all instances that were created from that class. Another class now only has to derive from that class and will
@@ -69,12 +69,12 @@ protected:
   ezEnumerable* m_pNextInstance;
 };
 
-/// \brief Insert this macro in a class that is supposed to be enumerable, and pass the class name as the parameter.
+/// Insert this macro in a class that is supposed to be enumerable, and pass the class name as the parameter.
 ///
 /// See class ezEnumerable for more details.
 #define EZ_DECLARE_ENUMERABLE_CLASS(self) EZ_DECLARE_ENUMERABLE_CLASS_WITH_BASE(self, ezNoBase)
 
-/// \brief Insert this macro in a class that is supposed to be enumerable, and pass the class name as the parameter.
+/// Insert this macro in a class that is supposed to be enumerable, and pass the class name as the parameter.
 ///
 /// See class ezEnumerable for more details.
 #define EZ_DECLARE_ENUMERABLE_CLASS_WITH_BASE(self, base) \
@@ -101,7 +101,7 @@ public:                                                   \
                                                           \
 private:
 
-/// \brief Insert this macro in a cpp file and pass the class name of the to-be-enumerable class as the parameter.
+/// Insert this macro in a cpp file and pass the class name of the to-be-enumerable class as the parameter.
 ///
 /// See class ezEnumerable for more details.
 #define EZ_ENUMERABLE_CLASS_IMPLEMENTATION(self)                                \

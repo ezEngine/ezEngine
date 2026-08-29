@@ -3,7 +3,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Tracks/ColorGradient.h>
 
-/// \brief Descriptor for color gradient resources containing the gradient data and serialization methods.
+/// Descriptor for color gradient resources containing the gradient data and serialization methods.
 struct EZ_CORE_DLL ezColorGradientResourceDescriptor
 {
   ezColorGradient m_Gradient;
@@ -14,7 +14,7 @@ struct EZ_CORE_DLL ezColorGradientResourceDescriptor
 
 using ezColorGradientResourceHandle = ezTypedResourceHandle<class ezColorGradientResource>;
 
-/// \brief A resource that stores a single color gradient for use in rendering and effects.
+/// A resource that stores a single color gradient for use in rendering and effects.
 ///
 /// Color gradient resources allow artists to define color transitions that can be evaluated
 /// at runtime. Commonly used for particle effects, UI elements, and other visual systems
@@ -28,10 +28,10 @@ class EZ_CORE_DLL ezColorGradientResource : public ezResource
 public:
   ezColorGradientResource();
 
-  /// \brief Returns all the data that is stored in this resource.
+  /// Returns all the data that is stored in this resource.
   const ezColorGradientResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
 
-  /// \brief Evaluates the color gradient at the given position and returns the interpolated color.
+  /// Evaluates the color gradient at the given position and returns the interpolated color.
   inline ezColor Evaluate(double x) const
   {
     ezColor result;

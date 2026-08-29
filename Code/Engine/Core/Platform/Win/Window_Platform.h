@@ -16,7 +16,7 @@ public:
   virtual void ProcessWindowMessages() override;
   virtual ezWindowHandle GetNativeWindowHandle() const override;
 
-  /// \brief Called on any window message.
+  /// Called on any window message.
   ///
   /// You can use this function for example to dispatch the message to another system.
   ///

@@ -35,7 +35,7 @@ public:
   void ShowDocument();
   void HideDocument();
 
-  /// \brief Returns true if the input was consumed
+  /// Returns true if the input was consumed
   bool UpdateInput(const ezVec2& vMousePos, const ezRmlUiInputProvider& input);
   bool WantsInput() const { return m_bWantsInput; }
 
@@ -44,21 +44,21 @@ public:
 
   using EventHandler = ezDelegate<void(Rml::Event&)>;
 
-  /// \brief Registers an event handler for a RmlUI event (such as 'onclick')
+  /// Registers an event handler for a RmlUI event (such as 'onclick')
   ///
   /// There can only be one event handler for each event type.
   /// If called multiple times, the existing event handler is overridden.
   void RegisterEventHandler(const char* szIdentifier, EventHandler handler);
 
-  /// \brief Removes a previously registered RmlUI event handler.
+  /// Removes a previously registered RmlUI event handler.
   void DeregisterEventHandler(const char* szIdentifier);
 
   using FallbackEventHandler = ezDelegate<void(const ezHashedString&, Rml::Event&)>;
 
-  /// \brief Registers a fallback event handler for RmlUI events which is called when no specific event handler is registered for the event's type.
+  /// Registers a fallback event handler for RmlUI events which is called when no specific event handler is registered for the event's type.
   void RegisterFallbackEventHandler(FallbackEventHandler handler);
 
-  /// \brief Removes the previously registered fallback event handler.
+  /// Removes the previously registered fallback event handler.
   void DeregisterFallbackEventHandler();
 
   void Update();

@@ -9,7 +9,7 @@
 
 struct ezGizmoEvent;
 
-/// \brief Makes a spline tangent editable in the editor.
+/// Makes a spline tangent editable in the editor.
 ///
 /// Enabled by attaching the ezSplineTangentManipulatorAttribute.
 class ezSplineTangentManipulatorAdapter : public ezManipulatorAdapter

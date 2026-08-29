@@ -4,7 +4,7 @@
 
 #include <Foundation/Time/Timestamp.h>
 
-/// \brief Simple pool for fences
+/// Simple pool for fences
 ///
 /// Do not call ReclaimFence manually, instead call ezGALDeviceVulkan::ReclaimLater which will make sure to reclaim the fence once it is no longer in use.
 /// Fences are reclaimed once the frame in ezGALDeviceVulkan is reused (currently 4 frames are in rotation). Do not call resetFences, this is already done by ReclaimFence.

@@ -17,25 +17,25 @@ struct ezJniError
   using StorageType = ezUInt8;
   enum Enum
   {
-    /// \brief No JNI error occurred.
+    /// No JNI error occurred.
     SUCCESS = 0,
 
-    /// \brief The method could not be executed because the JVM is still holding a pending exception.
+    /// The method could not be executed because the JVM is still holding a pending exception.
     PENDING_EXCEPTION,
 
-    /// \brief No method matching the passed parameters or return type was found.
+    /// No method matching the passed parameters or return type was found.
     NO_MATCHING_METHOD,
 
-    /// \brief A call could not be resolved due to multiple matching overloads.
+    /// A call could not be resolved due to multiple matching overloads.
     AMBIGUOUS_CALL,
 
-    /// \brief No field matching the return type, static-ness or writability was found.
+    /// No field matching the return type, static-ness or writability was found.
     NO_MATCHING_FIELD,
 
-    /// \brief A field or method was requested on a null object.
+    /// A field or method was requested on a null object.
     CALL_ON_NULL_OBJECT,
 
-    /// \brief A class was not found.
+    /// A class was not found.
     CLASS_NOT_FOUND,
 
     Default = SUCCESS
@@ -46,7 +46,7 @@ struct ezJniError
 using ezJniErrorState = ezEnum<ezJniError>;
 using ezJniErrorHandler = ezDelegate<void(ezJniErrorState)>;
 
-/// \brief Attaches the current thread to the Java virtual machine.
+/// Attaches the current thread to the Java virtual machine.
 ///
 /// Instantiating this class attaches the current thread to the JVM. You can nest attachments,
 /// and each attachment will push a new local reference frame on the JVM.
@@ -103,52 +103,52 @@ using ezJniErrorHandler = ezDelegate<void(ezJniErrorState)>;
 class EZ_FOUNDATION_DLL ezJniAttachment
 {
 public:
-  /// \brief Constructor.
+  /// Constructor.
   ezJniAttachment();
 
-  /// \brief Destructor.
+  /// Destructor.
   ~ezJniAttachment();
 
-  /// \brief Returns the Activity of the native application.
+  /// Returns the Activity of the native application.
   ///
   /// The returned object wraps around activity->clazz of the native application.
   static ezJniObject GetActivity();
 
-  /// \brief Returns the environment the current thread is attached to.
+  /// Returns the environment the current thread is attached to.
   static JNIEnv* GetEnv();
 
-  /// \brief Returns the last error that occurred while trying to perform a checked JNI call.
+  /// Returns the last error that occurred while trying to perform a checked JNI call.
   ///
   /// This error state covers general failures during JNI interop, but not exceptions that occurred during Java method execution.
   /// However, attempting to perform a Java call while an exception is pending will result in an error.
   static ezJniErrorState GetLastError();
 
-  /// \brief Clears the last error that occurred while trying to perform a checked JNI call.
+  /// Clears the last error that occurred while trying to perform a checked JNI call.
   ///
   /// This error state covers general failures during JNI interop, but not exceptions that occurred during Java method execution.
   /// However, attempting to perform a Java call while an exception is pending will result in an error.
   static void ClearLastError();
 
-  /// \brief Returns true if an exception has been thrown in the last called Java method.
+  /// Returns true if an exception has been thrown in the last called Java method.
   ///
   /// If an exception occurred, no other Java method may be called until ClearPendingException has been called.
   static bool HasPendingException();
 
-  /// \brief Returns the exception that has been thrown in the last called Java method, or a null object.
+  /// Returns the exception that has been thrown in the last called Java method, or a null object.
   ///
   /// If an exception occurred, no other Java method may be called until ClearPendingException has been called.
   static ezJniObject GetPendingException();
 
-  /// \brief Clears the exception that has been thrown in the last called Java method, if any.
+  /// Clears the exception that has been thrown in the last called Java method, if any.
   static void ClearPendingException();
 
-  /// \brief Used internally. Sets the last error state.
+  /// Used internally. Sets the last error state.
   static void SetLastError(ezJniErrorState state);
 
-  /// \brief Used internally. Returns true and logs a message is an error or exception is pending.
+  /// Used internally. Returns true and logs a message is an error or exception is pending.
   static bool FailOnPendingErrorOrException();
 
-  /// \brief Installs an error handler valid for the current ezJniAttachment's lifetime. Called for all ezJniErrorStates but SUCCESS.
+  /// Installs an error handler valid for the current ezJniAttachment's lifetime. Called for all ezJniErrorStates but SUCCESS.
   /// There must not be any other ezJniAttachments existing on the same thread for the call to succeed.
   /// There must not be any new ezJniAttachments instances created before the current ezJniAttachment is destroyed.
   /// These invariants should hold true with correct usage and are guarded by asserts.
@@ -165,7 +165,7 @@ private:
   ezJniAttachment& operator=(const ezJniAttachment&);
 };
 
-/// \brief Describes the ownership handling of the local JNI reference.
+/// Describes the ownership handling of the local JNI reference.
 enum class ezJniOwnerShip
 {
   /// The local reference belongs to the class, and will be deleted when it goes out of scope.
@@ -178,35 +178,35 @@ enum class ezJniOwnerShip
   BORROW
 };
 
-/// \brief Class that manages a local reference to a Java object.
+/// Class that manages a local reference to a Java object.
 class EZ_FOUNDATION_DLL ezJniObject
 {
 public:
-  /// \brief Creates a null object.
+  /// Creates a null object.
   ezJniObject();
 
-  /// \brief Constructs an object from a JNI object handle.
+  /// Constructs an object from a JNI object handle.
   ///
   /// \param object The JNI object handle.
   /// \param ownerShip How the object handle should be managed. See ezJniOwnerShip.
   inline ezJniObject(jobject object, ezJniOwnerShip ownerShip);
 
-  /// \brief Copy constructor. Both instances will reference the same Java object.
+  /// Copy constructor. Both instances will reference the same Java object.
   inline ezJniObject(const ezJniObject& other);
 
-  /// \brief Move constructor.
+  /// Move constructor.
   inline ezJniObject(ezJniObject&& other);
 
-  /// \brief Assignment operator.
+  /// Assignment operator.
   inline ezJniObject& operator=(const ezJniObject& other);
 
-  /// \brief Move assignment operator.
+  /// Move assignment operator.
   inline ezJniObject& operator=(ezJniObject&& other);
 
-  /// \brief Destructor.
+  /// Destructor.
   inline virtual ~ezJniObject();
 
-  /// \brief Compares if the two objects reference the same Java object.
+  /// Compares if the two objects reference the same Java object.
   /// \param other The object to compare to.
   ///
   /// This method returns true if two ezJniObjects reference the same Java object.
@@ -222,7 +222,7 @@ public:
   /// \endcode
   inline bool operator==(const ezJniObject& other) const;
 
-  /// \brief Compares if the two objects reference different Java objects.
+  /// Compares if the two objects reference different Java objects.
   /// \param other The object to compare to.
   ///
   /// This method returns true if two ezJniObjects reference different Java objects.
@@ -238,26 +238,26 @@ public:
   /// \endcode
   inline bool operator!=(const ezJniObject& other) const;
 
-  /// \brief Returns true if the object is null.
+  /// Returns true if the object is null.
   bool IsNull() const { return m_object == nullptr; }
 
-  /// \brief Returns the JNI handle of the object.
+  /// Returns the JNI handle of the object.
   jobject GetHandle() const;
 
-  /// \brief Returns the class type of the object.
+  /// Returns the class type of the object.
   ///
   /// This Call is equivalent to \c o.getClass() in Java.
   ezJniClass GetClass() const;
 
-  /// \brief Returns a string representation of the object.
+  /// Returns a string representation of the object.
   ///
   /// This call is equivalent to \c o.ToString() in Java.
   ezJniString ToString() const;
 
-  /// \brief Returns true if the object is an instance of the given type.
+  /// Returns true if the object is an instance of the given type.
   bool IsInstanceOf(const ezJniClass& clazz) const;
 
-  /// \brief Calls an instance method on the object.
+  /// Calls an instance method on the object.
   /// \param name The name of the method to call.
   /// \param args The function arguments to pass.
   ///
@@ -335,7 +335,7 @@ public:
   template <typename Ret = void, typename... Args>
   Ret Call(const char* name, const Args&... args) const;
 
-  /// \brief Returns the value of the field with the given name.
+  /// Returns the value of the field with the given name.
   /// \param name The name of the field.
   ///
   /// The field type must be assignable to the type specified by the template argument.
@@ -347,7 +347,7 @@ public:
   template <typename Ret>
   Ret GetField(const char* name) const;
 
-  /// \brief Sets the value of the field with the given name.
+  /// Sets the value of the field with the given name.
   /// \param name The name of the field.
   /// \param arg The new value of the field.
   ///
@@ -360,15 +360,15 @@ public:
   template <typename T>
   void SetField(const char* name, const T& arg) const;
 
-  /// \brief Calls an instance method by supplying the JNI function signature without performing any type checks.
+  /// Calls an instance method by supplying the JNI function signature without performing any type checks.
   template <typename Ret, typename... Args>
   Ret UnsafeCall(const char* name, const char* signature, const Args&... args) const;
 
-  /// \brief Returns the value of the field with the given name and signature without performing any type checks.
+  /// Returns the value of the field with the given name and signature without performing any type checks.
   template <typename Ret>
   Ret UnsafeGetField(const char* name, const char* signature) const;
 
-  /// \brief Sets the value of the field with the given name and signature without performing any type checks.
+  /// Sets the value of the field with the given name and signature without performing any type checks.
   template <typename T>
   void UnsafeSetField(const char* name, const char* signature, const T& arg) const;
 
@@ -392,7 +392,7 @@ private:
   bool m_own;
 };
 
-/// \brief Class holding a local reference to a Java object of type String.
+/// Class holding a local reference to a Java object of type String.
 ///
 /// Conversion to/from const char* uses the modified UTF-8 encoding as described by the JNI specification.
 /// This encoding is identical to UTF-8, except that null characters inside the string are encoded as 0xC0, 0x80,
@@ -401,48 +401,48 @@ private:
 class EZ_FOUNDATION_DLL ezJniString : public ezJniObject
 {
 public:
-  /// \brief Constructs a null String.
+  /// Constructs a null String.
   ezJniString();
 
-  /// \brief Constructs a String from a modified UTF-8 string.
+  /// Constructs a String from a modified UTF-8 string.
   ezJniString(const char* str);
 
-  /// \brief Constructs a String from a JNI string  handle.
+  /// Constructs a String from a JNI string  handle.
   ///
   /// \param string The JNI string handle.
   /// \param ownerShip How the object handle should be managed. See ezJniObject::OwnerShip.
   ezJniString(jstring string, ezJniOwnerShip ownerShip);
 
-  /// \brief Copy constructor. Both instances will reference the same Java String.
+  /// Copy constructor. Both instances will reference the same Java String.
   ezJniString(const ezJniString& other);
 
-  /// \brief Move constructor.
+  /// Move constructor.
   ezJniString(ezJniString&& other);
 
-  /// \brief Assignment operator. Both instances will reference the same Java String.
+  /// Assignment operator. Both instances will reference the same Java String.
   ezJniString& operator=(const ezJniString& other);
 
-  /// \brief Move assignment operator.
+  /// Move assignment operator.
   ezJniString& operator=(ezJniString&& other);
 
-  /// \brief Destructor.
+  /// Destructor.
   virtual ~ezJniString();
 
-  /// \brief Returns the string as a modified UTF-8 string. The pointer is only valid over the lifetime of this object.
+  /// Returns the string as a modified UTF-8 string. The pointer is only valid over the lifetime of this object.
   const char* GetData() const;
 
 private:
   const char* m_utf;
 };
 
-/// \brief Class holding a local reference to a Java object of type Class.
+/// Class holding a local reference to a Java object of type Class.
 class EZ_FOUNDATION_DLL ezJniClass : public ezJniObject
 {
 public:
-  /// \brief Constructs a null Class.
+  /// Constructs a null Class.
   ezJniClass();
 
-  /// \brief Constructs a class by searching for the class of the given name.
+  /// Constructs a class by searching for the class of the given name.
   ///
   /// \param className
   ///   The class name encoded in the JNI class name format, e.g. "java/lang/Object". Note that this
@@ -458,28 +458,28 @@ public:
   /// \endcode
   ezJniClass(const char* className);
 
-  /// \brief Constructs a Class from a JNI class handle.
+  /// Constructs a Class from a JNI class handle.
   ///
   /// \param clazz The JNI class handle.
   /// \param ownerShip How the object handle should be managed. See ezJniObject::OwnerShip.
   ezJniClass(jclass clazz, ezJniOwnerShip ownerShip);
 
-  /// \brief Copy constructor. Both instances will reference the same Java class.
+  /// Copy constructor. Both instances will reference the same Java class.
   ezJniClass(const ezJniClass& other);
 
-  /// \brief Move constructor.
+  /// Move constructor.
   ezJniClass(ezJniClass&& other);
 
-  /// \brief Assignment operator. Both instances will reference the same Java class.
+  /// Assignment operator. Both instances will reference the same Java class.
   ezJniClass& operator=(const ezJniClass& other);
 
-  /// \brief Move assignment operator.
+  /// Move assignment operator.
   ezJniClass& operator=(ezJniClass&& other);
 
-  /// \brief Returns the JNI handle of the object.
+  /// Returns the JNI handle of the object.
   jclass GetHandle() const;
 
-  /// \brief Constructs an instance of the class type with the given parameters.
+  /// Constructs an instance of the class type with the given parameters.
   ///
   /// \param args The constructor arguments to pass.
   ///
@@ -497,16 +497,16 @@ public:
   template <typename... Args>
   ezJniObject CreateInstance(const Args&... args) const;
 
-  /// \brief Returns true if an instance of this class can be assigned from \c other.
+  /// Returns true if an instance of this class can be assigned from \c other.
   /// \param other A Java class.
   ///
   /// This call is equivalent to Class.IsAssignableFrom() in Java.
   bool IsAssignableFrom(const ezJniClass& other) const;
 
-  /// \brief Returns true if this class is primitive, i.e., one of boolean, byte, char, short, int, long, float, or double.
+  /// Returns true if this class is primitive, i.e., one of boolean, byte, char, short, int, long, float, or double.
   bool IsPrimitive();
 
-  /// \brief Calls a static method of the class type.
+  /// Calls a static method of the class type.
   ///
   /// \param name The name of the method to call.
   /// \param args The function arguments to pass.
@@ -528,33 +528,33 @@ public:
   template <typename Ret = void, typename... Args>
   Ret CallStatic(const char* name, const Args&... args) const;
 
-  /// \brief Returns the value of the static field with the given name.
+  /// Returns the value of the static field with the given name.
   /// \param name The name of the static field.
   /// \sa ezJniObject::GetField()
   template <typename Ret>
   Ret GetStaticField(const char* name) const;
 
-  /// \brief Sets the value of the static field with the given name.
+  /// Sets the value of the static field with the given name.
   /// \param name The name of the static field.
   /// \param arg The new value of the static field.
   /// \sa ezJniObject::SetField()
   template <typename T>
   void SetStaticField(const char* name, const T& arg) const;
 
-  /// \brief Calls a static method of the class type without performing any type checks.
+  /// Calls a static method of the class type without performing any type checks.
   template <typename Ret, typename... Args>
   Ret UnsafeCallStatic(const char* name, const char* signature, const Args&... args) const;
 
-  /// \brief Returns the value of the static field with the given name without performing any type checks.
+  /// Returns the value of the static field with the given name without performing any type checks.
   template <typename Ret>
   Ret UnsafeGetStaticField(const char* name, const char* signature) const;
 
-  /// \brief Sets the value of the static field with the given name without performing any type checks.
+  /// Sets the value of the static field with the given name without performing any type checks.
   template <typename T>
   void UnsafeSetStaticField(const char* name, const char* signature, const T& arg) const;
 };
 
-/// \brief Represents the null value of an ezJniClass.
+/// Represents the null value of an ezJniClass.
 /// Passing null / nullptr directly to ezJni results in type information being lost,
 /// without which ezJni can't make the appropriate JNI calls.
 /// create an ezJniClass instance instead, and wrap it in an ezJniNullPtr instance.
@@ -564,12 +564,12 @@ class EZ_FOUNDATION_DLL ezJniNullPtr
   ezJniClass m_class;
 
 public:
-  /// \brief Constructs a Class from a ezJniClass.
+  /// Constructs a Class from a ezJniClass.
   ///
   /// \param clazz The ezJniClass.
   explicit ezJniNullPtr(ezJniClass& clazz);
 
-  /// \brief Returns the fully qualified name of the ezJniClass that was passed into the constructor, e.g. "java/lang/String"
+  /// Returns the fully qualified name of the ezJniClass that was passed into the constructor, e.g. "java/lang/String"
   const ezJniString GetTypeSignature() const;
 };
 

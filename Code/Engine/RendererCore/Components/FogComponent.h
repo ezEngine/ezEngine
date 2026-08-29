@@ -5,7 +5,7 @@
 
 struct ezMsgUpdateLocalBounds;
 
-/// \brief The render data object for height fog.
+/// The render data object for height fog.
 class EZ_RENDERERCORE_DLL ezFogRenderData : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezFogRenderData, ezRenderData);

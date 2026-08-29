@@ -6,7 +6,7 @@
 #include <Foundation/Containers/Implementation/BitIterator.h>
 #include <Foundation/Types/Enum.h>
 
-/// \brief The ezBitflags class allows you to work with type-safe bitflags.
+/// The ezBitflags class allows you to work with type-safe bitflags.
 ///
 /// ezBitflags takes a struct as its template parameter, which contains an enum for the available flag values.
 /// ezBitflags wraps this type in a way which enables the compiler to do type-checks. This makes it very easy
@@ -88,13 +88,13 @@ private:
 public:
   using ConstIterator = ezBitIterator<Enum, false>;
 
-  /// \brief Constructor. Initializes the flags to the default value.
+  /// Constructor. Initializes the flags to the default value.
   EZ_ALWAYS_INLINE ezBitflags()
     : m_Value((StorageType)T::Default) // [tested]
   {
   }
 
-  /// \brief Converts the incoming type to ezBitflags<T>
+  /// Converts the incoming type to ezBitflags<T>
   EZ_ALWAYS_INLINE ezBitflags(Enum flag1) // [tested]
   {
     m_Value = (StorageType)flag1;
@@ -102,131 +102,131 @@ public:
 
   EZ_ALWAYS_INLINE void operator=(Enum flag1) { m_Value = (StorageType)flag1; }
 
-  /// \brief Comparison operator.
+  /// Comparison operator.
   EZ_ALWAYS_INLINE bool operator==(const StorageType rhs) const // [tested]
   {
     return m_Value == rhs;
   }
 
-  /// \brief Comparison operator.
+  /// Comparison operator.
   EZ_ALWAYS_INLINE bool operator!=(const StorageType rhs) const { return m_Value != rhs; }
 
-  /// \brief Comparison operator.
+  /// Comparison operator.
   EZ_ALWAYS_INLINE bool operator==(const ezBitflags<T>& rhs) const { return m_Value == rhs.m_Value; }
 
-  /// \brief Comparison operator.
+  /// Comparison operator.
   EZ_ALWAYS_INLINE bool operator!=(const ezBitflags<T>& rhs) const { return m_Value != rhs.m_Value; }
 
-  /// \brief Clears all flags
+  /// Clears all flags
   EZ_ALWAYS_INLINE void Clear() // [tested]
   {
     m_Value = 0;
   }
 
-  /// \brief Checks if certain flags are set within the bitfield.
+  /// Checks if certain flags are set within the bitfield.
   EZ_ALWAYS_INLINE bool IsSet(Enum flag) const // [tested]
   {
     return (m_Value & flag) != 0;
   }
 
-  /// \brief Returns whether all the given flags are set.
+  /// Returns whether all the given flags are set.
   EZ_ALWAYS_INLINE bool AreAllSet(const ezBitflags<T>& rhs) const // [tested]
   {
     return (m_Value & rhs.m_Value) == rhs.m_Value;
   }
 
-  /// \brief Returns whether none of the given flags is set.
+  /// Returns whether none of the given flags is set.
   EZ_ALWAYS_INLINE bool AreNoneSet(const ezBitflags<T>& rhs) const // [tested]
   {
     return (m_Value & rhs.m_Value) == 0;
   }
 
-  /// \brief  Returns whether any of the given flags is set.
+  ///  Returns whether any of the given flags is set.
   EZ_ALWAYS_INLINE bool IsAnySet(const ezBitflags<T>& rhs) const // [tested]
   {
     return (m_Value & rhs.m_Value) != 0;
   }
 
-  /// \brief Sets the given flag.
+  /// Sets the given flag.
   EZ_ALWAYS_INLINE void Add(const ezBitflags<T>& rhs) // [tested]
   {
     m_Value |= rhs.m_Value;
   }
 
-  /// \brief Removes the given flag.
+  /// Removes the given flag.
   EZ_ALWAYS_INLINE void Remove(const ezBitflags<T>& rhs) // [tested]
   {
     m_Value &= (~rhs.m_Value);
   }
 
-  /// \brief Toggles the state of the given flag.
+  /// Toggles the state of the given flag.
   EZ_ALWAYS_INLINE void Toggle(const ezBitflags<T>& rhs) // [tested]
   {
     m_Value ^= rhs.m_Value;
   }
 
-  /// \brief Sets or clears the given flag.
+  /// Sets or clears the given flag.
   EZ_ALWAYS_INLINE void AddOrRemove(const ezBitflags<T>& rhs, bool bState) // [tested]
   {
     m_Value = (bState) ? m_Value | rhs.m_Value : m_Value & (~rhs.m_Value);
   }
 
-  /// \brief Returns an object that has the flags of \a this and \a rhs combined.
+  /// Returns an object that has the flags of \a this and \a rhs combined.
   EZ_ALWAYS_INLINE ezBitflags<T> operator|(const ezBitflags<T>& rhs) const // [tested]
   {
     return ezBitflags<T>(m_Value | rhs.m_Value);
   }
 
-  /// \brief Returns an object that has the flags that were set both in \a this and \a rhs.
+  /// Returns an object that has the flags that were set both in \a this and \a rhs.
   EZ_ALWAYS_INLINE ezBitflags<T> operator&(const ezBitflags<T>& rhs) const // [tested]
   {
     return ezBitflags<T>(m_Value & rhs.m_Value);
   }
 
-  /// \brief Modifies \a this to also contain the bits from \a rhs.
+  /// Modifies \a this to also contain the bits from \a rhs.
   EZ_ALWAYS_INLINE void operator|=(const ezBitflags<T>& rhs) // [tested]
   {
     m_Value |= rhs.m_Value;
   }
 
-  /// \brief Modifies \a this to only contain the bits that were set in \a this and \a rhs.
+  /// Modifies \a this to only contain the bits that were set in \a this and \a rhs.
   EZ_ALWAYS_INLINE void operator&=(const ezBitflags<T>& rhs) // [tested]
   {
     m_Value &= rhs.m_Value;
   }
 
-  /// \brief Returns the stored value as the underlying integer type.
+  /// Returns the stored value as the underlying integer type.
   EZ_ALWAYS_INLINE StorageType GetValue() const // [tested]
   {
     return m_Value;
   }
 
-  /// \brief Overwrites the flags with a new value.
+  /// Overwrites the flags with a new value.
   EZ_ALWAYS_INLINE void SetValue(StorageType value) // [tested]
   {
     m_Value = value;
   }
 
-  /// \brief Returns true if not a single bit is set.
+  /// Returns true if not a single bit is set.
   EZ_ALWAYS_INLINE bool IsNoFlagSet() const // [tested]
   {
     return m_Value == 0;
   }
 
-  /// \brief Returns true if any bitflag is set.
+  /// Returns true if any bitflag is set.
   EZ_ALWAYS_INLINE bool IsAnyFlagSet() const // [tested]
   {
     return m_Value != 0;
   }
 
-  /// \brief Returns a constant iterator to the very first set bit.
+  /// Returns a constant iterator to the very first set bit.
   /// Note that due to the way iterating through bits is accelerated, changes to the bitflags will not affect the iterator after creation.
   EZ_ALWAYS_INLINE ConstIterator GetIterator() const // [tested]
   {
     return ConstIterator((Enum)m_Value);
   }
 
-  /// \brief Returns an invalid iterator. Needed to support range based for loops.
+  /// Returns an invalid iterator. Needed to support range based for loops.
   EZ_ALWAYS_INLINE ConstIterator GetEndIterator() const // [tested]
   {
     return ConstIterator();
@@ -271,7 +271,7 @@ typename ezBitflags<T>::ConstIterator cend(const ezBitflags<T>& container)
   return container.GetEndIterator();
 }
 
-/// \brief This macro will define the operator| and operator& function that is required for class \a FlagsType to work with ezBitflags.
+/// This macro will define the operator| and operator& function that is required for class \a FlagsType to work with ezBitflags.
 /// See class ezBitflags for more information.
 #define EZ_DECLARE_FLAGS_OPERATORS(FlagsType)                                      \
   inline ezBitflags<FlagsType> operator|(FlagsType::Enum lhs, FlagsType::Enum rhs) \
@@ -286,7 +286,7 @@ typename ezBitflags<T>::ConstIterator cend(const ezBitflags<T>& container)
 
 
 
-/// \brief This macro allows to conveniently declare a bitflag type that can be used with the ezBitflags class.
+/// This macro allows to conveniently declare a bitflag type that can be used with the ezBitflags class.
 ///
 /// Usage: EZ_DECLARE_FLAGS(ezUInt32, FlagsTypeName, Flag1Name, Flag2Name, Flag3Name, Flag4Name, ...)
 ///

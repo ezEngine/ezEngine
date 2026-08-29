@@ -5,7 +5,7 @@
 class ezDocumentObject;
 class ezMcpJsonWriter;
 
-/// \brief Reads and sets the selection of an open document.
+/// Reads and sets the selection of an open document.
 ///
 /// The selection is the one piece of editor state that is visible to both sides: it is what a user
 /// means by "this object", and setting it is how an agent points at something instead of describing

@@ -9,7 +9,7 @@ using ezLodComponentManager = ezComponentManager<class ezLodComponent, ezBlockSt
 struct ezMsgExtractRenderData;
 struct ezMsgComponentInternalTrigger;
 
-/// \brief Switches child objects named 'LODn' (with n from 0 to 4) on and off, depending on how close this object is to the main camera.
+/// Switches child objects named 'LODn' (with n from 0 to 4) on and off, depending on how close this object is to the main camera.
 ///
 /// The LOD (level-of-detail) component is used to reduce the performance impact of complex objects when they are far away.
 /// To do so, a "LOD object" consists of multiple states, from highly detailed to very coarse.
@@ -59,11 +59,11 @@ public:
   ezLodComponent();
   ~ezLodComponent();
 
-  /// \brief Enables text output to show the current coverage value and selected LOD.
+  /// Enables text output to show the current coverage value and selected LOD.
   void SetShowDebugInfo(bool bShow); // [ property ]
   bool GetShowDebugInfo() const;     // [ property ]
 
-  /// \brief Disabling the LOD range overlap functionality can make it easier to determine the desired coverage thresholds.
+  /// Disabling the LOD range overlap functionality can make it easier to determine the desired coverage thresholds.
   void SetOverlapRanges(bool bOverlap); // [ property ]
   bool GetOverlapRanges() const;        // [ property ]
 

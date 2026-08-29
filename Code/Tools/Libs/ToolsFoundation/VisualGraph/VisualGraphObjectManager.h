@@ -117,7 +117,7 @@ struct ezVisualGraphNodeProperty
   ezVariant m_Value;
 };
 
-/// \brief Describes a template that will be used to create new nodes. In most cases this only contains the type
+/// Describes a template that will be used to create new nodes. In most cases this only contains the type
 /// but it can also contain properties that are pre-filled when the node is created.
 ///
 /// For example in visual script this allows us to have one generic node type for setting reflected properties
@@ -163,7 +163,7 @@ public:
   ezVisualGraphObjectManager();
   virtual ~ezVisualGraphObjectManager();
 
-  /// \brief For node documents this function is called instead of GetCreateableTypes to get a list for the node creation menu.
+  /// For node documents this function is called instead of GetCreateableTypes to get a list for the node creation menu.
   ///
   /// \see ezVisualGraphNodeDesc
   virtual void GetNodeCreationTemplates(ezDynamicArray<ezVisualGraphNodeDesc>& out_templates) const;
@@ -215,10 +215,10 @@ public:
   bool PasteObjects(const ezArrayPtr<ezDocument::PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, const ezVec2& vPickedPosition, bool bAllowPickedPosition);
 
 protected:
-  /// \brief Tests whether pTarget can be reached from pSource by following the pin connections
+  /// Tests whether pTarget can be reached from pSource by following the pin connections
   bool CanReachNode(const ezDocumentObject* pSource, const ezDocumentObject* pTarget, ezSet<const ezDocumentObject*>& Visited) const;
 
-  /// \brief Returns true if adding a connection between the two pins would create a circular graph
+  /// Returns true if adding a connection between the two pins would create a circular graph
   bool WouldConnectionCreateCircle(const ezVisualGraphPin& source, const ezVisualGraphPin& target) const;
 
   ezResult ResolveConnection(const ezUuid& sourceObject, const ezUuid& targetObject, ezStringView sourcePin, ezStringView targetPin, const ezVisualGraphPin*& out_pSourcePin, const ezVisualGraphPin*& out_pTargetPin) const;

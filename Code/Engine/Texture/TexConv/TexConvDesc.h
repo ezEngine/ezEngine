@@ -27,7 +27,7 @@ struct ezTexConvSliceChannelMapping
   };
 };
 
-/// \brief Complete texture conversion configuration with all processing options.
+/// Complete texture conversion configuration with all processing options.
 ///
 /// This structure contains all settings needed to convert source images into optimized
 /// textures for runtime use. It handles input specification, format conversion, quality

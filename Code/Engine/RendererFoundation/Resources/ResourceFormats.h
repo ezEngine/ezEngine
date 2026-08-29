@@ -106,16 +106,16 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
 
   // General format Meta-Informations:
 
-  /// \brief The size in bits per element (usually pixels, except for mesh stream elements) of a single element of the given resource format.
+  /// The size in bits per element (usually pixels, except for mesh stream elements) of a single element of the given resource format.
   static ezUInt32 GetBitsPerElement(ezGALResourceFormat::Enum format);
 
-  /// \brief The number of color channels this format contains.
+  /// The number of color channels this format contains.
   static ezUInt8 GetChannelCount(ezGALResourceFormat::Enum format);
 
   /// \todo A combination of propertyflags, something like srgb, normalized, ...
   // Would be very useful for some GL stuff and Testing.
 
-  /// \brief Returns whether the given resource format is a depth format
+  /// Returns whether the given resource format is a depth format
   static bool IsDepthFormat(ezGALResourceFormat::Enum format);
   static bool IsStencilFormat(ezGALResourceFormat::Enum format);
 
@@ -123,10 +123,10 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
 
   static bool IsBlockCompressed(ezGALResourceFormat::Enum format);
 
-  /// \brief Returns whether the given resource format returns integer values when sampled (e.g. RUShort). Note that normalized formats like RGUShortNormalized are not considered integer formats as they return float values in the [0..1] range when sampled.
+  /// Returns whether the given resource format returns integer values when sampled (e.g. RUShort). Note that normalized formats like RGUShortNormalized are not considered integer formats as they return float values in the [0..1] range when sampled.
   static bool IsIntegerFormat(ezGALResourceFormat::Enum format);
 
-  /// \brief Returns whether the given resource format can store negative values.
+  /// Returns whether the given resource format can store negative values.
   static bool IsSignedFormat(ezGALResourceFormat::Enum format);
 
   static bool IsFloatFormat(ezGALResourceFormat::Enum format);

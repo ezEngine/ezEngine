@@ -6,7 +6,7 @@
 #include <Foundation/Types/Delegate.h>
 #include <Utilities/UtilitiesDLL.h>
 
-/// \brief Enum values for success and failure. To be used by functions as return values mostly, instead of bool.
+/// Enum values for success and failure. To be used by functions as return values mostly, instead of bool.
 struct ezCallbackResult
 {
   enum Enum
@@ -16,7 +16,7 @@ struct ezCallbackResult
   };
 };
 
-/// \brief Enum values for the result of some rasterization functions.
+/// Enum values for the result of some rasterization functions.
 struct ezRasterizationResult
 {
   enum Enum
@@ -28,13 +28,13 @@ struct ezRasterizationResult
 
 namespace ez2DGridUtils
 {
-  /// \brief The callback declaration for the function that needs to be passed to the various rasterization functions.
+  /// The callback declaration for the function that needs to be passed to the various rasterization functions.
   using EZ_RASTERIZED_POINT_CALLBACK = ezDelegate<ezCallbackResult::Enum(ezInt32, ezInt32, void*)>;
 
-  /// \brief The callback declaration for the function that needs to be passed to RasterizeBlobWithDistance().
+  /// The callback declaration for the function that needs to be passed to RasterizeBlobWithDistance().
   using EZ_RASTERIZED_BLOB_CALLBACK = ezDelegate<ezCallbackResult::Enum(ezInt32, ezInt32, void*, ezUInt8)>;
 
-  /// \brief Computes all the points on a 2D line and calls a function to report every point.
+  /// Computes all the points on a 2D line and calls a function to report every point.
   ///
   /// The function implements Bresenham's algorithm for line rasterization. The first point to be reported through the
   /// callback is always the start position, the last point is always the end position.
@@ -47,7 +47,7 @@ namespace ez2DGridUtils
   /// This function does not do any dynamic memory allocations internally.
   EZ_UTILITIES_DLL ezRasterizationResult::Enum ComputePointsOnLine(ezInt32 iStartX, ezInt32 iStartY, ezInt32 iEndX, ezInt32 iEndY, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr);
 
-  /// \brief Computes all the points on a 2D line and calls a function to report every point.
+  /// Computes all the points on a 2D line and calls a function to report every point.
   ///
   /// Contrary to ComputePointsOnLine() this function does not do diagonal steps but inserts horizontal or vertical steps, such that
   /// reported cells are always connected by an edge.
@@ -60,7 +60,7 @@ namespace ez2DGridUtils
   EZ_UTILITIES_DLL ezRasterizationResult::Enum ComputePointsOnLineConservative(ezInt32 iStartX, ezInt32 iStartY, ezInt32 iEndX, ezInt32 iEndY,
     EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr, bool bVisitBothNeighbors = false);
 
-  /// \brief Computes all the points on a 2D circle and calls a function to report every point.
+  /// Computes all the points on a 2D circle and calls a function to report every point.
   ///
   /// The points are reported in a rather chaotic order (ie. when one draws a line from point to point, it does not yield a circle shape).
   /// The callback may abort the operation by returning ezCallbackResult::Stop.
@@ -68,7 +68,7 @@ namespace ez2DGridUtils
   /// This function does not do any dynamic memory allocations internally.
   EZ_UTILITIES_DLL ezRasterizationResult::Enum ComputePointsOnCircle(ezInt32 iStartX, ezInt32 iStartY, ezUInt32 uiRadius, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr);
 
-  /// \brief Starts at the given point and then fills all surrounding cells until a border is detected.
+  /// Starts at the given point and then fills all surrounding cells until a border is detected.
   ///
   /// The callback should return ezCallbackResult::Continue for each cell that has not been visited so far and for which all four direct
   /// neighbors should be visited. If the flood-fill algorithm leaves the valid area, the callback must return ezCallbackResult::Stop to
@@ -83,10 +83,10 @@ namespace ez2DGridUtils
   /// several operations, which will reduce the amount of memory allocations that need to be done.
   EZ_UTILITIES_DLL ezUInt32 FloodFill(ezInt32 iStartX, ezInt32 iStartY, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr, ezDeque<ezVec2I32>* pTempArray = nullptr);
 
-  /// \brief Same as FloodFill() but also visits the diagonal neighbors, ie. all eight neighboring cells.
+  /// Same as FloodFill() but also visits the diagonal neighbors, ie. all eight neighboring cells.
   EZ_UTILITIES_DLL ezUInt32 FloodFillDiag(ezInt32 iStartX, ezInt32 iStartY, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr, ezDeque<ezVec2I32>* pTempArray = nullptr);
 
-  /// \brief Describes the different circle types that can be rasterized
+  /// Describes the different circle types that can be rasterized
   enum ezBlobType : ezUInt8
   {
     Point1x1,    ///< The circle has just one point at the center
@@ -100,7 +100,7 @@ namespace ez2DGridUtils
     Circle15x15, ///< Circle with 177 points
   };
 
-  /// \brief Rasterizes a circle of limited dimensions and calls the given callback for each point.
+  /// Rasterizes a circle of limited dimensions and calls the given callback for each point.
   ///
   /// See ezCircleType for the available circle types. Those circles are handcrafted to have good looking shapes at low resolutions.
   /// This type of circle is not meant for actually rendering circles, but for doing area operations and overlapping checks for game
@@ -112,11 +112,11 @@ namespace ez2DGridUtils
   /// ezCallbackResult::Stop.
   EZ_UTILITIES_DLL ezRasterizationResult::Enum RasterizeBlob(ezInt32 iPosX, ezInt32 iPosY, ezBlobType type, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr);
 
-  /// \brief Same as RasterizeBlob(), but the distance from the center is passed through to the callback, which can use this information to
+  /// Same as RasterizeBlob(), but the distance from the center is passed through to the callback, which can use this information to
   /// adjust what it is doing.
   EZ_UTILITIES_DLL ezRasterizationResult::Enum RasterizeBlobWithDistance(ezInt32 iPosX, ezInt32 iPosY, ezBlobType type, EZ_RASTERIZED_BLOB_CALLBACK callback, void* pPassThrough = nullptr);
 
-  /// \brief Rasterizes a circle of any size (unlike RasterizeBlob()), though finding the right radius values for nice looking small circles
+  /// Rasterizes a circle of any size (unlike RasterizeBlob()), though finding the right radius values for nice looking small circles
   /// can be more difficult.
   ///
   /// This function rasterizes a full circle. The radius is a float value, ie. you can use fractional values to shave off cells at the
@@ -127,7 +127,7 @@ namespace ez2DGridUtils
   EZ_UTILITIES_DLL ezRasterizationResult::Enum RasterizeCircle(ezInt32 iPosX, ezInt32 iPosY, float fRadius, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr);
 
 
-  /// \brief Computes which points are visible from the start position by tracing lines radially outwards.
+  /// Computes which points are visible from the start position by tracing lines radially outwards.
   ///
   /// The center start position is at iPosX, iPosY and uiRadius defines the maximum distance that an object can see.
   /// uiWidth and uiHeight define the maximum coordinates at which the end of the grid is reached (and thus the line tracing can early out
@@ -141,7 +141,7 @@ namespace ez2DGridUtils
   EZ_UTILITIES_DLL void ComputeVisibleArea(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 uiRadius, ezUInt32 uiWidth, ezUInt32 uiHeight,
     EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr, ezDynamicArray<ezUInt8>* pTempArray = nullptr);
 
-  /// \brief Computes which points are visible from the start position by tracing lines radially outwards. Limits the computation to a cone.
+  /// Computes which points are visible from the start position by tracing lines radially outwards. Limits the computation to a cone.
   ///
   /// This function works exactly like ComputeVisibleArea() but limits the computation to a cone that is defined by vDirection and
   /// ConeAngle.

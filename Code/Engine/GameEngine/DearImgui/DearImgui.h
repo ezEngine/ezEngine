@@ -22,7 +22,7 @@ struct ezGameApplicationExecutionEvent;
 using ezImguiConfigFontCallback = ezDelegate<void(ImFontAtlas&)>;
 using ezImguiConfigStyleCallback = ezDelegate<void(ImGuiStyle&)>;
 
-/// \brief Singleton class through which one can control the third-party library 'Dear Imgui'
+/// Singleton class through which one can control the third-party library 'Dear Imgui'
 ///
 /// Instance has to be manually created and destroyed. Do this for example in ezGameState::OnActivation()
 /// and ezGameState::OnDeactivation().
@@ -42,25 +42,25 @@ public:
     ezImguiConfigStyleCallback configStyleCallback = ezImguiConfigStyleCallback());
   ~ezImgui();
 
-  /// \brief Sets the ImGui context for the given view
+  /// Sets the ImGui context for the given view
   void SetCurrentContextForView(const ezViewHandle& hView);
 
-  /// \brief Returns the value that was passed to BeginFrame(). Useful for positioning UI elements.
+  /// Returns the value that was passed to BeginFrame(). Useful for positioning UI elements.
   ezSizeU32 GetCurrentWindowResolution() const { return m_CurrentWindowResolution; }
 
-  /// \brief When this is disabled, the GUI will be rendered, but it will not react to any input.
+  /// When this is disabled, the GUI will be rendered, but it will not react to any input.
   ///
   /// Useful if something else shall get exclusive input.
   /// Be aware that this is global state, that affects ALL ImGui elements for the entire frame.
   void SetPassInputToImgui(bool bPassInput) { m_bPassInputToImgui = bPassInput; }
   bool GetPassInputToImgui() const { return m_bPassInputToImgui; }
 
-  /// \brief If this returns true, the GUI wants to use the input, and thus you might want to not use the input for anything else.
+  /// If this returns true, the GUI wants to use the input, and thus you might want to not use the input for anything else.
   ///
   /// This is the case when the mouse hovers over any window or a text field has keyboard focus.
   bool WantsInput() const { return m_bImguiWantsInput; }
 
-  /// \brief Returns the shared font atlas
+  /// Returns the shared font atlas
   ImFontAtlas& GetFontAtlas() { return *m_pSharedFontAtlas; }
 
   /// Registers a texture resource and returns an ImTextureID that can be used with raw ImGui image calls or passed to RegisterImage(). The texture stays registered until UnregisterResource() is called.

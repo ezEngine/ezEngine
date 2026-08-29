@@ -9,7 +9,7 @@
 
 struct z_stream_s;
 
-/// \brief Stream reader for ZIP-compressed data with known size
+/// Stream reader for ZIP-compressed data with known size
 ///
 /// Specialized reader for ZIP/APK archive support, particularly for Android APK file access.
 /// Unlike the general-purpose ezCompressedStreamReaderZlib, this reader requires the exact
@@ -21,14 +21,14 @@ public:
   ezCompressedStreamReaderZip();
   ~ezCompressedStreamReaderZip();
 
-  /// \brief Configures the reader with input stream and exact compressed size
+  /// Configures the reader with input stream and exact compressed size
   ///
   /// The exact compressed input size must be known in advance for proper decompression.
   /// This method can be called multiple times to reuse the decoder instance, which is
   /// more efficient than creating new instances for each decompression operation.
   void SetInputStream(ezStreamReader* pInputStream, ezUInt64 uiInputSize);
 
-  /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
+  /// Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
   ///
   /// It is valid to pass nullptr for pReadBuffer, in this case the memory stream position is only advanced by the given number of bytes.
   /// However, since this is a compressed stream, the decompression still needs to be done, so this won't save any time.
@@ -43,7 +43,7 @@ private:
 };
 
 
-/// \brief General-purpose zlib decompression stream reader
+/// General-purpose zlib decompression stream reader
 ///
 /// Decompresses data that was compressed using ezCompressedStreamWriterZlib or any zlib-compatible format.
 /// The reader wraps another stream (file, memory, etc.) as its data source and handles decompression transparently.
@@ -52,12 +52,12 @@ private:
 class EZ_FOUNDATION_DLL ezCompressedStreamReaderZlib : public ezStreamReader
 {
 public:
-  /// \brief Takes an input stream as the source from which to read the compressed data.
+  /// Takes an input stream as the source from which to read the compressed data.
   ezCompressedStreamReaderZlib(ezStreamReader* pInputStream); // [tested]
 
   ~ezCompressedStreamReaderZlib();                            // [tested]
 
-  /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
+  /// Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
   ///
   /// It is valid to pass nullptr for pReadBuffer, in this case the memory stream position is only advanced by the given number of bytes.
   /// However, since this is a compressed stream, the decompression still needs to be done, so this won't save any time.
@@ -70,7 +70,7 @@ private:
   z_stream_s* m_pZLibStream = nullptr;
 };
 
-/// \brief Zlib compression stream writer for efficient data compression
+/// Zlib compression stream writer for efficient data compression
 ///
 /// Compresses incoming data using zlib and forwards it to another stream (file, memory, etc.).
 /// Uses an internal 255-byte cache for efficient compression without requiring the entire dataset
@@ -82,7 +82,7 @@ private:
 class EZ_FOUNDATION_DLL ezCompressedStreamWriterZlib : public ezStreamWriter
 {
 public:
-  /// \brief Compression level settings balancing speed vs. compression ratio
+  /// Compression level settings balancing speed vs. compression ratio
   enum Compression
   {
     Uncompressed = 0,
@@ -94,18 +94,18 @@ public:
     Default = Fastest ///< Recommended setting: good compression with good speed. Higher levels provide minimal space savings but significantly longer compression times.
   };
 
-  /// \brief The constructor takes another stream writer to pass the output into, and a compression level.
+  /// The constructor takes another stream writer to pass the output into, and a compression level.
   ezCompressedStreamWriterZlib(ezStreamWriter* pOutputStream, Compression ratio = Compression::Default); // [tested]
 
-  /// \brief Calls CloseStream() internally.
+  /// Calls CloseStream() internally.
   ~ezCompressedStreamWriterZlib(); // [tested]
 
-  /// \brief Compresses \a uiBytesToWrite from \a pWriteBuffer.
+  /// Compresses \a uiBytesToWrite from \a pWriteBuffer.
   ///
   /// Will output bursts of 256 bytes to the output stream every once in a while.
   virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override; // [tested]
 
-  /// \brief Finishes the stream and writes all remaining data to the output stream.
+  /// Finishes the stream and writes all remaining data to the output stream.
   ///
   /// After calling this function, no more data can be written to the stream. GetCompressedSize() will return the final compressed size
   /// of the data.
@@ -113,10 +113,10 @@ public:
   /// which is not the case for CloseStream().
   ezResult CloseStream(); // [tested]
 
-  /// \brief Returns the size of the data in its uncompressed state.
+  /// Returns the size of the data in its uncompressed state.
   ezUInt64 GetUncompressedSize() const { return m_uiUncompressedSize; } // [tested]
 
-  /// \brief Returns the compressed data size
+  /// Returns the compressed data size
   ///
   /// Only accurate after CloseStream() has been called. Before that, the value is approximate
   /// because data may still be cached internally. Note that this returns the compressed data size,
@@ -124,7 +124,7 @@ public:
   /// (approximately 1 byte per 255 compressed bytes, plus one terminator byte).
   ezUInt64 GetCompressedSize() const { return m_uiCompressedSize; } // [tested]
 
-  /// \brief Writes the currently available compressed data to the stream.
+  /// Writes the currently available compressed data to the stream.
   ///
   /// This does NOT guarantee that you can read all the uncompressed data from the output stream afterwards, because a lot of data
   /// will still be inside the compressor and thus not yet written to the stream.

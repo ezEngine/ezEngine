@@ -17,7 +17,7 @@ class ezTypedResourceHandle;
 
 // clang-format off
 
-/// \brief These events may be sent by a specific ezResource or by the ezResourceManager
+/// These events may be sent by a specific ezResource or by the ezResourceManager
 struct ezResourceEvent
 {
   enum class Type
@@ -37,7 +37,7 @@ struct ezResourceEvent
   ezResource* m_pResource = nullptr;
 };
 
-/// \brief Events sent by the ezResourceManager
+/// Events sent by the ezResourceManager
 struct ezResourceManagerEvent
 {
   enum class Type
@@ -49,12 +49,12 @@ struct ezResourceManagerEvent
   Type m_Type;
 };
 
-/// \brief The flags of an ezResource instance.
+/// The flags of an ezResource instance.
 struct ezResourceFlags
 {
   using StorageType = ezUInt16;
 
-  /// \brief The flags of an ezResource instance.
+  /// The flags of an ezResource instance.
   enum Enum
   {
     UpdateOnMainThread      = EZ_BIT(0),  ///< After loading the resource data on a thread, it must be uploaded on the main thread. Use this for resources which require a context that is only available on the main thread.
@@ -88,7 +88,7 @@ struct ezResourceFlags
 
 EZ_DECLARE_FLAGS_OPERATORS(ezResourceFlags);
 
-/// \brief Describes the state in which a resource can be in.
+/// Describes the state in which a resource can be in.
 enum class ezResourceState
 {
   Invalid,                    ///< Initial state
@@ -97,7 +97,7 @@ enum class ezResourceState
   Loaded,                     ///< The resource is fully loaded.
 };
 
-/// \brief Describes in which loading state a resource currently is, and how many different quality levels there are
+/// Describes in which loading state a resource currently is, and how many different quality levels there are
 struct ezResourceLoadDesc
 {
   ezResourceState m_State = ezResourceState::Invalid;
@@ -108,7 +108,7 @@ struct ezResourceLoadDesc
   ezUInt8 m_uiQualityLevelsLoadable = 0xFF;     // invalid
 };
 
-/// \brief Describes what data of a resource needs to be accessed and thus how much of the resource needs to be loaded.
+/// Describes what data of a resource needs to be accessed and thus how much of the resource needs to be loaded.
 ///
 /// \note Inspect the ezResourceAcquireResult to know whether acquisition failed or whether a fallback was returned.
 enum class ezResourceAcquireMode
@@ -129,7 +129,7 @@ enum class ezResourceAcquireMode
                               ///< The calling code signals with this that it can handle the situation.
 };
 
-/// \brief Indicates whether acquiring a resource was successful.
+/// Indicates whether acquiring a resource was successful.
 enum class ezResourceAcquireResult
 {
   None,             ///< No result available, ie the resource could not be loaded, not even a missing fallback was available, the resource pointer is

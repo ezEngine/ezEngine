@@ -25,16 +25,16 @@ EZ_WARNING_POP()
 #include <type_traits>
 #include <utility>
 
-/// \brief Disallow the copy constructor and the assignment operator for this type.
+/// Disallow the copy constructor and the assignment operator for this type.
 #define EZ_DISALLOW_COPY_AND_ASSIGN(type) \
   type(const type&) = delete;             \
   void operator=(const type&) = delete
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-/// \brief Macro helper to check alignment
+/// Macro helper to check alignment
 #  define EZ_CHECK_ALIGNMENT(ptr, alignment) EZ_ASSERT_DEV(((size_t)ptr & ((alignment) - 1)) == 0, "Wrong alignment.")
 #else
-/// \brief Macro helper to check alignment
+/// Macro helper to check alignment
 #  define EZ_CHECK_ALIGNMENT(ptr, alignment)
 #endif
 
@@ -45,7 +45,7 @@ EZ_WARNING_POP()
 #define EZ_WINCHECK_EZ_INCLUDED_WINDOWS_H_WINDOWS_ \
   1                              // EZ_INCLUDED_WINDOWS_H undefined (stringyfied to "EZ_INCLUDED_WINDOWS_H", _WINDOWS_ undefined (stringyfied to "_WINDOWS_")
 
-/// \brief Checks whether Windows.h has been included directly instead of through 'IncludeWindows.h'
+/// Checks whether Windows.h has been included directly instead of through 'IncludeWindows.h'
 ///
 /// Does this by stringifying the available defines, concatenating them into one long word, which is a known #define that evaluates to 0 or 1
 #define EZ_CHECK_WINDOWS_INCLUDE(EZ_WINH_INCLUDED, WINH_INCLUDED)                               \
@@ -54,21 +54,21 @@ EZ_WARNING_POP()
 
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 
-/// \brief The tool 'StaticLinkUtil' inserts this macro into each file in a library.
+/// The tool 'StaticLinkUtil' inserts this macro into each file in a library.
 /// Each library also needs to contain exactly one instance of EZ_STATICLINK_LIBRARY.
 /// The macros create functions that reference each other, which means the linker is forced to look at all files in the library.
 /// This in turn will drag all global variables into the visibility of the linker, and since it mustn't optimize them away,
 /// they then end up in the final application, where they will do what they are meant for.
 #  define EZ_STATICLINK_FILE(LibraryName, UniqueName) EZ_CHECK_WINDOWS_INCLUDE(EZ_INCLUDED_WINDOWS_H, _WINDOWS_)
 
-/// \brief Used by the tool 'StaticLinkUtil' to generate the block after EZ_STATICLINK_LIBRARY, to create references to all
+/// Used by the tool 'StaticLinkUtil' to generate the block after EZ_STATICLINK_LIBRARY, to create references to all
 /// files inside a library. \see EZ_STATICLINK_FILE
 #  define EZ_STATICLINK_REFERENCE(UniqueName)
 
-/// \brief This must occur exactly once in each static library, such that all EZ_STATICLINK_FILE macros can reference it.
+/// This must occur exactly once in each static library, such that all EZ_STATICLINK_FILE macros can reference it.
 #  define EZ_STATICLINK_LIBRARY(LibraryName) void ezReferenceFunction_##LibraryName(bool bReturn = true)
 
-/// \brief Adds a static link reference to a plugin into an application, to make sure all code gets pulled in by the linker.
+/// Adds a static link reference to a plugin into an application, to make sure all code gets pulled in by the linker.
 ///
 /// Add a line like this to a CPP file of your application:
 /// EZ_STATICLINK_PLUGIN(ParticlePlugin);
@@ -79,7 +79,7 @@ EZ_WARNING_POP()
 /// When dynamic linking is used, this macro has no effect, at all.
 #  define EZ_STATICLINK_PLUGIN(PluginName)
 
-/// \brief A marker that can be placed in CPP files to enforce that the StaticLinkUtil doesn't skip this file.
+/// A marker that can be placed in CPP files to enforce that the StaticLinkUtil doesn't skip this file.
 ///
 /// Needed when a CPP file contains a global variable that's used for registering something (for example an ezEnumerable),
 /// and there is no other indication for the StaticLinkUtil to consider the file.
@@ -93,7 +93,7 @@ struct ezStaticLinkHelper
   ezStaticLinkHelper(Func f) { f(true); }
 };
 
-/// \brief Helper struct to register the existence of statically linked plugins.
+/// Helper struct to register the existence of statically linked plugins.
 /// The macro EZ_STATICLINK_LIBRARY will register a the given library name prepended with `ez` to the ezPlugin system.
 /// Implemented in Plugin.cpp.
 struct EZ_FOUNDATION_DLL ezPluginRegister
@@ -101,7 +101,7 @@ struct EZ_FOUNDATION_DLL ezPluginRegister
   ezPluginRegister(const char* szName);
 };
 
-/// \brief The tool 'StaticLinkUtil' inserts this macro into each file in a library.
+/// The tool 'StaticLinkUtil' inserts this macro into each file in a library.
 /// Each library also needs to contain exactly one instance of EZ_STATICLINK_LIBRARY.
 /// The macros create functions that reference each other, which means the linker is forced to look at all files in the library.
 /// This in turn will drag all global variables into the visibility of the linker, and since it mustn't optimize them away,
@@ -117,18 +117,18 @@ struct EZ_FOUNDATION_DLL ezPluginRegister
     }                                                       \
     static ezStaticLinkHelper StaticLinkHelper_##UniqueName(ezReferenceFunction_##LibraryName);
 
-/// \brief Used by the tool 'StaticLinkUtil' to generate the block after EZ_STATICLINK_LIBRARY, to create references to all
+/// Used by the tool 'StaticLinkUtil' to generate the block after EZ_STATICLINK_LIBRARY, to create references to all
 /// files inside a library. \see EZ_STATICLINK_FILE
 #  define EZ_STATICLINK_REFERENCE(UniqueName)                   \
     void ezReferenceFunction_##UniqueName(bool bReturn = true); \
     ezReferenceFunction_##UniqueName()
 
-/// \brief This must occur exactly once in each static library, such that all EZ_STATICLINK_FILE macros can reference it.
+/// This must occur exactly once in each static library, such that all EZ_STATICLINK_FILE macros can reference it.
 #  define EZ_STATICLINK_LIBRARY(LibraryName)                                                         \
     ezPluginRegister ezPluginRegister_##LibraryName(EZ_PP_STRINGIFY(EZ_PP_CONCAT(ez, LibraryName))); \
     extern "C" void ezReferenceFunction_##LibraryName(bool bReturn = true)
 
-/// \brief Adds a static link reference to a plugin into an application, to make sure all code gets pulled in by the linker.
+/// Adds a static link reference to a plugin into an application, to make sure all code gets pulled in by the linker.
 ///
 /// Add a line like this to a CPP file of your application:
 /// EZ_STATICLINK_PLUGIN(ParticlePlugin);
@@ -141,7 +141,7 @@ struct EZ_FOUNDATION_DLL ezPluginRegister
     extern "C" void EZ_PP_CONCAT(ezReferenceFunction_, PluginName)(bool bReturn = true); \
     ezStaticLinkHelper EZ_PP_CONCAT(ezStaticLinkHelper_, PluginName)(EZ_PP_CONCAT(ezReferenceFunction_, PluginName));
 
-/// \brief A marker that can be placed in CPP files to enforce that the StaticLinkUtil doesn't skip this file.
+/// A marker that can be placed in CPP files to enforce that the StaticLinkUtil doesn't skip this file.
 ///
 /// Needed when a CPP file contains a global variable that's used for registering something (for example an ezEnumerable),
 /// and there is no other indication for the StaticLinkUtil to consider the file.
@@ -168,10 +168,10 @@ namespace ezInternal
 
 } // namespace ezInternal
 
-/// \brief Macro to determine the size of a static array
+/// Macro to determine the size of a static array
 #define EZ_ARRAY_SIZE(a) (ezInternal::ArraySizeHelper<decltype(a)>::value)
 
-/// \brief Template helper which allows to suppress "Unused variable" warnings (e.g. result used in platform specific block, ..)
+/// Template helper which allows to suppress "Unused variable" warnings (e.g. result used in platform specific block, ..)
 template <class T>
 void EZ_IGNORE_UNUSED(const T&)
 {

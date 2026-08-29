@@ -50,7 +50,7 @@ private:
   ezMat4 m_mInvViewProj;
 };
 
-/// \brief Scale gizmo version that only uses boxes that can be composited with
+/// Scale gizmo version that only uses boxes that can be composited with
 /// rotate and translate gizmos without major overlap.
 /// Used by the ezTransformManipulatorAdapter.
 class EZ_EDITORFRAMEWORK_DLL ezManipulatorScaleGizmo : public ezScaleGizmo

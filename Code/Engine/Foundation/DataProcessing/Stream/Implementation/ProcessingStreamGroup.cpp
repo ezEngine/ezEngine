@@ -132,7 +132,7 @@ void ezProcessingStreamGroup::SetSize(ezUInt64 uiNumElements)
   m_bStreamAssignmentDirty = true;
 }
 
-/// \brief Removes an element (e.g. due to the death of a particle etc.), this will be enqueued (and thus is safe to be called from within data
+/// Removes an element (e.g. due to the death of a particle etc.), this will be enqueued (and thus is safe to be called from within data
 /// processors).
 void ezProcessingStreamGroup::RemoveElement(ezUInt64 uiElementIndex)
 {
@@ -144,7 +144,7 @@ void ezProcessingStreamGroup::RemoveElement(ezUInt64 uiElementIndex)
   m_PendingRemoveIndices.PushBack(uiElementIndex);
 }
 
-/// \brief Spawns a number of new elements, they will be added as newly initialized stream elements. Safe to call from data processors since the
+/// Spawns a number of new elements, they will be added as newly initialized stream elements. Safe to call from data processors since the
 /// spawning will be queued.
 void ezProcessingStreamGroup::InitializeElements(ezUInt64 uiNumElements)
 {

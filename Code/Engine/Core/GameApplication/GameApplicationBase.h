@@ -27,7 +27,7 @@ struct ezGameApplicationStaticEvent
   Type m_Type;
 };
 
-/// \brief Events fired during game application execution phases.
+/// Events fired during game application execution phases.
 ///
 /// Allows custom code to inject logic at specific update points during each frame.
 /// The events are listed in the order in which they typically happen.
@@ -48,7 +48,7 @@ struct ezGameApplicationExecutionEvent
   Type m_Type;
 };
 
-/// \brief Defines different update modes for the game application.
+/// Defines different update modes for the game application.
 enum class ezGameUpdateMode
 {
   Skip,                 ///< Skip both updating and rendering
@@ -56,7 +56,7 @@ enum class ezGameUpdateMode
   UpdateInputAndRender, ///< Process input, update game logic, and render
 };
 
-/// \brief Base class for game applications that provides fundamental game loop and window management.
+/// Base class for game applications that provides fundamental game loop and window management.
 ///
 /// Extends ezApplication with game-specific functionality including game state management,
 /// window creation, input handling, screenshot capture, and profiling. Serves as the foundation
@@ -73,7 +73,7 @@ public:
   ///@{
 
 public:
-  /// \brief Returns the ezGameApplicationBase singleton
+  /// Returns the ezGameApplicationBase singleton
   static ezGameApplicationBase* GetGameApplicationBaseInstance() { return s_pGameApplicationBaseInstance; }
 
 protected:
@@ -84,16 +84,16 @@ protected:
   ///@{
 
 public:
-  /// \brief Does a profiling capture and writes it to disk at ':appdata'
+  /// Does a profiling capture and writes it to disk at ':appdata'
   void TakeProfilingCapture();
 
-  /// \brief Schedules a screenshot to be taken at the end of the frame.
+  /// Schedules a screenshot to be taken at the end of the frame.
   ///
   /// After taking a screenshot, StoreScreenshot() is executed, which may decide where to write the result to.
   void TakeScreenshot();
 
 protected:
-  /// \brief Called with the result from taking a screenshot. The default implementation writes the image to disk at ':appdata/Screenshots'
+  /// Called with the result from taking a screenshot. The default implementation writes the image to disk at ':appdata/Screenshots'
   virtual void StoreScreenshot(ezImage&& image, ezStringView sContext = {});
 
   void ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget, ezStringView sContext = {});
@@ -109,13 +109,13 @@ protected:
   ///@{
 
 public:
-  /// \brief Schedules a frame capture if the corresponding plugin is loaded.
+  /// Schedules a frame capture if the corresponding plugin is loaded.
   ///
   /// If continuous capture mode is enabled the currently running frame capture is persisted (and not discarded).
   /// Otherwise, the next frame will be captured and persisted.
   void CaptureFrame();
 
-  /// \brief Controls if frame captures are taken continuously (without being persisted) or only on-demand.
+  /// Controls if frame captures are taken continuously (without being persisted) or only on-demand.
   ///
   /// If continuous frame capture is enabled, calling CaptureFrame() will persist the result of the frame capture that is
   /// currently in progress. If continuous frame capture is disabled, CaptureFrame() will capture and persist the next frame.
@@ -124,7 +124,7 @@ public:
   void SetContinuousFrameCapture(bool bEnable);
   bool GetContinousFrameCapture() const;
 
-  /// \brief Get the absolute base output path for frame captures.
+  /// Get the absolute base output path for frame captures.
   virtual ezResult GetAbsFrameCaptureOutputPath(ezStringBuilder& ref_sOutputPath);
 
 protected:
@@ -140,7 +140,7 @@ protected:
   /// \name GameState
   ///@{
 public:
-  /// \brief Creates and activates the game state for this application.
+  /// Creates and activates the game state for this application.
   ///
   /// If the application already has a world (such as the editor), it can pass this to the newly created game state.
   /// Otherwise the game state should create its own world.
@@ -152,23 +152,23 @@ public:
   /// Broadcasts global event: AfterGameStateActivation(ezGameStateBase*)
   void ActivateGameState(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset);
 
-  /// \brief Deactivates and destroys the active game state.
+  /// Deactivates and destroys the active game state.
   ///
   /// Broadcasts local event: ezGameApplicationStaticEvent::BeforeGameStateDeactivated
   /// Broadcasts global event: BeforeGameStateDeactivation(ezGameStateBase*)
   void DeactivateGameState();
 
-  /// \brief Returns the currently active game state. Could be nullptr.
+  /// Returns the currently active game state. Could be nullptr.
   ezGameStateBase* GetActiveGameState() const { return m_pGameState.Borrow(); }
 
 protected:
-  /// \brief Creates a game state for the application to use.
+  /// Creates a game state for the application to use.
   ///
   /// The default implementation will query all available game states for the best match.
   /// By overriding this, one can also just create a specific game state directly.
   virtual ezUniquePtr<ezGameStateBase> CreateGameState();
 
-  /// \brief Allows to override whether a game state is created and activated at application startup.
+  /// Allows to override whether a game state is created and activated at application startup.
   ///
   /// The default implementation just calls ActivateGameState(), but applications that run inside the editor override this to do nothing,
   /// as they only want the game state to become active during simulation, not during editing.
@@ -180,7 +180,7 @@ protected:
   /// \name Platform Profile
   ///@{
 public:
-  /// \brief Returns the ezPlatformProfile that has been loaded for this application
+  /// Returns the ezPlatformProfile that has been loaded for this application
   const ezPlatformProfile& GetPlatformProfile() const { return m_PlatformProfile; }
 
 
@@ -194,26 +194,26 @@ protected:
   virtual ezResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
 
-  /// \brief Returns the target of the 'project' special data directory.
+  /// Returns the target of the 'project' special data directory.
   ///
   /// The return value of this function will be passed into ezFileSystem::SetSpecialDirectory.
   /// Afterwards, any path starting with the special directory marker (">project/") will point
   /// into this directory.
   virtual ezString FindProjectDirectory() const = 0;
 
-  /// \brief Returns the target of the 'base' data directory.
+  /// Returns the target of the 'base' data directory.
   ///
   /// Path needs to start with a special directory marker (">marker/").
   /// This is passed into the target of the 'base' data directory. Target defaults to ">sdk/Data/Base".
   virtual ezString GetBaseDataDirectoryPath() const;
 
-  /// \brief Returns the target of the 'project' data directory.
+  /// Returns the target of the 'project' data directory.
   ///
   /// Path needs to start with a special directory marker (">marker/").
   /// This is passed into the target of the 'project' data directory. Target defaults to ">project/".
   virtual ezString GetProjectDataDirectoryPath() const;
 
-  /// \brief Executes all 'BaseInit_' functions. Typically done very early, before core system startup
+  /// Executes all 'BaseInit_' functions. Typically done very early, before core system startup
   virtual void ExecuteBaseInitFunctions();
   virtual void BaseInit_ConfigureLogging();
 
@@ -223,7 +223,7 @@ protected:
   ezEventSubscriptionID m_LogToHTML = 0;
   ezLogWriter::HTML m_LogHTML;
 
-  /// \brief Executes all 'Init_' functions. Typically done after core system startup
+  /// Executes all 'Init_' functions. Typically done after core system startup
   virtual void ExecuteInitFunctions();
   virtual void Init_PlatformProfile_SetPreferred();
   virtual void Init_ConfigureTelemetry();
@@ -263,7 +263,7 @@ public:
 
   ezCopyOnBroadcastEvent<const ezGameApplicationExecutionEvent&> m_ExecutionEvents;
 
-  /// \brief Lets a plugin report that it has work which nothing else is going to wake the app up for.
+  /// Lets a plugin report that it has work which nothing else is going to wake the app up for.
   ///
   /// Only relevant to an application whose main loop *blocks* when it has nothing to do. A game that
   /// free-runs never asks. The one that does is the editor's engine process, which normally sleeps
@@ -290,14 +290,14 @@ protected:
   /// If it returns true, the game state also gets to process input, otherwise it is skipped.
   virtual bool Run_ProcessApplicationInput();
 
-  /// \brief This function can be used to acquire a new window from a swap-chain or do any other update operations on windows before the multi-threaded rendering and update phase starts.
+  /// This function can be used to acquire a new window from a swap-chain or do any other update operations on windows before the multi-threaded rendering and update phase starts.
   virtual void Run_AcquireImage();
 
   virtual void Run_WorldUpdateAndRender() = 0;
   virtual void Run_BeforeWorldUpdate();
   virtual void Run_AfterWorldUpdate();
   virtual void Run_UpdatePlugins();
-  /// \brief This function can be used to present the final image to a window. It is run at the end of the rendering phase. It can also be used to inspect the swap-chain e.g. for screenshot purposes before presenting.
+  /// This function can be used to present the final image to a window. It is run at the end of the rendering phase. It can also be used to inspect the swap-chain e.g. for screenshot purposes before presenting.
   virtual void Run_PresentImage();
   virtual void Run_FinishFrame();
 

@@ -9,7 +9,7 @@
 class ezStreamReader;
 class ezStreamWriter;
 
-/// \brief Flags for entries in ezBlackboard.
+/// Flags for entries in ezBlackboard.
 struct EZ_CORE_DLL ezBlackboardEntryFlags
 {
   using StorageType = ezUInt16;
@@ -55,7 +55,7 @@ EZ_DECLARE_FLAGS_OPERATORS(ezBlackboardEntryFlags);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezBlackboardEntryFlags);
 
 
-/// \brief A blackboard is a key/value store that provides OnChange events to be informed when a value changes.
+/// A blackboard is a key/value store that provides OnChange events to be informed when a value changes.
 ///
 /// Blackboards are used to gather typically small pieces of data. Some systems write the data, other systems read it.
 /// Through the blackboard, arbitrary systems can interact.
@@ -72,7 +72,7 @@ public:
 
   bool IsGlobalBlackboard() const { return m_bIsGlobal; }
 
-  /// \brief Factory method to create a new blackboard.
+  /// Factory method to create a new blackboard.
   ///
   /// Since blackboards use shared ownership we need to make sure that blackboards are created in ezCore.dll.
   /// Some compilers (MSVC) create local v-tables which can become stale if a blackboard was registered as global but the DLL
@@ -81,7 +81,7 @@ public:
   /// See https://groups.google.com/g/microsoft.public.vc.language/c/atSh_2VSc2w/m/EgJ3r_7OzVUJ?pli=1
   static ezSharedPtr<ezBlackboard> Create(const ezStringView& sName, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
 
-  /// \brief Factory method to get access to a globally registered blackboard.
+  /// Factory method to get access to a globally registered blackboard.
   ///
   /// If a blackboard with that name was already created globally before, its reference is returned.
   /// Otherwise it will be created and permanently registered under that name.
@@ -92,10 +92,10 @@ public:
   /// clear all its values.
   static ezSharedPtr<ezBlackboard> GetOrCreateGlobal(const ezHashedString& sBlackboardName, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
 
-  /// \brief Finds a global blackboard with the given name.
+  /// Finds a global blackboard with the given name.
   static ezSharedPtr<ezBlackboard> FindGlobal(const ezTempHashedString& sBlackboardName);
 
-  /// \brief Changes the name of the blackboard.
+  /// Changes the name of the blackboard.
   ///
   /// \note For global blackboards this has no effect under which name they are found. A global blackboard continues to
   /// be found by the name under which it was originally registered.
@@ -121,16 +121,16 @@ public:
     const Entry* m_pEntry;
   };
 
-  /// \brief Removes the named entry. Does nothing, if no such entry exists.
+  /// Removes the named entry. Does nothing, if no such entry exists.
   void RemoveEntry(const ezHashedString& sName);
 
-  ///  \brief Removes all entries.
+  ///  Removes all entries.
   void RemoveAllEntries();
 
-  /// \brief Returns whether an entry with the given name already exists.
+  /// Returns whether an entry with the given name already exists.
   bool HasEntry(const ezTempHashedString& sName) const;
 
-  /// \brief Sets the value of the named entry. If the entry doesn't exist, yet, it will be created with default flags.
+  /// Sets the value of the named entry. If the entry doesn't exist, yet, it will be created with default flags.
   ///
   /// If the 'OnChangeEvent' flag is set for this entry, OnEntryEvent() will be broadcast.
   /// However, if the new value is no different to the old, no event will be broadcast.
@@ -141,7 +141,7 @@ public:
   /// DO NOT RECREATE the ezHashedString every time, though.
   void SetEntryValue(ezStringView sName, const ezVariant& value);
 
-  /// \brief Overload of SetEntryValue() that takes an ezHashedString rather than an ezStringView.
+  /// Overload of SetEntryValue() that takes an ezHashedString rather than an ezStringView.
   ///
   /// Using this function is more efficient, if you access the blackboard often, but you must ensure
   /// to only create the ezHashedString once and cache it for reuse.
@@ -149,19 +149,19 @@ public:
   /// prefer to use the other overload.
   void SetEntryValue(const ezHashedString& sName, const ezVariant& value);
 
-  /// \brief Returns a pointer to the named entry, or nullptr if no such entry was registered.
+  /// Returns a pointer to the named entry, or nullptr if no such entry was registered.
   const Entry* GetEntry(const ezTempHashedString& sName) const;
 
-  /// \brief Returns the flags of the named entry, or ezBlackboardEntryFlags::Invalid, if no such entry was registered.
+  /// Returns the flags of the named entry, or ezBlackboardEntryFlags::Invalid, if no such entry was registered.
   ezBitflags<ezBlackboardEntryFlags> GetEntryFlags(const ezTempHashedString& sName) const;
 
-  /// \brief Sets the flags of an existing entry. Returns EZ_FAILURE, if it wasn't created via SetEntryValue() or SetEntryValue() before.
+  /// Sets the flags of an existing entry. Returns EZ_FAILURE, if it wasn't created via SetEntryValue() or SetEntryValue() before.
   ezResult SetEntryFlags(const ezTempHashedString& sName, ezBitflags<ezBlackboardEntryFlags> flags);
 
-  /// \brief Returns the value of the named entry, or the fallback ezVariant, if no such entry was registered.
+  /// Returns the value of the named entry, or the fallback ezVariant, if no such entry was registered.
   ezVariant GetEntryValue(const ezTempHashedString& sName, const ezVariant& fallback = ezVariant()) const;
 
-  /// \brief Convenience functions to directly get the value of an entry as a specific type.
+  /// Convenience functions to directly get the value of an entry as a specific type.
   ///
   /// Returns the fallback value, if no such entry was registered or if the entry's value cannot be converted to the requested type.
   bool GetBoolValue(const ezTempHashedString& sName, bool bFallback = false) const;
@@ -170,38 +170,38 @@ public:
   float GetFloatValue(const ezTempHashedString& sName, float fFallback = 0.0f) const;
   ezString GetStringValue(const ezTempHashedString& sName, ezStringView sFallback = ezStringView()) const;
 
-  /// \brief For the editor to know what index an element had, so that it can pass through exposed properties (which are given by index).
+  /// For the editor to know what index an element had, so that it can pass through exposed properties (which are given by index).
   ezResult SetEditorIndex(const ezTempHashedString& sName, ezUInt8 uiEditorIndex);
 
-  /// \brief Searches for the first item that has the previously set index. Returns an empty string, if none was found.
+  /// Searches for the first item that has the previously set index. Returns an empty string, if none was found.
   ezHashedString FindNameForEditorIndex(ezUInt8 uiEditorIndex) const;
 
-  /// \brief Increments the value of the named entry. Returns the incremented value or an invalid variant if the entry does not exist or is not a number type.
+  /// Increments the value of the named entry. Returns the incremented value or an invalid variant if the entry does not exist or is not a number type.
   ezVariant IncrementEntryValue(const ezTempHashedString& sName);
 
-  /// \brief Decrements the value of the named entry. Returns the decremented value or an invalid variant if the entry does not exist or is not a number type.
+  /// Decrements the value of the named entry. Returns the decremented value or an invalid variant if the entry does not exist or is not a number type.
   ezVariant DecrementEntryValue(const ezTempHashedString& sName);
 
-  /// \brief Grants read access to the entire map of entries.
+  /// Grants read access to the entire map of entries.
   const ezHashTable<ezHashedString, Entry>& GetAllEntries() const { return m_Entries; }
 
-  /// \brief Allows you to register to the OnEntryEvent. This is broadcast whenever an entry is modified that has the flag ezBlackboardEntryFlags::OnChangeEvent.
+  /// Allows you to register to the OnEntryEvent. This is broadcast whenever an entry is modified that has the flag ezBlackboardEntryFlags::OnChangeEvent.
   const ezEvent<const EntryEvent&>& OnEntryEvent() const { return m_EntryEvents; }
 
-  /// \brief This counter is increased every time an entry is added or removed (but not when it is modified).
+  /// This counter is increased every time an entry is added or removed (but not when it is modified).
   ///
   /// Comparing this value to a previous known value allows to quickly detect whether the set of entries has changed.
   ezUInt32 GetBlackboardChangeCounter() const { return m_uiBlackboardChangeCounter; }
 
-  /// \brief This counter is increased every time any entry's value is modified.
+  /// This counter is increased every time any entry's value is modified.
   ///
   /// Comparing this value to a previous known value allows to quickly detect whether any entry has changed recently.
   ezUInt32 GetBlackboardEntryChangeCounter() const { return m_uiBlackboardEntryChangeCounter; }
 
-  /// \brief Stores all entries that have the 'Save' flag in the stream.
+  /// Stores all entries that have the 'Save' flag in the stream.
   ezResult Serialize(ezStreamWriter& inout_stream) const;
 
-  /// \brief Restores entries from the stream.
+  /// Restores entries from the stream.
   ///
   /// If the blackboard already contains entries, the deserialized data is ADDED to the blackboard.
   /// If deserialized entries overlap with existing ones, the deserialized entries will overwrite the existing ones (both values and flags).

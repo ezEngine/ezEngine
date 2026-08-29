@@ -7,7 +7,7 @@
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
 
-/// \brief An object change starts at the heap object m_Root (because we can only safely store pointers to those).
+/// An object change starts at the heap object m_Root (because we can only safely store pointers to those).
 ///  From this object we follow m_Steps (member arrays, structs) to execute m_Change at the end target.
 ///
 /// In case of an NodeAdded operation, m_GraphData contains the entire subgraph of this node.
@@ -41,8 +41,7 @@ public:
   void DeInit();
 
   using FilterFunction = ezDelegate<bool(const ezDocumentObject*, ezStringView)>;
-  /// \brief
-  ///
+
   /// \param filter
   ///   Filter that defines whether an object property should be mirrored or not.
   void SetFilterFunction(FilterFunction filter);

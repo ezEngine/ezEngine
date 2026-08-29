@@ -8,7 +8,7 @@ struct ezMsgExtractRenderData;
 
 using ezRenderTargetComponentManager = ezComponentManager<class ezRenderTargetActivatorComponent, ezBlockStorageType::Compact>;
 
-/// \brief Attach this component to an object that uses a render target for reading, to ensure that the render target gets written to.
+/// Attach this component to an object that uses a render target for reading, to ensure that the render target gets written to.
 ///
 /// If you build a monitor that displays the output of a security camera in your level, the engine needs to know when it should
 /// update the render target that displays the security camera footage, and when it can skip that part to not waste performance.
@@ -43,7 +43,7 @@ public:
   ezRenderTargetActivatorComponent();
   ~ezRenderTargetActivatorComponent();
 
-  /// \brief Sets the ezRenderToTexture2DResource to render activate.
+  /// Sets the ezRenderToTexture2DResource to render activate.
   void SetRenderTarget(const ezRenderToTexture2DResourceHandle& hResource);                    // [ property ]
   const ezRenderToTexture2DResourceHandle& GetRenderTarget() const { return m_hRenderTarget; } // [ property ]
 

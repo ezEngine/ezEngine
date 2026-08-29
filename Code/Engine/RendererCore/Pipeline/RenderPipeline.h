@@ -82,7 +82,7 @@ public:
   using RenderDataProcessor = ezDelegate<void(ezExtractedRenderData&)>;
   ezUInt32 AddRenderDataProcessor(RenderDataProcessor processor);
 
-  /// \brief Creates a DGML graph of all passes and textures. Can be used to verify that no accidental temp textures are created due to poorly constructed pipelines or errors in code.
+  /// Creates a DGML graph of all passes and textures. Can be used to verify that no accidental temp textures are created due to poorly constructed pipelines or errors in code.
   void CreateDgmlGraph(ezDGMLGraph& ref_graph);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -95,10 +95,10 @@ private:
   friend class ezRenderWorld;
   friend class ezView;
 
-  /// \brief Returns whether the pipeline should be rendered. E.g. returns false if the associated world has been destroyed.
+  /// Returns whether the pipeline should be rendered. E.g. returns false if the associated world has been destroyed.
   bool ShouldRender() const;
 
-  // \brief Rebuilds the render pipeline, e.g. sorting passes via dependencies and creating render targets.
+  // Rebuilds the render pipeline, e.g. sorting passes via dependencies and creating render targets.
   PipelineState Rebuild(const ezView& view);
   bool RebuildInternal(const ezView& view);
   bool RebuildRenderGraph(const ezViewData& viewData, const ezCamera& camera);

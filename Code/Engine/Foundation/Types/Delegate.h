@@ -2,7 +2,7 @@
 
 #include <Foundation/Memory/AllocatorWrapper.h>
 
-/// \brief Base class for ezDelegate
+/// Base class for ezDelegate
 class ezDelegateBase
 {
 public:
@@ -18,7 +18,7 @@ protected:
   InstancePtr m_Instance;
 };
 
-/// \brief A generic delegate class which supports static functions and member functions.
+/// A generic delegate class which supports static functions and member functions.
 ///
 /// A delegate is a function pointer that may be used to call both simple C functions, as well
 /// as member functions of some class, which requires a 'this' pointer to go along with.
@@ -89,7 +89,7 @@ struct ezDelegate : public ezDelegateBase
 template <typename T>
 struct ezMakeDelegateHelper;
 
-/// \brief A helper function to create delegates from function pointers.
+/// A helper function to create delegates from function pointers.
 ///
 /// \code{.cpp}
 ///   void foo() { }
@@ -98,7 +98,7 @@ struct ezMakeDelegateHelper;
 template <typename Function>
 ezDelegate<Function> ezMakeDelegate(Function* pFunction);
 
-/// \brief A helper function to create delegates from methods.
+/// A helper function to create delegates from methods.
 ///
 /// \code{.cpp}
 ///   class Example

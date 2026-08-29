@@ -18,7 +18,7 @@ using ezDataBuffer = ezDynamicArray<ezUInt8>;
 class ezNavmeshGeoWorldModuleInterface;
 class dtNavMesh;
 
-/// \brief Stores indices for a triangle.
+/// Stores indices for a triangle.
 struct ezAiNavMeshTriangle final
 {
   EZ_DECLARE_POD_TYPE();
@@ -34,7 +34,7 @@ struct ezAiNavMeshTriangle final
   ezInt32 m_VertexIdx[3];
 };
 
-/// \brief Stores the geometry from which a navmesh should be generated.
+/// Stores the geometry from which a navmesh should be generated.
 struct ezAiNavMeshInputGeo final
 {
   ezDynamicArray<ezVec3> m_Vertices;
@@ -42,7 +42,7 @@ struct ezAiNavMeshInputGeo final
   ezDynamicArray<ezUInt8> m_TriangleAreaIDs;
 };
 
-/// \brief State about a single sector (tile / cell) of an ezAiNavMesh
+/// State about a single sector (tile / cell) of an ezAiNavMesh
 struct ezAiNavMeshSector final
 {
   ezAiNavMeshSector();
@@ -58,7 +58,7 @@ struct ezAiNavMeshSector final
   dtTileRef m_TileRef = 0;
 };
 
-/// \brief A navmesh generated with a specific configuration.
+/// A navmesh generated with a specific configuration.
 ///
 /// Each game may use multiple navmeshes for different character types (large, small, etc).
 /// All navmeshes always exist, but only some may contain data.
@@ -86,24 +86,24 @@ public:
 
   const ezAiNavMeshSector* GetSector(SectorID sectorID) const;
 
-  /// \brief Marks the sector as requested.
+  /// Marks the sector as requested.
   ///
   /// Returns true, if the sector is already available, false when it needs to be built first.
   bool RequestSector(SectorID sectorID);
 
-  /// \brief Marks all sectors within the given rectangle as requested.
+  /// Marks all sectors within the given rectangle as requested.
   ///
   /// Returns true, if all the sectors are already available, false when any of them needs to be built first.
   bool RequestSector(const ezVec2& vCenter, const ezVec2& vHalfExtents);
 
-  /// \brief Marks the sector as invalidated.
+  /// Marks the sector as invalidated.
   ///
   /// Invalidated sectors are considered out of date and must be rebuilt before they can be used again.
   /// If bRebuildAsSoonAsPossible is true, the sector is queued to be rebuilt as soon as possible.
   /// Otherwise, it will be unloaded and will not be rebuilt until it is requested again.
   void InvalidateSector(SectorID sectorID, bool bRebuildAsSoonAsPossible);
 
-  /// \brief Marks all sectors within the given rectangle as invalidated.
+  /// Marks all sectors within the given rectangle as invalidated.
   ///
   /// Invalidated sectors are considered out of date and must be rebuilt before they can be used again.
   /// If bRebuildAsSoonAsPossible is true, the sector is queued to be rebuilt as soon as possible.

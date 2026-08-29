@@ -81,7 +81,7 @@ public:
   ezDeque<Entry> m_AllEntries;
 };
 
-/// \brief Data used by ezQtCVarWidget to represent CVar states
+/// Data used by ezQtCVarWidget to represent CVar states
 struct EZ_GUIFOUNDATION_DLL ezCVarWidgetData
 {
   mutable bool m_bNewEntry = true;
@@ -97,7 +97,7 @@ struct EZ_GUIFOUNDATION_DLL ezCVarWidgetData
   ezString m_sValue;
 };
 
-/// \brief Displays CVar values in a table and allows to modify them.
+/// Displays CVar values in a table and allows to modify them.
 class EZ_GUIFOUNDATION_DLL ezQtCVarWidget : public QWidget, public Ui_CVarWidget
 {
   Q_OBJECT
@@ -106,13 +106,13 @@ public:
   ezQtCVarWidget(QWidget* pParent);
   ~ezQtCVarWidget();
 
-  /// \brief Clears the table
+  /// Clears the table
   void Clear();
 
-  /// \brief Recreates the full UI. This is necessary when elements were added or removed.
+  /// Recreates the full UI. This is necessary when elements were added or removed.
   void RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars);
 
-  /// \brief Updates the existing UI. This is sufficient if values changed only.
+  /// Updates the existing UI. This is sufficient if values changed only.
   void UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars);
 
   void AddConsoleStrings(const ezStringBuilder& sEncoded);

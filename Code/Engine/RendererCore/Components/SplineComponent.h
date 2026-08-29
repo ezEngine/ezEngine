@@ -63,7 +63,7 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Describes a Spline shape.
+/// Describes a Spline shape.
 ///
 /// This can be used for moving things along the spline (see ezFollowSplineComponent) or to describe the (complex) shape of an object, for example a rope.
 ///
@@ -97,81 +97,81 @@ public:
   ezSplineComponent();
   ~ezSplineComponent();
 
-  /// \brief Whether the spline end connects to the beginning.
+  /// Whether the spline end connects to the beginning.
   void SetClosed(bool bClosed);                                                       // [ property ]
   bool GetClosed() const { return m_Spline.m_bClosed; }                               // [ property ]
 
   void SetSplineFlags(ezBitflags<ezSplineComponentFlags> flags);                      // [ property ]
   ezBitflags<ezSplineComponentFlags> GetSplineFlags() const { return m_SplineFlags; } // [ property ]
 
-  /// \brief Returns the position of the spline at the given key (segment index + t).
+  /// Returns the position of the spline at the given key (segment index + t).
   ezVec3 GetPositionAtKey(float fKey, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
-  /// \brief Returns the forward direction of the spline at the given key (segment index + t).
+  /// Returns the forward direction of the spline at the given key (segment index + t).
   ezVec3 GetForwardDirAtKey(float fKey, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
-  /// \brief Returns the up direction of the spline at the given key (segment index + t).
+  /// Returns the up direction of the spline at the given key (segment index + t).
   ezVec3 GetUpDirAtKey(float fKey, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
-  /// \brief Returns the scale of the spline at the given key (segment index + t).
+  /// Returns the scale of the spline at the given key (segment index + t).
   ezVec3 GetScaleAtKey(float fKey, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
-  /// \brief Returns the transform of the spline at the given key (segment index + t).
+  /// Returns the transform of the spline at the given key (segment index + t).
   ezTransform GetTransformAtKey(float fKey, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
 
-  /// \brief Returns the total length of the spline (in local space)
+  /// Returns the total length of the spline (in local space)
   float GetTotalLength() const { return m_fTotalLength; } // [ scriptable ]
 
-  /// \brief Returns the segment length for the given segment index (in local space)
+  /// Returns the segment length for the given segment index (in local space)
   float GetSegmentLength(ezUInt32 uiSegmentIndex) const; // [ scriptable ]
 
 
-  /// \brief Returns the spline key (segment index + t) for the given distance along the spline
+  /// Returns the spline key (segment index + t) for the given distance along the spline
   float GetKeyAtDistance(float fDistance) const { return GetKeyAtDistanceHelper(m_DistanceToKey, fDistance); } // [ scriptable ]
 
-  /// \brief Returns the position of the spline at the given distance along the spline.
+  /// Returns the position of the spline at the given distance along the spline.
   ezVec3 GetPositionAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
-  /// \brief Returns the forward direction of the spline at the given distance along the spline.
+  /// Returns the forward direction of the spline at the given distance along the spline.
   ezVec3 GetForwardDirAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
-  /// \brief Returns the up direction of the spline at the given distance along the spline.
+  /// Returns the up direction of the spline at the given distance along the spline.
   ezVec3 GetUpDirAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
-  /// \brief Returns the scale of the spline at the given distance along the spline.
+  /// Returns the scale of the spline at the given distance along the spline.
   ezVec3 GetScaleAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
-  /// \brief Returns the full transform of the spline at the given distance along the spline.
+  /// Returns the full transform of the spline at the given distance along the spline.
   ezTransform GetTransformAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
 
-  /// \brief Finds the closest point on the spline to the given point in space.
+  /// Finds the closest point on the spline to the given point in space.
   float FindKeyClosestToPoint(const ezVec3& vPoint, float& out_fDistanceToPoint, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default, float fMaxError = 0.1f) const; // [ scriptable ]
 
 
-  /// \brief Access to the underlying spline object
+  /// Access to the underlying spline object
   const ezSpline& GetSpline() const { return m_Spline; }
   void SetSpline(ezSpline&& spline);
   ezSpline& BeginModifySpline() { return m_Spline; }
   void EndModifySpline(bool bRecreateDistanceToKeyMapping = true);
 
-  /// \brief Returns the underlying mapping of distances to spline keys.
+  /// Returns the underlying mapping of distances to spline keys.
   const ezArrayMap<float, float>& GetDistanceToKeyRemapping() const { return m_DistanceToKey; }
   static float GetKeyAtDistanceHelper(const ezArrayMap<float, float>& distanceToKey, float fDistance);
 
   ezUInt32 GetChangeCounter() const { return m_Spline.m_uiChangeCounter; } // [ scriptable ]
 
-  /// \brief Returns the unique identifier of this spline component. This is only valid for spline components created in the editor.
+  /// Returns the unique identifier of this spline component. This is only valid for spline components created in the editor.
   const ezUuid& GetUuid() const { return m_Uuid; }
 
 protected:
   friend class ezSplineNodeComponent;
 
-  /// \brief Informs the spline component, that its shape has changed. Sent by spline nodes when they are modified.
+  /// Informs the spline component, that its shape has changed. Sent by spline nodes when they are modified.
   void OnMsgSplineChanged(ezMsgSplineChanged& ref_msg); // [ message handler ]
 
-  /// \brief Sets the order of spline nodes. Called directly via reflection to avoid message routing timing constraints.
+  /// Sets the order of spline nodes. Called directly via reflection to avoid message routing timing constraints.
   void SetChildOrder(const ezVariantArray& handles); // [ editor function ]
 
   void SendSplineChangedEvent();
@@ -210,7 +210,7 @@ protected:
 
 using ezSplineNodeComponentManager = ezComponentManager<class ezSplineNodeComponent, ezBlockStorageType::Compact>;
 
-/// \brief Attach this to child object of an ezSplineComponent to turn them into viable spline nodes.
+/// Attach this to child object of an ezSplineComponent to turn them into viable spline nodes.
 ///
 /// See ezSplineComponent for details on how to create a spline.
 ///
@@ -227,7 +227,7 @@ public:
   ezSplineNodeComponent();
   ~ezSplineNodeComponent();
 
-  /// \brief Sets the rotation along the forward axis, that the spline shall have at this location.
+  /// Sets the rotation along the forward axis, that the spline shall have at this location.
   void SetRoll(ezAngle roll);                                                        // [ property ]
   ezAngle GetRoll() const { return m_Roll; }                                         // [ property ]
                                                                                      //

@@ -17,7 +17,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Represents the position of the sound listener
+/// Represents the position of the sound listener
 class EZ_MINIAUDIOPLUGIN_DLL ezMiniAudioListenerComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezMiniAudioListenerComponent, ezComponent, ezMiniAudioListenerComponentManager);

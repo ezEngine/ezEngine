@@ -5,7 +5,7 @@
 
 using ezCameraShakeComponentManager = ezComponentManagerSimple<class ezCameraShakeComponent, ezComponentUpdateType::WhenSimulating>;
 
-/// \brief This component is used to apply a shaking effect to the game object that it is attached to.
+/// This component is used to apply a shaking effect to the game object that it is attached to.
 ///
 /// The shake is applied as a local rotation around the Y and Z axis, assuming the camera is looking along the positive X axis.
 /// The component can be attached to the same object as a camera component,
@@ -31,10 +31,10 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // ezCameraShakeComponent
 
-  /// \brief How much shake to apply as the minimum value, even if no shake volume is found or the shake strength is zero.
+  /// How much shake to apply as the minimum value, even if no shake volume is found or the shake strength is zero.
   ezAngle m_MinShake; // [ property ]
 
-  /// \brief How much shake to apply at shake strength 1.
+  /// How much shake to apply at shake strength 1.
   ezAngle m_MaxShake = ezAngle::MakeFromDegree(5); // [ property ]
 
 public:

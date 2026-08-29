@@ -8,7 +8,7 @@ struct ezDocumentObjectStructureEvent;
 struct ezPhantomRttiManagerEvent;
 class ezRTTI;
 
-/// \brief This singleton lives in the editor process and monitors all ezSceneDocument's for components with the ezLongOpAttribute.
+/// This singleton lives in the editor process and monitors all ezSceneDocument's for components with the ezLongOpAttribute.
 ///
 /// All such components will be automatically registered in the ezLongOpControllerManager, such that their functionality
 /// is exposed to the user.

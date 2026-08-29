@@ -9,7 +9,7 @@
 class ezGALDeviceVulkan;
 class ezGALBufferVulkan;
 
-/// \brief `ezGALBufferVulkan` created with `ezGALBufferUsageFlags::Transient` will allocate scratch memory from this pool which will last until the end of the frame.
+/// `ezGALBufferVulkan` created with `ezGALBufferUsageFlags::Transient` will allocate scratch memory from this pool which will last until the end of the frame.
 class EZ_RENDERERVULKAN_DLL ezUniformBufferPoolVulkan
 {
 public:
@@ -27,7 +27,7 @@ public:
   void EndFrame();
   void BeforeCommandBufferSubmit();
 
-  /// \brief Needs to be called each from for a buffer before it can be used.
+  /// Needs to be called each from for a buffer before it can be used.
   /// Can be called multiple times per frame. GetBuffer will always return a reference to the last UpdateBuffer content.
   /// \param pBuffer The buffer to allocate scratch memory for.
   /// \param data The data of the buffer. Must be the size of the entire buffer.

@@ -38,7 +38,7 @@ struct ezEngineProcessDocumentContextFlags
 };
 EZ_DECLARE_FLAGS_OPERATORS(ezEngineProcessDocumentContextFlags);
 
-/// \brief A document context is the counter part to an editor document on the engine side.
+/// A document context is the counter part to an editor document on the engine side.
 ///
 /// For every document in the editor that requires engine output (rendering, picking, etc.), there is a ezEngineProcessDocumentContext
 /// created in the engine process.
@@ -53,7 +53,7 @@ public:
   virtual void Initialize(const ezUuid& documentGuid, const ezVariant& metaData, ezEngineProcessCommunicationChannel* pIPC, ezStringView sDocumentType);
   void Deinitialize();
 
-  /// \brief Returns the document type for which this context was created. Useful in case a context may be used for multiple document types.
+  /// Returns the document type for which this context was created. Useful in case a context may be used for multiple document types.
   ezStringView GetDocumentType() const { return m_sDocumentType; }
 
   void SendProcessMessage(ezProcessMessage* pMsg = nullptr);
@@ -65,7 +65,7 @@ public:
   static void UpdateDocumentContexts();
   static void DestroyDocumentContext(ezUuid guid);
 
-  // \brief Returns the bounding box of the objects in the world.
+  // Returns the bounding box of the objects in the world.
   ezBoundingBoxSphere GetWorldBounds(ezWorld* pWorld);
 
   void ProcessEditorEngineSyncObjectMsg(const ezEditorEngineSyncObjectMsg& msg);
@@ -82,40 +82,40 @@ public:
 
   ezWorld* GetWorld() const { return m_pWorld; }
 
-  /// \brief Tries to resolve a 'reference' (given in pData) to an ezGameObject.
+  /// Tries to resolve a 'reference' (given in pData) to an ezGameObject.
   virtual ezGameObjectHandle ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, ezStringView sProperty) const;
 
 protected:
   virtual void OnInitialize();
   virtual void OnDeinitialize();
 
-  /// \brief Needs to be implemented to create a view context used for windows and thumbnails rendering.
+  /// Needs to be implemented to create a view context used for windows and thumbnails rendering.
   virtual ezEngineProcessViewContext* CreateViewContext() = 0;
-  /// \brief Needs to be implemented to destroy the view context created in CreateViewContext.
+  /// Needs to be implemented to destroy the view context created in CreateViewContext.
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) = 0;
 
-  /// \brief Should return true if this context has any operation in progress like thumbnail rendering
+  /// Should return true if this context has any operation in progress like thumbnail rendering
   /// and thus needs to continue rendering even if no new messages from the editor come in.
   virtual bool PendingOperationInProgress() const;
 
-  /// \brief A tick functions that allows each document context to do processing that continues
+  /// A tick functions that allows each document context to do processing that continues
   /// over multiple frames and can't be handled in HandleMessage directly.
   ///
   /// Make sure to call the base implementation when overwriting as this handles the thumbnail
   /// rendering that takes multiple frames to complete.
   virtual void UpdateDocumentContext();
 
-  /// \brief Exports to current document resource to file. Make sure to write ezAssetFileHeader at the start of it.
+  /// Exports to current document resource to file. Make sure to write ezAssetFileHeader at the start of it.
   virtual ezStatus ExportDocument(const ezExportDocumentMsgToEngine* pMsg);
   void UpdateSyncObjects();
 
-  /// \brief Creates the thumbnail view context. It uses 'CreateViewContext' in combination with an off-screen render target.
+  /// Creates the thumbnail view context. It uses 'CreateViewContext' in combination with an off-screen render target.
   void CreateThumbnailViewContext(const ezCreateThumbnailMsgToEngine* pMsg);
 
-  /// \brief Once a thumbnail is successfully rendered, the thumbnail view context is destroyed again.
+  /// Once a thumbnail is successfully rendered, the thumbnail view context is destroyed again.
   void DestroyThumbnailViewContext();
 
-  /// \brief Overwrite this function to apply the thumbnail render settings to the given context.
+  /// Overwrite this function to apply the thumbnail render settings to the given context.
   ///
   /// Return false if you need more frames to be rendered to setup everything correctly.
   /// If true is returned for 'ThumbnailConvergenceFramesTarget' frames in a row the thumbnail image is taken.
@@ -124,21 +124,21 @@ protected:
   /// to make sure we do not make an image of half-streamed in data.
   virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext);
 
-  /// \brief Called before a thumbnail context is created.
+  /// Called before a thumbnail context is created.
   virtual void OnThumbnailViewContextRequested() {}
-  /// \brief Called after a thumbnail context was created. Allows to insert code before the thumbnail is generated.
+  /// Called after a thumbnail context was created. Allows to insert code before the thumbnail is generated.
   virtual void OnThumbnailViewContextCreated();
-  /// \brief Called before a thumbnail context is destroyed. Used for cleanup of what was done in OnThumbnailViewContextCreated()
+  /// Called before a thumbnail context is destroyed. Used for cleanup of what was done in OnThumbnailViewContextCreated()
   virtual void OnDestroyThumbnailViewContext();
 
   ezWorld* m_pWorld = nullptr;
 
-  /// \brief Sets or removes the given tag on the object and optionally all children
+  /// Sets or removes the given tag on the object and optionally all children
   void SetTagOnObject(const ezUuid& object, const char* szTag, bool bSet, bool recursive);
 
-  /// \brief Sets the given tag on the object and all children.
+  /// Sets the given tag on the object and all children.
   void SetTagRecursive(ezGameObject* pObject, const ezTag& tag);
-  /// \brief Clears the given tag on the object and all children.
+  /// Clears the given tag on the object and all children.
   void ClearTagRecursive(ezGameObject* pObject, const ezTag& tag);
 
 protected:

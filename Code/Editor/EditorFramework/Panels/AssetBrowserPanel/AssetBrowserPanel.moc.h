@@ -9,7 +9,7 @@ class QStatusBar;
 class QLabel;
 struct ezToolsProjectEvent;
 
-/// \brief The application wide panel that shows and asset browser.
+/// The application wide panel that shows and asset browser.
 class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserPanel : public ezQtApplicationPanel, public Ui_AssetBrowserPanel
 {
   Q_OBJECT

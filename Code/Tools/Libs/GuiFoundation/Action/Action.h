@@ -23,7 +23,7 @@ using CreateActionFunc = ezAction* (*)(const ezActionContext&);
 /// Destroys an instance created by a CreateActionFunc. If none is given, the action is deleted with the default allocator.
 using DeleteActionFunc = void (*)(ezAction*);
 
-/// \brief Handle for a ezActionDescriptor.
+/// Handle for a ezActionDescriptor.
 ///
 /// ezAction can be invalidated at runtime so don't store them.
 class EZ_GUIFOUNDATION_DLL ezActionDescriptorHandle

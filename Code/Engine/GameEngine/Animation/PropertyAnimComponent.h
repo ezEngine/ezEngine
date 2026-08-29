@@ -9,7 +9,7 @@ struct ezMsgSetPlaying;
 
 using ezPropertyAnimComponentManager = ezComponentManagerSimple<class ezPropertyAnimComponent, ezComponentUpdateType::WhenSimulating>;
 
-/// \brief Animates properties on other objects and components according to the property animation resource
+/// Animates properties on other objects and components according to the property animation resource
 ///
 /// Notes:
 ///  - There is no messages to change speed, simply modify the speed property.
@@ -37,10 +37,10 @@ public:
   void SetPropertyAnim(const ezPropertyAnimResourceHandle& hResource);                                     // [ property ]
   EZ_ALWAYS_INLINE const ezPropertyAnimResourceHandle& GetPropertyAnim() const { return m_hPropertyAnim; } // [ property ]
 
-  /// \brief Sets the animation playback range and resets the playing position to the range start position. Also activates the component if it isn't.
+  /// Sets the animation playback range and resets the playing position to the range start position. Also activates the component if it isn't.
   void PlayAnimationRange(ezTime rangeLow, ezTime rangeHigh); // [ scriptable ]
 
-  /// \brief Pauses or resumes animation playback. Does not reset any state.
+  /// Pauses or resumes animation playback. Does not reset any state.
   void OnMsgSetPlaying(ezMsgSetPlaying& ref_msg);                       // [ msg handler ]
 
   ezEnum<ezPropertyAnimMode> m_AnimationMode;                           // [ property ]

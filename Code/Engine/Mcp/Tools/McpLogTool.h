@@ -6,7 +6,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/Mutex.h>
 
-/// \brief Writing to and reading back this process's log.
+/// Writing to and reading back this process's log.
 ///
 /// Reading matters more than writing: it is the cheapest feedback loop an agent has. It can trigger
 /// something and then look at what the application said about it, instead of asking the user to copy

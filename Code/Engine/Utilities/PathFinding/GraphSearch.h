@@ -5,7 +5,7 @@
 #include <Utilities/PathFinding/PathState.h>
 #include <Utilities/UtilitiesDLL.h>
 
-/// \brief Implements a directed breadth-first search through a graph (A*).
+/// Implements a directed breadth-first search through a graph (A*).
 ///
 /// You can search for a path to a specific location using FindPath() or to the closest node that fulfills some arbitrary criteria
 /// using FindClosest().
@@ -16,25 +16,25 @@ template <typename PathStateType>
 class ezPathSearch
 {
 public:
-  /// \brief Used by FindClosest() to query whether the currently visited node fulfills the termination criteria.
+  /// Used by FindClosest() to query whether the currently visited node fulfills the termination criteria.
   using IsSearchedObjectCallback = bool (*)(ezInt64 iCurrentNodeIndex, const PathStateType& CurrentState, ezPathStateGenerator<PathStateType>* pGenerator);
 
-  /// \brief FindPath() and FindClosest() return an array of these objects as the path result.
+  /// FindPath() and FindClosest() return an array of these objects as the path result.
   struct PathResultData
   {
     EZ_DECLARE_POD_TYPE();
 
-    /// \brief The index of the node that was visited.
+    /// The index of the node that was visited.
     ezInt64 m_iNodeIndex;
 
-    /// \brief Pointer to the path state that was active at that step along the path.
+    /// Pointer to the path state that was active at that step along the path.
     const PathStateType* m_pPathState;
   };
 
-  /// \brief Sets the ezPathStateGenerator that should be used by this ezPathSearch object.
+  /// Sets the ezPathStateGenerator that should be used by this ezPathSearch object.
   void SetPathStateGenerator(ezPathStateGenerator<PathStateType>* pStateGenerator) { m_pStateGenerator = pStateGenerator; }
 
-  /// \brief Searches for a path that starts at the graph node \a iStartNodeIndex with the start state \a StartState and shall terminate
+  /// Searches for a path that starts at the graph node \a iStartNodeIndex with the start state \a StartState and shall terminate
   /// when the graph node \a iTargetNodeIndex was reached.
   ///
   /// Returns EZ_FAILURE if no path could be found.
@@ -44,7 +44,7 @@ public:
   ezResult FindPath(ezInt64 iStartNodeIndex, const PathStateType& StartState, ezInt64 iTargetNodeIndex, ezDeque<PathResultData>& out_Path,
     float fMaxPathCost = ezMath::Infinity<float>());
 
-  /// \brief Searches for a path that starts at the graph node \a iStartNodeIndex with the start state \a StartState and shall terminate
+  /// Searches for a path that starts at the graph node \a iStartNodeIndex with the start state \a StartState and shall terminate
   /// when a graph node is reached for which \a Callback return true.
   ///
   /// Returns EZ_FAILURE if no path could be found.
@@ -54,7 +54,7 @@ public:
   ezResult FindClosest(ezInt64 iStartNodeIndex, const PathStateType& StartState, IsSearchedObjectCallback Callback, ezDeque<PathResultData>& out_Path,
     float fMaxPathCost = ezMath::Infinity<float>());
 
-  /// \brief Needs to be called by the used ezPathStateGenerator to add nodes to evaluate.
+  /// Needs to be called by the used ezPathStateGenerator to add nodes to evaluate.
   void AddPathNode(ezInt64 iNodeIndex, const PathStateType& NewState);
 
 private:

@@ -9,7 +9,7 @@ class ezScene2Document;
 struct ezScene2LayerEvent;
 struct ezDocumentEvent;
 
-/// \brief Custom adapter for layers, used in ezQtLayerPanel.
+/// Custom adapter for layers, used in ezQtLayerPanel.
 class EZ_EDITORPLUGINSCENE_DLL ezQtLayerAdapter : public ezQtDocumentTreeModelAdapter
 {
   Q_OBJECT;
@@ -36,7 +36,7 @@ private:
   ezUuid m_CurrentActiveLayer;
 };
 
-/// \brief Custom delegate for layers, used in ezQtLayerPanel.
+/// Custom delegate for layers, used in ezQtLayerPanel.
 /// Provides buttons to toggle the layer visible / loaded states.
 /// Relies on ezQtLayerAdapter to trigger updates and provide the LayerGuid.
 class ezQtLayerDelegate : public ezQtItemDelegate
@@ -58,7 +58,7 @@ public:
   ezScene2Document* m_pDocument = nullptr;
 };
 
-/// \brief Custom model for layers, used in ezQtLayerPanel.
+/// Custom model for layers, used in ezQtLayerPanel.
 class ezQtLayerModel : public ezQtDocumentTreeModel
 {
   Q_OBJECT

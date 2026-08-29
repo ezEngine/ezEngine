@@ -5,7 +5,7 @@
 
 class ezCamera;
 
-/// \brief A simple orbit camera. Use LMB to rotate, wheel to zoom, Alt to slow down.
+/// A simple orbit camera. Use LMB to rotate, wheel to zoom, Alt to slow down.
 class EZ_EDITORFRAMEWORK_DLL ezOrbitCameraContext : public ezEditorInputContext
 {
 public:
@@ -19,13 +19,13 @@ public:
 
   void MoveCameraToDefaultPosition();
 
-  /// \brief Defines the box in which the user may move the camera around
+  /// Defines the box in which the user may move the camera around
   void SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize);
 
-  /// \brief The center point around which the camera can be moved and rotated.
+  /// The center point around which the camera can be moved and rotated.
   ezVec3 GetVolumeCenter() const { return m_Volume.GetCenter(); }
 
-  /// \brief The half-size of the volume in which the camera may move around
+  /// The half-size of the volume in which the camera may move around
   ezVec3 GetVolumeHalfSize() const { return m_Volume.GetHalfExtents(); }
 
 protected:

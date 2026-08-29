@@ -2,7 +2,7 @@
 
 #include <Foundation/Memory/LinearAllocator.h>
 
-/// \brief A double buffered linear allocator for temporary per-frame allocations.
+/// A double buffered linear allocator for temporary per-frame allocations.
 ///
 /// This allocator maintains two linear allocators and swaps between them each frame.
 /// One allocator is used for the current frame while the previous frame's allocator is reset.
@@ -31,7 +31,7 @@ private:
   LinearAllocatorType* m_pOtherAllocator;
 };
 
-/// \brief Global frame allocator for temporary allocations that are reset each frame.
+/// Global frame allocator for temporary allocations that are reset each frame.
 ///
 /// This is a convenience wrapper around ezDoubleBufferedLinearAllocator that provides a global
 /// instance for frame-based allocations. Very efficient for temporary data that only needs to
@@ -49,17 +49,17 @@ private:
 class EZ_FOUNDATION_DLL ezFrameAllocator
 {
 public:
-  /// \brief Returns the allocator for the current frame.
+  /// Returns the allocator for the current frame.
   ///
   /// All allocations from this allocator will be automatically freed when the frame ends.
   EZ_ALWAYS_INLINE static ezAllocator* GetCurrentAllocator() { return s_pAllocator->GetCurrentAllocator(); }
 
-  /// \brief Swaps the active buffer, should be called once per frame.
+  /// Swaps the active buffer, should be called once per frame.
   ///
   /// This makes the previous frame's allocations invalid and resets the allocator for new allocations.
   static void Swap();
 
-  /// \brief Resets both buffers, typically called during shutdown.
+  /// Resets both buffers, typically called during shutdown.
   static void Reset();
 
 private:

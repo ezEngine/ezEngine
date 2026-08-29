@@ -8,7 +8,7 @@ class ezObjectAccessorBase;
 class ezMcpJsonWriter;
 class ezAbstractProperty;
 
-/// \brief Reads and modifies the properties of the objects inside a document.
+/// Reads and modifies the properties of the objects inside a document.
 ///
 /// The unit of addressing is one object plus one property name. An object is named by its guid, or
 /// implicitly: every tool here defaults to the document's top level object, which for the asset types

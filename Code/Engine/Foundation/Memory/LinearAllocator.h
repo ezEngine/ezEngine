@@ -7,7 +7,7 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
-/// \brief Linear allocator that allocates memory sequentially.
+/// Linear allocator that allocates memory sequentially.
 ///
 /// This allocator allocates memory by simply advancing a pointer within pre-allocated chunks.
 /// Individual deallocations are not supported - the entire allocator must be reset at once.
@@ -41,7 +41,7 @@ public:
   virtual void* Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc) override;
   virtual void Deallocate(void* pPtr) override;
 
-  /// \brief Resets the allocator, freeing all memory and calling destructors.
+  /// Resets the allocator, freeing all memory and calling destructors.
   ///
   /// This resets the allocation pointer to the beginning and calls destructors for all
   /// objects that were allocated with destructor functions. After reset, all previously

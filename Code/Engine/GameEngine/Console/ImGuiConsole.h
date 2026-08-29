@@ -20,7 +20,7 @@ class ezImGuiRegisteredWndHandle
 };
 
 
-/// \brief An ImGui-based console for in-game display of logs, configuration of ezCVars, and more.
+/// An ImGui-based console for in-game display of logs, configuration of ezCVars, and more.
 ///
 /// The console displays the recent log activity, allows to modify CVars and call console functions.
 /// It supports auto-completion and provides a GUI using ImGui.
@@ -35,36 +35,36 @@ public:
   /// \name Configuration
   /// @{
 
-  /// \brief Adjusts how many strings the console will keep in memory at maximum.
+  /// Adjusts how many strings the console will keep in memory at maximum.
   void SetMaxConsoleStrings(ezUInt32 uiMax) { m_uiMaxConsoleStrings = ezMath::Clamp<ezUInt32>(uiMax, 0, 100000); }
 
-  /// \brief Returns how many strings the console will keep in memory at maximum.
+  /// Returns how many strings the console will keep in memory at maximum.
   ezUInt32 GetMaxConsoleStrings() const { return m_uiMaxConsoleStrings; }
 
-  /// \brief Enables or disables that the output from ezGlobalLog is displayed in the console. Enabled by default.
+  /// Enables or disables that the output from ezGlobalLog is displayed in the console. Enabled by default.
   void EnableLogOutput(bool bEnable);
 
-  /// \brief Writes the state of the console (history, bound keys) to the stream.
+  /// Writes the state of the console (history, bound keys) to the stream.
   virtual void SaveState(ezStreamWriter& inout_stream) const;
 
-  /// \brief Reads the state of the console (history, bound keys) from the stream.
+  /// Reads the state of the console (history, bound keys) from the stream.
   virtual void LoadState(ezStreamReader& inout_stream);
 
   /// @}
   /// \name Console Content
   /// @{
 
-  /// \brief Adds a string to the console.
+  /// Adds a string to the console.
   virtual void AddConsoleString(ezStringView sText, ezConsoleString::Type type = ezConsoleString::Type::Default) override;
 
   /// @}
   /// \name Updates
   /// @{
 
-  /// \brief Display the console state.
+  /// Display the console state.
   virtual void RenderConsole(bool bIsOpen) override;
 
-  /// \brief Update the console with the latest input.
+  /// Update the console with the latest input.
   virtual void HandleInput(bool bIsOpen) override;
 
   /// @}

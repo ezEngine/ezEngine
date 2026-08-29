@@ -6,18 +6,18 @@
 #include <RendererCore/Declarations.h>
 #include <RendererFoundation/Shader/ShaderByteCode.h>
 
-/// \brief Output of ParseShaderResources. A shader resource definition found inside the shader source code.
+/// Output of ParseShaderResources. A shader resource definition found inside the shader source code.
 struct ezShaderResourceDefinition
 {
-  /// \brief Just the declaration inside the shader source, e.g. "Texture1D Texture".
+  /// Just the declaration inside the shader source, e.g. "Texture1D Texture".
   ezStringView m_sDeclaration;
-  /// \brief The declaration with any optional register mappings, e.g. "Texture1D Texture : register(12t, space3)"
+  /// The declaration with any optional register mappings, e.g. "Texture1D Texture : register(12t, space3)"
   ezStringView m_sDeclarationAndRegister;
-  /// \brief The extracted reflection of the resource containing type, slot, set etc.
+  /// The extracted reflection of the resource containing type, slot, set etc.
   ezShaderResourceBinding m_Binding;
 };
 
-/// \brief Flags that affect the compilation process of a shader
+/// Flags that affect the compilation process of a shader
 struct ezShaderCompilerFlags
 {
   using StorageType = ezUInt8;
@@ -34,7 +34,7 @@ struct ezShaderCompilerFlags
 };
 EZ_DECLARE_FLAGS_OPERATORS(ezShaderCompilerFlags);
 
-/// \brief Storage used during the shader compilation process.
+/// Storage used during the shader compilation process.
 struct EZ_RENDERERCORE_DLL ezShaderProgramData
 {
   ezShaderProgramData()

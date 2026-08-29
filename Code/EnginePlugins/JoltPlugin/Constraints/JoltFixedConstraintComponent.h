@@ -4,7 +4,7 @@
 
 using ezJoltFixedConstraintComponentManager = ezComponentManager<class ezJoltFixedConstraintComponent, ezBlockStorageType::Compact>;
 
-/// \brief Implements a fixed physics constraint.
+/// Implements a fixed physics constraint.
 ///
 /// Actors constrained this way may not move apart, at all.
 /// This is mainly useful for adding constraints dynamically, for example to attach a dynamic object to another one once it hits it,

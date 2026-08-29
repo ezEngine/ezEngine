@@ -10,7 +10,7 @@
 class ezStringBuilder;
 class ezStreamReader;
 
-/// \brief A string class for storing and passing around strings.
+/// A string class for storing and passing around strings.
 ///
 /// This class only allows read-access to its data. It does not allow modifications.
 /// To build / modify strings, use the ezStringBuilder class.
@@ -27,110 +27,110 @@ template <ezUInt16 Size>
 struct ezHybridStringBase : public ezStringBase<ezHybridStringBase<Size>>
 {
 protected:
-  /// \brief Creates an empty string.
+  /// Creates an empty string.
   ezHybridStringBase(ezAllocator* pAllocator); // [tested]
 
-  /// \brief Copies the data from \a rhs.
+  /// Copies the data from \a rhs.
   ezHybridStringBase(const ezHybridStringBase& rhs, ezAllocator* pAllocator); // [tested]
 
-  /// \brief Moves the data from \a rhs.
+  /// Moves the data from \a rhs.
   ezHybridStringBase(ezHybridStringBase&& rhs, ezAllocator* pAllocator); // [tested]
 
-  /// \brief Copies the data from \a rhs.
+  /// Copies the data from \a rhs.
   ezHybridStringBase(const char* rhs, ezAllocator* pAllocator); // [tested]
 
-  /// \brief Copies the data from \a rhs.
+  /// Copies the data from \a rhs.
   ezHybridStringBase(const wchar_t* rhs, ezAllocator* pAllocator); // [tested]
 
-  /// \brief Copies the data from \a rhs.
+  /// Copies the data from \a rhs.
   ezHybridStringBase(const ezStringView& rhs, ezAllocator* pAllocator); // [tested]
 
-  /// \brief Copies the data from \a rhs.
+  /// Copies the data from \a rhs.
   ezHybridStringBase(const ezStringBuilder& rhs, ezAllocator* pAllocator); // [tested]
 
-  /// \brief Moves the data from \a rhs.
+  /// Moves the data from \a rhs.
   ezHybridStringBase(ezStringBuilder&& rhs, ezAllocator* pAllocator); // [tested]
 
-  /// \brief Destructor.
+  /// Destructor.
   ~ezHybridStringBase(); // [tested]
 
-  /// \brief Copies the data from \a rhs.
+  /// Copies the data from \a rhs.
   void operator=(const ezHybridStringBase& rhs); // [tested]
 
-  /// \brief Moves the data from \a rhs.
+  /// Moves the data from \a rhs.
   void operator=(ezHybridStringBase&& rhs); // [tested]
 
-  /// \brief Copies the data from \a rhs.
+  /// Copies the data from \a rhs.
   void operator=(const char* rhs); // [tested]
 
-  /// \brief Copies the data from \a rhs.
+  /// Copies the data from \a rhs.
   void operator=(const wchar_t* rhs); // [tested]
 
-  /// \brief Copies the data from \a rhs.
+  /// Copies the data from \a rhs.
   void operator=(const ezStringView& rhs); // [tested]
 
-  /// \brief Copies the data from \a rhs.
+  /// Copies the data from \a rhs.
   void operator=(const ezStringBuilder& rhs); // [tested]
 
-  /// \brief Moves the data from \a rhs.
+  /// Moves the data from \a rhs.
   void operator=(ezStringBuilder&& rhs); // [tested]
 
 #if EZ_ENABLED(EZ_INTEROP_STL_STRINGS)
-  /// \brief Copies the data from \a rhs.
+  /// Copies the data from \a rhs.
   ezHybridStringBase(const std::string_view& rhs, ezAllocator* pAllocator);
 
-  /// \brief Copies the data from \a rhs.
+  /// Copies the data from \a rhs.
   ezHybridStringBase(const std::string& rhs, ezAllocator* pAllocator);
 
-  /// \brief Copies the data from \a rhs.
+  /// Copies the data from \a rhs.
   void operator=(const std::string_view& rhs);
 
-  /// \brief Copies the data from \a rhs.
+  /// Copies the data from \a rhs.
   void operator=(const std::string& rhs);
 #endif
 
 public:
-  /// \brief Resets this string to an empty string.
+  /// Resets this string to an empty string.
   ///
   /// This will not deallocate any previously allocated data, but reuse that memory.
   void Clear(); // [tested]
 
-  /// \brief Returns a pointer to the internal Utf8 string.
+  /// Returns a pointer to the internal Utf8 string.
   const char* GetData() const; // [tested]
 
-  /// \brief Returns the amount of bytes that this string takes (excluding the '\0' terminator).
+  /// Returns the amount of bytes that this string takes (excluding the '\0' terminator).
   ezUInt32 GetElementCount() const; // [tested]
 
-  /// \brief Returns the number of characters in this string. Might be less than GetElementCount, if it contains Utf8
+  /// Returns the number of characters in this string. Might be less than GetElementCount, if it contains Utf8
   /// multi-byte characters.
   ///
   /// \note This is a slow operation, as it has to run through the entire string to count the Unicode characters.
   /// Only call this once and use the result as long as the string doesn't change. Don't call this in a loop.
   ezUInt32 GetCharacterCount() const; // [tested]
 
-  /// \brief Returns a view to a sub-string of this string, starting at character uiFirstCharacter, up until uiFirstCharacter +
+  /// Returns a view to a sub-string of this string, starting at character uiFirstCharacter, up until uiFirstCharacter +
   /// uiNumCharacters.
   ///
   /// Note that this view will only be valid as long as this ezHybridString lives.
   /// Once the original string is destroyed, all views to them will point into invalid memory.
   ezStringView GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNumCharacters) const; // [tested]
 
-  /// \brief Returns a view to the sub-string containing the first uiNumCharacters characters of this string.
+  /// Returns a view to the sub-string containing the first uiNumCharacters characters of this string.
   ///
   /// Note that this view will only be valid as long as this ezHybridString lives.
   /// Once the original string is destroyed, all views to them will point into invalid memory.
   ezStringView GetFirst(ezUInt32 uiNumCharacters) const; // [tested]
 
-  /// \brief Returns a view to the sub-string containing the last uiNumCharacters characters of this string.
+  /// Returns a view to the sub-string containing the last uiNumCharacters characters of this string.
   ///
   /// Note that this view will only be valid as long as this ezHybridString lives.
   /// Once the original string is destroyed, all views to them will point into invalid memory.
   ezStringView GetLast(ezUInt32 uiNumCharacters) const; // [tested]
 
-  /// \brief Replaces the current string with the content from the stream. Reads the stream to its end.
+  /// Replaces the current string with the content from the stream. Reads the stream to its end.
   void ReadAll(ezStreamReader& inout_stream);
 
-  /// \brief Returns the amount of bytes that are currently allocated on the heap.
+  /// Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const { return m_Data.GetHeapMemoryUsage(); }
 
 private:
@@ -140,7 +140,7 @@ private:
 };
 
 
-/// \brief \see ezHybridStringBase
+/// \see ezHybridStringBase
 template <ezUInt16 Size, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
 struct ezHybridString : public ezHybridStringBase<Size>
 {
@@ -176,7 +176,7 @@ public:
 #endif
 };
 
-/// \brief String that uses the static allocator to prevent leak reports in RTTI attributes.
+/// String that uses the static allocator to prevent leak reports in RTTI attributes.
 using ezUntrackedString = ezHybridString<32, ezStaticsAllocatorWrapper>;
 
 using ezDynamicString = ezHybridString<1>;
@@ -220,10 +220,10 @@ struct ezCompareString_NoCase
 
 struct CompareConstChar
 {
-  /// \brief Returns true if a is less than b
+  /// Returns true if a is less than b
   static EZ_ALWAYS_INLINE bool Less(const char* a, const char* b) { return ezStringUtils::Compare(a, b) < 0; }
 
-  /// \brief Returns true if a is equal to b
+  /// Returns true if a is equal to b
   static EZ_ALWAYS_INLINE bool Equal(const char* a, const char* b) { return ezStringUtils::IsEqual(a, b); }
 };
 

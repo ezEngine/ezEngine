@@ -9,20 +9,20 @@ extern "C"
 
 namespace ezMiniDumpUtils
 {
-  /// \brief Windows-specific implementation for writing a mini-dump of the running process.
+  /// Windows-specific implementation for writing a mini-dump of the running process.
   ///
   /// \sa WriteProcessMiniDump()
   EZ_FOUNDATION_DLL ezStatus WriteOwnProcessMiniDump(ezStringView sDumpFile, struct _EXCEPTION_POINTERS* pExceptionInfo, ezDumpType dumpTypeOverride = ezDumpType::Auto);
 
-  /// \brief Given a process ID this function tries to get a HANDLE to the process with the necessary access rights to write a mini-dump.
+  /// Given a process ID this function tries to get a HANDLE to the process with the necessary access rights to write a mini-dump.
   EZ_FOUNDATION_DLL ezMinWindows::HANDLE GetProcessHandleWithNecessaryRights(ezUInt32 uiProcessID);
 
-  /// \brief Windows-specific implementation for writing a mini-dump of another process.
+  /// Windows-specific implementation for writing a mini-dump of another process.
   ///
   /// \sa WriteProcessMiniDump()
   EZ_FOUNDATION_DLL ezStatus WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE hProcess, ezDumpType dumpTypeOverride = ezDumpType::Auto);
 
-  /// \brief Windows-specific implementation for writing a mini-dump of the running process.
+  /// Windows-specific implementation for writing a mini-dump of the running process.
   ///
   /// \note On Windows: A crash-dump with a full memory capture is made if either this application's command line option '-fullcrashdumps' is specified or if that setting is overridden through dumpTypeOverride = ezDumpType::MiniDumpWithFullMemory.
   EZ_FOUNDATION_DLL ezStatus WriteProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE hProcess, struct _EXCEPTION_POINTERS* pExceptionInfo, ezDumpType dumpTypeOverrideType = ezDumpType::Auto);

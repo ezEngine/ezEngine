@@ -30,7 +30,7 @@ public:
   ezSpatialAnchorComponent();
   ~ezSpatialAnchorComponent();
 
-  /// \brief Attempts to create a new anchor at the given location.
+  /// Attempts to create a new anchor at the given location.
   ///
   /// On failure, the existing anchor will continue to be used.
   /// On success, the new anchor will be used and the new location.

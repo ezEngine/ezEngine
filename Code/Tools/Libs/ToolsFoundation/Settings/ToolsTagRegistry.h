@@ -23,25 +23,25 @@ struct EZ_TOOLSFOUNDATION_DLL ezToolsTag
 class EZ_TOOLSFOUNDATION_DLL ezToolsTagRegistry
 {
 public:
-  /// \brief Removes all tags that are not specified as 'built-in'.
+  /// Removes all tags that are not specified as 'built-in'.
   static void Clear();
 
-  /// \brief Serializes all tags to a DDL stream.
+  /// Serializes all tags to a DDL stream.
   static void WriteToDDL(ezStreamWriter& inout_stream);
-  /// \brief Reads tags from a DDL stream.
+  /// Reads tags from a DDL stream.
   static ezStatus ReadFromDDL(ezStreamReader& inout_stream);
 
-  /// \brief Adds a tag to the registry. Returns true if the tag was valid.
+  /// Adds a tag to the registry. Returns true if the tag was valid.
   static bool AddTag(const ezToolsTag& tag);
-  /// \brief Removes a tag by name. Returns true if the tag was removed.
+  /// Removes a tag by name. Returns true if the tag was removed.
   static bool RemoveTag(ezStringView sName);
 
-  /// \brief Retrieves all tags in the registry.
+  /// Retrieves all tags in the registry.
   static void GetAllTags(ezDynamicArray<const ezToolsTag*>& out_tags);
-  /// \brief Retrieves all tags in the given categories.
+  /// Retrieves all tags in the given categories.
   static void GetTagsByCategory(const ezArrayPtr<ezStringView>& categories, ezDynamicArray<const ezToolsTag*>& out_tags);
 
-  /// \brief Returns whether a tag with this name is currently registered, regardless of its category.
+  /// Returns whether a tag with this name is currently registered, regardless of its category.
   ///
   /// Objects may reference tags that were removed from the registry (e.g. after copying objects from another project),
   /// which is used to detect and surface such "dangling" tags in the UI.

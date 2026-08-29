@@ -35,7 +35,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezMeshInstanceData);
 
 using ezInstancedMeshComponentManager = ezComponentManager<class ezInstancedMeshComponent, ezBlockStorageType::Compact>;
 
-/// \brief Renders multiple instances of the same mesh.
+/// Renders multiple instances of the same mesh.
 ///
 /// This is used as an optimization to render many instances of the same (usually small mesh).
 /// For example, if you need to render 1000 pieces of grass in a small area,
@@ -69,7 +69,7 @@ public:
   ezInstancedMeshComponent();
   ~ezInstancedMeshComponent();
 
-  /// \brief Extracts the render geometry for export etc.
+  /// Extracts the render geometry for export etc.
   void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg);            // [ msg handler ]
 
 protected:

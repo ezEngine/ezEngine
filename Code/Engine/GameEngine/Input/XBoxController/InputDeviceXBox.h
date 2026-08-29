@@ -5,7 +5,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-/// \brief An implementation of ezInputDeviceController that handles XBox controllers.
+/// An implementation of ezInputDeviceController that handles XBox controllers.
 ///
 /// Works on all platforms that provide the XINPUT API.
 class EZ_GAMEENGINE_DLL ezInputDeviceXBoxController : public ezInputDeviceController
@@ -16,7 +16,7 @@ public:
   ezInputDeviceXBoxController();
   ~ezInputDeviceXBoxController();
 
-  /// \brief Returns an ezInputDeviceXBoxController device.
+  /// Returns an ezInputDeviceXBoxController device.
   static ezInputDeviceXBoxController* GetDevice();
   virtual bool IsPhysicalControllerConnected(ezUInt8 uiPhysical) const override;
 

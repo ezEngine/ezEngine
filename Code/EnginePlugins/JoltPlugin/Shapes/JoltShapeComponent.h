@@ -20,7 +20,7 @@ struct ezJoltSubShape
   ezTransform m_Transform = ezTransform::MakeIdentity();
 };
 
-/// \brief Base class for all Jolt physics shapes.
+/// Base class for all Jolt physics shapes.
 ///
 /// A physics shape is used to represent (part of) a physical actor, such as a box or sphere,
 /// which is used for the rigid body simulation.
@@ -47,7 +47,7 @@ public:
   ezJoltShapeComponent();
   ~ezJoltShapeComponent();
 
-  /// \brief If overridden, a triangular representation of the physics shape is added to the geometry object.
+  /// If overridden, a triangular representation of the physics shape is added to the geometry object.
   ///
   /// This may be used for debug visualization or navmesh generation (though there are also other ways to do those).
   virtual void ExtractGeometry(ezMsgExtractGeometry& ref_msg) const {}

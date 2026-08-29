@@ -9,7 +9,7 @@
 
 class ezRasterizerObject;
 
-/// \brief Base class for all render data. Render data must contain all information that is needed to render the corresponding object.
+/// Base class for all render data. Render data must contain all information that is needed to render the corresponding object.
 class EZ_RENDERERCORE_DLL ezRenderData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderData, ezReflectedClass);
@@ -27,7 +27,7 @@ public:
     ezUInt16 m_uiValue = 0xFFFF;
   };
 
-  /// \brief This function generates a 64bit sorting key for the given render data. Data with lower sorting key is rendered first.
+  /// This function generates a 64bit sorting key for the given render data. Data with lower sorting key is rendered first.
   using SortingKeyFunc = ezUInt64 (*)(const ezRenderData*, const ezCamera&);
 
   static Category RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc);
@@ -72,10 +72,10 @@ public:
   bool IsStatic() const;
   bool FlipWinding() const;
 
-  /// \brief Returns the final sorting for this render data with the given category and camera.
+  /// Returns the final sorting for this render data with the given category and camera.
   ezUInt64 GetFinalSortingKey(Category category, const ezCamera& camera) const;
 
-  /// \brief Returns whether this render data and the other render data can be batched together, e.g. rendered in one draw call.
+  /// Returns whether this render data and the other render data can be batched together, e.g. rendered in one draw call.
   /// An implementation can assume that the other render data is of the same type as this render data.
   virtual bool CanBatch(const ezRenderData& other) const { return false; }
 
@@ -106,7 +106,7 @@ private:
   static ezHybridArray<CategoryData, 32> s_CategoryData;
 };
 
-/// \brief Base class for render data that make uses of the instance data offset buffer which will be generated during the extraction phase.
+/// Base class for render data that make uses of the instance data offset buffer which will be generated during the extraction phase.
 class EZ_RENDERERCORE_DLL ezInstanceableRenderData : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezInstanceableRenderData, ezRenderData);
@@ -162,17 +162,17 @@ struct EZ_RENDERERCORE_DLL ezMsgExtractRenderData : public ezMessage
   const ezRenderDataManager* m_pRenderDataManager = nullptr;
   ezRenderData::Category m_OverrideCategory = ezInvalidRenderDataCategory;
 
-  /// \brief Adds render data for the current view. This data can be cached depending on the specified caching behavior.
+  /// Adds render data for the current view. This data can be cached depending on the specified caching behavior.
   /// Non-cached data is only valid for this frame. Cached data must be manually deleted using the ezRenderWorld::DeleteCachedRenderData
   /// function.
   void AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category, ezRenderData::Caching::Enum cachingBehavior);
 
-  /// \brief Records that the given texture must be in `requiredState` when `category` is rendered. Invalid handles are ignored so safe to pass in without checking.
+  /// Records that the given texture must be in `requiredState` when `category` is rendered. Invalid handles are ignored so safe to pass in without checking.
   /// Like render data, dependencies are cached for static objects when the component's render data is cached.
   /// \sa ezRenderPipelinePass::DeclareRendererDependenciesForCategory
   void AddDependency(ezGALTextureHandle hTexture, ezRenderData::Category category, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
 
-  /// \brief Records that the given buffer must be in `requiredState` when `category` is rendered. Invalid handles are ignored so safe to pass in without checking.
+  /// Records that the given buffer must be in `requiredState` when `category` is rendered. Invalid handles are ignored so safe to pass in without checking.
   /// Like render data, dependencies are cached for static objects when the component's render data is cached.
   /// \sa ezRenderPipelinePass::DeclareRendererDependenciesForCategory
   void AddDependency(ezGALBufferHandle hBuffer, ezRenderData::Category category, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);

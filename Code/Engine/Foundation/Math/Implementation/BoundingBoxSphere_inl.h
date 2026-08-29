@@ -184,7 +184,7 @@ EZ_FORCE_INLINE bool operator==(const ezBoundingBoxSphereTemplate<Type>& lhs, co
   return lhs.m_vCenter == rhs.m_vCenter && lhs.m_vBoxHalfExtents == rhs.m_vBoxHalfExtents && lhs.m_fSphereRadius == rhs.m_fSphereRadius;
 }
 
-/// \brief Checks whether this box and the other are not identical.
+/// Checks whether this box and the other are not identical.
 template <typename Type>
 EZ_ALWAYS_INLINE bool operator!=(const ezBoundingBoxSphereTemplate<Type>& lhs, const ezBoundingBoxSphereTemplate<Type>& rhs)
 {

@@ -7,7 +7,7 @@
 
 class ezQtAssetPropertyWidget;
 
-/// \brief A QLineEdit that is used by ezQtAssetPropertyWidget
+/// A QLineEdit that is used by ezQtAssetPropertyWidget
 class EZ_EDITORFRAMEWORK_DLL ezQtAssetLineEdit : public QLineEdit
 {
   Q_OBJECT

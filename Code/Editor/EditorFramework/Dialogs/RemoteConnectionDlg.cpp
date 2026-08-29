@@ -106,10 +106,10 @@ void ezQtRemoteConnectionDlg::showEvent(QShowEvent* event)
     {
       QAction* pAction = new QAction(this);
       pAction->setText(QString("%1.%2.%3.%4")
-                         .arg(m_RecentAddresses[i].part[0])
-                         .arg(m_RecentAddresses[i].part[1])
-                         .arg(m_RecentAddresses[i].part[2])
-                         .arg(m_RecentAddresses[i].part[3]));
+          .arg(m_RecentAddresses[i].part[0])
+          .arg(m_RecentAddresses[i].part[1])
+          .arg(m_RecentAddresses[i].part[2])
+          .arg(m_RecentAddresses[i].part[3]));
       pAction->setData(i);
 
       connect(pAction, &QAction::triggered, this, &ezQtRemoteConnectionDlg::onRecentIPselected);
@@ -124,10 +124,10 @@ void ezQtRemoteConnectionDlg::showEvent(QShowEvent* event)
     {
       QAction* pAction = new QAction(this);
       pAction->setText(QString("%1.%2.%3.%4")
-                         .arg(m_RecentFsAddresses[i].part[0])
-                         .arg(m_RecentFsAddresses[i].part[1])
-                         .arg(m_RecentFsAddresses[i].part[2])
-                         .arg(m_RecentFsAddresses[i].part[3]));
+          .arg(m_RecentFsAddresses[i].part[0])
+          .arg(m_RecentFsAddresses[i].part[1])
+          .arg(m_RecentFsAddresses[i].part[2])
+          .arg(m_RecentFsAddresses[i].part[3]));
       pAction->setData(i);
 
       connect(pAction, &QAction::triggered, this, &ezQtRemoteConnectionDlg::onRecentFsIPselected);

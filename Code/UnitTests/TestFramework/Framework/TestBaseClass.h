@@ -25,13 +25,13 @@ public:
   /// Override this function to add additional information to the test configuration
   virtual void UpdateConfiguration(ezTestConfiguration& ref_config) const /*override*/;
 
-  /// \brief Implement this to add support for image comparisons. See EZ_TEST_IMAGE_MSG.
+  /// Implement this to add support for image comparisons. See EZ_TEST_IMAGE_MSG.
   virtual ezResult GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) { return EZ_FAILURE; }
 
-  /// \brief Implement this to add support for depth buffer image comparisons. See EZ_TEST_DEPTH_IMAGE_MSG.
+  /// Implement this to add support for depth buffer image comparisons. See EZ_TEST_DEPTH_IMAGE_MSG.
   virtual ezResult GetDepthImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) { return EZ_FAILURE; }
 
-  /// \brief Used to map the 'number' for an image comparison, to a string used for finding the comparison image.
+  /// Used to map the 'number' for an image comparison, to a string used for finding the comparison image.
   ///
   /// By default image comparison screenshots are called 'TestName_SubTestName_XYZ'
   /// This can be fully overridden to use any other file name.

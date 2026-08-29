@@ -135,7 +135,7 @@ public:
   Statistics GetAndResetStatistics();
 
 private:
-  /// \brief To be able to cache descriptor sets, we not only need the bind group description but also the currently used dynamic uniform buffers used by transient constant buffers.
+  /// To be able to cache descriptor sets, we not only need the bind group description but also the currently used dynamic uniform buffers used by transient constant buffers.
   /// All constant buffers in EZ are marked as dynamic in the layout so we need to provide offsets for each slot, no mater if a normal or transient constant buffer is bound to a slot.
   struct DynamicOffsets
   {

@@ -62,7 +62,7 @@ struct ezResourceEvent;
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Sent when a ezFmodEventComponent finishes playing a sound. Not sent for one-shot sound events.
+/// Sent when a ezFmodEventComponent finishes playing a sound. Not sent for one-shot sound events.
 struct EZ_FMODPLUGIN_DLL ezMsgFmodSoundFinished : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgFmodSoundFinished, ezMessage);
@@ -71,7 +71,7 @@ struct EZ_FMODPLUGIN_DLL ezMsgFmodSoundFinished : public ezMessage
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Represents a sound (called an 'event') in the FMOD sound system.
+/// Represents a sound (called an 'event') in the FMOD sound system.
 ///
 /// Provides functions to start, pause, stop a sound, set parameters, change volume, pitch etc.
 class EZ_FMODPLUGIN_DLL ezFmodEventComponent : public ezFmodComponent
@@ -131,32 +131,32 @@ public:
   void SetShowDebugInfo(bool bShow);                                                    // [ property ]
   bool GetShowDebugInfo() const;                                                        // [ property ]
 
-  /// \brief If set, the global game speed does not affect the pitch of this event.
+  /// If set, the global game speed does not affect the pitch of this event.
   ///
   /// This is important for global sounds, such as music or UI effects, so that they always play at their regular speed,
   /// even when the game is in slow motion.
   void SetNoGlobalPitch(bool bEnable); // [ property ]
   bool GetNoGlobalPitch() const;       // [ property ]
 
-  /// \brief Makes the sound play.
+  /// Makes the sound play.
   ///
   /// If it was not yet playing, it starts playing a new sound.
   /// If it was already playing, but paused, playback is resumed.
   /// If it was already playing, there is no change.
   void Play(); // [ scriptable ]
 
-  /// \brief If a sound is playing, it pauses at the current play position.
+  /// If a sound is playing, it pauses at the current play position.
   ///
   /// Call Play() to resume playing.
   void Pause(); // [ scriptable ]
 
-  /// \brief Interrupts the sound playback abruptly.
+  /// Interrupts the sound playback abruptly.
   void Stop(); // [ scriptable ]
 
-  /// \brief Stops the sound, by fading it out over a short period.
+  /// Stops the sound, by fading it out over a short period.
   void FadeOut(); // [ scriptable ]
 
-  /// \brief Plays a completely new sound at the location of this component and with all its current properties.
+  /// Plays a completely new sound at the location of this component and with all its current properties.
   ///
   /// Pitch, volume, position, direction and velocity are copied to the new sound instance.
   /// The new sound event then plays to the end and cannot be controlled through this component any further.
@@ -164,22 +164,22 @@ public:
   /// The event that is controlled through this component is unaffected by this.
   void StartOneShot(); // [ scriptable ]
 
-  /// \brief Triggers an FMOD sound cue. Whatever that is useful for.
+  /// Triggers an FMOD sound cue. Whatever that is useful for.
   void SoundCue(); // [ scriptable ]
 
-  /// \brief Tries to find the FMOD event parameter by name. Returns the parameter id or -1, if no such parameter exists.
+  /// Tries to find the FMOD event parameter by name. Returns the parameter id or -1, if no such parameter exists.
   ezFmodParameterId FindParameter(const char* szName) const;
 
-  /// \brief Sets an FMOD event parameter value. See FindParameter() for the index.
+  /// Sets an FMOD event parameter value. See FindParameter() for the index.
   void SetParameter(ezFmodParameterId paramId, float fValue);
 
-  /// \brief Gets an FMOD event parameter value. See FindParameter() for the index. Returns 0, if the index is invalid.
+  /// Gets an FMOD event parameter value. See FindParameter() for the index. Returns 0, if the index is invalid.
   float GetParameter(ezFmodParameterId paramId) const;
 
-  /// \brief Sets an event parameter via name lookup, so this is less efficient than SetParameter()
+  /// Sets an event parameter via name lookup, so this is less efficient than SetParameter()
   void SetEventParameter(const char* szParamName, float fValue); // [ scriptable ]
 
-  /// \brief Allows one to set event parameters through the generic ezMsgSetFloatParameter message.
+  /// Allows one to set event parameters through the generic ezMsgSetFloatParameter message.
   ///
   /// Requires event parameter lookup via a name, so this is less efficient than SetParameter().
   void OnMsgSetFloatParameter(ezMsgSetFloatParameter& ref_msg); // [ msg handler ]

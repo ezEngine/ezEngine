@@ -11,7 +11,7 @@ struct ezSpline;
 class ezAbstractObjectNode;
 class ezSplineComponent;
 
-/// \brief Determines how many meshes are distributed along the spline and how they are scaled.
+/// Determines how many meshes are distributed along the spline and how they are scaled.
 struct ezSplineMeshDistributionMode
 {
   using StorageType = ezUInt8;
@@ -30,7 +30,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSplineMeshDistributionMode);
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Message sent by the ezSplineMeshComponent to request collision mesh generation.
+/// Message sent by the ezSplineMeshComponent to request collision mesh generation.
 struct EZ_RENDERERCORE_DLL ezMsgGenerateSplineMeshCollision : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgGenerateSplineMeshCollision, ezMessage);
@@ -67,7 +67,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSplineMeshPart);
 
 using ezSplineMeshComponentManager = ezComponentManager<class ezSplineMeshComponent, ezBlockStorageType::Compact>;
 
-/// \brief A component that generates a mesh along a spline using the specified mesh parts.
+/// A component that generates a mesh along a spline using the specified mesh parts.
 ///
 /// The spline is taken from an ezSplineComponent on the owner game object or one of its parents.
 /// Generation only happens in the editor and the generated mesh is cached to disk so it can be loaded at runtime.
@@ -92,43 +92,43 @@ public:
   ezSplineMeshComponent();
   ~ezSplineMeshComponent();
 
-  /// \brief Sets a specialized mesh part to be used at the start of the spline. Can be empty.
+  /// Sets a specialized mesh part to be used at the start of the spline. Can be empty.
   void SetStartPart(const ezSplineMeshPart& part);                     // [ property ]
   const ezSplineMeshPart& GetStartPart() const { return m_StartPart; } // [ property ]
 
-  /// \brief Sets the list of mesh parts to be used in the middle of the spline. At least one part must be specified.
+  /// Sets the list of mesh parts to be used in the middle of the spline. At least one part must be specified.
   ///
   /// If multiple parts are specified either a random one or the best fitting one is chosen,
   /// depending on the distribution mode and the spline and part length.
   void SetMiddleParts(ezArrayPtr<const ezSplineMeshPart> middleParts);                // [ property ]
   ezArrayPtr<const ezSplineMeshPart> GetMiddleParts() const { return m_MiddleParts; } // [ property ]
 
-  /// \brief Sets a specialized mesh part to be used at the end of the spline. Can be empty.
+  /// Sets a specialized mesh part to be used at the end of the spline. Can be empty.
   void SetEndPart(const ezSplineMeshPart& part);                   // [ property ]
   const ezSplineMeshPart& GetEndPart() const { return m_EndPart; } // [ property ]
 
-  /// \brief Sets how the meshes are distributed along the spline.
+  /// Sets how the meshes are distributed along the spline.
   void SetDistributionMode(ezEnum<ezSplineMeshDistributionMode> mode);                            // [ property ]
   ezEnum<ezSplineMeshDistributionMode> GetDistributionMode() const { return m_DistributionMode; } // [ property ]
 
-  /// \brief Sets the random seed used when selecting middle parts randomly.
+  /// Sets the random seed used when selecting middle parts randomly.
   ///
   /// Negative values indicate to use the stable random seed from the owner object.
   /// Positive values or zero specify an explicit seed value.
   void SetSeed(ezInt32 iSeed);                // [ property ]
   ezInt32 GetSeed() const { return m_iSeed; } // [ property ]
 
-  /// \brief Sets an offset that is applied to each generated mesh vertex in the local Y direction of the spline
+  /// Sets an offset that is applied to each generated mesh vertex in the local Y direction of the spline
   /// effectively moving the mesh to the left or right of the spline.
   void SetOffsetY(float fOffsetY);                // [ property ]
   float GetOffsetY() const { return m_fOffsetY; } // [ property ]
 
-  /// \brief Sets an offset that is applied to each generated mesh vertex in the local Z direction of the spline
+  /// Sets an offset that is applied to each generated mesh vertex in the local Z direction of the spline
   /// effectively moving the mesh up or down relative to the spline.
   void SetOffsetZ(float fOffsetZ);                // [ property ]
   float GetOffsetZ() const { return m_fOffsetZ; } // [ property ]
 
-  /// \brief Helper function to generate a spline mesh descriptor from the given spline and meshes.
+  /// Helper function to generate a spline mesh descriptor from the given spline and meshes.
   static ezResult GenerateSplineMeshDesc(const ezSpline& spline, const ezArrayMap<float, float>& distanceToKey, ezArrayPtr<ezCpuMeshResource*> meshes, ezArrayPtr<ezVec2> scaleOffsets, float fLocalOffsetY, float fLocalOffsetZ, ezMeshResourceDescriptor& out_splineMeshDesc);
 
 private:

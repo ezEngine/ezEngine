@@ -9,7 +9,7 @@
 
 struct ezLongOpControllerEvent;
 
-/// \brief This panel listens to events from ezLongOpControllerManager and displays all currently known long operations
+/// This panel listens to events from ezLongOpControllerManager and displays all currently known long operations
 class EZ_EDITORFRAMEWORK_DLL ezQtLongOpsPanel : public ezQtApplicationPanel, public Ui_LongOpsPanel
 {
   Q_OBJECT

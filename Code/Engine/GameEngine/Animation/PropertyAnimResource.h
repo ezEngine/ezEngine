@@ -7,7 +7,7 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <GameEngine/GameEngineDLL.h>
 
-/// \brief What data type an animation modifies.
+/// What data type an animation modifies.
 struct EZ_GAMEENGINE_DLL ezPropertyAnimTarget
 {
   using StorageType = ezUInt8;
@@ -32,7 +32,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezPropertyAnimTarget);
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Describes how an animation should be played back.
+/// Describes how an animation should be played back.
 struct EZ_GAMEENGINE_DLL ezPropertyAnimMode
 {
   using StorageType = ezUInt8;

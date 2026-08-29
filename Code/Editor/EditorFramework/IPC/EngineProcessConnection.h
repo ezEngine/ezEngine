@@ -25,11 +25,11 @@ public:
   ezEditorEngineProcessConnection();
   ~ezEditorEngineProcessConnection();
 
-  /// \brief The given file system configuration will be used by the engine process to setup the runtime data directories.
+  /// The given file system configuration will be used by the engine process to setup the runtime data directories.
   ///        This only takes effect if the editor process is restarted.
   void SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg) { m_FileSystemConfig = cfg; }
 
-  /// \brief The given plugin configuration will be used by the engine process to load runtime plugins.
+  /// The given plugin configuration will be used by the engine process to load runtime plugins.
   ///        This only takes effect if the editor process is restarted.
   void SetPluginConfig(const ezApplicationPluginConfig& cfg) { m_PluginConfig = cfg; }
 
@@ -43,15 +43,14 @@ public:
 
   bool SendMessage(ezProcessMessage* pMessage);
 
-  /// /brief Waits for a message of type pMessageType. If tTimeout is zero, the function will not timeout. If the timeout is valid
-  ///        and is it, EZ_FAILURE is returned. If the message type matches and pCallback is valid, the function will be called
-  ///        and the return values decides whether the message is to be accepted and the waiting has ended.
+  /// Waits for a message of type pMessageType. If tTimeout is zero, the function will not timeout. If the timeout is valid
+  /// and is it, EZ_FAILURE is returned. If the message type matches and pCallback is valid, the function will be called
+  /// and the return values decides whether the message is to be accepted and the waiting has ended.
   ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime timeout, ezProcessCommunicationChannel ::WaitForMessageCallback* pCallback = nullptr);
-  /// /brief Same as WaitForMessage but the message must be to a specific document. Therefore,
-  ///        pMessageType must be derived from ezEditorEngineDocumentMsg and the function will only return if the received
-  ///        message matches both type, document and is accepted by pCallback.
-  ezResult WaitForDocumentMessage(
-    const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime timeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback = nullptr);
+  /// Same as WaitForMessage but the message must be to a specific document. Therefore,
+  /// pMessageType must be derived from ezEditorEngineDocumentMsg and the function will only return if the received
+  /// message matches both type, document and is accepted by pCallback.
+  ezResult WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime timeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback = nullptr);
 
   bool IsEngineSetup() const { return m_bClientIsConfigured; }
 

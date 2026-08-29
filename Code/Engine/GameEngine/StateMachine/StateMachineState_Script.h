@@ -4,7 +4,7 @@
 #include <Foundation/Types/RangeView.h>
 #include <GameEngine/StateMachine/StateMachine.h>
 
-/// \brief A state machine state implementation that can be scripted using e.g. visual scripting.
+/// A state machine state implementation that can be scripted using e.g. visual scripting.
 class EZ_GAMEENGINE_DLL ezStateMachineState_Script : public ezStateMachineState
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState_Script, ezStateMachineState);

@@ -10,24 +10,24 @@ class ezGALDeviceVulkan;
 
 
 
-/// \brief Allocates temporary staging buffers from a large pool. Allocations will automatically be freed at the end of the frame.
+/// Allocates temporary staging buffers from a large pool. Allocations will automatically be freed at the end of the frame.
 /// New (larger) pools will be created if the existing ones run out of space. Pools will be deleted after a certain time of no usage.
 class EZ_RENDERERVULKAN_DLL ezStagingBufferPoolVulkan
 {
 public:
-  /// \brief Initializes the pool.
+  /// Initializes the pool.
   /// \param pDevice GAL device.
   /// \param uiStartingPoolSize Size of the first pool. If depleted, a new one with twice the size of the previous one is created.
   void Initialize(ezGALDeviceVulkan* pDevice, ezUInt64 uiStartingPoolSize);
-  /// \brief Needs to be called before destroying this instance. Ensure that the GPU is idle before calling.
+  /// Needs to be called before destroying this instance. Ensure that the GPU is idle before calling.
   void DeInitialize();
 
-  /// \brief Needs to be called after begin frame to free memory.
+  /// Needs to be called after begin frame to free memory.
   void AfterBeginFrame();
-  /// \brief Needs to be called before submitting work to the GPU to flush GPU caches.
+  /// Needs to be called before submitting work to the GPU to flush GPU caches.
   void BeforeCommandBufferSubmit();
 
-  /// \brief Allocates a temp buffer of the given size.
+  /// Allocates a temp buffer of the given size.
   /// \param size The size of the temp buffer.
   /// \return Allocated temp buffer.
   ezStagingBufferVulkan AllocateBuffer(ezUInt64 uiSize);

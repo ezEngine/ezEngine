@@ -7,7 +7,7 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-/// \brief Defines the depth compare function to be used to decide sample weights.
+/// Defines the depth compare function to be used to decide sample weights.
 struct EZ_RENDERERCORE_DLL ezLSAODepthCompareFunction
 {
   using StorageType = ezUInt8;

@@ -4,7 +4,7 @@
 
 class ezMcpJsonWriter;
 
-/// \brief Tools that act on the process itself, rather than on whatever it has loaded.
+/// Tools that act on the process itself, rather than on whatever it has loaded.
 ///
 /// These exist to close the automation loop: an agent that can launch a process (with '-mcpport' to get
 /// its own port), query it and then shut it down again can test a change without a human in between.
@@ -24,17 +24,17 @@ public:
   virtual void Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result) override;
 
 protected:
-  /// \brief What this process is, e.g. "editor" or "game". Used in the tool descriptions, so that an
+  /// What this process is, e.g. "editor" or "game". Used in the tool descriptions, so that an
   /// agent talking to two servers at once can tell which one it is addressing.
   virtual ezStringView GetHostNoun() const = 0;
 
-  /// \brief How to start another process like this one, appended to app_quit's description.
+  /// How to start another process like this one, appended to app_quit's description.
   ///
   /// Everything an agent needs has to be in the tool list - it has no repo access and no prior session -
   /// so this is where 'which executable, which arguments' gets said.
   virtual ezStringView GetRelaunchHint() const = 0;
 
-  /// \brief When the binary serving MCP was compiled, reported by app_info as 'buildTimestamp'.
+  /// When the binary serving MCP was compiled, reported by app_info as 'buildTimestamp'.
   ///
   /// Exists because a stale binary is indistinguishable from a missing feature: an agent working from a
   /// `tools/list` produced by a build from a few days ago reports tools as absent, and nothing in the
@@ -45,23 +45,23 @@ protected:
   /// the plugin, so that is the binary whose age actually explains a missing tool.
   virtual ezStringView GetBuildTimestamp() const;
 
-  /// \brief Anything host specific that app_info should report, added to the same object.
+  /// Anything host specific that app_info should report, added to the same object.
   virtual void AddHostInfo(ezMcpJsonWriter& ref_writer) {}
 
-  /// \brief Whether quitting is allowed right now. Return EZ_FAILURE to refuse.
+  /// Whether quitting is allowed right now. Return EZ_FAILURE to refuse.
   ///
   /// A refusal must never be a question to the user: a modal dialog with nobody at the keyboard never
   /// returns, and the process then hangs holding its port. Destructive choices are parameters, which is
   /// what \a bDiscardChanges is.
   virtual ezResult CanQuit(bool bDiscardChanges) { return EZ_SUCCESS; }
 
-  /// \brief Explains a refusal from CanQuit(). Writes into the result object, after "quitting": false.
+  /// Explains a refusal from CanQuit(). Writes into the result object, after "quitting": false.
   virtual void AddQuitRefusalInfo(ezMcpJsonWriter& ref_writer) {}
 
-  /// \brief Anything worth reporting about a quit that is going ahead, e.g. what got discarded.
+  /// Anything worth reporting about a quit that is going ahead, e.g. what got discarded.
   virtual void AddQuitInfo(ezMcpJsonWriter& ref_writer) {}
 
-  /// \brief Actually shuts the process down.
+  /// Actually shuts the process down.
   ///
   /// Must defer the shutdown past the end of this call. The response has not reached the socket yet, so
   /// quitting synchronously drops it and leaves the caller waiting on a connection that closes with no

@@ -6,7 +6,7 @@
 #  include <TestFramework/Framework/TestFramework.h>
 #  include <TestFramework/TestFrameworkDLL.h>
 
-/// \brief Derived ezTestFramework which signals the GUI to update whenever a new tests result comes in.
+/// Derived ezTestFramework which signals the GUI to update whenever a new tests result comes in.
 class EZ_TEST_DLL ezQtTestFramework : public QObject, public ezTestFramework
 {
   Q_OBJECT

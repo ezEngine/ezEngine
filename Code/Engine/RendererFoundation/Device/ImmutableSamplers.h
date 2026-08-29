@@ -5,7 +5,7 @@
 struct ezGALDeviceEvent;
 class ezGALDevice;
 
-/// \brief Manages and creates immutable samplers.
+/// Manages and creates immutable samplers.
 /// Once registered, the immutable sampler will be automatically be bound to a shader and can't be changed at runtime.
 /// Besides convenience of not having to set these in code, GAL implementations like Vulkan can use this to optimize resource binding.
 /// Immutable samplers should be registered at Core Startup via a subsystem, see ezRenderContext::RegisterImmutableSamplers for example.

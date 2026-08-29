@@ -6,7 +6,7 @@
 
 using ezResetTransformComponentManager = ezComponentManager<class ezResetTransformComponent, ezBlockStorageType::Compact>;
 
-/// \brief This component sets the local transform of its owner to known values when the simulation starts.
+/// This component sets the local transform of its owner to known values when the simulation starts.
 ///
 /// This component is meant for use cases where an object may be activated and deactivated over and over.
 /// For example due to a state machine switching between different object states by (de-)activating a sub-tree of objects.

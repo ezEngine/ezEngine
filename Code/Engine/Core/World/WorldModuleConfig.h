@@ -5,7 +5,7 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/String.h>
 
-/// \brief Configuration class for world module interface implementations.
+/// Configuration class for world module interface implementations.
 ///
 /// Manages the mapping between world module interfaces and their specific implementations.
 /// This is used when multiple implementations exist for the same interface, allowing
@@ -16,16 +16,16 @@ public:
   ezResult Save();
   void Load();
 
-  /// \brief Applies the current configuration to the world module factory.
+  /// Applies the current configuration to the world module factory.
   void Apply();
 
-  /// \brief Adds a mapping from an interface to a specific implementation.
+  /// Adds a mapping from an interface to a specific implementation.
   void AddInterfaceImplementation(ezStringView sInterfaceName, ezStringView sImplementationName);
 
-  /// \brief Removes the implementation mapping for the given interface.
+  /// Removes the implementation mapping for the given interface.
   void RemoveInterfaceImplementation(ezStringView sInterfaceName);
 
-  /// \brief Represents a mapping between an interface and its implementation.
+  /// Represents a mapping between an interface and its implementation.
   struct InterfaceImpl
   {
     ezString m_sInterfaceName;      ///< Name of the world module interface

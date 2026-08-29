@@ -14,7 +14,7 @@ class ezImage;
 
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 
-/// \brief Use this descriptor in calls to ezResourceManager::CreateResource<ezTexture2DResource> to create textures from data in memory.
+/// Use this descriptor in calls to ezResourceManager::CreateResource<ezTexture2DResource> to create textures from data in memory.
 struct EZ_RENDERERCORE_DLL ezTexture2DResourceDescriptor
 {
   /// Describes the texture format, etc.

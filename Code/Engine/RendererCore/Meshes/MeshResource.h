@@ -18,19 +18,19 @@ class EZ_RENDERERCORE_DLL ezMeshResource : public ezResource
 public:
   ezMeshResource();
 
-  /// \brief Returns the array of sub-meshes in this mesh.
+  /// Returns the array of sub-meshes in this mesh.
   ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> GetSubMeshes() const { return m_SubMeshes; }
 
-  /// \brief Returns the mesh buffer that is used by this resource.
+  /// Returns the mesh buffer that is used by this resource.
   const ezMeshBufferResourceHandle& GetMeshBuffer() const { return m_hMeshBuffer; }
 
-  /// \brief Returns the default materials for this mesh.
+  /// Returns the default materials for this mesh.
   ezArrayPtr<const ezMaterialResourceHandle> GetMaterials() const { return m_Materials; }
 
-  /// \brief Returns the bounds of this mesh.
+  /// Returns the bounds of this mesh.
   const ezBoundingBoxSphere& GetBounds() const { return m_Bounds; }
 
-  /// \brief Returns the asset hash for this mesh. Returns 0 if the mesh was not loaded from an asset file.
+  /// Returns the asset hash for this mesh. Returns 0 if the mesh was not loaded from an asset file.
   ezUInt64 GetAssetHash() const { return m_uiAssetHash; }
 
   // TODO: clean up

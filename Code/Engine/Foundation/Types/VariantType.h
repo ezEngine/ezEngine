@@ -15,11 +15,11 @@ using ezDataBuffer = ezDynamicArray<ezUInt8>;
 using ezVariantArray = ezDynamicArray<ezVariant>;
 using ezVariantDictionary = ezHashTable<ezString, ezVariant>;
 
-/// \brief This enum describes the type of data that is currently stored inside the variant.
+/// This enum describes the type of data that is currently stored inside the variant.
 struct ezVariantType
 {
   using StorageType = ezUInt8;
-  /// \brief This enum describes the type of data that is currently stored inside the variant.
+  /// This enum describes the type of data that is currently stored inside the variant.
   /// Note that changes to this enum require an increase of the reflection version and either
   /// patches to the serializer or a re-export of binary data that contains ezVariants.
   enum Enum : ezUInt8
@@ -91,7 +91,7 @@ struct ezVariantClass
   };
 };
 
-/// \brief A helper struct to convert the C++ type, which is passed as the template argument, into one of the ezVariant::Type enum values.
+/// A helper struct to convert the C++ type, which is passed as the template argument, into one of the ezVariant::Type enum values.
 template <typename T>
 struct ezVariantTypeDeduction
 {
@@ -103,7 +103,7 @@ struct ezVariantTypeDeduction
   using StorageType = T;
 };
 
-/// \brief Declares a custom variant type, allowing it to be stored by value inside an ezVariant.
+/// Declares a custom variant type, allowing it to be stored by value inside an ezVariant.
 ///
 /// Needs to be called from the same header that defines the type.
 /// \sa EZ_DEFINE_CUSTOM_VARIANT_TYPE

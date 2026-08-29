@@ -32,11 +32,11 @@ public:
   /// The port that is currently being listened on, or 0 while not running.
   ezUInt16 GetPort() const { return m_Transport.GetPort(); }
 
-  /// \brief Answers whatever request is waiting. Must be called regularly from the main thread, or
+  /// Answers whatever request is waiting. Must be called regularly from the main thread, or
   /// clients never get an answer.
   void ProcessPendingRequests() { m_Transport.ProcessPendingRequests(); }
 
-  /// \brief Whether a client is currently waiting for an answer.
+  /// Whether a client is currently waiting for an answer.
   ///
   /// A host whose main loop sleeps when there is nothing to draw has to wake up and pump when this is
   /// true - see the editor's engine process.

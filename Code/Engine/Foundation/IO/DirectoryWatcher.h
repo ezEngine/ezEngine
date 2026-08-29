@@ -11,7 +11,7 @@
 
 struct ezDirectoryWatcherImpl;
 
-/// \brief Which action has been performed on a file.
+/// Which action has been performed on a file.
 enum class ezDirectoryWatcherAction
 {
   None,           ///< Nothing happened
@@ -28,7 +28,7 @@ enum class ezDirectoryWatcherType
   Directory
 };
 
-/// \brief Platform-abstracted file system monitoring for detecting directory changes
+/// Platform-abstracted file system monitoring for detecting directory changes
 ///
 /// Provides efficient monitoring of file system events (create, modify, delete, rename) within
 /// a specified directory. Uses native OS facilities (inotify on Linux, ReadDirectoryChangesW on Windows)
@@ -40,13 +40,13 @@ enum class ezDirectoryWatcherType
 class EZ_FOUNDATION_DLL ezDirectoryWatcher
 {
 public:
-  /// \brief What to watch out for.
+  /// What to watch out for.
   struct Watch
   {
     using StorageType = ezUInt8;
     constexpr static ezUInt8 Default = 0;
 
-    /// \brief Enum values
+    /// Enum values
     enum Enum
     {
       Writes = EZ_BIT(0),         ///< Watch for writes. Will trigger ezDirectoryWatcherAction::Modified events.
@@ -74,32 +74,27 @@ public:
   ezDirectoryWatcher& operator=(const ezDirectoryWatcher&) = delete;
   ezDirectoryWatcher& operator=(ezDirectoryWatcher&&) noexcept = delete;
 
-  /// \brief
-  ///   Opens the directory at \p absolutePath for watching. \p whatToWatch controls what exactly should be watched.
+  /// Opens the directory at \p absolutePath for watching. \p whatToWatch controls what exactly should be watched.
   ///
   /// \note A instance of ezDirectoryWatcher can only watch one directory at a time.
   ezResult OpenDirectory(ezStringView sAbsolutePath, ezBitflags<Watch> whatToWatch);
 
-  /// \brief
-  ///   Closes the currently watched directory if any.
+  /// Closes the currently watched directory if any.
   void CloseDirectory();
 
-  /// \brief
-  ///   Returns the opened directory, will be empty if no directory was opened.
+  /// Returns the opened directory, will be empty if no directory was opened.
   ezStringView GetDirectory() const { return m_sDirectoryPath; }
 
   using EnumerateChangesFunction = ezDelegate<void(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type), 48>;
 
-  /// \brief
-  ///   Calls the callback \p func for each change since the last call. For each change the filename
-  ///   and the action, which was performed on the file, is passed to \p func.
-  ///   If waitUpToMilliseconds is greater than 0, blocks until either a change was observed or the timelimit is reached.
+  /// Calls the callback \p func for each change since the last call. For each change the filename
+  /// and the action, which was performed on the file, is passed to \p func.
+  /// If waitUpToMilliseconds is greater than 0, blocks until either a change was observed or the timelimit is reached.
   ///
   /// \note There might be multiple changes on the same file reported.
   void EnumerateChanges(EnumerateChangesFunction func, ezTime waitUpTo = ezTime::MakeZero());
 
-  /// \brief
-  ///   Same as the other EnumerateChanges function, but enumerates multiple watchers.
+  /// Same as the other EnumerateChanges function, but enumerates multiple watchers.
   static void EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, ezTime waitUpTo = ezTime::MakeZero());
 
 private:

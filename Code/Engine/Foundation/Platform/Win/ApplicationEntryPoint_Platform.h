@@ -95,7 +95,7 @@ namespace ezApplicationDetails
   }
 } // namespace ezApplicationDetails
 
-/// \brief Same as EZ_WINDOWAPP_ENTRY_POINT but should be used for applications that shall always show a console window.
+/// Same as EZ_WINDOWAPP_ENTRY_POINT but should be used for applications that shall always show a console window.
 #define EZ_CONSOLEAPP_ENTRY_POINT(AppClass, ...)                                                \
   /* Enables that on machines with multiple GPUs the NVIDIA / AMD GPU is preferred */           \
   extern "C"                                                                                    \
@@ -126,7 +126,7 @@ namespace ezApplicationDetails
 #  define _In_opt_
 #endif
 
-/// \brief This macro allows for easy creation of application entry points (since they can't be placed in DLLs)
+/// This macro allows for easy creation of application entry points (since they can't be placed in DLLs)
 ///
 /// Just use the macro in a cpp file of your application and supply your app class (must be derived from ezApplication).
 /// The additional (optional) parameters are passed to the constructor of your app class.

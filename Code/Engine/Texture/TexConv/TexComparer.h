@@ -4,7 +4,7 @@
 #include <Texture/Image/Image.h>
 #include <Texture/TextureDLL.h>
 
-/// \brief Input options for ezTexComparer
+/// Input options for ezTexComparer
 class EZ_TEXTURE_DLL ezTexCompareDesc
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezTexCompareDesc);
@@ -32,7 +32,7 @@ public:
   ezUInt32 m_MeanSquareErrorThreshold = 100;
 };
 
-/// \brief Compares two images and generates various outputs.
+/// Compares two images and generates various outputs.
 class EZ_TEXTURE_DLL ezTexComparer
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezTexComparer);

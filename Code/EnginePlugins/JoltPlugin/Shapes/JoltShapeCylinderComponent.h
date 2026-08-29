@@ -4,7 +4,7 @@
 
 using ezJoltShapeCylinderComponentManager = ezComponentManager<class ezJoltShapeCylinderComponent, ezBlockStorageType::FreeList>;
 
-/// \brief Adds a Jolt cylinder shape to a Jolt actor.
+/// Adds a Jolt cylinder shape to a Jolt actor.
 ///
 /// Be aware that the cylinder shape is not as stable in simulation as other shapes.
 /// If possible use capsule shapes instead. In some cases even using a convex hull shape may provide better results,

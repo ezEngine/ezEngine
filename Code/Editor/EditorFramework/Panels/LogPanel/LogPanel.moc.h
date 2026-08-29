@@ -12,7 +12,7 @@ class ezQtLogModel;
 struct ezLoggingEventData;
 class ezPreferences;
 
-/// \brief The application wide panel that shows the engine log output and the editor log output
+/// The application wide panel that shows the engine log output and the editor log output
 class EZ_EDITORFRAMEWORK_DLL ezQtLogPanel : public ezQtApplicationPanel, public Ui_LogPanel
 {
   Q_OBJECT

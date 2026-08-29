@@ -19,7 +19,7 @@ class ezWindowPlatformShared;
 
 #include <WindowDecl_Platform.h>
 
-/// \brief Base class of all window classes that have a client area and a native window handle.
+/// Base class of all window classes that have a client area and a native window handle.
 class EZ_CORE_DLL ezWindowBase
 {
 public:
@@ -27,20 +27,20 @@ public:
 
   virtual ezSizeU32 GetClientAreaSize() const = 0;
 
-  /// \brief Returns the platform specific window handle.
+  /// Returns the platform specific window handle.
   virtual ezWindowHandle GetNativeWindowHandle() const = 0;
 
-  /// \brief Whether the window is a fullscreen window
+  /// Whether the window is a fullscreen window
   /// or should be one - some platforms may enforce this via the GALSwapchain)
   ///
   /// If bOnlyProperFullscreenMode, the caller accepts borderless windows that cover the entire screen as "fullscreen".
   virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode = false) const = 0;
 
-  /// \brief Whether the window can potentially be seen by the user.
+  /// Whether the window can potentially be seen by the user.
   /// Windows that are minimized or hidden are not visible.
   virtual bool IsVisible() const = 0;
 
-  /// \brief Runs the platform specific message pump.
+  /// Runs the platform specific message pump.
   ///
   /// You should call ProcessWindowMessages every frame to keep the window responsive.
   virtual void ProcessWindowMessages() = 0;
@@ -49,7 +49,7 @@ public:
   virtual void RemoveReference() = 0;
 };
 
-/// \brief Determines how the position and resolution for a window are picked
+/// Determines how the position and resolution for a window are picked
 struct EZ_CORE_DLL ezWindowMode
 {
   using StorageType = ezUInt8;
@@ -66,14 +66,14 @@ struct EZ_CORE_DLL ezWindowMode
     Default = WindowFixedResolution
   };
 
-  /// \brief Returns whether the window covers an entire monitor. This includes borderless windows and proper fullscreen modes.
+  /// Returns whether the window covers an entire monitor. This includes borderless windows and proper fullscreen modes.
   static constexpr bool IsFullscreen(Enum e) { return e == FullscreenBorderlessNativeResolution || e == FullscreenFixedResolution; }
 };
 
-/// \brief Parameters for creating a window, such as position and resolution
+/// Parameters for creating a window, such as position and resolution
 struct EZ_CORE_DLL ezWindowCreationDesc
 {
-  /// \brief Adjusts the position and size members, depending on the current value of m_WindowMode and m_iMonitor.
+  /// Adjusts the position and size members, depending on the current value of m_WindowMode and m_iMonitor.
   ///
   /// For windowed mode, this does nothing.
   /// For fullscreen modes, the window position is taken from the given monitor.
@@ -150,7 +150,7 @@ struct ezWindowEvent
   ezInt32 m_iPayload2 = 0;
 };
 
-/// \brief A simple abstraction for platform specific window creation.
+/// A simple abstraction for platform specific window creation.
 ///
 /// Will handle basic message looping. Notable events can be listened to by overriding the corresponding callbacks.
 /// You should call ProcessWindowMessages every frame to keep the window responsive.
@@ -158,23 +158,23 @@ struct ezWindowEvent
 class EZ_CORE_DLL ezWindowPlatformShared : public ezWindowBase
 {
 public:
-  /// \brief Creates empty window instance with standard settings
+  /// Creates empty window instance with standard settings
   ///
   /// You need to call InitializeWindow() to actually create a window.
   ezWindowPlatformShared();
 
-  /// \brief Destroys the window if not already done.
+  /// Destroys the window if not already done.
   ///
   /// Also broadcasts ezWindowEvent::Type::WindowDestruction.
   ~ezWindowPlatformShared();
 
-  /// \brief Returns the window creation description. The description may get updated by window moves, resizes and such.
+  /// Returns the window creation description. The description may get updated by window moves, resizes and such.
   inline const ezWindowCreationDesc& GetCreationDescription() const { return m_CreationDescription; }
 
-  /// \brief Returns the size of the client area / ie. the window resolution.
+  /// Returns the size of the client area / ie. the window resolution.
   virtual ezSizeU32 GetClientAreaSize() const override { return m_CreationDescription.m_Resolution; }
 
-  /// \brief Returns whether the window covers an entire monitor.
+  /// Returns whether the window covers an entire monitor.
   ///
   /// If bOnlyProperFullscreenMode == false, this includes borderless windows.
   virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode = false) const override
@@ -192,14 +192,14 @@ public:
   /// However, it should never err the other way round.
   bool IsVisible() const override { return m_bVisible; }
 
-  /// \brief Creates a new platform specific window with the current settings
+  /// Creates a new platform specific window with the current settings
   ///
   /// Will automatically call DestroyWindow() if window is already initialized.
   ///
   /// \see ezWindow::Destroy, ezWindow::Initialize
   virtual ezResult InitializeWindow() = 0;
 
-  /// \brief Creates a new platform specific window with the given settings.
+  /// Creates a new platform specific window with the given settings.
   ///
   /// Will automatically call DestroyWindow() if window is already initialized.
   ///
@@ -213,47 +213,47 @@ public:
     return InitializeWindow();
   }
 
-  /// \brief Gets if the window is up and running.
+  /// Gets if the window is up and running.
   inline bool IsInitialized() const { return m_bInitialized; }
 
-  /// \brief Destroys the window.
+  /// Destroys the window.
   virtual void DestroyWindow() = 0;
 
-  /// \brief Tries to resize the window.
+  /// Tries to resize the window.
   ///
   /// Override OnResize to get the actual new window size.
   virtual ezResult Resize(const ezSizeU32& newWindowSize) = 0;
 
-  /// \brief Called when a window got resized.
+  /// Called when a window got resized.
   ///
   /// The new window size is also saved to the creation description.
   /// The function also broadcasts ezWindowEvent::Type::SizeChanged.
   virtual void OnResize(const ezSizeU32& newWindowSize);
 
-  /// \brief Called when the window position is changed. Not possible on all OSes.
+  /// Called when the window position is changed. Not possible on all OSes.
   ///
   /// The function also broadcasts ezWindowEvent::Type::PositionChanged.
   virtual void OnWindowMove(const ezInt32 iNewPosX, const ezInt32 iNewPosY);
 
-  /// \brief Called when the window gets or loses focus.
+  /// Called when the window gets or loses focus.
   ///
   /// The function also broadcasts ezWindowEvent::Type::FocusChanged.
   virtual void OnFocus(bool bHasFocus);
 
-  /// \brief Called when the window gets focus or loses focus.
+  /// Called when the window gets focus or loses focus.
   ///
   /// The function also broadcasts ezWindowEvent::Type::VisibilityChanged.
   virtual void OnVisibleChange(bool bVisible);
 
-  /// \brief Called when the close button of the window is clicked. Does nothing by default.
+  /// Called when the close button of the window is clicked. Does nothing by default.
   ///
   /// The function also broadcasts ezWindowEvent::Type::CloseButtonClicked.
   virtual void OnClickClose();
 
-  /// \brief Returns the input device that is attached to this window and typically provides mouse / keyboard input.
+  /// Returns the input device that is attached to this window and typically provides mouse / keyboard input.
   ezInputDevice* GetInputDevice() const { return m_pInputDevice.Borrow(); }
 
-  /// \brief Allows to subscribe to window events.
+  /// Allows to subscribe to window events.
   ///
   /// Note that AddEventHandler() is a const function, so can be called on the returned const ezEvent reference.
   const ezEvent<ezWindowEvent>& WindowEvents() const { return m_WindowEvents; }

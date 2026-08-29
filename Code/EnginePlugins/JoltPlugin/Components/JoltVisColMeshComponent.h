@@ -31,7 +31,7 @@ protected:
   virtual void Deinitialize() override;
 };
 
-/// \brief Visualizes a Jolt collision mesh that is attached to the same game object.
+/// Visualizes a Jolt collision mesh that is attached to the same game object.
 ///
 /// When attached to a game object where a ezJoltStaticActorComponent or a ezJoltShapeConvexHullComponent is attached as well,
 /// this component will retrieve the triangle mesh and turn it into a render mesh.
@@ -66,7 +66,7 @@ public:
   ezJoltVisColMeshComponent();
   ~ezJoltVisColMeshComponent();
 
-  /// \brief If this is set directly, the mesh is not taken from the sibling components.
+  /// If this is set directly, the mesh is not taken from the sibling components.
   void SetMesh(const ezJoltMeshResourceHandle& hMesh);                                          // [ property ]
   EZ_ALWAYS_INLINE const ezJoltMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; } // [ property ]
 

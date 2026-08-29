@@ -15,7 +15,7 @@ public:
 
   // Accessors
   const ezUuid& GetGuid() const { return m_Guid; }
-  /// \brief Returns the RTTI type of the object that is represented by this ezDocumentObject.
+  /// Returns the RTTI type of the object that is represented by this ezDocumentObject.
   const ezRTTI* GetType() const { return GetTypeAccessor().GetType(); }
 
   const ezDocumentObjectManager* GetDocumentObjectManager() const { return m_pDocumentObjectManager; }

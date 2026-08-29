@@ -9,7 +9,7 @@
 /// \file
 
 
-/// \brief ezSingletonRegistry knows about all singleton instances of classes that use EZ_DECLARE_SINGLETON.
+/// ezSingletonRegistry knows about all singleton instances of classes that use EZ_DECLARE_SINGLETON.
 ///
 /// It allows to query for a specific interface implementation by type name only, which makes it possible to
 /// get rid of unwanted library dependencies and use pure virtual interface classes, without singleton code
@@ -27,14 +27,14 @@ public:
 
   /// \todo Events for new/deleted singletons -> ezInspector integration
 
-  /// \brief Retrieves a singleton instance by type name. Returns nullptr if no singleton instance is available.
+  /// Retrieves a singleton instance by type name. Returns nullptr if no singleton instance is available.
   template <typename Interface>
   inline static Interface* GetSingletonInstance() // [tested]
   {
     return static_cast<Interface*>(s_Singletons.GetValueOrDefault(GetHash<Interface>(), {"", nullptr}).m_pInstance);
   }
 
-  /// \brief Retrieves a singleton instance by type name. Asserts if no singleton instance is available.
+  /// Retrieves a singleton instance by type name. Asserts if no singleton instance is available.
   template <typename Interface>
   inline static Interface* GetRequiredSingletonInstance() // [tested]
   {
@@ -43,10 +43,10 @@ public:
     return value;
   }
 
-  /// \brief Allows to inspect all known singletons
+  /// Allows to inspect all known singletons
   static const ezMap<size_t, SingletonEntry>& GetAllRegisteredSingletons();
 
-  /// \brief Registers a singleton instance under a given type name. This is automatically called by ezSingletonRegistrar.
+  /// Registers a singleton instance under a given type name. This is automatically called by ezSingletonRegistrar.
   template <typename Interface>
   inline static void Register(Interface* pSingletonInstance) // [tested]
   {
@@ -57,7 +57,7 @@ public:
     s_Singletons[GetHash<Interface>()] = {typeid(Interface).name(), pSingletonInstance};
   }
 
-  /// \brief Unregisters a singleton instance. This is automatically called by ezSingletonRegistrar.
+  /// Unregisters a singleton instance. This is automatically called by ezSingletonRegistrar.
   template <typename Interface>
   inline static void Unregister() // [tested]
   {
@@ -82,7 +82,7 @@ private:
 };
 
 
-/// \brief Insert this into a class declaration to turn the class into a singleton.
+/// Insert this into a class declaration to turn the class into a singleton.
 ///
 ///        You can access the singleton instance in two ways.
 ///        By calling the static GetSingleton() function on the specific type.
@@ -122,7 +122,7 @@ private:                                           \
   ezSingletonRegistrar<self> m_SingletonRegistrar; \
   static self* s_pSingleton
 
-/// \brief Insert this into a class declaration to turn the class into a singleton.
+/// Insert this into a class declaration to turn the class into a singleton.
 ///
 ///        You can access the singleton instance in two ways.
 ///        By calling the static GetSingleton() function on the specific type.
@@ -165,12 +165,12 @@ private:                                                   \
   static self* s_pSingleton
 
 
-/// \brief Put this into the cpp of a singleton class
+/// Put this into the cpp of a singleton class
 #define EZ_IMPLEMENT_SINGLETON(self) self* self::s_pSingleton = nullptr
 
 
 
-/// \brief [internal] Helper class to implement ezSingletonRegistry and EZ_DECLARE_SINGLETON
+/// [internal] Helper class to implement ezSingletonRegistry and EZ_DECLARE_SINGLETON
 ///
 /// Classes that use EZ_DECLARE_SINGLETON must pass their this pointer to their m_SingletonRegistrar member
 /// during construction.

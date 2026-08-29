@@ -13,14 +13,14 @@
 ///
 /// The classes in this file define the bindings in a bind group layout. The user should never create these by hand, they are used mainly for easy hashing and comparison of bind groups. Instead, users should use the ezBindGroupBuilder to create bind groups and their items.
 
-/// \brief Sampler contents of ezGALBindGroupItem
+/// Sampler contents of ezGALBindGroupItem
 struct ezSamplerBindGroupItem
 {
   EZ_DECLARE_POD_TYPE();
   ezGALSamplerStateHandle m_hSampler;
 };
 
-/// \brief Texture contents of ezGALBindGroupItem
+/// Texture contents of ezGALBindGroupItem
 struct ezTextureBindGroupItem
 {
   EZ_DECLARE_POD_TYPE();
@@ -31,7 +31,7 @@ struct ezTextureBindGroupItem
   ezEnum<ezGALTextureType> m_OverrideViewType = ezGALTextureType::Invalid;
 };
 
-/// \brief Buffer contents of ezGALBindGroupItem
+/// Buffer contents of ezGALBindGroupItem
 struct ezGALBufferBindGroupItem
 {
   EZ_DECLARE_POD_TYPE();
@@ -40,7 +40,7 @@ struct ezGALBufferBindGroupItem
   ezEnum<ezGALResourceFormat> m_OverrideTexelBufferFormat; ///< Texel buffer only: Overrides the default view format defined in the buffer description.
 };
 
-/// \brief Used by ezGALBindGroupItem to define its content.
+/// Used by ezGALBindGroupItem to define its content.
 struct ezGALBindGroupItemFlags
 {
   using StorageType = ezUInt8;
@@ -70,7 +70,7 @@ struct ezGALBindGroupItemFlags
 };
 EZ_DECLARE_FLAGS_OPERATORS(ezGALBindGroupItemFlags);
 
-/// \brief Used by ezGALBindGroupCreationDescription to bind resources to a ezShaderResourceBinding slot.
+/// Used by ezGALBindGroupCreationDescription to bind resources to a ezShaderResourceBinding slot.
 struct ezGALBindGroupItem : public ezHashableStruct<ezGALBindGroupItem>
 {
   EZ_DECLARE_POD_TYPE();
@@ -87,7 +87,7 @@ struct ezGALBindGroupItem : public ezHashableStruct<ezGALBindGroupItem>
   };
 };
 
-/// \brief Defines a bind group.
+/// Defines a bind group.
 /// Can be set to the renderer via ezGALCommandEncoder::SetBindGroup.
 struct EZ_RENDERERFOUNDATION_DLL ezGALBindGroupCreationDescription
 {

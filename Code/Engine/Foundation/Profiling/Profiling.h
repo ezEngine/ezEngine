@@ -9,7 +9,7 @@
 class ezStreamWriter;
 class ezThread;
 
-/// \brief This class encapsulates a profiling scope.
+/// This class encapsulates a profiling scope.
 ///
 /// The constructor creates a new scope in the profiling system and the destructor pops the scope.
 /// You shouldn't need to use this directly, just use the macro EZ_PROFILE_SCOPE provided below.
@@ -26,7 +26,7 @@ protected:
   ezTime m_Timeout;
 };
 
-/// \brief This class implements a profiling scope similar to ezProfilingScope, but with additional sub-scopes which can be added easily without
+/// This class implements a profiling scope similar to ezProfilingScope, but with additional sub-scopes which can be added easily without
 /// introducing actual C++ scopes.
 ///
 /// The constructor pushes one surrounding scope on the stack and then a nested scope as the first section.
@@ -55,7 +55,7 @@ protected:
   ezTime m_CurSectionBeginTime;
 };
 
-/// \brief Helper functionality of the profiling system.
+/// Helper functionality of the profiling system.
 class EZ_FOUNDATION_DLL ezProfilingSystem
 {
 public:
@@ -83,7 +83,7 @@ public:
     ezUInt64 m_uiThreadId = 0;
   };
 
-  /// \brief Helper struct to hold GPU profiling data.
+  /// Helper struct to hold GPU profiling data.
   struct GPUScope
   {
     EZ_DECLARE_POD_TYPE();
@@ -110,12 +110,12 @@ public:
 
     ezDynamicArray<ezDynamicArray<GPUScope>> m_GPUScopes;
 
-    /// \brief Writes profiling data as JSON to the output stream.
+    /// Writes profiling data as JSON to the output stream.
     ezResult Write(ezStreamWriter& ref_outputStream) const;
 
     void Clear();
 
-    /// \brief Concatenates all given ProfilingData instances into one merge struct
+    /// Concatenates all given ProfilingData instances into one merge struct
     static void Merge(ProfilingData& out_merged, ezArrayPtr<const ProfilingData*> inputs);
   };
 
@@ -124,21 +124,21 @@ public:
 
   static void Capture(ezProfilingSystem::ProfilingData& out_capture, bool bClearAfterCapture = false);
 
-  /// \brief Scopes are discarded if their duration is shorter than the specified threshold. Default is 0.1ms.
+  /// Scopes are discarded if their duration is shorter than the specified threshold. Default is 0.1ms.
   static void SetDiscardThreshold(ezTime threshold);
 
   using ScopeTimeoutDelegate = ezDelegate<void(ezStringView sName, ezStringView sFunctionName, ezTime duration)>;
 
-  /// \brief Sets a callback that is triggered when a profiling scope takes longer than desired.
+  /// Sets a callback that is triggered when a profiling scope takes longer than desired.
   static void SetScopeTimeoutCallback(ScopeTimeoutDelegate callback);
 
-  /// \brief Should be called once per frame to capture the timestamp of the new frame.
+  /// Should be called once per frame to capture the timestamp of the new frame.
   static void StartNewFrame();
 
-  /// \brief Adds a new scoped event for the calling thread in the profiling system
+  /// Adds a new scoped event for the calling thread in the profiling system
   static void AddCPUScope(ezStringView sName, const char* szFunctionName, ezTime beginTime, ezTime endTime, ezTime scopeTimeout);
 
-  /// \brief Get current frame counter
+  /// Get current frame counter
   static ezUInt64 GetFrameCount();
 
 private:
@@ -146,26 +146,26 @@ private:
   friend ezUInt32 RunThread(ezThread* pThread);
 
   static void Initialize();
-  /// \brief Removes profiling data of dead threads.
+  /// Removes profiling data of dead threads.
   static void Reset();
 
-  /// \brief Sets the name of the current thread.
+  /// Sets the name of the current thread.
   static void SetThreadName(ezStringView sThreadName);
-  /// \brief Removes the current thread from the profiling system.
+  /// Removes the current thread from the profiling system.
   ///  Needs to be called before the thread exits to be able to release profiling memory of dead threads on Reset.
   static void RemoveThread();
 
 public:
-  /// \brief Initialized internal data structures for GPU profiling data. Needs to be called before adding any data.
+  /// Initialized internal data structures for GPU profiling data. Needs to be called before adding any data.
   static void InitializeGPUData(ezUInt32 uiGpuCount = 1);
 
-  /// \brief Adds a GPU profiling scope in the internal event ringbuffer.
+  /// Adds a GPU profiling scope in the internal event ringbuffer.
   static void AddGPUScope(ezStringView sName, ezTime beginTime, ezTime endTime, ezUInt32 uiGpuIndex = 0);
 };
 
 #if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)
 
-/// \brief Profiles the current scope using the given name.
+/// Profiles the current scope using the given name.
 ///
 /// It is allowed to nest EZ_PROFILE_SCOPE, also with EZ_PROFILE_LIST_SCOPE. However EZ_PROFILE_SCOPE should start and end within the same list scope
 /// section.
@@ -177,7 +177,7 @@ public:
 #  define EZ_PROFILE_SCOPE(ScopeName) \
     ezProfilingScope EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ScopeName, EZ_SOURCE_FUNCTION, ezTime::MakeZero())
 
-/// \brief Same as EZ_PROFILE_SCOPE but if the scope takes longer than 'Timeout', the ezProfilingSystem's timeout callback is executed.
+/// Same as EZ_PROFILE_SCOPE but if the scope takes longer than 'Timeout', the ezProfilingSystem's timeout callback is executed.
 ///
 /// This can be used to log an error or save a callstack, etc. when a scope exceeds an expected amount of time.
 ///
@@ -185,7 +185,7 @@ public:
 #  define EZ_PROFILE_SCOPE_WITH_TIMEOUT(ScopeName, Timeout) \
     ezProfilingScope EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ScopeName, EZ_SOURCE_FUNCTION, Timeout)
 
-/// \brief Profiles the current scope using the given name as the overall list scope name and the section name for the first section in the list.
+/// Profiles the current scope using the given name as the overall list scope name and the section name for the first section in the list.
 ///
 /// Use EZ_PROFILE_LIST_NEXT_SECTION to start a new section in the list scope.
 ///
@@ -199,14 +199,14 @@ public:
 #  define EZ_PROFILE_LIST_SCOPE(ListName, FirstSectionName) \
     ezProfilingListScope EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ListName, FirstSectionName, EZ_SOURCE_FUNCTION)
 
-/// \brief Starts a new section in a EZ_PROFILE_LIST_SCOPE
+/// Starts a new section in a EZ_PROFILE_LIST_SCOPE
 ///
 /// \sa ezProfilingListScope
 /// \sa EZ_PROFILE_LIST_SCOPE
 #  define EZ_PROFILE_LIST_NEXT_SECTION(NextSectionName) \
     ezProfilingListScope::StartNextSection(NextSectionName)
 
-/// \brief Used to indicate that a frame is finished and another starts.
+/// Used to indicate that a frame is finished and another starts.
 #  define EZ_PROFILER_FRAME_MARKER()
 
 #else

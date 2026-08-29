@@ -12,7 +12,7 @@ struct ezHMDInfo
   ezSizeU32 m_vEyeRenderTargetSize;
 };
 
-/// \brief Defines the stage space used for the XR experience.
+/// Defines the stage space used for the XR experience.
 ///
 /// This value is set by the ezStageSpaceComponent singleton and
 /// has to be taken into account by the XR implementation.
@@ -71,7 +71,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezXRDeviceType);
 
 using ezXRDeviceID = ezInt8;
 
-/// \brief A device's pose state.
+/// A device's pose state.
 ///
 /// All values are relative to the stage space of the device,
 /// which is controlled by the ezStageSpaceComponent singleton and
@@ -92,7 +92,7 @@ struct EZ_GAMEENGINE_DLL ezXRDeviceState
   bool m_bDeviceIsConnected = false;
 };
 
-/// \brief Defines features the given device supports.
+/// Defines features the given device supports.
 struct ezXRDeviceFeatures
 {
   using StorageType = ezUInt32;

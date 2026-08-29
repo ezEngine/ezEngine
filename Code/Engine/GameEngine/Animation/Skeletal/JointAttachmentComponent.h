@@ -6,7 +6,7 @@
 
 using ezJointAttachmentComponentManager = ezComponentManager<class ezJointAttachmentComponent, ezBlockStorageType::FreeList>;
 
-/// \brief Used to expose an animated mesh's bone as a game object, such that objects can be attached to it to move along.
+/// Used to expose an animated mesh's bone as a game object, such that objects can be attached to it to move along.
 ///
 /// The animation system deals with bone animations internally.
 /// Sometimes it is desirable to move certain objects along with a bone,
@@ -33,14 +33,14 @@ public:
   ezJointAttachmentComponent();
   ~ezJointAttachmentComponent();
 
-  /// \brief Sets the bone name whose transform should be copied into this game object.
+  /// Sets the bone name whose transform should be copied into this game object.
   void SetJointName(const char* szName); // [ property ]
   const char* GetJointName() const;      // [ property ]
 
-  /// \brief An additional local offset to be added to the transform.
+  /// An additional local offset to be added to the transform.
   ezVec3 m_vLocalPositionOffset = ezVec3::MakeZero(); // [ property ]
 
-  /// \brief An additional local offset to be added to the transform.
+  /// An additional local offset to be added to the transform.
   ezQuat m_vLocalRotationOffset = ezQuat::MakeIdentity();      // [ property ]
 
 protected:

@@ -6,7 +6,7 @@
 #include <Foundation/Strings/String.h>
 #include <Texture/TexConv/TexConvEnums.h>
 
-/// \brief Describes how to create a texture atlas from multiple input images.
+/// Describes how to create a texture atlas from multiple input images.
 ///
 /// A texture atlas packs multiple images into a single texture for improved rendering performance.
 /// This structure defines the layers (different image types like diffuse, normal maps) and items
@@ -33,14 +33,14 @@
 /// ```
 struct EZ_TEXTURE_DLL ezTextureAtlasCreationDesc
 {
-  /// \brief Defines a single layer in the texture atlas (e.g., diffuse, normal, roughness).
+  /// Defines a single layer in the texture atlas (e.g., diffuse, normal, roughness).
   struct Layer
   {
     ezEnum<ezTexConvUsage> m_Usage;
     ezUInt8 m_uiNumChannels = 4;
   };
 
-  /// \brief Represents one item (image) to be packed into the atlas.
+  /// Represents one item (image) to be packed into the atlas.
   struct Item
   {
     ezUInt32 m_uiUniqueID;
@@ -66,7 +66,7 @@ struct EZ_TEXTURE_DLL ezTextureAtlasCreationDesc
   ezResult Load(ezStringView sFile);
 };
 
-/// \brief Runtime data for efficiently accessing items within a generated texture atlas.
+/// Runtime data for efficiently accessing items within a generated texture atlas.
 ///
 /// After a texture atlas is created and processed, this structure provides the information
 /// needed to find and render individual items from the packed atlas texture. It maps unique

@@ -8,7 +8,7 @@ class ezVisualScriptExecutionContext;
 
 struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
 {
-  /// \brief Native node types for visual script graphs.
+  /// Native node types for visual script graphs.
   /// Editor only types are not supported at runtime and will be replaced by the visual script compiler during asset transform.
   struct EZ_VISUALSCRIPTPLUGIN_DLL Type
   {

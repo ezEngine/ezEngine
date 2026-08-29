@@ -5,7 +5,7 @@
 
 struct ezMsgSetColor;
 
-/// \brief Base class for light render data objects.
+/// Base class for light render data objects.
 class EZ_RENDERERCORE_DLL ezLightRenderData : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezLightRenderData, ezRenderData);
@@ -24,7 +24,7 @@ public:
   ezUInt32 m_uiShadowDataOffsetAndFadeOut;
 };
 
-/// \brief Base class for dynamic light components.
+/// Base class for dynamic light components.
 class EZ_RENDERERCORE_DLL ezLightComponent : public ezRenderComponent
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezLightComponent, ezRenderComponent);
@@ -43,7 +43,7 @@ public:
   ezLightComponent();
   ~ezLightComponent();
 
-  /// \brief Used to enable kelvin color values. This is a physical representation of light color using.
+  /// Used to enable kelvin color values. This is a physical representation of light color using.
   /// for more detail: https://wikipedia.org/wiki/Color_temperature
   void SetUsingColorTemperature(bool bUseColorTemperature);
   bool GetUsingColorTemperature() const;
@@ -56,42 +56,42 @@ public:
 
   ezColorGammaUB GetEffectiveColor() const;
 
-  /// \brief Sets the brightness of the light source.
+  /// Sets the brightness of the light source.
   void SetIntensity(float fIntensity);                   // [ property ]
   float GetIntensity() const;                            // [ property ]
 
   void SetSpecularMultiplier(float fSpecularMultiplier); // [ property ]
   float GetSpecularMultiplier() const;                   // [ property ]
 
-  /// \brief Sets whether the light source shall cast dynamic shadows.
+  /// Sets whether the light source shall cast dynamic shadows.
   void SetCastShadows(bool bCastShadows); // [ property ]
   bool GetCastShadows() const;            // [ property ]
 
-  /// \brief Sets whether transparent objects should cast shadows (emulated through dithering).
+  /// Sets whether transparent objects should cast shadows (emulated through dithering).
   void SetTransparentShadows(bool bShadows); // [ property ]
   bool GetTransparentShadows() const;        // [ property ]
 
-  /// \brief Sets the fuzziness of the shadow edges.
+  /// Sets the fuzziness of the shadow edges.
   void SetPenumbraSize(float fPenumbraSize); // [ property ]
   float GetPenumbraSize() const;             // [ property ]
 
-  /// \brief Allows to tweak how dynamic shadows are applied to reduce artifacts.
+  /// Allows to tweak how dynamic shadows are applied to reduce artifacts.
   void SetSlopeBias(float fShadowBias); // [ property ]
   float GetSlopeBias() const;           // [ property ]
 
-  /// \brief Allows to tweak how dynamic shadows are applied to reduce artifacts.
+  /// Allows to tweak how dynamic shadows are applied to reduce artifacts.
   void SetConstantBias(float fShadowBias);    // [ property ]
   float GetConstantBias() const;              // [ property ]
 
   void OnMsgSetColor(ezMsgSetColor& ref_msg); // [ msg handler ]
 
-  /// \brief Calculates how far a light source would shine given the specified range and intensity.
+  /// Calculates how far a light source would shine given the specified range and intensity.
   ///
   /// If fRange is zero, the range needed for the given intensity is returned.
   /// Otherwise the smaller value of that and fRange is returned.
   static float CalculateEffectiveRange(float fRange, float fIntensity);
 
-  /// \brief Calculates how large on screen (relative height) the light source would be.
+  /// Calculates how large on screen (relative height) the light source would be.
   static float CalculateScreenSpaceSize(const ezBoundingSphere& sphere, const ezCamera& camera);
 
 protected:

@@ -7,7 +7,7 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Types/Variant.h>
 
-/// \brief Describes one callable function, as it appears in the MCP client's tool list.
+/// Describes one callable function, as it appears in the MCP client's tool list.
 struct EZ_MCP_DLL ezMcpToolDesc
 {
   /// The name the client calls. Must be unique across all providers. Convention is lower snake_case,
@@ -23,7 +23,7 @@ struct EZ_MCP_DLL ezMcpToolDesc
   ezString m_sInputSchema;
 };
 
-/// \brief The result of one tool call.
+/// The result of one tool call.
 struct EZ_MCP_DLL ezMcpToolResult
 {
   /// The text handed back to the client. For structured data just write JSON in here - MCP has no
@@ -33,7 +33,7 @@ struct EZ_MCP_DLL ezMcpToolResult
   /// If true, the client is told the call failed. The text should then say why.
   bool m_bIsError = false;
 
-  /// \brief Set this to have the call re-run later instead of answered now.
+  /// Set this to have the call re-run later instead of answered now.
   ///
   /// For a tool that has to wait for the host to make progress - most obviously 'run for N frames',
   /// which cannot happen while the tool itself is holding the main thread. Setting this leaves the
@@ -54,7 +54,7 @@ struct EZ_MCP_DLL ezMcpToolResult
   }
 };
 
-/// \brief Base class for everything that the MCP server exposes to AI agents.
+/// Base class for everything that the MCP server exposes to AI agents.
 ///
 /// One provider offers one or more tools, which is why they are grouped: 'log_write' and 'log_read'
 /// share a ring buffer, so they belong to the same object.
@@ -70,16 +70,16 @@ class EZ_MCP_DLL ezMcpToolProvider : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezMcpToolProvider, ezReflectedClass);
 
 public:
-  /// \brief Called once, right after the provider was instantiated. Use it to hook into the editor.
+  /// Called once, right after the provider was instantiated. Use it to hook into the editor.
   virtual void OnActivate() {}
 
-  /// \brief Called once, before the provider is destroyed.
+  /// Called once, before the provider is destroyed.
   virtual void OnDeactivate() {}
 
-  /// \brief Appends the description of every tool that this provider implements.
+  /// Appends the description of every tool that this provider implements.
   virtual void GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const = 0;
 
-  /// \brief Executes one of the tools returned by GetSupportedTools().
+  /// Executes one of the tools returned by GetSupportedTools().
   ///
   /// \param sToolName The tool to run. A provider with a single tool may ignore this.
   /// \param arguments The 'arguments' object of the call. Missing and mistyped values are normal -

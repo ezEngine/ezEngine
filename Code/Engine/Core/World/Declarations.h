@@ -38,10 +38,10 @@ class ezComponent;
 
 struct ezMsgDeleteGameObject;
 
-/// \brief Internal world id used by ezWorldHandle.
+/// Internal world id used by ezWorldHandle.
 using ezWorldId = ezGenericId<8, 8>;
 
-/// \brief A handle to a world.
+/// A handle to a world.
 struct ezWorldHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezWorldHandle, ezWorldId);
@@ -49,7 +49,7 @@ struct ezWorldHandle
   friend class ezWorld;
 };
 
-/// \brief Internal game object id used by ezGameObjectHandle.
+/// Internal game object id used by ezGameObjectHandle.
 struct ezGameObjectId
 {
   using StorageType = ezUInt64;
@@ -78,7 +78,7 @@ struct ezGameObjectId
   };
 };
 
-/// \brief A handle to a game object.
+/// A handle to a game object.
 ///
 /// Never store a direct pointer to a game object. Always store a handle instead. A pointer to a game object can
 /// be received by calling ezWorld::TryGetObject with the handle.
@@ -91,7 +91,7 @@ struct ezGameObjectHandle
   friend class ezGameObject;
 };
 
-/// \brief HashHelper implementation so game object handles can be used as key in a hash table.
+/// HashHelper implementation so game object handles can be used as key in a hash table.
 template <>
 struct ezHashHelper<ezGameObjectHandle>
 {
@@ -104,7 +104,7 @@ struct ezHashHelper<ezGameObjectHandle>
   EZ_ALWAYS_INLINE static bool Equal(ezGameObjectHandle a, ezGameObjectHandle b) { return a == b; }
 };
 
-/// \brief Currently not implemented as it is not needed for game object handles.
+/// Currently not implemented as it is not needed for game object handles.
 EZ_CORE_DLL void operator<<(ezStreamWriter& inout_stream, const ezGameObjectHandle& hValue);
 EZ_CORE_DLL void operator>>(ezStreamReader& inout_stream, ezGameObjectHandle& ref_hValue);
 
@@ -113,7 +113,7 @@ EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezGameObjectHandle);
 #define EZ_COMPONENT_TYPE_INDEX_BITS (24 - EZ_WORLD_INDEX_BITS)
 #define EZ_MAX_COMPONENT_TYPES (1 << EZ_COMPONENT_TYPE_INDEX_BITS)
 
-/// \brief Internal component id used by ezComponentHandle.
+/// Internal component id used by ezComponentHandle.
 struct ezComponentId
 {
   using StorageType = ezUInt64;
@@ -144,7 +144,7 @@ struct ezComponentId
   };
 };
 
-/// \brief A handle to a component.
+/// A handle to a component.
 ///
 /// Never store a direct pointer to a component. Always store a handle instead. A pointer to a component can
 /// be received by calling ezWorld::TryGetComponent or TryGetComponent on the corresponding component manager.
@@ -158,7 +158,7 @@ struct ezComponentHandle
   friend class ezComponent;
 };
 
-/// \brief A typed handle to a component.
+/// A typed handle to a component.
 ///
 /// This should be preferred if the component type to be stored inside the handle is known, as it provides
 /// compile time checks against wrong usages (e.g. assigning unrelated types) and more clearly conveys intent.
@@ -186,7 +186,7 @@ struct ezTypedComponentHandle : public ezComponentHandle
   }
 };
 
-/// \brief HashHelper implementation so component handles can be used as key in a hashtable.
+/// HashHelper implementation so component handles can be used as key in a hashtable.
 template <>
 struct ezHashHelper<ezComponentHandle>
 {
@@ -199,14 +199,14 @@ struct ezHashHelper<ezComponentHandle>
   EZ_ALWAYS_INLINE static bool Equal(ezComponentHandle a, ezComponentHandle b) { return a == b; }
 };
 
-/// \brief Currently not implemented as it is not needed for component handles.
+/// Currently not implemented as it is not needed for component handles.
 EZ_CORE_DLL void operator<<(ezStreamWriter& inout_stream, const ezComponentHandle& hValue);
 EZ_CORE_DLL void operator>>(ezStreamReader& inout_stream, ezComponentHandle& ref_hValue);
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezComponentHandle);
 EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezComponentHandle);
 
-/// \brief Internal flags of game objects or components.
+/// Internal flags of game objects or components.
 struct ezObjectFlags
 {
   using StorageType = ezUInt32;
@@ -279,7 +279,7 @@ struct ezObjectFlags
 
 EZ_DECLARE_FLAGS_OPERATORS(ezObjectFlags);
 
-/// \brief Specifies the mode of an object. This enum is only used in the editor.
+/// Specifies the mode of an object. This enum is only used in the editor.
 ///
 /// \sa ezObjectFlags
 struct ezObjectMode
@@ -297,7 +297,7 @@ struct ezObjectMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezObjectMode);
 
-/// \brief Specifies the mode of a component. Dynamic components may change an object's transform, static components must not.
+/// Specifies the mode of a component. Dynamic components may change an object's transform, static components must not.
 ///
 /// \sa ezObjectFlags
 struct ezComponentMode
@@ -315,7 +315,7 @@ struct ezComponentMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezComponentMode);
 
-/// \brief Specifies at which phase the queued message should be processed.
+/// Specifies at which phase the queued message should be processed.
 struct ezObjectMsgQueueType
 {
   using StorageType = ezUInt8;
@@ -334,7 +334,7 @@ struct ezObjectMsgQueueType
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezObjectMsgQueueType);
 
-/// \brief Certain components may delete themselves or their owner when they are finished with their main purpose
+/// Certain components may delete themselves or their owner when they are finished with their main purpose
 struct EZ_CORE_DLL ezOnComponentFinishedAction
 {
   using StorageType = ezUInt8;
@@ -348,7 +348,7 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction
     Default = None
   };
 
-  /// \brief Call this when a component is 'finished' with its work.
+  /// Call this when a component is 'finished' with its work.
   ///
   /// Pass in the desired action (usually configured by the user) and the 'this' pointer of the component.
   /// The helper function will delete this component and maybe also attempt to delete the entire object.
@@ -356,7 +356,7 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction
   /// until the last component has finished it's work.
   static void HandleFinishedAction(ezComponent* pComponent, ezOnComponentFinishedAction::Enum action);
 
-  /// \brief Call this function in a message handler for ezMsgDeleteGameObject messages.
+  /// Call this function in a message handler for ezMsgDeleteGameObject messages.
   ///
   /// This is needed to coordinate object deletion across multiple components that use the
   /// ezOnComponentFinishedAction mechanism.
@@ -367,7 +367,7 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezOnComponentFinishedAction);
 
-/// \brief Same as ezOnComponentFinishedAction, but additionally includes 'Restart'
+/// Same as ezOnComponentFinishedAction, but additionally includes 'Restart'
 struct EZ_CORE_DLL ezOnComponentFinishedAction2
 {
   using StorageType = ezUInt8;
@@ -382,16 +382,16 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction2
     Default = None
   };
 
-  /// \brief See ezOnComponentFinishedAction::HandleFinishedAction()
+  /// See ezOnComponentFinishedAction::HandleFinishedAction()
   static void HandleFinishedAction(ezComponent* pComponent, ezOnComponentFinishedAction2::Enum action);
 
-  /// \brief See ezOnComponentFinishedAction::HandleDeleteObjectMsg()
+  /// See ezOnComponentFinishedAction::HandleDeleteObjectMsg()
   static void HandleDeleteObjectMsg(ezMsgDeleteGameObject& ref_msg, ezEnum<ezOnComponentFinishedAction2>& ref_action);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezOnComponentFinishedAction2);
 
-/// \brief Used as return value of visitor functions to define whether calling function should stop or continue visiting.
+/// Used as return value of visitor functions to define whether calling function should stop or continue visiting.
 struct ezVisitorExecution
 {
   enum Enum

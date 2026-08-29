@@ -4,7 +4,7 @@
 #include <RendererCore/AnimationSystem/Skeleton.h>
 #include <RendererCore/RendererCoreDLL.h>
 
-/// \brief The skeleton builder class provides the means to build skeleton instances from scratch.
+/// The skeleton builder class provides the means to build skeleton instances from scratch.
 /// This class is not necessary to use skeletons, usually they should be deserialized from data created by the tools.
 class EZ_RENDERERCORE_DLL ezSkeletonBuilder
 {
@@ -13,7 +13,7 @@ public:
   ezSkeletonBuilder();
   ~ezSkeletonBuilder();
 
-  /// \brief Adds a joint to the skeleton
+  /// Adds a joint to the skeleton
   /// Since the only way to add a joint with a parent is through this method the order of joints in the array is guaranteed
   /// so that child joints always come after their parent joints
   ezUInt16 AddJoint(ezStringView sName, const ezTransform& localRestPose, ezUInt16 uiParentIndex = ezInvalidJointIndex);
@@ -23,10 +23,10 @@ public:
   void SetJointSurface(ezUInt16 uiJointIndex, ezStringView sSurface);
   void SetJointCollisionLayer(ezUInt16 uiJointIndex, ezUInt8 uiCollsionLayer);
 
-  /// \brief Creates a skeleton from the accumulated data.
+  /// Creates a skeleton from the accumulated data.
   void BuildSkeleton(ezSkeleton& ref_skeleton) const;
 
-  /// \brief Returns true if there any joints have been added to the skeleton builder
+  /// Returns true if there any joints have been added to the skeleton builder
   bool HasJoints() const;
 
 protected:

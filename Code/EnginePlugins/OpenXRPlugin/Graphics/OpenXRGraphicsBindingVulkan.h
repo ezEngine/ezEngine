@@ -11,7 +11,7 @@ EZ_DEFINE_AS_POD_TYPE(XrSwapchainImageVulkanKHR);
 
 class ezOpenXR;
 
-/// \brief Vulkan implementation of the OpenXR graphics binding.
+/// Vulkan implementation of the OpenXR graphics binding.
 class EZ_OPENXRPLUGIN_DLL ezOpenXRGraphicsBindingVulkan final : public ezOpenXRGraphicsBinding, public ezVulkanInitInterface
 {
   EZ_DECLARE_SINGLETON_OF_INTERFACE(ezOpenXRGraphicsBindingVulkan, ezVulkanInitInterface);
@@ -36,9 +36,9 @@ public:
   virtual vk::PhysicalDevice GetPhysicalDevice(vk::Instance instance) override;
   virtual vk::Device CreateDevice(const vk::DeviceCreateInfo& createInfo) override;
 
-  /// \brief Extends the instance extensions required for OpenXR (for vulkan_enable v1)
+  /// Extends the instance extensions required for OpenXR (for vulkan_enable v1)
   virtual void ExtendInstanceExtensions(const ezDynamicArray<vk::ExtensionProperties>& availableExtensions, ezDynamicArray<ezString>& ref_extensions) override;
-  /// \brief Extends the device extensions required for OpenXR (for vulkan_enable v1)
+  /// Extends the device extensions required for OpenXR (for vulkan_enable v1)
   virtual void ExtendDeviceExtensions(const ezDynamicArray<vk::ExtensionProperties>& availableExtensions, ezDynamicArray<ezString>& ref_extensions) override;
 
 private:

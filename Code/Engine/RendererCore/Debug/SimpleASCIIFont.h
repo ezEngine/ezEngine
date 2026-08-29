@@ -5,7 +5,7 @@
 
 namespace ezGraphicsUtils
 {
-  /// \brief Creates a 256*128 RGBA greyscale font texture that contains the 96 most important ASCII characters.
+  /// Creates a 256*128 RGBA greyscale font texture that contains the 96 most important ASCII characters.
   ///
   /// Each character is embedded in a 16x16 cell, but only uses the center 10x10 pixels, leaving a 3 pixel black boundary.
   /// Each row contains 16 characters, each column contains 8 characters. The characters are sorted in the order in that they

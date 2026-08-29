@@ -8,7 +8,7 @@
 class ezStreamWriter;
 class ezStreamReader;
 
-/// \brief Runtime texture format metadata stored in ezTex files.
+/// Runtime texture format metadata stored in ezTex files.
 ///
 /// This structure contains all the metadata needed by the renderer to properly sample
 /// and use textures at runtime. It's saved as a header in .ezTex files and loaded

@@ -10,7 +10,7 @@
 
 class ezQtTestFramework;
 
-/// \brief Helper class that stores the test hierarchy used in ezQtTestModel.
+/// Helper class that stores the test hierarchy used in ezQtTestModel.
 class ezQtTestModelEntry
 {
 public:
@@ -50,7 +50,7 @@ private:
   std::deque<ezQtTestModelEntry*> m_SubEntries;
 };
 
-/// \brief A Model that lists all unit tests and sub-tests in a tree.
+/// A Model that lists all unit tests and sub-tests in a tree.
 class EZ_TEST_DLL ezQtTestModel : public QAbstractItemModel
 {
   Q_OBJECT

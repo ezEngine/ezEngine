@@ -42,7 +42,7 @@ public:
   virtual ezStatus GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_keys) = 0;
   virtual ezStatus GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_values) = 0;
 
-  /// \brief If this accessor is a proxy accessor, transform the input parameters into those of the source accessor. The default implementation does nothing and returns this.
+  /// If this accessor is a proxy accessor, transform the input parameters into those of the source accessor. The default implementation does nothing and returns this.
   /// Usually this only needs to be implemented on ezObjectProxyAccessor derived accessors that modify the type, property, view etc of an object.
   /// @param ref_pObject In: proxy object, out: source object.
   /// @param ref_pType In: proxy type, out: source type.

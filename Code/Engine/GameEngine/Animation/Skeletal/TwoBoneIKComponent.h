@@ -6,7 +6,7 @@
 
 using ezTwoBoneIKComponentManager = ezComponentManager<class ezTwoBoneIKComponent, ezBlockStorageType::FreeList>;
 
-/// \brief Adds inverse kinematics for a chain of three joints (two-bones) of an animated mesh to reach a target position.
+/// Adds inverse kinematics for a chain of three joints (two-bones) of an animated mesh to reach a target position.
 ///
 /// This can be used to make a creature grab something or to implement foot IK.
 /// The component has to be attached to a child object of an animated mesh.

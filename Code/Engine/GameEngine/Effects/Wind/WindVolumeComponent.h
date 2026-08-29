@@ -10,7 +10,7 @@ struct ezMsgUpdateLocalBounds;
 struct ezMsgComponentInternalTrigger;
 struct ezMsgDeleteGameObject;
 
-/// \brief Base class for components that define wind volumes.
+/// Base class for components that define wind volumes.
 ///
 /// These components define the shape in which to apply wind to objects that support this functionality.
 class EZ_GAMEENGINE_DLL ezWindVolumeComponent : public ezComponent
@@ -36,26 +36,26 @@ public:
   ezWindVolumeComponent();
   ~ezWindVolumeComponent();
 
-  /// \brief The spatial category to use to find all wind volume components through the spatial system.
+  /// The spatial category to use to find all wind volume components through the spatial system.
   static ezSpatialData::Category SpatialDataCategory;
 
-  /// \brief If non-zero, the wind will only last for a limited amount of time.
+  /// If non-zero, the wind will only last for a limited amount of time.
   ezTime m_BurstDuration; // [ property ]
 
-  /// \brief How strong the wind shall blow at the strongest point of the volume.
+  /// How strong the wind shall blow at the strongest point of the volume.
   ezEnum<ezWindStrength> m_Strength; // [ property ]
 
-  /// \brief Factor to scale the wind strength. Negative values can be used to reverse the wind direction.
+  /// Factor to scale the wind strength. Negative values can be used to reverse the wind direction.
   float m_fStrengthFactor = 1.0f;
 
-  /// \brief Computes the wind force at a global position.
+  /// Computes the wind force at a global position.
   ///
   /// Only the x,y,z components are used, they are a wind direction vector scaled to the wind speed.
   ezSimdVec4f ComputeForceAtGlobalPosition(const ezSimdVec4f& vGlobalPos) const;
 
   virtual ezSimdVec4f ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const = 0;
 
-  /// \brief What happens after the wind burst is over.
+  /// What happens after the wind burst is over.
   ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction; // [ property ]
 
 protected:
@@ -71,7 +71,7 @@ protected:
 
 using ezWindVolumeSphereComponentManager = ezComponentManager<class ezWindVolumeSphereComponent, ezBlockStorageType::Compact>;
 
-/// \brief A spherical shape in which wind shall be applied to objects.
+/// A spherical shape in which wind shall be applied to objects.
 ///
 /// The wind blows outwards from the center of the sphere. If the wind direction is reversed, it pulls objects inwards.
 class EZ_GAMEENGINE_DLL ezWindVolumeSphereComponent : public ezWindVolumeComponent
@@ -108,7 +108,7 @@ private:
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief How the wind direction shall be calculated in a cylindrical wind volume.
+/// How the wind direction shall be calculated in a cylindrical wind volume.
 struct ezWindVolumeCylinderMode
 {
   using StorageType = ezUInt8;
@@ -126,7 +126,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezWindVolumeCylinderMode);
 
 using ezWindVolumeCylinderComponentManager = ezComponentManager<class ezWindVolumeCylinderComponent, ezBlockStorageType::Compact>;
 
-/// \brief A cylindrical volume in which wind shall be applied.
+/// A cylindrical volume in which wind shall be applied.
 ///
 /// The wind direction may be either outwards from the cylinder center, or tangential (a vortex).
 class EZ_GAMEENGINE_DLL ezWindVolumeCylinderComponent : public ezWindVolumeComponent
@@ -187,7 +187,7 @@ private:
 
 using ezWindVolumeConeComponentManager = ezComponentManager<class ezWindVolumeConeComponent, ezBlockStorageType::Compact>;
 
-/// \brief A conical shape in which wind shall be applied to objects.
+/// A conical shape in which wind shall be applied to objects.
 ///
 /// The wind is applied from the tip of the cone along the cone axis.
 /// Strength falloff is only by distance along the cone main axis.

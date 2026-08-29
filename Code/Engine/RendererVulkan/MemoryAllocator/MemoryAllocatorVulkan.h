@@ -4,7 +4,7 @@
 #include <RendererVulkan/Device/DeclarationsVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 
-/// \brief Subset of VmaAllocationCreateFlagBits. Duplicated for abstraction purposes.
+/// Subset of VmaAllocationCreateFlagBits. Duplicated for abstraction purposes.
 struct ezVulkanAllocationCreateFlags
 {
   using StorageType = ezUInt32;
@@ -50,7 +50,7 @@ struct ezVulkanAllocationCreateFlags
 };
 EZ_DECLARE_FLAGS_OPERATORS(ezVulkanAllocationCreateFlags);
 
-/// \brief Subset of VmaMemoryUsage. Duplicated for abstraction purposes.
+/// Subset of VmaMemoryUsage. Duplicated for abstraction purposes.
 struct ezVulkanMemoryUsage
 {
   using StorageType = ezUInt8;
@@ -65,7 +65,7 @@ struct ezVulkanMemoryUsage
   };
 };
 
-/// \brief Subset of VmaAllocationCreateInfo. Duplicated for abstraction purposes.
+/// Subset of VmaAllocationCreateInfo. Duplicated for abstraction purposes.
 struct ezVulkanAllocationCreateInfo
 {
   ezBitflags<ezVulkanAllocationCreateFlags> m_flags;
@@ -74,7 +74,7 @@ struct ezVulkanAllocationCreateInfo
   bool m_bExportSharedAllocation = false; // If this allocation should be exported so other processes can access it.
 };
 
-/// \brief Subset of VmaAllocationInfo. Duplicated for abstraction purposes.
+/// Subset of VmaAllocationInfo. Duplicated for abstraction purposes.
 struct ezVulkanAllocationInfo
 {
   uint32_t m_memoryType;
@@ -86,7 +86,7 @@ struct ezVulkanAllocationInfo
   const char* m_pName;
 };
 
-/// \brief Copy of VmaStatistics. Duplicated for abstraction purposes.
+/// Copy of VmaStatistics. Duplicated for abstraction purposes.
 struct ezVulkanMemoryStatistics
 {
   ezUInt32 m_uiBlockCount = 0;
@@ -96,7 +96,7 @@ struct ezVulkanMemoryStatistics
 };
 
 
-/// \brief Thin abstraction layer over VulkanMemoryAllocator to allow for abstraction and prevent pulling in its massive header into other files.
+/// Thin abstraction layer over VulkanMemoryAllocator to allow for abstraction and prevent pulling in its massive header into other files.
 /// Functions are a subset of VMA's. To be extended once a use-case comes up.
 class EZ_RENDERERVULKAN_DLL ezMemoryAllocatorVulkan
 {

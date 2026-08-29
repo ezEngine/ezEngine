@@ -21,6 +21,6 @@ class ezWorld;
 class ezBakingInterface
 {
 public:
-  /// \brief Renders a debug view of the baking scene
+  /// Renders a debug view of the baking scene
   virtual ezResult RenderDebugView(const ezWorld& world, const ezMat4& mInverseViewProjection, ezUInt32 uiWidth, ezUInt32 uiHeight, ezDynamicArray<ezColorGammaUB>& out_pixels, ezProgress& ref_progress) const = 0;
 };

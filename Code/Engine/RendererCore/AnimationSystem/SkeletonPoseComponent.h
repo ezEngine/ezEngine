@@ -29,7 +29,7 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Which pose to apply to an animated mesh.
+/// Which pose to apply to an animated mesh.
 struct ezSkeletonPoseMode
 {
   using StorageType = ezUInt8;
@@ -45,7 +45,7 @@ struct ezSkeletonPoseMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSkeletonPoseMode);
 
-/// \brief Used in conjunction with an ezAnimatedMeshComponent to set a specific pose for the animated mesh.
+/// Used in conjunction with an ezAnimatedMeshComponent to set a specific pose for the animated mesh.
 ///
 /// This component is used to set one, static pose for an animated mesh. The pose is applied once at startup.
 /// This can be used to either just pose a mesh in a certain way, or to set a start pose that is then used
@@ -74,11 +74,11 @@ public:
   ezSkeletonPoseComponent();
   ~ezSkeletonPoseComponent();
 
-  /// \brief Sets the ezSkeletonResource to use.
+  /// Sets the ezSkeletonResource to use.
   void SetSkeleton(const ezSkeletonResourceHandle& hResource);                // [ property ]
   const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; } // [ property ]
 
-  /// \brief Configures which pose to apply to the animated mesh.
+  /// Configures which pose to apply to the animated mesh.
   void SetPoseMode(ezEnum<ezSkeletonPoseMode> mode);
   ezEnum<ezSkeletonPoseMode> GetPoseMode() const { return m_PoseMode; }
 
@@ -87,7 +87,7 @@ public:
   void RemoveBone(const char* szKey);                          // [ property ] (exposed bones)
   bool GetBone(const char* szKey, ezVariant& out_value) const; // [ property ] (exposed bones)
 
-  /// \brief Instructs the component to apply the pose to the animated mesh again.
+  /// Instructs the component to apply the pose to the animated mesh again.
   void ResendPose();
 
 protected:

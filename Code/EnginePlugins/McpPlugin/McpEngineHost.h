@@ -6,7 +6,7 @@
 
 class ezMcpServer;
 
-/// \brief Owns the MCP server inside a game process, and the per-frame bookkeeping its tools need.
+/// Owns the MCP server inside a game process, and the per-frame bookkeeping its tools need.
 ///
 /// The counterpart to what EditorPluginMcp does in the editor. The difference that shapes this class is
 /// that a game process has a frame loop: 'run for a while and then look' is a meaningful request here,
@@ -18,7 +18,7 @@ class ezMcpServer;
 class ezMcpEngineHost
 {
 public:
-  /// \brief Resolves the port, starts the server and subscribes to the frame loop.
+  /// Resolves the port, starts the server and subscribes to the frame loop.
   ///
   /// Does nothing at all when no port was given - see the command line options in McpPlugin.cpp. That is
   /// the normal case: this plugin is mandatory and therefore loaded by every project, so a game that was
@@ -27,14 +27,14 @@ public:
 
   static void Shutdown();
 
-  /// \brief How many frames the application has *rendered* since the server started.
+  /// How many frames the application has *rendered* since the server started.
   ///
   /// Monotonic, and the unit that game_wait counts in. Counts presents, not application ticks: the
   /// editor's engine process loops continuously while rendering nothing, so ticks would report progress
   /// that a screenshot or an input frame never sees.
   static ezUInt64 GetFrameCount() { return s_uiFrameCount; }
 
-  /// \brief Shuts the process down at the end of the current frame.
+  /// Shuts the process down at the end of the current frame.
   ///
   /// Deferred, because the response to app_quit has not reached the socket yet - see
   /// ezMcpAppTool::RequestQuit(). Quitting from inside the tool call would drop it.
@@ -43,7 +43,7 @@ public:
 private:
   static void ExecutionEventHandler(const ezGameApplicationExecutionEvent& e);
 
-  /// \brief Reads -mcpport, falling back to -editor-mcpport + 1. Returns 0 for 'do not serve'.
+  /// Reads -mcpport, falling back to -editor-mcpport + 1. Returns 0 for 'do not serve'.
   static ezUInt16 ResolvePort();
 
   static ezMcpServer* s_pServer;

@@ -7,7 +7,7 @@
 
 using ezLineToComponentManager = ezComponentManagerSimple<class ezLineToComponent, ezComponentUpdateType::Always, ezBlockStorageType::FreeList, ezWorldUpdatePhase::PostTransform>;
 
-/// \brief Draws a line from its own position to the target object position
+/// Draws a line from its own position to the target object position
 class EZ_GAMECOMPONENTS_DLL ezLineToComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezLineToComponent, ezComponent, ezLineToComponentManager);

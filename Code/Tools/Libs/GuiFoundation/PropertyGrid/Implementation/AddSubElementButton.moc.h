@@ -8,7 +8,7 @@ class QHBoxLayout;
 class QPushButton;
 class QMenu;
 
-/// \brief Used by container widgets to add new elements to the container.
+/// Used by container widgets to add new elements to the container.
 class EZ_GUIFOUNDATION_DLL ezQtAddSubElementButton : public ezQtPropertyWidget
 {
   Q_OBJECT

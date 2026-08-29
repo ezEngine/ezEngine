@@ -33,7 +33,7 @@ public:
   bool m_bApplyFog;
 };
 
-/// \brief Represents an individual element of a lens flare.
+/// Represents an individual element of a lens flare.
 struct ezLensFlareElement
 {
   ezTexture2DResourceHandle m_hTexture; // [ property ]
@@ -54,7 +54,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezLensFlareElement);
 
 using ezLensFlareComponentManager = ezComponentManager<class ezLensFlareComponent, ezBlockStorageType::Compact>;
 
-/// \brief Adds a lensflare or corona effect to a lightsource.
+/// Adds a lensflare or corona effect to a lightsource.
 ///
 /// This component can be used to add a lensflare effect to a lightsource, typically the sun.
 /// It can, however, also be used on smaller lightsources. For a full lensflare one would add multiple billboard textures
@@ -93,13 +93,13 @@ public:
   ezLensFlareComponent();
   ~ezLensFlareComponent();
 
-  /// \brief Adjusts the overall intensity of the lens flare
+  /// Adjusts the overall intensity of the lens flare
   float m_fIntensity = 1.0f; // [ property ]
 
-  /// \brief Fallback color if the lens flare is not linked to a light component.
+  /// Fallback color if the lens flare is not linked to a light component.
   ezColorGammaUB m_LightColor = ezColor::White; // [ property ]
 
-  /// \brief Link the lens flare to the first light component on the same owner object or any of its parent objects.
+  /// Link the lens flare to the first light component on the same owner object or any of its parent objects.
   ///
   /// When a lens flare is linked it will take the light color and intensity to modulate the lens flare color and intensity
   /// for elements that have the m_bModulateByLightColor flag set.
@@ -110,16 +110,16 @@ public:
   void SetLinkToLightShape(bool bLink);                            // [ property ]
   bool GetLinkToLightShape() const { return m_bLinkToLightShape; } // [ property ]
 
-  /// \brief Sets the world space radius in which the depth buffer is sampled to determine how much the lens flare is occluded.
+  /// Sets the world space radius in which the depth buffer is sampled to determine how much the lens flare is occluded.
   /// Typically this would be the size of the light emitting area, like e.g. a lamp, or slightly larger.
   void SetOcclusionSampleRadius(float fRadius);                               // [ property ]
   float GetOcclusionSampleRadius() const { return m_fOcclusionSampleRadius; } // [ property ]
 
-  /// \brief Move the occlusion sample center towards the lens flare corner to introduce a slight gradient
+  /// Move the occlusion sample center towards the lens flare corner to introduce a slight gradient
   /// when the lens flare is only partially occluded. This value is relative to the sample radius.
   float m_fOcclusionSampleSpread = 0.5f; // [ property ]
 
-  /// \brief Adjusts the occlusion sample depth in world space. Negative values will move towards the camera.
+  /// Adjusts the occlusion sample depth in world space. Negative values will move towards the camera.
   /// This can be used to prevent self occlusion with the light source object.
   float m_fOcclusionDepthOffset = 0.0f;           // [ property ]
 

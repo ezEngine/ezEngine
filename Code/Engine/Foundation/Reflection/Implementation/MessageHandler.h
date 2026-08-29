@@ -7,7 +7,7 @@
 
 class ezMessage;
 
-/// \brief Base class for all message handlers in the reflection system's message dispatch framework.
+/// Base class for all message handlers in the reflection system's message dispatch framework.
 ///
 /// Message handlers allow types to declare methods that can receive and process specific message
 /// types through the reflection system. This enables loose coupling and dynamic message routing
@@ -102,7 +102,7 @@ namespace ezInternal
         m_bIsConst = true;
       }
 
-      /// \brief Casts the given message to the type of this message handler, then passes that to the class instance.
+      /// Casts the given message to the type of this message handler, then passes that to the class instance.
       static void Dispatch(ezAbstractMessageHandler* pSelf, const void* pInstance, ezMessage& ref_msg)
       {
         EZ_IGNORE_UNUSED(pSelf);

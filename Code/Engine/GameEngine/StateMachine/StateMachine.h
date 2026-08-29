@@ -11,7 +11,7 @@ class ezWorld;
 class ezBlackboard;
 class ezStateMachineInstance;
 
-/// \brief Base class for a state in a state machine.
+/// Base class for a state in a state machine.
 ///
 /// Note that states are shared between multiple instances and thus
 /// shouldn't modify any data on their own but always operate on the passed instance and instance data.
@@ -34,7 +34,7 @@ public:
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const;
   virtual ezResult Deserialize(ezStreamReader& inout_stream);
 
-  /// \brief Returns whether this state needs additional instance data and if so fills the out_desc.
+  /// Returns whether this state needs additional instance data and if so fills the out_desc.
   ///
   /// \see ezStateMachineInstanceDataDesc
   virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc);
@@ -71,7 +71,7 @@ struct ezStateMachineState_ScriptBaseClassFunctions
   };
 };
 
-/// \brief Base class for a transition in a state machine. The target state of a transition is automatically set
+/// Base class for a transition in a state machine. The target state of a transition is automatically set
 /// once its condition has been met.
 ///
 /// Same as with states, transitions are also shared between multiple instances and thus
@@ -86,13 +86,13 @@ class EZ_GAMEENGINE_DLL ezStateMachineTransition : public ezReflectedClass
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const;
   virtual ezResult Deserialize(ezStreamReader& inout_stream);
 
-  /// \brief Returns whether this transition needs additional instance data and if so fills the out_desc.
+  /// Returns whether this transition needs additional instance data and if so fills the out_desc.
   ///
   /// \see ezStateMachineInstanceDataDesc
   virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc);
 };
 
-/// \brief The state machine description defines the structure of a state machine like e.g.
+/// The state machine description defines the structure of a state machine like e.g.
 /// what states it has and how to transition between them.
 /// Once an instance is created from a description it is not allowed to change the description afterwards.
 class EZ_GAMEENGINE_DLL ezStateMachineDescription : public ezRefCounted
@@ -103,10 +103,10 @@ public:
   ezStateMachineDescription();
   ~ezStateMachineDescription();
 
-  /// \brief Adds the given state to the description and returns the state index.
+  /// Adds the given state to the description and returns the state index.
   ezUInt32 AddState(ezUniquePtr<ezStateMachineState>&& pState);
 
-  /// \brief Adds the given transition between the two given states. A uiFromStateIndex of ezInvalidIndex generates a transition that can be done from any other possible state.
+  /// Adds the given transition between the two given states. A uiFromStateIndex of ezInvalidIndex generates a transition that can be done from any other possible state.
   void AddTransition(ezUInt32 uiFromStateIndex, ezUInt32 uiToStateIndex, ezUniquePtr<ezStateMachineTransition>&& pTransistion);
 
   ezResult Serialize(ezStreamWriter& inout_stream) const;
@@ -138,7 +138,7 @@ private:
   ezInstanceDataAllocator m_InstanceDataAllocator;
 };
 
-/// \brief The state machine instance represents the actual state machine.
+/// The state machine instance represents the actual state machine.
 /// Typically it is created from a description but for small use cases it can also be used without a description.
 class EZ_GAMEENGINE_DLL ezStateMachineInstance
 {
@@ -162,10 +162,10 @@ public:
   void SetBlackboard(const ezSharedPtr<ezBlackboard>& pBlackboard);
   const ezSharedPtr<ezBlackboard>& GetBlackboard() const { return m_pBlackboard; }
 
-  /// \brief Returns how long the state machine is in its current state
+  /// Returns how long the state machine is in its current state
   ezTime GetTimeInCurrentState() const { return m_TimeInCurrentState; }
 
-  /// \brief Sends a named event that state transitions can react to.
+  /// Sends a named event that state transitions can react to.
   void FireTransitionEvent(ezStringView sEvent);
 
   ezStringView GetCurrentTransitionEvent() const { return m_sCurrentTransitionEvent; }

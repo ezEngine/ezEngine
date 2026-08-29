@@ -12,7 +12,7 @@ class ezShaderTransform;
 
 using ezRopeRenderComponentManager = ezComponentManager<class ezRopeRenderComponent, ezBlockStorageType::Compact>;
 
-/// \brief Used to render a rope or cable.
+/// Used to render a rope or cable.
 ///
 /// This is needed to visualize the ezFakeRopeComponent or ezJoltRopeComponent.
 /// The component handles the message ezMsgRopePoseUpdated to generate an animated mesh and apply the pose.
@@ -52,19 +52,19 @@ public:
   void SetMaterial(const ezMaterialResourceHandle& hMaterial) { m_hMaterial = hMaterial; } // [ property ]
   const ezMaterialResourceHandle& GetMaterial() const { return m_hMaterial; }              // [ property ]
 
-  /// \brief Changes how thick the rope visualization is. This is independent of the simulated rope thickness.
+  /// Changes how thick the rope visualization is. This is independent of the simulated rope thickness.
   void SetThickness(float fThickness);                // [ property ]
   float GetThickness() const { return m_fThickness; } // [ property ]
 
-  /// \brief Sets how round the rope shall be.
+  /// Sets how round the rope shall be.
   void SetDetail(ezUInt32 uiDetail);                // [ property ]
   ezUInt32 GetDetail() const { return m_uiDetail; } // [ property ]
 
-  /// \brief If enabled, the rendered mesh will be slightly more detailed along the rope.
+  /// If enabled, the rendered mesh will be slightly more detailed along the rope.
   void SetSubdivide(bool bSubdivide);                // [ property ]
   bool GetSubdivide() const { return m_bSubdivide; } // [ property ]
 
-  /// \brief How often to repeat the U texture coordinate along the rope's length.
+  /// How often to repeat the U texture coordinate along the rope's length.
   void SetUScale(float fUScale);                                                        // [ property ]
   float GetUScale() const { return m_fUScale; }                                         // [ property ]
 

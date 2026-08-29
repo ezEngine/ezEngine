@@ -26,7 +26,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Flags for how a piece of cloth should be simulated.
+/// Flags for how a piece of cloth should be simulated.
 struct EZ_JOLTPLUGIN_DLL ezJoltClothSheetFlags
 {
   using StorageType = ezUInt16;
@@ -60,7 +60,7 @@ struct EZ_JOLTPLUGIN_DLL ezJoltClothSheetFlags
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltClothSheetFlags);
 
-/// \brief Simulates a rectangular piece of cloth.
+/// Simulates a rectangular piece of cloth.
 ///
 /// The cloth doesn't interact with the environment and doesn't collide with any geometry.
 /// The component samples the wind simulation and applies wind forces to the cloth.
@@ -114,7 +114,7 @@ public:
   /// The collision layer determines with which other actors this actor collides. \see ezJoltActorComponent
   ezUInt8 m_uiCollisionLayer = 0; // [ property ]
 
-  /// \brief Adjusts how strongly gravity affects the soft body.
+  /// Adjusts how strongly gravity affects the soft body.
   float m_fGravityFactor = 1.0f; // [ property ]
 
   /// A factor to tweak how strong the wind can push the cloth.

@@ -16,7 +16,7 @@ public:
   virtual ezString GetAssetTableEntry(
     const ezSubAsset* pSubAsset, ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile) const override;
 
-  /// \brief There is only a single decal texture per project. This function creates it, in case any decal asset was modified.
+  /// There is only a single decal texture per project. This function creates it, in case any decal asset was modified.
   ezStatus GenerateDecalTexture(const ezPlatformProfile* pAssetProfile);
   ezString GetDecalTexturePath(const ezPlatformProfile* pAssetProfile) const;
 

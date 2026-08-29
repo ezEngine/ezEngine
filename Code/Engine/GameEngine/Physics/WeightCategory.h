@@ -41,13 +41,13 @@ public:
   ezResult Save(ezStringView sFile = s_sConfigFile) const;
   ezResult Load(ezStringView sFile = s_sConfigFile);
 
-  /// \brief Returns the index of the element with the searched name, or InvalidKey, if it doesn't exist.
+  /// Returns the index of the element with the searched name, or InvalidKey, if it doesn't exist.
   ezUInt8 FindByName(ezTempHashedString sName) const;
 
-  /// \brief Returns the next free key, or InvalidKey, if the list is full.
+  /// Returns the next free key, or InvalidKey, if the list is full.
   ezUInt8 GetFreeKey() const;
 
-  /// \brief Returns the mass according to the weight category.
+  /// Returns the mass according to the weight category.
   ///
   /// * The default mass, if uiWeightCategory == DefaultValueKey
   /// * The custom mass, if uiWeightCategory == CustomMassKey

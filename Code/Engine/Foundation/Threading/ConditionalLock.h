@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 
-/// \brief RAII lock guard that conditionally acquires and releases locks based on runtime conditions
+/// RAII lock guard that conditionally acquires and releases locks based on runtime conditions
 ///
 /// Provides the same automatic lock management as ezLock but only performs the actual locking
 /// when a boolean condition is met. Useful in scenarios where locking is only required under

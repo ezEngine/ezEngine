@@ -8,7 +8,7 @@ class ezExposedParametersAttribute;
 class ezExposedParameterCommandAccessor;
 class ezExposedParametersAsTypeCommandAccessor;
 
-/// \brief Default state provider handling variant maps with the ezExposedParametersAttribute set. Reflects the default value defined in the ezExposedParameter.
+/// Default state provider handling variant maps with the ezExposedParametersAttribute set. Reflects the default value defined in the ezExposedParameter.
 class EZ_EDITORFRAMEWORK_DLL ezExposedParametersDefaultStateProvider : public ezDefaultStateProvider
 {
 public:
@@ -32,7 +32,7 @@ protected:
   const ezAbstractProperty* m_pParameterSourceProp = nullptr;
 };
 
-/// \brief Default state provider handling variant maps with the ezExposedParametersAttribute set that are visualized as their respective phantom type.
+/// Default state provider handling variant maps with the ezExposedParametersAttribute set that are visualized as their respective phantom type.
 /// This class builds on top of ezExposedParametersDefaultStateProvider and only adds the logic to redirect the phantom type + phantom property requested into the actual underlying variant map of the exposed parameters.
 /// The provider is only valid if the target accessor is of type ezExposedParametersAsTypeCommandAccessor.
 class EZ_EDITORFRAMEWORK_DLL ezExposedParametersAsTypeDefaultStateProvider : public ezExposedParametersDefaultStateProvider

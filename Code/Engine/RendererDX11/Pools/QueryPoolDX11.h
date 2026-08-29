@@ -6,13 +6,13 @@
 struct ID3D11Query;
 class ezGALDeviceDX11;
 
-/// \brief Pool for GPU queries.
+/// Pool for GPU queries.
 class EZ_RENDERERDX11_DLL ezQueryPoolDX11
 {
 public:
   ezQueryPoolDX11(ezGALDeviceDX11* pDevice);
 
-  /// \brief Initializes the pool.
+  /// Initializes the pool.
   ezResult Initialize();
   void DeInitialize();
 
@@ -21,7 +21,7 @@ public:
 
   ezGALTimestampHandle InsertTimestamp();
 
-  /// \brief Retrieves the timestamp value if it is available.
+  /// Retrieves the timestamp value if it is available.
   /// \param hTimestamp The target timestamp to resolve.
   /// \param result The time of the timestamp. If this is empty on success the timestamp has expired.
   /// \return Returns false if the result is not available yet.

@@ -9,7 +9,7 @@ class ezAssetDocument;
 struct ezDocumentEvent;
 class QPushButton;
 
-/// \brief A small widget that displays the current transform status of an asset.
+/// A small widget that displays the current transform status of an asset.
 ///
 /// Clicking it allows to re-transform, or see the error log.
 class EZ_EDITORFRAMEWORK_DLL ezQtAssetStatusIndicator : public QFrame

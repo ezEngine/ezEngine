@@ -19,7 +19,7 @@ public:
   void UpdateBounds();
 };
 
-/// \brief Automatically created by the particle system to finish playing a particle effect.
+/// Automatically created by the particle system to finish playing a particle effect.
 ///
 /// This is needed to play a particle effect to the end, when a game object with a particle effect on it gets deleted.
 /// This component should never be instantiated manually.
@@ -46,7 +46,7 @@ public:
   ezParticleFinisherComponent();
   ~ezParticleFinisherComponent();
 
-  /// \brief Forwards to InterruptEffect().
+  /// Forwards to InterruptEffect().
   void OnMsgInterruptPlaying(ezMsgInterruptPlaying& ref_msg); // [ msg handler ]
 
   ezParticleEffectController m_EffectController;

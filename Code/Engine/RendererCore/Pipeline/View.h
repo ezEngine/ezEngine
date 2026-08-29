@@ -16,14 +16,14 @@ class ezFrustum;
 class ezWorld;
 class ezRenderPipeline;
 
-/// \brief Encapsulates a view on the given world through the given camera
+/// Encapsulates a view on the given world through the given camera
 /// and rendered with the specified RenderPipeline into the given render target setup.
 class EZ_RENDERERCORE_DLL ezView : ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezView, ezReflectedClass);
 
 private:
-  /// \brief Use ezRenderLoop::CreateView to create a view.
+  /// Use ezRenderLoop::CreateView to create a view.
   ezView();
   ~ezView();
 
@@ -39,18 +39,18 @@ public:
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
 
-  /// \brief Sets the swapchain that this view will be rendering into. Can be invalid in case the render target is an off-screen buffer in which case SetRenderTargets needs to be called.
+  /// Sets the swapchain that this view will be rendering into. Can be invalid in case the render target is an off-screen buffer in which case SetRenderTargets needs to be called.
   /// Setting the swap-chain is necessary in order to acquire and present the image to the window.
   /// SetSwapChain and SetRenderTargets are mutually exclusive. Calling this function will reset the render targets.
   void SetSwapChain(ezGALSwapChainHandle hSwapChain);
   ezGALSwapChainHandle GetSwapChain() const;
 
-  /// \brief Sets the off-screen render targets. Use SetSwapChain if rendering to a window.
+  /// Sets the off-screen render targets. Use SetSwapChain if rendering to a window.
   /// SetSwapChain and SetRenderTargets are mutually exclusive. Calling this function will reset the swap chain.
   void SetRenderTargets(const ezGALRenderTargets& renderTargets);
   const ezGALRenderTargets& GetRenderTargets() const;
 
-  /// \brief Returns the render targets that were either set via the swapchain or via the manually set render targets.
+  /// Returns the render targets that were either set via the swapchain or via the manually set render targets.
   const ezGALRenderTargets& GetActiveRenderTargets() const;
 
   void SetRenderPipelineResource(ezRenderPipelineResourceHandle hPipeline);
@@ -66,9 +66,9 @@ public:
   void SetLodCamera(const ezCamera* pCamera);
   const ezCamera* GetLodCamera() const;
 
-  /// \brief Returns the camera usage hint for the view.
+  /// Returns the camera usage hint for the view.
   ezEnum<ezCameraUsageHint> GetCameraUsageHint() const;
-  /// \brief Sets the camera usage hint for the view. If not 'None', the camera component of the same usage will be auto-connected
+  /// Sets the camera usage hint for the view. If not 'None', the camera component of the same usage will be auto-connected
   ///   to this view.
   void SetCameraUsageHint(ezEnum<ezCameraUsageHint> val);
 
@@ -78,72 +78,72 @@ public:
   void SetViewport(const ezRectFloat& viewport);
   const ezRectFloat& GetViewport() const;
 
-  /// \brief Forces the render pipeline to be rebuilt.
+  /// Forces the render pipeline to be rebuilt.
   void ForceUpdate();
 
   const ezViewData& GetData() const;
 
   bool IsValid() const;
 
-  /// \brief Extracts all relevant data from the world to render the view.
+  /// Extracts all relevant data from the world to render the view.
   void ExtractData();
 
-  /// \brief Returns a task implementation that calls ExtractData on this view.
+  /// Returns a task implementation that calls ExtractData on this view.
   const ezSharedPtr<ezTask>& GetExtractTask();
 
 
-  /// \brief Calculates the start position and direction (in world space) of the picking ray through the screen position in this view.
+  /// Calculates the start position and direction (in world space) of the picking ray through the screen position in this view.
   ///
   /// fNormalizedScreenPosX and fNormalizedScreenPosY are expected to be in [0; 1] range (normalized screen coordinates).
   /// If no ray can be computed, EZ_FAILURE is returned.
   ezResult ComputePickingRay(float fNormalizedScreenPosX, float fNormalizedScreenPosY, ezVec3& out_vRayStartPos, ezVec3& out_vRayDir) const;
 
-  /// \brief Calculates the normalized screen-space coordinate ([0; 1] range) that the given world-space point projects to.
+  /// Calculates the normalized screen-space coordinate ([0; 1] range) that the given world-space point projects to.
   ///
   /// Returns EZ_FAILURE, if the point could not be projected into screen-space.
   ezResult ComputeScreenSpacePos(const ezVec3& vWorldPos, ezVec3& out_vScreenPosNormalized) const;
 
-  /// \brief Calculates the world-space position that the given normalized screen-space coordinate maps to
+  /// Calculates the world-space position that the given normalized screen-space coordinate maps to
   ezResult ComputeWorldSpacePos(float fNormalizedScreenPosX, float fNormalizedScreenPosY, ezVec3& out_vWorldPos) const;
 
-  /// \brief Converts a screen-space position from pixel coordinates to normalized coordinates.
+  /// Converts a screen-space position from pixel coordinates to normalized coordinates.
   void ConvertScreenPixelPosToNormalizedPos(ezVec3& inout_vPixelPos);
 
-  /// \brief Converts a screen-space position from normalized coordinates to pixel coordinates.
+  /// Converts a screen-space position from normalized coordinates to pixel coordinates.
   void ConvertScreenNormalizedPosToPixelPos(ezVec3& inout_vNormalizedPos);
 
 
-  /// \brief Returns the current projection matrix.
+  /// Returns the current projection matrix.
   const ezMat4& GetProjectionMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
-  /// \brief Returns the current inverse projection matrix.
+  /// Returns the current inverse projection matrix.
   const ezMat4& GetInverseProjectionMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
-  /// \brief Returns the current view matrix (camera orientation).
+  /// Returns the current view matrix (camera orientation).
   const ezMat4& GetViewMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
-  /// \brief Returns the current inverse view matrix (inverse camera orientation).
+  /// Returns the current inverse view matrix (inverse camera orientation).
   const ezMat4& GetInverseViewMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
-  /// \brief Returns the current view-projection matrix.
+  /// Returns the current view-projection matrix.
   const ezMat4& GetViewProjectionMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
-  /// \brief Returns the current inverse view-projection matrix.
+  /// Returns the current inverse view-projection matrix.
   const ezMat4& GetInverseViewProjectionMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
-  /// \brief Returns the frustum that should be used for determine visible objects for this view.
+  /// Returns the frustum that should be used for determine visible objects for this view.
   void ComputeCullingFrustum(ezFrustum& out_frustum) const;
 
   void SetShaderPermutationVariable(const char* szName, const char* szValue);
 
-  /// \brief This blackboard can be used to set view specific render pipeline pass or extractor properties,
+  /// This blackboard can be used to set view specific render pipeline pass or extractor properties,
   /// or to overwrite properties that are already set on the world blackboard.
   ///
   /// To set properties the blackboard entry name must be in the form of "PassName.PropertyName" or "ExtractorName.PropertyName".
   void SetBlackboard(const ezSharedPtr<ezBlackboard>& pBlackboard);
   const ezSharedPtr<ezBlackboard>& GetBlackboard() const;
 
-  /// \brief Pushes the view and camera data into the extracted data of the pipeline.
+  /// Pushes the view and camera data into the extracted data of the pipeline.
   ///
   /// Use ezRenderWorld::GetDataIndexForExtraction() to update the data from the extraction thread. Can't be used if this view is currently extracted.
   /// Use ezRenderWorld::GetDataIndexForRendering() to update the data from the render thread.
@@ -180,7 +180,7 @@ private:
 private:
   void UpdateCachedMatrices() const;
 
-  /// \brief Rebuilds pipeline if necessary and pushes double-buffered settings into the pipeline.
+  /// Rebuilds pipeline if necessary and pushes double-buffered settings into the pipeline.
   void EnsureUpToDate();
 
   mutable ezUInt32 m_uiLastCameraSettingsModification = 0;

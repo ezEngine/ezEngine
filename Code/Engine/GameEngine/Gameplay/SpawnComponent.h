@@ -36,7 +36,7 @@ EZ_DECLARE_FLAGS_OPERATORS(ezSpawnComponentFlags);
 
 using ezSpawnComponentManager = ezComponentManager<class ezSpawnComponent, ezBlockStorageType::Compact>;
 
-/// \brief Spawns instances of prefabs dynamically at runtime.
+/// Spawns instances of prefabs dynamically at runtime.
 ///
 /// The component may spawn prefabs automatically and also continuously, or it may only spawn objects on-demand
 /// when triggered from code.
@@ -66,31 +66,31 @@ public:
   ezSpawnComponent();
   ~ezSpawnComponent();
 
-  /// \brief Checks whether the last spawn time was long enough ago that a call to TriggerManualSpawn() would succeed.
+  /// Checks whether the last spawn time was long enough ago that a call to TriggerManualSpawn() would succeed.
   bool CanTriggerManualSpawn() const; // [ scriptable ]
 
-  /// \brief Spawns a new object, unless the minimum spawn delay has not been reached between calls to this function.
+  /// Spawns a new object, unless the minimum spawn delay has not been reached between calls to this function.
   ///
   /// Manual spawns and continuous (scheduled) spawns are independent from each other regarding minimum spawn delays.
   /// If this function is called in too short intervals, it is ignored and false is returned.
   /// Returns true, if an object was spawned.
   bool TriggerManualSpawn(bool bIgnoreSpawnDelay = false, const ezVec3& vLocalOffset = ezVec3::MakeZero()); // [ scriptable ]
 
-  /// \brief Unless a spawn is already scheduled, this will schedule one within the configured time frame.
+  /// Unless a spawn is already scheduled, this will schedule one within the configured time frame.
   ///
   /// If continuous spawning is enabled, this will kick off the first spawn and then continue indefinitely.
   /// To stop continuously spawning, remove the continuous spawn flag.
   void ScheduleSpawn(); // [ scriptable ]
 
-  /// \brief Enables that the component spawns right at creation time. Otherwise it needs to be triggered manually.
+  /// Enables that the component spawns right at creation time. Otherwise it needs to be triggered manually.
   void SetSpawnAtStart(bool b); // [ property ]
   bool GetSpawnAtStart() const; // [ property ]
 
-  /// \brief Enables that once an object was spawned, another spawn action will be scheduled right away.
+  /// Enables that once an object was spawned, another spawn action will be scheduled right away.
   void SetSpawnContinuously(bool b); // [ property ]
   bool GetSpawnContinuously() const; // [ property ]
 
-  /// \brief Sets that spawned objects will be attached as child objects to this game object.
+  /// Sets that spawned objects will be attached as child objects to this game object.
   void SetAttachAsChild(bool b);    // [ property ]
   bool GetAttachAsChild() const;    // [ property ]
 

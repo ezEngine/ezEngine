@@ -2,7 +2,7 @@
 
 #include <Foundation/Containers/ArrayBase.h>
 
-/// \brief Wraps a C-style array, which has a fixed size at compile-time, with a more convenient interface.
+/// Wraps a C-style array, which has a fixed size at compile-time, with a more convenient interface.
 ///
 /// ezStaticArray can be used to create a fixed size array, either on the stack or as a class member.
 /// Additionally it allows to use that array as a 'cache', i.e. not all its elements need to be constructed.
@@ -15,33 +15,33 @@ public:
   // Only if the stored type is either POD or relocatable the hybrid array itself is also relocatable.
   EZ_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T);
 
-  /// \brief Creates an empty array.
+  /// Creates an empty array.
   ezStaticArray(); // [tested]
 
-  /// \brief Creates a copy of the given array.
+  /// Creates a copy of the given array.
   ezStaticArray(const ezStaticArray<T, Capacity>& rhs); // [tested]
 
-  /// \brief Creates a copy of the given array.
+  /// Creates a copy of the given array.
   template <ezUInt32 OtherCapacity>
   ezStaticArray(const ezStaticArray<T, OtherCapacity>& rhs); // [tested]
 
-  /// \brief Creates a copy of the given array.
+  /// Creates a copy of the given array.
   explicit ezStaticArray(const ezArrayPtr<const T>& rhs); // [tested]
 
-  /// \brief Destroys all objects.
+  /// Destroys all objects.
   ~ezStaticArray(); // [tested]
 
-  /// \brief Copies the data from some other contiguous array into this one.
+  /// Copies the data from some other contiguous array into this one.
   void operator=(const ezStaticArray<T, Capacity>& rhs); // [tested]
 
-  /// \brief Copies the data from some other contiguous array into this one.
+  /// Copies the data from some other contiguous array into this one.
   template <ezUInt32 OtherCapacity>
   void operator=(const ezStaticArray<T, OtherCapacity>& rhs); // [tested]
 
-  /// \brief Copies the data from some other contiguous array into this one.
+  /// Copies the data from some other contiguous array into this one.
   void operator=(const ezArrayPtr<const T>& rhs); // [tested]
 
-  /// \brief For the static array Reserve is a no-op. However the function checks if the requested capacity is below or equal to the static capacity.
+  /// For the static array Reserve is a no-op. However the function checks if the requested capacity is below or equal to the static capacity.
   void Reserve(ezUInt32 uiCapacity);
 
 protected:
@@ -53,7 +53,7 @@ private:
   T* GetStaticArray();
   const T* GetStaticArray() const;
 
-  /// \brief The fixed size array.
+  /// The fixed size array.
   struct alignas(alignof(T))
   {
     ezUInt8 m_Data[Capacity * sizeof(T)];

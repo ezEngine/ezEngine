@@ -5,7 +5,7 @@
 #include <Foundation/Time/Time.h>
 #include <Mcp/McpTool.h>
 
-/// \brief What the game is doing, and letting it run.
+/// What the game is doing, and letting it run.
 ///
 /// The distinction against app_* is process versus game: the port, the executable and the log belong to
 /// the process and are answered by the shared ezMcpAppTool, while a world, a game state and a clock only
@@ -30,7 +30,7 @@ private:
   void ExecutePause(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
   void ExecuteSpeed(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
 
-  /// \brief Writes the clock's state, shared by game_info, game_pause and game_speed.
+  /// Writes the clock's state, shared by game_info, game_pause and game_speed.
   static void WriteClockState(ezMcpJsonWriter& ref_writer);
 
   /// game_wait cannot loop - it runs inside a frame, so frames only happen after it returns. It defers

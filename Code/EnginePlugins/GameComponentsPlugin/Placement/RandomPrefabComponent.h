@@ -25,7 +25,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Spawns one or multiple prefabs randomly from a collection.
+/// Spawns one or multiple prefabs randomly from a collection.
 ///
 /// The component stores a list of prefabs. Upon activation it randomly selects one or multiple to spawn.
 /// The location, rotation, size and color may vary within specified limits.
@@ -56,39 +56,39 @@ protected:
   // ezRandomPrefabComponent
 
 public:
-  /// \brief Specifies how many objects to spawn.
+  /// Specifies how many objects to spawn.
   void SetCount(ezUInt16 uiCount);
   ezUInt16 GetCount() const;
 
-  /// \brief Specifies how far along the x, y and z axis the spawned object positions may deviate from the center.
+  /// Specifies how far along the x, y and z axis the spawned object positions may deviate from the center.
   void SetPositionDeviation(const ezVec3& vValue);
   const ezVec3& GetPositionDeviation() const { return m_vPositionDeviation; }
 
-  /// \brief Specifies how much the spawned object rotations may deviate.
+  /// Specifies how much the spawned object rotations may deviate.
   void SetRotationDeviation(const ezVec3& vValue);
   const ezVec3& GetRotationDeviation() const { return m_vRotationDeviation; }
 
-  /// \brief Sets the minimum scale for the spawned objects.
+  /// Sets the minimum scale for the spawned objects.
   void SetMinUniformScale(float fValue);
   float GetMinUniformScale() const { return m_fMinUniformScale; }
 
-  /// \brief Sets the maximum scale for the spawned objects.
+  /// Sets the maximum scale for the spawned objects.
   void SetMaxUniformScale(float fValue);
   float GetMaxUniformScale() const { return m_fMaxUniformScale; }
 
-  /// \brief If color1 and/or color2 are not white, objects are sent an ezMsgSetColor, with a color that is a random interpolation between the two.
+  /// If color1 and/or color2 are not white, objects are sent an ezMsgSetColor, with a color that is a random interpolation between the two.
   void SetColor1(const ezColor& value);
   const ezColor& GetColor1() const { return m_Color1; }
 
-  /// \brief If color1 and/or color2 are not white, objects are sent an ezMsgSetColor, with a color that is a random interpolation between the two.
+  /// If color1 and/or color2 are not white, objects are sent an ezMsgSetColor, with a color that is a random interpolation between the two.
   void SetColor2(const ezColor& value);
   const ezColor& GetColor2() const { return m_Color2; }
 
-  /// \brief If set to true, the spawned objects get attached to the owner of this component. Otherwise they don't have a parent.
+  /// If set to true, the spawned objects get attached to the owner of this component. Otherwise they don't have a parent.
   void SetInstantiateAsChildren(bool bValue);
   bool GetInstantiateAsChildren() const { return m_bInstantiateAsChildren; }
 
-  /// \brief Whether to preview the result in editor. Can be disabled to reduce clutter or improve performance during editing.
+  /// Whether to preview the result in editor. Can be disabled to reduce clutter or improve performance during editing.
   void SetPreview(bool bValue);
   bool GetPreview() const { return m_bPreview; }
 

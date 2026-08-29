@@ -5,30 +5,30 @@
 
 class ezGALDeviceVulkan;
 
-/// \brief Pool for GPU queries.
+/// Pool for GPU queries.
 class EZ_RENDERERVULKAN_DLL ezQueryPoolVulkan
 {
 public:
   ezQueryPoolVulkan(ezGALDeviceVulkan* pDevice);
 
-  /// \brief Initializes the pool.
+  /// Initializes the pool.
   /// \param uiValidBits The number of valid bits in the query result. Each queue has different query characteristics and a separate pool is needed for each queue.
   void Initialize(ezUInt32 uiValidBits);
   void DeInitialize();
 
-  /// \brief Needs to be called every frame so the pool can figure out which queries have finished and reuse old data.
+  /// Needs to be called every frame so the pool can figure out which queries have finished and reuse old data.
   void AfterBeginFrame(vk::CommandBuffer commandBuffer);
 
-  /// \brief We have to call this before each begin rendering call as if we run out of queries inside a render pass, we can't recover given that resetQueryPool can only be called outside a render pass which is necessary to be called on every new pool.
+  /// We have to call this before each begin rendering call as if we run out of queries inside a render pass, we can't recover given that resetQueryPool can only be called outside a render pass which is necessary to be called on every new pool.
   void EnsureFreeQueryPoolSize(vk::CommandBuffer commandBuffer);
 
-  /// \brief Inserts a timestamp into the given command buffer.
+  /// Inserts a timestamp into the given command buffer.
   /// \param commandBuffer Target command buffer to insert the timestamp into.
   /// \param hTimestamp Timestamp to insert. After insertion the only valid option is to call GetTimestampResult.
   /// \param pipelineStage The value of the timestamp will be the point in time in which all previously committed commands have finished this stage.
   ezGALTimestampHandle InsertTimestamp(vk::CommandBuffer commandBuffer, vk::PipelineStageFlagBits pipelineStage = vk::PipelineStageFlagBits::eBottomOfPipe);
 
-  /// \brief Retrieves the timestamp value if it is available.
+  /// Retrieves the timestamp value if it is available.
   /// \param hTimestamp The target timestamp to resolve.
   /// \param result The time of the timestamp. If this is empty on success the timestamp has expired.
   /// \param bForce Wait for the timestamp to become available.
@@ -40,7 +40,7 @@ public:
   ezEnum<ezGALAsyncResult> GetOcclusionQueryResult(ezGALPoolHandle hPool, ezUInt64& out_uiQueryResult, bool bForce = false);
 
 private:
-  /// \brief GPU and CPU timestamps have no relation in Vulkan. To establish it we need to measure the same timestamp in both and compute the difference.
+  /// GPU and CPU timestamps have no relation in Vulkan. To establish it we need to measure the same timestamp in both and compute the difference.
   void Calibrate();
 
   static constexpr ezUInt32 s_uiRetainFrames = 4;

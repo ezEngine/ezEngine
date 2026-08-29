@@ -8,7 +8,7 @@ class ezScriptWorldModule;
 
 using ezScriptCoroutineId = ezGenericId<20, 12>;
 
-/// \brief A handle to a script coroutine which can be used to determine whether a coroutine is still running
+/// A handle to a script coroutine which can be used to determine whether a coroutine is still running
 /// even after the underlying coroutine object has already been deleted.
 ///
 /// \sa ezScriptWorldModule::CreateCoroutine, ezScriptWorldModule::IsCoroutineFinished
@@ -20,7 +20,7 @@ struct ezScriptCoroutineHandle
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezScriptCoroutineHandle);
 EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezScriptCoroutineHandle);
 
-/// \brief Base class of script coroutines.
+/// Base class of script coroutines.
 ///
 /// A coroutine is a function that can be distributed over multiple frames and behaves similar to a mini state machine.
 /// That is why coroutines are actually individual objects that keep track of their state rather than simple functions.
@@ -93,7 +93,7 @@ private:
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezScriptCoroutine);
 
-/// \brief Base class of coroutines which are implemented in C++ to allow automatic unpacking of the arguments from variants
+/// Base class of coroutines which are implemented in C++ to allow automatic unpacking of the arguments from variants
 template <typename Derived, class... Args>
 class ezTypedScriptCoroutine : public ezScriptCoroutine
 {
@@ -110,7 +110,7 @@ private:
   }
 };
 
-/// \brief Mode that decides what should happen if a new coroutine is created while there is already another coroutine running with the same name
+/// Mode that decides what should happen if a new coroutine is created while there is already another coroutine running with the same name
 /// on a given instance.
 ///
 /// \sa ezScriptWorldModule::CreateCoroutine
@@ -130,7 +130,7 @@ struct ezScriptCoroutineCreationMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezScriptCoroutineCreationMode);
 
-/// \brief A coroutine type that stores a custom allocator.
+/// A coroutine type that stores a custom allocator.
 ///
 /// The custom allocator allows to pass more data to the created coroutine object than the default allocator.
 /// E.g. this is used to pass the visual script graph to a visual script coroutine without the user needing to know
@@ -146,7 +146,7 @@ private:
   ezUniquePtr<ezRTTIAllocator> m_pAllocatorStorage;
 };
 
-/// \brief A function property that creates an instance of the given coroutine type and starts it immediately.
+/// A function property that creates an instance of the given coroutine type and starts it immediately.
 class EZ_CORE_DLL ezScriptCoroutineFunctionProperty : public ezScriptFunctionProperty
 {
 public:
@@ -177,7 +177,7 @@ protected:
   ezEnum<ezScriptCoroutineCreationMode> m_CreationMode;
 };
 
-/// \brief A message handler that creates an instance of the given coroutine type and starts it immediately.
+/// A message handler that creates an instance of the given coroutine type and starts it immediately.
 class EZ_CORE_DLL ezScriptCoroutineMessageHandler : public ezScriptMessageHandler
 {
 public:
@@ -192,7 +192,7 @@ protected:
   ezEnum<ezScriptCoroutineCreationMode> m_CreationMode;
 };
 
-/// \brief HashHelper implementation so coroutine handles can be used as key in a hash table. Also needed to store in a variant.
+/// HashHelper implementation so coroutine handles can be used as key in a hash table. Also needed to store in a variant.
 template <>
 struct ezHashHelper<ezScriptCoroutineHandle>
 {
@@ -201,7 +201,7 @@ struct ezHashHelper<ezScriptCoroutineHandle>
   EZ_ALWAYS_INLINE static bool Equal(ezScriptCoroutineHandle a, ezScriptCoroutineHandle b) { return a == b; }
 };
 
-/// \brief Currently not implemented as it is not needed for coroutine handles.
+/// Currently not implemented as it is not needed for coroutine handles.
 EZ_ALWAYS_INLINE void operator<<(ezStreamWriter& inout_stream, const ezScriptCoroutineHandle& hValue)
 {
   EZ_IGNORE_UNUSED(inout_stream);

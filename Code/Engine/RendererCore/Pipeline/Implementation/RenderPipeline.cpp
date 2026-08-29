@@ -460,10 +460,10 @@ bool ezRenderPipeline::SortPasses()
 
   struct ezPipelineSorter
   {
-    /// \brief Returns true if a is less than b
+    /// Returns true if a is less than b
     EZ_FORCE_INLINE bool Less(const ezUniquePtr<ezRenderPipelinePass>& a, const ezUniquePtr<ezRenderPipelinePass>& b) const { return m_pDone->IndexOf(a.Borrow()) < m_pDone->IndexOf(b.Borrow()); }
 
-    /// \brief Returns true if a is equal to b
+    /// Returns true if a is equal to b
     EZ_ALWAYS_INLINE bool Equal(const ezUniquePtr<ezRenderPipelinePass>& a, const ezUniquePtr<ezRenderPipelinePass>& b) const { return a.Borrow() == b.Borrow(); }
 
     ezTempHybridArray<ezRenderPipelinePass*, 32>* m_pDone;

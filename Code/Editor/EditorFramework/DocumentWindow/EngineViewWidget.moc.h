@@ -31,7 +31,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezObjectPickingResult
   ezVec3 m_vPickingRayStart;
 };
 
-/// \brief Base class for views that show engine output
+/// Base class for views that show engine output
 class EZ_EDITORFRAMEWORK_DLL ezQtEngineViewWidget : public QWidget
 {
   Q_OBJECT
@@ -40,28 +40,28 @@ public:
   ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentWindow* pDocumentWindow, ezEngineViewConfig* pViewConfig);
   ~ezQtEngineViewWidget();
 
-  /// \brief Add input contexts in the order in which they are supposed to be processed
+  /// Add input contexts in the order in which they are supposed to be processed
   ezHybridArray<ezEditorInputContext*, 8> m_InputContexts;
 
-  /// \brief Returns the ID of this view
+  /// Returns the ID of this view
   ezUInt32 GetViewID() const { return m_uiViewID; }
   ezQtEngineDocumentWindow* GetDocumentWindow() const { return m_pDocumentWindow; }
 
-  /// \brief Sends the redraw message to the engine
+  /// Sends the redraw message to the engine
   virtual void SyncToEngine();
 
   void GetCameraMatrices(ezMat4& out_mViewMatrix, ezMat4& out_mProjectionMatrix) const;
 
   ezEngineViewConfig* m_pViewConfig;
 
-  /// \brief Called every frame to move the camera to its current target (focus on selection, etc.)
+  /// Called every frame to move the camera to its current target (focus on selection, etc.)
   void UpdateCameraInterpolation();
 
-  /// \brief The view's camera will be interpolated to the given coordinates
+  /// The view's camera will be interpolated to the given coordinates
   void InterpolateCameraTo(
     const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim, const ezVec3* pNewUpDirection = nullptr, bool bImmediate = false);
 
-  /// \brief If disabled, no picking takes place in this view.
+  /// If disabled, no picking takes place in this view.
   ///
   /// Disabled in views that do not need picking (material asset, particle asset, etc.)
   /// and when the mouse is outside a view, to prevent useless picking.
@@ -69,38 +69,38 @@ public:
 
   void SetPickTransparent(bool bEnable);
 
-  /// \brief Disabled during drag&drop operations, to prevent picking against the dragged object.
+  /// Disabled during drag&drop operations, to prevent picking against the dragged object.
   virtual bool IsPickingAgainstSelectionAllowed() const { return !m_bInDragAndDropOperation; }
 
-  /// \brief Holds information about the viewport that the user just now hovered over and what object was picked last
+  /// Holds information about the viewport that the user just now hovered over and what object was picked last
   struct InteractionContext
   {
     ezQtEngineViewWidget* m_pLastHoveredViewWidget = nullptr;
     const ezObjectPickingResult* m_pLastPickingResult = nullptr;
   };
 
-  /// \brief Returns the latest information about what viewport the user interacted with.
+  /// Returns the latest information about what viewport the user interacted with.
   static const InteractionContext& GetInteractionContext() { return s_InteractionContext; }
 
-  /// \brief Overrides the InteractionContext with custom values. Mostly useful for injecting procedural user interaction for unit tests.
+  /// Overrides the InteractionContext with custom values. Mostly useful for injecting procedural user interaction for unit tests.
   static void SetInteractionContext(const InteractionContext& ctxt) { s_InteractionContext = ctxt; }
 
-  /// \brief Supposed to open a context menu at the given position. Derived classes must implement OnOpenContextMenu and do the actual work there.
+  /// Supposed to open a context menu at the given position. Derived classes must implement OnOpenContextMenu and do the actual work there.
   void OpenContextMenu(QPoint globalPos);
 
-  /// \brief Starts a picking operation for the given pixel position in this view. Returns the most recent picking information in the meantime.
+  /// Starts a picking operation for the given pixel position in this view. Returns the most recent picking information in the meantime.
   const ezObjectPickingResult& PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const;
 
-  /// \brief Clears the last stored picking position. Only needed when it is vital that no stale picking data can be used next time.
+  /// Clears the last stored picking position. Only needed when it is vital that no stale picking data can be used next time.
   void ClearLastPickedObject();
 
-  /// \brief Similar to PickObject, but computes the intersection with the given plane instead.
+  /// Similar to PickObject, but computes the intersection with the given plane instead.
   ezResult PickPlane(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY, const ezPlane& plane, ezVec3& out_vPosition) const;
 
-  /// \brief Processes incoming messages from the engine that are meant for this particular view. Mostly picking results.
+  /// Processes incoming messages from the engine that are meant for this particular view. Mostly picking results.
   void HandleViewMessage(const ezEditorEngineViewMsg* pMsg);
 
-  /// \brief Returns a plane that can be used for picking, when nothing else is available
+  /// Returns a plane that can be used for picking, when nothing else is available
   /// Orthographic views would typically return their projection planes, perspective views may return the ground plane
   virtual ezPlane GetFallbackPickingPlane(ezVec3 vPointOnPlane = ezVec3(0)) const;
 
@@ -111,7 +111,7 @@ public:
   void TakeScreenshot(const char* szOutputPath) const;
 
 protected:
-  /// \brief Used to deactivate shortcuts
+  /// Used to deactivate shortcuts
   virtual bool eventFilter(QObject* object, QEvent* event) override;
 
   virtual void paintEvent(QPaintEvent* event) override;
@@ -172,7 +172,7 @@ protected:
   static InteractionContext s_InteractionContext;
 };
 
-/// \brief Wraps and decorates a view widget with a toolbar and layout.
+/// Wraps and decorates a view widget with a toolbar and layout.
 class EZ_EDITORFRAMEWORK_DLL ezQtViewWidgetContainer : public ads::CDockWidget
 {
   Q_OBJECT

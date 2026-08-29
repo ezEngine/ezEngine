@@ -9,7 +9,7 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 
-/// \brief The base class for all input device types.
+/// The base class for all input device types.
 ///
 /// An input device is the abstraction of one or more types of input. It is not linked to one physical device.
 /// For example an input device can represent mouse AND keyboard (through one class). Another input device
@@ -44,13 +44,13 @@ class EZ_CORE_DLL ezInputDevice : public ezEnumerable<ezInputDevice, ezReflected
   EZ_ADD_DYNAMIC_REFLECTION(ezInputDevice, ezReflectedClass);
 
 public:
-  /// \brief Default Constructor.
+  /// Default Constructor.
   ezInputDevice();
 
-  /// \brief Allows to query current input values for the given slot
+  /// Allows to query current input values for the given slot
   float GetInputSlotState(ezStringView sSlot) const;
 
-  /// \brief Returns true, if the device was 'used' during the last frame, ie. when it generated input due to some user interaction.
+  /// Returns true, if the device was 'used' during the last frame, ie. when it generated input due to some user interaction.
   ///
   /// This can be used to figure out which device the user is currently using, for example whether mouse/keyboard or a controller is in use.
   bool HasDeviceBeenUsedLastFrame() const;
@@ -58,7 +58,7 @@ public:
 private:
   friend class ezInputManager;
 
-  /// \brief If this type of input device handles character input (typed text with all its formatting), this function returns
+  /// If this type of input device handles character input (typed text with all its formatting), this function returns
   /// every character typed since the last call, in order, as one UTF-8 string, and clears the buffer.
   ///
   /// An input device that handles keyboard input should also have a way to query the real typed character(s). I.e. by default
@@ -68,24 +68,24 @@ private:
   /// to compute this itself, but instead query this information from the OS, which will also handle localization.
   ezString RetrieveLastCharacters();
 
-  /// \brief Calls UpdateHardwareState() on all devices.
+  /// Calls UpdateHardwareState() on all devices.
   static void UpdateAllHardwareStates(ezTime tTimeDifference);
 
-  /// \brief Calls Initialize() and UpdateInputSlotValues() on all devices.
+  /// Calls Initialize() and UpdateInputSlotValues() on all devices.
   static void UpdateAllDevices();
 
-  /// \brief Calls ResetInputSlotValues() on all devices.
+  /// Calls ResetInputSlotValues() on all devices.
   static void ResetAllDevices();
 
-  /// \brief Calls RetrieveLastCharacters() on all devices. Returns the string from the first device that had one, draining
+  /// Calls RetrieveLastCharacters() on all devices. Returns the string from the first device that had one, draining
   /// that device's buffer; devices after it are left untouched for this call.
   static ezString RetrieveLastCharactersFromAllDevices();
 
 protected:
-  /// \brief Calls RegisterInputSlot() on the ezInputManager and passes the parameters through.
+  /// Calls RegisterInputSlot() on the ezInputManager and passes the parameters through.
   static void RegisterInputSlot(ezStringView sName, ezStringView sDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags); // [tested]
 
-  /// \brief Whether this device is authoritative for absolute-value slots (a position, not a delta) it writes,
+  /// Whether this device is authoritative for absolute-value slots (a position, not a delta) it writes,
   /// such as the mouse position - see ezInputManager::GatherDeviceInputSlotValues().
   ///
   /// Ordinary slots from multiple devices are merged by taking the largest value, which is what lets real
@@ -100,7 +100,7 @@ protected:
   /// should ever need.
   bool m_bOverridesAbsoluteInput = false;
 
-  /// \brief Stores all the values for all input slots that this device handles.
+  /// Stores all the values for all input slots that this device handles.
   ///
   /// A derived class needs to fill out this map every frame. There are two ways this map can be filled out.
   /// For devices where you can query the complete state at one point in time (e.g. controllers), you can update the entire
@@ -114,17 +114,17 @@ protected:
   /// will reset to zero anyway.
   ezMap<ezString, float> m_InputSlotValues; // [tested]
 
-  /// \brief If this input device type handles character input, append every typed character (Unicode codepoint) it
+  /// If this input device type handles character input, append every typed character (Unicode codepoint) it
   /// receives to this, one Append() call per character event. Append rather than overwrite, so several characters
   /// typed within one frame - which happens whenever the OS delivers input faster than the game updates - are all
   /// preserved instead of all but the last being silently dropped.
   /// The ezInputManager calls RetrieveLastCharacters() to query what the user typed since the last update.
   ezStringBuilder m_sLastCharacters; // [tested]
 
-  /// \brief Override this if you need to do device specific initialization before the first use.
+  /// Override this if you need to do device specific initialization before the first use.
   virtual void InitializeDevice() = 0;
 
-  /// \brief Override this, if you need to query the state of the hardware to update the input slots.
+  /// Override this, if you need to query the state of the hardware to update the input slots.
   ///
   /// \note This function might be called multiple times before ResetInputSlotValues() is called.
   /// This will be the case when ezInputManager::PollHardware is used to make more frequent hardware updates
@@ -133,22 +133,22 @@ protected:
   /// to be called in tandem with this function and it will be fine.
   virtual void UpdateInputSlotValues() = 0;
 
-  /// \brief Override this, if you need to reset certain input slot values to zero, after the ezInputManager is finished with the current
+  /// Override this, if you need to reset certain input slot values to zero, after the ezInputManager is finished with the current
   /// frame update.
   virtual void ResetInputSlotValues() {}; // [tested]
 
-  /// \brief Override this to register all the input slots that this device exposes.
+  /// Override this to register all the input slots that this device exposes.
   ///
   /// This is called once during initialization. It needs to call RegisterInputSlot() once for every input slot that this device
   /// exposes to the system.
   virtual void RegisterInputSlots() = 0; // [tested]
 
-  /// \brief This function is called once after ezInputManager::Update with the same time delta value.
+  /// This function is called once after ezInputManager::Update with the same time delta value.
   /// It allows to update hardware state, such as the vibration of gamepad motors.
   virtual void UpdateHardwareState(ezTime tTimeDifference) { EZ_IGNORE_UNUSED(tTimeDifference); }
 
 private:
-  /// \brief Calls InitializeDevice() when the device is not yet initialized.
+  /// Calls InitializeDevice() when the device is not yet initialized.
   void Initialize();
   bool m_bInitialized = false;
   bool m_bGeneratedInputRecently = false;

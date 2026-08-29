@@ -10,7 +10,7 @@ struct ezMsgComponentInternalTrigger;
 
 using ezProjectileComponentManager = ezComponentManagerSimple<class ezProjectileComponent, ezComponentUpdateType::WhenSimulating>;
 
-/// \brief Defines what a projectile will do when it hits a surface
+/// Defines what a projectile will do when it hits a surface
 struct EZ_GAMECOMPONENTS_DLL ezProjectileReaction
 {
   using StorageType = ezInt8;
@@ -29,7 +29,7 @@ struct EZ_GAMECOMPONENTS_DLL ezProjectileReaction
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezProjectileReaction);
 
-/// \brief Defines how the projectile owner orientation is updated on reflection / bounce.
+/// Defines how the projectile owner orientation is updated on reflection / bounce.
 struct EZ_GAMECOMPONENTS_DLL ezProjectileBounceOrientation
 {
   using StorageType = ezInt8;
@@ -45,28 +45,28 @@ struct EZ_GAMECOMPONENTS_DLL ezProjectileBounceOrientation
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezProjectileBounceOrientation);
 
-/// \brief Holds the information about how a projectile interacts with a specific surface type
+/// Holds the information about how a projectile interacts with a specific surface type
 struct EZ_GAMECOMPONENTS_DLL ezProjectileSurfaceInteraction
 {
-  /// \brief The surface type (and derived ones) for which this interaction is used
+  /// The surface type (and derived ones) for which this interaction is used
   ezSurfaceResourceHandle m_hSurface;
 
-  /// \brief How the projectile itself will react when hitting the surface type
+  /// How the projectile itself will react when hitting the surface type
   ezProjectileReaction::Enum m_Reaction;
 
-  /// \brief Which interaction should be triggered. See ezSurfaceResource.
+  /// Which interaction should be triggered. See ezSurfaceResource.
   ezString m_sInteraction;
 
-  /// \brief Which impulse type to use.
+  /// Which impulse type to use.
   ezUInt8 m_uiImpulseType = 0;
 
-  /// \brief The force (or rather impulse) that is applied on the object
+  /// The force (or rather impulse) that is applied on the object
   float m_fImpulse = 0.0f;
 
-  /// \brief How much damage to do on this type of surface. Send via ezMsgDamage
+  /// How much damage to do on this type of surface. Send via ezMsgDamage
   float m_fDamage = 0.0f;
 
-  /// \brief How much the rotation (spinning) of the owner object is affected by reflections/bounces about the surface
+  /// How much the rotation (spinning) of the owner object is affected by reflections/bounces about the surface
   /// Positive values correspond to the rotation due to object "getting stuck in the surface"
   /// Negative values correspond to the rotation due to object "sliding over the surface"
   /// Larger by magnitude values correspond to smaller rotations.
@@ -77,7 +77,7 @@ struct EZ_GAMECOMPONENTS_DLL ezProjectileSurfaceInteraction
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezProjectileSurfaceInteraction);
 
-/// \brief Shoots a game object in a straight line and uses physics raycasts to detect hits.
+/// Shoots a game object in a straight line and uses physics raycasts to detect hits.
 ///
 /// When a raycast detects a hit, the surface information is used to determine how the projectile should proceed
 /// and which prefab it should spawn as an effect.
@@ -137,7 +137,7 @@ public:
   /// Specifies how the projectile interacts with different surface types.
   ezHybridArray<ezProjectileSurfaceInteraction, 12> m_SurfaceInteractions; // [ property ]
 
-  /// \brief If the projectile reaches its maximum lifetime it can spawn this prefab.
+  /// If the projectile reaches its maximum lifetime it can spawn this prefab.
   ezPrefabResourceHandle m_hDeathPrefab;           // [ property ]
 
   void SetFallbackSurfaceFile(ezStringView sFile); // [ property ]
@@ -154,7 +154,7 @@ private:
   bool ShouldStopProjectile(const ezPhysicsWorldModuleInterface& physicsInterface, const ezPhysicsCastResult& castResult, const ezVec3& vVelocity);
 
 
-  /// \brief If an unknown surface type is hit, the projectile will just delete itself without further interaction
+  /// If an unknown surface type is hit, the projectile will just delete itself without further interaction
   ezInt32 FindSurfaceInteraction(const ezSurfaceResourceHandle& hSurface) const;
 
   void TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, ezGameObjectHandle hObject, const ezVec3& vPos, const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction);

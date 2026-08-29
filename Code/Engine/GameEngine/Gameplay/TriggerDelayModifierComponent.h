@@ -9,7 +9,7 @@ struct ezMsgComponentInternalTrigger;
 
 using ezTriggerDelayModifierComponentManager = ezComponentManager<class ezTriggerDelayModifierComponent, ezBlockStorageType::Compact>;
 
-/// \brief Handles ezMsgTriggerTriggered events and sends new messages after a delay.
+/// Handles ezMsgTriggerTriggered events and sends new messages after a delay.
 ///
 /// The 'enter' and 'leave' messages are sent only when an empty trigger is entered or when the last object leaves the trigger.
 /// While any object is already inside the trigger, no change event is sent.

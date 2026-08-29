@@ -102,7 +102,7 @@ public:
   ezGameObjectDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType = ezAssetDocEngineConnection::FullObjectMirroring);
   ~ezGameObjectDocument();
 
-  /// \brief In case a document consists of multiple layers, this redirection is necessary to execute actions on the active layer.
+  /// In case a document consists of multiple layers, this redirection is necessary to execute actions on the active layer.
   virtual ezGameObjectDocument* GetRedirectedGameObjectDoc() { return this; }
 
   virtual ezEditorInputContext* GetEditorInputContextOverride() override;
@@ -116,16 +116,16 @@ protected:
   /// \name Gizmo
   ///@{
 public:
-  /// \brief Makes an edit tool of the given type active. Allocates a new one, if necessary. Only works when SetEditToolConfigDelegate() is set.
+  /// Makes an edit tool of the given type active. Allocates a new one, if necessary. Only works when SetEditToolConfigDelegate() is set.
   void SetActiveEditTool(const ezRTTI* pEditToolType);
 
-  /// \brief Returns the currently active edit tool (nullptr for none).
+  /// Returns the currently active edit tool (nullptr for none).
   ezGameObjectEditTool* GetActiveEditTool() const { return m_pActiveEditTool; }
 
-  /// \brief Checks whether an edit tool of the given type, or nullptr for none, is active.
+  /// Checks whether an edit tool of the given type, or nullptr for none, is active.
   bool IsActiveEditTool(const ezRTTI* pEditToolType) const;
 
-  /// \brief Needs to be called by some higher level code (usually the DocumentWindow) to react to newly created edit tools to configure them (call
+  /// Needs to be called by some higher level code (usually the DocumentWindow) to react to newly created edit tools to configure them (call
   /// ezGameObjectEditTool::ConfigureTool()).
   void SetEditToolConfigDelegate(ezDelegate<void(ezGameObjectEditTool*)> configDelegate);
 
@@ -135,7 +135,7 @@ public:
   void SetGizmoMoveParentOnly(bool bMoveParent);
   bool GetGizmoMoveParentOnly() const;
 
-  /// \brief Finds all objects that are selected at the top level, ie. none of their parents is selected.
+  /// Finds all objects that are selected at the top level, ie. none of their parents is selected.
   ///
   /// Additionally stores the current transformation. Useful to store this at the start of an operation
   /// to then do modifications on this base transformation every frame.
@@ -143,7 +143,7 @@ public:
 
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
-  /// \brief Finds all usages of the given asset in this document and appends them to out_usages. The default implementation does nothing, override this if your document can reference other assets.
+  /// Finds all usages of the given asset in this document and appends them to out_usages. The default implementation does nothing, override this if your document can reference other assets.
   virtual void FindAssetUsages(ezStringView sAssetToFind, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 uiMaxResults) const override;
 
 private:
@@ -165,14 +165,14 @@ public:
   void TriggerFocusOnSelection(bool bAllViews) const;
   void TriggerSnapPivotToGrid() const;
   void TriggerSnapEachObjectToGrid() const;
-  /// \brief Moves the editor camera to the same position as the selected object
+  /// Moves the editor camera to the same position as the selected object
   void SnapCameraToObject();
-  /// \brief Moves the camera to the current picking position
+  /// Moves the camera to the current picking position
   void MoveCameraHere();
 
   void ScheduleSendObjectSelection();
 
-  /// \brief Sends the current object selection, but only if it was modified or specifically tagged for resending with ScheduleSendObjectSelection().
+  /// Sends the current object selection, but only if it was modified or specifically tagged for resending with ScheduleSendObjectSelection().
   void SendObjectSelection();
 
   ///@}
@@ -203,9 +203,9 @@ public:
   void SetStepSimulation(bool b) { m_bStepSimulation = b; }
   bool GetStepSimulation() const { return m_bStepSimulation; }
 
-  /// \brief Specifies which object is the 'active parent', which is the object under which newly created objects should be parented.
+  /// Specifies which object is the 'active parent', which is the object under which newly created objects should be parented.
   void SetActiveParent(ezUuid object);
-  /// \brief Returns the object under which newly created objects should be parented.
+  /// Returns the object under which newly created objects should be parented.
   ///
   /// \note The object may not exist anymore! So check with the ObjectManager first.
   ezUuid GetActiveParent() const { return m_ActiveParent; }
@@ -218,41 +218,41 @@ private:
   ///@{
 
 public:
-  /// \brief Sets the new global transformation of the given object.
+  /// Sets the new global transformation of the given object.
   /// The transformationChanges bitmask (of type TransformationChanges) allows to tell the system that, e.g. only translation has changed and thus
   /// some work can be spared.
   void SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 uiTransformationChanges) const;
 
-  /// \brief Same as SetGlobalTransform, except that all children will keep their current global transform (thus their local transforms are adjusted)
+  /// Same as SetGlobalTransform, except that all children will keep their current global transform (thus their local transforms are adjusted)
   void SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 uiTransformationChanges) const;
 
-  /// \brief Returns a cached value for the global transform of the given object, if available. Otherwise it calls ComputeGlobalTransform().
+  /// Returns a cached value for the global transform of the given object, if available. Otherwise it calls ComputeGlobalTransform().
   ezTransform GetGlobalTransform(const ezDocumentObject* pObject) const;
 
-  /// \brief Retrieves the local transform property values from the object and combines it into one ezTransform
+  /// Retrieves the local transform property values from the object and combines it into one ezTransform
   static ezTransform QueryLocalTransform(const ezDocumentObject* pObject);
   static ezSimdTransform QueryLocalTransformSimd(const ezDocumentObject* pObject);
 
-  /// \brief Computes the global transform of the parent and combines it with the local transform of the given object.
+  /// Computes the global transform of the parent and combines it with the local transform of the given object.
   /// This function does not return a cached value, but always computes it. It does update the internal cache for later reads though.
   ezTransform ComputeGlobalTransform(const ezDocumentObject* pObject) const;
 
-  /// \brief Traverses the pObject hierarchy up until it hits an ezGameObject, then computes the global transform of that.
+  /// Traverses the pObject hierarchy up until it hits an ezGameObject, then computes the global transform of that.
   virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_result) const override;
 
   ///@}
   /// \name Node Names
   ///@{
 
-  /// \brief Generates a good name for pObject. Queries the "Name" property, child components and asset properties, if necessary.
+  /// Generates a good name for pObject. Queries the "Name" property, child components and asset properties, if necessary.
   void DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_sResult, QIcon* out_pIcon = nullptr) const;
 
-  /// \brief Similar to DetermineNodeName() but prefers to return the last cached value from scene meta data. This is more efficient, but may give an
+  /// Similar to DetermineNodeName() but prefers to return the last cached value from scene meta data. This is more efficient, but may give an
   /// outdated result.
   void QueryCachedNodeName(
     const ezDocumentObject* pObject, ezStringBuilder& out_sResult, ezUuid* out_pPrefabGuid = nullptr, QIcon* out_pIcon = nullptr) const;
 
-  /// \brief Creates a full "path" to a scene object for display in UIs. No guarantee for uniqueness.
+  /// Creates a full "path" to a scene object for display in UIs. No guarantee for uniqueness.
   void GenerateFullDisplayName(const ezDocumentObject* pRoot, ezStringBuilder& out_sFullPath) const;
 
   ///@}
@@ -265,7 +265,7 @@ public:
 
 protected:
   void InvalidateGlobalTransformValue(const ezDocumentObject* pObject) const;
-  /// \brief Sends the current state of the scene to the engine process. This is typically done after scene load or when the world might have deviated
+  /// Sends the current state of the scene to the engine process. This is typically done after scene load or when the world might have deviated
   /// on the engine side (after play the game etc.)
   virtual void SendGameWorldToEngine();
 

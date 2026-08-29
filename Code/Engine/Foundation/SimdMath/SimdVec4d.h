@@ -3,7 +3,7 @@
 #include <Foundation/SimdMath/SimdDouble.h>
 #include <Foundation/SimdMath/SimdVec4b_Wide.h>
 
-/// \brief A 4-component SIMD vector class using doubles
+/// A 4-component SIMD vector class using doubles
 class EZ_FOUNDATION_DLL ezSimdVec4d
 {
 public:
@@ -22,10 +22,10 @@ public:
 
   ezSimdVec4d(ezInternal::QuadDouble v);
 
-  /// \brief Creates an ezSimdVec4d that is initialized to zero.
+  /// Creates an ezSimdVec4d that is initialized to zero.
   [[nodiscard]] static ezSimdVec4d MakeZero();
 
-  /// \brief Creates an ezSimdVec4d that is initialized to Not-A-Number (NaN).
+  /// Creates an ezSimdVec4d that is initialized to Not-A-Number (NaN).
   [[nodiscard]] static ezSimdVec4d MakeNaN();
 
   void Set(float fXyzw);
@@ -42,22 +42,22 @@ public:
 
   void SetZero();
 
-  /// \brief Loads N floats from pFloats, converts them to double, and stores in the vector.
+  /// Loads N floats from pFloats, converts them to double, and stores in the vector.
   /// N must be between 1 and 4. Unused components are set to zero.
   template <int N>
   void Load(const float* pFloats);
 
-  /// \brief Loads N doubles from pDoubles into the vector.
+  /// Loads N doubles from pDoubles into the vector.
   /// N must be between 1 and 4. Unused components are set to zero.
   template <int N>
   void Load(const double* pDoubles);
 
-  /// \brief Converts the first N components to float and stores them to pFloats.
+  /// Converts the first N components to float and stores them to pFloats.
   /// N must be between 1 and 4.
   template <int N>
   void Store(float* pFloats) const;
 
-  /// \brief Stores the first N components to pDoubles.
+  /// Stores the first N components to pDoubles.
   /// N must be between 1 and 4.
   template <int N>
   void Store(double* pDoubles) const;
@@ -87,11 +87,11 @@ public:
   template <int N>
   void Normalize();
 
-  /// \brief Normalizes the first N components if the squared length is greater than fEpsilon, otherwise sets the vector to zero.
+  /// Normalizes the first N components if the squared length is greater than fEpsilon, otherwise sets the vector to zero.
   template <int N>
   void NormalizeIfNotZero(const ezSimdDouble& fEpsilon = ezMath::SmallEpsilon<double>());
 
-  /// \brief Normalizes the first N components if the squared length is greater than fEpsilon, otherwise sets the vector to vFallback.
+  /// Normalizes the first N components if the squared length is greater than fEpsilon, otherwise sets the vector to vFallback.
   template <int N>
   void NormalizeIfNotZero(const ezSimdVec4d& vFallback, const ezSimdDouble& fEpsilon = ezMath::SmallEpsilon<double>());
 
@@ -124,7 +124,7 @@ public:
   template <ezSwizzle::Enum s>
   ezSimdVec4d Get() const;
 
-  ///\brief x = this[s0], y = this[s1], z = other[s2], w = other[s3]
+  ///x = this[s0], y = this[s1], z = other[s2], w = other[s3]
   template <ezSwizzle::Enum s>
   [[nodiscard]] ezSimdVec4d GetCombined(const ezSimdVec4d& other) const;
 
@@ -171,37 +171,37 @@ public:
   [[nodiscard]] ezSimdVec4bWide operator>=(const ezSimdVec4d& v) const;
   [[nodiscard]] ezSimdVec4bWide operator>(const ezSimdVec4d& v) const;
 
-  /// \brief Returns the sum of the first N components.
+  /// Returns the sum of the first N components.
   template <int N>
   [[nodiscard]] ezSimdDouble HorizontalSum() const;
 
-  /// \brief Returns the minimum of the first N components.
+  /// Returns the minimum of the first N components.
   template <int N>
   [[nodiscard]] ezSimdDouble HorizontalMin() const;
 
-  /// \brief Returns the maximum of the first N components.
+  /// Returns the maximum of the first N components.
   template <int N>
   [[nodiscard]] ezSimdDouble HorizontalMax() const;
 
-  /// \brief Returns the dot product of the first N components of this vector and v.
+  /// Returns the dot product of the first N components of this vector and v.
   template <int N>
   [[nodiscard]] ezSimdDouble Dot(const ezSimdVec4d& v) const;
 
-  ///\brief 3D cross product, w is ignored.
+  ///3D cross product, w is ignored.
   [[nodiscard]] ezSimdVec4d CrossRH(const ezSimdVec4d& v) const;
 
-  ///\brief Generates an arbitrary vector such that Dot<3>(GetOrthogonalVector()) == 0
+  ///Generates an arbitrary vector such that Dot<3>(GetOrthogonalVector()) == 0
   [[nodiscard]] ezSimdVec4d GetOrthogonalVector() const;
 
-  /// \brief Returns a * b + c
+  /// Returns a * b + c
   [[nodiscard]] static ezSimdVec4d MulAdd(const ezSimdVec4d& a, const ezSimdVec4d& b, const ezSimdVec4d& c);
   [[nodiscard]] static ezSimdVec4d MulAdd(const ezSimdVec4d& a, const ezSimdDouble& b, const ezSimdVec4d& c);
 
-  /// \brief Returns a * b - c
+  /// Returns a * b - c
   [[nodiscard]] static ezSimdVec4d MulSub(const ezSimdVec4d& a, const ezSimdVec4d& b, const ezSimdVec4d& c);
   [[nodiscard]] static ezSimdVec4d MulSub(const ezSimdVec4d& a, const ezSimdDouble& b, const ezSimdVec4d& c);
 
-  /// \brief Returns a vector with the magnitude from vMagnitude and the sign from vSign.
+  /// Returns a vector with the magnitude from vMagnitude and the sign from vSign.
   [[nodiscard]] static ezSimdVec4d CopySign(const ezSimdVec4d& vMagnitude, const ezSimdVec4d& vSign);
 
 public:

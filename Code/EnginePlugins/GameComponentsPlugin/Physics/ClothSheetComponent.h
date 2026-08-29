@@ -25,7 +25,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Flags for how a piece of cloth should be simulated.
+/// Flags for how a piece of cloth should be simulated.
 struct EZ_GAMECOMPONENTS_DLL ezClothSheetFlags
 {
   using StorageType = ezUInt16;
@@ -59,7 +59,7 @@ struct EZ_GAMECOMPONENTS_DLL ezClothSheetFlags
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezClothSheetFlags);
 
-/// \brief Simulates a rectangular piece of cloth.
+/// Simulates a rectangular piece of cloth.
 ///
 /// The cloth doesn't interact with the environment and doesn't collide with any geometry.
 /// The component samples the wind simulation and applies wind forces to the cloth.

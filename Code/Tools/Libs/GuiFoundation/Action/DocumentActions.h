@@ -30,7 +30,7 @@ public:
 };
 
 
-/// \brief Standard document actions.
+/// Standard document actions.
 class EZ_GUIFOUNDATION_DLL ezDocumentAction : public ezButtonAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentAction, ezButtonAction);

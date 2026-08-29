@@ -13,7 +13,7 @@ struct ezAssetCuratorEvent;
 struct ezSubAsset;
 class ezQtAssetFilter;
 
-/// \brief Interface class of the asset filter used to decide which items are shown in the asset browser.
+/// Interface class of the asset filter used to decide which items are shown in the asset browser.
 class EZ_EDITORFRAMEWORK_DLL ezQtAssetFilter : public QObject
 {
   Q_OBJECT
@@ -26,7 +26,7 @@ Q_SIGNALS:
   void FilterChanged();
 };
 
-/// \brief Each item in the asset browser can be multiple things at the same time as described by these flags.
+/// Each item in the asset browser can be multiple things at the same time as described by these flags.
 /// Retrieved via user role ezQtAssetBrowserModel::UserRoles::ItemFlags.
 struct EZ_EDITORFRAMEWORK_DLL ezAssetBrowserItemFlags
 {
@@ -53,7 +53,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetBrowserItemFlags
 };
 EZ_DECLARE_FLAGS_OPERATORS(ezAssetBrowserItemFlags);
 
-/// \brief Model of the item view in the asset browser.
+/// Model of the item view in the asset browser.
 class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserModel : public QAbstractItemModel, public QEnableSharedFromThis<ezQtAssetBrowserModel>
 {
   Q_OBJECT

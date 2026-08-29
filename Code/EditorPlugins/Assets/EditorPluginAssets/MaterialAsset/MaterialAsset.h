@@ -112,15 +112,15 @@ public:
 
   ezStatus WriteMaterialAsset(ezStreamWriter& inout_stream, const ezPlatformProfile* pAssetProfile, bool bEmbedLowResData) const;
 
-  /// \brief Will make sure that the visual shader is rebuilt.
+  /// Will make sure that the visual shader is rebuilt.
   /// Typically called during asset transformation, but can be triggered manually to enforce getting visual shader node changes in.
   ezStatus RecreateVisualShaderFile(const ezAssetFileHeader& assetHeader);
 
-  /// \brief If shader compilation failed this will modify the output shader file such that transforming it again, will trigger a full
+  /// If shader compilation failed this will modify the output shader file such that transforming it again, will trigger a full
   /// regeneration Otherwise the AssetCurator would early out
   void TagVisualShaderFileInvalid(const ezPlatformProfile* pAssetProfile, const char* szError);
 
-  /// \brief Deletes all Visual Shader nodes that are not connected to the output
+  /// Deletes all Visual Shader nodes that are not connected to the output
   void RemoveDisconnectedNodes();
 
   static ezUuid GetLitBaseMaterial();

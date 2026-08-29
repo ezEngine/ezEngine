@@ -6,7 +6,7 @@
 
 using ezNavMeshObstacleComponentManager = ezComponentManager<class ezNavMeshObstacleComponent, ezBlockStorageType::Compact>;
 
-/// \brief Represents a dynamic obstacle on a navmesh.
+/// Represents a dynamic obstacle on a navmesh.
 ///
 /// Automatically notifies the navmesh that sectors overlapping this object must be rebuilt.
 ///

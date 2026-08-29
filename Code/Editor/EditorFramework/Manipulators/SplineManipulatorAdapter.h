@@ -8,7 +8,7 @@
 
 struct ezGizmoEvent;
 
-/// \brief Makes spline nodes editable in the editor by providing small helper gizmos to easily add new nodes.
+/// Makes spline nodes editable in the editor by providing small helper gizmos to easily add new nodes.
 ///
 /// Enabled by attaching the ezSplineManipulatorAttribute.
 class ezSplineManipulatorAdapter : public ezManipulatorAdapter

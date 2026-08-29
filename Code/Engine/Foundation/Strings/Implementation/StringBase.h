@@ -83,31 +83,31 @@ public:
   /// Compares up to a given number of characters of this string with the other string for equality. Case insensitive.
   bool IsEqualN_NoCase(ezStringView sOther, ezUInt32 uiCharsToCompare) const; // [tested]
 
-  /// \brief Computes the pointer to the n-th character in the string. This is a linear search from the start.
+  /// Computes the pointer to the n-th character in the string. This is a linear search from the start.
   const char* ComputeCharacterPosition(ezUInt32 uiCharacterIndex) const;
 
-  /// \brief Returns an iterator to this string, which points to the very first character.
+  /// Returns an iterator to this string, which points to the very first character.
   ///
   /// Note that this iterator will only be valid as long as this string lives.
   /// Once the original string is destroyed, all iterators to them will point into invalid memory.
   iterator GetIteratorFront() const;
 
-  /// \brief Returns an iterator to this string, which points to the very last character (NOT the end).
+  /// Returns an iterator to this string, which points to the very last character (NOT the end).
   ///
   /// Note that this iterator will only be valid as long as this string lives.
   /// Once the original string is destroyed, all iterators to them will point into invalid memory.
   reverse_iterator GetIteratorBack() const;
 
-  /// \brief Returns a string view to this string's data.
+  /// Returns a string view to this string's data.
   operator ezStringView() const; // [tested]
 
-  /// \brief Returns a string view to this string's data.
+  /// Returns a string view to this string's data.
   ezStringView GetView() const; // [tested]
 
-  /// \brief Returns a pointer to the internal Utf8 string.
+  /// Returns a pointer to the internal Utf8 string.
   EZ_ALWAYS_INLINE operator const char*() const { return InternalGetData(); }
 
-  /// \brief Fills the given container with ezStringView's which represent each found substring.
+  /// Fills the given container with ezStringView's which represent each found substring.
   /// If bReturnEmptyStrings is true, even empty strings between separators are returned.
   /// Output must be a container that stores ezStringView's and provides the functions 'Clear' and 'Append'.
   /// szSeparator1 to szSeparator6 are strings which act as separators and indicate where to split the string.
@@ -115,27 +115,27 @@ public:
   template <typename Container>
   void Split(bool bReturnEmptyStrings, Container& ref_output, const char* szSeparator1, const char* szSeparator2 = nullptr, const char* szSeparator3 = nullptr, const char* szSeparator4 = nullptr, const char* szSeparator5 = nullptr, const char* szSeparator6 = nullptr) const; // [tested]
 
-  /// \brief Checks whether the given path has any file extension
+  /// Checks whether the given path has any file extension
   bool HasAnyExtension() const; // [tested]
 
-  /// \brief Checks whether the given path ends with the given extension. szExtension should start with a '.' for performance reasons, but
+  /// Checks whether the given path ends with the given extension. szExtension should start with a '.' for performance reasons, but
   /// it will work without a '.' too.
   bool HasExtension(ezStringView sExtension) const; // [tested]
 
-  /// \brief Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension.
+  /// Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension.
   ezStringView GetFileExtension(bool bFullExtension = false) const; // [tested]
 
-  /// \brief Returns the file name of a path, excluding the path and extension.
+  /// Returns the file name of a path, excluding the path and extension.
   ///
   /// If the path already ends with a path separator, the result will be empty.
   ezStringView GetFileName() const; // [tested]
 
-  /// \brief Returns the substring that represents the file name including the file extension.
+  /// Returns the substring that represents the file name including the file extension.
   ///
   /// Returns an empty string, if sPath already ends in a path separator, or is empty itself.
   ezStringView GetFileNameAndExtension() const; // [tested]
 
-  /// \brief Returns the directory of the given file, which is the substring up to the last path separator.
+  /// Returns the directory of the given file, which is the substring up to the last path separator.
   ///
   /// If the path already ends in a path separator, and thus points to a folder, instead of a file, the unchanged path is returned.
   /// "path/to/file" -> "path/to/"
@@ -144,16 +144,16 @@ public:
   /// "/file_at_root_level" -> "/"
   ezStringView GetFileDirectory() const; // [tested]
 
-  /// \brief Returns true, if the given path represents an absolute path on the current OS.
+  /// Returns true, if the given path represents an absolute path on the current OS.
   bool IsAbsolutePath() const; // [tested]
 
-  /// \brief Returns true, if the given path represents a relative path on the current OS.
+  /// Returns true, if the given path represents a relative path on the current OS.
   bool IsRelativePath() const; // [tested]
 
-  /// \brief Returns true, if the given path represents a 'rooted' path. See ezFileSystem for details.
+  /// Returns true, if the given path represents a 'rooted' path. See ezFileSystem for details.
   bool IsRootedPath() const; // [tested]
 
-  /// \brief Extracts the root name from a rooted path
+  /// Extracts the root name from a rooted path
   ///
   /// ":MyRoot" -> "MyRoot"
   /// ":MyRoot\folder" -> "MyRoot"
@@ -163,24 +163,24 @@ public:
   ezStringView GetRootedPathRootName() const; // [tested]
 
 #if EZ_ENABLED(EZ_INTEROP_STL_STRINGS)
-  /// \brief Returns a std::string_view to this string.
+  /// Returns a std::string_view to this string.
   EZ_ALWAYS_INLINE std::string_view GetAsStdView() const
   {
     return std::string_view(InternalGetData(), static_cast<size_t>(InternalGetElementCount()));
   }
-  /// \brief Returns a std::string copy of this string.
+  /// Returns a std::string copy of this string.
   EZ_ALWAYS_INLINE std::string GetAsStdString() const
   {
     return std::string(GetAsStdView());
   }
 
-  /// \brief Returns a std::string_view to this string.
+  /// Returns a std::string_view to this string.
   EZ_ALWAYS_INLINE operator std::string_view() const
   {
     return GetAsStdView();
   }
 
-  /// \brief Returns a std::string copy of this string.
+  /// Returns a std::string copy of this string.
   EZ_ALWAYS_INLINE operator std::string() const
   {
     return std::string(GetAsStdView());

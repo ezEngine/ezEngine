@@ -52,7 +52,7 @@ private:
 
   void ReportError(const ezToken* pToken, const ezFormatString& message);
 
-  /// \brief Checks whether all outputs have been written
+  /// Checks whether all outputs have been written
   ezResult CheckOutputs();
 
   Options m_Options;

@@ -179,7 +179,7 @@ EZ_ALWAYS_INLINE ezResult ezToResult(const ezTransformStatus& result)
   return result.m_Result == ezTransformResult::Success ? EZ_SUCCESS : EZ_FAILURE;
 }
 
-/// \brief Used by ezEditorProcessorProcess to define the current state of one of the running ezEditorProcessor processes managed by the ezAssetProcessor.
+/// Used by ezEditorProcessorProcess to define the current state of one of the running ezEditorProcessor processes managed by the ezAssetProcessor.
 /// \sa ezAssetProcessor
 struct ezEditorProcessorState
 {

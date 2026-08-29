@@ -90,7 +90,7 @@
 
 #  define EZ_WARNING_DISABLE_MSVC(_x)
 
-/// \brief Define some macros to work with the MSVC analysis warning
+/// Define some macros to work with the MSVC analysis warning
 /// Note that the StaticAnalysis.h in Basics/Compiler/MSVC will define the MSVC specific versions.
 #  define EZ_MSVC_ANALYSIS_WARNING_PUSH
 #  define EZ_MSVC_ANALYSIS_WARNING_POP

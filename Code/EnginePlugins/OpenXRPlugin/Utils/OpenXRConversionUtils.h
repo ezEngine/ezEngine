@@ -8,7 +8,7 @@
 #include <Foundation/Math/Transform.h>
 #include <Foundation/Math/Vec3.h>
 
-/// \brief Helper functions to convert between ezEngine and OpenXR types.
+/// Helper functions to convert between ezEngine and OpenXR types.
 class EZ_OPENXRPLUGIN_DLL ezOpenXRConversionUtils
 {
 public:

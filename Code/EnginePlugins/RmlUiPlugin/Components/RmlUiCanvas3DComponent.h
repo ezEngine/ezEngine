@@ -26,7 +26,7 @@ public:
   bool ReceiveInput(const ezVec2& vMousePosInsideCanvas, ezRmlUiInputSnapshot input) override;
   bool RaycastInput(const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezRmlUiInputSnapshot input);
 
-  /// \brief Changes which mesh will be used for hit testing.
+  /// Changes which mesh will be used for hit testing.
   void SetProxyMesh(const ezMeshResourceHandle& hMesh) { m_hProxyMesh = hMesh; } // [ property ]
   const ezMeshResourceHandle& GetProxyMesh() const { return m_hProxyMesh; }      // [ property ]
 

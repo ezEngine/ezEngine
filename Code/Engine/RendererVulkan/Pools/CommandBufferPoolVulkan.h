@@ -2,7 +2,7 @@
 
 #include <RendererVulkan/RendererVulkanDLL.h>
 
-/// \brief Simple pool for command buffers
+/// Simple pool for command buffers
 ///
 /// Do not call ReclaimCommandBuffer manually, instead call ezGALDeviceVulkan::ReclaimLater which will make sure to reclaim the command buffer once it is no longer in use.
 /// Usage:

@@ -10,7 +10,7 @@
 // ***** Base class for accessing properties *****
 
 
-/// \brief Type-safe base class for accessing member properties with known data types.
+/// Type-safe base class for accessing member properties with known data types.
 ///
 /// Once you determine a property's type through the reflection system, you can safely cast
 /// the abstract property pointer to this typed version. This provides type-safe access to
@@ -29,7 +29,7 @@ template <typename Type>
 class ezTypedMemberProperty : public ezAbstractMemberProperty
 {
 public:
-  /// \brief Passes the property name through to ezAbstractMemberProperty.
+  /// Passes the property name through to ezAbstractMemberProperty.
   ezTypedMemberProperty(const char* szPropertyName)
     : ezAbstractMemberProperty(szPropertyName)
   {
@@ -40,17 +40,17 @@ public:
       "Pointer to standard types are not supported.");
   }
 
-  /// \brief Returns the actual type of the property. You can then compare that with known types, eg. compare it to ezGetStaticRTTI<int>()
+  /// Returns the actual type of the property. You can then compare that with known types, eg. compare it to ezGetStaticRTTI<int>()
   /// to see whether this is an int property.
   virtual const ezRTTI* GetSpecificType() const override // [tested]
   {
     return ezGetStaticRTTI<typename ezTypeTraits<Type>::NonConstReferencePointerType>();
   }
 
-  /// \brief Returns the value of the property. Pass the instance pointer to the surrounding class along.
+  /// Returns the value of the property. Pass the instance pointer to the surrounding class along.
   virtual Type GetValue(const void* pInstance) const = 0; // [tested]
 
-  /// \brief Modifies the value of the property. Pass the instance pointer to the surrounding class along.
+  /// Modifies the value of the property. Pass the instance pointer to the surrounding class along.
   ///
   /// \note Make sure the property is not read-only before calling this, otherwise an assert will fire.
   virtual void SetValue(void* pInstance, Type value) const = 0; // [tested]
@@ -59,7 +59,7 @@ public:
   virtual void SetValuePtr(void* pInstance, const void* pObject) const override { SetValue(pInstance, *static_cast<const Type*>(pObject)); };
 };
 
-/// \brief Specialization of ezTypedMemberProperty for const char*.
+/// Specialization of ezTypedMemberProperty for const char*.
 ///
 /// This works because ezTypedMemberProperty< typename ezTypeTraits<Type>::NonConstReferenceType > in ezAccessorProperty
 /// does not actually remove the constness of the type but of the pointer, so const char* is not affected.
@@ -89,7 +89,7 @@ public:
 // *******************************************************************
 // ***** Class for properties that use custom accessor functions *****
 
-/// \brief Implementation of ezTypedMemberProperty that uses custom getter/setter functions to access a property.
+/// Implementation of ezTypedMemberProperty that uses custom getter/setter functions to access a property.
 ///
 /// This property type is used when you want to expose computed or transformed values as properties,
 /// or when you need to perform validation, logging, or side effects during property access.
@@ -108,7 +108,7 @@ public:
   using GetterFunc = Type (Class::*)() const;
   using SetterFunc = void (Class::*)(Type value);
 
-  /// \brief Constructor.
+  /// Constructor.
   ezAccessorProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter)
     : ezTypedMemberProperty<RealType>(szPropertyName)
   {
@@ -121,7 +121,7 @@ public:
       ezAbstractMemberProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
   }
 
-  /// \brief Always returns nullptr; once a property is modified through accessors, there is no point in giving more direct access to
+  /// Always returns nullptr; once a property is modified through accessors, there is no point in giving more direct access to
   /// others.
   virtual void* GetPropertyPointer(const void* pInstance) const override
   {
@@ -131,13 +131,13 @@ public:
     return nullptr;
   }
 
-  /// \brief Returns the value of the property. Pass the instance pointer to the surrounding class along.
+  /// Returns the value of the property. Pass the instance pointer to the surrounding class along.
   virtual RealType GetValue(const void* pInstance) const override // [tested]
   {
     return (static_cast<const Class*>(pInstance)->*m_Getter)();
   }
 
-  /// \brief Modifies the value of the property. Pass the instance pointer to the surrounding class along.
+  /// Modifies the value of the property. Pass the instance pointer to the surrounding class along.
   ///
   /// \note Make sure the property is not read-only before calling this, otherwise an assert will fire.
   virtual void SetValue(void* pInstance, RealType value) const override // [tested]
@@ -157,7 +157,7 @@ private:
 // *************************************************************
 // ***** Classes for properties that are accessed directly *****
 
-/// \brief [internal] Helper class to generate accessor functions for (private) members of another class
+/// [internal] Helper class to generate accessor functions for (private) members of another class
 template <typename Class, typename Type, Type Class::*Member>
 struct ezPropertyAccessor
 {
@@ -169,7 +169,7 @@ struct ezPropertyAccessor
 };
 
 
-/// \brief Implementation of ezTypedMemberProperty that provides direct access to member variables.
+/// Implementation of ezTypedMemberProperty that provides direct access to member variables.
 ///
 /// This property type offers the most efficient access to object members by directly
 /// reading from and writing to the memory location of a class member. It's the preferred
@@ -182,7 +182,7 @@ public:
   using SetterFunc = void (*)(Class* pInstance, Type value);
   using PointerFunc = void* (*)(const Class* pInstance);
 
-  /// \brief Constructor.
+  /// Constructor.
   ezMemberProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter, PointerFunc pointer)
     : ezTypedMemberProperty<Type>(szPropertyName)
   {
@@ -196,13 +196,13 @@ public:
       ezAbstractMemberProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
   }
 
-  /// \brief Returns a pointer to the member property.
+  /// Returns a pointer to the member property.
   virtual void* GetPropertyPointer(const void* pInstance) const override { return m_Pointer(static_cast<const Class*>(pInstance)); }
 
-  /// \brief Returns the value of the property. Pass the instance pointer to the surrounding class along.
+  /// Returns the value of the property. Pass the instance pointer to the surrounding class along.
   virtual Type GetValue(const void* pInstance) const override { return m_Getter(static_cast<const Class*>(pInstance)); }
 
-  /// \brief Modifies the value of the property. Pass the instance pointer to the surrounding class along.
+  /// Modifies the value of the property. Pass the instance pointer to the surrounding class along.
   ///
   /// \note Make sure the property is not read-only before calling this, otherwise an assert will fire.
   virtual void SetValue(void* pInstance, Type value) const override

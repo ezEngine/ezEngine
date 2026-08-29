@@ -50,7 +50,7 @@ class ezQueryPoolVulkan;
 class ezInitContextVulkan;
 class ezDescriptorWritePoolVulkan;
 
-/// \brief The Vulkan device implementation of the graphics abstraction layer.
+/// The Vulkan device implementation of the graphics abstraction layer.
 class EZ_RENDERERVULKAN_DLL ezGALDeviceVulkan : public ezGALDevice
 {
 private:
@@ -408,7 +408,7 @@ private:
 
   struct PerFrameData
   {
-    /// \brief These are all fences passed into submit calls. For some reason waiting for the fence of the last submit is not enough. At least I can't get it to work (neither semaphores nor barriers make it past the validation layer).
+    /// These are all fences passed into submit calls. For some reason waiting for the fence of the last submit is not enough. At least I can't get it to work (neither semaphores nor barriers make it past the validation layer).
     ezHybridArray<vk::Fence, 2> m_CommandBufferFences;
 
     vk::CommandBuffer m_currentCommandBuffer;

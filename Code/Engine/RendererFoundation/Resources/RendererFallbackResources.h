@@ -5,7 +5,7 @@
 
 class ezGALDevice;
 
-/// \brief Creates fallback resources in case the high-level renderer did not map a resource to a binding slot.
+/// Creates fallback resources in case the high-level renderer did not map a resource to a binding slot.
 class EZ_RENDERERFOUNDATION_DLL ezGALRendererFallbackResources
 {
 public:

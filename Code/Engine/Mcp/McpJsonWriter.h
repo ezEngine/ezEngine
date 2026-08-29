@@ -6,7 +6,7 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-/// \brief Writes the JSON that tool results and protocol responses are made of.
+/// Writes the JSON that tool results and protocol responses are made of.
 ///
 ///  - The output goes into an ezStringBuilder that the writer owns, so tools never deal with streams.
 ///  - No whitespace is emitted, because every character is a token the client pays for.
@@ -18,7 +18,7 @@ public:
   ezMcpJsonWriter();
   ~ezMcpJsonWriter();
 
-  /// \brief The JSON written so far.
+  /// The JSON written so far.
   ///
   /// Only meaningful once every Begin* has been matched by its End*, because the closing brace is
   /// written by the latter.

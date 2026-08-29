@@ -12,7 +12,7 @@
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/SharedPtr.h>
 
-/// \brief The event data that is broadcast by the console
+/// The event data that is broadcast by the console
 struct ezConsoleEvent
 {
   enum class Type : ezInt32
@@ -22,11 +22,11 @@ struct ezConsoleEvent
 
   Type m_Type;
 
-  /// \brief The console string that was just added.
+  /// The console string that was just added.
   const ezConsoleString* m_AddedpConsoleString;
 };
 
-/// \brief Base console system for command input, output display, and history management.
+/// Base console system for command input, output display, and history management.
 ///
 /// Provides infrastructure for command execution through pluggable interpreters,
 /// maintains input history, and broadcasts events when output is added.
@@ -44,11 +44,11 @@ public:
   /// @{
 
 public:
-  /// \brief Grants access to subscribe and unsubscribe from console events.
+  /// Grants access to subscribe and unsubscribe from console events.
   const ezEvent<const ezConsoleEvent&>& Events() const { return m_Events; }
 
 protected:
-  /// \brief The console event variable, to attach to.
+  /// The console event variable, to attach to.
   ezEvent<const ezConsoleEvent&> m_Events;
 
   /// @}
@@ -57,7 +57,7 @@ protected:
   /// @{
 
 public:
-  /// \brief Returns the mutex that's used to prevent multi-threaded access
+  /// Returns the mutex that's used to prevent multi-threaded access
   ezMutex& GetMutex() const { return m_Mutex; }
 
   static void SetMainConsole(ezConsole* pConsole);
@@ -75,21 +75,21 @@ private:
   /// @{
 
 public:
-  /// \brief Replaces the current command interpreter.
+  /// Replaces the current command interpreter.
   ///
   /// This base class doesn't set any default interpreter, but derived classes may do so.
   void SetCommandInterpreter(const ezSharedPtr<ezCommandInterpreter>& pInterpreter) { m_pCommandInterpreter = pInterpreter; }
 
-  /// \brief Returns the currently used command interpreter.
+  /// Returns the currently used command interpreter.
   const ezSharedPtr<ezCommandInterpreter>& GetCommandInterpreter() const { return m_pCommandInterpreter; }
 
-  /// \brief Auto-completes the given text.
+  /// Auto-completes the given text.
   ///
   /// Returns true, if the string was modified in any way.
   /// Adds additional strings to the console output, if there are further auto-completion suggestions.
   virtual bool AutoComplete(ezStringBuilder& ref_sText);
 
-  /// \brief Executes the given input string.
+  /// Executes the given input string.
   ///
   /// The command is forwarded to the set command interpreter.
   virtual void ExecuteCommand(ezStringView sInput);
@@ -103,12 +103,12 @@ protected:
   /// @{
 
 public:
-  /// \brief Adds a string to the console.
+  /// Adds a string to the console.
   ///
   /// The base class only broadcasts an event, but does not store the string anywhere.
   virtual void AddConsoleString(ezStringView sText, ezConsoleString::Type type = ezConsoleString::Type::Default);
 
-  /// \brief Display the console state.
+  /// Display the console state.
   virtual void RenderConsole(bool bIsOpen) { EZ_IGNORE_UNUSED(bIsOpen); }
 
   /// @}
@@ -117,24 +117,24 @@ public:
   /// @{
 
 public:
-  /// \brief Update the console with the latest input.
+  /// Update the console with the latest input.
   virtual void HandleInput(bool bIsOpen) { EZ_IGNORE_UNUSED(bIsOpen); }
 
-  /// \brief Adds an item to the input history.
+  /// Adds an item to the input history.
   void AddToInputHistory(ezStringView sText);
 
-  /// \brief Returns the current input history.
+  /// Returns the current input history.
   ///
   /// Make sure to lock the console's mutex while working with the history.
   const ezStaticArray<ezString, 16>& GetInputHistory() const { return m_InputHistory; }
 
-  /// \brief Replaces the input line by the next (or previous) history item.
+  /// Replaces the input line by the next (or previous) history item.
   void RetrieveInputHistory(ezInt32 iHistoryUp, ezStringBuilder& ref_sResult);
 
-  /// \brief Writes the current input history to a text file.
+  /// Writes the current input history to a text file.
   ezResult SaveInputHistory(ezStringView sFile);
 
-  /// \brief Reads the text file and appends all lines to the input history.
+  /// Reads the text file and appends all lines to the input history.
   void LoadInputHistory(ezStringView sFile);
 
 protected:

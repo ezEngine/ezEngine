@@ -7,13 +7,13 @@
 
 class EZ_FOUNDATION_DLL ezDataTransfer;
 
-/// \brief A small wrapper class around an ezTelemetryMessage for sending a 'data transfer'. See ezDataTransfer for more details.
+/// A small wrapper class around an ezTelemetryMessage for sending a 'data transfer'. See ezDataTransfer for more details.
 class EZ_FOUNDATION_DLL ezDataTransferObject
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezDataTransferObject);
 
 public:
-  /// \brief ezDataTransferObject instances should always be created on the stack and should be very short lived.
+  /// ezDataTransferObject instances should always be created on the stack and should be very short lived.
   ///
   /// \param BelongsTo
   ///   The ezDataTransfer through which the data is going to be sent shortly.
@@ -29,15 +29,15 @@ public:
   ///   as you might want to send data with mime type 'text/json' but store it on disk as '.savegame'.
   ezDataTransferObject(ezDataTransfer& ref_belongsTo, ezStringView sObjectName, ezStringView sMimeType, ezStringView sFileExtension);
 
-  /// \brief The destructor will assert if the data has not been transmitted.
+  /// The destructor will assert if the data has not been transmitted.
   ~ezDataTransferObject();
 
-  /// \brief Returns the stream writer that you need to use to write the data into the object.
+  /// Returns the stream writer that you need to use to write the data into the object.
   ///
   /// When finished writing all data to the object, you should call Transmit().
   ezStreamWriter& GetWriter() { return m_Msg.GetWriter(); }
 
-  /// \brief Will initiate the data transfer.
+  /// Will initiate the data transfer.
   void Transmit();
 
 private:
@@ -48,7 +48,7 @@ private:
   ezTelemetryMessage m_Msg;
 };
 
-/// \brief A 'data transfer' is a blob of data that an application can send to connected tools such as ezInspector upon request.
+/// A 'data transfer' is a blob of data that an application can send to connected tools such as ezInspector upon request.
 ///
 /// Data transfers can be used to allow an application to send large amounts of data to tools such as ezInspector, which can then
 /// display or process them somehow. An example usage is to send a screenshot or the different textures of the G-Buffer for analysis.
@@ -74,22 +74,22 @@ private:
 class EZ_FOUNDATION_DLL ezDataTransfer
 {
 public:
-  /// \brief By default the data transfer is deactivated.
+  /// By default the data transfer is deactivated.
   ezDataTransfer();
 
-  /// \brief Deactivates the data transfer (sends this info via ezTelemetry).
+  /// Deactivates the data transfer (sends this info via ezTelemetry).
   virtual ~ezDataTransfer();
 
-  /// \brief Disables the data transfer. It will not show up in ezInspector anymore and calling Transfer() on it will be ignored.
+  /// Disables the data transfer. It will not show up in ezInspector anymore and calling Transfer() on it will be ignored.
   void DisableDataTransfer();
 
-  /// \brief Enables the data transfer. It will show up with the given name in ezInspector.
+  /// Enables the data transfer. It will show up with the given name in ezInspector.
   void EnableDataTransfer(ezStringView sDataName);
 
-  /// \brief Sets the IsTransferRequested() state to true. Ignored if the data transfer is disabled.
+  /// Sets the IsTransferRequested() state to true. Ignored if the data transfer is disabled.
   void RequestDataTransfer();
 
-  /// \brief Returns whether the data transfer has been requested. Always returns false while the data transfer is disabled.
+  /// Returns whether the data transfer has been requested. Always returns false while the data transfer is disabled.
   ///
   /// If bReset is set to false, the request state will not be reset, which can be used to 'peek' at the current state.
   /// By default the request state is reset to false afterwards, the application should answer the request.
@@ -100,7 +100,7 @@ private:
 
   void SendStatus();
 
-  /// \brief The data in the given ezDataTransferObject is sent via ezTelemetry to all connected tools, which can then display or process it.
+  /// The data in the given ezDataTransferObject is sent via ezTelemetry to all connected tools, which can then display or process it.
   void Transfer(ezDataTransferObject& Object);
 
 private:

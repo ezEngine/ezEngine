@@ -52,7 +52,7 @@ public:
 
   // State setting functions
 
-  /// \brief Sets a bind group to the given bind group index. Preferably, bindGroup should be created via ezBindGroupBuilder::CreateBindGroup.
+  /// Sets a bind group to the given bind group index. Preferably, bindGroup should be created via ezBindGroupBuilder::CreateBindGroup.
   ///
   /// This function binds a collection of resources (buffers, textures, samplers) to a specific bind group index. In debug builds, it performs extensive validation of each ezGALBindGroupItem against the layout's ezShaderResourceBinding to ensure:
   ///
@@ -84,7 +84,7 @@ public:
   /// \param bindGroup Description containing the layout and resource items to bind
   void SetBindGroup(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup);
 
-  /// \brief Sets a bind group resource to the given bind group index.
+  /// Sets a bind group resource to the given bind group index.
   /// As there are two functions to set bind groups (this one and the overload for transient bind groups) the last call takes precedence if both functions are called for the same index.
   /// Resources in hBindGroup must be in the states required by their shader binding when the bind group is used by a draw or dispatch call.
   /// \param uiBindGroup The bind group set index to set
@@ -99,14 +99,14 @@ public:
   /// \return A handle to be passed into ezGALDevice::GetTimestampResult.
   ezGALTimestampHandle InsertTimestamp();
 
-  /// \brief Starts an occlusion query.
+  /// Starts an occlusion query.
   /// This function must be called within a render scope and EndOcclusionQuery must be called within the same scope. Only one occlusion query can be active at any given time.
   /// \param type The type of the occlusion query.
   /// \return A handle to be passed into EndOcclusionQuery.
   /// \sa EndOcclusionQuery
   ezGALOcclusionHandle BeginOcclusionQuery(ezEnum<ezGALQueryType> type);
 
-  /// \brief Ends an occlusion query.
+  /// Ends an occlusion query.
   /// The given handle must afterwards be passed into the ezGALDevice::GetOcclusionQueryResult function, which needs to be repeated every frame until results are ready.
   /// \param hOcclusion Value returned by the previous call to BeginOcclusionQuery.
   /// \sa ezGALDevice::GetOcclusionQueryResult
@@ -186,7 +186,7 @@ public:
 
   // Misc
 
-  /// \brief Submits all pending work to the GPU.
+  /// Submits all pending work to the GPU.
   /// Call this if you want to wait for a fence or some other kind of GPU synchronization to take place to ensure the work is actually submitted to the GPU.
   void Flush();
 
@@ -212,7 +212,7 @@ public:
   void EndRendering();
   bool IsInRenderingScope() const;
 
-  /// \brief Clears active rendertargets.
+  /// Clears active rendertargets.
   ///
   /// \param uiRenderTargetClearMask
   ///   Each bit represents a bound color target. If all bits are set, all bound color targets will be cleared.

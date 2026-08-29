@@ -1,5 +1,5 @@
 
-/// \brief Value used by containers for indices to indicate an invalid index.
+/// Value used by containers for indices to indicate an invalid index.
 #ifndef ezInvalidIndex
 #  define ezInvalidIndex 0xFFFFFFFF
 #endif

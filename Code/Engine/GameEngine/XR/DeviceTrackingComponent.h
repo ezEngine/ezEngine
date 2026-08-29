@@ -23,7 +23,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezXRPoseLocation);
 
 using ezDeviceTrackingComponentManager = ezComponentManagerSimple<class ezDeviceTrackingComponent, ezComponentUpdateType::WhenSimulating>;
 
-/// \brief Tracks the position of a XR device and applies it to the owner.
+/// Tracks the position of a XR device and applies it to the owner.
 class EZ_GAMEENGINE_DLL ezDeviceTrackingComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezDeviceTrackingComponent, ezComponent, ezDeviceTrackingComponentManager);
@@ -32,14 +32,14 @@ public:
   ezDeviceTrackingComponent();
   ~ezDeviceTrackingComponent();
 
-  /// \brief Sets the type of device this component is going to track.
+  /// Sets the type of device this component is going to track.
   void SetDeviceType(ezEnum<ezXRDeviceType> type);
   ezEnum<ezXRDeviceType> GetDeviceType() const;
 
   void SetPoseLocation(ezEnum<ezXRPoseLocation> poseLocation);
   ezEnum<ezXRPoseLocation> GetPoseLocation() const;
 
-  /// \brief Whether to set the owner's local or global transform, see ezXRTransformSpace.
+  /// Whether to set the owner's local or global transform, see ezXRTransformSpace.
   void SetTransformSpace(ezEnum<ezXRTransformSpace> space);
   ezEnum<ezXRTransformSpace> GetTransformSpace() const;
 

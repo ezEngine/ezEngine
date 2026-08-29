@@ -14,7 +14,7 @@ struct ezAssetProcessorEvent;
 class QPushButton;
 class QScrollBar;
 
-/// \brief Visual progress widget that displays an asset processing timeline.
+/// Visual progress widget that displays an asset processing timeline.
 ///
 /// Shows a timeline view with Y-axis representing each ezEditorProcessor and X-axis representing time.
 /// Each asset being processed is displayed as a bar on the timeline.
@@ -27,7 +27,7 @@ public:
   explicit ezQtAssetProcessorProgressWidget(QWidget* pParent = nullptr);
   ~ezQtAssetProcessorProgressWidget();
 
-  /// \brief An ezQGridBarWidget must be placed over this widget in a vertical layout and then set here.
+  /// An ezQGridBarWidget must be placed over this widget in a vertical layout and then set here.
   void SetGridBarWidget(ezQGridBarWidget* pGridBar);
   void SetScrollBarWidget(QScrollBar* pScrollBar);
 
@@ -52,7 +52,7 @@ private:
     Panning
   };
 
-  /// \brief Compact representation of an item in the timeline of the asset processor.
+  /// Compact representation of an item in the timeline of the asset processor.
   struct ProcessorTask
   {
     static constexpr ezUInt16 SuccessResult = 0xFFFF;

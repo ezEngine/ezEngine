@@ -6,7 +6,7 @@
 
 using ezHeadBoneComponentManager = ezComponentManagerSimple<class ezHeadBoneComponent, ezComponentUpdateType::WhenSimulating>;
 
-/// \brief Applies a vertical rotation in local space (local Y axis) to the owner game object.
+/// Applies a vertical rotation in local space (local Y axis) to the owner game object.
 ///
 /// This component is meant to be used to apply a vertical rotation to a camera.
 /// For first-person camera movement, typically the horizontal rotation is already taken care of
@@ -35,12 +35,12 @@ public:
   ezHeadBoneComponent();
   ~ezHeadBoneComponent();
 
-  /// \brief Sets the vertical rotation to a fixed value.
+  /// Sets the vertical rotation to a fixed value.
   ///
   /// The final rotation will be clamped to the maximum allowed value.
   void SetVerticalRotation(float fRadians); // [ scriptable ]
 
-  /// \brief Adds or subtracts from the current rotation.
+  /// Adds or subtracts from the current rotation.
   ///
   /// The final rotation will be clamped to the maximum allowed value.
   void ChangeVerticalRotation(float fRadians);                 // [ scriptable ]

@@ -2,7 +2,7 @@
 
 #include <Foundation/Threading/TaskSystem.h>
 
-/// \brief Convenience task wrapper that executes delegate functions with parameters
+/// Convenience task wrapper that executes delegate functions with parameters
 ///
 /// Provides an easy way to wrap function calls (delegates) as tasks for the task system.
 /// The template parameter T specifies the type of data passed to the delegate function.

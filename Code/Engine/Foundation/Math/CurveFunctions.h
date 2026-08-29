@@ -3,7 +3,7 @@
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Reflection/Reflection.h>
 
-/// \brief Available procedural curve generators.
+/// Available procedural curve generators.
 ///
 /// The easing function types are adapted from https://easings.net. Visit that page for a preview.
 ///
@@ -72,10 +72,10 @@ struct ezCurveFunction
     Default = Linear
   };
 
-  /// \brief Helper function that returns the function value at the given x coordinate.
+  /// Helper function that returns the function value at the given x coordinate.
   static double GetValue(Enum function, double x);
 
-  /// \brief Helper function that returns the function value at the given x coordinate.
+  /// Helper function that returns the function value at the given x coordinate.
   ///
   /// If \a inverse is true, the value (1-Y) is returned.
   static double GetValue(Enum function, double x, bool bInverse);

@@ -49,7 +49,7 @@ struct EZ_GAMEENGINE_DLL ezGreyBoxShape
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezGreyBoxShape)
 
-/// \brief Creates basic geometry for prototyping levels.
+/// Creates basic geometry for prototyping levels.
 ///
 /// It automatically creates physics collision geometry and also sets up rendering occluders to improve performance.
 class EZ_GAMEENGINE_DLL ezGreyBoxComponent : public ezRenderComponent
@@ -80,67 +80,67 @@ public:
   ezGreyBoxComponent();
   ~ezGreyBoxComponent();
 
-  /// \brief The geometry type to build.
+  /// The geometry type to build.
   void SetShape(ezEnum<ezGreyBoxShape> shape);                // [ property ]
   ezEnum<ezGreyBoxShape> GetShape() const { return m_Shape; } // [ property ]
 
-  /// \brief An additional tint color passed to the renderer to modify the mesh.
+  /// An additional tint color passed to the renderer to modify the mesh.
   void SetColor(const ezColor& color); // [ property ]
   const ezColor& GetColor() const;     // [ property ]
 
-  /// \brief An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
+  /// An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
   void SetCustomData(const ezVec4& vData); // [ property ]
   const ezVec4& GetCustomData() const;     // [ property ]
 
-  /// \brief Sets the extent along the negative X axis of the bounding box.
+  /// Sets the extent along the negative X axis of the bounding box.
   void SetSizeNegX(float f);                        // [ property ]
   float GetSizeNegX() const { return m_fSizeNegX; } // [ property ]
 
-  /// \brief Sets the extent along the positive X axis of the bounding box.
+  /// Sets the extent along the positive X axis of the bounding box.
   void SetSizePosX(float f);                        // [ property ]
   float GetSizePosX() const { return m_fSizePosX; } // [ property ]
 
-  /// \brief Sets the extent along the negative Y axis of the bounding box.
+  /// Sets the extent along the negative Y axis of the bounding box.
   void SetSizeNegY(float f);                        // [ property ]
   float GetSizeNegY() const { return m_fSizeNegY; } // [ property ]
 
-  /// \brief Sets the extent along the positive Y axis of the bounding box.
+  /// Sets the extent along the positive Y axis of the bounding box.
   void SetSizePosY(float f);                        // [ property ]
   float GetSizePosY() const { return m_fSizePosY; } // [ property ]
 
-  /// \brief Sets the extent along the negative Z axis of the bounding box.
+  /// Sets the extent along the negative Z axis of the bounding box.
   void SetSizeNegZ(float f);                        // [ property ]
   float GetSizeNegZ() const { return m_fSizeNegZ; } // [ property ]
 
-  /// \brief Sets the extent along the positive Z axis of the bounding box.
+  /// Sets the extent along the positive Z axis of the bounding box.
   void SetSizePosZ(float f);                        // [ property ]
   float GetSizePosZ() const { return m_fSizePosZ; } // [ property ]
 
-  /// \brief Sets the detail of the geometry. The meaning is geometry type specific, e.g. for cylinders this is the number of polygons around the perimeter.
+  /// Sets the detail of the geometry. The meaning is geometry type specific, e.g. for cylinders this is the number of polygons around the perimeter.
   void SetDetail(ezUInt32 uiDetail);                // [ property ]
   ezUInt32 GetDetail() const { return m_uiDetail; } // [ property ]
 
-  /// \brief Geometry type specific: Sets an angle, used to curve stairs, etc.
+  /// Geometry type specific: Sets an angle, used to curve stairs, etc.
   void SetCurvature(ezAngle curvature);                // [ property ]
   ezAngle GetCurvature() const { return m_Curvature; } // [ property ]
 
-  /// \brief For curved stairs to make the top smooth.
+  /// For curved stairs to make the top smooth.
   void SetSlopedTop(bool b);                         // [ property ]
   bool GetSlopedTop() const { return m_bSlopedTop; } // [ property ]
 
-  /// \brief For curved stairs to make the bottom smooth.
+  /// For curved stairs to make the bottom smooth.
   void SetSlopedBottom(bool b);                            // [ property ]
   bool GetSlopedBottom() const { return m_bSlopedBottom; } // [ property ]
 
-  /// \brief Geometry type specific: Sets a thickness, e.g. for curved stairs.
+  /// Geometry type specific: Sets a thickness, e.g. for curved stairs.
   void SetThickness(float f);                         // [ property ]
   float GetThickness() const { return m_fThickness; } // [ property ]
 
-  /// \brief Whether the mesh should be used as a collider.
+  /// Whether the mesh should be used as a collider.
   void SetGenerateCollision(bool b);                                 // [ property ]
   bool GetGenerateCollision() const { return m_bGenerateCollision; } // [ property ]
 
-  /// \brief Sets the ezMaterialResource to use for rendering.
+  /// Sets the ezMaterialResource to use for rendering.
   void SetMaterial(const ezMaterialResourceHandle& hMaterial) { m_hMaterial = hMaterial; }
   ezMaterialResourceHandle GetMaterial() const { return m_hMaterial; }
 

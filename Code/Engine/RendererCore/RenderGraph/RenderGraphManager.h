@@ -28,7 +28,7 @@ struct ezRenderGraphRenderEvent
   ezRenderGraphContext* m_pContext = nullptr;
 };
 
-/// \brief Manages ezRenderGraph lifetime and execution.
+/// Manages ezRenderGraph lifetime and execution.
 class EZ_RENDERERCORE_DLL ezRenderGraphManager
 {
 public:

@@ -7,7 +7,7 @@ struct ezMsgExtractGeometry;
 
 using ezJoltStaticActorComponentManager = ezComponentManager<class ezJoltStaticActorComponent, ezBlockStorageType::FreeList>;
 
-/// \brief Turns an object into an immovable obstacle in the physics simulation.
+/// Turns an object into an immovable obstacle in the physics simulation.
 ///
 /// Dynamic actors collide with static actors. Static actors cannot be moved, not even programmatically.
 /// If that is desired, use a dynamic actor instead and set it to be "kinematic".
@@ -40,7 +40,7 @@ public:
   ezJoltStaticActorComponent();
   ~ezJoltStaticActorComponent();
 
-  /// \brief Searches for a sibling ezMeshComponent and attempts to retrieve information about the ezJoltMaterial to use for each submesh from its ezMaterial information.
+  /// Searches for a sibling ezMeshComponent and attempts to retrieve information about the ezJoltMaterial to use for each submesh from its ezMaterial information.
   void PullSurfacesFromGraphicsMesh(ezDynamicArray<const ezJoltMaterial*>& ref_materials);
 
   void SetMesh(const ezJoltMeshResourceHandle& hMesh);

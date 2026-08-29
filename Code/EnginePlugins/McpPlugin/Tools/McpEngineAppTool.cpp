@@ -24,7 +24,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 namespace
 {
-  /// \brief Collects the registered windows, so that an index means the same thing in app_info and in
+  /// Collects the registered windows, so that an index means the same thing in app_info and in
   /// app_screenshot.
   void GetWindows(ezDynamicArray<ezRegisteredWndHandle>& out_windows)
   {
@@ -34,7 +34,7 @@ namespace
     }
   }
 
-  /// \brief Writes an image to an absolute path, without going through the ezFileSystem.
+  /// Writes an image to an absolute path, without going through the ezFileSystem.
   ///
   /// ezImageView::SaveTo() uses ezFileWriter, which only reaches paths inside a writable data
   /// directory - and the whole point of the path this tool returns is that the caller picked it, so it

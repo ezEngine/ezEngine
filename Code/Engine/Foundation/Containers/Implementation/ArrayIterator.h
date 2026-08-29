@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-/// \brief Base class for STL like random access iterators
+/// Base class for STL like random access iterators
 template <class ARRAY, class T, bool reverse = false>
 struct const_iterator_base
 {
@@ -85,7 +85,7 @@ protected:
   size_t m_uiIndex;
 };
 
-/// \brief Non-const STL like iterators
+/// Non-const STL like iterators
 template <class ARRAY, class T, bool reverse = false>
 struct iterator_base : public const_iterator_base<ARRAY, T, reverse>
 {
@@ -146,7 +146,7 @@ public:
   }
 };
 
-/// \brief Base class for Pointer like reverse iterators
+/// Base class for Pointer like reverse iterators
 template <class T>
 struct const_reverse_pointer_iterator
 {
@@ -210,7 +210,7 @@ protected:
   T* m_pPtr;
 };
 
-/// \brief Non-Const class for Pointer like reverse iterators
+/// Non-Const class for Pointer like reverse iterators
 template <class T>
 struct reverse_pointer_iterator : public const_reverse_pointer_iterator<T>
 {

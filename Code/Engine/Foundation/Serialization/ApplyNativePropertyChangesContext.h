@@ -2,7 +2,7 @@
 
 #include <Foundation/Serialization/RttiConverter.h>
 
-/// \brief Specialized context for tracking and applying native object changes to abstract object graphs.
+/// Specialized context for tracking and applying native object changes to abstract object graphs.
 ///
 /// This context enables a sophisticated bidirectional synchronization workflow between native
 /// C++ objects and their serialized representations in ezAbstractObjectGraph form. It ensures

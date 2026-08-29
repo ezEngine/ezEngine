@@ -33,7 +33,7 @@ static ezEventSubscriptionID s_TickSubscription = 0;
 static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 static void TickEventHandler(const ezQtUiServices::TickEvent& e);
 
-/// \brief Runs one tool call inside the editor's unattended mode, and turns a failed assert into an error.
+/// Runs one tool call inside the editor's unattended mode, and turns a failed assert into an error.
 ///
 /// This is the editor's half of what ezMcpToolRegistry used to do itself. It stays here, in the plugin,
 /// because none of it means anything in a game process.

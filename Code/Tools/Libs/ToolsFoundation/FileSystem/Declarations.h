@@ -15,7 +15,7 @@
 
 #endif
 
-/// \brief Information about a single file on disk. The file might be a document or any other file found in the data directories.
+/// Information about a single file on disk. The file might be a document or any other file found in the data directories.
 struct EZ_TOOLSFOUNDATION_DLL ezFileStatus
 {
   enum class Status : ezUInt8

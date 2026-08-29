@@ -6,7 +6,7 @@
 
 class ezFormatString;
 
-/// \brief This class encapsulates building a DGML compatible graph.
+/// This class encapsulates building a DGML compatible graph.
 class EZ_FOUNDATION_DLL ezDGMLGraph
 {
 public:
@@ -51,29 +51,29 @@ public:
     NodeShape m_Shape = NodeShape::Rectangle;
   };
 
-  /// \brief Constructor for the graph.
+  /// Constructor for the graph.
   ezDGMLGraph(Direction graphDirection = Direction::LeftToRight, Layout graphLayout = Layout::Tree);
 
-  /// \brief Adds a node to the graph.
+  /// Adds a node to the graph.
   /// Adds a node to the graph and returns the node id which can be used to reference the node later to add connections etc.
   NodeId AddNode(ezStringView sTitle, const NodeDesc* pDesc = nullptr);
 
-  /// \brief Adds a DGML node that can act as a group for other nodes
+  /// Adds a DGML node that can act as a group for other nodes
   NodeId AddGroup(ezStringView sTitle, GroupType type, const NodeDesc* pDesc = nullptr);
 
-  /// \brief Inserts a node into an existing group node.
+  /// Inserts a node into an existing group node.
   void AddNodeToGroup(NodeId node, NodeId group);
 
-  /// \brief Adds a category with a display color. Returns the category id for use with AddConnection.
+  /// Adds a category with a display color. Returns the category id for use with AddConnection.
   CategoryId AddConnectionCategory(ezStringView sName, const ezColor& color);
 
-  /// \brief Adds a directed connection to the graph (an arrow pointing from source to target node).
+  /// Adds a directed connection to the graph (an arrow pointing from source to target node).
   ConnectionId AddConnection(NodeId source, NodeId target, ezStringView sLabel = {}, CategoryId category = ezInvalidIndex);
 
-  /// \brief Adds a property type. All properties currently use the data type 'string'
+  /// Adds a property type. All properties currently use the data type 'string'
   PropertyId AddPropertyType(ezStringView sName);
 
-  /// \brief Adds a property of the specified type with the given value to a node
+  /// Adds a property of the specified type with the given value to a node
   void AddNodeProperty(NodeId node, PropertyId property, const ezFormatString& fmt);
 
 protected:
@@ -126,13 +126,13 @@ protected:
   Layout m_Layout;
 };
 
-/// \brief This class encapsulates the output of DGML compatible graphs to files and streams.
+/// This class encapsulates the output of DGML compatible graphs to files and streams.
 class EZ_FOUNDATION_DLL ezDGMLGraphWriter
 {
 public:
-  /// \brief Helper method to write the graph to a file.
+  /// Helper method to write the graph to a file.
   static ezResult WriteGraphToFile(ezStringView sFileName, const ezDGMLGraph& graph);
 
-  /// \brief Writes the graph as a DGML formatted document to the given string builder.
+  /// Writes the graph as a DGML formatted document to the given string builder.
   static ezResult WriteGraphToString(ezStringBuilder& ref_sStringBuilder, const ezDGMLGraph& graph);
 };

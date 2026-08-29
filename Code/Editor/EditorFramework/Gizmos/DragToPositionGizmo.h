@@ -17,7 +17,7 @@ public:
 
   virtual bool IsPickingSelectedAllowed() const override { return false; }
 
-  /// \brief Returns true if any of the 'align with' handles is selected, and thus the rotation of the dragged object should be modified as well
+  /// Returns true if any of the 'align with' handles is selected, and thus the rotation of the dragged object should be modified as well
   bool ModifiesRotation() const { return m_bModifiesRotation; }
 
   virtual void UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow) override;

@@ -3,7 +3,7 @@
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageManager.h>
 
-/// \brief An ezIReflectedTypeAccessor implementation that also stores the actual data that is defined in the passed ezRTTI.
+/// An ezIReflectedTypeAccessor implementation that also stores the actual data that is defined in the passed ezRTTI.
 ///
 /// This class is used to store data on the tool side for classes that are not known to the tool but exist outside of it
 /// like engine components. As this is basically a complex value map the used type can be hot-reloaded. For this, the

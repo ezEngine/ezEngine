@@ -27,7 +27,7 @@ using ezGALFormatLookupTableDX11 = ezGALFormatLookupTable<ezGALFormatLookupEntry
 class ezFenceQueueDX11;
 class ezQueryPoolDX11;
 
-/// \brief The DX11 device implementation of the graphics abstraction layer.
+/// The DX11 device implementation of the graphics abstraction layer.
 class EZ_RENDERERDX11_DLL ezGALDeviceDX11 : public ezGALDevice
 {
 private:
@@ -57,7 +57,7 @@ public:
 protected:
   // Init & shutdown functions
 
-  /// \brief Internal version of device init that allows to modify device creation flags and graphics adapter.
+  /// Internal version of device init that allows to modify device creation flags and graphics adapter.
   ///
   /// \param pUsedAdapter
   ///   Null means default adapter.

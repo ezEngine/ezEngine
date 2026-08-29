@@ -14,7 +14,7 @@ using ezDataBuffer = ezDynamicArray<ezUInt8>;
 
 using ezFmodSoundBankResourceHandle = ezTypedResourceHandle<class ezFmodSoundBankResource>;
 
-/// \brief Abstraction of FMOD_SPEAKERMODE
+/// Abstraction of FMOD_SPEAKERMODE
 enum class ezFmodSpeakerMode : ezUInt8
 {
   ModeStereo,
@@ -22,7 +22,7 @@ enum class ezFmodSpeakerMode : ezUInt8
   Mode7Point1,
 };
 
-/// \brief The FMOD configuration to be used on a specific platform
+/// The FMOD configuration to be used on a specific platform
 struct EZ_FMODPLUGIN_DLL ezFmodConfiguration
 {
   ezString m_sMasterSoundBank;
@@ -38,7 +38,7 @@ struct EZ_FMODPLUGIN_DLL ezFmodConfiguration
   bool operator!=(const ezFmodConfiguration& rhs) const { return !operator==(rhs); }
 };
 
-/// \brief All available FMOD platform configurations
+/// All available FMOD platform configurations
 struct EZ_FMODPLUGIN_DLL ezFmodAssetProfiles
 {
   static constexpr const ezStringView s_sConfigFile = ":project/RuntimeConfigs/FmodConfig.ddl"_ezsv;
@@ -62,31 +62,31 @@ public:
   FMOD::Studio::System* GetStudioSystem() const { return m_pStudioSystem; }
   FMOD::System* GetLowLevelSystem() const { return m_pLowLevelSystem; }
 
-  /// \brief Can be called before startup to load the FMOD configs from a different file.
+  /// Can be called before startup to load the FMOD configs from a different file.
   /// Otherwise will automatically be loaded by FMOD startup with the default path.
   virtual void LoadConfiguration(ezStringView sFile) override;
 
-  /// \brief By default the FMOD integration will auto-detect the platform (and thus the config) to use.
+  /// By default the FMOD integration will auto-detect the platform (and thus the config) to use.
   /// Calling this before startup allows to override which configuration is used.
   virtual void SetOverridePlatform(ezStringView sPlatform) override;
 
-  /// \brief Automatically called by the plugin every time ezGameApplicationExecutionEvent::BeforeUpdatePlugins is fired.
+  /// Automatically called by the plugin every time ezGameApplicationExecutionEvent::BeforeUpdatePlugins is fired.
   virtual void UpdateSound() override;
 
-  /// \brief Adjusts the master volume. This affects all sounds, with no exception. Value must be between 0.0f and 1.0f.
+  /// Adjusts the master volume. This affects all sounds, with no exception. Value must be between 0.0f and 1.0f.
   virtual void SetMasterChannelVolume(float fVolume) override;
   virtual float GetMasterChannelVolume() const override;
 
-  /// \brief Allows to mute all sounds. Useful for when the application goes to a background state.
+  /// Allows to mute all sounds. Useful for when the application goes to a background state.
   virtual void SetMasterChannelMute(bool bMute) override;
   virtual bool GetMasterChannelMute() const override;
 
-  /// \brief Allows to pause all sounds. Useful for when the application goes to a background state and you want to pause all sounds,
+  /// Allows to pause all sounds. Useful for when the application goes to a background state and you want to pause all sounds,
   /// instead of mute them.
   virtual void SetMasterChannelPaused(bool bPaused) override;
   virtual bool GetMasterChannelPaused() const override;
 
-  /// \brief Specifies the volume for a VCA ('Voltage Control Amplifier').
+  /// Specifies the volume for a VCA ('Voltage Control Amplifier').
   ///
   /// This is used to control the volume of high level sound groups, such as 'Effects', 'Music', 'Ambiance or 'Speech'.
   /// Note that the FMOD strings banks are never loaded, so the given string must be a GUID (FMOD Studio -> Copy GUID).
@@ -94,13 +94,13 @@ public:
   virtual float GetSoundGroupVolume(ezStringView sVcaGroupGuid) const override;
   void UpdateSoundGroupVolumes();
 
-  /// \brief Default is 1. Allows to set how many virtual listeners the sound is mixed for (split screen game play).
+  /// Default is 1. Allows to set how many virtual listeners the sound is mixed for (split screen game play).
   virtual void SetNumListeners(ezUInt8 uiNumListeners) override;
   virtual ezUInt8 GetNumListeners() override;
 
   static void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
 
-  /// \brief Configures how many reverb ('EAX') volumes are being blended/mixed for a sound.
+  /// Configures how many reverb ('EAX') volumes are being blended/mixed for a sound.
   ///
   /// The number is clamped between 0 and 4. 0 Means all environmental effects are disabled for all sound sources.
   /// 1 means only the most important reverb is applied. 2, 3 and 4 allow to add more fidelity, but will cost more CPU resources.
@@ -108,16 +108,16 @@ public:
   /// The default is currently 4.
   void SetNumBlendedReverbVolumes(ezUInt8 uiNumBlendedVolumes);
 
-  /// \brief See SetNumBlendedReverbVolumes()
+  /// See SetNumBlendedReverbVolumes()
   ezUInt8 GetNumBlendedReverbVolumes() const { return m_uiNumBlendedVolumes; }
 
-  /// \brief Sets the global parameter with the given name to a the desired value.
+  /// Sets the global parameter with the given name to a the desired value.
   ///
   /// Global parameters affect any sound event that uses them, no matter on which instance they play.
   /// They are convenient to use for general things like passing the game state to the sound system.
   void SetGlobalParameter(const char* szName, float fValue);
 
-  /// \brief Returns the current value of the given global parameter.
+  /// Returns the current value of the given global parameter.
   ///
   /// This may be different from what was set via SetGlobalParameter(), since FMOD may modify the value when playing events.
   float GetGlobalParameter(const char* szName);

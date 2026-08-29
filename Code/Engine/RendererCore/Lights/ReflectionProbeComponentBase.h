@@ -8,7 +8,7 @@ struct ezMsgExtractRenderData;
 struct ezMsgTransformChanged;
 class ezAbstractObjectNode;
 
-/// \brief Base class for all reflection probes.
+/// Base class for all reflection probes.
 class EZ_RENDERERCORE_DLL ezReflectionProbeComponentBase : public ezComponent
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezReflectionProbeComponentBase, ezComponent);

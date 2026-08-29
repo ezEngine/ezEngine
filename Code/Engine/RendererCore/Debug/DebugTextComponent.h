@@ -7,7 +7,7 @@ struct ezMsgExtractRenderData;
 
 using ezDebugTextComponentManager = ezComponentManager<class ezDebugTextComponent, ezBlockStorageType::Compact>;
 
-/// \brief This component prints debug text at the owner object's position.
+/// This component prints debug text at the owner object's position.
 class EZ_RENDERERCORE_DLL ezDebugTextComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezDebugTextComponent, ezComponent, ezDebugTextComponentManager);

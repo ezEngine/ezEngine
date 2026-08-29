@@ -6,7 +6,7 @@
 
 class ezRawMemoryStreamReader;
 
-/// \brief Compression modes for ezArchive file entries
+/// Compression modes for ezArchive file entries
 enum class ezArchiveCompressionMode : ezUInt8
 {
   Uncompressed,
@@ -14,7 +14,7 @@ enum class ezArchiveCompressionMode : ezUInt8
   Compressed_zip,
 };
 
-/// \brief Data for a single file entry in an ezArchive file
+/// Data for a single file entry in an ezArchive file
 class EZ_FOUNDATION_DLL ezArchiveEntry
 {
 public:
@@ -28,7 +28,7 @@ public:
   ezResult Deserialize(ezStreamReader& inout_stream);
 };
 
-/// \brief Helper class to store a hashed string for quick lookup in the archive TOC
+/// Helper class to store a hashed string for quick lookup in the archive TOC
 ///
 /// Stores a hash of the lower case string for quick comparison.
 /// Additionally stores an offset into the ezArchiveTOC::m_AllPathStrings array for final validation, to prevent hash collisions.
@@ -54,7 +54,7 @@ public:
 void operator<<(ezStreamWriter& inout_stream, const ezArchiveStoredString& value);
 void operator>>(ezStreamReader& inout_stream, ezArchiveStoredString& value);
 
-/// \brief Helper class for looking up path strings in ezArchiveTOC::FindEntry()
+/// Helper class for looking up path strings in ezArchiveTOC::FindEntry()
 ///
 /// Only works together with ezArchiveStoredString.
 class ezArchiveLookupString
@@ -76,7 +76,7 @@ public:
   const ezDynamicArray<ezUInt8>& m_ArchiveAllPathStrings;
 };
 
-/// \brief Functions to enable ezHashTable to 1) store ezArchiveStoredString and 2) lookup strings efficiently with a ezArchiveLookupString
+/// Functions to enable ezHashTable to 1) store ezArchiveStoredString and 2) lookup strings efficiently with a ezArchiveLookupString
 template <>
 struct ezHashHelper<ezArchiveStoredString>
 {
@@ -93,7 +93,7 @@ struct ezHashHelper<ezArchiveStoredString>
   }
 };
 
-/// \brief Table-of-contents for an ezArchive file
+/// Table-of-contents for an ezArchive file
 class EZ_FOUNDATION_DLL ezArchiveTOC
 {
 public:
@@ -104,7 +104,7 @@ public:
   /// one large array holding all path strings for the file entries, to reduce allocations
   ezDynamicArray<ezUInt8> m_AllPathStrings;
 
-  /// \brief Returns the entry index for the given file or ezInvalidIndex, if not found.
+  /// Returns the entry index for the given file or ezInvalidIndex, if not found.
   ezUInt32 FindEntry(ezStringView sFile) const;
 
   ezUInt32 AddPathString(ezStringView sPathString);

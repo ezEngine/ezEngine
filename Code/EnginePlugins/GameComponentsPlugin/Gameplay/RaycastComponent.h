@@ -21,7 +21,7 @@ public:
   void Update(const ezWorldModule::UpdateContext& context);
 };
 
-/// \brief A component which does a ray cast and positions a target object there.
+/// A component which does a ray cast and positions a target object there.
 ///
 /// This component does a ray cast along the forward axis of the game object it is attached to.
 /// If this produces a hit the target object is placed there.

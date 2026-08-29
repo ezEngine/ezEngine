@@ -3,7 +3,7 @@
 #include <Foundation/Memory/AllocatorWrapper.h>
 #include <Foundation/Types/Id.h>
 
-/// \brief Implementation of an id mapping table which stores id/value pairs.
+/// Implementation of an id mapping table which stores id/value pairs.
 ///
 /// An id contains an index into the table and a generation counter to detect if a table entry was re-used.
 /// All insertion/erasure/lookup functions take O(1) time if the table does not need to be expanded.
@@ -20,29 +20,29 @@ public:
   using IndexType = typename IdType::StorageType;
   using TypeOfId = IdType;
 
-  /// \brief Const iterator.
+  /// Const iterator.
   class ConstIterator
   {
   public:
-    /// \brief Checks whether this iterator points to a valid element.
+    /// Checks whether this iterator points to a valid element.
     bool IsValid() const; // [tested]
 
-    /// \brief Checks whether the two iterators point to the same element.
+    /// Checks whether the two iterators point to the same element.
     bool operator==(const typename ezIdTableBase<IdType, ValueType>::ConstIterator& it2) const;
 
-    /// \brief Checks whether the two iterators point to the same element.
+    /// Checks whether the two iterators point to the same element.
     bool operator!=(const typename ezIdTableBase<IdType, ValueType>::ConstIterator& it2) const;
 
-    /// \brief Returns the 'id' of the element that this iterator points to.
+    /// Returns the 'id' of the element that this iterator points to.
     IdType Id() const; // [tested]
 
-    /// \brief Returns the 'value' of the element that this iterator points to.
+    /// Returns the 'value' of the element that this iterator points to.
     const ValueType& Value() const; // [tested]
 
-    /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
+    /// Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
     void Next(); // [tested]
 
-    /// \brief Shorthand for 'Next'
+    /// Shorthand for 'Next'
     void operator++(); // [tested]
 
   protected:
@@ -55,14 +55,14 @@ public:
     IndexType m_CurrentCount; // current number of valid elements that this iterator has found so far.
   };
 
-  /// \brief Iterator with write access.
+  /// Iterator with write access.
   struct Iterator : public ConstIterator
   {
   public:
     // this is required to pull in the const version of this function
     using ConstIterator::Value;
 
-    /// \brief Returns the 'value' of the element that this iterator points to.
+    /// Returns the 'value' of the element that this iterator points to.
     ValueType& Value(); // [tested]
 
   private:
@@ -72,77 +72,77 @@ public:
   };
 
 protected:
-  /// \brief Creates an empty id-table. Does not allocate any data yet.
+  /// Creates an empty id-table. Does not allocate any data yet.
   explicit ezIdTableBase(ezAllocator* pAllocator); // [tested]
 
-  /// \brief Creates a copy of the given id-table.
+  /// Creates a copy of the given id-table.
   ezIdTableBase(const ezIdTableBase<IdType, ValueType>& rhs, ezAllocator* pAllocator); // [tested]
 
-  /// \brief Destructor.
+  /// Destructor.
   ~ezIdTableBase(); // [tested]
 
-  /// \brief Copies the data from another table into this one.
+  /// Copies the data from another table into this one.
   void operator=(const ezIdTableBase<IdType, ValueType>& rhs); // [tested]
 
 public:
-  /// \brief Expands the table so it can at least store the given capacity.
+  /// Expands the table so it can at least store the given capacity.
   void Reserve(IndexType capacity); // [tested]
 
-  /// \brief Returns the number of active entries in the table.
+  /// Returns the number of active entries in the table.
   IndexType GetCount() const; // [tested]
 
-  /// \brief Returns the capacity of the table.
+  /// Returns the capacity of the table.
   IndexType GetCapacity() const; // [tested]
 
-  /// \brief Returns true, if the table does not contain any elements.
+  /// Returns true, if the table does not contain any elements.
   bool IsEmpty() const; // [tested]
 
-  /// \brief Clears the table.
+  /// Clears the table.
   void Clear(); // [tested]
 
-  /// \brief Inserts the value into the table and returns the corresponding id.
+  /// Inserts the value into the table and returns the corresponding id.
   IdType Insert(const ValueType& value); // [tested]
 
-  /// \brief Inserts the temporary value into the table and returns the corresponding id.
+  /// Inserts the temporary value into the table and returns the corresponding id.
   IdType Insert(ValueType&& value);
 
-  /// \brief Removes the entry with the given id. Returns if an entry was removed and optionally writes out the old value to out_oldValue.
+  /// Removes the entry with the given id. Returns if an entry was removed and optionally writes out the old value to out_oldValue.
   bool Remove(const IdType id, ValueType* out_pOldValue = nullptr); // [tested]
 
-  /// \brief Returns if an entry with the given id was found and if found writes out the corresponding value to out_value.
+  /// Returns if an entry with the given id was found and if found writes out the corresponding value to out_value.
   [[nodiscard]] bool TryGetValue(const IdType id, ValueType& out_value) const; // [tested]
 
-  /// \brief Returns if an entry with the given id was found and if found writes out the pointer to the corresponding value to out_pValue.
+  /// Returns if an entry with the given id was found and if found writes out the pointer to the corresponding value to out_pValue.
   [[nodiscard]] bool TryGetValue(const IdType id, ValueType*& out_pValue) const; // [tested]
 
-  /// \brief Returns the value to the given id. Does bounds checks in debug builds.
+  /// Returns the value to the given id. Does bounds checks in debug builds.
   const ValueType& operator[](const IdType id) const; // [tested]
 
-  /// \brief Returns the value to the given id. Does bounds checks in debug builds.
+  /// Returns the value to the given id. Does bounds checks in debug builds.
   ValueType& operator[](const IdType id); // [tested]
 
-  /// \brief Returns the value at the given index. Does bounds checks in debug builds but does not check for stale access.
+  /// Returns the value at the given index. Does bounds checks in debug builds but does not check for stale access.
   const ValueType& GetValueUnchecked(const IndexType index) const;
 
-  /// \brief Returns the value at the given index. Does bounds checks in debug builds but does not check for stale access.
+  /// Returns the value at the given index. Does bounds checks in debug builds but does not check for stale access.
   ValueType& GetValueUnchecked(const IndexType index);
 
-  /// \brief Returns the id of the entry at the given index. Does bounds checks in debug builds but does not check for stale access.
+  /// Returns the id of the entry at the given index. Does bounds checks in debug builds but does not check for stale access.
   IdType GetIdUnchecked(const IndexType index) const;
 
-  /// \brief Returns if the table contains an entry corresponding to the given id.
+  /// Returns if the table contains an entry corresponding to the given id.
   bool Contains(const IdType id) const; // [tested]
 
-  /// \brief Returns an Iterator to the very first element.
+  /// Returns an Iterator to the very first element.
   Iterator GetIterator(); // [tested]
 
-  /// \brief Returns a constant Iterator to the very first element.
+  /// Returns a constant Iterator to the very first element.
   ConstIterator GetIterator() const; // [tested]
 
-  /// \brief Returns the allocator that is used by this instance.
+  /// Returns the allocator that is used by this instance.
   ezAllocator* GetAllocator() const;
 
-  /// \brief Returns whether the internal free-list is valid. For testing purpose only.
+  /// Returns whether the internal free-list is valid. For testing purpose only.
   bool IsFreelistValid() const;
 
 private:
@@ -171,7 +171,7 @@ private:
   void InitializeFreelist(IndexType uiStart, IndexType uiEnd);
 };
 
-/// \brief \see ezIdTableBase
+/// \see ezIdTableBase
 template <typename IdType, typename ValueType, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
 class ezIdTable : public ezIdTableBase<IdType, ValueType>
 {

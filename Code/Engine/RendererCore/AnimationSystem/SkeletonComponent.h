@@ -9,7 +9,7 @@ struct ezMsgQueryAnimationSkeleton;
 
 using ezVisualizeSkeletonComponentManager = ezComponentManagerSimple<class ezSkeletonComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact>;
 
-/// \brief Uses debug rendering to visualize various aspects of an animation skeleton.
+/// Uses debug rendering to visualize various aspects of an animation skeleton.
 ///
 /// This is meant for visually inspecting skeletons. It is used by the main skeleton editor,
 /// but can also be added to a scene or added to an animated mesh on-demand.
@@ -46,7 +46,7 @@ public:
   void SetSkeleton(const ezSkeletonResourceHandle& hResource);                // [ property ]
   const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; } // [ property ]
 
-  /// \brief Sets a semicolon-separated list of bone names that should be highlighted.
+  /// Sets a semicolon-separated list of bone names that should be highlighted.
   ///
   /// Set it to "*" to highlight all bones.
   /// Set it to empty to not highlight any bone.

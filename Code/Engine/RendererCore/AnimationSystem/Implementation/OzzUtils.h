@@ -11,7 +11,7 @@ namespace ozz::animation
   class Animation;
 }; // namespace ozz::animation
 
-/// \brief Stores or gather the data for an ozz file, for random access operations (seek / tell).
+/// Stores or gather the data for an ozz file, for random access operations (seek / tell).
 ///
 /// Since ozz::io::Stream requires seek/tell functionality, it cannot be implemented with basic ezStreamReader / ezStreamWriter.
 /// Instead, we must have the entire ozz archive data in memory, to be able to jump around arbitrarily.
@@ -30,7 +30,7 @@ public:
   ezDefaultMemoryStreamStorage m_Storage;
 };
 
-/// \brief Implements the ozz::io::Stream interface for reading. The data has to be present in an ezOzzArchiveData object.
+/// Implements the ozz::io::Stream interface for reading. The data has to be present in an ezOzzArchiveData object.
 ///
 /// The class is implemented inline and not DLL exported because ozz is only available as a static library.
 class EZ_RENDERERCORE_DLL ezOzzStreamReader : public ozz::io::Stream
@@ -54,7 +54,7 @@ private:
   ezMemoryStreamReader m_Reader;
 };
 
-/// \brief Implements the ozz::io::Stream interface for writing. The data is gathered in an ezOzzArchiveData object.
+/// Implements the ozz::io::Stream interface for writing. The data is gathered in an ezOzzArchiveData object.
 ///
 /// The class is implemented inline and not DLL exported because ozz is only available as a static library.
 class EZ_RENDERERCORE_DLL ezOzzStreamWriter : public ozz::io::Stream

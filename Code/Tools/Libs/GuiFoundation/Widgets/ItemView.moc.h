@@ -8,7 +8,7 @@
 #include <QListView>
 #include <QStyledItemDelegate>
 
-/// \brief In combination with ezQtItemView this delegate allows for receiving the full range of mouse input.
+/// In combination with ezQtItemView this delegate allows for receiving the full range of mouse input.
 class EZ_GUIFOUNDATION_DLL ezQtItemDelegate : public QItemDelegate
 {
   Q_OBJECT
@@ -25,7 +25,7 @@ public:
   virtual bool mouseMoveEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index) { return false; }
 };
 
-/// \brief Template to be used with classes derived from QAbstractItemView. Allows the use of ezQtItemDelegate.
+/// Template to be used with classes derived from QAbstractItemView. Allows the use of ezQtItemDelegate.
 template <typename Base>
 class ezQtItemView : public Base
 {

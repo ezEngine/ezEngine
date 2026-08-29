@@ -56,12 +56,12 @@ public:
 
   bool GetShortcutsDisabled() const { return m_bDisableShortcuts; }
 
-  /// \brief If set to true, the surrounding window will ensure to block all shortcuts and instead send keypress events to the input context
+  /// If set to true, the surrounding window will ensure to block all shortcuts and instead send keypress events to the input context
   void SetShortcutsDisabled(bool bDisabled) { m_bDisableShortcuts = bDisabled; }
 
   virtual bool IsPickingSelectedAllowed() const { return true; }
 
-  /// \brief How the mouse position is updated when the mouse cursor reaches the screen borders.
+  /// How the mouse position is updated when the mouse cursor reaches the screen borders.
   enum class MouseMode
   {
     Normal,                     ///< Nothing happens, the mouse will stop at screen borders as usual
@@ -70,13 +70,13 @@ public:
                                 ///< mode is disabled the mouse is restored to the position where it was when it was enabled.
   };
 
-  /// \brief Sets how the mouse will act when it reaches the screen border. UpdateMouseMode() must be called on every mouseMoveEvent to update the
+  /// Sets how the mouse will act when it reaches the screen border. UpdateMouseMode() must be called on every mouseMoveEvent to update the
   /// state.
   ///
   /// The return value is the current global mouse position. Can be used to initialize a 'Last Mouse Position' variable.
   ezVec2I32 SetMouseMode(MouseMode mode);
 
-  /// \brief Updates the mouse position. Can always be called but will only have an effect if SetMouseMode() was called with one of the wrap modes.
+  /// Updates the mouse position. Can always be called but will only have an effect if SetMouseMode() was called with one of the wrap modes.
   ///
   /// Returns the new global mouse position, which may change drastically if the mouse cursor needed to be wrapped around the screen.
   /// Should be used to update a "Last Mouse Position" variable.

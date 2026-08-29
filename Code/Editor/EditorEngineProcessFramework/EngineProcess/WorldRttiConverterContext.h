@@ -5,7 +5,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/GuidHandleMap.h>
 #include <EditorEngineProcessFramework/IPC/IPCObjectMirrorEngine.h>
 
-/// \brief The world rtti converter context tracks created objects and is capable of also handling
+/// The world rtti converter context tracks created objects and is capable of also handling
 ///  components / game objects. Used by the ezIPCObjectMirror to create / destroy objects.
 ///
 /// Atm it does not remove owner ptr when a parent is deleted, so it will accumulate zombie entries.

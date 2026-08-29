@@ -38,7 +38,7 @@ public:
   float m_fLightDirectionality = 0.5f;
 };
 
-/// \brief Implements rendering of a trail particle systems
+/// Implements rendering of a trail particle systems
 class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderer final : public ezParticleRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTrailRenderer, ezParticleRenderer);

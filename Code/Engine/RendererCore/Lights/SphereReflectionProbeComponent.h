@@ -11,7 +11,7 @@ public:
 //////////////////////////////////////////////////////////////////////////
 // ezSphereReflectionProbeComponent
 
-/// \brief Sphere reflection probe component.
+/// Sphere reflection probe component.
 ///
 /// The generated reflection cube map is is projected to infinity. So parallax correction takes place.
 class EZ_RENDERERCORE_DLL ezSphereReflectionProbeComponent : public ezReflectionProbeComponentBase

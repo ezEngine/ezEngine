@@ -5,7 +5,7 @@
 struct ezMsgExtractGeometry;
 using ezMeshComponentManager = ezComponentManager<class ezMeshComponent, ezBlockStorageType::Compact>;
 
-/// \brief Renders a single instance of a static mesh.
+/// Renders a single instance of a static mesh.
 ///
 /// This is the main component to use for rendering regular meshes.
 class EZ_RENDERERCORE_DLL ezMeshComponent : public ezMeshComponentBase
@@ -19,6 +19,6 @@ public:
   ezMeshComponent();
   ~ezMeshComponent();
 
-  /// \brief Extracts the render geometry for export etc.
+  /// Extracts the render geometry for export etc.
   void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const; // [ msg handler ]
 };

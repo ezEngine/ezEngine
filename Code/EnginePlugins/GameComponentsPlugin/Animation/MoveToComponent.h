@@ -26,7 +26,7 @@ using ezMoveToComponentManager = ezComponentManagerSimple<class ezMoveToComponen
 
 EZ_DECLARE_FLAGS_OPERATORS(ezMoveToComponentFlags);
 
-/// \brief A light-weight component that moves the owner object towards a single position.
+/// A light-weight component that moves the owner object towards a single position.
 ///
 /// The functionality of this component can only be controlled through (script) code.
 /// The component is given a single point in global space. When it is set to 'running' it will move

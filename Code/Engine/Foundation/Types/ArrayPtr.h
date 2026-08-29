@@ -13,7 +13,7 @@
 #  include <span>
 #endif
 
-/// \brief Value used by containers for indices to indicate an invalid index.
+/// Value used by containers for indices to indicate an invalid index.
 #ifndef ezInvalidIndex
 #  define ezInvalidIndex 0xFFFFFFFF
 #endif
@@ -33,7 +33,7 @@ namespace ezArrayPtrDetail
   };
 } // namespace ezArrayPtrDetail
 
-/// \brief This class encapsulates an array and it's size. It is recommended to use this class instead of plain C arrays.
+/// This class encapsulates an array and it's size. It is recommended to use this class instead of plain C arrays.
 ///
 /// No data is deallocated at destruction, the ezArrayPtr only allows for easier access.
 template <typename T>
@@ -52,21 +52,21 @@ public:
   using ValueType = T;
   using PointerType = T*;
 
-  /// \brief Initializes the ezArrayPtr to be empty.
+  /// Initializes the ezArrayPtr to be empty.
   EZ_ALWAYS_INLINE ezArrayPtr() // [tested]
     : m_pPtr(nullptr)
     , m_uiCount(0u)
   {
   }
 
-  /// \brief Copies the pointer and size of /a other. Does not allocate any data.
+  /// Copies the pointer and size of /a other. Does not allocate any data.
   EZ_ALWAYS_INLINE ezArrayPtr(const ezArrayPtr<T>& other) // [tested]
   {
     m_pPtr = other.m_pPtr;
     m_uiCount = other.m_uiCount;
   }
 
-  /// \brief Initializes the ezArrayPtr with the given pointer and number of elements. No memory is allocated or copied.
+  /// Initializes the ezArrayPtr with the given pointer and number of elements. No memory is allocated or copied.
   inline ezArrayPtr(T* pPtr, ezUInt32 uiCount) // [tested]
     : m_pPtr(pPtr)
     , m_uiCount(uiCount)
@@ -79,7 +79,7 @@ public:
     }
   }
 
-  /// \brief Initializes the ezArrayPtr to encapsulate the given array.
+  /// Initializes the ezArrayPtr to encapsulate the given array.
   template <size_t N>
   EZ_ALWAYS_INLINE ezArrayPtr(T (&staticArray)[N]) // [tested]
     : m_pPtr(staticArray)
@@ -87,7 +87,7 @@ public:
   {
   }
 
-  /// \brief Initializes the ezArrayPtr to be a copy of \a other. No memory is allocated or copied.
+  /// Initializes the ezArrayPtr to be a copy of \a other. No memory is allocated or copied.
   template <typename U>
   EZ_ALWAYS_INLINE ezArrayPtr(const ezArrayPtr<U>& other) // [tested]
     : m_pPtr(other.m_pPtr)
@@ -124,17 +124,17 @@ public:
   }
 #endif
 
-  /// \brief Convert to const version.
+  /// Convert to const version.
   operator ezArrayPtr<const T>() const { return ezArrayPtr<const T>(static_cast<const T*>(GetPtr()), GetCount()); } // [tested]
 
-  /// \brief Copies the pointer and size of /a other. Does not allocate any data.
+  /// Copies the pointer and size of /a other. Does not allocate any data.
   EZ_ALWAYS_INLINE void operator=(const ezArrayPtr<T>& other) // [tested]
   {
     m_pPtr = other.m_pPtr;
     m_uiCount = other.m_uiCount;
   }
 
-  /// \brief Clears the array
+  /// Clears the array
   EZ_ALWAYS_INLINE void Clear()
   {
     m_pPtr = nullptr;
@@ -147,37 +147,37 @@ public:
     m_uiCount = 0;
   }
 
-  /// \brief Returns the pointer to the array.
+  /// Returns the pointer to the array.
   EZ_ALWAYS_INLINE PointerType GetPtr() const // [tested]
   {
     return m_pPtr;
   }
 
-  /// \brief Returns the pointer to the array.
+  /// Returns the pointer to the array.
   EZ_ALWAYS_INLINE PointerType GetPtr() // [tested]
   {
     return m_pPtr;
   }
 
-  /// \brief Returns the pointer behind the last element of the array
+  /// Returns the pointer behind the last element of the array
   EZ_ALWAYS_INLINE PointerType GetEndPtr() { return m_pPtr + m_uiCount; }
 
-  /// \brief Returns the pointer behind the last element of the array
+  /// Returns the pointer behind the last element of the array
   EZ_ALWAYS_INLINE PointerType GetEndPtr() const { return m_pPtr + m_uiCount; }
 
-  /// \brief Returns whether the array is empty.
+  /// Returns whether the array is empty.
   EZ_ALWAYS_INLINE bool IsEmpty() const // [tested]
   {
     return GetCount() == 0;
   }
 
-  /// \brief Returns the number of elements in the array.
+  /// Returns the number of elements in the array.
   EZ_ALWAYS_INLINE ezUInt32 GetCount() const // [tested]
   {
     return m_uiCount;
   }
 
-  /// \brief Creates a sub-array from this array.
+  /// Creates a sub-array from this array.
   EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) const // [tested]
   {
     // the first check is necessary to also detect errors when uiStart+uiCount would overflow
@@ -186,7 +186,7 @@ public:
     return ezArrayPtr<T>(GetPtr() + uiStart, uiCount);
   }
 
-  /// \brief Creates a sub-array from this array.
+  /// Creates a sub-array from this array.
   /// \note \code ap.GetSubArray(i) \endcode is equivalent to \code ap.GetSubArray(i, ap.GetCount() - i) \endcode.
   EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart) const // [tested]
   {
@@ -194,17 +194,17 @@ public:
     return ezArrayPtr<T>(GetPtr() + uiStart, GetCount() - uiStart);
   }
 
-  /// \brief Reinterprets this array as a byte array.
+  /// Reinterprets this array as a byte array.
   EZ_ALWAYS_INLINE ezArrayPtr<const ByteType> ToByteArray() const
   {
     return ezArrayPtr<const ByteType>(reinterpret_cast<const ByteType*>(GetPtr()), GetCount() * sizeof(T));
   }
 
-  /// \brief Reinterprets this array as a byte array.
+  /// Reinterprets this array as a byte array.
   EZ_ALWAYS_INLINE ezArrayPtr<ByteType> ToByteArray() { return ezArrayPtr<ByteType>(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T)); }
 
 
-  /// \brief Cast an ArrayPtr to an ArrayPtr to a different, but same size, type
+  /// Cast an ArrayPtr to an ArrayPtr to a different, but same size, type
   template <typename U>
   EZ_ALWAYS_INLINE ezArrayPtr<U> Cast()
   {
@@ -212,7 +212,7 @@ public:
     return ezArrayPtr<U>(reinterpret_cast<U*>(GetPtr()), GetCount());
   }
 
-  /// \brief Cast an ArrayPtr to an ArrayPtr to a different, but same size, type
+  /// Cast an ArrayPtr to an ArrayPtr to a different, but same size, type
   template <typename U>
   EZ_ALWAYS_INLINE ezArrayPtr<const U> Cast() const
   {
@@ -220,21 +220,21 @@ public:
     return ezArrayPtr<const U>(reinterpret_cast<const U*>(GetPtr()), GetCount());
   }
 
-  /// \brief Index access.
+  /// Index access.
   EZ_FORCE_INLINE const ValueType& operator[](ezUInt32 uiIndex) const // [tested]
   {
     EZ_ASSERT_DEBUG(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
     return *static_cast<const ValueType*>(GetPtr() + uiIndex);
   }
 
-  /// \brief Index access.
+  /// Index access.
   EZ_FORCE_INLINE ValueType& operator[](ezUInt32 uiIndex) // [tested]
   {
     EZ_ASSERT_DEBUG(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
     return *static_cast<ValueType*>(GetPtr() + uiIndex);
   }
 
-  /// \brief Compares the two arrays for equality.
+  /// Compares the two arrays for equality.
   template <typename = typename std::enable_if<std::is_const<T>::value == false>>
   inline bool operator==(const ezArrayPtr<const T>& other) const // [tested]
   {
@@ -255,7 +255,7 @@ public:
   }
 #endif
 
-  /// \brief Compares the two arrays for equality.
+  /// Compares the two arrays for equality.
   inline bool operator==(const ezArrayPtr<T>& other) const // [tested]
   {
     if (GetCount() != other.GetCount())
@@ -268,7 +268,7 @@ public:
   }
   EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezArrayPtr<T>&);
 
-  /// \brief Compares the two arrays for less.
+  /// Compares the two arrays for less.
   inline bool operator<(const ezArrayPtr<const T>& other) const // [tested]
   {
     if (GetCount() != other.GetCount())
@@ -286,7 +286,7 @@ public:
     return false;
   }
 
-  /// \brief Copies the data from \a other into this array. The arrays must have the exact same size.
+  /// Copies the data from \a other into this array. The arrays must have the exact same size.
   inline void CopyFrom(const ezArrayPtr<const T>& other) // [tested]
   {
     EZ_ASSERT_DEV(GetCount() == other.GetCount(), "Count for copy does not match. Target has {0} elements, source {1} elements", GetCount(), other.GetCount());
@@ -300,13 +300,13 @@ public:
     ::ezMath::Swap(m_uiCount, other.m_uiCount);
   }
 
-  /// \brief Checks whether the given value can be found in the array. O(n) complexity.
+  /// Checks whether the given value can be found in the array. O(n) complexity.
   EZ_ALWAYS_INLINE bool Contains(const T& value) const // [tested]
   {
     return IndexOf(value) != ezInvalidIndex;
   }
 
-  /// \brief Searches for the first occurrence of the given value and returns its index or ezInvalidIndex if not found.
+  /// Searches for the first occurrence of the given value and returns its index or ezInvalidIndex if not found.
   inline ezUInt32 IndexOf(const T& value, ezUInt32 uiStartIndex = 0) const // [tested]
   {
     for (ezUInt32 i = uiStartIndex; i < m_uiCount; ++i)
@@ -318,7 +318,7 @@ public:
     return ezInvalidIndex;
   }
 
-  /// \brief Searches for the last occurrence of the given value and returns its index or ezInvalidIndex if not found.
+  /// Searches for the last occurrence of the given value and returns its index or ezInvalidIndex if not found.
   inline ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezInvalidIndex) const // [tested]
   {
     for (ezUInt32 i = ::ezMath::Min(uiStartIndex, m_uiCount); i-- > 0;)
@@ -346,41 +346,41 @@ using ezConstByteArrayPtr = ezArrayPtr<const ezUInt8>;
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Helper function to create ezArrayPtr from a pointer of some type and a count.
+/// Helper function to create ezArrayPtr from a pointer of some type and a count.
 template <typename T>
 EZ_ALWAYS_INLINE ezArrayPtr<T> ezMakeArrayPtr(T* pPtr, ezUInt32 uiCount)
 {
   return ezArrayPtr<T>(pPtr, uiCount);
 }
 
-/// \brief Helper function to create ezArrayPtr from a static array the a size known at compile-time.
+/// Helper function to create ezArrayPtr from a static array the a size known at compile-time.
 template <typename T, ezUInt32 N>
 EZ_ALWAYS_INLINE ezArrayPtr<T> ezMakeArrayPtr(T (&staticArray)[N])
 {
   return ezArrayPtr<T>(staticArray);
 }
 
-/// \brief Helper function to create ezConstByteArrayPtr from a pointer of some type and a count.
+/// Helper function to create ezConstByteArrayPtr from a pointer of some type and a count.
 template <typename T>
 EZ_ALWAYS_INLINE ezConstByteArrayPtr ezMakeByteArrayPtr(const T* pPtr, ezUInt32 uiCount)
 {
   return ezConstByteArrayPtr(reinterpret_cast<const ezUInt8*>(pPtr), uiCount * sizeof(T));
 }
 
-/// \brief Helper function to create ezByteArrayPtr from a pointer of some type and a count.
+/// Helper function to create ezByteArrayPtr from a pointer of some type and a count.
 template <typename T>
 EZ_ALWAYS_INLINE ezByteArrayPtr ezMakeByteArrayPtr(T* pPtr, ezUInt32 uiCount)
 {
   return ezByteArrayPtr(reinterpret_cast<ezUInt8*>(pPtr), uiCount * sizeof(T));
 }
 
-/// \brief Helper function to create ezByteArrayPtr from a void pointer and a count.
+/// Helper function to create ezByteArrayPtr from a void pointer and a count.
 EZ_ALWAYS_INLINE ezByteArrayPtr ezMakeByteArrayPtr(void* pPtr, ezUInt32 uiBytes)
 {
   return ezByteArrayPtr(static_cast<ezUInt8*>(pPtr), uiBytes);
 }
 
-/// \brief Helper function to create ezConstByteArrayPtr from a const void pointer and a count.
+/// Helper function to create ezConstByteArrayPtr from a const void pointer and a count.
 EZ_ALWAYS_INLINE ezConstByteArrayPtr ezMakeByteArrayPtr(const void* pPtr, ezUInt32 uiBytes)
 {
   return ezConstByteArrayPtr(static_cast<const ezUInt8*>(pPtr), uiBytes);

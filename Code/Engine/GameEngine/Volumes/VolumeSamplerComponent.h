@@ -17,7 +17,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezVolumeSamplerValue);
 
 using ezVolumeSamplerComponentManager = ezComponentManagerSimple<class ezVolumeSamplerComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact, ezWorldUpdatePhase::Async>;
 
-/// \brief A component that wraps an ezVolumeSampler to sample arbitrary values from volumes at the owner's position (or the main camera's position).
+/// A component that wraps an ezVolumeSampler to sample arbitrary values from volumes at the owner's position (or the main camera's position).
 ///
 /// The sampled values can then be queried via script or C++ code and used for things like gameplay logic, audio modulation, etc.
 class EZ_GAMEENGINE_DLL ezVolumeSamplerComponent : public ezComponent
@@ -35,28 +35,28 @@ public:
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
-  /// \brief Sets which volume type to sample from.
+  /// Sets which volume type to sample from.
   void SetVolumeType(const char* szType); // [ property ]
   const char* GetVolumeType() const;      // [ property ]
 
-  /// \brief If enabled, the sampling position will be the main camera's position. Otherwise, the owner's position is used.
+  /// If enabled, the sampling position will be the main camera's position. Otherwise, the owner's position is used.
   void SetAttachToMainCamera(bool bAttach);                            // [ property ]
   bool GetAttachToMainCamera() const { return m_bAttachToMainCamera; } // [ property ]
 
-  /// \brief If enabled, the sampled values will also be written to a blackboard.
+  /// If enabled, the sampled values will also be written to a blackboard.
   /// See ezBlackboardComponent::FindBlackboard for details on how blackboards are found.
   void SetWriteToBlackboard(bool bWriteToBlackboard);                // [ property ]
   bool GetWriteToBlackboard() const { return m_bWriteToBlackboard; } // [ property ]
 
-  /// \brief The name of the blackboard to write to. Only relevant if WriteToBlackboard is enabled.
+  /// The name of the blackboard to write to. Only relevant if WriteToBlackboard is enabled.
   /// See ezBlackboardComponent::FindBlackboard for details on how blackboards are found.
   void SetBlackboardName(const ezHashedString& sName);                          // [ property ]
   const ezHashedString& GetBlackboardName() const { return m_sBlackboardName; } // [ property ]
 
-  /// \brief Registers a new value to be sampled from the volumes. This registration is only done at runtime and not serialized.
+  /// Registers a new value to be sampled from the volumes. This registration is only done at runtime and not serialized.
   void RegisterValue(const ezHashedString& sName, const ezVariant& defaultValue, ezTime interpolationDuration = ezTime::MakeZero()); // [ scriptable ]
 
-  /// \brief Get the latest sampled value for the given name.
+  /// Get the latest sampled value for the given name.
   ezVariant GetValue(const ezHashedString& sName) const;                                                   // [ scriptable ]
   float GetFloatValue(const ezHashedString& sName, float fFallbackValue = 0.0f) const;                     // [ scriptable ]
   ezColor GetColorValue(const ezHashedString& sName, const ezColor& fallbackValue = ezColor::White) const; // [ scriptable ]

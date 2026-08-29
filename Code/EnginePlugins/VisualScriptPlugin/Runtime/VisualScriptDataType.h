@@ -4,7 +4,7 @@
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 #include <VisualScriptPlugin/VisualScriptPluginDLL.h>
 
-/// \brief Data types that are available in visual script. These are a subset of ezVariantType.
+/// Data types that are available in visual script. These are a subset of ezVariantType.
 ///
 /// Like with ezVariantType, the order of these types is important as they are used to determine
 /// if a type is "bigger" during type deduction. Also the enum values are serialized in visual script files.

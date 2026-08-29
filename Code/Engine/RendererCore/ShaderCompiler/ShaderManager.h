@@ -36,11 +36,11 @@ public:
 
   static bool IsPermutationValueAllowed(const ezHashedString& sName, const ezHashedString& sValue);
 
-  /// \brief If the given permutation variable is an enum variable, this returns the possible values.
+  /// If the given permutation variable is an enum variable, this returns the possible values.
   /// Returns an empty array for other types of permutation variables.
   static ezArrayPtr<const ezShaderParser::EnumValue> GetPermutationEnumValues(const ezHashedString& sName);
 
-  /// \brief Same as GetPermutationEnumValues() but also returns values for other types of variables.
+  /// Same as GetPermutationEnumValues() but also returns values for other types of variables.
   /// E.g. returns TRUE and FALSE for boolean variables.
   static void GetPermutationValues(const ezHashedString& sName, ezDynamicArray<ezHashedString>& out_values);
 

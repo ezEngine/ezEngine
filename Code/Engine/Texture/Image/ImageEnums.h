@@ -4,7 +4,7 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Texture/TextureDLL.h>
 
-/// \brief Defines how texture coordinates outside [0,1] are handled during sampling.
+/// Defines how texture coordinates outside [0,1] are handled during sampling.
 struct EZ_TEXTURE_DLL ezImageAddressMode
 {
   using StorageType = ezUInt8;
@@ -28,7 +28,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_TEXTURE_DLL, ezImageAddressMode);
 // ezTextureFilterSetting
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Defines texture filtering quality and method for runtime sampling.
+/// Defines texture filtering quality and method for runtime sampling.
 ///
 /// This enum allows both fixed filtering methods and quality-based settings.
 /// Fixed methods specify the exact filtering algorithm, while quality settings

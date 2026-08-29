@@ -8,7 +8,7 @@
 class EZ_GAMEENGINE_DLL ezCommandInterpreterLua : public ezCommandInterpreter
 {
 public:
-  /// \brief The default interpreter used by ezConsole. Uses Lua for parsing and execution.
+  /// The default interpreter used by ezConsole. Uses Lua for parsing and execution.
   ///
   /// The Lua interpreter can modify ezCVar variables and call ezConsoleFunction functions.
   ///

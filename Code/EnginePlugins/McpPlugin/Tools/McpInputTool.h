@@ -9,7 +9,7 @@
 
 class ezMcpInputDevice;
 
-/// \brief Pressing keys and moving the mouse, as the game sees it.
+/// Pressing keys and moving the mouse, as the game sees it.
 ///
 /// Owns the synthetic ezInputDevice that does the actual writing - see ezMcpInputDevice for why it is a
 /// device rather than injected values. The provider's lifetime is the plugin's, so the device exists for
@@ -37,7 +37,7 @@ private:
   void ExecuteSet(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
   void ExecuteSequence(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
 
-  /// \brief Writes every slot in \a slots via m_pDevice, the same way ExecuteSet() does. Shared with
+  /// Writes every slot in \a slots via m_pDevice, the same way ExecuteSet() does. Shared with
   /// ExecuteSequence()'s 'set' steps. Returns false (and has already set out_result) on the first
   /// value that is not a number.
   bool ApplySlots(const ezVariantDictionary& slots, ezUInt32 uiFrames, ezMcpToolResult& out_result);

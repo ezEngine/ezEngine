@@ -17,7 +17,7 @@
 #  undef SendMessage
 #endif
 
-/// \brief Defines during re-parenting what transform is going to be preserved.
+/// Defines during re-parenting what transform is going to be preserved.
 struct ezTransformPreservation
 {
   using StorageType = ezUInt8;
@@ -33,7 +33,7 @@ struct ezTransformPreservation
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezTransformPreservation);
 
-/// \brief This class represents an object inside the world.
+/// This class represents an object inside the world.
 ///
 /// Game objects only consists of hierarchical data like transformation and a list of components.
 /// You cannot derive from the game object class. To add functionality to an object you have to attach components to it.
@@ -66,7 +66,7 @@ private:
   void operator=(const ezGameObject& other);
 
 public:
-  /// \brief Iterates over all children of one object.
+  /// Iterates over all children of one object.
   ///
   /// Provides read-only access to child game objects. The iterator becomes invalid
   /// when the last child is reached or when the object structure is modified.
@@ -78,13 +78,13 @@ public:
 
     operator const ezGameObject*() const;
 
-    /// \brief Advances the iterator to the next child object. The iterator will not be valid anymore, if the last child is reached.
+    /// Advances the iterator to the next child object. The iterator will not be valid anymore, if the last child is reached.
     void Next();
 
-    /// \brief Checks whether this iterator points to a valid object.
+    /// Checks whether this iterator points to a valid object.
     bool IsValid() const;
 
-    /// \brief Shorthand for 'Next'
+    /// Shorthand for 'Next'
     void operator++();
 
   private:
@@ -96,7 +96,7 @@ public:
     const ezWorld* m_pWorld = nullptr;
   };
 
-  /// \brief Mutable iterator for child game objects.
+  /// Mutable iterator for child game objects.
   ///
   /// Extends ConstChildIterator to provide write access to child objects.
   class EZ_CORE_DLL ChildIterator : public ConstChildIterator
@@ -113,22 +113,22 @@ public:
     ChildIterator(ezGameObject* pObject, const ezWorld* pWorld);
   };
 
-  /// \brief Returns a handle to this object.
+  /// Returns a handle to this object.
   ezGameObjectHandle GetHandle() const;
 
-  /// \brief Makes this object and all its children dynamic. Dynamic objects might move during runtime.
+  /// Makes this object and all its children dynamic. Dynamic objects might move during runtime.
   void MakeDynamic();
 
-  /// \brief Makes this object static. Static objects don't move during runtime.
+  /// Makes this object static. Static objects don't move during runtime.
   void MakeStatic();
 
-  /// \brief Returns whether this object is dynamic.
+  /// Returns whether this object is dynamic.
   bool IsDynamic() const;
 
-  /// \brief Returns whether this object is static.
+  /// Returns whether this object is static.
   bool IsStatic() const;
 
-  /// \brief Sets the 'active flag' of the game object, which affects its final 'active state'.
+  /// Sets the 'active flag' of the game object, which affects its final 'active state'.
   ///
   /// The active flag affects the 'active state' of the game object and all its children and attached components.
   /// When a game object does not have the active flag, it is switched to 'inactive'. The same happens for all its children and
@@ -141,13 +141,13 @@ public:
   /// \sa IsActive(), ezComponent::SetActiveFlag()
   void SetActiveFlag(bool bEnabled);
 
-  /// \brief Checks whether the 'active flag' is set on this game object. Note that this does not mean that the game object is also in an 'active
+  /// Checks whether the 'active flag' is set on this game object. Note that this does not mean that the game object is also in an 'active
   /// state'.
   ///
   /// \sa IsActive(), SetActiveFlag()
   bool GetActiveFlag() const;
 
-  /// \brief Checks whether this game object is in an active state.
+  /// Checks whether this game object is in an active state.
   ///
   /// The active state is determined by the active state of the parent game object and the 'active flag' of this game object.
   /// Only if the parent game object is active (and thus all of its parent objects as well) and this game object has the active flag set,
@@ -156,26 +156,26 @@ public:
   /// \sa ezGameObject::SetActiveFlag(), ezComponent::IsActive()
   bool IsActive() const;
 
-  /// \brief Adds ezObjectFlags::CreatedByPrefab to the object. See the flag for details.
+  /// Adds ezObjectFlags::CreatedByPrefab to the object. See the flag for details.
   void SetCreatedByPrefab() { m_Flags.Add(ezObjectFlags::CreatedByPrefab); }
 
-  /// \brief Checks whether the ezObjectFlags::CreatedByPrefab flag is set on this object.
+  /// Checks whether the ezObjectFlags::CreatedByPrefab flag is set on this object.
   bool WasCreatedByPrefab() const { return m_Flags.IsSet(ezObjectFlags::CreatedByPrefab); }
 
-  /// \brief Adds ezObjectFlags::HideShapeIcon to the object. See the flag for details.
+  /// Adds ezObjectFlags::HideShapeIcon to the object. See the flag for details.
   void SetHideShapeIcon() { m_Flags.Add(ezObjectFlags::HideShapeIcon); }
 
-  /// \brief Checks whether the ezObjectFlags::HideShapeIcon flag is set on this object.
+  /// Checks whether the ezObjectFlags::HideShapeIcon flag is set on this object.
   bool IsShapeIconHidden() const { return m_Flags.IsSet(ezObjectFlags::HideShapeIcon); }
 
-  /// \brief Sets the name to identify this object. Does not have to be a unique name.
+  /// Sets the name to identify this object. Does not have to be a unique name.
   void SetName(ezStringView sName);
   void SetName(const ezHashedString& sName);
   ezStringView GetName() const;
   const ezHashedString& GetNameHashed() const;
   bool HasName(const ezTempHashedString& sName) const;
 
-  /// \brief Sets the global key to identify this object. Global keys must be unique within a world.
+  /// Sets the global key to identify this object. Global keys must be unique within a world.
   ///
   /// If two objects use the same global key, the last one that registers it will be the referenced object.
   /// To prevent warnings about overwriting global keys, first clear the global key on the previous object.
@@ -183,51 +183,51 @@ public:
   void SetGlobalKey(const ezHashedString& sGlobalKey);
   ezStringView GetGlobalKey() const;
 
-  /// \brief Enables or disabled notification message 'ezMsgChildrenChanged' when children are added or removed. The message is sent to this object and all its parent objects.
+  /// Enables or disabled notification message 'ezMsgChildrenChanged' when children are added or removed. The message is sent to this object and all its parent objects.
   void EnableChildChangesNotifications();
   void DisableChildChangesNotifications();
 
-  /// \brief Enables or disabled notification message 'ezMsgParentChanged' when the parent changes. The message is sent to this object only.
+  /// Enables or disabled notification message 'ezMsgParentChanged' when the parent changes. The message is sent to this object only.
   void EnableParentChangesNotifications();
   void DisableParentChangesNotifications();
 
-  /// \brief Sets the parent of this object to the given.
+  /// Sets the parent of this object to the given.
   void SetParent(const ezGameObjectHandle& hParent, ezTransformPreservation::Enum preserve = ezTransformPreservation::PreserveGlobal);
 
-  /// \brief Gets the parent of this object or nullptr if this is a top-level object.
+  /// Gets the parent of this object or nullptr if this is a top-level object.
   ezGameObject* GetParent();
 
-  /// \brief Gets the parent of this object or nullptr if this is a top-level object.
+  /// Gets the parent of this object or nullptr if this is a top-level object.
   const ezGameObject* GetParent() const;
 
-  /// \brief Adds the given object as a child object.
+  /// Adds the given object as a child object.
   void AddChild(const ezGameObjectHandle& hChild, ezTransformPreservation::Enum preserve = ezTransformPreservation::PreserveGlobal);
 
-  /// \brief Adds the given objects as child objects.
+  /// Adds the given objects as child objects.
   void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezTransformPreservation::Enum preserve = ezTransformPreservation::PreserveGlobal);
 
-  /// \brief Detaches the given child object from this object and makes it a top-level object.
+  /// Detaches the given child object from this object and makes it a top-level object.
   void DetachChild(const ezGameObjectHandle& hChild, ezTransformPreservation::Enum preserve = ezTransformPreservation::PreserveGlobal);
 
-  /// \brief Detaches the given child objects from this object and makes them top-level objects.
+  /// Detaches the given child objects from this object and makes them top-level objects.
   void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezTransformPreservation::Enum preserve = ezTransformPreservation::PreserveGlobal);
 
-  /// \brief Returns the number of children.
+  /// Returns the number of children.
   ezUInt32 GetChildCount() const;
 
-  /// \brief Returns an iterator over all children of this object.
+  /// Returns an iterator over all children of this object.
   ChildIterator GetChildren();
 
-  /// \brief Returns an iterator over all children of this object.
+  /// Returns an iterator over all children of this object.
   ConstChildIterator GetChildren() const;
 
-  /// \brief Searches for a child object with the given name. Optionally traverses the entire hierarchy.
+  /// Searches for a child object with the given name. Optionally traverses the entire hierarchy.
   ezGameObject* FindChildByName(const ezTempHashedString& sName, bool bRecursive = true); // [tested]
 
-  /// \brief Searches for a child object with the given name. Optionally traverses the entire hierarchy.
+  /// Searches for a child object with the given name. Optionally traverses the entire hierarchy.
   const ezGameObject* FindChildByName(const ezTempHashedString& sName, bool bRecursive = true) const; // [tested]
 
-  /// \brief Searches for a child using a path. Every path segment represents a child with a given name.
+  /// Searches for a child using a path. Every path segment represents a child with a given name.
   ///
   /// Paths are separated with single slashes: /
   /// When an empty path is given, 'this' is returned.
@@ -236,10 +236,10 @@ public:
   /// the next child, as SearchChildByNameSequence() does.
   ezGameObject* FindChildByPath(ezStringView sPath); // [tested]
 
-  /// \brief Const overload of FindChildByPath()
+  /// Const overload of FindChildByPath()
   const ezGameObject* FindChildByPath(ezStringView sPath) const; // [tested]
 
-  /// \brief Searches for a child similar to FindChildByName() but allows to search for multiple names in a sequence.
+  /// Searches for a child similar to FindChildByName() but allows to search for multiple names in a sequence.
   ///
   /// The names in the sequence are separated with slashes.
   /// For example, calling this with "a/b" will first search the entire hierarchy below this object for a child
@@ -248,13 +248,13 @@ public:
   /// contains a component of that type. If it doesn't the search continues (including back-tracking).
   ezGameObject* SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent = nullptr); // [tested]
 
-  /// \brief Const overload of SearchForChildByNameSequence()
+  /// Const overload of SearchForChildByNameSequence()
   const ezGameObject* SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent = nullptr) const; // [tested]
 
-  /// \brief Same as SearchForChildByNameSequence but returns ALL matches, in case the given path could mean multiple objects
+  /// Same as SearchForChildByNameSequence but returns ALL matches, in case the given path could mean multiple objects
   void SearchForChildrenByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent, ezDynamicArray<ezGameObject*>& out_objects);
 
-  /// \brief Sets the enabled flag on the child object with the given name and optionally disables all other children.
+  /// Sets the enabled flag on the child object with the given name and optionally disables all other children.
   void ActivateChildByName(const ezTempHashedString& sName, bool bDeactivateOthers = true);
 
 
@@ -262,14 +262,14 @@ public:
   const ezWorld* GetWorld() const;
 
 
-  /// \brief Defines update behavior for global transforms when changing the local transform on a static game object
+  /// Defines update behavior for global transforms when changing the local transform on a static game object
   enum class UpdateBehaviorIfStatic
   {
     None,              ///< Only sets the local transform, does not update
     UpdateImmediately, ///< Updates the hierarchy underneath the object immediately
   };
 
-  /// \brief Changes the position of the object local to its parent.
+  /// Changes the position of the object local to its parent.
   /// \note The rotation of the object itself does not affect the final global position!
   /// The local position is always in the space of the parent object. If there is no parent, local position and global position are
   /// identical.
@@ -299,7 +299,7 @@ public:
   void SetGlobalTransform(const ezTransform& transform);
   ezTransform GetGlobalTransform() const;
 
-  /// \brief Last frame's global transform (only valid if EZ_GAMEOBJECT_VELOCITY is set, otherwise the same as GetGlobalTransform())
+  /// Last frame's global transform (only valid if EZ_GAMEOBJECT_VELOCITY is set, otherwise the same as GetGlobalTransform())
   ezTransform GetLastGlobalTransform() const;
 
   // Simd variants of above methods
@@ -329,7 +329,7 @@ public:
   void SetGlobalTransform(const ezSimdTransform& transform);
   const ezSimdTransform& GetGlobalTransformSimd() const;
 
-  /// \brief Sets the global rotation of this game object such that it 'looks at' the target position.
+  /// Sets the global rotation of this game object such that it 'looks at' the target position.
   ///
   /// Per convention, that means the +X axis will point towards the target position, +Y will point to the right,
   /// and +Z will point upwards.
@@ -338,37 +338,37 @@ public:
   /// A custom vUp vector must be provided, in case the look-at position can be directly above the game object.
   void SetGlobalRotationToLookAt(const ezVec3& vTargetPosition, const ezVec3& vUp = ezVec3::MakeAxisZ());
 
-  /// \brief Same as SetGlobalRotationToLookAt but also changes the position of this object.
+  /// Same as SetGlobalRotationToLookAt but also changes the position of this object.
   ///
   /// Note that the scale of this object gets set to 1.
   void SetGlobalTransformToLookAt(const ezVec3& vOwnPosition, const ezVec3& vTargetPosition, const ezVec3& vUp = ezVec3::MakeAxisZ());
 
   const ezSimdTransform& GetLastGlobalTransformSimd() const;
 
-  /// \brief Returns the 'forwards' direction of the world's ezCoordinateSystem, rotated into the object's global space
+  /// Returns the 'forwards' direction of the world's ezCoordinateSystem, rotated into the object's global space
   ezVec3 GetGlobalDirForwards() const;
-  /// \brief Returns the 'right' direction of the world's ezCoordinateSystem, rotated into the object's global space
+  /// Returns the 'right' direction of the world's ezCoordinateSystem, rotated into the object's global space
   ezVec3 GetGlobalDirRight() const;
-  /// \brief Returns the 'up' direction of the world's ezCoordinateSystem, rotated into the object's global space
+  /// Returns the 'up' direction of the world's ezCoordinateSystem, rotated into the object's global space
   ezVec3 GetGlobalDirUp() const;
 
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-  /// \brief The last global transform is used to calculate the object's velocity. By default this is set automatically to the global transform of the last frame.
+  /// The last global transform is used to calculate the object's velocity. By default this is set automatically to the global transform of the last frame.
   ///
   /// It might make sense to manually override the last global transform to e.g. indicate an object has been teleported instead of moved.
   void SetLastGlobalTransform(const ezSimdTransform& transform);
 
-  /// \brief Returns the linear velocity of the object in units per second. This is only guaranteed to be correct in the PostTransform phase.
+  /// Returns the linear velocity of the object in units per second. This is only guaranteed to be correct in the PostTransform phase.
   ezVec3 GetLinearVelocity() const;
 
-  /// \brief Returns the angular velocity of the object in radians per second. This is only guaranteed to be correct in the PostTransform phase.
+  /// Returns the angular velocity of the object in radians per second. This is only guaranteed to be correct in the PostTransform phase.
   ezVec3 GetAngularVelocity() const;
 #endif
 
-  /// \brief Updates the global transform immediately. Usually this done during the world update after the "Post-async" phase.
+  /// Updates the global transform immediately. Usually this done during the world update after the "Post-async" phase.
   void UpdateGlobalTransform();
 
-  /// \brief Enables or disabled notification message 'ezMsgTransformChanged' when this object is static and its transform changes.
+  /// Enables or disabled notification message 'ezMsgTransformChanged' when this object is static and its transform changes.
   /// The notification message is sent to this object and thus also to all its components.
   void EnableStaticTransformChangesNotifications();
   void DisableStaticTransformChangesNotifications();
@@ -380,96 +380,96 @@ public:
   const ezSimdBBoxSphere& GetLocalBoundsSimd() const;
   const ezSimdBBoxSphere& GetGlobalBoundsSimd() const;
 
-  /// \brief Invalidates the local bounds and sends a message to all components so they can add their bounds.
+  /// Invalidates the local bounds and sends a message to all components so they can add their bounds.
   void UpdateLocalBounds();
 
-  /// \brief Schedules a local bounds update to be processed at the end of the current update phase.
+  /// Schedules a local bounds update to be processed at the end of the current update phase.
   ///
   /// Unlike UpdateLocalBounds(), this function is safe to call from async update functions.
   void QueueLocalBoundsUpdate();
 
-  /// \brief Updates the global bounds immediately. Usually this done during the world update after the "Post-async" phase.
+  /// Updates the global bounds immediately. Usually this done during the world update after the "Post-async" phase.
   /// Note that this function does not ensure that the global transform is up-to-date. Use UpdateGlobalTransformAndBounds if you want to update both.
   void UpdateGlobalBounds();
 
-  /// \brief Updates the global transform and bounds immediately. Usually this done during the world update after the "Post-async" phase.
+  /// Updates the global transform and bounds immediately. Usually this done during the world update after the "Post-async" phase.
   void UpdateGlobalTransformAndBounds();
 
 
-  /// \brief Returns a handle to the internal spatial data.
+  /// Returns a handle to the internal spatial data.
   ezSpatialDataHandle GetSpatialData() const;
 
-  /// \brief Enables or disabled notification message 'ezMsgComponentsChanged' when components are added or removed. The message is sent to this object and all its parent objects.
+  /// Enables or disabled notification message 'ezMsgComponentsChanged' when components are added or removed. The message is sent to this object and all its parent objects.
   void EnableComponentChangesNotifications();
   void DisableComponentChangesNotifications();
 
-  /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
+  /// Tries to find a component of the given base type in the objects components list and returns the first match.
   template <typename T>
   [[nodiscard]] bool TryGetComponentOfBaseType(T*& out_pComponent);
 
-  /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
+  /// Tries to find a component of the given base type in the objects components list and returns the first match.
   template <typename T>
   [[nodiscard]] bool TryGetComponentOfBaseType(const T*& out_pComponent) const;
 
-  /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
+  /// Tries to find a component of the given base type in the objects components list and returns the first match.
   [[nodiscard]] bool TryGetComponentOfBaseType(const ezRTTI* pType, ezComponent*& out_pComponent);
 
-  /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
+  /// Tries to find a component of the given base type in the objects components list and returns the first match.
   [[nodiscard]] bool TryGetComponentOfBaseType(const ezRTTI* pType, const ezComponent*& out_pComponent) const;
 
-  /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
+  /// Tries to find components of the given base type in the objects components list and returns all matches.
   template <typename T>
   void TryGetComponentsOfBaseType(ezDynamicArray<T*>& out_components);
 
-  /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
+  /// Tries to find components of the given base type in the objects components list and returns all matches.
   template <typename T>
   void TryGetComponentsOfBaseType(ezDynamicArray<const T*>& out_components) const;
 
-  /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
+  /// Tries to find components of the given base type in the objects components list and returns all matches.
   void TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArray<ezComponent*>& out_components);
 
-  /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
+  /// Tries to find components of the given base type in the objects components list and returns all matches.
   void TryGetComponentsOfBaseType(const ezRTTI* pType, ezDynamicArray<const ezComponent*>& out_components) const;
 
-  /// \brief Returns a list of all components attached to this object.
+  /// Returns a list of all components attached to this object.
   ezArrayPtr<ezComponent* const> GetComponents();
 
-  /// \brief Returns a list of all components attached to this object.
+  /// Returns a list of all components attached to this object.
   ezArrayPtr<const ezComponent* const> GetComponents() const;
 
-  /// \brief Returns the current version of components attached to this object.
+  /// Returns the current version of components attached to this object.
   /// This version is increased whenever components are added or removed and can be used for cache validation.
   ezUInt16 GetComponentVersion() const;
 
 
-  /// \brief Sends a message to all components of this object.
+  /// Sends a message to all components of this object.
   ///
   /// Returns true, if there was any recipient for this type of message.
   bool SendMessage(ezMessage& ref_msg);
 
-  /// \brief Sends a message to all components of this object.
+  /// Sends a message to all components of this object.
   ///
   /// Returns true, if there was any recipient for this type of message.
   bool SendMessage(ezMessage& ref_msg) const;
 
-  /// \brief Sends a message to all components of this object and then recursively to all children.
+  /// Sends a message to all components of this object and then recursively to all children.
   ///
   /// Returns true, if there was any recipient for this type of message.
   bool SendMessageRecursive(ezMessage& ref_msg);
 
-  /// \brief Sends a message to all components of this object and then recursively to all children.
+  /// Sends a message to all components of this object and then recursively to all children.
   ///
   /// Returns true, if there was any recipient for this type of message.
   bool SendMessageRecursive(ezMessage& ref_msg) const;
 
 
-  /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
+  /// Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessage(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
-  /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
+  /// Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessageRecursive(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
-  /// \brief Delivers an ezMessage to the closest (parent) object whose components handle the given message type.
+  /// Delivers an ezMessage to the closest (parent) object whose components handle the given message type.
   ///
   /// Regular SendMessage() and PostMessage() send a message directly to the target object (and all attached components).
   /// SendMessageRecursive() and PostMessageRecursive() send a message 'down' the graph to the target object and all children.
@@ -499,31 +499,31 @@ public:
   void PostEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
 
-  /// \brief Returns the tag set associated with this object.
+  /// Returns the tag set associated with this object.
   const ezTagSet& GetTags() const;
 
-  /// \brief Sets the tag set associated with this object.
+  /// Sets the tag set associated with this object.
   void SetTags(const ezTagSet& tags);
 
-  /// \brief Adds the given tag to the object's tags.
+  /// Adds the given tag to the object's tags.
   void SetTag(const ezTag& tag);
 
-  /// \brief Removes the given tag from the object's tags.
+  /// Removes the given tag from the object's tags.
   void RemoveTag(const ezTag& tag);
 
-  /// \brief Checks whether this object has the given tag.
+  /// Checks whether this object has the given tag.
   bool HasTag(const ezTempHashedString& sTagName) const;
 
-  /// \brief Returns the 'team ID' that was given during creation (/see ezGameObjectDesc)
+  /// Returns the 'team ID' that was given during creation (/see ezGameObjectDesc)
   ///
   /// It is automatically passed on to objects created by this object.
   /// This makes it possible to identify which player or team an object belongs to.
   const ezUInt16& GetTeamID() const { return m_uiTeamID; }
 
-  /// \brief Changes the team ID for this object and all children recursively.
+  /// Changes the team ID for this object and all children recursively.
   void SetTeamID(ezUInt16 uiId);
 
-  /// \brief Returns a random value that is chosen once during object creation and remains stable even throughout serialization.
+  /// Returns a random value that is chosen once during object creation and remains stable even throughout serialization.
   ///
   /// This value is intended to be used for choosing random variations of components. For instance, if a component has two
   /// different meshes it can use for variation, this seed should be used to decide which one to use.
@@ -536,14 +536,14 @@ public:
   /// in a deterministic fashion.
   ezUInt32 GetStableRandomSeed() const;
 
-  /// \brief Overwrites the object's random seed value.
+  /// Overwrites the object's random seed value.
   ///
   /// See \a GetStableRandomSeed() for details.
   ///
   /// It should not be necessary to manually change this value, unless you want to make the seed deterministic according to a custom rule.
   void SetStableRandomSeed(ezUInt32 uiSeed);
 
-  /// \brief Retrieves a state describing how visible the object is.
+  /// Retrieves a state describing how visible the object is.
   ///
   /// An object may be invisible, fully visible, or indirectly visible (through shadows or reflections).
   /// This can be used to adjust the update logic of objects.
@@ -646,22 +646,22 @@ private:
     ezUInt32 m_uiPadding2[1];
 #endif
 
-    /// \brief Recomputes the local transform from this object's global transform and, if available, the parent's global transform.
+    /// Recomputes the local transform from this object's global transform and, if available, the parent's global transform.
     void UpdateLocalTransform();
 
-    /// \brief Calls UpdateGlobalTransformWithoutParent or UpdateGlobalTransformWithParent depending on whether there is a parent transform.
+    /// Calls UpdateGlobalTransformWithoutParent or UpdateGlobalTransformWithParent depending on whether there is a parent transform.
     /// In case there is a parent transform it also recursively calls itself on the parent transform to ensure everything is up-to-date.
     void UpdateGlobalTransformRecursive(ezUInt32 uiUpdateCounter);
 
-    /// \brief Calls UpdateGlobalTransformWithoutParent or UpdateGlobalTransformWithParent depending on whether there is a parent transform.
+    /// Calls UpdateGlobalTransformWithoutParent or UpdateGlobalTransformWithParent depending on whether there is a parent transform.
     /// Assumes that the parent's global transform is already up to date.
     void UpdateGlobalTransformNonRecursive(ezUInt32 uiUpdateCounter);
 
-    /// \brief Updates the global transform by copying the object's local transform into the global transform.
+    /// Updates the global transform by copying the object's local transform into the global transform.
     /// This is for objects that have no parent.
     void UpdateGlobalTransformWithoutParent(ezUInt32 uiUpdateCounter);
 
-    /// \brief Updates the global transform by combining the parents global transform with this object's local transform.
+    /// Updates the global transform by combining the parents global transform with this object's local transform.
     /// Assumes that the parent's global transform is already up to date.
     void UpdateGlobalTransformWithParent(ezUInt32 uiUpdateCounter);
 

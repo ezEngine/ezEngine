@@ -6,7 +6,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/HashedString.h>
 
-/// \brief Describes which kind of token an ezToken is.
+/// Describes which kind of token an ezToken is.
 struct EZ_FOUNDATION_DLL ezTokenType
 {
   enum Enum
@@ -32,7 +32,7 @@ struct EZ_FOUNDATION_DLL ezTokenType
   static const char* EnumNames[ENUM_COUNT];
 };
 
-/// \brief Represents one piece of tokenized text in a document.
+/// Represents one piece of tokenized text in a document.
 struct EZ_FOUNDATION_DLL ezToken
 {
   ezToken()
@@ -63,7 +63,7 @@ struct EZ_FOUNDATION_DLL ezToken
   ezHashedString m_File;
 };
 
-/// \brief Takes text and splits it up into ezToken objects. The result can be used for easier parsing.
+/// Takes text and splits it up into ezToken objects. The result can be used for easier parsing.
 ///
 /// The tokenizer is built to work on code that is similar to C. That means it will tokenize comments and
 /// strings as they are defined in the C language. Also line breaks that end with a backslash are not
@@ -78,32 +78,32 @@ struct EZ_FOUNDATION_DLL ezToken
 class EZ_FOUNDATION_DLL ezTokenizer
 {
 public:
-  /// \brief Constructor.
+  /// Constructor.
   ///
   /// Takes an additional optional allocator. If no allocator is given the default allocator will be used.
   ezTokenizer(ezAllocator* pAllocator = nullptr);
 
   ~ezTokenizer();
 
-  /// \brief Clears any previous result and creates a new token stream for the given array.
+  /// Clears any previous result and creates a new token stream for the given array.
   /// \param data The string data to be tokenized.
   /// \param pLog A log interface that will receive any tokenization errors.
   /// \param bCopyData If set, 'data' will be copied into a member variable and tokenization is run on the copy, allowing for the original data storage to be deallocated after this call. If false, tokenization will reference 'data' directly and thus, 'data' must outlive this instance.
   void Tokenize(ezArrayPtr<const ezUInt8> data, ezLogInterface* pLog, bool bCopyData = true);
 
-  /// \brief Gives read access to the token stream.
+  /// Gives read access to the token stream.
   const ezDeque<ezToken>& GetTokens() const { return m_Tokens; }
 
-  /// \brief Gives read and write access to the token stream.
+  /// Gives read and write access to the token stream.
   ezDeque<ezToken>& GetTokens() { return m_Tokens; }
 
-  /// \brief Returns an array with a copy of all tokens. Use this when using ezTokenParseUtils.
+  /// Returns an array with a copy of all tokens. Use this when using ezTokenParseUtils.
   void GetAllTokens(ezDynamicArray<const ezToken*>& ref_tokens) const;
 
-  /// \brief Returns an array of all tokens. New line tokens are ignored.
+  /// Returns an array of all tokens. New line tokens are ignored.
   void GetAllLines(ezDynamicArray<const ezToken*>& ref_tokens) const;
 
-  /// \brief Returns an array of tokens that represent the next line in the file.
+  /// Returns an array of tokens that represent the next line in the file.
   ///
   /// Returns EZ_SUCCESS when there was more data to return, EZ_FAILURE if the end of the file was reached already.
   /// uiFirstToken is the index from where to start. It will be updated automatically. Consecutive calls to GetNextLine()
@@ -117,10 +117,10 @@ public:
 
   ezResult GetNextLine(ezUInt32& out_uiFirstToken, ezDynamicArray<ezToken*>& out_tokens);
 
-  /// \brief Returns the internal copy of the tokenized data. Will be empty if Tokenize was called with 'bCopyData' equals 'false'.
+  /// Returns the internal copy of the tokenized data. Will be empty if Tokenize was called with 'bCopyData' equals 'false'.
   const ezArrayPtr<const ezUInt8> GetTokenizedData() const { return m_Data; }
 
-  /// \brief Enables treating lines that start with # character as line comments
+  /// Enables treating lines that start with # character as line comments
   ///
   /// Needs to be set before tokenization to take effect.
   void SetTreatHashSignAsLineComment(bool bHashSignIsLineComment) { m_bHashSignIsLineComment = bHashSignIsLineComment; }

@@ -4,13 +4,13 @@
 
 namespace ezGraphicsUtils
 {
-  /// \brief Converts a screen-space position from pixel coordinates to normalized coordinates.
+  /// Converts a screen-space position from pixel coordinates to normalized coordinates.
   EZ_FOUNDATION_DLL void ConvertScreenPixelPosToNormalizedPos(const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, ezVec3& inout_vPixelPos);
 
-  /// \brief Converts a screen-space position from normalized coordinates to pixel coordinates.
+  /// Converts a screen-space position from normalized coordinates to pixel coordinates.
   EZ_FOUNDATION_DLL void ConvertScreenNormalizedPosToPixelPos(const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, ezVec3& inout_vNormalizedPos);
 
-  /// \brief Projects the given point from 3D world space into screen space, if possible.
+  /// Projects the given point from 3D world space into screen space, if possible.
   ///
   /// \param ModelViewProjection
   ///   The Model-View-Projection matrix that is used by the camera.
@@ -27,11 +27,11 @@ namespace ezGraphicsUtils
     const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vPoint, ezVec3& out_vScreenPos,
     ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
 
-  /// \brief Overload of ConvertWorldPosToScreenPos() that returns the screen position in normalized space ([0; 1] range) and therefore doesn't require the viewport dimensions.
+  /// Overload of ConvertWorldPosToScreenPos() that returns the screen position in normalized space ([0; 1] range) and therefore doesn't require the viewport dimensions.
   EZ_FOUNDATION_DLL ezResult ConvertWorldPosToScreenPos(const ezMat4& mModelViewProjection, const ezVec3& vPoint, ezVec3& out_vScreenPosNormalized,
     ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
 
-  /// \brief Takes the screen space position (including depth in [0;1] range) and converts it into a world space position.
+  /// Takes the screen space position (including depth in [0;1] range) and converts it into a world space position.
   ///
   /// \param InverseModelViewProjection
   ///   The inverse of the Model-View-Projection matrix that is used by the camera.
@@ -56,32 +56,32 @@ namespace ezGraphicsUtils
     const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPixelPos, ezVec3& out_vPoint,
     ezVec3* out_pDirection = nullptr, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
 
-  /// \brief Overload of ConvertScreenPosToWorldPos() that takes the coordinate in normalized space ([0; 1]) and therefore doesn't require the viewport dimensions.
+  /// Overload of ConvertScreenPosToWorldPos() that takes the coordinate in normalized space ([0; 1]) and therefore doesn't require the viewport dimensions.
   EZ_FOUNDATION_DLL ezResult ConvertScreenPosToWorldPos(const ezMat4& mInverseModelViewProjection, const ezVec3& vNormalizedScreenPos, ezVec3& out_vPoint,
     ezVec3* out_pDirection = nullptr, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
 
-  /// \brief A double-precision version of ConvertScreenPosToWorldPos()
+  /// A double-precision version of ConvertScreenPosToWorldPos()
   EZ_FOUNDATION_DLL ezResult ConvertScreenPosToWorldPos(const ezMat4d& mInverseModelViewProjection, const ezUInt32 uiViewportX,
     const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPixelPos, ezVec3& out_vPoint,
     ezVec3* out_pDirection = nullptr, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
 
-  /// \brief Double-precision overload of ConvertScreenPosToWorldPos() that takes the coordinate in normalized space ([0; 1]) and therefore doesn't require the viewport dimensions.
+  /// Double-precision overload of ConvertScreenPosToWorldPos() that takes the coordinate in normalized space ([0; 1]) and therefore doesn't require the viewport dimensions.
   EZ_FOUNDATION_DLL ezResult ConvertScreenPosToWorldPos(const ezMat4d& mInverseModelViewProjection, const ezVec3& vNormalizedScreenPos,
     ezVec3& out_vPoint, ezVec3* out_pDirection = nullptr, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
 
-  /// \brief Checks whether the given transformation matrix would change the winding order of a triangle's vertices and thus requires that
+  /// Checks whether the given transformation matrix would change the winding order of a triangle's vertices and thus requires that
   /// the vertex order gets reversed to compensate.
   EZ_FOUNDATION_DLL bool IsTriangleFlipRequired(const ezMat3& mTransformation);
 
-  /// \brief Converts a projection or view-projection matrix from one depth-range convention to another
+  /// Converts a projection or view-projection matrix from one depth-range convention to another
   EZ_FOUNDATION_DLL void ConvertProjectionMatrixDepthRange(ezMat4& inout_mMatrix, ezClipSpaceDepthRange::Enum srcDepthRange, ezClipSpaceDepthRange::Enum dstDepthRange); // [tested]
 
-  /// \brief Retrieves the horizontal and vertical field-of-view angles from the perspective matrix.
+  /// Retrieves the horizontal and vertical field-of-view angles from the perspective matrix.
   ///
   /// \note If an orthographic projection matrix is passed in, the returned angle values will be zero.
   EZ_FOUNDATION_DLL void ExtractPerspectiveMatrixFieldOfView(const ezMat4& mProjectionMatrix, ezAngle& out_fovX, ezAngle& out_fovY); // [tested]
 
-  /// \brief Extracts the field of view angles from a perspective matrix.
+  /// Extracts the field of view angles from a perspective matrix.
   /// \param ProjectionMatrix Perspective projection matrix to be decomposed.
   /// \param out_fFovLeft Left angle of the frustum. Negative in symmetric projection.
   /// \param out_fFovRight Right angle of the frustum.
@@ -90,13 +90,13 @@ namespace ezGraphicsUtils
   /// \param yRange The Y range used to construct the perspective matrix.
   EZ_FOUNDATION_DLL void ExtractPerspectiveMatrixFieldOfView(const ezMat4& mProjectionMatrix, ezAngle& out_fovLeft, ezAngle& out_fovRight, ezAngle& out_fovBottom, ezAngle& out_fovTop, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular); // [tested]
 
-  /// \brief Extracts the field of view distances on the near plane from a perspective matrix.
+  /// Extracts the field of view distances on the near plane from a perspective matrix.
   ///
   /// Convenience function that also extracts near / far values and returns the distances on the near plane to be the inverse of ezGraphicsUtils::CreatePerspectiveProjectionMatrix.
   /// \sa ezGraphicsUtils::CreatePerspectiveProjectionMatrix
   EZ_FOUNDATION_DLL ezResult ExtractPerspectiveMatrixFieldOfView(const ezMat4& mProjectionMatrix, float& out_fLeft, float& out_fRight, float& out_fBottom, float& out_fTop, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular); // [tested]
 
-  /// \brief Computes the distances of the near and far clip planes from the given perspective projection matrix.
+  /// Computes the distances of the near and far clip planes from the given perspective projection matrix.
   ///
   /// Returns EZ_FAILURE when one of the values could not be computed, because it would result in a "division by zero".
   EZ_FOUNDATION_DLL ezResult ExtractNearAndFarClipPlaneDistances(float& out_fNear, float& out_fFar, const ezMat4& mProjectionMatrix,
@@ -110,7 +110,7 @@ namespace ezGraphicsUtils
     NearToFar,
   };
 
-  /// \brief Computes an interpolated frustum plane by using linear interpolation in normalized clip space.
+  /// Computes an interpolated frustum plane by using linear interpolation in normalized clip space.
   ///
   /// Along left/right, up/down this makes it easy to create a regular grid of planes.
   /// Along near/far creating planes at regular intervals will result in planes in world-space that represent
@@ -121,79 +121,79 @@ namespace ezGraphicsUtils
   EZ_FOUNDATION_DLL ezPlane ComputeInterpolatedFrustumPlane(FrustumPlaneInterpolation dir, float fLerpFactor, const ezMat4& mProjectionMatrix,
     ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
 
-  /// \brief Creates a perspective projection matrix with Left = -fViewWidth/2, Right = +fViewWidth/2, Bottom = -fViewHeight/2, Top =
+  /// Creates a perspective projection matrix with Left = -fViewWidth/2, Right = +fViewWidth/2, Bottom = -fViewHeight/2, Top =
   /// +fViewHeight/2.
   EZ_FOUNDATION_DLL ezMat4 CreatePerspectiveProjectionMatrix(float fViewWidth, float fViewHeight, float fNearZ, float fFarZ,
     ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
-  /// \brief Creates a perspective projection matrix.
+  /// Creates a perspective projection matrix.
   EZ_FOUNDATION_DLL ezMat4 CreatePerspectiveProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ,
     ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
-  /// \brief Creates a perspective projection matrix.
+  /// Creates a perspective projection matrix.
   /// \param fFieldOfViewX    Horizontal field of view.
   EZ_FOUNDATION_DLL ezMat4 CreatePerspectiveProjectionMatrixFromFovX(ezAngle fieldOfViewX, float fAspectRatioWidthDivHeight, float fNearZ,
     float fFarZ, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
-  /// \brief Creates a perspective projection matrix.
+  /// Creates a perspective projection matrix.
   /// \param fFieldOfViewY    Vertical field of view.
   EZ_FOUNDATION_DLL ezMat4 CreatePerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, float fAspectRatioWidthDivHeight, float fNearZ,
     float fFarZ, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
-  /// \brief Creates an orthographic projection matrix with Left = -fViewWidth/2, Right = +fViewWidth/2, Bottom = -fViewHeight/2, Top =
+  /// Creates an orthographic projection matrix with Left = -fViewWidth/2, Right = +fViewWidth/2, Bottom = -fViewHeight/2, Top =
   /// +fViewHeight/2.
   EZ_FOUNDATION_DLL ezMat4 CreateOrthographicProjectionMatrix(float fViewWidth, float fViewHeight, float fNearZ, float fFarZ,
     ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
-  /// \brief Creates an orthographic projection matrix.
+  /// Creates an orthographic projection matrix.
   EZ_FOUNDATION_DLL ezMat4 CreateOrthographicProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ,
     ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
-  /// \brief Returns a look-at matrix (only direction, no translation).
+  /// Returns a look-at matrix (only direction, no translation).
   ///
   /// Since this only creates a rotation matrix, vTarget can be interpreted both as a position or a direction.
   EZ_FOUNDATION_DLL ezMat3 CreateLookAtViewMatrix(const ezVec3& vTarget, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
-  /// \brief Same as CreateLookAtViewMatrix() but returns the inverse matrix
+  /// Same as CreateLookAtViewMatrix() but returns the inverse matrix
   EZ_FOUNDATION_DLL ezMat3 CreateInverseLookAtViewMatrix(const ezVec3& vTarget, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
-  /// \brief Returns a look-at matrix with both rotation and translation
+  /// Returns a look-at matrix with both rotation and translation
   EZ_FOUNDATION_DLL ezMat4 CreateLookAtViewMatrix(const ezVec3& vEyePos, const ezVec3& vLookAtPos, const ezVec3& vUpDir,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
-  /// \brief Same as CreateLookAtViewMatrix() but returns the inverse matrix
+  /// Same as CreateLookAtViewMatrix() but returns the inverse matrix
   EZ_FOUNDATION_DLL ezMat4 CreateInverseLookAtViewMatrix(const ezVec3& vEyePos, const ezVec3& vLookAtPos, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
-  /// \brief Creates a view matrix from the given camera vectors.
+  /// Creates a view matrix from the given camera vectors.
   ///
   /// The vectors are put into the appropriate matrix rows and depending on the handedness negated where necessary.
   EZ_FOUNDATION_DLL ezMat4 CreateViewMatrix(const ezVec3& vPosition, const ezVec3& vForwardDir, const ezVec3& vRightDir, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
-  /// \brief Similar to CreateViewMatrix() but creates the inverse matrix.
+  /// Similar to CreateViewMatrix() but creates the inverse matrix.
   EZ_FOUNDATION_DLL ezMat4 CreateInverseViewMatrix(const ezVec3& vPosition, const ezVec3& vForwardDir, const ezVec3& vRightDir, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
-  /// \brief Extracts the forward, right and up dir and camera position from the given view matrix.
+  /// Extracts the forward, right and up dir and camera position from the given view matrix.
   ///
   /// The handedness should be the same as used in CreateViewMatrix() or CreateLookAtViewMatrix().
   EZ_FOUNDATION_DLL void DecomposeViewMatrix(ezVec3& out_vPosition, ezVec3& out_vForwardDir, ezVec3& out_vRightDir, ezVec3& out_vUpDir, const ezMat4& mViewMatrix, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
-  /// \brief Computes the barycentric coordinates of a point in a 3D triangle.
+  /// Computes the barycentric coordinates of a point in a 3D triangle.
   ///
   /// \return If the triangle is degenerate (all points on a line, or two points identical), the function returns EZ_FAILURE.
   EZ_FOUNDATION_DLL ezResult ComputeBarycentricCoordinates(ezVec3& out_vCoordinates, const ezVec3& v0, const ezVec3& v1, const ezVec3& v2, const ezVec3& vPos);
 
-  /// \brief Computes the barycentric coordinates of a point in a 2D triangle.
+  /// Computes the barycentric coordinates of a point in a 2D triangle.
   ///
   /// \return If the triangle is degenerate (all points on a line, or two points identical), the function returns EZ_FAILURE.
   EZ_FOUNDATION_DLL ezResult ComputeBarycentricCoordinates(ezVec3& out_vCoordinates, const ezVec2& v0, const ezVec2& v1, const ezVec2& v2, const ezVec2& vPos);
 
-  /// \brief Returns a coverage value of how much space a sphere at a given location would take up on screen using a perspective projection.
+  /// Returns a coverage value of how much space a sphere at a given location would take up on screen using a perspective projection.
   ///
   /// The coverage value is close to 0 for very small or far away spheres and approaches 1 when the projected sphere would take up the entire screen.
   /// The calculation is resolution independent and also doesn't take into account whether the sphere is inside the view frustum at all.
@@ -210,7 +210,7 @@ namespace ezGraphicsUtils
     return sphere.m_fRadius / fHalfHeight;
   }
 
-  /// \brief Returns a coverage value of how much space a sphere of a given size would take up on screen using an orthographic projection.
+  /// Returns a coverage value of how much space a sphere of a given size would take up on screen using an orthographic projection.
   ///
   /// The coverage value is close to 0 for very small spheres and approaches 1 when the projected sphere would take up the entire screen.
   /// The calculation is resolution independent and also doesn't take into account whether the sphere is inside the view frustum at all.

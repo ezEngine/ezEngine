@@ -12,7 +12,7 @@ public:
   virtual ~ezAssetDocumentInfo();
   ezAssetDocumentInfo(ezAssetDocumentInfo&& rhs);
   void operator=(ezAssetDocumentInfo&& rhs);
-  /// \brief Creates a clone without meta data.
+  /// Creates a clone without meta data.
   void CreateShallowClone(ezAssetDocumentInfo& out_docInfo) const;
   void ClearMetaData();
 
@@ -35,10 +35,10 @@ public:
   const ezString& GetAssetsDocumentTags() const;
   void SetAssetsDocumentTags(const ezString& sTags);
 
-  /// \brief Returns an object from m_MetaInfo of the given base type, or nullptr if none exists
+  /// Returns an object from m_MetaInfo of the given base type, or nullptr if none exists
   const ezReflectedClass* GetMetaInfo(const ezRTTI* pType) const;
 
-  /// \brief Returns an object from m_MetaInfo of the given base type, or nullptr if none exists
+  /// Returns an object from m_MetaInfo of the given base type, or nullptr if none exists
   template <typename T>
   const T* GetMetaInfo() const
   {

@@ -16,7 +16,7 @@ public:
 
   void SetWindowConfig(const ezVec2I32& vViewport) { m_vViewport = vViewport; }
 
-  /// \brief Adds a delegate that gets called whenever an object is picked, as long as the override is active.
+  /// Adds a delegate that gets called whenever an object is picked, as long as the override is active.
   ///
   /// It also changes the owner view's cursor to a cross-hair.
   /// If something gets picked, the override is called with a non-null object.

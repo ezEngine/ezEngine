@@ -205,7 +205,7 @@ public:
   /// \name Inspecting Function Parameters
   /// @{
 
-  /// \brief Returns the currently executed function light user data that was passed to RegisterCFunction.
+  /// Returns the currently executed function light user data that was passed to RegisterCFunction.
   void* GetFunctionLightUserData() const;
 
   /// Returns how many Parameters were passed to the called C-Function.

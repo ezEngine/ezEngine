@@ -7,7 +7,7 @@
 class ezParticleEffectInstance;
 class ezParticleEventReaction;
 
-/// \brief Base class for all particle event reaction factories
+/// Base class for all particle event reaction factories
 ///
 /// Event reaction factories create and configure event reactions that respond to particle events.
 /// Each factory specifies which event type to respond to and the probability of triggering.

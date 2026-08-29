@@ -4,7 +4,7 @@
 
 class ezSimdVec4u;
 
-/// \brief A SIMD 4-component vector class of signed 32b integers
+/// A SIMD 4-component vector class of signed 32b integers
 class EZ_FOUNDATION_DLL ezSimdVec4i
 {
 public:
@@ -18,7 +18,7 @@ public:
 
   ezSimdVec4i(ezInternal::QuadInt v);                          // [tested]
 
-  /// \brief Creates an ezSimdVec4i that is initialized to zero.
+  /// Creates an ezSimdVec4i that is initialized to zero.
   [[nodiscard]] static ezSimdVec4i MakeZero();                     // [tested]
 
   void Set(ezInt32 iXyzw);                                         // [tested]
@@ -53,7 +53,7 @@ public:
   template <ezSwizzle::Enum s>
   ezSimdVec4i Get() const;      // [tested]
 
-  ///\brief x = this[s0], y = this[s1], z = other[s2], w = other[s3]
+  ///x = this[s0], y = this[s1], z = other[s2], w = other[s3]
   template <ezSwizzle::Enum s>
   [[nodiscard]] ezSimdVec4i GetCombined(const ezSimdVec4i& other) const;                                                 // [tested]
 

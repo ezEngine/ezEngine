@@ -32,7 +32,7 @@ struct ezPendingTextureCopyVulkan
   vk::DeviceSize m_uiTotalSize;
 };
 
-/// \brief Used as a key to descriptor allocators. Defines the resource usage of each type inside a bind group layout.
+/// Used as a key to descriptor allocators. Defines the resource usage of each type inside a bind group layout.
 struct ezBindGroupLayoutResourceUsageVulkan
 {
   ezUInt8 m_Usage[ezGALShaderResourceType::COUNT] = {0};

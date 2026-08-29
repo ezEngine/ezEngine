@@ -6,7 +6,7 @@
 using ezSkyBoxComponentManager = ezComponentManager<class ezSkyBoxComponent, ezBlockStorageType::Compact>;
 using ezTextureCubeResourceHandle = ezTypedResourceHandle<class ezTextureCubeResource>;
 
-/// \brief Adds a static image of a sky to the scene.
+/// Adds a static image of a sky to the scene.
 ///
 /// This is used to fill the scene background with a picture of a sky.
 /// The sky image comes from a cubemap texture.
@@ -42,19 +42,19 @@ public:
   ezSkyBoxComponent();
   ~ezSkyBoxComponent();
 
-  /// \brief Changes the brightness of the sky image. Mainly useful when an HDR skybox is used.
+  /// Changes the brightness of the sky image. Mainly useful when an HDR skybox is used.
   void SetExposureBias(float fExposureBias);                // [ property ]
   float GetExposureBias() const { return m_fExposureBias; } // [ property ]
 
-  /// \brief For HDR skyboxes this should stay off. For LDR skyboxes, enabling this will improve brightness and contrast.
+  /// For HDR skyboxes this should stay off. For LDR skyboxes, enabling this will improve brightness and contrast.
   void SetInverseTonemap(bool bInverseTonemap);                // [ property ]
   bool GetInverseTonemap() const { return m_bInverseTonemap; } // [ property ]
 
-  /// \brief Enables that fog is applied to the sky. See SetVirtualDistance().
+  /// Enables that fog is applied to the sky. See SetVirtualDistance().
   void SetUseFog(bool bUseFog);                // [ property ]
   bool GetUseFog() const { return m_bUseFog; } // [ property ]
 
-  /// \brief If fog is enabled, the virtual distance is used to determine how foggy the sky should be.
+  /// If fog is enabled, the virtual distance is used to determine how foggy the sky should be.
   void SetVirtualDistance(float fVirtualDistance);                // [ property ]
   float GetVirtualDistance() const { return m_fVirtualDistance; } // [ property ]
 

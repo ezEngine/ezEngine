@@ -52,7 +52,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Implements navigation, path following and obstacle avoidance. Requires Recast navmesh.
+/// Implements navigation, path following and obstacle avoidance. Requires Recast navmesh.
 ///
 /// This component provides the ability to navigate around the level (using Recast navmesh)
 /// while avoiding other agents.
@@ -78,7 +78,7 @@ public:
   ezDetourCrowdAgentComponent();
   ~ezDetourCrowdAgentComponent();
 
-  /// \brief Sets the position to navigate to.
+  /// Sets the position to navigate to.
   ///
   /// If the position is not on navmesh, the nearest point on navmesh (with some threshold)
   /// will be the actual target. You can get it by calling GetActualTargetPosition().
@@ -107,7 +107,7 @@ public:
   float GetMaxAcceleration() const { return m_fMaxAcceleration; }
   float GetStoppingDistance() const { return m_fStoppingDistance; }
   ezAngle GetMaxAngularSpeed() const { return m_MaxAngularSpeed; }
-  /// \brief While GetDestination() returns the requested target position,
+  /// While GetDestination() returns the requested target position,
   /// this one will return the actual point on navmesh that the agent is trying to reach.
   ezVec3 GetActualDestination() const { return m_vActualDestination; }
   ezDetourCrowdAgentRotationMode::Enum GetRotationMode() const { return m_RotationMode; }

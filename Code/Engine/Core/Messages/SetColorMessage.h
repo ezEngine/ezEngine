@@ -3,7 +3,7 @@
 #include <Core/CoreDLL.h>
 #include <Foundation/Communication/Message.h>
 
-/// \brief Describes how a color should be applied to another color.
+/// Describes how a color should be applied to another color.
 struct ezSetColorMode
 {
   using StorageType = ezUInt32;
@@ -24,7 +24,7 @@ struct ezSetColorMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezSetColorMode);
 
-/// \brief A message to modify the main color of some thing.
+/// A message to modify the main color of some thing.
 ///
 /// Components that handle this message use it to change their main color.
 /// For instance a light component may change its light color, a mesh component will change the main mesh color.
@@ -32,23 +32,23 @@ struct EZ_CORE_DLL ezMsgSetColor : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgSetColor, ezMessage);
 
-  /// \brief The color to apply to the target.
+  /// The color to apply to the target.
   ezColor m_Color;
 
-  /// \brief The mode with which to apply the color to the target.
+  /// The mode with which to apply the color to the target.
   ezEnum<ezSetColorMode> m_Mode;
 
-  /// \brief Applies m_Color using m_Mode to the given color.
+  /// Applies m_Color using m_Mode to the given color.
   void ModifyColor(ezColor& ref_color) const;
 
-  /// \brief Applies m_Color using m_Mode to the given color.
+  /// Applies m_Color using m_Mode to the given color.
   void ModifyColor(ezColorGammaUB& ref_color) const;
 
   virtual void Serialize(ezStreamWriter& inout_stream) const override;
   virtual void Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion) override;
 };
 
-/// \brief Message to set custom float data on components.
+/// Message to set custom float data on components.
 ///
 /// Provides four float values that can be used to pass arbitrary data to components.
 /// The interpretation of these values depends on the receiving component.

@@ -10,7 +10,7 @@
 
 using ezConfigFileResourceHandle = ezTypedResourceHandle<class ezConfigFileResource>;
 
-/// \brief This resource loads config files containing key/value pairs
+/// This resource loads config files containing key/value pairs
 ///
 /// The config files usually use the file extension '.ezConfig'.
 ///
@@ -53,28 +53,28 @@ public:
   ezConfigFileResource();
   ~ezConfigFileResource();
 
-  /// \brief Returns the 'int' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
+  /// Returns the 'int' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
   ezInt32 GetInt(ezTempHashedString sName) const;
 
-  /// \brief Returns the 'float' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
+  /// Returns the 'float' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
   float GetFloat(ezTempHashedString sName) const;
 
-  /// \brief Returns the 'bool' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
+  /// Returns the 'bool' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
   bool GetBool(ezTempHashedString sName) const;
 
-  /// \brief Returns the 'string' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
+  /// Returns the 'string' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
   ezStringView GetString(ezTempHashedString sName) const;
 
-  /// \brief Returns the 'int' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
+  /// Returns the 'int' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
   ezInt32 GetInt(ezTempHashedString sName, ezInt32 iFallback) const;
 
-  /// \brief Returns the 'float' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
+  /// Returns the 'float' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
   float GetFloat(ezTempHashedString sName, float fFallback) const;
 
-  /// \brief Returns the 'bool' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
+  /// Returns the 'bool' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
   bool GetBool(ezTempHashedString sName, bool bFallback) const;
 
-  /// \brief Returns the 'string' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
+  /// Returns the 'string' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
   ezStringView GetString(ezTempHashedString sName, ezStringView sFallback) const;
 
 protected:

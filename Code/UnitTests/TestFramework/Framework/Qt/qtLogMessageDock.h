@@ -13,7 +13,7 @@ struct ezTestResultData;
 class ezQtLogMessageModel;
 class ezTestFrameworkResult;
 
-/// \brief Dock widget that lists the output of a given ezResult struct.
+/// Dock widget that lists the output of a given ezResult struct.
 class EZ_TEST_DLL ezQtLogMessageDock : public QDockWidget, public Ui_qtLogMessageDock
 {
   Q_OBJECT
@@ -30,7 +30,7 @@ private:
   ezQtLogMessageModel* m_pModel;
 };
 
-/// \brief Model used by ezQtLogMessageDock to list the output entries in ezResult.
+/// Model used by ezQtLogMessageDock to list the output entries in ezResult.
 class EZ_TEST_DLL ezQtLogMessageModel : public QAbstractItemModel
 {
   Q_OBJECT

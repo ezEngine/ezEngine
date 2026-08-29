@@ -92,7 +92,7 @@ struct ezTexConvTargetPlatform
   using StorageType = ezUInt8;
 };
 
-/// \brief Defines which channel of another texture to read to get a value
+/// Defines which channel of another texture to read to get a value
 struct ezTexConvChannelValue
 {
   enum Enum
@@ -107,7 +107,7 @@ struct ezTexConvChannelValue
   };
 };
 
-/// \brief Defines which filter kernel is used to approximate the x/y bump map gradients
+/// Defines which filter kernel is used to approximate the x/y bump map gradients
 struct ezTexConvBumpMapFilter
 {
   enum Enum

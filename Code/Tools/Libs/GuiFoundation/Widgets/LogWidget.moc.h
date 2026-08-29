@@ -28,7 +28,7 @@ private:
   mutable QTextDocument m_Doc;
 };
 
-/// \brief The application wide panel that shows the engine log output and the editor log output
+/// The application wide panel that shows the engine log output and the editor log output
 class EZ_GUIFOUNDATION_DLL ezQtLogWidget : public QWidget, public Ui_LogWidget
 {
   Q_OBJECT
@@ -62,6 +62,6 @@ private:
 
   ezQtLogWidgetItemDelegate* m_pDelegate = nullptr;
 
-  /// \brief List of callbacks invoked when the user double clicks a log message
+  /// List of callbacks invoked when the user double clicks a log message
   static ezMap<ezString, LogItemContextActionCallback> s_LogCallbacks;
 };

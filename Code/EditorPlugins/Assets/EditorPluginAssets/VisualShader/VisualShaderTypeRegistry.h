@@ -107,13 +107,13 @@ private:
   void ProjectEventHandler(const ezToolsProjectEvent& e);
   void LoadNodeData();
 
-  /// \brief Loads the nodes that the open project ships in its own data directories.
+  /// Loads the nodes that the open project ships in its own data directories.
   ///
   /// Only callable once the project's data directories are configured and mounted, which is why this
   /// hangs off ProjectOpened and not off the editor startup event.
   void LoadProjectNodeData();
 
-  /// \brief Unregisters everything LoadProjectNodeData() added, so the next project starts clean.
+  /// Unregisters everything LoadProjectNodeData() added, so the next project starts clean.
   void UnloadProjectNodeData();
 
   const ezRTTI* GenerateTypeFromDesc(const ezVisualShaderNodeDescriptor& desc);

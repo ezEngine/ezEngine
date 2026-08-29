@@ -6,7 +6,7 @@
 
 class ezGALDeviceVulkan;
 
-/// \brief Creates persistent descriptor sets.
+/// Creates persistent descriptor sets.
 /// Each bind group layout requests a pool via GetPool. There is one pool for each resource usage distribution. This is efficient because the spec says: "Additionally, if all sets allocated from the pool since it was created or most recently reset use the same number of descriptors (of each type) and the requested allocation also uses that same number of descriptors (of each type), then fragmentation must not cause an allocation failure."
 /// Each pool will create sub-pools in increasing size once all current pools are full.
 class EZ_RENDERERVULKAN_DLL ezDescriptorSetPoolVulkan : public ezRefCounted
@@ -27,12 +27,12 @@ public:
     ezUInt32 m_uiPoolIndex = 0;
   };
 
-  /// \brief Creates a descriptor set for the given layout.
+  /// Creates a descriptor set for the given layout.
   /// \param hBindGroupLayout The layout for which to create the descriptor set.
   /// \param out_Allocation Filled out by the call. Needs to be passed in ReclaimDescriptorSet once the descriptor set is no longer used by the GPU.
   vk::DescriptorSet CreateDescriptorSet(ezGALBindGroupLayoutHandle hBindGroupLayout, Allocation& out_allocation);
 
-  /// \brief Reclaims a descriptor set for reuse.
+  /// Reclaims a descriptor set for reuse.
   /// This function should only be called by ezGALDeviceVulkan when it is safe to reuse the descriptor set. To reclaim a descriptor set created via CreateDescriptorSet, call ezGALDeviceVulkan->ReclaimLater(vk::DescriptorSet, ezDescriptorSetPoolVulkan*, Allocation::m_uiPoolIndex);
   void ReclaimDescriptorSet(vk::DescriptorSet descriptorSet, Allocation allocation);
 
@@ -60,7 +60,7 @@ private:
   ezDescriptorSetPoolVulkan(ezGALDeviceVulkan* pDevice, const ezBindGroupLayoutResourceUsageVulkan& resourceUsage);
   ezUInt32 GetFreePoolIndex();
 
-  /// \brief Reclaims resources previously added via ReclaimDescriptorSet.
+  /// Reclaims resources previously added via ReclaimDescriptorSet.
   /// \return Returns true if the pool no longer holds any descriptor sets and can thus be safely deleted.
   bool ReclaimResources();
 

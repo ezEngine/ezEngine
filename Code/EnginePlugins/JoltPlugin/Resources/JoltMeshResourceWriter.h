@@ -69,11 +69,11 @@ struct ezJoltCookedMeshStats
   ezUInt32 m_uiNumParts = 0;     ///< How many convex pieces were produced. 1 for a single hull, 0 for a triangle mesh.
 };
 
-/// \brief Helper class for writing ezJoltMeshResource and ezJoltHeightfieldResource files.
+/// Helper class for writing ezJoltMeshResource and ezJoltHeightfieldResource files.
 class EZ_JOLTPLUGIN_DLL ezJoltMeshResourceWriter
 {
 public:
-  /// \brief Writes the given mesh description to the provided stream so that it can be loaded as an ezJoltMeshResource.
+  /// Writes the given mesh description to the provided stream so that it can be loaded as an ezJoltMeshResource.
   ///
   /// Set bWriteAssetHeader to false if the asset header has already been written to the stream, e.g. in case of an asset transformation.
   static ezResult WriteMeshResource(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream, bool bWriteAssetHeader = true, ezUInt64 uiAssetHash = 0, ezJoltCookedMeshStats* out_pStats = nullptr);

@@ -13,7 +13,7 @@ public:
   ezCurve1DAssetDocument(ezStringView sDocumentPath);
   ~ezCurve1DAssetDocument();
 
-  /// \brief Fills out the ezCurve1D structure with an exact copy of the data in the asset.
+  /// Fills out the ezCurve1D structure with an exact copy of the data in the asset.
   /// Does NOT yet sort the control points, so before evaluating the curve, that must be called manually.
   void FillCurve(ezUInt32 uiCurveIdx, ezCurve1D& out_result) const;
 

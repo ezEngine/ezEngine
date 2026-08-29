@@ -21,7 +21,7 @@ private:
   ezPhysicsWorldModuleInterface* m_pPhysicsInterface = nullptr;
 };
 
-/// \brief Used to apply damage to objects in the vicinity and push physical objects away.
+/// Used to apply damage to objects in the vicinity and push physical objects away.
 ///
 /// The component queries for dynamic physics shapes within a given radius.
 /// For all objects found it sends the messages ezMsgPhysicsAddImpulse and ezMsgDamage.

@@ -8,7 +8,7 @@
 
 class ezWorld;
 
-/// \brief Runtime type information for script classes, extending ezRTTI with script-specific functionality.
+/// Runtime type information for script classes, extending ezRTTI with script-specific functionality.
 ///
 /// Manages type metadata for script classes including function properties and message handlers.
 /// Supports reference counting and provides efficient storage for small numbers of functions
@@ -90,5 +90,5 @@ struct EZ_CORE_DLL ezScriptAllocator
   static ezAllocator* GetAllocator();
 };
 
-/// \brief creates a new instance of type using the script allocator
+/// creates a new instance of type using the script allocator
 #define EZ_SCRIPT_NEW(type, ...) EZ_NEW(ezScriptAllocator::GetAllocator(), type, __VA_ARGS__)

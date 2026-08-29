@@ -38,7 +38,7 @@ private:
   ezDynamicArray<ezComponentHandle> m_RenderTargetCameras;
 };
 
-/// \brief Adds a camera to the scene.
+/// Adds a camera to the scene.
 ///
 /// Cameras have different use cases which are selected through the ezCameraUsageHint property.
 /// A game needs (exactly) one camera with the usage hint "MainView", since that is what the renderer uses to render the output.
@@ -76,52 +76,52 @@ public:
   ezCameraComponent();
   ~ezCameraComponent();
 
-  /// \brief Sets what the camera should be used for.
+  /// Sets what the camera should be used for.
   void SetUsageHint(ezEnum<ezCameraUsageHint> val);                      // [ property ]
   ezEnum<ezCameraUsageHint> GetUsageHint() const { return m_UsageHint; } // [ property ]
 
-  /// \brief Sets the asset name (or path) to a render target resource, in case this camera should render to texture.
+  /// Sets the asset name (or path) to a render target resource, in case this camera should render to texture.
   void SetRenderTargetFile(ezStringView sFile); // [ property ]
   ezStringView GetRenderTargetFile() const;     // [ property ]
 
-  /// \brief An offset to render only to a part of a texture.
+  /// An offset to render only to a part of a texture.
   void SetRenderTargetRectOffset(ezVec2 value);                                  // [ property ]
   ezVec2 GetRenderTargetRectOffset() const { return m_vRenderTargetRectOffset; } // [ property ]
 
-  /// \brief A size to render only to a part of a texture.
+  /// A size to render only to a part of a texture.
   void SetRenderTargetRectSize(ezVec2 value);                                // [ property ]
   ezVec2 GetRenderTargetRectSize() const { return m_vRenderTargetRectSize; } // [ property ]
 
-  /// \brief Specifies whether the camera should be perspective or orthogonal and how to use the aspect ratio.
+  /// Specifies whether the camera should be perspective or orthogonal and how to use the aspect ratio.
   void SetCameraMode(ezEnum<ezCameraMode> val);                 // [ property ]
   ezEnum<ezCameraMode> GetCameraMode() const { return m_Mode; } // [ property ]
 
-  /// \brief Configures the distance of the near plane. Objects in front of the near plane get culled and clipped.
+  /// Configures the distance of the near plane. Objects in front of the near plane get culled and clipped.
   void SetNearPlane(float fVal);                      // [ property ]
   float GetNearPlane() const { return m_fNearPlane; } // [ property ]
 
-  /// \brief Configures the distance of the far plane. Objects behin the far plane get culled and clipped.
+  /// Configures the distance of the far plane. Objects behin the far plane get culled and clipped.
   void SetFarPlane(float fVal);                     // [ property ]
   float GetFarPlane() const { return m_fFarPlane; } // [ property ]
 
-  /// \brief Sets the opening angle of the perspective view frustum. Whether this means the horizontal or vertical angle is determined by the camera mode.
+  /// Sets the opening angle of the perspective view frustum. Whether this means the horizontal or vertical angle is determined by the camera mode.
   void SetFieldOfView(float fVal);                                   // [ property ]
   float GetFieldOfView() const { return m_fPerspectiveFieldOfView; } // [ property ]
 
-  /// \brief Sets the size of the orthogonal view frustum. Whether this means the horizontal or vertical size is determined by the camera mode.
+  /// Sets the size of the orthogonal view frustum. Whether this means the horizontal or vertical size is determined by the camera mode.
   void SetOrthoDimension(float fVal);                           // [ property ]
   float GetOrthoDimension() const { return m_fOrthoDimension; } // [ property ]
 
-  /// \brief Returns the handle to the render pipeline that is in use.
+  /// Returns the handle to the render pipeline that is in use.
   ezRenderPipelineResourceHandle GetRenderPipeline() const;
 
-  /// \brief Returns the blackboard that is in use.
+  /// Returns the blackboard that is in use.
   ezSharedPtr<ezBlackboard> GetBlackboard() const;
 
-  /// \brief Returns a handle to the view that the camera renders to.
+  /// Returns a handle to the view that the camera renders to.
   ezViewHandle GetRenderTargetView() const;
 
-  /// \brief Sets the name of the render pipeline to use.
+  /// Sets the name of the render pipeline to use.
   void SetRenderPipelineEnum(const char* szFile);                           // [ property ]
   const char* GetRenderPipelineEnum() const;                                // [ property ]
 
@@ -143,10 +143,10 @@ public:
   float GetEV100() const;                                                   // [ property ]
   float GetExposure() const;                                                // [ property ]
 
-  /// \brief If non-empty, only objects with these tags will be included in this camera's output.
+  /// If non-empty, only objects with these tags will be included in this camera's output.
   ezTagSet m_IncludeTags; // [ property ]
 
-  /// \brief If non-empty, objects with these tags will be excluded from this camera's output.
+  /// If non-empty, objects with these tags will be excluded from this camera's output.
   ezTagSet m_ExcludeTags; // [ property ]
 
   void ApplySettingsToView(ezView* pView) const;

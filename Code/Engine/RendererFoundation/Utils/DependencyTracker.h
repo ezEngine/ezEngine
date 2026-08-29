@@ -2,7 +2,7 @@
 
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-/// \brief A thread-safe dependency tracking system for managing resource invalidation.
+/// A thread-safe dependency tracking system for managing resource invalidation.
 ///
 /// This template class tracks dependencies between resources and their dependencies to allow invalidating resources when their dependencies are destroyed.
 /// When a dependency is destroyed, all resources that depend on it are automatically identified and an invalidation event is broadcast for each affected resource.
@@ -13,7 +13,7 @@ template <typename Resource, typename Dependency>
 class ezDependencyTracker
 {
 public:
-  /// \brief Adds a resource and its dependencies to the tracking system.
+  /// Adds a resource and its dependencies to the tracking system.
   ///
   /// This method registers a resource along with all of its dependencies. The resource will be automatically invalidated if any of its dependencies are destroyed. Each resource can only be added once - attempting to add the same resource again will trigger an assertion in debug builds.
   ///
@@ -21,14 +21,14 @@ public:
   /// \param dependencies Set of dependencies that this resource depends on
   void AddResource(Resource* pResource, const ezSet<const Dependency*>& dependencies);
 
-  /// \brief Removes a resource from the tracking system.
+  /// Removes a resource from the tracking system.
   ///
   /// This method removes the resource and all of its dependency relationships from the tracker. The resource will no longer receive invalidation events even if its former dependencies are destroyed.
   ///
   /// \param pResource Pointer to the resource to remove from tracking
   void RemoveResource(Resource* pResource);
 
-  /// \brief Notifies the tracker that a dependency has been destroyed.
+  /// Notifies the tracker that a dependency has been destroyed.
   ///
   /// This method should be called when a dependency object is about to be destroyed. It will identify all resources that depend on this dependency, remove the dependency relationships, and broadcast invalidation events for each affected resource.
   ///
@@ -36,7 +36,7 @@ public:
   void DependencyDestroyed(Dependency* pDependency);
 
 public:
-  /// \brief Event that is broadcast when a resource becomes invalid due to dependency destruction.
+  /// Event that is broadcast when a resource becomes invalid due to dependency destruction.
   ezEvent<Resource*> m_ResourceInvalidatedEvent;
 
 private:

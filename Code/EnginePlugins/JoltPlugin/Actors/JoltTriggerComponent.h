@@ -24,7 +24,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Turns an object into a trigger that is capable of detecting when other physics objects enter its volume.
+/// Turns an object into a trigger that is capable of detecting when other physics objects enter its volume.
 ///
 /// Triggers are physics actors and thus are set up the same way, e.g. they use physics shapes for their geometry,
 /// but they act very differently. Triggers do not affect other objects, instead all objects just pass through them.
@@ -58,7 +58,7 @@ public:
   ezJoltTriggerComponent();
   ~ezJoltTriggerComponent();
 
-  /// \brief Sets the text that the ezMsgTriggerTriggered should contain when the trigger fires.
+  /// Sets the text that the ezMsgTriggerTriggered should contain when the trigger fires.
   void SetTriggerMessage(const char* szSz) { m_sTriggerMessage.Assign(szSz); }  // [ property ]
   const char* GetTriggerMessage() const { return m_sTriggerMessage.GetData(); } // [ property ]
 

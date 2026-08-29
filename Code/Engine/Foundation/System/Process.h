@@ -19,7 +19,7 @@ enum class ezProcessState
   Finished
 };
 
-/// \brief Options that describe how to run an external process
+/// Options that describe how to run an external process
 struct EZ_FOUNDATION_DLL ezProcessOptions
 {
   /// Path to the binary to launch
@@ -40,30 +40,30 @@ struct EZ_FOUNDATION_DLL ezProcessOptions
   /// If set, stderr will be captured and this function called on a separate thread. Requires bWaitForResult to be true.
   ezDelegate<void(ezStringView)> m_onStdError;
 
-  /// \brief Appends a formatted argument to m_Arguments
+  /// Appends a formatted argument to m_Arguments
   ///
   /// This can be useful if a complex command needs to be added as a single argument.
   /// Ie. since arguments with spaces will be wrapped in quotes, it can make a difference
   /// whether a complex parameter is added as one or multiple arguments.
   void AddArgument(const ezFormatString& arg);
 
-  /// \brief Overload of AddArgument(ezFormatString) for convenience.
+  /// Overload of AddArgument(ezFormatString) for convenience.
   template <typename... ARGS>
   void AddArgument(ezStringView sFormat, ARGS&&... args)
   {
     AddArgument(ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief Takes a full command line and appends it as individual arguments by splitting it along white-space and quotation marks.
+  /// Takes a full command line and appends it as individual arguments by splitting it along white-space and quotation marks.
   ///
   /// Brief, use this, if arguments are already pre-built as a full command line.
   void AddCommandLine(ezStringView sCmdLine);
 
-  /// \brief Builds the command line from the process arguments and appends it to \a out_sCmdLine.
+  /// Builds the command line from the process arguments and appends it to \a out_sCmdLine.
   void BuildCommandLineString(ezStringBuilder& out_sCmdLine) const;
 };
 
-/// \brief Flags for ezProcess::Launch()
+/// Flags for ezProcess::Launch()
 struct ezProcessLaunchFlags
 {
   using StorageType = ezUInt32;
@@ -85,7 +85,7 @@ struct ezProcessLaunchFlags
 
 EZ_DECLARE_FLAGS_OPERATORS(ezProcessLaunchFlags);
 
-/// \brief Provides functionality to launch other processes
+/// Provides functionality to launch other processes
 class EZ_FOUNDATION_DLL ezProcess
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezProcess);
@@ -94,7 +94,7 @@ public:
   ezProcess();
   ezProcess(ezProcess&& rhs);
 
-  /// \brief Upon destruction the running process will be terminated.
+  /// Upon destruction the running process will be terminated.
   ///
   /// Use Detach() to prevent the termination of the launched process.
   ///
@@ -102,10 +102,10 @@ public:
   /// \sa Detach()
   ~ezProcess();
 
-  /// \brief Launches the specified process and waits for it to finish.
+  /// Launches the specified process and waits for it to finish.
   static ezResult Execute(const ezProcessOptions& opt, ezInt32* out_pExitCode = nullptr);
 
-  /// \brief Launches the specified process asynchronously.
+  /// Launches the specified process asynchronously.
   ///
   /// When the function returns, the process is typically starting or running.
   /// Call WaitToFinish() to wait for the process to shutdown or Terminate() to kill it.
@@ -113,11 +113,11 @@ public:
   /// \sa ezProcessLaunchFlags
   ezResult Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaunchFlags> launchFlags = ezProcessLaunchFlags::None);
 
-  /// \brief Resumes a process that was launched in a suspended state. Returns EZ_FAILURE if the process has not been launched or already
+  /// Resumes a process that was launched in a suspended state. Returns EZ_FAILURE if the process has not been launched or already
   /// resumed.
   ezResult ResumeSuspended();
 
-  /// \brief Waits the given amount of time for the previously launched process to finish.
+  /// Waits the given amount of time for the previously launched process to finish.
   ///
   /// Pass in ezTime::MakeZero() to wait indefinitely.
   /// Returns EZ_FAILURE, if the process did not finish within the given time.
@@ -125,30 +125,30 @@ public:
   /// \note Asserts that the ezProcess instance was used to successfully launch a process before.
   ezResult WaitToFinish(ezTime timeout = ezTime::MakeZero());
 
-  /// \brief Kills the detached process, if possible.
+  /// Kills the detached process, if possible.
   ezResult Terminate();
 
-  /// \brief Returns the exit code of the process. The exit code will be -0xFFFF as long as the process has not finished.
+  /// Returns the exit code of the process. The exit code will be -0xFFFF as long as the process has not finished.
   ezInt32 GetExitCode() const;
 
-  /// \brief Returns the running state of the process
+  /// Returns the running state of the process
   ///
   /// If the state is 'finished' the exit code (as returned by GetExitCode() ) will be updated.
   ezProcessState GetState() const;
 
-  /// \brief Detaches the running process from the ezProcess instance.
+  /// Detaches the running process from the ezProcess instance.
   ///
   /// This means the ezProcess instance loses control over terminating the process or communicating with it.
   /// It also means that the process will keep running and not get terminated when the ezProcess instance is destroyed.
   void Detach();
 
-  /// \brief Returns the OS specific handle to the process
+  /// Returns the OS specific handle to the process
   ezOsProcessHandle GetProcessHandle() const;
 
-  /// \brief Returns the OS-specific process ID (PID)
+  /// Returns the OS-specific process ID (PID)
   ezOsProcessID GetProcessID() const;
 
-  /// \brief Returns OS-specific process ID (PID) for the calling process
+  /// Returns OS-specific process ID (PID) for the calling process
   static ezOsProcessID GetCurrentProcessID();
 
 private:

@@ -8,7 +8,7 @@
 
 class ezQtTestFramework;
 
-/// \brief Delegate for ezQtTestModel which shows bars for the test durations.
+/// Delegate for ezQtTestModel which shows bars for the test durations.
 class EZ_TEST_DLL ezQtTestDelegate : public QStyledItemDelegate
 {
   Q_OBJECT

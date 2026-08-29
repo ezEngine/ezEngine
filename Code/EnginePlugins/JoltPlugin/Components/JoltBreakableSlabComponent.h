@@ -29,7 +29,7 @@ namespace JPH
   class ConvexShape;
 } // namespace JPH
 
-/// \brief Flags that define which edges of a breakable slab are fixed/anchored in the world.
+/// Flags that define which edges of a breakable slab are fixed/anchored in the world.
 /// A fixed edge means that shards adjacent to that edge will remain stationary and not fall under gravity.
 struct EZ_JOLTPLUGIN_DLL ezJoltBreakableSlabFlags
 {
@@ -56,7 +56,7 @@ struct EZ_JOLTPLUGIN_DLL ezJoltBreakableSlabFlags
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltBreakableSlabFlags);
 
-/// \brief The general shape of the breakable slab.
+/// The general shape of the breakable slab.
 ///
 /// Can be extended with further shapes, if desired.
 struct EZ_JOLTPLUGIN_DLL ezJoltBreakableShape
@@ -98,7 +98,7 @@ private:
   ezDynamicArray<ezJoltBreakableSlabComponent*> m_TriggerBoundsUpdate;
 };
 
-/// \brief Represents a point in world space, where the breakable slab should be shattered.
+/// Represents a point in world space, where the breakable slab should be shattered.
 struct ezShatterPoint
 {
   ezVec3 m_vGlobalPosition;
@@ -110,7 +110,7 @@ struct ezShatterPoint
   ezUInt8 m_uiAllowedBreakPatterns = (ezUInt8)ezBreakablePattern::Cellular; ///< With which pattern to potentially break the shard.
 };
 
-/// \brief Most of the shatter calculation (and physics collider generation) is done in this task, to prevent performance drops.
+/// Most of the shatter calculation (and physics collider generation) is done in this task, to prevent performance drops.
 ///
 /// The result may be ready only with 1-3 frames delay.
 class ezShatterTask : public ezTask
@@ -127,7 +127,7 @@ protected:
 };
 
 
-/// \brief Component that represents a destructible slab that can be broken into shards.
+/// Component that represents a destructible slab that can be broken into shards.
 ///
 /// This component creates a breakable surface that can shatter into smaller pieces when hit.
 /// The slab can be rectangular, triangular or circular and can be anchored on any of its edges.
@@ -168,40 +168,40 @@ public:
   void SetThickness(float fThickness); // [ property ]
   float GetThickness() const;          // [ property ]
 
-  /// \brief Sets the UV scaling factor for texture mapping
+  /// Sets the UV scaling factor for texture mapping
   void SetUvScale(ezVec2 vScale); // [ property ]
   ezVec2 GetUvScale() const;      // [ property ]
 
-  /// \brief Sets which edges of the slab are fixed/anchored in the world
+  /// Sets which edges of the slab are fixed/anchored in the world
   void SetFlags(ezBitflags<ezJoltBreakableSlabFlags> flags); // [ property ]
   ezBitflags<ezJoltBreakableSlabFlags> GetFlags() const      // [ property ]
   {
     return m_Flags;
   }
 
-  /// \brief Sets the basic shape of the breakable slab (rectangle, triangle, circle)
+  /// Sets the basic shape of the breakable slab (rectangle, triangle, circle)
   void SetShape(ezEnum<ezJoltBreakableShape> shape); // [ property ]
   ezEnum<ezJoltBreakableShape> GetShape() const      // [ property ]
   {
     return m_Shape;
   }
 
-  /// \brief Restores the slab to its original unbroken state
+  /// Restores the slab to its original unbroken state
   void Restore(); // [ scriptable ]
 
-  /// \brief Shatters the entire slab into pieces of roughly the given size
+  /// Shatters the entire slab into pieces of roughly the given size
   /// \param fShardSize The approximate size of generated shards
   /// \param vImpulse The impulse to apply to the shards
   void ShatterAll(float fShardSize, const ezVec3& vImpulse); // [ scriptable ]
 
-  /// \brief Shatters the slab using a cellular (Voronoi) pattern around a point
+  /// Shatters the slab using a cellular (Voronoi) pattern around a point
   /// \param vGlobalPosition The world position where to initiate the break
   /// \param fCellSize The approximate size of the cellular shards
   /// \param vImpulse The impulse to apply to the shards
   /// \param fMakeDynamicRadius Radius around the break point where shards become dynamic
   void ShatterCellular(const ezVec3& vGlobalPosition, float fCellSize, const ezVec3& vImpulse, float fMakeDynamicRadius); // [ scriptable ]
 
-  /// \brief Shatters the slab in a radial pattern around a point
+  /// Shatters the slab in a radial pattern around a point
   /// \param vGlobalPosition The world position where to initiate the break
   /// \param fImpactRadius The radius of the impact area
   /// \param vImpulse The impulse to apply to the shards

@@ -19,7 +19,7 @@ private:
   friend class ezThirdPersonViewComponent;
 };
 
-/// \brief The third-person View component is used to place an object, typically a camera, relative to another object with clear line of sight.
+/// The third-person View component is used to place an object, typically a camera, relative to another object with clear line of sight.
 ///
 /// The component will make the owner object look at the target point and place it at a certain distance.
 /// When there are physical obstacles between the camera and the target, it moves the owner object closer.
@@ -41,11 +41,11 @@ public:
   ezThirdPersonViewComponent();
   ~ezThirdPersonViewComponent();
 
-  /// \brief Changes the object that the view should focus on.
+  /// Changes the object that the view should focus on.
   void SetTargetObject(const char* szTargetObject);
   const char* GetTargetObject() const;
 
-  /// \brief Makes the camera rotate up or down by the given angle within the defined boundaries.
+  /// Makes the camera rotate up or down by the given angle within the defined boundaries.
   void RotateUp(ezAngle angle); // [ scriptable ]
 
 protected:

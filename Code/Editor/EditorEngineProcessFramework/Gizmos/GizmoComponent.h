@@ -23,7 +23,7 @@ public:
   ezUInt32 m_uiHighlightID = 0;
 };
 
-/// \brief Used by the editor to render gizmo meshes.
+/// Used by the editor to render gizmo meshes.
 ///
 /// Gizmos use special shaders to have constant screen-space size and swap geometry towards the viewer,
 /// so their culling is non-trivial. This component takes care of that and of the highlight color.

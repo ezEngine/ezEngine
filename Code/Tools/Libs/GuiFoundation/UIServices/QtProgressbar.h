@@ -11,7 +11,7 @@ class QWinTaskbarButton;
 class ezProgress;
 struct ezProgressEvent;
 
-/// \brief A Qt implementation to display the state of an ezProgress instance.
+/// A Qt implementation to display the state of an ezProgress instance.
 ///
 /// Create a single instance of this at application startup and link it to an ezProgress instance.
 /// Whenever the instance's progress state changes, this class will display a simple progress bar.
@@ -21,7 +21,7 @@ public:
   ezQtProgressbar();
   ~ezQtProgressbar();
 
-  /// \brief Sets the ezProgress instance that should be visualized.
+  /// Sets the ezProgress instance that should be visualized.
   void SetProgressbar(ezProgress* pProgress);
 
   bool IsProcessingEvents() const { return m_iNestedProcessEvents > 0; }

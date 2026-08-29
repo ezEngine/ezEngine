@@ -4,7 +4,7 @@
 
 class ezRTTI;
 
-/// \brief A typed raw pointer.
+/// A typed raw pointer.
 ///
 /// Common use case is the storage of object pointers inside an ezVariant.
 /// Has the same lifetime concerns that any other raw pointer.

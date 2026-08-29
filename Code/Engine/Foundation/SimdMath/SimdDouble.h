@@ -8,40 +8,40 @@ class EZ_FOUNDATION_DLL ezSimdDouble
 public:
   EZ_DECLARE_POD_TYPE();
 
-  /// \brief Default constructor, leaves the data uninitialized.
+  /// Default constructor, leaves the data uninitialized.
   ezSimdDouble();
 
-  /// \brief Constructs from a given float.
+  /// Constructs from a given float.
   ezSimdDouble(float f);
 
-  /// \brief Constructs from a given double.
+  /// Constructs from a given double.
   ezSimdDouble(double f);
 
-  /// \brief Constructs from a given integer.
+  /// Constructs from a given integer.
   ezSimdDouble(ezInt32 i);
 
-  /// \brief Constructs from a given integer.
+  /// Constructs from a given integer.
   ezSimdDouble(ezUInt32 i);
 
-  /// \brief Constructs from given angle.
+  /// Constructs from given angle.
   ezSimdDouble(ezAngle a);
 
-  /// \brief Constructs from smaller SIMD
+  /// Constructs from smaller SIMD
   ezSimdDouble(ezInternal::QuadFloat v);
 
-  /// \brief Constructs from the internal implementation type.
+  /// Constructs from the internal implementation type.
   ezSimdDouble(ezInternal::QuadDouble v);
 
-  // /// \brief Returns the stored number as a standard float.
+  // /// Returns the stored number as a standard float.
   // operator float() const;
 
-  /// \brief Returns the stored number as a standard double.
+  /// Returns the stored number as a standard double.
   operator double() const;
 
-  /// \brief Creates an ezSimdDouble that is initialized to zero.
+  /// Creates an ezSimdDouble that is initialized to zero.
   [[nodiscard]] static ezSimdDouble MakeZero();
 
-  /// \brief Creates an ezSimdDouble that is initialized to Not-A-Number (NaN).
+  /// Creates an ezSimdDouble that is initialized to Not-A-Number (NaN).
   [[nodiscard]] static ezSimdDouble MakeNaN();
 
 public:

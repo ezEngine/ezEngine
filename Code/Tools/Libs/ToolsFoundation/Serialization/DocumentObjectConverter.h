@@ -5,7 +5,7 @@
 
 class ezObjectAccessorBase;
 
-/// \brief Writes the state of an ezDocumentObject to an abstract graph.
+/// Writes the state of an ezDocumentObject to an abstract graph.
 ///
 /// This information can then be applied to another ezDocument object through ezDocumentObjectConverterReader,
 /// or to entirely different class using ezRttiConverterReader.
@@ -35,7 +35,7 @@ private:
 };
 
 
-/// \brief Reads document objects from an abstract graph and reconstructs them in a document.
+/// Reads document objects from an abstract graph and reconstructs them in a document.
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectConverterReader
 {
 public:

@@ -32,7 +32,7 @@ struct ezOccluderType
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezOccluderType);
 
-/// \brief Adds invisible geometry to a scene that is used for occlusion culling.
+/// Adds invisible geometry to a scene that is used for occlusion culling.
 ///
 /// The component adds a box occluder to the scene. The renderer uses this geometry
 /// to cull other objects which are behind occluder geometry. Use occluder components to optimize levels.
@@ -65,11 +65,11 @@ public:
   ezOccluderComponent();
   ~ezOccluderComponent();
 
-  /// \brief Sets the extents of the occluder.
+  /// Sets the extents of the occluder.
   void SetExtents(const ezVec3& vExtents);                // [ property ]
   const ezVec3& GetExtents() const { return m_vExtents; } // [ property ]
 
-  /// \brief Sets the type of occluder.
+  /// Sets the type of occluder.
   void SetType(ezEnum<ezOccluderType> type);                // [ property ]
   ezEnum<ezOccluderType> GetType() const { return m_Type; } // [ property ]
 

@@ -11,7 +11,7 @@ struct ezPhantomRttiManagerEvent;
 class ezExposedParameters;
 struct ezAssetCuratorEvent;
 
-/// \brief Lazily converts ezExposedParameters into phantom types.
+/// Lazily converts ezExposedParameters into phantom types.
 /// Call GetExposedParametersType to create a type for a sub-asset ID.
 class ezExposedParametersTypeRegistry
 {
@@ -20,10 +20,10 @@ class ezExposedParametersTypeRegistry
 public:
   ezExposedParametersTypeRegistry();
   ~ezExposedParametersTypeRegistry();
-  /// \brief Returns null if the curator can find the asset or if the asset
+  /// Returns null if the curator can find the asset or if the asset
   /// does not have any ezExposedParameters meta data.
   const ezRTTI* GetExposedParametersType(const char* szResource);
-  /// \brief All exposed parameter types derive from this.
+  /// All exposed parameter types derive from this.
   const ezRTTI* GetExposedParametersBaseType() const { return m_pBaseType; }
 
 private:

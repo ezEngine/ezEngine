@@ -16,7 +16,7 @@ namespace JPH
 
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
-/// \brief How a rope end gets attached to the anchor point.
+/// How a rope end gets attached to the anchor point.
 struct ezJoltRopeAnchorConstraintMode
 {
   using StorageType = ezInt8;
@@ -50,7 +50,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Creates a physically simulated rope that is made up of multiple segments.
+/// Creates a physically simulated rope that is made up of multiple segments.
 ///
 /// The rope will be created between two anchor points. The component requires at least one anchor to be provided,
 /// if no second anchor is given, the rope's owner is used as the second.
@@ -80,11 +80,11 @@ public:
   ezJoltRopeComponent();
   ~ezJoltRopeComponent();
 
-  /// \brief How strongly gravity pulls the rope down.
+  /// How strongly gravity pulls the rope down.
   void SetGravityFactor(float fGravity);                      // [ property ]
   float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
 
-  /// \brief The ezSurfaceResource to be used on the rope physics bodies.
+  /// The ezSurfaceResource to be used on the rope physics bodies.
   void SetSurfaceFile(ezStringView sFile); // [ property ]
   ezStringView GetSurfaceFile() const;     // [ property ]
 
@@ -114,30 +114,30 @@ public:
   ezFloat16 m_fWeightScale = 1.0f;                  // [ property ]
   ezFloat16 m_fWeightMass = 5.0f;                   // [ property ]
 
-  /// \brief Sets the anchor 1 references by object GUID.
+  /// Sets the anchor 1 references by object GUID.
   void SetAnchor1Reference(const char* szReference); // [ property ]
 
-  /// \brief Sets the anchor 2 references by object GUID.
+  /// Sets the anchor 2 references by object GUID.
   void SetAnchor2Reference(const char* szReference); // [ property ]
 
-  /// \brief Sets the anchor 1 reference.
+  /// Sets the anchor 1 reference.
   void SetAnchor1(ezGameObjectHandle hActor);
 
-  /// \brief Sets the anchor 2 reference.
+  /// Sets the anchor 2 reference.
   void SetAnchor2(ezGameObjectHandle hActor);
 
-  /// \brief Adds an impulse (like an impact) to the rope.
+  /// Adds an impulse (like an impact) to the rope.
   void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg);
 
-  /// \brief Configures how the rope is attached at anchor 1.
+  /// Configures how the rope is attached at anchor 1.
   void SetAnchor1ConstraintMode(ezEnum<ezJoltRopeAnchorConstraintMode> mode);                                 // [ property ]
   ezEnum<ezJoltRopeAnchorConstraintMode> GetAnchor1ConstraintMode() const { return m_Anchor1ConstraintMode; } // [ property ]
 
-  /// \brief Configures how the rope is attached at anchor 2.
+  /// Configures how the rope is attached at anchor 2.
   void SetAnchor2ConstraintMode(ezEnum<ezJoltRopeAnchorConstraintMode> mode);                                 // [ property ]
   ezEnum<ezJoltRopeAnchorConstraintMode> GetAnchor2ConstraintMode() const { return m_Anchor2ConstraintMode; } // [ property ]
 
-  /// \brief Makes sure that the rope's connection to a removed body also gets removed.
+  /// Makes sure that the rope's connection to a removed body also gets removed.
   void OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& ref_msg); // [ msg handler ]
 
 private:

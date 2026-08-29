@@ -9,7 +9,7 @@ class ezIpcChannel;
 class ezMessageLoop;
 
 
-/// \brief A protocol around ezIpcChannel to send reflected messages instead of byte array messages between client and server.
+/// A protocol around ezIpcChannel to send reflected messages instead of byte array messages between client and server.
 ///
 /// This wrapper class hooks into an existing ezIpcChannel. The ezIpcChannel is still responsible for all connection logic. This class merely provides a high-level messaging protocol via reflected messages derived from ezProcessMessage.
 /// Note that if this class is used, ezIpcChannel::Send must not be called manually anymore, only use ezIpcProcessMessageProtocol::Send.
@@ -20,13 +20,13 @@ public:
   ezIpcProcessMessageProtocol(ezIpcChannel* pChannel);
   ~ezIpcProcessMessageProtocol();
 
-  /// \brief Sends a message. pMsg can be destroyed after the call.
+  /// Sends a message. pMsg can be destroyed after the call.
   bool Send(ezProcessMessage* pMsg);
 
 
-  /// \brief Processes all pending messages by broadcasting m_MessageEvent. Not re-entrant.
+  /// Processes all pending messages by broadcasting m_MessageEvent. Not re-entrant.
   bool ProcessMessages();
-  /// \brief Block and wait for new messages and call ProcessMessages.
+  /// Block and wait for new messages and call ProcessMessages.
   ezResult WaitForMessages(ezTime timeout = ezTime::MakeZero());
 
 public:

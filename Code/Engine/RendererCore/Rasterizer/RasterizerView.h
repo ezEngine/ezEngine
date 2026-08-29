@@ -21,30 +21,30 @@ public:
   ezRasterizerView();
   ~ezRasterizerView();
 
-  /// \brief Changes the resolution of the view. Has to be called at least once before starting to render anything.
+  /// Changes the resolution of the view. Has to be called at least once before starting to render anything.
   void SetResolution(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio);
 
   ezUInt32 GetResolutionX() const { return m_uiResolutionX; }
   ezUInt32 GetResolutionY() const { return m_uiResolutionY; }
 
-  /// \brief Prepares the view to rasterize a new scene.
+  /// Prepares the view to rasterize a new scene.
   void BeginScene();
 
-  /// \brief Finishes rasterizing the scene. Visibility queries only work after this.
+  /// Finishes rasterizing the scene. Visibility queries only work after this.
   void EndScene();
 
-  /// \brief Writes an RGBA8 representation of the depth values to targetBuffer.
+  /// Writes an RGBA8 representation of the depth values to targetBuffer.
   ///
   /// The buffer must be large enough for the chosen resolution.
   void ReadBackFrame(ezArrayPtr<ezColorLinearUB> targetBuffer) const;
 
-  /// \brief Sets the camera from which to extract the rendering position, direction and field-of-view.
+  /// Sets the camera from which to extract the rendering position, direction and field-of-view.
   void SetCamera(const ezCamera* pCamera)
   {
     m_pCamera = pCamera;
   }
 
-  /// \brief Adds an object as an occluder to the scene. Once all occluders have been rasterized, visibility queries can be done.
+  /// Adds an object as an occluder to the scene. Once all occluders have been rasterized, visibility queries can be done.
   void AddObject(const ezRasterizerObject* pObject, const ezTransform& transform)
   {
     auto& inst = m_Instances.ExpandAndGetRef();
@@ -52,12 +52,12 @@ public:
     inst.m_Transform = transform;
   }
 
-  /// \brief Checks whether a box would be visible, or is fully occluded by the existing scene geometry.
+  /// Checks whether a box would be visible, or is fully occluded by the existing scene geometry.
   ///
   /// Note: This only works after EndScene().
   bool IsVisible(const ezSimdBBox& aabb) const;
 
-  /// \brief Wether any occluder was actually added and also rasterized. If not, no need to do any visibility checks.
+  /// Wether any occluder was actually added and also rasterized. If not, no need to do any visibility checks.
   bool HasRasterizedAnyOccluders() const
   {
     return m_bAnyOccludersRasterized;

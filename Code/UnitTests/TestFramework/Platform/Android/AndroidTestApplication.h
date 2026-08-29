@@ -6,7 +6,7 @@ struct android_app;
 
 int ezAndroidMain(int argc, char** argv);
 
-// \brief A small wrapper class around the android message loop to wait for window creation before starting tests.
+// A small wrapper class around the android message loop to wait for window creation before starting tests.
 class EZ_TEST_DLL ezAndroidTestApplication
 {
 public:

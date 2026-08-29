@@ -8,7 +8,7 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
-/// \brief The reflection data of a constant in a shader constant buffer.
+/// The reflection data of a constant in a shader constant buffer.
 /// \sa ezShaderConstantBufferLayout
 struct EZ_RENDERERFOUNDATION_DLL ezShaderConstant
 {
@@ -52,7 +52,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezShaderConstant
   ezUInt16 m_uiOffset = 0;
 };
 
-/// \brief Reflection data of a shader constant buffer.
+/// Reflection data of a shader constant buffer.
 /// \sa ezShaderResourceBinding
 class EZ_RENDERERFOUNDATION_DLL ezShaderConstantBufferLayout : public ezRefCounted
 {
@@ -63,7 +63,7 @@ public:
   EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezShaderConstantBufferLayout&);
 };
 
-/// \brief Shader reflection of the vertex shader input.
+/// Shader reflection of the vertex shader input.
 /// This is needed to figure out how to map a ezGALVertexDeclaration to a vertex shader stage.
 /// \sa ezGALShaderByteCode
 struct EZ_RENDERERFOUNDATION_DLL ezShaderVertexInputAttribute
@@ -75,7 +75,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezShaderVertexInputAttribute
   ezUInt8 m_uiLocation = 0; // The bind slot of a vertex input
 };
 
-/// \brief Shader reflection of a single shader resource (texture, constant buffer, etc.).
+/// Shader reflection of a single shader resource (texture, constant buffer, etc.).
 /// \sa ezGALShaderByteCode
 struct EZ_RENDERERFOUNDATION_DLL ezShaderResourceBinding
 {
@@ -92,7 +92,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezShaderResourceBinding
   static ezResult CreateMergedShaderResourceBinding(const ezArrayPtr<ezArrayPtr<const ezShaderResourceBinding>>& resourcesPerStage, ezDynamicArray<ezShaderResourceBinding>& out_bindings, bool bAllowMultipleBindingPerName);
 };
 
-/// \brief This class wraps shader byte code storage.
+/// This class wraps shader byte code storage.
 /// Since byte code can have different requirements for alignment, padding etc. this class manages it.
 /// Also since byte code is shared between multiple shaders (e.g. same vertex shaders for different pixel shaders)
 /// the instances of the byte codes are reference counted.

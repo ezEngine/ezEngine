@@ -36,7 +36,7 @@ public:
   float GetMaxDistance() const { return m_fMaxDistance; }
   float GetRolloff() const { return m_fRolloff; }
 
-  /// \brief Instantiates the sound, all arguments are optional.
+  /// Instantiates the sound, all arguments are optional.
   ezMiniAudioSoundInstance* InstantiateSound(ezRandom* pRng, ezWorld* pWorld, const ezComponentHandle& hComponent);
 
 private:

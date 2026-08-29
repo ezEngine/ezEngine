@@ -12,18 +12,18 @@
 
 class ezRemoteMessage;
 
-/// \brief Shader compiler interface.
+/// Shader compiler interface.
 /// Custom shader compiles need to derive from this class and implement the pure virtual interface functions. Instances are created via reflection so each implementation must be properly reflected.
 class EZ_RENDERERCORE_DLL ezShaderProgramCompiler : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezShaderProgramCompiler, ezReflectedClass);
 
 public:
-  /// \brief Returns the platforms that this shader compiler supports.
+  /// Returns the platforms that this shader compiler supports.
   /// \param out_platforms Filled with the platforms this compiler supports.
   virtual void GetSupportedPlatforms(ezHybridArray<ezString, 4>& out_platforms) = 0;
 
-  /// \brief Returns the layout used for material buffers on the given platform
+  /// Returns the layout used for material buffers on the given platform
   /// \param sPlatform The platform for which the layout is to be retrieved
   /// \return an ezGALBufferLayout value.
   virtual ezEnum<ezGALBufferLayout> GetMaterialBufferLayout(ezStringView sPlatform) const = 0;

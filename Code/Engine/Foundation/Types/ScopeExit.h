@@ -7,7 +7,7 @@
 ///
 /// Scope exit utilities for RAII-style cleanup operations.
 
-/// \brief Executes code automatically when the current scope closes
+/// Executes code automatically when the current scope closes
 ///
 /// Provides a convenient way to ensure cleanup code runs when leaving a scope,
 /// regardless of how the scope is exited (normal return, exception, early return).

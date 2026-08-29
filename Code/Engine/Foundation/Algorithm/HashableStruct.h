@@ -4,7 +4,7 @@
 #include <Foundation/Basics.h>
 
 
-/// \brief This class provides a base class for hashable structs (e.g. descriptor objects).
+/// This class provides a base class for hashable structs (e.g. descriptor objects).
 ///
 /// To help with this there are two parts:
 ///   1) memclear on initialization.
@@ -24,7 +24,7 @@ public:
   bool operator!=(const ezHashableStruct<DERIVED>& other) const;
   bool operator<(const ezHashableStruct<DERIVED>& other) const;
 
-  /// \brief Calculates the 32 bit hash of the struct and returns it
+  /// Calculates the 32 bit hash of the struct and returns it
   ezUInt32 CalculateHash() const; // [tested]
 };
 

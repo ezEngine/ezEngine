@@ -7,7 +7,7 @@
 class ezProgress;
 class ezProgressRange;
 
-/// \brief Through these events the state of an ezProgress instance is communicated.
+/// Through these events the state of an ezProgress instance is communicated.
 ///
 /// Other code can use this to visualize the progress in different ways.
 /// For instance a GUI application can show a progress bar dialog and a game
@@ -26,7 +26,7 @@ struct EZ_FOUNDATION_DLL ezProgressEvent
   ezProgress* m_pProgressbar;
 };
 
-/// \brief Manages the way a progress bar is subdivided and advanced.
+/// Manages the way a progress bar is subdivided and advanced.
 ///
 /// ezProgress represents a single progress bar. It can be sub-divided into groups and sub-groups using ezProgressbarRange.
 /// From the ranges and the current advancement, a final progress percentage is computed. Every time a significant change
@@ -38,40 +38,40 @@ public:
   ezProgress();
   ~ezProgress();
 
-  /// \brief Returns the current overall progress in [0; 1] range.
+  /// Returns the current overall progress in [0; 1] range.
   float GetCompletion() const;
 
-  /// \brief Sets the current overall progress in [0; 1] range. Should not be called directly, typically called by ezProgressRange.
+  /// Sets the current overall progress in [0; 1] range. Should not be called directly, typically called by ezProgressRange.
   void SetCompletion(float fCompletion);
 
-  /// \brief Resets the progress bar to 0% completion.
+  /// Resets the progress bar to 0% completion.
   void Reset();
 
-  /// \brief Returns the current 'headline' text for the progress bar
+  /// Returns the current 'headline' text for the progress bar
   ezStringView GetMainDisplayText() const;
 
-  /// \brief Returns the current detail text for the progress bar
+  /// Returns the current detail text for the progress bar
   ezStringView GetStepDisplayText() const;
 
-  /// \brief Used to inform ezProgress of outside user input. May have an effect or not.
+  /// Used to inform ezProgress of outside user input. May have an effect or not.
   void UserClickedCancel();
 
-  /// \brief Whether the user requested to cancel the operation.
+  /// Whether the user requested to cancel the operation.
   bool WasCanceled() const;
 
-  /// \brief Returns whether the current operations may be canceled or not.
+  /// Returns whether the current operations may be canceled or not.
   bool AllowUserCancel() const;
 
-  /// \brief Returns the currently set default ezProgress instance. This will always be valid.
+  /// Returns the currently set default ezProgress instance. This will always be valid.
   static ezProgress* GetGlobalProgressbar();
 
-  /// \brief Allows to set a custom ezProgress instance as the global default instance.
+  /// Allows to set a custom ezProgress instance as the global default instance.
   static void SetGlobalProgressbar(ezProgress* pProgress);
 
-  /// \brief Events are sent when the progress changes
+  /// Events are sent when the progress changes
   ezEvent<const ezProgressEvent&> m_Events;
 
-  /// \brief Custom user data.
+  /// Custom user data.
   void* m_pUserData = nullptr;
 
 private:
@@ -89,7 +89,7 @@ private:
   float m_fCurrentCompletion = 0.0f;
 };
 
-/// \brief ezProgressRange is the preferred method to inform the system of progress.
+/// ezProgressRange is the preferred method to inform the system of progress.
 ///
 /// ezProgressRange is a scoped class, ie. upon creation it adds a range to the current progress
 /// and upon destruction the entire range is considered to be completed.
@@ -102,7 +102,7 @@ class EZ_FOUNDATION_DLL ezProgressRange
   EZ_DISALLOW_COPY_AND_ASSIGN(ezProgressRange);
 
 public:
-  /// \brief Creates a progress range scope.
+  /// Creates a progress range scope.
   ///
   /// If any other progress range is currently active, it will become the parent range and the currently active step will be subdivided.
   /// \param szDisplayText is the main display text for this range.
@@ -111,34 +111,34 @@ public:
   /// \param pProgressbar can be specified, if available, otherwise the currently active ezProgress instance is used.
   ezProgressRange(ezStringView sDisplayText, ezUInt32 uiSteps, bool bAllowCancel, ezProgress* pProgressbar = nullptr);
 
-  /// \brief Creates a progress range scope without steps. Use SetCompletion to manually set the completion value.
+  /// Creates a progress range scope without steps. Use SetCompletion to manually set the completion value.
   ezProgressRange(ezStringView sDisplayText, bool bAllowCancel, ezProgress* pProgressbar = nullptr);
 
-  /// \brief The destructor closes the current range. All progress in this range is assumed to have completed,
+  /// The destructor closes the current range. All progress in this range is assumed to have completed,
   /// even if BeginNextStep() has not been called once for every subdivision step.
   ~ezProgressRange();
 
-  /// \brief Returns the ezProgress instance that this range uses.
+  /// Returns the ezProgress instance that this range uses.
   ezProgress* GetProgressbar() const;
 
-  /// \brief Allows to weigh each step differently.
+  /// Allows to weigh each step differently.
   ///
   /// This makes it possible to divide an operation into two steps, but have one part take up 90% and the other 10%.
   /// \param uiStep The index for the step to set the weight
   /// \param fWeight The weighting in [0; 1] range
   void SetStepWeighting(ezUInt32 uiStep, float fWeight);
 
-  /// \brief Should be called whenever a new sub-step is started to advance the progress.
+  /// Should be called whenever a new sub-step is started to advance the progress.
   ///
   /// \param szStepDisplayText The sub-text for the next step to be displayed.
   /// \param uiNumSteps How many steps have been completed.
   /// \return Returns false if the user clicked cancel.
   bool BeginNextStep(ezStringView sStepDisplayText, ezUInt32 uiNumSteps = 1);
 
-  /// \brief Manually set the completion value between 0..1.
+  /// Manually set the completion value between 0..1.
   bool SetCompletion(double fCompletionFactor);
 
-  /// \brief Whether the user requested to cancel the operation.
+  /// Whether the user requested to cancel the operation.
   bool WasCanceled() const;
 
 private:

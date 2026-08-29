@@ -2,7 +2,7 @@
 
 #include <EditorFramework/DragDrop/ComponentDragDropHandler.h>
 
-/// \brief Base class for drag and drop handler that drop on a ezSceneLayer.
+/// Base class for drag and drop handler that drop on a ezSceneLayer.
 class ezLayerDragDropHandler : public ezDragDropHandler
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezLayerDragDropHandler, ezDragDropHandler);

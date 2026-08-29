@@ -30,7 +30,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezEngineWindowEvent
   ezQtEngineViewWidget* m_pView = nullptr;
 };
 
-/// \brief Base class for all document windows that need a connection to the engine process, and might want to render 3D content.
+/// Base class for all document windows that need a connection to the engine process, and might want to render 3D content.
 ///
 /// This class has an ezEditorEngineConnection object for sending messages between the editor and the engine process.
 /// It also allows to embed ezQtEngineViewWidget objects into the UI, which enable 3D rendering by the engine process.
@@ -47,10 +47,10 @@ public:
 
   ezAssetDocument* GetDocument() const;
 
-  /// \brief Returns the ezQtEngineViewWidget over which the mouse currently hovers
+  /// Returns the ezQtEngineViewWidget over which the mouse currently hovers
   ezQtEngineViewWidget* GetHoveredViewWidget() const;
 
-  /// \brief Returns the ezQtEngineViewWidget that has the input focus
+  /// Returns the ezQtEngineViewWidget that has the input focus
   ezQtEngineViewWidget* GetFocusedViewWidget() const;
 
   ezQtEngineViewWidget* GetViewWidgetByID(ezUInt32 uiViewID) const;

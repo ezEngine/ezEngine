@@ -44,7 +44,7 @@ public:
   HandleInteraction GetLastHandleInteraction() const { return m_LastHandleInteraction; }
   TranslateMode GetTranslateMode() const { return m_Mode; }
 
-  /// \brief Used when CTRL+drag moves the object AND the camera
+  /// Used when CTRL+drag moves the object AND the camera
   void SetCameraSpeed(float fSpeed);
 
   virtual void UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow) override;

@@ -6,7 +6,7 @@
 
 /// \todo Add move semantics for ezRemoteMessage
 
-/// \brief Encapsulates all the data that is transmitted when sending or receiving a message with ezRemoteInterface
+/// Encapsulates all the data that is transmitted when sending or receiving a message with ezRemoteInterface
 class EZ_FOUNDATION_DLL ezRemoteMessage
 {
 public:
@@ -19,14 +19,14 @@ public:
   /// \name Sending
   ///@{
 
-  /// \brief For setting the message IDs before sending it
+  /// For setting the message IDs before sending it
   EZ_ALWAYS_INLINE void SetMessageID(ezUInt32 uiSystemID, ezUInt32 uiMessageID)
   {
     m_uiSystemID = uiSystemID;
     m_uiMsgID = uiMessageID;
   }
 
-  /// \brief Returns a stream writer to append data to the message
+  /// Returns a stream writer to append data to the message
   EZ_ALWAYS_INLINE ezStreamWriter& GetWriter() { return m_Writer; }
 
 
@@ -35,7 +35,7 @@ public:
   /// \name Receiving
   ///@{
 
-  /// \brief Returns a stream reader for reading the message data
+  /// Returns a stream reader for reading the message data
   EZ_ALWAYS_INLINE ezStreamReader& GetReader() { return m_Reader; }
   EZ_ALWAYS_INLINE ezUInt32 GetApplicationID() const { return m_uiApplicationID; }
   EZ_ALWAYS_INLINE ezUInt32 GetSystemID() const { return m_uiSystemID; }
@@ -59,7 +59,7 @@ private:
   ezMemoryStreamWriter m_Writer;
 };
 
-/// \brief Base class for IPC messages transmitted by ezIpcChannel.
+/// Base class for IPC messages transmitted by ezIpcChannel.
 class EZ_FOUNDATION_DLL ezProcessMessage : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezProcessMessage, ezReflectedClass);

@@ -4,7 +4,7 @@
 
 using ezJoltHingeConstraintComponentManager = ezComponentManager<class ezJoltHingeConstraintComponent, ezBlockStorageType::Compact>;
 
-/// \brief Implements a rotational physics constraint.
+/// Implements a rotational physics constraint.
 ///
 /// Hinge constraints are typically used for doors and wheels. They may either rotate freely
 /// or be limited between an upper and lower angle.
@@ -35,31 +35,31 @@ public:
   ezJoltHingeConstraintComponent();
   ~ezJoltHingeConstraintComponent();
 
-  /// \brief Enables a rotational limit on the hinge.
+  /// Enables a rotational limit on the hinge.
   void SetLimitMode(ezJoltConstraintLimitMode::Enum mode);                     // [ property ]
   ezJoltConstraintLimitMode::Enum GetLimitMode() const { return m_LimitMode; } // [ property ]
 
-  /// \brief Sets how far the hinge may rotate in one direction.
+  /// Sets how far the hinge may rotate in one direction.
   void SetLowerLimitAngle(ezAngle f);                         // [ property ]
   ezAngle GetLowerLimitAngle() const { return m_LowerLimit; } // [ property ]
 
-  /// \brief Sets how far the hinge may rotate in the other direction.
+  /// Sets how far the hinge may rotate in the other direction.
   void SetUpperLimitAngle(ezAngle f);                         // [ property ]
   ezAngle GetUpperLimitAngle() const { return m_UpperLimit; } // [ property ]
 
-  /// \brief Sets how difficult it is to rotate the hinge.
+  /// Sets how difficult it is to rotate the hinge.
   void SetFriction(float f);                        // [ property ]
   float GetFriction() const { return m_fFriction; } // [ property ]
 
-  /// \brief Enables a drive for the hinge to either constantly rotate or attempt to reach a certain rotation angle.
+  /// Enables a drive for the hinge to either constantly rotate or attempt to reach a certain rotation angle.
   void SetDriveMode(ezJoltConstraintDriveMode::Enum mode);                     // [ property ]
   ezJoltConstraintDriveMode::Enum GetDriveMode() const { return m_DriveMode; } // [ property ]
 
-  /// \brief Sets the drive target angle or velocity.
+  /// Sets the drive target angle or velocity.
   void SetDriveTargetValue(ezAngle f);                               // [ property ]
   ezAngle GetDriveTargetValue() const { return m_DriveTargetValue; } // [ property ]
 
-  /// \brief Sets how much force the drive may use to reach its target.
+  /// Sets how much force the drive may use to reach its target.
   void SetDriveStrength(float f);                             // [ property ]
   float GetDriveStrength() const { return m_fDriveStrength; } // [ property ]
 

@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Declarations.h>
 
-/// \brief A 16 bit IEEE float class. Often called "half"
+/// A 16 bit IEEE float class. Often called "half"
 ///
 /// This class only contains functions to convert between float and float16. It does not support any mathematical operations.
 /// It is only intended for conversion, always do all mathematical operations on regular floats (or let the GPU do them on halfs).
@@ -13,28 +13,28 @@ public:
   // Means that vectors can be copied using memcpy instead of copy construction.
   EZ_DECLARE_POD_TYPE();
 
-  /// \brief Default constructor does not initialize the value.
+  /// Default constructor does not initialize the value.
   ezFloat16() = default;
 
-  /// \brief Create float16 from float.
+  /// Create float16 from float.
   ezFloat16(float f); // [tested]
 
-  /// \brief Create float16 from float.
+  /// Create float16 from float.
   void operator=(float f); // [tested]
 
-  /// \brief Create float16 from raw data.
+  /// Create float16 from raw data.
   void SetRawData(ezUInt16 uiData) { m_uiData = uiData; } // [tested]
 
-  /// \brief Returns the raw 16 Bit data.
+  /// Returns the raw 16 Bit data.
   ezUInt16 GetRawData() const { return m_uiData; } // [tested]
 
-  /// \brief Convert float16 to float.
+  /// Convert float16 to float.
   operator float() const; // [tested]
 
-  /// \brief Returns true, if both values are identical.
+  /// Returns true, if both values are identical.
   bool operator==(const ezFloat16& c2) { return m_uiData == c2.m_uiData; } // [tested]
 
-  /// \brief Returns true, if both values are not identical.
+  /// Returns true, if both values are not identical.
   bool operator!=(const ezFloat16& c2) { return m_uiData != c2.m_uiData; } // [tested]
 
 private:
@@ -42,7 +42,7 @@ private:
   ezUInt16 m_uiData;
 };
 
-/// \brief A simple helper class to use half-precision floats (ezFloat16) as vectors
+/// A simple helper class to use half-precision floats (ezFloat16) as vectors
 class EZ_FOUNDATION_DLL ezFloat16Vec2
 {
 public:
@@ -58,7 +58,7 @@ public:
   ezFloat16 x, y;
 };
 
-/// \brief A simple helper class to use half-precision floats (ezFloat16) as vectors
+/// A simple helper class to use half-precision floats (ezFloat16) as vectors
 class EZ_FOUNDATION_DLL ezFloat16Vec3
 {
 public:
@@ -74,7 +74,7 @@ public:
   ezFloat16 x, y, z;
 };
 
-/// \brief A simple helper class to use half-precision floats (ezFloat16) as vectors
+/// A simple helper class to use half-precision floats (ezFloat16) as vectors
 class EZ_FOUNDATION_DLL ezFloat16Vec4
 {
 public:

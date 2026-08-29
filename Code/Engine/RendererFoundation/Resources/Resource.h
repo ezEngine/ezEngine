@@ -31,7 +31,7 @@ protected:
 #endif
 };
 
-/// \brief Base class for GAL resources, stores a creation description of the object and also allows for reference counting.
+/// Base class for GAL resources, stores a creation description of the object and also allows for reference counting.
 template <typename CreationDescription>
 class ezGALResource : public ezGALResourceBase
 {

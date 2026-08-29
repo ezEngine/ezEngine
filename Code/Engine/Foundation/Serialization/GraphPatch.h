@@ -13,7 +13,7 @@ class ezAbstractObjectGraph;
 class ezGraphVersioning;
 class ezGraphPatchContext;
 
-/// \brief Base class for implementing data migration patches for object graphs.
+/// Base class for implementing data migration patches for object graphs.
 ///
 /// Graph patches enable automatic data migration when type definitions change between application
 /// versions. By creating static instances of derived classes, patches are automatically registered
@@ -48,7 +48,7 @@ public:
     GraphPatch, ///< Patch applies to the entire graph, processes all nodes regardless of type
   };
 
-  /// \brief Constructs a patch for the specified type and target version.
+  /// Constructs a patch for the specified type and target version.
   ///
   /// Parameters:
   /// - szType: Type name to patch (ignored for GraphPatch type)
@@ -65,7 +65,7 @@ public:
   /// and the patch implementation must determine what to process.
   ezGraphPatch(const char* szType, ezUInt32 uiTypeVersion, PatchType type = PatchType::NodePatch);
 
-  /// \brief Main patch implementation - transforms data from old version to new version.
+  /// Main patch implementation - transforms data from old version to new version.
   ///
   /// Implementation requirements:
   /// - NodePatch: Transform pNode from its current version to m_uiTypeVersion
@@ -78,9 +78,9 @@ public:
   /// Important: Patches should be idempotent and handle missing properties gracefully
   /// for robustness against incomplete version chains.
   virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const = 0;
-  /// \brief Returns the type to patch.
+  /// Returns the type to patch.
   const char* GetType() const;
-  /// \brief Returns the type version to patch to.
+  /// Returns the type version to patch to.
   ezUInt32 GetTypeVersion() const;
   PatchType GetPatchType() const;
 

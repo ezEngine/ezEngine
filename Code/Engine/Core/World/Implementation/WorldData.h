@@ -54,13 +54,13 @@ namespace ezInternal
 
       operator const ezGameObject*() const;
 
-      /// \brief Advances the iterator to the next object. The iterator will not be valid anymore, if the last object is reached.
+      /// Advances the iterator to the next object. The iterator will not be valid anymore, if the last object is reached.
       void Next();
 
-      /// \brief Checks whether this iterator points to a valid object.
+      /// Checks whether this iterator points to a valid object.
       bool IsValid() const;
 
-      /// \brief Shorthand for 'Next'
+      /// Shorthand for 'Next'
       void operator++();
 
     private:
@@ -79,13 +79,13 @@ namespace ezInternal
 
       operator ezGameObject*();
 
-      /// \brief Advances the iterator to the next object. The iterator will not be valid anymore, if the last object is reached.
+      /// Advances the iterator to the next object. The iterator will not be valid anymore, if the last object is reached.
       void Next();
 
-      /// \brief Checks whether this iterator points to a valid object.
+      /// Checks whether this iterator points to a valid object.
       bool IsValid() const;
 
-      /// \brief Shorthand for 'Next'
+      /// Shorthand for 'Next'
       void operator++();
 
     private:
@@ -251,7 +251,7 @@ namespace ezInternal
     bool m_bSimulateWorld = true;
     bool m_bReportErrorWhenStaticObjectMoves = true;
 
-    /// \brief Maps some data (given as void*) to an ezGameObjectHandle. Only available in special situations (e.g. editor use cases).
+    /// Maps some data (given as void*) to an ezGameObjectHandle. Only available in special situations (e.g. editor use cases).
     ezDelegate<ezGameObjectHandle(const void*, ezComponentHandle, ezStringView)> m_GameObjectReferenceResolver;
 
     struct ResourceReloadContext

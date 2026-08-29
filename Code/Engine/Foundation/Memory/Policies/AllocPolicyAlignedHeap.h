@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Memory/Allocator.h>
 
-/// \brief Aligned Heap memory allocation policy.
+/// Aligned Heap memory allocation policy.
 ///
 /// \see ezAllocatorWithPolicy
 class ezAllocPolicyAlignedHeap

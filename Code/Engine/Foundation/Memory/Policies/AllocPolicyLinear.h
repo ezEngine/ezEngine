@@ -2,7 +2,7 @@
 
 #include <Foundation/Containers/SmallArray.h>
 
-/// \brief This policy implements a linear allocator that can only grow and at some point all allocations gets reset at once.
+/// This policy implements a linear allocator that can only grow and at some point all allocations gets reset at once.
 ///
 /// For debugging purposes, the policy can also overwrite all freed memory with 0xCDCDCDCD to make it easier to find use-after-free situations.
 ///
@@ -32,7 +32,7 @@ public:
     }
   }
 
-  /// \brief Sets the size of the next bucket to allocate. This can be used to prevent an excessive number of buckets if the required total allocation size is known in advance.
+  /// Sets the size of the next bucket to allocate. This can be used to prevent an excessive number of buckets if the required total allocation size is known in advance.
   EZ_FORCE_INLINE void SetNextBucketSize(ezUInt32 uiSize)
   {
     m_uiNextBucketSize = uiSize;

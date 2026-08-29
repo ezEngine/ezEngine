@@ -25,7 +25,7 @@ void ezObjectPickingResult::Reset()
   m_vPickingRayStart.SetZero();
 }
 
-/// \brief Small helper class which exposes the native surface that the renderer can render into.
+/// Small helper class which exposes the native surface that the renderer can render into.
 class ezQtNativeSurfaceWidget : public QWidget
 {
 public:

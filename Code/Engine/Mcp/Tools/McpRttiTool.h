@@ -7,7 +7,7 @@ class ezMcpJsonWriter;
 class ezAbstractProperty;
 class ezAbstractFunctionProperty;
 
-/// \brief Exposes the reflection data, so an agent can find out which types exist and what they look like.
+/// Exposes the reflection data, so an agent can find out which types exist and what they look like.
 ///
 /// Split into four narrow tools rather than one, because the codebase has well over a thousand reflected
 /// types: a single 'dump everything' call would cost more tokens than a client can spend and would bury

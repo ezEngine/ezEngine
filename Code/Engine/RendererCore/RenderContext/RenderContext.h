@@ -125,7 +125,7 @@ public:
   void ResetBindGroup(ezUInt32 uiBindGroup);
   void ResetBindGroups();
 
-  /// \brief Sets push constants to the given data block.
+  /// Sets push constants to the given data block.
   /// Note that for platforms that don't support push constants, this is emulated via a constant buffer. Thus, a slot name must be provided as well which matches the name of the BEGIN_PUSH_CONSTANTS block in the shader.
   /// \param sSlotName Name of the BEGIN_PUSH_CONSTANTS block in the shader.
   /// \param data Data of the push constants. If more than 128 bytes, ezGALDeviceCapabilities::m_uiMaxPushConstantsSize should be checked to ensure the data block is not too big for the platform.
@@ -141,7 +141,7 @@ public:
     SetPushConstants(sSlotName, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(&constants), sizeof(T)));
   }
 
-  /// \brief Sets the currently active shader on the given render context.
+  /// Sets the currently active shader on the given render context.
   ///
   /// This function has no effect until the next draw or dispatch call on the context.
   void BindShader(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);
@@ -171,20 +171,20 @@ public:
   const ezGlobalConstants& ReadGlobalConstants() const;
   void SetGlobalAndWorldTimeConstants(ezTime worldTime);
 
-  /// \brief Sets the texture filtering quality for all quality-adjustable samplers.
+  /// Sets the texture filtering quality for all quality-adjustable samplers.
   ///
   /// The default quality is Anisotropic4x and is controlled via the Rendering.TextureQuality CVar.
   /// Changing quality triggers immediate recreation of all affected sampler states.
   /// Pass bForce = true to force recreation even if the quality value did not change.
   void SetDefaultTextureQuality(ezGALTextureQuality::Enum quality, bool bForce = false);
 
-  /// \brief Returns the texture filter mode that is used by default for textures.
+  /// Returns the texture filter mode that is used by default for textures.
   ezGALTextureQuality::Enum GetDefaultTextureQuality() const { return m_DefaultTextureQuality; }
 
-  /// \brief Set async shader loading. During runtime all shaders should be preloaded so this is off by default.
+  /// Set async shader loading. During runtime all shaders should be preloaded so this is off by default.
   void SetAllowAsyncShaderLoading(bool bAllow);
 
-  /// \brief Returns async shader loading. During runtime all shaders should be preloaded so this is off by default.
+  /// Returns async shader loading. During runtime all shaders should be preloaded so this is off by default.
   bool GetAllowAsyncShaderLoading();
 
 

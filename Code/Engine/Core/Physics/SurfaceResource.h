@@ -11,7 +11,7 @@
 class ezWorld;
 class ezUuid;
 
-/// \brief Event data for surface resource lifecycle notifications.
+/// Event data for surface resource lifecycle notifications.
 struct ezSurfaceResourceEvent
 {
   enum class Type
@@ -24,7 +24,7 @@ struct ezSurfaceResourceEvent
   ezSurfaceResource* m_pSurface = nullptr;
 };
 
-/// \brief Resource representing a physics surface with material properties and interaction behaviors.
+/// Resource representing a physics surface with material properties and interaction behaviors.
 ///
 /// Defines how objects interact with a surface through collision responses, sound effects,
 /// particle effects, and other configurable behaviors. Supports inheritance from base surfaces
@@ -46,7 +46,7 @@ public:
   void* m_pPhysicsMaterialPhysX = nullptr;
   void* m_pPhysicsMaterialJolt = nullptr;
 
-  /// \brief Spawns the prefab that was defined for the given interaction at the given position and using the configured orientation.
+  /// Spawns the prefab that was defined for the given interaction at the given position and using the configured orientation.
   /// Returns false, if the interaction type was not defined in this surface or any of its base surfaces
   bool InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition, const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulseSqr = 0.0f) const;
 

@@ -40,7 +40,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief This base component represents an ezBlackboard, which can be used to share state between multiple components and objects.
+/// This base component represents an ezBlackboard, which can be used to share state between multiple components and objects.
 ///
 /// The derived implementations may either create their own blackboards or reference other blackboards.
 class EZ_RENDERERCORE_DLL ezBlackboardComponent : public ezComponent
@@ -65,7 +65,7 @@ public:
   ezBlackboardComponent();
   ~ezBlackboardComponent();
 
-  /// \brief Try to find a ezBlackboardComponent on pSearchObject or its parents with the given name and returns its blackboard.
+  /// Try to find a ezBlackboardComponent on pSearchObject or its parents with the given name and returns its blackboard.
   ///
   /// The blackboard name is only checked if the given name is not empty.
   /// If no matching blackboard component is found and NO name is given the world's blackboard is returned.
@@ -75,7 +75,7 @@ public:
   /// \sa ezBlackboard::GetOrCreateGlobal()
   static ezSharedPtr<ezBlackboard> FindBlackboard(ezGameObject& ref_searchObject, ezStringView sBlackboardName = ezStringView());
 
-  /// \brief Returns the blackboard owned by this component
+  /// Returns the blackboard owned by this component
   const ezSharedPtr<ezBlackboard>& GetBoard();
   ezSharedPtr<const ezBlackboard> GetBoard() const;
 
@@ -100,7 +100,7 @@ protected:
 
 using ezLocalBlackboardComponentManager = ezComponentManager<class ezLocalBlackboardComponent, ezBlockStorageType::Compact>;
 
-/// \brief This component creates its own ezBlackboard, and thus locally holds state.
+/// This component creates its own ezBlackboard, and thus locally holds state.
 class EZ_RENDERERCORE_DLL ezLocalBlackboardComponent : public ezBlackboardComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezLocalBlackboardComponent, ezBlackboardComponent, ezLocalBlackboardComponentManager);
@@ -173,7 +173,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezGlobalBlackboardInitMode);
 
 using ezGlobalBlackboardComponentManager = ezComponentManager<class ezGlobalBlackboardComponent, ezBlockStorageType::Compact>;
 
-/// \brief This component references a global blackboard by name. If necessary, the blackboard will be created.
+/// This component references a global blackboard by name. If necessary, the blackboard will be created.
 ///
 /// This allows to initialize a global blackboard with known values.
 class EZ_RENDERERCORE_DLL ezGlobalBlackboardComponent : public ezBlackboardComponent

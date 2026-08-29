@@ -6,7 +6,7 @@
 
 EZ_DEFINE_AS_POD_TYPE(XrSwapchainImageD3D11KHR);
 
-/// \brief D3D11 implementation of the OpenXR graphics binding.
+/// D3D11 implementation of the OpenXR graphics binding.
 class EZ_OPENXRPLUGIN_DLL ezOpenXRGraphicsBindingD3D11 final : public ezOpenXRGraphicsBinding
 {
 public:

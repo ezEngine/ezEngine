@@ -3,7 +3,7 @@
 #include <Core/Messages/EventMessageSender.h>
 #include <GameEngine/StateMachine/StateMachineResource.h>
 
-/// \brief Message that is sent by ezStateMachineState_SendMsg once the state is entered.
+/// Message that is sent by ezStateMachineState_SendMsg once the state is entered.
 struct EZ_GAMEENGINE_DLL ezMsgStateMachineStateChanged : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgStateMachineStateChanged, ezMessage);
@@ -21,7 +21,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief A state machine state that sends a ezMsgStateMachineStateChanged on state enter or exit to the owner of the
+/// A state machine state that sends a ezMsgStateMachineStateChanged on state enter or exit to the owner of the
 /// state machine instance. Currently only works for ezStateMachineComponent.
 ///
 /// Optionally it can also log a message on state enter or exit.
@@ -49,7 +49,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief A state machine state that sets the enabled flag on a game object and disables all other objects in the same group.
+/// A state machine state that sets the enabled flag on a game object and disables all other objects in the same group.
 ///
 /// This state allows to easily switch the representation of a game object.
 /// For instance you may have two objects states: normal and burning
@@ -103,7 +103,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief A component that holds an ezStateMachineInstance using the ezStateMachineDescription from the resource assigned to this component.
+/// A component that holds an ezStateMachineInstance using the ezStateMachineDescription from the resource assigned to this component.
 class EZ_GAMEENGINE_DLL ezStateMachineComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezStateMachineComponent, ezComponent, ezStateMachineComponentManager);
@@ -129,25 +129,25 @@ public:
 
   ezStateMachineComponent& operator=(ezStateMachineComponent&& other);
 
-  /// \brief Returns the ezStateMachineInstance owned by this component
+  /// Returns the ezStateMachineInstance owned by this component
   ezStateMachineInstance* GetStateMachineInstance() { return m_pStateMachineInstance.Borrow(); }
   const ezStateMachineInstance* GetStateMachineInstance() const { return m_pStateMachineInstance.Borrow(); }
 
   void SetResource(const ezStateMachineResourceHandle& hResource);                // [ property ]
   const ezStateMachineResourceHandle& GetResource() const { return m_hResource; } // [ property ]
 
-  /// \brief Defines which state should be used as initial state after the state machine was instantiated.
+  /// Defines which state should be used as initial state after the state machine was instantiated.
   /// If empty the state machine resource defines the initial state.
   void SetInitialState(const char* szName);                       // [ property ]
   const char* GetInitialState() const { return m_sInitialState; } // [ property ]
 
-  /// \brief Sets the current state with the given name.
+  /// Sets the current state with the given name.
   bool SetState(ezStringView sName); // [ scriptable ]
 
-  /// \brief Returns the name of the currently active state.
+  /// Returns the name of the currently active state.
   ezStringView GetCurrentState() const; // [ scriptable ]
 
-  /// \brief Sends a named event that state transitions can react to.
+  /// Sends a named event that state transitions can react to.
   void FireTransitionEvent(ezStringView sEvent);
 
   void SetBlackboardName(const char* szName);                         // [ property ]

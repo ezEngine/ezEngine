@@ -11,7 +11,7 @@ using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>
 
 using ezJoltHitboxComponentManager = ezComponentManager<class ezJoltHitboxComponent, ezBlockStorageType::Compact>;
 
-/// \brief Adds physics shapes to an animated character for hit detection.
+/// Adds physics shapes to an animated character for hit detection.
 ///
 /// Attach this component to an animated mesh, to give it a physical representation.
 /// The shapes for each bone are defined through the skeleton.
@@ -41,19 +41,19 @@ public:
   ezJoltHitboxComponent();
   ~ezJoltHitboxComponent();
 
-  /// \brief The same object filter ID is assigned to all hit shapes.
+  /// The same object filter ID is assigned to all hit shapes.
   ezUInt32 GetObjectFilterID() const { return m_uiObjectFilterID; } // [ scriptable ]
 
-  /// \brief If true, shapes can only be detected with raycasts and scene queries. If false, they will be kinematic objects in the simulation and push other rigid bodies aside.
+  /// If true, shapes can only be detected with raycasts and scene queries. If false, they will be kinematic objects in the simulation and push other rigid bodies aside.
   bool m_bQueryShapeOnly = true; // [ property ]
 
-  /// \brief At which interval to update the hitbox transforms. Set to zero for full updates every frame.
+  /// At which interval to update the hitbox transforms. Set to zero for full updates every frame.
   ezTime m_UpdateThreshold; // [ property ]
 
-  /// \brief Updates the shape transforms to conform with the new pose, but only if the update threshold was exceeded.
+  /// Updates the shape transforms to conform with the new pose, but only if the update threshold was exceeded.
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg); // [ msg handler ]
 
-  /// \brief Destroys the current shape objects and creates new ones.
+  /// Destroys the current shape objects and creates new ones.
   ///
   /// This can be used to update the shapes when for example the object was scaled.
   /// Be aware that all child objects that were attached to the previous physics shape objects will

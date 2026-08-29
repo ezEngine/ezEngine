@@ -5,7 +5,7 @@
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererFoundation/Shader/BindGroup.h>
 
-/// \brief Creates ezGALBindGroupCreationDescription that can be passed into ezGALCommandEncoder.
+/// Creates ezGALBindGroupCreationDescription that can be passed into ezGALCommandEncoder.
 ///
 /// This class is usually not created manually but instead retrieved via ezRenderContext::GetBindGroup.
 /// By calling the various Bind* methods resources can be bound to a shader. The evaluation is deferred until the CreateBindGroup call which matches the bound items to the bind group layout's ezShaderResourceBinding. Any binding that can't find a matching item will be filled with a fallback resource via ezGALRendererFallbackResources. These bind group items will be marked with the flag ezGALBindGroupItemFlags::Fallback.
@@ -14,12 +14,12 @@ class EZ_RENDERERCORE_DLL ezBindGroupBuilder
 public:
   ezBindGroupBuilder();
 
-  /// \brief Must be called before the builder can be used.
+  /// Must be called before the builder can be used.
   /// This should be called at the start of each frame to make sure no stale resources are referenced inside the builder.
   /// \param pDevice The device used to validate resources in bind calls.
   void ResetBoundResources(const ezGALDevice* pDevice);
 
-  /// \brief Returns whether a Bind* call modified in internal state since the last CreateBindGroup call.
+  /// Returns whether a Bind* call modified in internal state since the last CreateBindGroup call.
   bool IsModified() const { return m_bModified; }
 
   /// Binds a sampler to this bind group
@@ -57,9 +57,9 @@ public:
   void CreateBindGroup(ezGALBindGroupLayoutHandle hBindGroupLayout, ezGALBindGroupCreationDescription& out_bindGroup, ezBitflags<ezGALBindGroupItemFlags>& out_metaFlags);
 
 public:
-  /// \brief Number of modifications of the hash tables each frame. Used for stats.
+  /// Number of modifications of the hash tables each frame. Used for stats.
   static ezUInt32 s_uiWrites;
-  /// \brief Number of reads of the hash tables each frame. Used for stats.
+  /// Number of reads of the hash tables each frame. Used for stats.
   static ezUInt32 s_uiReads;
 
 private:

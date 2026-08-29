@@ -2,7 +2,7 @@
 
 #include <Foundation/Types/Delegate.h>
 
-/// \brief This class uses delegates to define a range of values that can be enumerated using a forward iterator.
+/// This class uses delegates to define a range of values that can be enumerated using a forward iterator.
 ///
 /// Can be used to create a contiguous view to elements of a certain type without the need for them to actually
 /// exist in the same space or format. Think of IEnumerable in c# using composition via ezDelegate instead of derivation.
@@ -28,10 +28,10 @@ public:
   using NextCallback = ezDelegate<void(IteratorType&)>;
   using ValueCallback = ezDelegate<ValueType(const IteratorType&)>;
 
-  /// \brief Initializes the ezRangeView with the delegates used to enumerate the range.
+  /// Initializes the ezRangeView with the delegates used to enumerate the range.
   EZ_ALWAYS_INLINE ezRangeView(BeginCallback begin, EndCallback end, NextCallback next, ValueCallback value);
 
-  /// \brief Const iterator, don't use directly, use ranged based for loops or call begin() end().
+  /// Const iterator, don't use directly, use ranged based for loops or call begin() end().
   struct ConstIterator
   {
     EZ_DECLARE_POD_TYPE();
@@ -57,7 +57,7 @@ public:
     IteratorType m_Pos;
   };
 
-  /// \brief Iterator, don't use directly, use ranged based for loops or call begin() end().
+  /// Iterator, don't use directly, use ranged based for loops or call begin() end().
   struct Iterator : public ConstIterator
   {
     EZ_DECLARE_POD_TYPE();

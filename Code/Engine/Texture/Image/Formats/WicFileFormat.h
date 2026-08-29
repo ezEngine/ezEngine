@@ -4,7 +4,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-/// \brief File format implementation for loading TIFF files using WIC
+/// File format implementation for loading TIFF files using WIC
 class EZ_TEXTURE_DLL ezWicFileFormat : public ezImageFileFormat
 {
 public:

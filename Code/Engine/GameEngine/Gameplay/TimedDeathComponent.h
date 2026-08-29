@@ -10,7 +10,7 @@ struct ezMsgComponentInternalTrigger;
 using ezTimedDeathComponentManager = ezComponentManager<class ezTimedDeathComponent, ezBlockStorageType::Compact>;
 using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 
-/// \brief This component deletes the object it is attached to after a timeout.
+/// This component deletes the object it is attached to after a timeout.
 ///
 /// \note The timeout must be set immediately after component creation. Once the component
 /// has been initialized (start of the next frame), changing the value has no effect.
@@ -27,7 +27,7 @@ public:
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
-  /// \brief Once this function has been executed, the timeout for deletion is fixed and cannot be reset.
+  /// Once this function has been executed, the timeout for deletion is fixed and cannot be reset.
   virtual void OnSimulationStarted() override;
 
 

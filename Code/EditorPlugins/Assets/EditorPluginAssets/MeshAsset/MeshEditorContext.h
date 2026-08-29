@@ -4,7 +4,7 @@
 
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 
-/// \brief Input context for the mesh asset editor that handles Ctrl+Middle click to open the material at the cursor.
+/// Input context for the mesh asset editor that handles Ctrl+Middle click to open the material at the cursor.
 ///
 /// Ctrl+Middle click fires a picking query to determine the material slot under the cursor,
 /// then opens the corresponding material document. Used only in the mesh asset preview.

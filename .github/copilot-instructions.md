@@ -70,12 +70,13 @@ Workspace/copilot-output/Bin/WinVs2022Debug64/FoundationTest.exe -run -noGui -al
 Use `///` for documentation comments. Keep documentation factual and concise. Don't document obvious getters/setters. Mention edge cases and non-obvious behavior. Rely on word-wrap instead of manual line breaks.
 
 ```cpp
-/// \brief Brief description of the class purpose.
+/// Brief description of the class purpose.
+///
 /// Additional detailed description if necessary.
 class Object
 {
 public:
-  /// \brief Brief function description.
+  /// Brief function description.
   void Function();
 
   int m_iMember = 0; ///< Member description if non-obvious.

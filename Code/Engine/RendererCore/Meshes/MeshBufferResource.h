@@ -104,144 +104,144 @@ public:
 
   void Clear();
 
-  /// \brief Use this function to add vertex streams to the mesh buffer.
+  /// Use this function to add vertex streams to the mesh buffer.
   void AddStream(ezMeshVertexStreamType::Enum type, bool bUseHighPrecision = false);
 
-  /// \brief Adds common vertex streams to the mesh buffer.
+  /// Adds common vertex streams to the mesh buffer.
   ///
   /// The streams are added
   /// * Position
   /// * NormalTangentAndTexCoord0
   void AddCommonStreams(bool bUseHighPrecision = false);
 
-  /// \brief Adds all streams from the given stream config.
+  /// Adds all streams from the given stream config.
   void AddStreamConfig(const ezMeshVertexStreamConfig& streamConfig);
 
-  /// \brief After all streams are added, call this to allocate the data for the streams. If uiNumPrimitives is 0, the mesh buffer will not
+  /// After all streams are added, call this to allocate the data for the streams. If uiNumPrimitives is 0, the mesh buffer will not
   /// use indexed rendering.
   void AllocateStreams(ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology = ezGALPrimitiveTopology::Triangles, ezUInt32 uiNumPrimitives = 0, bool bZeroFill = false);
 
-  /// \brief Creates streams and fills them with data from the ezGeometry. Only the geometry matching the given topology is used.
+  /// Creates streams and fills them with data from the ezGeometry. Only the geometry matching the given topology is used.
   ///  Streams that do not match any of the data inside the ezGeometry directly are skipped.
   void AllocateStreamsFromGeometry(const ezGeometry& geom, ezGALPrimitiveTopology::Enum topology = ezGALPrimitiveTopology::Triangles);
 
 
-  /// \brief Returns the number of vertex buffer used. Note that some vertex buffers in between might be empty if unused.
+  /// Returns the number of vertex buffer used. Note that some vertex buffers in between might be empty if unused.
   ezUInt32 GetNumVertexBuffers() const;
 
-  /// \brief Gives read access to the allocated vertex data
+  /// Gives read access to the allocated vertex data
   ezArrayPtr<const ezUInt8> GetVertexBufferData(ezMeshVertexStreamType::Enum type) const;
 
-  /// \brief Gives read access to the allocated index data
+  /// Gives read access to the allocated index data
   ezArrayPtr<const ezUInt8> GetIndexBufferData() const;
 
-  /// \brief Allows write access to the allocated vertex data. This can be used for copying data fast into the array.
+  /// Allows write access to the allocated vertex data. This can be used for copying data fast into the array.
   ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& GetVertexBufferData(ezMeshVertexStreamType::Enum type);
 
-  /// \brief Allows write access to the allocated index data. This can be used for copying data fast into the array.
+  /// Allows write access to the allocated index data. This can be used for copying data fast into the array.
   ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& GetIndexBufferData();
 
 
-  /// \brief Gives access to the position data
+  /// Gives access to the position data
   ezArrayPtr<const ezVec3> GetPositionData() const;
   ezArrayPtr<ezVec3> GetPositionData();
 
-  /// \brief Gives access to the normal data. Use ezMeshBufferUtils::EncodeNormal/ezMeshBufferUtils::DecodeNormal to pack/unpack the normal.
+  /// Gives access to the normal data. Use ezMeshBufferUtils::EncodeNormal/ezMeshBufferUtils::DecodeNormal to pack/unpack the normal.
   ezArrayPtr<const ezUInt8> GetNormalData(ezUInt32* out_pStride = nullptr) const;
   ezArrayPtr<ezUInt8> GetNormalData(ezUInt32* out_pStride = nullptr);
 
-  /// \brief Gives access to the tangent data. Use ezMeshBufferUtils::EncodeTangent/ezMeshBufferUtils::DecodeTangent to pack/unpack the tangent.
+  /// Gives access to the tangent data. Use ezMeshBufferUtils::EncodeTangent/ezMeshBufferUtils::DecodeTangent to pack/unpack the tangent.
   ezArrayPtr<const ezUInt8> GetTangentData(ezUInt32* out_pStride = nullptr) const;
   ezArrayPtr<ezUInt8> GetTangentData(ezUInt32* out_pStride = nullptr);
 
-  /// \brief Gives access to the tex coord 0 data. Use ezMeshBufferUtils::EncodeTexCoord/ezMeshBufferUtils::DecodeTexCoord to pack/unpack the tex coord.
+  /// Gives access to the tex coord 0 data. Use ezMeshBufferUtils::EncodeTexCoord/ezMeshBufferUtils::DecodeTexCoord to pack/unpack the tex coord.
   ezArrayPtr<const ezUInt8> GetTexCoord0Data(ezUInt32* out_pStride = nullptr) const;
   ezArrayPtr<ezUInt8> GetTexCoord0Data(ezUInt32* out_pStride = nullptr);
 
-  /// \brief Gives access to the tex coord 1 data. Use ezMeshBufferUtils::EncodeTexCoord/ezMeshBufferUtils::DecodeTexCoord to pack/unpack the tex coord.
+  /// Gives access to the tex coord 1 data. Use ezMeshBufferUtils::EncodeTexCoord/ezMeshBufferUtils::DecodeTexCoord to pack/unpack the tex coord.
   ezArrayPtr<const ezUInt8> GetTexCoord1Data(ezUInt32* out_pStride = nullptr) const;
   ezArrayPtr<ezUInt8> GetTexCoord1Data(ezUInt32* out_pStride = nullptr);
 
-  /// \brief Gives access to the color 0 data. Use ezMeshBufferUtils::EncodeFromVec4/ezMeshBufferUtils::DecodeToVec4 to pack/unpack the color.
+  /// Gives access to the color 0 data. Use ezMeshBufferUtils::EncodeFromVec4/ezMeshBufferUtils::DecodeToVec4 to pack/unpack the color.
   ezArrayPtr<const ezUInt8> GetColor0Data(ezUInt32* out_pStride = nullptr) const;
   ezArrayPtr<ezUInt8> GetColor0Data(ezUInt32* out_pStride = nullptr);
 
-  /// \brief Gives access to the color 1 data. Use ezMeshBufferUtils::EncodeFromVec4/ezMeshBufferUtils::DecodeToVec4 to pack/unpack the color.
+  /// Gives access to the color 1 data. Use ezMeshBufferUtils::EncodeFromVec4/ezMeshBufferUtils::DecodeToVec4 to pack/unpack the color.
   ezArrayPtr<const ezUInt8> GetColor1Data(ezUInt32* out_pStride = nullptr) const;
   ezArrayPtr<ezUInt8> GetColor1Data(ezUInt32* out_pStride = nullptr);
 
 
-  /// \brief Slow, but convenient access to the position of a specific vertex.
+  /// Slow, but convenient access to the position of a specific vertex.
   const ezVec3& GetPosition(ezUInt32 uiVertexIndex) const;
   void SetPosition(ezUInt32 uiVertexIndex, const ezVec3& vPos);
 
-  /// \brief Slow, but convenient access to the normal of a specific vertex.
+  /// Slow, but convenient access to the normal of a specific vertex.
   ezVec3 GetNormal(ezUInt32 uiVertexIndex) const;
   void SetNormal(ezUInt32 uiVertexIndex, const ezVec3& vNormal);
 
-  /// \brief Slow, but convenient access to the tangent of a specific vertex. The w component contains the bi-tangent sign.
+  /// Slow, but convenient access to the tangent of a specific vertex. The w component contains the bi-tangent sign.
   ezVec4 GetTangent(ezUInt32 uiVertexIndex) const;
   void SetTangent(ezUInt32 uiVertexIndex, const ezVec4& vTangent);
 
-  /// \brief Slow, but convenient access to the tex coord 0 of a specific vertex.
+  /// Slow, but convenient access to the tex coord 0 of a specific vertex.
   ezVec2 GetTexCoord0(ezUInt32 uiVertexIndex) const;
   void SetTexCoord0(ezUInt32 uiVertexIndex, const ezVec2& vTexCoord);
 
-  /// \brief Slow, but convenient access to the tex coord 1 of a specific vertex.
+  /// Slow, but convenient access to the tex coord 1 of a specific vertex.
   ezVec2 GetTexCoord1(ezUInt32 uiVertexIndex) const;
   void SetTexCoord1(ezUInt32 uiVertexIndex, const ezVec2& vTexCoord);
 
-  /// \brief Slow, but convenient access to the color 0 of a specific vertex.
+  /// Slow, but convenient access to the color 0 of a specific vertex.
   ezColor GetColor0(ezUInt32 uiVertexIndex) const;
   void SetColor0(ezUInt32 uiVertexIndex, const ezColorLinearUB& color);
   void SetColor0(ezUInt32 uiVertexIndex, const ezColor& color, ezMeshVertexColorConversion::Enum conversion = ezMeshVertexColorConversion::Default);
 
-  /// \brief Slow, but convenient access to the color 1 of a specific vertex.
+  /// Slow, but convenient access to the color 1 of a specific vertex.
   ezColor GetColor1(ezUInt32 uiVertexIndex) const;
   void SetColor1(ezUInt32 uiVertexIndex, const ezColorLinearUB& color);
   void SetColor1(ezUInt32 uiVertexIndex, const ezColor& color, ezMeshVertexColorConversion::Enum conversion = ezMeshVertexColorConversion::Default);
 
-  /// \brief Slow, but convenient access to the bone indices of a specific vertex.
+  /// Slow, but convenient access to the bone indices of a specific vertex.
   const ezVec4U16& GetBoneIndices(ezUInt32 uiVertexIndex) const;
   void SetBoneIndices(ezUInt32 uiVertexIndex, const ezVec4U16& vIndices);
 
-  /// \brief Slow, but convenient access to the bone weights of a specific vertex.
+  /// Slow, but convenient access to the bone weights of a specific vertex.
   ezVec4 GetBoneWeights(ezUInt32 uiVertexIndex) const;
   void SetBoneWeights(ezUInt32 uiVertexIndex, const ezVec4& vWeights);
 
 
-  /// \brief Writes the vertex index for the given point into the index buffer.
+  /// Writes the vertex index for the given point into the index buffer.
   void SetPointIndices(ezUInt32 uiPoint, ezUInt32 uiVertex0);
 
-  /// \brief Writes the two vertex indices for the given line into the index buffer.
+  /// Writes the two vertex indices for the given line into the index buffer.
   void SetLineIndices(ezUInt32 uiLine, ezUInt32 uiVertex0, ezUInt32 uiVertex1);
 
-  /// \brief Writes the three vertex indices for the given triangle into the index buffer.
+  /// Writes the three vertex indices for the given triangle into the index buffer.
   void SetTriangleIndices(ezUInt32 uiTriangle, ezUInt32 uiVertex0, ezUInt32 uiVertex1, ezUInt32 uiVertex2);
 
 
-  /// \brief Allows to read the stream info of the descriptor, which is filled out by AddStream()
+  /// Allows to read the stream info of the descriptor, which is filled out by AddStream()
   const ezMeshVertexStreamConfig& GetVertexStreamConfig() const { return m_VertexStreamConfig; }
 
-  /// \brief Returns the byte size of all the data for one vertex.
+  /// Returns the byte size of all the data for one vertex.
   ezUInt32 GetVertexDataSize() const { return m_uiVertexSize; }
 
-  /// \brief Return the number of vertices, with which AllocateStreams() was called.
+  /// Return the number of vertices, with which AllocateStreams() was called.
   ezUInt32 GetVertexCount() const { return m_uiVertexCount; }
 
-  /// \brief Returns the number of primitives that the array holds.
+  /// Returns the number of primitives that the array holds.
   ezUInt32 GetPrimitiveCount() const;
 
-  /// \brief Returns whether 16 or 32 Bit indices are to be used.
+  /// Returns whether 16 or 32 Bit indices are to be used.
   bool Uses32BitIndices() const { return m_uiVertexCount > 0xFFFF; }
 
-  /// \brief Returns whether an index buffer is available.
+  /// Returns whether an index buffer is available.
   bool HasIndexBuffer() const { return !m_IndexBufferData.IsEmpty(); }
 
-  /// \brief Calculates the bounds using the data from the position stream
+  /// Calculates the bounds using the data from the position stream
   ezBoundingBoxSphere ComputeBounds() const;
 
-  /// \brief Returns the primitive topology
+  /// Returns the primitive topology
   ezGALPrimitiveTopology::Enum GetTopology() const { return m_Topology; }
 
   ezResult RecomputeNormals();
@@ -283,13 +283,13 @@ public:
 
   EZ_ALWAYS_INLINE ezGALPrimitiveTopology::Enum GetTopology() const { return m_Topology; }
 
-  /// \brief Returns the stream config used by this mesh buffer.
+  /// Returns the stream config used by this mesh buffer.
   EZ_ALWAYS_INLINE const ezMeshVertexStreamConfig& GetVertexStreamConfig() const { return m_VertexStreamConfig; }
 
-  /// \brief Returns the vertex attributes that describes the data layout of the vertex buffers.
+  /// Returns the vertex attributes that describes the data layout of the vertex buffers.
   EZ_ALWAYS_INLINE ezArrayPtr<const ezGALVertexAttribute> GetVertexAttributes() const { return m_VertexAttributes; }
 
-  /// \brief Returns the bounds of the mesh
+  /// Returns the bounds of the mesh
   EZ_ALWAYS_INLINE const ezBoundingBoxSphere& GetBounds() const { return m_Bounds; }
 
 private:

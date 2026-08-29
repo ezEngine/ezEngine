@@ -25,7 +25,7 @@ struct EZ_GAMEENGINE_DLL ezFollowSplineMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezFollowSplineMode)
 
-/// \brief This component makes the ezGameObject, that it is attached to, move along a spline defined by an ezSplineComponent.
+/// This component makes the ezGameObject, that it is attached to, move along a spline defined by an ezSplineComponent.
 ///
 /// Build a spline using an ezSplineComponent and ezSplineNodeComponents.
 /// Then attach an ezFollowSplineComponent to a free-standing ezGameObject and reference the object with the ezSplineComponent in it.
@@ -61,7 +61,7 @@ public:
   ezFollowSplineComponent();
   ~ezFollowSplineComponent();
 
-  /// \brief Sets the reference to the game object on which an ezSplineComponent should be attached.
+  /// Sets the reference to the game object on which an ezSplineComponent should be attached.
   void SetSplineObject(const char* szReference);      // [ property ]
 
   ezEnum<ezPropertyAnimMode> m_Mode;                  ///< [ property ] How the spline should be traversed.
@@ -72,29 +72,29 @@ public:
   float m_fTiltAmount = 5.0f;                         ///< [ property ] How much to tilt when turning.
   ezAngle m_MaxTilt = ezAngle::MakeFromDegree(30.0f); ///< [ property ] The max tilt angle of the object.
 
-  /// \brief Distance along the spline at which the ezFollowSplineComponent should start off.
+  /// Distance along the spline at which the ezFollowSplineComponent should start off.
   void SetStartDistance(float fDistance);                     // [ property ]
   float GetStartDistance() const { return m_fStartDistance; } // [ property ]
 
-  /// \brief Sets the current distance along the spline at which the ezFollowSplineComponent should be.
+  /// Sets the current distance along the spline at which the ezFollowSplineComponent should be.
   void SetCurrentDistance(float fDistance);                       // [ scriptable ]
   float GetCurrentDistance() const { return m_fCurrentDistance; } // [ scriptable ]
 
-  /// \brief Whether the component should move along the spline 'forwards' or 'backwards'
+  /// Whether the component should move along the spline 'forwards' or 'backwards'
   void SetDirectionForwards(bool bForwards); // [ scriptable ]
 
-  /// \brief Toggles the direction that it travels along the spline.
+  /// Toggles the direction that it travels along the spline.
   void ToggleDirection(); // [ scriptable ]
 
-  /// \brief Whether the component currently moves 'forwards' along the spline.
+  /// Whether the component currently moves 'forwards' along the spline.
   ///
   /// Note that if the 'speed' property is negative, moving 'forwards' along the spline still means that it effectively moves backwards.
   bool IsDirectionForwards() const { return m_bIsRunningForwards; } // [ scriptable ]
 
-  /// \brief Whether the component currently moves along the spline, at all.
+  /// Whether the component currently moves along the spline, at all.
   bool IsRunning() const { return m_bIsRunning; } // [ property ]
 
-  /// \brief Whether to move along the spline or not.
+  /// Whether to move along the spline or not.
   void SetRunning(bool bRunning); // [ property ]
 
 protected:

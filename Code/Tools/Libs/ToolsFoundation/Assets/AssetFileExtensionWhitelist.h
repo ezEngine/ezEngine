@@ -5,7 +5,7 @@
 #include <Foundation/Strings/String.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-/// \brief A global whitelist for file extension that may be used as certain asset types
+/// A global whitelist for file extension that may be used as certain asset types
 ///
 /// UI elements etc. may use this whitelist to detect whether a selected file is a valid candidate for an asset slot
 class EZ_TOOLSFOUNDATION_DLL ezAssetFileExtensionWhitelist

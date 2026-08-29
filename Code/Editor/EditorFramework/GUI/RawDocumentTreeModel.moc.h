@@ -7,7 +7,7 @@
 
 class ezDragDropInfo;
 
-/// \brief Adapter that defines data for specific type in the ezQtDocumentTreeModel.
+/// Adapter that defines data for specific type in the ezQtDocumentTreeModel.
 ///
 /// Adapters are defined for a given type and define the property for child elements (needs to be array or set).
 /// Furthermore they implement various model functions that will be redirected to it by the model for
@@ -17,7 +17,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeModelAdapter : public QObject
   Q_OBJECT;
 
 public:
-  /// \brief Constructor. If m_sChildProperty is empty, this type does not have children.
+  /// Constructor. If m_sChildProperty is empty, this type does not have children.
   ezQtDocumentTreeModelAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* szChildProperty);
   virtual const ezRTTI* GetType() const;
   virtual const ezString& GetChildProperty() const;
@@ -35,7 +35,7 @@ protected:
   ezString m_sChildProperty;
 };
 
-/// \brief Convenience class that returns the typename as Qt::DisplayRole.
+/// Convenience class that returns the typename as Qt::DisplayRole.
 /// Use this for testing or for the document root that can't be seen and is just for defining the hierarchy.
 ///
 /// Example:
@@ -50,7 +50,7 @@ public:
   virtual QVariant data(const ezDocumentObject* pObject, int iRow, int iColumn, int iRole) const override;
 };
 
-/// \brief Convenience class that implements getting the name via a property on the object.
+/// Convenience class that implements getting the name via a property on the object.
 class EZ_EDITORFRAMEWORK_DLL ezQtNamedAdapter : public ezQtDocumentTreeModelAdapter
 {
   Q_OBJECT;
@@ -67,7 +67,7 @@ protected:
   ezString m_sNameProperty;
 };
 
-/// \brief Convenience class that implements setting the name via a property on the object.
+/// Convenience class that implements setting the name via a property on the object.
 class EZ_EDITORFRAMEWORK_DLL ezQtNameableAdapter : public ezQtNamedAdapter
 {
   Q_OBJECT;
@@ -79,7 +79,7 @@ public:
   virtual Qt::ItemFlags flags(const ezDocumentObject* pObject, int iRow, int iColumn) const override;
 };
 
-/// \brief Model that maps a document to a qt tree model.
+/// Model that maps a document to a qt tree model.
 ///
 /// Hierarchy is defined by ezQtDocumentTreeModelAdapter that have to be added via AddAdapter.
 class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeModel : public QAbstractItemModel
@@ -91,19 +91,19 @@ public:
   ~ezQtDocumentTreeModel();
 
   const ezDocumentObjectManager* GetDocumentTree() const { return m_pDocumentTree; }
-  /// \brief Adds an adapter. There can only be one adapter for any object type.
+  /// Adds an adapter. There can only be one adapter for any object type.
   /// Added adapters are taken ownership of by the model.
   void AddAdapter(ezQtDocumentTreeModelAdapter* pAdapter);
-  /// \brief Returns the QModelIndex for the given object.
+  /// Returns the QModelIndex for the given object.
   /// Returned value is invalid if object is not mapped in model.
   QModelIndex ComputeModelIndex(const ezDocumentObject* pObject) const;
 
-  /// \brief Enable drag&drop support, disabled by default.
+  /// Enable drag&drop support, disabled by default.
   void SetAllowDragDrop(bool bAllow);
 
   static bool MoveObjects(const ezDragDropInfo& info);
 
-  /// \brief Returns the ezDocumentObject that the index points to.
+  /// Returns the ezDocumentObject that the index points to.
   const ezDocumentObject* GetObject(const QModelIndex index) const;
 
 public: // QAbstractItemModel

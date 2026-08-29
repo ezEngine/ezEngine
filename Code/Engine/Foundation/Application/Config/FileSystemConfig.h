@@ -12,10 +12,10 @@ public:
   ezResult Save(ezStringView sPath = s_sConfigFile);
   void Load(ezStringView sPath = s_sConfigFile);
 
-  /// \brief Sets up the data directories that were configured or loaded into this object
+  /// Sets up the data directories that were configured or loaded into this object
   void Apply();
 
-  /// \brief Removes all data directories that were set up by any call to ezApplicationFileSystemConfig::Apply()
+  /// Removes all data directories that were set up by any call to ezApplicationFileSystemConfig::Apply()
   static void Clear();
 
   ezResult CreateDataDirStubFiles();

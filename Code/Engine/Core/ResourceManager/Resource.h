@@ -5,7 +5,7 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Time/Timestamp.h>
 
-/// \brief The base class for all resources.
+/// The base class for all resources.
 class EZ_CORE_DLL ezResource : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezResource, ezReflectedClass);
@@ -27,10 +27,10 @@ protected:
     OneQualityLevel
   };
 
-  /// \brief Default constructor.
+  /// Default constructor.
   ezResource(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable);
 
-  /// \brief virtual destructor.
+  /// virtual destructor.
   virtual ~ezResource();
 
 public:
@@ -46,30 +46,30 @@ public:
     ezUInt64 m_uiMemoryGPU;
   };
 
-  /// \brief Returns the unique ID that identifies this resource. On a file resource this might be a path. Can also be a GUID or any other
+  /// Returns the unique ID that identifies this resource. On a file resource this might be a path. Can also be a GUID or any other
   /// scheme that uniquely identifies the resource.
   EZ_ALWAYS_INLINE ezStringView GetResourceID() const { return m_sUniqueID; }
 
-  /// \brief Returns the hash of the unique ID.
+  /// Returns the hash of the unique ID.
   EZ_ALWAYS_INLINE ezUInt64 GetResourceIDHash() const { return m_uiUniqueIDHash; }
 
-  /// \brief The resource description allows to store an additional string that might be more descriptive during debugging, than the unique
+  /// The resource description allows to store an additional string that might be more descriptive during debugging, than the unique
   /// ID.
   void SetResourceDescription(ezStringView sDescription);
 
-  /// \brief The resource description allows to store an additional string that might be more descriptive during debugging, than the unique
+  /// The resource description allows to store an additional string that might be more descriptive during debugging, than the unique
   /// ID.
   const ezString& GetResourceDescription() const { return m_sResourceDescription; }
 
-  /// \brief The returns the resource description, if available, otherwise the resource ID.
+  /// The returns the resource description, if available, otherwise the resource ID.
   ///
   /// This is mainly for logging, where you want the more user friendly description, but the ID, if no description is available.
   const ezString& GetResourceIdOrDescription() const { return m_sResourceDescription.IsEmpty() ? m_sUniqueID : m_sResourceDescription; }
 
-  /// \brief Returns the current state in which this resource is in.
+  /// Returns the current state in which this resource is in.
   EZ_ALWAYS_INLINE ezResourceState GetLoadingState() const { return m_LoadingState; }
 
-  /// \brief Returns the current maximum quality level that the resource could have.
+  /// Returns the current maximum quality level that the resource could have.
   ///
   /// This is used to scale the amount data used. Once a resource is in the 'Loaded' state, it can still have different
   /// quality levels. E.g. a texture can be fully used with n mipmap levels, but there might be more that could be loaded.
@@ -86,52 +86,52 @@ public:
   /// Most resource will have zero or one quality levels (which is the same) as they are either loaded or not.
   EZ_ALWAYS_INLINE ezUInt8 GetNumQualityLevelsDiscardable() const { return m_uiQualityLevelsDiscardable; }
 
-  /// \brief Returns how many quality levels the resource may additionally load.
+  /// Returns how many quality levels the resource may additionally load.
   EZ_ALWAYS_INLINE ezUInt8 GetNumQualityLevelsLoadable() const { return m_uiQualityLevelsLoadable; }
 
-  /// \brief Returns the priority that is used by the resource manager to determine which resource to load next.
+  /// Returns the priority that is used by the resource manager to determine which resource to load next.
   float GetLoadingPriority(ezTime now) const;
 
-  /// \brief Returns the current resource priority.
+  /// Returns the current resource priority.
   ezResourcePriority GetPriority() const { return m_Priority; }
 
-  /// \brief Changes the current resource priority.
+  /// Changes the current resource priority.
   void SetPriority(ezResourcePriority priority);
 
-  /// \brief Returns the basic flags for the resource type. Mostly used the resource manager.
+  /// Returns the basic flags for the resource type. Mostly used the resource manager.
   EZ_ALWAYS_INLINE const ezBitflags<ezResourceFlags>& GetBaseResourceFlags() const { return m_Flags; }
 
-  /// \brief Returns the information about the current memory usage of the resource.
+  /// Returns the information about the current memory usage of the resource.
   EZ_ALWAYS_INLINE const MemoryUsage& GetMemoryUsage() const { return m_MemoryUsage; }
 
-  /// \brief Returns the time at which the resource was (tried to be) acquired last.
+  /// Returns the time at which the resource was (tried to be) acquired last.
   /// If a resource is acquired using ezResourceAcquireMode::PointerOnly, this does not update the last acquired time, since the resource is
   /// not acquired for full use.
   EZ_ALWAYS_INLINE ezTime GetLastAcquireTime() const { return m_LastAcquire; }
 
-  /// \brief Returns the reference count of this resource.
+  /// Returns the reference count of this resource.
   EZ_ALWAYS_INLINE ezInt32 GetReferenceCount() const { return m_iReferenceCount; }
 
-  /// \brief Returns the modification date of the file from which this resource was loaded.
+  /// Returns the modification date of the file from which this resource was loaded.
   ///
   /// The date may be invalid, if it cannot be retrieved or the resource was created and not loaded.
   EZ_ALWAYS_INLINE const ezTimestamp& GetLoadedFileModificationTime() const { return m_LoadedFileModificationTime; }
 
-  /// \brief Returns the current value of the resource change counter.
+  /// Returns the current value of the resource change counter.
   /// Can be used to detect whether the resource has changed since using it last time.
   ///
   /// The resource change counter is increased by calling IncResourceChangeCounter() or
   /// whenever the resource content is updated.
   EZ_ALWAYS_INLINE ezUInt32 GetCurrentResourceChangeCounter() const { return m_uiResourceChangeCounter; }
 
-  /// \brief Allows to manually increase the resource change counter to signal that dependent code might need to update.
+  /// Allows to manually increase the resource change counter to signal that dependent code might need to update.
   EZ_ALWAYS_INLINE void IncResourceChangeCounter() { ++m_uiResourceChangeCounter; }
 
-  /// \brief If the resource has modifications from the original state, it should reset itself to that state now (or force a reload on
+  /// If the resource has modifications from the original state, it should reset itself to that state now (or force a reload on
   /// itself).
   virtual void ResetResource() {}
 
-  /// \brief Prints the stack-traces for all handles that currently reference this resource.
+  /// Prints the stack-traces for all handles that currently reference this resource.
   ///
   /// Only implemented if EZ_RESOURCEHANDLE_STACK_TRACES is EZ_ON.
   /// Otherwise the function does nothing.
@@ -145,23 +145,23 @@ private:
   friend class ezResourceManagerWorkerDataLoad;
   friend class ezResourceManagerWorkerUpdateContent;
 
-  /// \brief Called by ezResourceManager shortly after resource creation.
+  /// Called by ezResourceManager shortly after resource creation.
   void SetUniqueID(ezStringView sUniqueID, bool bIsReloadable);
 
   void CallUnloadData(Unload WhatToUnload);
 
-  /// \brief Requests the resource to unload another quality level. If bFullUnload is true, the resource should unload all data, because it
+  /// Requests the resource to unload another quality level. If bFullUnload is true, the resource should unload all data, because it
   /// is going to be deleted afterwards.
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) = 0;
 
   void CallUpdateContent(ezStreamReader* Stream);
 
-  /// \brief Called whenever more data for the resource is available. The resource must read the stream to update it's data.
+  /// Called whenever more data for the resource is available. The resource must read the stream to update it's data.
   ///
   /// pStream may be nullptr in case the resource data could not be found.
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* pStream) = 0;
 
-  /// \brief Returns the resource type loader that should be used for this type of resource, unless it has been overridden on the
+  /// Returns the resource type loader that should be used for this type of resource, unless it has been overridden on the
   /// ezResourceManager.
   ///
   /// By default, this redirects to ezResourceManager::GetDefaultResourceLoader. So there is one global default loader, that can be set
@@ -178,16 +178,16 @@ private:
 
 
 protected:
-  /// \brief Non-const version for resources that want to write this variable directly.
+  /// Non-const version for resources that want to write this variable directly.
   MemoryUsage& ModifyMemoryUsage() { return m_MemoryUsage; }
 
-  /// \brief Call this to specify whether a resource is reloadable.
+  /// Call this to specify whether a resource is reloadable.
   ///
   /// By default all created resources are flagged as not reloadable.
   /// All resources loaded from file are automatically flagged as reloadable.
   void SetIsReloadable(bool bIsReloadable) { m_Flags.AddOrRemove(ezResourceFlags::IsReloadable, bIsReloadable); }
 
-  /// \brief Used internally by the code injection macros
+  /// Used internally by the code injection macros
   void SetHasLoadingFallback(bool bHasLoadingFallback) { m_Flags.AddOrRemove(ezResourceFlags::ResourceHasFallback, bHasLoadingFallback); }
 
 private:
@@ -211,7 +211,7 @@ private:
 #endif
 
 
-  /// \brief This function must be overridden by all resource types.
+  /// This function must be overridden by all resource types.
   ///
   /// It has to compute the memory used by this resource.
   /// It is called by the resource manager whenever the resource's data has been loaded or unloaded.
@@ -221,7 +221,7 @@ private:
 
   virtual bool HasResourceTypeLoadingFallback() const = 0;
 
-  /// \brief Called by ezResourceMananger::CreateResource
+  /// Called by ezResourceMananger::CreateResource
   void VerifyAfterCreateResource(const ezResourceLoadDesc& ld);
 
   ezUInt64 m_uiUniqueIDHash = 0;
@@ -259,7 +259,7 @@ private:
                                                                                                                                              \
 public:                                                                                                                                      \
   /*                                                                                                                                     \ \ \
-  /// \brief Unfortunately this has to be called manually from within dynamic plugins during core engine shutdown.                       \ \ \
+  /// Unfortunately this has to be called manually from within dynamic plugins during core engine shutdown.                       \ \ \
   ///                                                                                                                                    \ \ \
   /// Without this, the dynamic plugin might still be referenced by the core engine during later shutdown phases and will crash, because \ \ \
   /// memory and code is still referenced, that is already unloaded.                                                                     \ \ \
@@ -267,12 +267,12 @@ public:                                                                         
   static void CleanupDynamicPluginReferences();                                                                                              \
                                                                                                                                              \
   /*                                                                                                                                     \ \ \
-  /// \brief Returns a typed resource handle to this resource                                                                            \ \ \
+  /// Returns a typed resource handle to this resource                                                                            \ \ \
   */                                                                                                                                         \
   ezTypedResourceHandle<SELF> GetResourceHandle() const;                                                                                     \
                                                                                                                                              \
   /*                                                                                                                                     \ \ \
-  /// \brief Sets the fallback resource that can be used while this resource is not yet loaded.                                          \ \ \
+  /// Sets the fallback resource that can be used while this resource is not yet loaded.                                          \ \ \
   ///                                                                                                                                    \ \ \
   /// By default there is no fallback resource, so all resource will block the application when requested for the first time.            \ \ \
   */                                                                                                                                         \

@@ -8,7 +8,7 @@ class ezChunkStreamReader;
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Base class for configuration objects that store e.g. asset transform settings or runtime configuration information
+/// Base class for configuration objects that store e.g. asset transform settings or runtime configuration information
 class EZ_CORE_DLL ezProfileConfigData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezProfileConfigData, ezReflectedClass);
@@ -23,7 +23,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Stores platform-specific configuration data for asset processing and runtime settings.
+/// Stores platform-specific configuration data for asset processing and runtime settings.
 ///
 /// A platform profile contains multiple configuration objects (ezProfileConfigData) that store
 /// settings for different aspects like asset transforms, rendering options, etc. Each profile
@@ -63,7 +63,7 @@ public:
   ezResult SaveForRuntime(ezStringView sFile) const;
   ezResult LoadForRuntime(ezStringView sFile);
 
-  /// \brief Returns a number indicating when the profile counter changed last. By storing and comparing this value, other code can update their state if necessary.
+  /// Returns a number indicating when the profile counter changed last. By storing and comparing this value, other code can update their state if necessary.
   ezUInt32 GetLastModificationCounter() const { return m_uiLastModificationCounter; }
 
 

@@ -7,7 +7,7 @@
 class ezStreamWriter;
 class ezStreamReader;
 
-/// \brief This class allows for writing type versions to a stream in a centralized place so that
+/// This class allows for writing type versions to a stream in a centralized place so that
 /// each object doesn't need to write its own version manually.
 ///
 /// To use, create an object of this type on the stack, call Begin() and use the returned
@@ -21,21 +21,21 @@ public:
   ezTypeVersionWriteContext();
   ~ezTypeVersionWriteContext();
 
-  /// \brief Call this method to begin collecting type version info. You need to use the returned stream writer for subsequent serialization operations until
+  /// Call this method to begin collecting type version info. You need to use the returned stream writer for subsequent serialization operations until
   /// End() is called.
   ezStreamWriter& Begin(ezStreamWriter& ref_originalStream);
 
-  /// \brief Ends the type version collection and writes the data to the original stream.
+  /// Ends the type version collection and writes the data to the original stream.
   ezResult End();
 
-  /// \brief Adds the given type and its parent types to the version table.
+  /// Adds the given type and its parent types to the version table.
   void AddType(const ezRTTI* pRtti);
 
-  /// \brief Manually write the version table to the given stream.
+  /// Manually write the version table to the given stream.
   /// Can be used instead of Begin()/End() if all necessary types are available in one place anyways.
   void WriteTypeVersions(ezStreamWriter& inout_stream) const;
 
-  /// \brief Returns the original stream that was passed to Begin().
+  /// Returns the original stream that was passed to Begin().
   ezStreamWriter& GetOriginalStream() { return *m_pOriginalStream; }
 
 protected:
@@ -47,13 +47,13 @@ protected:
   ezHashSet<const ezRTTI*> m_KnownTypes;
 };
 
-/// \brief Use this class to restore type versions written to a stream using a ezTypeVersionWriteContext.
+/// Use this class to restore type versions written to a stream using a ezTypeVersionWriteContext.
 class EZ_FOUNDATION_DLL ezTypeVersionReadContext : public ezSerializationContext<ezTypeVersionReadContext>
 {
   EZ_DECLARE_SERIALIZATION_CONTEXT(ezTypeVersionReadContext);
 
 public:
-  /// \brief Reads the type version table from the stream
+  /// Reads the type version table from the stream
   ezTypeVersionReadContext(ezStreamReader& inout_stream);
   ~ezTypeVersionReadContext();
 

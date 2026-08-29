@@ -3,7 +3,7 @@
 #include <Foundation/Containers/Bitfield.h>
 #include <Foundation/Memory/LargeBlockAllocator.h>
 
-/// \brief Defines storage strategies for block-based container management.
+/// Defines storage strategies for block-based container management.
 struct ezBlockStorageType
 {
   enum Enum
@@ -13,7 +13,7 @@ struct ezBlockStorageType
   };
 };
 
-/// \brief High-performance container for objects with pluggable storage strategies.
+/// High-performance container for objects with pluggable storage strategies.
 ///
 /// This container manages objects in blocks of memory, using different strategies for handling
 /// gaps when objects are removed. It's designed for scenarios where you need fast allocation
@@ -71,31 +71,31 @@ public:
   ezBlockStorage(ezLargeBlockAllocator<BlockSizeInByte>* pBlockAllocator, ezAllocator* pAllocator);
   ~ezBlockStorage();
 
-  /// \brief Removes all objects and deallocates all blocks.
+  /// Removes all objects and deallocates all blocks.
   void Clear();
 
-  /// \brief Creates a new object and returns a pointer to it.
+  /// Creates a new object and returns a pointer to it.
   ///
   /// The object is default-constructed. Returns nullptr if allocation fails.
   T* Create();
 
-  /// \brief Deletes the specified object.
+  /// Deletes the specified object.
   void Delete(T* pObject);
 
-  /// \brief Deletes the specified object and reports any moved object.
+  /// Deletes the specified object and reports any moved object.
   ///
   /// For Compact storage, if another object is moved to fill the gap,
   /// out_pMovedObject will point to the moved object's new location.
   /// For FreeList storage, out_pMovedObject is always set to nullptr.
   void Delete(T* pObject, T*& out_pMovedObject);
 
-  /// \brief Returns the total number of objects currently stored.
+  /// Returns the total number of objects currently stored.
   ezUInt32 GetCount() const;
 
-  /// \brief Returns an iterator for traversing objects in a specified range.
+  /// Returns an iterator for traversing objects in a specified range.
   Iterator GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex);
 
-  /// \brief Returns a const iterator for traversing objects in a specified range.
+  /// Returns a const iterator for traversing objects in a specified range.
   ConstIterator GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex) const;
 
 private:

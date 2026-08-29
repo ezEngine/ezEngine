@@ -9,7 +9,7 @@
 #include <Core/World/CoordinateSystem.h>
 #include <Core/World/SpatialSystem.h>
 
-/// \brief Describes the initial state of a world.
+/// Describes the initial state of a world.
 struct ezWorldDesc
 {
   EZ_DECLARE_POD_TYPE();

@@ -14,7 +14,7 @@ class ezTaskGroupID;
 class ezParticleStream;
 class ezParticleStreamFactory;
 
-/// \brief This world module stores all particle effect data that is active in a given ezWorld instance
+/// This world module stores all particle effect data that is active in a given ezWorld instance
 ///
 /// It is used to update all effects in one world and also to render them.
 /// When an effect is stopped, it only stops emitting new particles, but it lives on until all particles are dead.
@@ -34,13 +34,13 @@ public:
 
   ezParticleEffectHandle CreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName /*= nullptr*/, const void*& inout_pSharedInstanceOwner, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
 
-  /// \brief This does not actually the effect, it first stops it from emitting and destroys it once all particles have actually died of old age.
+  /// This does not actually the effect, it first stops it from emitting and destroys it once all particles have actually died of old age.
   void DestroyEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, const void* pSharedInstanceOwner);
 
   bool TryGetEffectInstance(const ezParticleEffectHandle& hEffect, ezParticleEffectInstance*& out_pEffect);
   bool TryGetEffectInstance(const ezParticleEffectHandle& hEffect, const ezParticleEffectInstance*& out_pEffect) const;
 
-  /// \brief Extracts render data for the given effect.
+  /// Extracts render data for the given effect.
   void ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, ezMsgExtractRenderData& ref_msg, const ezTransform& systemTransform) const;
 
   ezParticleSystemInstance* CreateSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect, float fSpawnMultiplier);
@@ -48,18 +48,18 @@ public:
 
   ezParticleStream* CreateStreamDefaultInitializer(ezParticleSystemInstance* pOwner, const char* szFullStreamName) const;
 
-  /// \brief Can be called at any time (e.g. during ezParticleBehaviorFactory::CopyBehaviorProperties()) to query a previously cached world module,
+  /// Can be called at any time (e.g. during ezParticleBehaviorFactory::CopyBehaviorProperties()) to query a previously cached world module,
   /// even if that happens on a thread which would not be allowed to query this from the ezWorld at that time.
   ezWorldModule* GetCachedWorldModule(const ezRTTI* pRtti) const;
 
-  /// \brief Should be called by ezParticleModule::RequestRequiredWorldModulesForCache() to cache a pointer to a world module that is needed later.
+  /// Should be called by ezParticleModule::RequestRequiredWorldModulesForCache() to cache a pointer to a world module that is needed later.
   template <class T>
   void CacheWorldModule()
   {
     CacheWorldModule(ezGetStaticRTTI<T>());
   }
 
-  /// \brief Should be called by ezParticleModule::RequestRequiredWorldModulesForCache() to cache a pointer to a world module that is needed later.
+  /// Should be called by ezParticleModule::RequestRequiredWorldModulesForCache() to cache a pointer to a world module that is needed later.
   void CacheWorldModule(const ezRTTI* pRtti);
 
 private:

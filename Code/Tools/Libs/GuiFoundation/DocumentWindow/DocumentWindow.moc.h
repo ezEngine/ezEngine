@@ -30,7 +30,7 @@ struct ezQtDocumentWindowEvent
   ezQtDocumentWindow* m_pWindow = nullptr;
 };
 
-/// \brief Base class for all document windows. Handles the most basic document window management.
+/// Base class for all document windows. Handles the most basic document window management.
 class EZ_GUIFOUNDATION_DLL ezQtDocumentWindow : public QMainWindow
 {
   Q_OBJECT
@@ -69,17 +69,17 @@ public:
 
   static const ezDynamicArray<ezQtDocumentWindow*>& GetAllDocumentWindows() { return s_AllDocumentWindows; }
 
-  /// \brief Returns the document window for the given document, if there is any. nullptr otherwise.
+  /// Returns the document window for the given document, if there is any. nullptr otherwise.
   static ezQtDocumentWindow* FindWindowByDocument(const ezDocument* pDocument);
   ezQtContainerWindow* GetContainerWindow() const;
 
-  /// \brief Shows the given message for the given duration in the statusbar, then shows the permanent message again.
+  /// Shows the given message for the given duration in the statusbar, then shows the permanent message again.
   void ShowTemporaryStatusBarMsg(const ezFormatString& text, ezTime duration = ezTime::MakeFromSeconds(5));
 
-  /// \brief Sets which text to show permanently in the statusbar. Set an empty string to clear the message.
+  /// Sets which text to show permanently in the statusbar. Set an empty string to clear the message.
   void SetPermanentStatusBarMsg(const ezFormatString& text);
 
-  /// \brief For unit tests to take a screenshot of the window (may include multiple views) to do image comparisons.
+  /// For unit tests to take a screenshot of the window (may include multiple views) to do image comparisons.
   virtual void CreateImageCapture(const char* szOutputPath);
 
 protected:

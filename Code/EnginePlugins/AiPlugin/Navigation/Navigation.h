@@ -8,7 +8,7 @@
 
 class ezDebugRendererContext;
 
-/// \brief Aggregated data by ezAiNavigation that should be sufficient to implement a steering behavior.
+/// Aggregated data by ezAiNavigation that should be sufficient to implement a steering behavior.
 struct ezAiSteeringInfo
 {
   ezVec3 m_vNextWaypoint;
@@ -20,7 +20,7 @@ struct ezAiSteeringInfo
   // float m_fWaypointCorridorWidth = ezMath::HighValue<float>();
 };
 
-/// \brief Computes a path through a navigation mesh.
+/// Computes a path through a navigation mesh.
 ///
 /// First call SetNavmesh() and SetQueryFilter().
 ///
@@ -67,7 +67,7 @@ public:
 
   void SetCurrentPosition(const ezVec3& vPosition);
 
-  /// \brief Sets the desired target location and starts a path search.
+  /// Sets the desired target location and starts a path search.
   ///
   /// If \a bOptimizeWhenFound is true, the corridor is optimized (topology + visibility) once,
   /// as soon as the path search finishes. Use this to avoid the weird corridor shapes that the
@@ -77,13 +77,13 @@ public:
   void SetTargetPosition(const ezVec3& vPosition, bool bOptimizeWhenFound = false);
   const ezVec3& GetTargetPosition() const;
 
-  /// \brief Immediately optimizes the current path corridor (topology + visibility).
+  /// Immediately optimizes the current path corridor (topology + visibility).
   ///
   /// Only has an effect when a path exists (GetState() == FullPathFound or one of the PartialPath* states).
   /// This is the on-demand counterpart to SetTargetPosition()'s bOptimizeWhenFound flag.
   void OptimizeCurrentPath();
 
-  /// \brief Checks whether \a vPosition lies inside the current path corridor.
+  /// Checks whether \a vPosition lies inside the current path corridor.
   ///
   /// Returns true only if the point is directly above/below one of the corridor polygons and
   /// within \a fHeightTolerance of that polygon's surface. This is different from testing whether
@@ -100,7 +100,7 @@ public:
   void DebugDrawState(const ezDebugRendererContext& context, const ezVec3& vPosition) const;
 
 
-  /// \brief Returns the height of the navmesh at the current position.
+  /// Returns the height of the navmesh at the current position.
   float GetCurrentElevation() const;
 
   void ComputeSteeringInfo(ezAiSteeringInfo& out_info, const ezVec2& vForwardDir, float fMaxLookAhead = 5.0f);

@@ -108,7 +108,7 @@ enum Enum
 };
 ```
 
-Don't use `/brief` or `/return`.
-Only use `/param` when it is really necessary to document arguments individually.
+Don't use `\brief` or `\return`.
+Only use `\param` when it is really necessary to document arguments individually.
 
 For inspiration how detailed to document code, see the Foundation library, where a large part of the code is well documented.

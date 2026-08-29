@@ -123,14 +123,14 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALIndexType
   };
 
 
-  /// \brief The size in bytes of a single element of the given index format.
+  /// The size in bytes of a single element of the given index format.
   static ezUInt8 GetSize(ezGALIndexType::Enum format) { return s_Size[format]; }
 
 private:
   static const ezUInt8 s_Size[ezGALIndexType::ENUM_COUNT];
 };
 
-/// \brief The stage of a shader. A complete shader can consist of multiple stages.
+/// The stage of a shader. A complete shader can consist of multiple stages.
 /// \sa ezGALShaderStageFlags, ezGALShaderCreationDescription
 struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStage
 {
@@ -161,7 +161,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStage
   static const char* Names[ENUM_COUNT];
 };
 
-/// \brief A set of shader stages.
+/// A set of shader stages.
 /// \sa ezGALShaderStage, ezShaderResourceBinding
 struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStageFlags
 {
@@ -333,12 +333,12 @@ struct ezGALCompareFunc
   };
 };
 
-/// \brief Defines which sides of a polygon gets culled by the graphics card
+/// Defines which sides of a polygon gets culled by the graphics card
 struct ezGALCullMode
 {
   using StorageType = ezUInt8;
 
-  /// \brief Defines which sides of a polygon gets culled by the graphics card
+  /// Defines which sides of a polygon gets culled by the graphics card
   enum Enum
   {
     None = 0,  ///< Triangles do not get culled
@@ -367,7 +367,7 @@ struct ezGALTextureFilterMode
   };
 };
 
-/// \brief Defines global texture filtering quality levels.
+/// Defines global texture filtering quality levels.
 ///
 /// Used to scale all quality-adjustable samplers simultaneously. The actual quality applied to each sampler
 /// depends on which quality mode slot it uses and what quality level is mapped to that slot.
@@ -422,7 +422,7 @@ struct ezGALUpdateMode
   };
 };
 
-/// \brief Used by ezGALVertexDeclarationCreationDescription -> ezGALVertexBinding to define whether the data in a vertex buffer is indexed via vertex or instance index.
+/// Used by ezGALVertexDeclarationCreationDescription -> ezGALVertexBinding to define whether the data in a vertex buffer is indexed via vertex or instance index.
 struct ezGALVertexBindingRate
 {
   using StorageType = ezUInt8;
@@ -434,7 +434,7 @@ struct ezGALVertexBindingRate
   };
 };
 
-/// \brief The initial state of a render target when starting to render to it.
+/// The initial state of a render target when starting to render to it.
 struct ezGALRenderTargetLoadOp
 {
   using StorageType = ezUInt8;
@@ -447,7 +447,7 @@ struct ezGALRenderTargetLoadOp
   };
 };
 
-/// \brief The state of a render target after finishing to render to it.
+/// The state of a render target after finishing to render to it.
 struct ezGALRenderTargetStoreOp
 {
   using StorageType = ezUInt8;
@@ -459,7 +459,7 @@ struct ezGALRenderTargetStoreOp
   };
 };
 
-/// \brief The current state of an async operations in the renderer
+/// The current state of an async operations in the renderer
 struct ezGALAsyncResult
 {
   using StorageType = ezUInt8;
@@ -473,7 +473,7 @@ struct ezGALAsyncResult
   };
 };
 
-/// \brief Used to define a texture sub-resource, i.e. a single slice.
+/// Used to define a texture sub-resource, i.e. a single slice.
 struct ezGALTextureSubresource
 {
   EZ_DECLARE_POD_TYPE();
@@ -481,7 +481,7 @@ struct ezGALTextureSubresource
   ezUInt32 m_uiArraySlice = 0;
 };
 
-/// \brief Helper to map linear system memory to a 2D texture sub-resource.
+/// Helper to map linear system memory to a 2D texture sub-resource.
 struct ezGALSystemMemoryDescription
 {
   EZ_DECLARE_POD_TYPE();
@@ -490,7 +490,7 @@ struct ezGALSystemMemoryDescription
   ezUInt32 m_uiSlicePitch = 0;
 };
 
-/// \brief Defines the sub-resources a render target view is rendering to.
+/// Defines the sub-resources a render target view is rendering to.
 /// Used by the render graph to define a render target. Views can't be used as the render graph works on virtual handles that only later are converted to actual resources.
 struct ezGALRenderTargetRange
 {
@@ -504,12 +504,12 @@ struct ezGALRenderTargetRange
   ezUInt8 m_uiBaseMipLevel = 0;
 };
 
-/// \brief Defines a sub-set of a texture that can be bound in a shader. Default constructed means entire texture.
+/// Defines a sub-set of a texture that can be bound in a shader. Default constructed means entire texture.
 /// Mainly used in ezBindGroupBuilder::BindTexture calls to map resources to shader bindings and other binding related methods.
 struct ezGALTextureRange
 {
   EZ_DECLARE_POD_TYPE();
-  /// \brief Helper to just set mip levels without also having to set the array slice fields.
+  /// Helper to just set mip levels without also having to set the array slice fields.
   static ezGALTextureRange MakeFromMipRange(ezUInt8 uiBaseMipLevel = 0, ezUInt8 uiMipLevels = EZ_GAL_ALL_MIP_LEVELS)
   {
     return {0, 1, uiBaseMipLevel, uiMipLevels};
@@ -533,7 +533,7 @@ struct ezGALTextureRange
 
   bool operator!=(const ezGALTextureRange& rhs) const { return !(*this == rhs); }
 
-  /// \brief Returns true if this range and the other range overlap in both the array-slice and mip-level dimensions.
+  /// Returns true if this range and the other range overlap in both the array-slice and mip-level dimensions.
   bool Overlaps(const ezGALTextureRange& other) const
   {
     // Cast to ezUInt32 to avoid overflow when base + count exceeds the ezUInt16/ezUInt8 range.
@@ -550,7 +550,7 @@ struct ezGALTextureRange
     return true;
   }
 
-  /// \brief Computes a flat sub-resource index for the given mip level and array layer within a texture whose full range is described by this instance.
+  /// Computes a flat sub-resource index for the given mip level and array layer within a texture whose full range is described by this instance.
   /// Index = uiMipLevel + uiLayer * m_uiMipLevels.
   EZ_ALWAYS_INLINE static ezUInt32 ComputeSubResourceIndex(ezUInt32 uiMipLevel, ezUInt32 uiLayer, const ezGALTextureRange& fullRange)
   {
@@ -558,7 +558,7 @@ struct ezGALTextureRange
   }
 };
 
-/// \brief Defines a sub-set of a buffer that can be bound in a shader. Default constructed means entire buffer.
+/// Defines a sub-set of a buffer that can be bound in a shader. Default constructed means entire buffer.
 /// Mainly used in ezBindGroupBuilder::BindBuffer calls to map resources to shader bindings and other binding related methods.
 struct ezGALBufferRange
 {
@@ -567,7 +567,7 @@ struct ezGALBufferRange
   ezUInt32 m_uiByteCount = EZ_GAL_WHOLE_SIZE; ///< m_uiByteOffset + m_uiByteCount must be less than the size of the buffer, unless EZ_GAL_WHOLE_SIZE ist used, which maps to the rest of the buffer.
 };
 
-/// \brief Base class for GAL objects, stores a creation description of the object and also allows for reference counting.
+/// Base class for GAL objects, stores a creation description of the object and also allows for reference counting.
 template <typename CreationDescription>
 class ezGALObject : public ezRefCounted
 {
@@ -683,7 +683,7 @@ class ezGALVertexDeclarationHandle
   friend class ezGALDevice;
 };
 
-/// \brief Handle to ezGALBindGroupLayout, created via ezGALDevice::CreateBindGroupLayout
+/// Handle to ezGALBindGroupLayout, created via ezGALDevice::CreateBindGroupLayout
 class ezGALBindGroupLayoutHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALBindGroupLayoutHandle, ezGAL::ez18_14Id);
@@ -691,7 +691,7 @@ class ezGALBindGroupLayoutHandle
   friend class ezGALDevice;
 };
 
-/// \brief Handle to ezGALBindGroup, created via ezGALDevice::CreateBindGroup
+/// Handle to ezGALBindGroup, created via ezGALDevice::CreateBindGroup
 class ezGALBindGroupHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALBindGroupHandle, ezGAL::ez18_14Id);
@@ -699,7 +699,7 @@ class ezGALBindGroupHandle
   friend class ezGALDevice;
 };
 
-/// \brief Handle to ezGALPipelineLayout, created via ezGALDevice::CreatePipelineLayout
+/// Handle to ezGALPipelineLayout, created via ezGALDevice::CreatePipelineLayout
 class ezGALPipelineLayoutHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALPipelineLayoutHandle, ezGAL::ez18_14Id);

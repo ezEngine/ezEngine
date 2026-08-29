@@ -14,14 +14,14 @@ class ezTaskWorkerThread final : public ezThread
   ///@{
 
 public:
-  /// \brief Tells the worker thread what tasks to execute and which thread index it has.
+  /// Tells the worker thread what tasks to execute and which thread index it has.
   ezTaskWorkerThread(ezWorkerThreadType::Enum threadType, ezUInt32 uiThreadNumber);
   ~ezTaskWorkerThread();
 
-  /// \brief Deactivates the thread. Returns failure, if the thread is currently still running.
+  /// Deactivates the thread. Returns failure, if the thread is currently still running.
   ezResult DeactivateWorker();
 
-  /// \brief Broadcasts ezThreadEvent::ClearThreadLocals on this thread.
+  /// Broadcasts ezThreadEvent::ClearThreadLocals on this thread.
   void BroadcastClearThreadLocalsEvent();
 
   void WaitForBroadcastClearTLS();
@@ -43,10 +43,10 @@ private:
   ///@{
 
 public:
-  /// \brief Returns the last utilization value (0 - 1 range). Optionally returns how many tasks it executed recently.
+  /// Returns the last utilization value (0 - 1 range). Optionally returns how many tasks it executed recently.
   double GetThreadUtilization(ezUInt32* pNumTasksExecuted = nullptr);
 
-  /// \brief Computes the thread utilization by dividing the thread active time by the time that has passed since the last update.
+  /// Computes the thread utilization by dividing the thread active time by the time that has passed since the last update.
   void UpdateThreadUtilization(ezTime timePassed);
 
 private:
@@ -63,7 +63,7 @@ private:
   ///@{
 
 public:
-  /// \brief If the thread is currently idle, this will wake it up and return EZ_SUCCESS.
+  /// If the thread is currently idle, this will wake it up and return EZ_SUCCESS.
   ezTaskWorkerState WakeUpIfIdle();
 
 private:

@@ -42,7 +42,7 @@ public:
 
   void SetRequiredTag(ezStringView sRequiredTag);
 
-  /// \brief If set, the given item will be visible no matter what until any other filter is changed.
+  /// If set, the given item will be visible no matter what until any other filter is changed.
   /// This is used to ensure that newly created assets are always visible, even if they are excluded from the current filter.
   void SetTemporaryPinnedItem(ezStringView sDataDirParentRelativePath);
   ezStringView GetTemporaryPinnedItem() const { return m_sTemporaryPinnedItem; }

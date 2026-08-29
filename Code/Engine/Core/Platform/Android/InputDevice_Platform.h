@@ -5,7 +5,7 @@
 struct ezAndroidInputEvent;
 struct AInputEvent;
 
-/// \brief Android standard input device.
+/// Android standard input device.
 class EZ_CORE_DLL ezInputDevice_Android : public ezInputDevice
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezInputDevice_Android, ezInputDevice);

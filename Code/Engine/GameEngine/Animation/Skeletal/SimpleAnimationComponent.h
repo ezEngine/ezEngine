@@ -17,7 +17,7 @@ using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationCli
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
 
-/// \brief Component manager for ezSimpleAnimationComponent.
+/// Component manager for ezSimpleAnimationComponent.
 ///
 /// Schedules updates in the async world update phase so that multiple instances can be evaluated in parallel.
 class EZ_GAMEENGINE_DLL ezSimpleAnimationComponentManager : public ezComponentManager<class ezSimpleAnimationComponent, ezBlockStorageType::FreeList>
@@ -34,7 +34,7 @@ private:
 };
 
 
-/// \brief Plays a single animation clip on an animated mesh.
+/// Plays a single animation clip on an animated mesh.
 ///
 /// \see ezAnimatedMeshComponent
 class EZ_GAMEENGINE_DLL ezSimpleAnimationComponent : public ezComponent
@@ -63,19 +63,19 @@ public:
   // adds SetAnimationClipFile() and GetAnimationClipFile() for convenience
   EZ_ADD_RESOURCEHANDLE_ACCESSORS(AnimationClip, m_hAnimationClip);
 
-  /// \brief How to play the animation.
+  /// How to play the animation.
   ezEnum<ezPropertyAnimMode> m_AnimationMode; // [ property ]
 
-  /// \brief How quickly or slowly to play the animation.
+  /// How quickly or slowly to play the animation.
   float m_fSpeed = 1.0f; // [ property ]
 
-  /// \brief Sets the current sample position of the animation clip in 0 (start) to 1 (end) range.
+  /// Sets the current sample position of the animation clip in 0 (start) to 1 (end) range.
   void SetNormalizedPlaybackPosition(float fPosition);
 
-  /// \brief Returns the normalized [0;1] sample position of the animation clip.
+  /// Returns the normalized [0;1] sample position of the animation clip.
   float GetNormalizedPlaybackPosition() const { return m_fNormalizedPlaybackPosition; }
 
-  /// \brief How often to update the animation while the animated mesh is invisible.
+  /// How often to update the animation while the animated mesh is invisible.
   ezEnum<ezAnimationInvisibleUpdateRate> m_InvisibleUpdateRate; // [ property ]
 
 protected:

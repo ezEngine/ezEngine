@@ -7,7 +7,7 @@
 
 class ezTempHashedString;
 
-/// \brief This class is optimized to take nearly no memory (sizeof(void*)) and to allow very fast checks whether two strings are identical.
+/// This class is optimized to take nearly no memory (sizeof(void*)) and to allow very fast checks whether two strings are identical.
 ///
 /// Internally only a reference to the string data is stored. The data itself is stored in a central location, where no duplicates are
 /// possible. Thus two identical strings will result in identical ezHashedString objects, which makes equality comparisons very easy
@@ -37,7 +37,7 @@ public:
   using HashedType = StringStorage::Iterator;
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
-  /// \brief This will remove all hashed strings from the central storage, that are not referenced anymore.
+  /// This will remove all hashed strings from the central storage, that are not referenced anymore.
   ///
   /// All hashed string values are stored in a central location and ezHashedString just references them. Those strings are then
   /// reference counted. Once some string is not referenced anymore, its ref count reaches zero, but it will not be removed from
@@ -51,27 +51,27 @@ public:
 
   EZ_DECLARE_MEM_RELOCATABLE_TYPE();
 
-  /// \brief Initializes this string to the empty string.
+  /// Initializes this string to the empty string.
   ezHashedString(); // [tested]
 
-  /// \brief Copies the given ezHashedString.
+  /// Copies the given ezHashedString.
   ezHashedString(const ezHashedString& rhs); // [tested]
 
-  /// \brief Moves the given ezHashedString.
+  /// Moves the given ezHashedString.
   ezHashedString(ezHashedString&& rhs); // [tested]
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
-  /// \brief Releases the reference to the internal data. Does NOT deallocate any data, even if this held the last reference to some string.
+  /// Releases the reference to the internal data. Does NOT deallocate any data, even if this held the last reference to some string.
   ~ezHashedString();
 #endif
 
-  /// \brief Copies the given ezHashedString.
+  /// Copies the given ezHashedString.
   void operator=(const ezHashedString& rhs); // [tested]
 
-  /// \brief Moves the given ezHashedString.
+  /// Moves the given ezHashedString.
   void operator=(ezHashedString&& rhs); // [tested]
 
-  /// \brief Assigning a new string from a string constant is a slow operation, but the hash computation can happen at compile time.
+  /// Assigning a new string from a string constant is a slow operation, but the hash computation can happen at compile time.
   ///
   /// If you need to create an object to compare ezHashedString objects against, prefer to use ezTempHashedString. It will only compute
   /// the strings hash value, but does not require any thread synchronization.
@@ -81,13 +81,13 @@ public:
   template <size_t N>
   void Assign(char (&string)[N]) = delete;
 
-  /// \brief Assigning a new string from a non-hashed string is a very slow operation, this should be used rarely.
+  /// Assigning a new string from a non-hashed string is a very slow operation, this should be used rarely.
   ///
   /// If you need to create an object to compare ezHashedString objects against, prefer to use ezTempHashedString. It will only compute
   /// the strings hash value, but does not require any thread synchronization.
   void Assign(ezStringView sString); // [tested]
 
-  /// \brief Comparing whether two hashed strings are identical is just a pointer comparison. This operation is what ezHashedString is
+  /// Comparing whether two hashed strings are identical is just a pointer comparison. This operation is what ezHashedString is
   /// optimized for.
   ///
   /// \note Comparing between ezHashedString objects is always error-free, so even if two string had the same hash value, although they are
@@ -95,46 +95,46 @@ public:
   bool operator==(const ezHashedString& rhs) const; // [tested]
   EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezHashedString&);
 
-  /// \brief Compares this string object to an ezTempHashedString object. This should be used whenever some object needs to be found
+  /// Compares this string object to an ezTempHashedString object. This should be used whenever some object needs to be found
   /// and the string to compare against is not yet an ezHashedString object.
   bool operator==(const ezTempHashedString& rhs) const; // [tested]
   bool operator!=(const ezTempHashedString& rhs) const; // [tested]
 
-  /// \brief This operator allows sorting objects by hash value, not by alphabetical order.
+  /// This operator allows sorting objects by hash value, not by alphabetical order.
   bool operator<(const ezHashedString& rhs) const; // [tested]
 
-  /// \brief This operator allows sorting objects by hash value, not by alphabetical order.
+  /// This operator allows sorting objects by hash value, not by alphabetical order.
   bool operator<(const ezTempHashedString& rhs) const; // [tested]
 
-  /// \brief Gives access to the actual string data, so you can do all the typical (read-only) string operations on it.
+  /// Gives access to the actual string data, so you can do all the typical (read-only) string operations on it.
   const ezString& GetString() const; // [tested]
 
-  /// \brief Gives access to the actual string data, so you can do all the typical (read-only) string operations on it.
+  /// Gives access to the actual string data, so you can do all the typical (read-only) string operations on it.
   const char* GetData() const;
 
-  /// \brief Returns the hash of the stored string.
+  /// Returns the hash of the stored string.
   ezUInt64 GetHash() const; // [tested]
 
-  /// \brief Returns whether the string is empty.
+  /// Returns whether the string is empty.
   bool IsEmpty() const;
 
-  /// \brief Resets the string to the empty string.
+  /// Resets the string to the empty string.
   void Clear();
 
-  /// \brief Returns a string view to this string's data.
+  /// Returns a string view to this string's data.
   EZ_ALWAYS_INLINE operator ezStringView() const { return GetString().GetView(); }
 
-  /// \brief Returns a string view to this string's data.
+  /// Returns a string view to this string's data.
   EZ_ALWAYS_INLINE ezStringView GetView() const { return GetString().GetView(); }
 
-  /// \brief Returns a pointer to the internal Utf8 string.
+  /// Returns a pointer to the internal Utf8 string.
   EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
 
   // since we allow to cast implicitly to const char*, we need these overloads to not do a pure pointer comparison
   EZ_ALWAYS_INLINE bool operator==(const char* szString) const { return GetString().GetView() == ezStringView(szString); }
   EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const char*);
 
-  /// \brief Attempts to find a known string for the given hash value.
+  /// Attempts to find a known string for the given hash value.
   ///
   /// Careful, this is a slow operation (involving a mutex). It is only meant for debug output purposes.
   /// The string hash may not be known, if the value was never assigned to any ezHashedString, in which case EZ_FAILURE is returned.
@@ -161,12 +161,12 @@ EZ_ALWAYS_INLINE bool operator!=(const char* szString, const ezHashedString& rhs
 
 #endif
 
-/// \brief Helper function to create an ezHashedString. This can be used to initialize static hashed string variables.
+/// Helper function to create an ezHashedString. This can be used to initialize static hashed string variables.
 template <size_t N>
 ezHashedString ezMakeHashedString(const char (&string)[N]);
 
 
-/// \brief A class to use together with ezHashedString for quick comparisons with temporary strings that need not be stored further.
+/// A class to use together with ezHashedString for quick comparisons with temporary strings that need not be stored further.
 ///
 /// Whenever you have objects that use ezHashedString members and you need to compare against them with some temporary string,
 /// prefer to use ezTempHashedString instead of ezHashedString, as the latter requires thread synchronization to actually set up the
@@ -178,58 +178,58 @@ class EZ_FOUNDATION_DLL ezTempHashedString
 public:
   ezTempHashedString(); // [tested]
 
-  /// \brief Creates an ezTempHashedString object from the given string constant. The hash can be computed at compile time.
+  /// Creates an ezTempHashedString object from the given string constant. The hash can be computed at compile time.
   template <size_t N>
   constexpr ezTempHashedString(const char (&string)[N]); // [tested]
 
   template <size_t N>
   ezTempHashedString(char (&string)[N]) = delete;
 
-  /// \brief Creates an ezTempHashedString object from the given string. Computes the hash of the given string during runtime, which might
+  /// Creates an ezTempHashedString object from the given string. Computes the hash of the given string during runtime, which might
   /// be slow.
   explicit ezTempHashedString(ezStringView sString); // [tested]
 
-  /// \brief Copies the hash from rhs.
+  /// Copies the hash from rhs.
   ezTempHashedString(const ezTempHashedString& rhs); // [tested]
 
-  /// \brief Copies the hash from the ezHashedString.
+  /// Copies the hash from the ezHashedString.
   ezTempHashedString(const ezHashedString& rhs); // [tested]
 
   explicit ezTempHashedString(ezUInt32 uiHash) = delete;
 
-  /// \brief Copies the hash from the 64 bit integer.
+  /// Copies the hash from the 64 bit integer.
   explicit ezTempHashedString(ezUInt64 uiHash);
 
-  /// \brief The hash of the given string can be computed at compile time.
+  /// The hash of the given string can be computed at compile time.
   template <size_t N>
   void operator=(const char (&string)[N]); // [tested]
 
-  /// \brief Computes and stores the hash of the given string during runtime, which might be slow.
+  /// Computes and stores the hash of the given string during runtime, which might be slow.
   void operator=(ezStringView sString); // [tested]
 
-  /// \brief Copies the hash from rhs.
+  /// Copies the hash from rhs.
   void operator=(const ezTempHashedString& rhs); // [tested]
 
-  /// \brief Copies the hash from the ezHashedString.
+  /// Copies the hash from the ezHashedString.
   void operator=(const ezHashedString& rhs); // [tested]
 
-  /// \brief Compares the two objects by their hash value. Might report incorrect equality, if two strings have the same hash value.
+  /// Compares the two objects by their hash value. Might report incorrect equality, if two strings have the same hash value.
   bool operator==(const ezTempHashedString& rhs) const; // [tested]
   EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezTempHashedString&);
 
-  /// \brief This operator allows soring objects by hash value, not by alphabetical order.
+  /// This operator allows soring objects by hash value, not by alphabetical order.
   bool operator<(const ezTempHashedString& rhs) const; // [tested]
 
-  /// \brief Checks whether the ezTempHashedString represents the empty string.
+  /// Checks whether the ezTempHashedString represents the empty string.
   bool IsEmpty() const; // [tested]
 
-  /// \brief Resets the string to the empty string.
+  /// Resets the string to the empty string.
   void Clear(); // [tested]
 
-  /// \brief Returns the hash of the stored string.
+  /// Returns the hash of the stored string.
   ezUInt64 GetHash() const; // [tested]
 
-  /// \brief Convenience function to call ezHashedString::LookupStringHash().
+  /// Convenience function to call ezHashedString::LookupStringHash().
   ezResult LookupStringHash(ezStringView& out_sResult) const
   {
     return ezHashedString::LookupStringHash(m_uiHash, out_sResult);

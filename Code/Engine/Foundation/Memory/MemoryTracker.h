@@ -17,7 +17,7 @@ enum class ezAllocatorTrackingMode : ezUInt32
   Default = EZ_ALLOC_TRACKING_DEFAULT,
 };
 
-/// \brief Global memory tracking system for debugging, profiling, and leak detection.
+/// Global memory tracking system for debugging, profiling, and leak detection.
 ///
 /// This singleton provides comprehensive memory allocation tracking across all allocators
 /// in the system. It supports different tracking modes ranging from basic statistics to
@@ -91,15 +91,15 @@ public:
 
   static Iterator GetIterator();
 
-  /// \brief Callback for printing strings.
+  /// Callback for printing strings.
   using PrintFunc = void (*)(const char* szLine);
 
-  /// \brief Reports back information about all currently known root memory leaks.
+  /// Reports back information about all currently known root memory leaks.
   ///
   /// Returns the number of found memory leaks.
   static ezUInt32 PrintMemoryLeaks(PrintFunc printfunc);
 
-  /// \brief Prints the known memory leaks to ezLog and triggers an assert if there are any.
+  /// Prints the known memory leaks to ezLog and triggers an assert if there are any.
   ///
   /// This is useful to call at the end of an application, to get a debug breakpoint in case of memory leaks.
   static void DumpMemoryLeaks();

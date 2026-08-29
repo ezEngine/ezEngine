@@ -4,7 +4,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Types/ArrayPtr.h>
 
-/// \brief This class encapsulates a blob's storage and it's size. It is recommended to use this class instead of directly working on the void* of the
+/// This class encapsulates a blob's storage and it's size. It is recommended to use this class instead of directly working on the void* of the
 /// blob.
 ///
 /// No data is deallocated at destruction, the ezBlobPtr only allows for easier access.
@@ -21,10 +21,10 @@ public:
   using ValueType = T;
   using PointerType = T*;
 
-  /// \brief Initializes the ezBlobPtr to be empty.
+  /// Initializes the ezBlobPtr to be empty.
   ezBlobPtr() = default;
 
-  /// \brief Initializes the ezBlobPtr with the given pointer and number of elements. No memory is allocated or copied.
+  /// Initializes the ezBlobPtr with the given pointer and number of elements. No memory is allocated or copied.
   template <typename U>
   inline ezBlobPtr(U* pPtr, ezUInt64 uiCount)
     : m_pPtr(pPtr)
@@ -38,7 +38,7 @@ public:
     }
   }
 
-  /// \brief Initializes the ezBlobPtr to encapsulate the given array.
+  /// Initializes the ezBlobPtr to encapsulate the given array.
   template <size_t N>
   EZ_ALWAYS_INLINE ezBlobPtr(ValueType (&staticArray)[N])
     : m_pPtr(staticArray)
@@ -46,38 +46,38 @@ public:
   {
   }
 
-  /// \brief Initializes the ezBlobPtr to be a copy of \a other. No memory is allocated or copied.
+  /// Initializes the ezBlobPtr to be a copy of \a other. No memory is allocated or copied.
   EZ_ALWAYS_INLINE ezBlobPtr(const ezBlobPtr<T>& other)
     : m_pPtr(other.m_pPtr)
     , m_uiCount(other.m_uiCount)
   {
   }
 
-  /// \brief Initializes the ezBlobPtr to be a copy of \a other. No memory is allocated or copied.
+  /// Initializes the ezBlobPtr to be a copy of \a other. No memory is allocated or copied.
   EZ_ALWAYS_INLINE ezBlobPtr(const ezArrayPtr<T>& other)
     : m_pPtr(other.GetPtr())
     , m_uiCount(other.GetCount())
   {
   }
 
-  /// \brief Convert to const version.
+  /// Convert to const version.
   operator ezBlobPtr<const T>() const { return ezBlobPtr<const T>(static_cast<const T*>(GetPtr()), GetCount()); }
 
-  /// \brief Copies the pointer and size of /a other. Does not allocate any data.
+  /// Copies the pointer and size of /a other. Does not allocate any data.
   EZ_ALWAYS_INLINE void operator=(const ezBlobPtr<T>& other)
   {
     m_pPtr = other.m_pPtr;
     m_uiCount = other.m_uiCount;
   }
 
-  /// \brief Copies the pointer and size of /a other. Does not allocate any data.
+  /// Copies the pointer and size of /a other. Does not allocate any data.
   EZ_ALWAYS_INLINE void operator=(const ezArrayPtr<T>& other)
   {
     m_pPtr = other.GetPtr();
     m_uiCount = other.GetCount();
   }
 
-  /// \brief Clears the array
+  /// Clears the array
   EZ_ALWAYS_INLINE void Clear()
   {
     m_pPtr = nullptr;
@@ -90,25 +90,25 @@ public:
     m_uiCount = 0;
   }
 
-  /// \brief Returns the pointer to the array.
+  /// Returns the pointer to the array.
   EZ_ALWAYS_INLINE PointerType GetPtr() const { return m_pPtr; }
 
-  /// \brief Returns the pointer to the array.
+  /// Returns the pointer to the array.
   EZ_ALWAYS_INLINE PointerType GetPtr() { return m_pPtr; }
 
-  /// \brief Returns the pointer behind the last element of the array
+  /// Returns the pointer behind the last element of the array
   EZ_ALWAYS_INLINE PointerType GetEndPtr() { return m_pPtr + m_uiCount; }
 
-  /// \brief Returns the pointer behind the last element of the array
+  /// Returns the pointer behind the last element of the array
   EZ_ALWAYS_INLINE PointerType GetEndPtr() const { return m_pPtr + m_uiCount; }
 
-  /// \brief Returns whether the array is empty.
+  /// Returns whether the array is empty.
   EZ_ALWAYS_INLINE bool IsEmpty() const { return GetCount() == 0; }
 
-  /// \brief Returns the number of elements in the array.
+  /// Returns the number of elements in the array.
   EZ_ALWAYS_INLINE ezUInt64 GetCount() const { return m_uiCount; }
 
-  /// \brief Creates a sub-array from this array.
+  /// Creates a sub-array from this array.
   EZ_FORCE_INLINE ezBlobPtr<T> GetSubArray(ezUInt64 uiStart, ezUInt64 uiCount) const // [tested]
   {
     EZ_ASSERT_DEV(
@@ -116,7 +116,7 @@ public:
     return ezBlobPtr<T>(GetPtr() + uiStart, uiCount);
   }
 
-  /// \brief Creates a sub-array from this array.
+  /// Creates a sub-array from this array.
   /// \note \code ap.GetSubArray(i) \endcode is equivalent to \code ap.GetSubArray(i, ap.GetCount() - i) \endcode.
   EZ_FORCE_INLINE ezBlobPtr<T> GetSubArray(ezUInt64 uiStart) const // [tested]
   {
@@ -124,16 +124,16 @@ public:
     return ezBlobPtr<T>(GetPtr() + uiStart, GetCount() - uiStart);
   }
 
-  /// \brief Reinterprets this array as a byte array.
+  /// Reinterprets this array as a byte array.
   EZ_ALWAYS_INLINE ezBlobPtr<const ByteType> ToByteBlob() const
   {
     return ezBlobPtr<const ByteType>(reinterpret_cast<const ByteType*>(GetPtr()), GetCount() * sizeof(T));
   }
 
-  /// \brief Reinterprets this array as a byte array.
+  /// Reinterprets this array as a byte array.
   EZ_ALWAYS_INLINE ezBlobPtr<ByteType> ToByteBlob() { return ezBlobPtr<ByteType>(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T)); }
 
-  /// \brief Cast an BlobPtr to an BlobPtr to a different, but same size, type
+  /// Cast an BlobPtr to an BlobPtr to a different, but same size, type
   template <typename U>
   EZ_ALWAYS_INLINE ezBlobPtr<U> Cast()
   {
@@ -141,7 +141,7 @@ public:
     return ezBlobPtr<U>(reinterpret_cast<U*>(GetPtr()), GetCount());
   }
 
-  /// \brief Cast an BlobPtr to an BlobPtr to a different, but same size, type
+  /// Cast an BlobPtr to an BlobPtr to a different, but same size, type
   template <typename U>
   EZ_ALWAYS_INLINE ezBlobPtr<const U> Cast() const
   {
@@ -149,21 +149,21 @@ public:
     return ezBlobPtr<const U>(reinterpret_cast<const U*>(GetPtr()), GetCount());
   }
 
-  /// \brief Index access.
+  /// Index access.
   EZ_FORCE_INLINE const ValueType& operator[](ezUInt64 uiIndex) const // [tested]
   {
     EZ_ASSERT_DEBUG(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
     return *static_cast<const ValueType*>(GetPtr() + uiIndex);
   }
 
-  /// \brief Index access.
+  /// Index access.
   EZ_FORCE_INLINE ValueType& operator[](ezUInt64 uiIndex) // [tested]
   {
     EZ_ASSERT_DEBUG(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
     return *static_cast<ValueType*>(GetPtr() + uiIndex);
   }
 
-  /// \brief Compares the two arrays for equality.
+  /// Compares the two arrays for equality.
   inline bool operator==(const ezBlobPtr<const T>& other) const // [tested]
   {
     if (GetCount() != other.GetCount())
@@ -175,13 +175,13 @@ public:
     return ezMemoryUtils::IsEqual(static_cast<const ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), static_cast<size_t>(GetCount()));
   }
 
-  /// \brief Compares the two arrays for inequality.
+  /// Compares the two arrays for inequality.
   EZ_ALWAYS_INLINE bool operator!=(const ezBlobPtr<const T>& other) const // [tested]
   {
     return !(*this == other);
   }
 
-  /// \brief Copies the data from \a other into this array. The arrays must have the exact same size.
+  /// Copies the data from \a other into this array. The arrays must have the exact same size.
   inline void CopyFrom(const ezBlobPtr<const T>& other) // [tested]
   {
     EZ_ASSERT_DEV(GetCount() == other.GetCount(), "Count for copy does not match. Target has {0} elements, source {1} elements", GetCount(), other.GetCount());
@@ -212,41 +212,41 @@ using ezConstByteBlobPtr = ezBlobPtr<const ezUInt8>;
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Helper function to create ezBlobPtr from a pointer of some type and a count.
+/// Helper function to create ezBlobPtr from a pointer of some type and a count.
 template <typename T>
 EZ_ALWAYS_INLINE ezBlobPtr<T> ezMakeBlobPtr(T* pPtr, ezUInt64 uiCount)
 {
   return ezBlobPtr<T>(pPtr, uiCount);
 }
 
-/// \brief Helper function to create ezBlobPtr from a static array the a size known at compile-time.
+/// Helper function to create ezBlobPtr from a static array the a size known at compile-time.
 template <typename T, ezUInt64 N>
 EZ_ALWAYS_INLINE ezBlobPtr<T> ezMakeBlobPtr(T (&staticArray)[N])
 {
   return ezBlobPtr<T>(staticArray);
 }
 
-/// \brief Helper function to create ezConstByteBlobPtr from a pointer of some type and a count.
+/// Helper function to create ezConstByteBlobPtr from a pointer of some type and a count.
 template <typename T>
 EZ_ALWAYS_INLINE ezConstByteBlobPtr ezMakeByteBlobPtr(const T* pPtr, ezUInt32 uiCount)
 {
   return ezConstByteBlobPtr(static_cast<const ezUInt8*>(pPtr), uiCount * sizeof(T));
 }
 
-/// \brief Helper function to create ezByteBlobPtr from a pointer of some type and a count.
+/// Helper function to create ezByteBlobPtr from a pointer of some type and a count.
 template <typename T>
 EZ_ALWAYS_INLINE ezByteBlobPtr ezMakeByteBlobPtr(T* pPtr, ezUInt32 uiCount)
 {
   return ezByteBlobPtr(reinterpret_cast<ezUInt8*>(pPtr), uiCount * sizeof(T));
 }
 
-/// \brief Helper function to create ezByteBlobPtr from a void pointer and a count.
+/// Helper function to create ezByteBlobPtr from a void pointer and a count.
 EZ_ALWAYS_INLINE ezByteBlobPtr ezMakeByteBlobPtr(void* pPtr, ezUInt32 uiBytes)
 {
   return ezByteBlobPtr(reinterpret_cast<ezUInt8*>(pPtr), uiBytes);
 }
 
-/// \brief Helper function to create ezConstByteBlobPtr from a const void pointer and a count.
+/// Helper function to create ezConstByteBlobPtr from a const void pointer and a count.
 EZ_ALWAYS_INLINE ezConstByteBlobPtr ezMakeByteBlobPtr(const void* pPtr, ezUInt32 uiBytes)
 {
   return ezConstByteBlobPtr(static_cast<const ezUInt8*>(pPtr), uiBytes);
@@ -326,7 +326,7 @@ typename ezBlobPtr<T>::const_reverse_iterator crend(const ezBlobPtr<T>& containe
   return typename ezBlobPtr<T>::const_reverse_iterator(container.GetPtr() - 1);
 }
 
-/// \brief ezBlob allows to store simple binary data larger than 4GB.
+/// ezBlob allows to store simple binary data larger than 4GB.
 /// This storage class is used by ezImage to allow processing of large textures for example.
 /// In the current implementation the start of the allocated memory is guaranteed to be 64 byte aligned.
 class EZ_FOUNDATION_DLL ezBlob
@@ -334,52 +334,52 @@ class EZ_FOUNDATION_DLL ezBlob
 public:
   EZ_DECLARE_MEM_RELOCATABLE_TYPE();
 
-  /// \brief Default constructor. Does not allocate any memory.
+  /// Default constructor. Does not allocate any memory.
   ezBlob();
 
-  /// \brief Move constructor. Moves the storage pointer from the other blob to this blob.
+  /// Move constructor. Moves the storage pointer from the other blob to this blob.
   ezBlob(ezBlob&& other);
 
-  /// \brief Move assignment. Moves the storage pointer from the other blob to this blob.
+  /// Move assignment. Moves the storage pointer from the other blob to this blob.
   void operator=(ezBlob&& rhs);
 
-  /// \brief Default destructor. Will call Clear() to deallocate the memory.
+  /// Default destructor. Will call Clear() to deallocate the memory.
   ~ezBlob();
 
-  /// \brief Sets the blob to the content of pSource.
+  /// Sets the blob to the content of pSource.
   /// This will allocate the necessary memory if needed and then copy uiSize bytes from pSource.
   void SetFrom(const void* pSource, ezUInt64 uiSize);
 
-  /// \brief Deallocates the memory allocated by this instance.
+  /// Deallocates the memory allocated by this instance.
   void Clear();
 
   /// \bried Is data blob empty
   bool IsEmpty() const;
 
-  /// \brief Allocates uiCount bytes for storage in this object. The bytes will have undefined content.
+  /// Allocates uiCount bytes for storage in this object. The bytes will have undefined content.
   void SetCountUninitialized(ezUInt64 uiCount);
 
-  /// \brief Convenience method to clear the content of the blob to all 0 bytes.
+  /// Convenience method to clear the content of the blob to all 0 bytes.
   void ZeroFill();
 
-  /// \brief Returns a blob pointer to the blob data, or an empty blob pointer if the blob is empty.
+  /// Returns a blob pointer to the blob data, or an empty blob pointer if the blob is empty.
   template <typename T>
   ezBlobPtr<T> GetBlobPtr()
   {
     return ezBlobPtr<T>(static_cast<T*>(m_pStorage), m_uiSize);
   }
 
-  /// \brief Returns a blob pointer to the blob data, or an empty blob pointer if the blob is empty.
+  /// Returns a blob pointer to the blob data, or an empty blob pointer if the blob is empty.
   template <typename T>
   ezBlobPtr<const T> GetBlobPtr() const
   {
     return ezBlobPtr<const T>(static_cast<T*>(m_pStorage), m_uiSize);
   }
 
-  /// \brief Returns a blob pointer to the blob data, or an empty blob pointer if the blob is empty.
+  /// Returns a blob pointer to the blob data, or an empty blob pointer if the blob is empty.
   ezByteBlobPtr GetByteBlobPtr() { return ezByteBlobPtr(reinterpret_cast<ezUInt8*>(m_pStorage), m_uiSize); }
 
-  /// \brief Returns a blob pointer to the blob data, or an empty blob pointer if the blob is empty.
+  /// Returns a blob pointer to the blob data, or an empty blob pointer if the blob is empty.
   ezConstByteBlobPtr GetByteBlobPtr() const { return ezConstByteBlobPtr(reinterpret_cast<const ezUInt8*>(m_pStorage), m_uiSize); }
 
 private:

@@ -6,39 +6,39 @@
 #include <Foundation/Math/ColorScheme.h>
 #include <Foundation/Reflection/Reflection.h>
 
-/// \brief Base class of all attributes can be used to decorate a RTTI property.
+/// Base class of all attributes can be used to decorate a RTTI property.
 class EZ_FOUNDATION_DLL ezPropertyAttribute : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAttribute, ezReflectedClass);
 };
 
-/// \brief A property attribute that indicates that the property may not be modified through the UI
+/// A property attribute that indicates that the property may not be modified through the UI
 class EZ_FOUNDATION_DLL ezReadOnlyAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezReadOnlyAttribute, ezPropertyAttribute);
 };
 
-/// \brief A property attribute that indicates that the property is not to be shown in the UI
+/// A property attribute that indicates that the property is not to be shown in the UI
 class EZ_FOUNDATION_DLL ezHiddenAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezHiddenAttribute, ezPropertyAttribute);
 };
 
-/// \brief Marks a property as required. Asset check rules flag the property as an error if it is left empty
+/// Marks a property as required. Asset check rules flag the property as an error if it is left empty
 /// (e.g. an empty string, or an empty/invalid game object or component reference).
 class EZ_FOUNDATION_DLL ezRequiredAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRequiredAttribute, ezPropertyAttribute);
 };
 
-/// \brief A property attribute that indicates that the property is not to be serialized
+/// A property attribute that indicates that the property is not to be serialized
 /// and whatever it points to only exists temporarily while running or in editor.
 class EZ_FOUNDATION_DLL ezTemporaryAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTemporaryAttribute, ezPropertyAttribute);
 };
 
-/// \brief When placed on a component type, its editor shape icon will be rendered through geometry (always visible).
+/// When placed on a component type, its editor shape icon will be rendered through geometry (always visible).
 ///
 /// Useful for components whose icons tend to end up inside geometry, such as spline nodes.
 class EZ_FOUNDATION_DLL ezShapeIconAlwaysVisibleAttribute : public ezPropertyAttribute
@@ -46,7 +46,7 @@ class EZ_FOUNDATION_DLL ezShapeIconAlwaysVisibleAttribute : public ezPropertyAtt
   EZ_ADD_DYNAMIC_REFLECTION(ezShapeIconAlwaysVisibleAttribute, ezPropertyAttribute);
 };
 
-/// \brief Used to categorize types (e.g. add component menu)
+/// Used to categorize types (e.g. add component menu)
 class EZ_FOUNDATION_DLL ezCategoryAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCategoryAttribute, ezPropertyAttribute);
@@ -64,7 +64,7 @@ private:
   ezUntrackedString m_sCategory;
 };
 
-/// \brief A property attribute that indicates that this feature is still in development and should not be shown to all users.
+/// A property attribute that indicates that this feature is still in development and should not be shown to all users.
 class EZ_FOUNDATION_DLL ezInDevelopmentAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezInDevelopmentAttribute, ezPropertyAttribute);
@@ -85,7 +85,7 @@ public:
 };
 
 
-/// \brief Used for dynamic titles of visual script nodes.
+/// Used for dynamic titles of visual script nodes.
 /// E.g. "Set Bool Property '{Name}'" will allow the title to by dynamic
 /// by reading the current value of the 'Name' property.
 class EZ_FOUNDATION_DLL ezTitleAttribute : public ezPropertyAttribute
@@ -105,7 +105,7 @@ private:
   ezUntrackedString m_sTitle;
 };
 
-/// \brief Used to colorize types
+/// Used to colorize types
 class EZ_FOUNDATION_DLL ezColorAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezColorAttribute, ezPropertyAttribute);
@@ -122,13 +122,13 @@ private:
   ezColor m_Color;
 };
 
-/// \brief A property attribute that indicates that the alpha channel of an ezColorGammaUB or ezColor should be exposed in the UI.
+/// A property attribute that indicates that the alpha channel of an ezColorGammaUB or ezColor should be exposed in the UI.
 class EZ_FOUNDATION_DLL ezExposeColorAlphaAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezExposeColorAlphaAttribute, ezPropertyAttribute);
 };
 
-/// \brief Used for any property shown as a line edit (int, float, vector etc).
+/// Used for any property shown as a line edit (int, float, vector etc).
 class EZ_FOUNDATION_DLL ezSuffixAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSuffixAttribute, ezPropertyAttribute);
@@ -146,7 +146,7 @@ private:
   ezUntrackedString m_sSuffix;
 };
 
-/// \brief Used to show a text instead of the minimum value of a property.
+/// Used to show a text instead of the minimum value of a property.
 class EZ_FOUNDATION_DLL ezMinValueTextAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMinValueTextAttribute, ezPropertyAttribute);
@@ -164,7 +164,7 @@ private:
   ezUntrackedString m_sText;
 };
 
-/// \brief Sets the default value of the property.
+/// Sets the default value of the property.
 class EZ_FOUNDATION_DLL ezDefaultValueAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDefaultValueAttribute, ezPropertyAttribute);
@@ -208,7 +208,7 @@ private:
   ezVariant m_Value;
 };
 
-/// \brief A property attribute that allows to define min and max values for the UI. Min or max may be set to an invalid variant to indicate
+/// A property attribute that allows to define min and max values for the UI. Min or max may be set to an invalid variant to indicate
 /// unbounded values in one direction.
 class EZ_FOUNDATION_DLL ezClampValueAttribute : public ezPropertyAttribute
 {
@@ -230,7 +230,7 @@ protected:
   ezVariant m_MaxValue;
 };
 
-/// \brief Used to categorize properties into groups
+/// Used to categorize properties into groups
 class EZ_FOUNDATION_DLL ezGroupAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezGroupAttribute, ezPropertyAttribute);
@@ -250,7 +250,7 @@ private:
   float m_fOrder = -1.0f;
 };
 
-/// \brief Derive from this class if you want to define an attribute that replaces the property type widget.
+/// Derive from this class if you want to define an attribute that replaces the property type widget.
 ///
 /// Using this attribute affects both member properties as well as elements in a container but not the container widget.
 /// When creating a property widget, the property grid will look for an attribute of this type and use
@@ -262,7 +262,7 @@ class EZ_FOUNDATION_DLL ezTypeWidgetAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezTypeWidgetAttribute, ezPropertyAttribute);
 };
 
-/// \brief Derive from this class if you want to define an attribute that replaces the property widget of containers.
+/// Derive from this class if you want to define an attribute that replaces the property widget of containers.
 ///
 /// Using this attribute affects the container widget but not container elements.
 /// Only derive from this class if you want to replace the container widget itself, in every other case
@@ -272,7 +272,7 @@ class EZ_FOUNDATION_DLL ezContainerWidgetAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezContainerWidgetAttribute, ezPropertyAttribute);
 };
 
-/// \brief Add this attribute to a tag set member property to make it use the tag set editor
+/// Add this attribute to a tag set member property to make it use the tag set editor
 /// and define the categories it will use as a ; separated list of category names.
 ///
 /// Usage: EZ_SET_MEMBER_PROPERTY("Tags", m_Tags)->AddAttributes(new ezTagSetWidgetAttribute("Category1;Category2")),
@@ -293,13 +293,13 @@ private:
   ezUntrackedString m_sTagFilter;
 };
 
-/// \brief This attribute indicates that a widget should not use temporary transactions when changing the value.
+/// This attribute indicates that a widget should not use temporary transactions when changing the value.
 class EZ_FOUNDATION_DLL ezNoTemporaryTransactionsAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezNoTemporaryTransactionsAttribute, ezPropertyAttribute);
 };
 
-/// \brief Add this attribute to a variant map property to make it map to the exposed parameters
+/// Add this attribute to a variant map property to make it map to the exposed parameters
 /// of an asset. For this, the member property name of the asset reference needs to be passed in.
 /// The exposed parameters of the currently set asset on that property will be used as the source.
 ///
@@ -323,7 +323,7 @@ private:
   ezUntrackedString m_sParametersSource;
 };
 
-/// \brief Add this attribute to an embedded class or container property to make it retrieve its default values from a dynamic meta info object on an asset.
+/// Add this attribute to an embedded class or container property to make it retrieve its default values from a dynamic meta info object on an asset.
 ///
 /// The default values are retrieved from the asset meta data of the currently set asset on that property.
 ///
@@ -360,7 +360,7 @@ private:
 };
 
 
-/// \brief Sets the allowed actions on a container.
+/// Sets the allowed actions on a container.
 class EZ_FOUNDATION_DLL ezContainerAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezContainerAttribute, ezPropertyAttribute);
@@ -384,7 +384,7 @@ private:
   bool m_bCanMove = false;
 };
 
-/// \brief Defines how a reference set by ezFileBrowserAttribute and ezAssetBrowserAttribute is treated.
+/// Defines how a reference set by ezFileBrowserAttribute and ezAssetBrowserAttribute is treated.
 ///
 /// A few examples to explain the flags:
 /// ## Input for a mesh: **Transform | Thumbnail**
@@ -429,7 +429,7 @@ struct ezDependencyFlags
 EZ_DECLARE_FLAGS_OPERATORS(ezDependencyFlags);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezDependencyFlags);
 
-/// \brief A property attribute that indicates that the string property should display a file browsing button.
+/// A property attribute that indicates that the string property should display a file browsing button.
 ///
 /// Allows to specify the title for the browse dialog and the allowed file types.
 /// Usage: EZ_MEMBER_PROPERTY("File", m_sFilePath)->AddAttributes(new ezFileBrowserAttribute("Choose a File", "*.txt")),
@@ -470,7 +470,7 @@ private:
   ezBitflags<ezDependencyFlags> m_DependencyFlags;
 };
 
-/// \brief Indicates that the string property should allow to browse for an file (or programs) outside the project directories.
+/// Indicates that the string property should allow to browse for an file (or programs) outside the project directories.
 ///
 /// Allows to specify the title for the browse dialog and the allowed file types.
 /// Usage: EZ_MEMBER_PROPERTY("File", m_sFilePath)->AddAttributes(new ezFileBrowserAttribute("Choose a File", "*.exe")),
@@ -494,7 +494,7 @@ private:
   ezUntrackedString m_sTypeFilter;
 };
 
-/// \brief A property attribute that indicates that the string property is actually an asset reference.
+/// A property attribute that indicates that the string property is actually an asset reference.
 ///
 /// Allows to specify the allowed asset types, separated with ;
 /// Usage: EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D;Texture 3D")),
@@ -534,7 +534,7 @@ private:
   ezBitflags<ezDependencyFlags> m_DependencyFlags;
 };
 
-/// \brief Can be used on integer properties to display them as enums. The valid enum values and their names may change at runtime.
+/// Can be used on integer properties to display them as enums. The valid enum values and their names may change at runtime.
 ///
 /// See ezDynamicEnum for details.
 class EZ_FOUNDATION_DLL ezDynamicEnumAttribute : public ezTypeWidgetAttribute
@@ -554,7 +554,7 @@ private:
   ezUntrackedString m_sDynamicEnumName;
 };
 
-/// \brief Can be used on string properties to display them as enums. The valid enum values and their names may change at runtime.
+/// Can be used on string properties to display them as enums. The valid enum values and their names may change at runtime.
 ///
 /// See ezDynamicStringEnum for details.
 class EZ_FOUNDATION_DLL ezDynamicStringEnumAttribute : public ezTypeWidgetAttribute
@@ -574,7 +574,7 @@ private:
   ezUntrackedString m_sDynamicEnumName;
 };
 
-/// \brief Can be used on integer properties to display them as bitflags. The valid bitflags and their names may change at runtime.
+/// Can be used on integer properties to display them as bitflags. The valid bitflags and their names may change at runtime.
 class EZ_FOUNDATION_DLL ezDynamicBitflagsAttribute : public ezTypeWidgetAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDynamicBitflagsAttribute, ezTypeWidgetAttribute);
@@ -940,7 +940,7 @@ class EZ_FOUNDATION_DLL ezConeVisualizerAttribute : public ezVisualizerAttribute
 public:
   ezConeVisualizerAttribute();
 
-  /// \brief Attribute to add on an RTTI type to add a cone visualizer for specific properties.
+  /// Attribute to add on an RTTI type to add a cone visualizer for specific properties.
   ///
   /// szRadiusProperty may be nullptr, in which case it is assumed to be 1
   /// fScale will be multiplied with value of szRadiusProperty to determine the size of the cone
@@ -966,7 +966,7 @@ class EZ_FOUNDATION_DLL ezCameraVisualizerAttribute : public ezVisualizerAttribu
 public:
   ezCameraVisualizerAttribute();
 
-  /// \brief Attribute to add on an RTTI type to add a camera cone visualizer.
+  /// Attribute to add on an RTTI type to add a camera cone visualizer.
   ezCameraVisualizerAttribute(const char* szModeProperty, const char* szFovProperty, const char* szOrthoDimProperty, const char* szNearPlaneProperty, const char* szFarPlaneProperty);
 
   const ezUntrackedString& GetModeProperty() const { return m_sProperty1; }
@@ -978,7 +978,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Visualizes a Vec3 property as a 3D cross marker at the specified position in the viewport.
+/// Visualizes a Vec3 property as a 3D cross marker at the specified position in the viewport.
 ///
 /// The position is interpreted as a local-space offset from the object's origin.
 /// \c szColorProperty may be nullptr, in which case \c fixedColor is used.
@@ -1027,7 +1027,7 @@ const Type* ezAbstractProperty::GetAttributeByType() const
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief A property attribute that specifies the max size of an array. If it is reached, no further elemets are allowed to be added.
+/// A property attribute that specifies the max size of an array. If it is reached, no further elemets are allowed to be added.
 class EZ_FOUNDATION_DLL ezMaxArraySizeAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMaxArraySizeAttribute, ezPropertyAttribute);
@@ -1044,7 +1044,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief If this attribute is set, the UI is encouraged to prevent the user from creating duplicates of the same thing.
+/// If this attribute is set, the UI is encouraged to prevent the user from creating duplicates of the same thing.
 ///
 /// For arrays of objects this means that multiple objects of the same type are not allowed.
 class EZ_FOUNDATION_DLL ezPreventDuplicatesAttribute : public ezPropertyAttribute
@@ -1057,13 +1057,13 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Attribute for types that should not be exposed to the scripting framework
+/// Attribute for types that should not be exposed to the scripting framework
 class EZ_FOUNDATION_DLL ezExcludeFromScript : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezExcludeFromScript, ezPropertyAttribute);
 };
 
-/// \brief Attribute to mark a function up to be exposed to the scripting system. Arguments specify the names of the function parameters.
+/// Attribute to mark a function up to be exposed to the scripting system. Arguments specify the names of the function parameters.
 class EZ_FOUNDATION_DLL ezScriptableFunctionAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezScriptableFunctionAttribute, ezPropertyAttribute);
@@ -1089,7 +1089,7 @@ private:
   ezHybridArray<ezUInt8, 6> m_ArgTypes;
 };
 
-/// \brief Wrapper Attribute to add an attribute to a function argument
+/// Wrapper Attribute to add an attribute to a function argument
 class EZ_FOUNDATION_DLL ezFunctionArgumentAttributes : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezFunctionArgumentAttributes, ezPropertyAttribute);
@@ -1108,7 +1108,7 @@ private:
   ezHybridArray<const ezPropertyAttribute*, 4> m_ArgAttributes;
 };
 
-/// \brief Used to mark an array or (unsigned)int property as source for dynamic pin generation on nodes
+/// Used to mark an array or (unsigned)int property as source for dynamic pin generation on nodes
 class EZ_FOUNDATION_DLL ezDynamicPinAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDynamicPinAttribute, ezPropertyAttribute);
@@ -1125,7 +1125,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Used to mark that a component provides functionality that is executed with a long operation in the editor.
+/// Used to mark that a component provides functionality that is executed with a long operation in the editor.
 ///
 /// \a szOpTypeName must be the class name of a class derived from ezLongOpProxy.
 /// Once a component is added to a scene with this attribute, the named long op will appear in the UI and can be executed.
@@ -1147,7 +1147,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief A property attribute that indicates that the string property is actually a game object reference.
+/// A property attribute that indicates that the string property is actually a game object reference.
 class EZ_FOUNDATION_DLL ezGameObjectReferenceAttribute : public ezTypeWidgetAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectReferenceAttribute, ezTypeWidgetAttribute);
@@ -1158,7 +1158,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Displays the value range as an image, allowing users to pick a value like on a slider.
+/// Displays the value range as an image, allowing users to pick a value like on a slider.
 ///
 /// This attribute always has to be combined with an ezClampValueAttribute to define the min and max value range.
 /// The constructor takes the name of an image generator. The generator is used to build the QImage used for the slider background.
@@ -1182,7 +1182,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Attribute that turns a string property into a selector for an RTTI type.
+/// Attribute that turns a string property into a selector for an RTTI type.
 ///
 /// The base type defines what types to display.
 /// For example if "ezComponent" is passed in, only types derived from ezComponent are listed.

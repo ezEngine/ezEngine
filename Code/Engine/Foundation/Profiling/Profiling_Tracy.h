@@ -199,7 +199,7 @@ constexpr ezUInt32 __tracyEzZoneColor(ezUInt64 uiHash)
   return colors[uiHash % EZ_ARRAY_SIZE(colors)];
 }
 
-/// \brief Similar to EZ_PROFILE_SCOPE, but only forwards to Tracy
+/// Similar to EZ_PROFILE_SCOPE, but only forwards to Tracy
 #  define EZ_TRACY_PROFILE_SCOPE(ScopeName)                                            \
     ZoneScoped;                                                                        \
     ZoneName(__tracyEzStringToConstChar(ScopeName), __tracyEzStringLength(ScopeName)); \
@@ -227,7 +227,7 @@ constexpr ezUInt32 __tracyEzZoneColor(ezUInt64 uiHash)
 
 #else
 
-/// \brief Similar to EZ_PROFILE_SCOPE, but only forwards to Tracy
+/// Similar to EZ_PROFILE_SCOPE, but only forwards to Tracy
 #  define EZ_TRACY_PROFILE_SCOPE(ScopeName)
 
 #endif

@@ -10,7 +10,7 @@ class ezColorGradientAssetData : public ezReflectedClass
 public:
   ezColorGradient m_Gradient;
 
-  /// \brief Fills out the ezColorGradient structure with an exact copy of the data in the asset.
+  /// Fills out the ezColorGradient structure with an exact copy of the data in the asset.
   /// Does NOT yet sort the control points, so before evaluating the color gradient, that must be called manually.
   void FillGradientData(ezColorGradient& out_result) const;
   ezColor Evaluate(ezInt64 iTick) const;

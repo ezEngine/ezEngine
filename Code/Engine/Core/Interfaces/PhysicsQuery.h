@@ -6,7 +6,7 @@
 
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
-/// \brief Classifies the facing of an individual raycast hit
+/// Classifies the facing of an individual raycast hit
 enum class ezPhysicsHitType : int8_t
 {
   Undefined = -1,        ///< Returned if the respective physics binding does not provide this information
@@ -14,7 +14,7 @@ enum class ezPhysicsHitType : int8_t
   TriangleBackFace = 1,  ///< The raycast hit the back face of a triangle
 };
 
-/// \brief Used for raycast and sweep tests
+/// Used for raycast and sweep tests
 struct ezPhysicsCastResult
 {
   ezVec3 m_vPosition;
@@ -37,7 +37,7 @@ struct ezPhysicsCastResultArray
   ezHybridArray<ezPhysicsCastResult, 16> m_Results;
 };
 
-/// \brief Used to report overlap query results
+/// Used to report overlap query results
 struct ezPhysicsOverlapResult
 {
   EZ_DECLARE_POD_TYPE();
@@ -57,7 +57,7 @@ struct ezPhysicsOverlapResultArray
   ezHybridArray<ezPhysicsOverlapResult, 16> m_Results;
 };
 
-/// \brief Flags for selecting which types of physics shapes should be included in things like overlap queries and raycasts.
+/// Flags for selecting which types of physics shapes should be included in things like overlap queries and raycasts.
 ///
 /// This is mainly for optimization purposes. It is up to the physics integration to support some or all of these flags.
 ///

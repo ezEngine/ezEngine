@@ -8,7 +8,7 @@
 
 class ezProcessingStream;
 
-/// \brief This element spawner initializes new elements with 0 (by writing 0 bytes into the whole element)
+/// This element spawner initializes new elements with 0 (by writing 0 bytes into the whole element)
 class EZ_FOUNDATION_DLL ezProcessingStreamSpawnerZeroInitialized : public ezProcessingStreamProcessor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezProcessingStreamSpawnerZeroInitialized, ezProcessingStreamProcessor);
@@ -16,7 +16,7 @@ class EZ_FOUNDATION_DLL ezProcessingStreamSpawnerZeroInitialized : public ezProc
 public:
   ezProcessingStreamSpawnerZeroInitialized();
 
-  /// \brief Which stream to zero initialize
+  /// Which stream to zero initialize
   void SetStreamName(ezStringView sStreamName);
 
 protected:

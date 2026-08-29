@@ -13,7 +13,7 @@ namespace JPH
   class BodyCreationSettings;
 } // namespace JPH
 
-/// \brief Base class for all Jolt actors.
+/// Base class for all Jolt actors.
 ///
 /// An actor is an object that participates in the physical simulation.
 /// It is often also called a (rigid) body.
@@ -41,19 +41,19 @@ public:
   ezJoltActorComponent();
   ~ezJoltActorComponent();
 
-  /// \brief The collision layer determines with which other actors this actor collides.
+  /// The collision layer determines with which other actors this actor collides.
   ///
   /// Which collision layers collide with each other is configured through the ezCollisionFilterConfig.
   /// \see ezJoltCollisionFiltering::GetCollisionFilterConfig()
   ezUInt8 m_uiCollisionLayer = 0; // [ property ]
 
-  /// \brief Sets the object filter ID to use. This can only be set right after creation, before the component gets activated.
+  /// Sets the object filter ID to use. This can only be set right after creation, before the component gets activated.
   void SetInitialObjectFilterID(ezUInt32 uiObjectFilterID);
 
-  /// \brief The object filter ID can be used to ignore collisions specifically with this one object.
+  /// The object filter ID can be used to ignore collisions specifically with this one object.
   ezUInt32 GetObjectFilterID() const { return m_uiObjectFilterID; }
 
-  /// \brief Returns the internal ID used by Jolt to identify this actor/body.
+  /// Returns the internal ID used by Jolt to identify this actor/body.
   ezUInt32 GetJoltBodyID() const { return m_uiJoltBodyID; }
 
 protected:

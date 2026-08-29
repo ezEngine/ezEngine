@@ -12,7 +12,7 @@ struct ezAssetCuratorEvent;
 class ezTask;
 struct ezAssetInfo;
 
-/// \brief Asset table class. Persistent cache for an asset table.
+/// Asset table class. Persistent cache for an asset table.
 ///
 /// The following assumptions need to be true for this cache to work:
 /// 1. ezAssetDocumentManager::AddEntriesToAssetTable does never change over time
@@ -39,21 +39,21 @@ struct ezAssetTable
   void AddManagerResource(ezStringView sGuid, ezStringView sPath, ezStringView sType);
 };
 
-/// \brief Keeps track of all asset tables and their state as well as reloading modified resources.
+/// Keeps track of all asset tables and their state as well as reloading modified resources.
 class EZ_EDITORFRAMEWORK_DLL ezAssetTableWriter
 {
 public:
   ezAssetTableWriter(const ezApplicationFileSystemConfig& fileSystemConfig);
   ~ezAssetTableWriter();
 
-  /// \brief Needs to be called every frame. Handles update delays to allow compacting multiple changes.
+  /// Needs to be called every frame. Handles update delays to allow compacting multiple changes.
   void MainThreadTick();
 
-  /// \brief Marks an asset that needs to be reloaded in the engine process.
+  /// Marks an asset that needs to be reloaded in the engine process.
   /// The requests are batched and sent out via MainThreadTick.
   void NeedsReloadResource(const ezUuid& assetGuid);
 
-  /// \brief Writes the asset table for each data dir for the given asset profile.
+  /// Writes the asset table for each data dir for the given asset profile.
   ezResult WriteAssetTables(const ezPlatformProfile* pAssetProfile, bool bForce);
 
 private:

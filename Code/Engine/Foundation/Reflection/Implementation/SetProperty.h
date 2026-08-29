@@ -4,7 +4,7 @@
 
 #include <Foundation/Reflection/Implementation/AbstractProperty.h>
 
-/// \brief Do not cast into this class or any of its derived classes, use ezAbstractSetProperty instead.
+/// Do not cast into this class or any of its derived classes, use ezAbstractSetProperty instead.
 template <typename Type>
 class ezTypedSetProperty : public ezAbstractSetProperty
 {
@@ -18,7 +18,7 @@ public:
   virtual const ezRTTI* GetSpecificType() const override { return ezGetStaticRTTI<typename ezTypeTraits<Type>::NonConstReferencePointerType>(); }
 };
 
-/// \brief Specialization of ezTypedArrayProperty to retain the pointer in const char*.
+/// Specialization of ezTypedArrayProperty to retain the pointer in const char*.
 template <>
 class ezTypedSetProperty<const char*> : public ezAbstractSetProperty
 {

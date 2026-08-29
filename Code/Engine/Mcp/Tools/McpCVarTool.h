@@ -5,7 +5,7 @@
 class ezCVar;
 class ezMcpJsonWriter;
 
-/// \brief Reading and writing the CVars this process has registered.
+/// Reading and writing the CVars this process has registered.
 ///
 /// CVars are where the engine and its plugins already expose their debug switches - render passes,
 /// physics visualisation, AI overlays, resource management - so this reaches a large amount of existing
@@ -26,10 +26,10 @@ private:
   void ExecuteList(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
   void ExecuteSet(const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
 
-  /// \brief Writes one CVar as an object: name, type, current value, and what differs from it.
+  /// Writes one CVar as an object: name, type, current value, and what differs from it.
   static void WriteCVar(ezMcpJsonWriter& ref_writer, const ezCVar* pCVar);
 
-  /// \brief The 'Current' value of any CVar type, as the JSON type that matches it.
+  /// The 'Current' value of any CVar type, as the JSON type that matches it.
   static void WriteValue(ezMcpJsonWriter& ref_writer, ezStringView sFieldName, const ezCVar* pCVar, ezUInt32 uiWhichValue);
 
   /// The cap exists for the same reason as everywhere else - a process can register hundreds and an

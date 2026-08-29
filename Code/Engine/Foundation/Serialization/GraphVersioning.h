@@ -18,7 +18,7 @@ class ezGraphPatch;
 class ezGraphPatchContext;
 class ezGraphVersioning;
 
-/// \brief Identifier for graph patches combining type name and version number.
+/// Identifier for graph patches combining type name and version number.
 ///
 /// This structure uniquely identifies which patch should be applied to which type version.
 /// The versioning system uses this to track patch progression and avoid duplicate applications.
@@ -35,7 +35,7 @@ struct ezVersionKey
   ezUInt32 m_uiTypeVersion;
 };
 
-/// \brief Hash helper class for ezVersionKey
+/// Hash helper class for ezVersionKey
 struct ezGraphVersioningHash
 {
   EZ_FORCE_INLINE static ezUInt32 Hash(const ezVersionKey& a)
@@ -52,7 +52,7 @@ struct ezGraphVersioningHash
   }
 };
 
-/// \brief Stores type version information required for graph patching operations.
+/// Stores type version information required for graph patching operations.
 ///
 /// This structure contains the metadata needed to apply version patches, including
 /// type names and version numbers for both the type and its parent class hierarchy.
@@ -70,7 +70,7 @@ struct EZ_FOUNDATION_DLL ezTypeVersionInfo
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezTypeVersionInfo);
 
-/// \brief Context object that manages the patching process for individual nodes.
+/// Context object that manages the patching process for individual nodes.
 ///
 /// This class is passed to patch implementations to provide utility functions and track
 /// the patching progress of a node. It handles base class patching, type renaming, and
@@ -78,26 +78,26 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezTypeVersionInfo);
 class EZ_FOUNDATION_DLL ezGraphPatchContext
 {
 public:
-  /// \brief Ensures a base class is patched to the specified version before continuing.
+  /// Ensures a base class is patched to the specified version before continuing.
   ///
   /// This function forces the base class to be at the specified version, applying patches if necessary.
   /// Use bForcePatch for backwards compatibility when base class type information wasn't originally
   /// serialized. This ensures proper patch ordering in inheritance hierarchies.
   void PatchBaseClass(const char* szType, ezUInt32 uiTypeVersion, bool bForcePatch = false); // [tested]
 
-  /// \brief Renames the current node's type to a new type name.
+  /// Renames the current node's type to a new type name.
   ///
   /// Used when types are renamed or moved to different namespaces. The version number
   /// is preserved unless explicitly changed with the overload that takes a version parameter.
   void RenameClass(const char* szTypeName); // [tested]
 
-  /// \brief Renames the current node's type and sets a new version number.
+  /// Renames the current node's type and sets a new version number.
   ///
   /// Use this when both the type name and version change during a patch operation.
   /// This is common when types are refactored or split into multiple classes.
   void RenameClass(const char* szTypeName, ezUInt32 uiVersion);
 
-  /// \brief Replaces the entire base class hierarchy with a new one.
+  /// Replaces the entire base class hierarchy with a new one.
   ///
   /// This is used for major refactoring where the inheritance structure changes.
   /// The array should contain the complete new inheritance chain from most derived
@@ -120,7 +120,7 @@ private:
   mutable ezHashTable<ezHashedString, ezTypeVersionInfo> m_TypeToInfo;
 };
 
-/// \brief Singleton system that manages version patching for ezAbstractObjectGraph instances.
+/// Singleton system that manages version patching for ezAbstractObjectGraph instances.
 ///
 /// This system automatically applies version patches during deserialization to handle data migration
 /// when type definitions change between versions. It supports both node-level patches (specific type
@@ -136,7 +136,7 @@ public:
   ezGraphVersioning();
   ~ezGraphVersioning();
 
-  /// \brief Applies all necessary patches to bring the graph to the current version.
+  /// Applies all necessary patches to bring the graph to the current version.
   ///
   /// This is the main entry point for graph patching. It processes all nodes in the graph,
   /// applying patches in dependency order to ensure consistency.

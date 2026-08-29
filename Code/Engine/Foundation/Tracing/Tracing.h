@@ -3,7 +3,7 @@
 #include <Foundation/Types/ScopeExit.h>
 
 /// \file
-/// \brief Cross-platform tracing system for emitting structured events to the OS tracing infrastructure.
+/// Cross-platform tracing system for emitting structured events to the OS tracing infrastructure.
 ///
 /// This header provides macros to emit instant events, scoped events, and async activities that are captured by ETW (Windows), LTTNG (Linux), or Perfetto (Android). Unlike EZ_PROFILE_SCOPE, which stores data in an in-process ring buffer for later JSON export, these macros send events to the operating system's tracing subsystem for capture by external tools.
 ///
@@ -80,7 +80,7 @@
 
 #include <Foundation/Basics.h>
 
-/// \brief Trace event severity levels.
+/// Trace event severity levels.
 ///
 /// These are ezEngine's own levels, mapped to ETW / LTTNG / Perfetto by the platform backend.
 struct ezTraceLevel
@@ -109,11 +109,11 @@ struct ezTraceLevel
 
 #if EZ_ENABLED(EZ_USE_TRACING) || defined(EZ_DOCS)
 
-/// \brief Field descriptor macro for use inside EZ_TRACE_EVENT, EZ_TRACE_SCOPE, and EZ_TRACE_ASYNC_BEGIN. Auto-detects the C++ type of Value. Cast the value if the auto-detection picks the wrong type.
+/// Field descriptor macro for use inside EZ_TRACE_EVENT, EZ_TRACE_SCOPE, and EZ_TRACE_ASYNC_BEGIN. Auto-detects the C++ type of Value. Cast the value if the auto-detection picks the wrong type.
 #  define EZ_TRACE_VALUE(FieldName, Value) \
     EZ_TRACE_INTERNAL_VALUE(FieldName, Value)
 
-/// \brief Fires a single instant event. The Level parameter is an ezTraceLevel::Enum.
+/// Fires a single instant event. The Level parameter is an ezTraceLevel::Enum.
 ///
 /// Usage:
 /// \code
@@ -126,7 +126,7 @@ struct ezTraceLevel
 #  define EZ_TRACE_EVENT(EventName, Level, ...) \
     EZ_TRACE_INTERNAL_EVENT(EventName, Level, ##__VA_ARGS__)
 
-/// \brief Opens a scoped trace that records begin time at construction and end time at destruction.
+/// Opens a scoped trace that records begin time at construction and end time at destruction.
 ///
 /// Fields are attached to the begin event. The Level parameter is an ezTraceLevel::Enum.
 ///
@@ -144,7 +144,7 @@ struct ezTraceLevel
     EZ_TRACE_INTERNAL_SCOPE_BEGIN(EventName, Level, ##__VA_ARGS__); \
     EZ_SCOPE_EXIT(EZ_TRACE_INTERNAL_SCOPE_END(EventName));
 
-/// \brief Manually begins a scoped trace event.
+/// Manually begins a scoped trace event.
 ///
 /// Unlike EZ_TRACE_SCOPE, this does not automatically emit an end event at scope exit. You must call EZ_TRACE_SCOPE_END with the same EventName when the region is complete. Use this when the begin and end do not fall within the same C++ scope (e.g. across callbacks).
 ///
@@ -152,7 +152,7 @@ struct ezTraceLevel
 #  define EZ_TRACE_SCOPE_BEGIN(EventName, Level, ...) \
     EZ_TRACE_INTERNAL_SCOPE_BEGIN(EventName, Level, ##__VA_ARGS__)
 
-/// \brief Ends a scoped trace event previously started with EZ_TRACE_SCOPE_BEGIN.
+/// Ends a scoped trace event previously started with EZ_TRACE_SCOPE_BEGIN.
 ///
 /// Must use the same EventName that was passed to EZ_TRACE_SCOPE_BEGIN.
 ///
@@ -160,7 +160,7 @@ struct ezTraceLevel
 #  define EZ_TRACE_SCOPE_END(EventName) \
     EZ_TRACE_INTERNAL_SCOPE_END(EventName)
 
-/// \brief Begin a named async activity tied to an ID (ezUInt64). The ID correlates begin/end across threads.
+/// Begin a named async activity tied to an ID (ezUInt64). The ID correlates begin/end across threads.
 ///
 /// Usage:
 /// \code
@@ -174,13 +174,13 @@ struct ezTraceLevel
 #  define EZ_TRACE_ASYNC_BEGIN(EventName, Id, Level, ...) \
     EZ_TRACE_INTERNAL_ASYNC_BEGIN(EventName, Id, Level, ##__VA_ARGS__)
 
-/// \brief End the async activity started with EZ_TRACE_ASYNC_BEGIN. Must use the same EventName and Id.
+/// End the async activity started with EZ_TRACE_ASYNC_BEGIN. Must use the same EventName and Id.
 ///
 /// \sa EZ_TRACE_ASYNC_BEGIN
 #  define EZ_TRACE_ASYNC_END(EventName, Id) \
     EZ_TRACE_INTERNAL_ASYNC_END(EventName, Id)
 
-/// \brief Flushes any buffered trace events to the OS tracing backend.
+/// Flushes any buffered trace events to the OS tracing backend.
 ///
 /// Useful before stopping a trace session to ensure all emitted events are captured.
 #  ifdef EZ_TRACE_INTERNAL_FLUSH

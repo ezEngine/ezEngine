@@ -7,17 +7,17 @@
 #include <Texture/Image/ImageFormat.h>
 #include <Texture/TextureDLL.h>
 
-/// \brief A class containing image meta data, such as format and dimensions.
+/// A class containing image meta data, such as format and dimensions.
 ///
 /// This class has no associated behavior or functionality, and its getters and setters have no effect other than changing
 /// the contained value. It is intended as a container to be modified by image utils and loaders.
 class EZ_TEXTURE_DLL ezImageHeader
 {
 public:
-  /// \brief Constructs an image using an unknown format and zero size.
+  /// Constructs an image using an unknown format and zero size.
   ezImageHeader() { Clear(); }
 
-  /// \brief Constructs an image using an unknown format and zero size.
+  /// Constructs an image using an unknown format and zero size.
   void Clear()
   {
     m_uiNumMipLevels = 1;
@@ -29,103 +29,103 @@ public:
     m_Format = ezImageFormat::UNKNOWN;
   }
 
-  /// \brief Sets the image format.
+  /// Sets the image format.
   void SetImageFormat(const ezImageFormat::Enum& format) { m_Format = format; }
 
-  /// \brief Returns the image format.
+  /// Returns the image format.
   ezImageFormat::Enum GetImageFormat() const { return m_Format; }
 
-  /// \brief Sets the image width.
+  /// Sets the image width.
   void SetWidth(ezUInt32 uiWidth) { m_uiWidth = uiWidth; }
 
-  /// \brief Returns the image width for a given mip level, clamped to 1.
+  /// Returns the image width for a given mip level, clamped to 1.
   ezUInt32 GetWidth(ezUInt32 uiMipLevel = 0) const
   {
     EZ_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
     return ezMath::Max(m_uiWidth >> uiMipLevel, 1U);
   }
 
-  /// \brief Sets the image height.
+  /// Sets the image height.
   void SetHeight(ezUInt32 uiHeight) { m_uiHeight = uiHeight; }
 
-  /// \brief Returns the image height for a given mip level, clamped to 1.
+  /// Returns the image height for a given mip level, clamped to 1.
   ezUInt32 GetHeight(ezUInt32 uiMipLevel = 0) const
   {
     EZ_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
     return ezMath::Max(m_uiHeight >> uiMipLevel, 1U);
   }
 
-  /// \brief Sets the image depth. The default is 1.
+  /// Sets the image depth. The default is 1.
   void SetDepth(ezUInt32 uiDepth) { m_uiDepth = uiDepth; }
 
-  /// \brief Returns the image depth for a given mip level, clamped to 1.
+  /// Returns the image depth for a given mip level, clamped to 1.
   ezUInt32 GetDepth(ezUInt32 uiMipLevel = 0) const
   {
     EZ_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
     return ezMath::Max(m_uiDepth >> uiMipLevel, 1U);
   }
 
-  /// \brief Sets the number of mip levels, including the full-size image.
+  /// Sets the number of mip levels, including the full-size image.
   ///
   /// Setting this to 0 will result in an empty image.
   void SetNumMipLevels(ezUInt32 uiNumMipLevels) { m_uiNumMipLevels = uiNumMipLevels; }
 
-  /// \brief Returns the number of mip levels, including the full-size image.
+  /// Returns the number of mip levels, including the full-size image.
   ezUInt32 GetNumMipLevels() const { return m_uiNumMipLevels; }
 
-  /// \brief Sets the number of cubemap faces. Use 1 for a non-cubemap.
+  /// Sets the number of cubemap faces. Use 1 for a non-cubemap.
   ///
   /// Setting this to 0 will result in an empty image.
   void SetNumFaces(ezUInt32 uiNumFaces) { m_uiNumFaces = uiNumFaces; }
 
-  /// \brief Returns the number of cubemap faces, or 1 for a non-cubemap.
+  /// Returns the number of cubemap faces, or 1 for a non-cubemap.
   ezUInt32 GetNumFaces() const { return m_uiNumFaces; }
 
-  /// \brief Sets the number of array indices.
+  /// Sets the number of array indices.
   ///
   /// Setting this to 0 will result in an empty image.
   void SetNumArrayIndices(ezUInt32 uiNumArrayIndices) { m_uiNumArrayIndices = uiNumArrayIndices; }
 
-  /// \brief Returns the number of array indices.
+  /// Returns the number of array indices.
   ezUInt32 GetNumArrayIndices() const { return m_uiNumArrayIndices; }
 
-  /// \brief Returns the number of image planes.
+  /// Returns the number of image planes.
   ezUInt32 GetPlaneCount() const
   {
     return ezImageFormat::GetPlaneCount(m_Format);
   }
 
-  /// \brief Returns the number of blocks contained in a given mip level in the horizontal direction.
+  /// Returns the number of blocks contained in a given mip level in the horizontal direction.
   ezUInt32 GetNumBlocksX(ezUInt32 uiMipLevel = 0, ezUInt32 uiPlaneIndex = 0) const
   {
     return ezImageFormat::GetNumBlocksX(m_Format, GetWidth(uiMipLevel), uiPlaneIndex);
   }
 
-  /// \brief Returns the number of blocks contained in a given mip level in the horizontal direction.
+  /// Returns the number of blocks contained in a given mip level in the horizontal direction.
   ezUInt32 GetNumBlocksY(ezUInt32 uiMipLevel = 0, ezUInt32 uiPlaneIndex = 0) const
   {
     return ezImageFormat::GetNumBlocksY(m_Format, GetHeight(uiMipLevel), uiPlaneIndex);
   }
 
-  /// \brief Returns the number of blocks contained in a given mip level in the depth direction.
+  /// Returns the number of blocks contained in a given mip level in the depth direction.
   ezUInt32 GetNumBlocksZ(ezUInt32 uiMipLevel = 0, ezUInt32 uiPlaneIndex = 0) const
   {
     return ezImageFormat::GetNumBlocksZ(m_Format, GetDepth(uiMipLevel), uiPlaneIndex);
   }
 
-  /// \brief Returns the offset in bytes between two subsequent rows of the given mip level.
+  /// Returns the offset in bytes between two subsequent rows of the given mip level.
   ezUInt64 GetRowPitch(ezUInt32 uiMipLevel = 0, ezUInt32 uiPlaneIndex = 0) const
   {
     return ezImageFormat::GetRowPitch(m_Format, GetWidth(uiMipLevel), uiPlaneIndex);
   }
 
-  /// \brief Returns the offset in bytes between two subsequent depth slices of the given mip level.
+  /// Returns the offset in bytes between two subsequent depth slices of the given mip level.
   ezUInt64 GetDepthPitch(ezUInt32 uiMipLevel = 0, ezUInt32 uiPlaneIndex = 0) const
   {
     return ezImageFormat::GetDepthPitch(m_Format, GetWidth(uiMipLevel), GetHeight(uiMipLevel), uiPlaneIndex);
   }
 
-  /// \brief Computes the data size required for an image with the header's format and dimensions.
+  /// Computes the data size required for an image with the header's format and dimensions.
   ezUInt64 ComputeDataSize() const
   {
     ezUInt64 uiDataSize = 0;
@@ -141,7 +141,7 @@ public:
     return ezMath::SafeMultiply64(uiDataSize, ezMath::SafeMultiply32(GetNumArrayIndices(), GetNumFaces()));
   }
 
-  /// \brief Computes the number of mip maps in the full mip chain.
+  /// Computes the number of mip maps in the full mip chain.
   ezUInt32 ComputeNumberOfMipMaps() const
   {
     ezUInt32 numMipMaps = 1;

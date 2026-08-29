@@ -18,7 +18,7 @@ namespace
   /// takes, so it can be generous.
   constexpr ezTime AcceptPollInterval = ezTime::MakeFromMilliseconds(100);
 
-  /// \brief Finds the value of one header in the raw header block, case insensitively.
+  /// Finds the value of one header in the raw header block, case insensitively.
   ///
   /// The result points into \a sHeaders, so it stays valid as long as the receive buffer does. Nothing
   /// is copied into a local builder for that reason: searching the original directly also means the
@@ -52,7 +52,7 @@ namespace
   }
 } // namespace
 
-/// \brief Owns the listening socket and turns bytes into ezMcpHttpRequest.
+/// Owns the listening socket and turns bytes into ezMcpHttpRequest.
 class ezMcpTransportThread : public ezThread
 {
 public:
@@ -81,7 +81,7 @@ private:
     return 0;
   }
 
-  /// \brief Reads one request off the connection, has it answered, writes the response and hangs up.
+  /// Reads one request off the connection, has it answered, writes the response and hangs up.
   ///
   /// One request per connection. The server always answers `Connection: close`, so a client that wants
   /// to make a second call opens a second connection.
@@ -149,7 +149,7 @@ private:
     SendResponse(client, response);
   }
 
-  /// \brief Splits "POST /mcp HTTP/1.1" into the two parts we care about.
+  /// Splits "POST /mcp HTTP/1.1" into the two parts we care about.
   ///
   /// Done by hand rather than with ezStringBuilder::Split(), whose result views would point into a
   /// builder that goes out of scope here.

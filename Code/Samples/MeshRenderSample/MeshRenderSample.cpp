@@ -26,7 +26,7 @@ constexpr const char* szDefaultRenderer = "Vulkan";
 constexpr const char* szDefaultRenderer = "DX11";
 #endif
 
-/// \brief The application class.
+/// The application class.
 /// Instantiated and run through the EZ_APPLICATION_ENTRY_POINT macro at the end of this file.
 class MeshRenderSample : public ezApplication
 {

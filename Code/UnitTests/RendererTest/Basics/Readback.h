@@ -3,7 +3,7 @@
 #include "../TestClass/TestClass.h"
 #include <RendererCore/Textures/Texture2DResource.h>
 
-/// \brief Tests texture readback from the GPU
+/// Tests texture readback from the GPU
 ///
 /// Only renderable textures are tested.
 /// The test first renders a pattern into the 8x8 texture.

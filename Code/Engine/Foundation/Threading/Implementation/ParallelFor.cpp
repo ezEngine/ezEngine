@@ -2,7 +2,7 @@
 
 #include <Foundation/Threading/TaskSystem.h>
 
-/// \brief This is a helper class that splits up task items via index ranges.
+/// This is a helper class that splits up task items via index ranges.
 template <typename IndexType, typename Callback>
 class IndexedTask final : public ezTask
 {

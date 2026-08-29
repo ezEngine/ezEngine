@@ -8,7 +8,7 @@ class QDataStream;
 class ezDocumentObject;
 class ezQtDocumentTreeModelAdapter;
 
-/// \brief This type is used to provide ezDragDropHandler instances with all the important information for a drag & drop target
+/// This type is used to provide ezDragDropHandler instances with all the important information for a drag & drop target
 ///
 /// It is a reflected class such that one can derive and extend it, if necessary.
 /// DragDrop handlers can then inspect whether it is a known extended type and cast to the type to get access to additional information.
@@ -57,7 +57,7 @@ public:
 };
 
 
-/// \brief After an ezDragDropHandler has been chosen to handle an operation, it is queried once to fill out an instance of this type (or an extended
+/// After an ezDragDropHandler has been chosen to handle an operation, it is queried once to fill out an instance of this type (or an extended
 /// derived type) to enable configuring how ezDragDropInfo is computed by the target.
 class EZ_EDITORFRAMEWORK_DLL ezDragDropConfig : public ezReflectedClass
 {

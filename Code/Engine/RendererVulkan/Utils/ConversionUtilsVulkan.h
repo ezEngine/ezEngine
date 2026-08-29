@@ -7,18 +7,18 @@
 
 EZ_DEFINE_AS_POD_TYPE(vk::PresentModeKHR);
 
-/// \brief Helper functions to convert and extract Vulkan objects from EZ objects.
+/// Helper functions to convert and extract Vulkan objects from EZ objects.
 class EZ_RENDERERVULKAN_DLL ezConversionUtilsVulkan
 {
 public:
-  /// \brief Helper function to hash vk enums.
+  /// Helper function to hash vk enums.
   template <typename T, typename R = typename std::underlying_type<T>::type>
   static R GetUnderlyingValue(T value)
   {
     return static_cast<typename std::underlying_type<T>::type>(value);
   }
 
-  /// \brief Helper function to hash vk flags.
+  /// Helper function to hash vk flags.
   template <typename T>
   static auto GetUnderlyingFlagsValue(T value)
   {

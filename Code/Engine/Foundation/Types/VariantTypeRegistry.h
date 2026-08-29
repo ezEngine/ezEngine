@@ -10,7 +10,7 @@ class ezStreamWriter;
 class ezStreamReader;
 class ezVariantTypeInfo;
 
-/// \brief Variant type registry allows for custom variant type infos to be accessed.
+/// Variant type registry allows for custom variant type infos to be accessed.
 ///
 /// Custom variant types are defined via the EZ_DECLARE_CUSTOM_VARIANT_TYPE and EZ_DEFINE_CUSTOM_VARIANT_TYPE macros.
 /// \sa EZ_DECLARE_CUSTOM_VARIANT_TYPE, EZ_DEFINE_CUSTOM_VARIANT_TYPE
@@ -19,7 +19,7 @@ class EZ_FOUNDATION_DLL ezVariantTypeRegistry
   EZ_DECLARE_SINGLETON(ezVariantTypeRegistry);
 
 public:
-  /// \brief Find the variant type info for the given ezRTTI type.
+  /// Find the variant type info for the given ezRTTI type.
   /// \return ezVariantTypeInfo if one exits for the given type, otherwise nullptr.
   const ezVariantTypeInfo* FindVariantTypeInfo(const ezRTTI* pType) const;
   ~ezVariantTypeRegistry();
@@ -34,7 +34,7 @@ private:
   ezHashTable<const ezRTTI*, const ezVariantTypeInfo*> m_TypeInfos;
 };
 
-/// \brief Defines functions to allow the full feature set of ezVariant to be used.
+/// Defines functions to allow the full feature set of ezVariant to be used.
 /// \sa EZ_DEFINE_CUSTOM_VARIANT_TYPE, ezVariantTypeRegistry
 class EZ_FOUNDATION_DLL ezVariantTypeInfo : public ezEnumerable<ezVariantTypeInfo>
 {
@@ -49,7 +49,7 @@ public:
   EZ_DECLARE_ENUMERABLE_CLASS(ezVariantTypeInfo);
 };
 
-/// \brief Helper template used by EZ_DEFINE_CUSTOM_VARIANT_TYPE.
+/// Helper template used by EZ_DEFINE_CUSTOM_VARIANT_TYPE.
 /// \sa EZ_DEFINE_CUSTOM_VARIANT_TYPE
 template <typename T>
 class ezVariantTypeInfoT : public ezVariantTypeInfo
@@ -76,7 +76,7 @@ class ezVariantTypeInfoT : public ezVariantTypeInfo
   }
 };
 
-/// \brief Defines a custom variant type, allowing it to be serialized and compared. The type needs to be declared first before using this macro.
+/// Defines a custom variant type, allowing it to be serialized and compared. The type needs to be declared first before using this macro.
 ///
 /// The given type must implement ezHashHelper and ezStreamWriter / ezStreamReader operators.
 /// Macros should be placed in any cpp. Note that once a custom type is defined, it is considered a value type and will be passed by value. It must be linked into every editor and engine dll to allow serialization. Thus it should only be used for common types in base libraries.

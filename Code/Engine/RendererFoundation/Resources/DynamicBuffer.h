@@ -2,7 +2,7 @@
 
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
-/// \brief A dynamic buffer can be used when a lot of data needs to be stored in a single large buffer with dynamic size.
+/// A dynamic buffer can be used when a lot of data needs to be stored in a single large buffer with dynamic size.
 ///
 /// This class supports allocation and deallocation of single elements or ranges of multiple elements.
 /// An allocation is identified by an offset and can have additional user data attached.
@@ -12,7 +12,7 @@
 class EZ_RENDERERFOUNDATION_DLL ezGALDynamicBuffer
 {
 public:
-  /// \brief Deallocates all data.
+  /// Deallocates all data.
   void Clear();
 
   struct AllocateFlags
@@ -33,7 +33,7 @@ public:
     };
   };
 
-  /// \brief Allocates a single or multiple elements and returns the offset to the first element.
+  /// Allocates a single or multiple elements and returns the offset to the first element.
   /// This offset is used to identify the allocation and should also be used in a shader to read the data from the buffer.
   ///
   /// The user data can be used to store additional information, typically the owner of the allocation, like e.g. a component handle.
@@ -47,11 +47,11 @@ public:
     return Allocate(uiUserData, uiCount, allocateFlags, pTempAllocator);
   }
 
-  /// \brief Removes an allocation at the given offset. The offset must have been returned by Allocate.
+  /// Removes an allocation at the given offset. The offset must have been returned by Allocate.
   /// This will create unused space in the buffer that can be filled by subsequent allocations or closed later by compaction.
   void Deallocate(ezUInt32 uiOffset);
 
-  /// \brief Maps a range of elements for writing.
+  /// Maps a range of elements for writing.
   template <typename T>
   ezArrayPtr<T> MapForWriting(ezUInt32 uiOffset)
   {
@@ -61,7 +61,7 @@ public:
     return ezArrayPtr<T>(reinterpret_cast<T*>(byteData.GetPtr()), uiCount);
   }
 
-  /// \brief Maps a range of bytes for writing.
+  /// Maps a range of bytes for writing.
   ezByteArrayPtr MapBytesForWriting(ezUInt32 uiOffset)
   {
     ezUInt32 uiCount = 0;
@@ -70,7 +70,7 @@ public:
     return byteData;
   }
 
-  /// \brief Maps a range of elements for reading.
+  /// Maps a range of elements for reading.
   template <typename T>
   ezArrayPtr<const T> MapForReading(ezUInt32 uiOffset) const
   {
@@ -80,7 +80,7 @@ public:
     return ezArrayPtr<const T>(reinterpret_cast<const T*>(byteData.GetPtr()), uiCount);
   }
 
-  /// \brief Upload all changed data to the GPU buffer for the next rendering frame, aka the next time BeginFrame is called on the GALDevice.
+  /// Upload all changed data to the GPU buffer for the next rendering frame, aka the next time BeginFrame is called on the GALDevice.
   void UploadChangesForNextFrame();
 
   struct ChangedAllocation
@@ -89,22 +89,22 @@ public:
     ezUInt32 m_uiNewOffset = 0;
   };
 
-  /// \brief Tries to compact the buffer by moving allocations to free ranges. All moved allocations are returned in out_changedAllocations.
+  /// Tries to compact the buffer by moving allocations to free ranges. All moved allocations are returned in out_changedAllocations.
   ///
   /// The user data can be used to update the owner of the allocation.
   /// To prevent too many changes per frame only uiMaxSteps are executed which corresponds to the number of allocations which can be moved.
   void RunCompactionSteps(ezDynamicArray<ChangedAllocation>& out_changedAllocations, ezUInt32 uiMaxSteps = 16);
 
-  /// \brief This should be called inside the rendering code to retrieve the underlying buffer for rendering.
+  /// This should be called inside the rendering code to retrieve the underlying buffer for rendering.
   ///
   /// It is ensured that it will always return the same buffer until the next time BeginFrame is called on the GALDevice even if the buffer
   /// has been resized due to more allocations on the game play or extraction side.
   const ezGALBufferHandle& GetBufferForRendering() const { return m_hBufferForRendering; }
 
-  /// \brief Returns the description that was used to create this dynamic buffer.
+  /// Returns the description that was used to create this dynamic buffer.
   const ezGALBufferCreationDescription& GetDescription() const { return m_Desc; }
 
-  /// \brief Returns the debug name that was used to create this dynamic buffer.
+  /// Returns the debug name that was used to create this dynamic buffer.
   ezStringView GetDebugName() const { return m_sDebugName; }
 
 private:

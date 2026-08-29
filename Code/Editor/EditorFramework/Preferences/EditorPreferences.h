@@ -5,7 +5,7 @@
 
 class ezEngineViewLightSettings;
 
-/// \brief Stores editor specific preferences for the current user
+/// Stores editor specific preferences for the current user
 class EZ_EDITORFRAMEWORK_DLL ezEditorPreferencesUser : public ezPreferences
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorPreferencesUser, ezPreferences);

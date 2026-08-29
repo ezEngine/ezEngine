@@ -28,7 +28,7 @@ private:
   ezStringBuilder m_sDownloadedPage;
 };
 
-/// \brief Downloads a web page and checks whether the latest version online is newer than the current one
+/// Downloads a web page and checks whether the latest version online is newer than the current one
 class ezQtVersionChecker : public QObject
 {
   Q_OBJECT

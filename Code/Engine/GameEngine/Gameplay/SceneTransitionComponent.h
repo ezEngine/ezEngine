@@ -7,7 +7,7 @@ struct ezMsgTriggerTriggered;
 
 using ezSceneTransitionComponentManager = ezComponentManager<class ezSceneTransitionComponent, ezBlockStorageType::Compact>;
 
-/// \brief What ezSceneTransitionComponent should do when it gets triggered through a ezMsgTriggerTriggered
+/// What ezSceneTransitionComponent should do when it gets triggered through a ezMsgTriggerTriggered
 struct ezSceneLoadMode
 {
   using StorageType = ezUInt8;
@@ -25,7 +25,7 @@ struct ezSceneLoadMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezSceneLoadMode);
 
-/// \brief Provides functionality to transition from one scene to another (level loading).
+/// Provides functionality to transition from one scene to another (level loading).
 ///
 /// The component references a target level and spawn point (optional).
 /// When triggered, either manually or through a trigger message (e.g. from a physics trigger
@@ -72,24 +72,24 @@ public:
   /// manually through script code or by sending ezMsgTriggerTriggered directly.
   ezEnum<ezSceneLoadMode> m_Mode; // [ property ]
 
-  /// \brief Makes the game immediately switch to the target level.
+  /// Makes the game immediately switch to the target level.
   ///
   /// If necessary, the loading screen is shown first.
   /// If offsets are given, the player spawns relative to the target spawn point.
   /// This
   void StartTransition(const ezVec3& vPositionOffset = ezVec3::MakeZero(), const ezQuat& qRotationOffset = ezQuat::MakeIdentity()); // [ scriptable ]
 
-  /// \brief Same as StartTransition() but computes the relative offset to this object from the given global transform.
+  /// Same as StartTransition() but computes the relative offset to this object from the given global transform.
   void StartTransitionWithOffsetTo(const ezVec3& vGlobalPosition, const ezQuat& qGlobalRotation); // [ scriptable ]
 
-  /// \brief Starts preloading the target scene.
+  /// Starts preloading the target scene.
   ///
   /// Does not switch to it automatically. Call StartTransition() at any time to do so.
   /// If the preload is finished by then, the transition will be as seamless as possible,
   /// if not, a loading screen may show up.
   void StartPreload(); // [ scriptable ]
 
-  /// \brief Cancels any pending preload and frees up memory that memory.
+  /// Cancels any pending preload and frees up memory that memory.
   ///
   /// Should be used, if the player can enter a preload area and then leave it again, without transitioning the level.
   void CancelPreload(); // [ scriptable ]

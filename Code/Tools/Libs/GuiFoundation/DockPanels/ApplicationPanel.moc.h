@@ -12,7 +12,7 @@ namespace ads
   class CDockManager;
 }
 
-/// \brief Base class for all panels that are supposed to be application wide (not tied to some document).
+/// Base class for all panels that are supposed to be application wide (not tied to some document).
 class EZ_GUIFOUNDATION_DLL ezQtApplicationPanel : public ads::CDockWidget
 {
 public:

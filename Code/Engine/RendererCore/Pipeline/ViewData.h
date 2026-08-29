@@ -6,7 +6,7 @@
 #include <RendererCore/Pipeline/ViewRenderMode.h>
 #include <RendererFoundation/Device/SwapChain.h>
 
-/// \brief Holds view data like the viewport, view and projection matrices
+/// Holds view data like the viewport, view and projection matrices
 struct EZ_RENDERERCORE_DLL ezViewData
 {
   ezViewData()
@@ -42,7 +42,7 @@ struct EZ_RENDERERCORE_DLL ezViewData
   ezMat4 m_ViewProjectionMatrix[2];
   ezMat4 m_InverseViewProjectionMatrix[2];
 
-  /// \brief Calculates the start position and direction (in world space) of the picking ray through the screen position in this view.
+  /// Calculates the start position and direction (in world space) of the picking ray through the screen position in this view.
   ///
   /// fNormalizedScreenPosX and fNormalizedScreenPosY are expected to be in [0; 1] range (normalized screen coordinates).
   /// If no ray can be computed, EZ_FAILURE is returned.
@@ -56,7 +56,7 @@ struct EZ_RENDERERCORE_DLL ezViewData
     return ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InverseViewProjectionMatrix[static_cast<int>(eye)], vScreenPos, out_vRayStartPos, &out_vRayDir);
   }
 
-  /// \brief Calculates the normalized screen-space coordinate ([0; 1] range) that the given world-space point projects to.
+  /// Calculates the normalized screen-space coordinate ([0; 1] range) that the given world-space point projects to.
   ///
   /// Returns EZ_FAILURE, if the point could not be projected into screen-space.
   EZ_ALWAYS_INLINE ezResult ComputeScreenSpacePos(const ezVec3& vWorldPos, ezVec3& out_vScreenPosNormalized, ezCameraEye eye = ezCameraEye::Left) const
@@ -64,13 +64,13 @@ struct EZ_RENDERERCORE_DLL ezViewData
     return ezGraphicsUtils::ConvertWorldPosToScreenPos(m_ViewProjectionMatrix[static_cast<int>(eye)], vWorldPos, out_vScreenPosNormalized);
   }
 
-  /// \brief Calculates the world-space position that the given normalized screen-space coordinate maps to
+  /// Calculates the world-space position that the given normalized screen-space coordinate maps to
   EZ_ALWAYS_INLINE ezResult ComputeWorldSpacePos(float fNormalizedScreenPosX, float fNormalizedScreenPosY, ezVec3& out_vWorldPos, ezCameraEye eye = ezCameraEye::Left) const
   {
     return ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InverseViewProjectionMatrix[static_cast<int>(eye)], ezVec3(fNormalizedScreenPosX, fNormalizedScreenPosY, 0.0f), out_vWorldPos);
   }
 
-  /// \brief Converts a screen-space position from pixel coordinates to normalized coordinates.
+  /// Converts a screen-space position from pixel coordinates to normalized coordinates.
   EZ_ALWAYS_INLINE void ConvertScreenPixelPosToNormalizedPos(ezVec3& inout_vPixelPos) const
   {
     ezUInt32 x = (ezUInt32)m_ViewPortRect.x;
@@ -83,7 +83,7 @@ struct EZ_RENDERERCORE_DLL ezViewData
   /// Returns the active render targets. If a swap chain is set, its render targets are returned, otherwise m_RenderTargets.
   const ezGALRenderTargets& GetActiveRenderTargets() const;
 
-  /// \brief Converts a screen-space position from normalized coordinates to pixel coordinates.
+  /// Converts a screen-space position from normalized coordinates to pixel coordinates.
   EZ_ALWAYS_INLINE void ConvertScreenNormalizedPosToPixelPos(ezVec3& inout_vNormalizedPos) const
   {
     {

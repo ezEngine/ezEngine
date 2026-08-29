@@ -29,7 +29,7 @@ namespace ezMeshImportUtils
   /// Records the names of the meshes that the source file contains.
   EZ_EDITORPLUGINASSETS_DLL void RecordAvailableMeshes(ezAssetInfoFile& ref_info, const ezModelImporter2::Importer* pImporter);
 
-  /// \brief Extracts external buffer file dependencies from a glTF file and adds them to the transform dependencies set.
+  /// Extracts external buffer file dependencies from a glTF file and adds them to the transform dependencies set.
   ///
   /// Parses the glTF JSON to find all external buffer files referenced in the "buffers" array.
   /// Skips embedded data URIs and only processes external file references.

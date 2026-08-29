@@ -19,7 +19,7 @@ struct ezReflectionProbeMode
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezReflectionProbeMode);
 
-/// \brief Describes how a cube map should be generated.
+/// Describes how a cube map should be generated.
 struct EZ_RENDERERCORE_DLL ezReflectionProbeDesc
 {
   ezUuid m_uniqueID;
@@ -50,7 +50,7 @@ struct ezHashHelper<ezReflectionProbeId>
   EZ_ALWAYS_INLINE static bool Equal(ezReflectionProbeId a, ezReflectionProbeId b) { return a == b; }
 };
 
-/// \brief Render data for a reflection probe.
+/// Render data for a reflection probe.
 class EZ_RENDERERCORE_DLL ezReflectionProbeRenderData : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezReflectionProbeRenderData, ezRenderData);
@@ -72,7 +72,7 @@ public:
   ezVec3 m_vInfluenceShift;
 };
 
-/// \brief A unique reference to a reflection probe.
+/// A unique reference to a reflection probe.
 struct ezReflectionProbeRef
 {
   bool operator==(const ezReflectionProbeRef& b) const
@@ -93,7 +93,7 @@ struct ezHashHelper<ezReflectionProbeRef>
   EZ_ALWAYS_INLINE static bool Equal(ezReflectionProbeRef a, ezReflectionProbeRef b) { return a.m_Id == b.m_Id && a.m_uiWorldIndex == b.m_uiWorldIndex; }
 };
 
-/// \brief Flags that describe a reflection probe.
+/// Flags that describe a reflection probe.
 struct ezProbeFlags
 {
   using StorageType = ezUInt8;

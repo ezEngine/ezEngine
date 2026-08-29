@@ -6,7 +6,7 @@
 
 class ezVariantSubAccessor;
 
-// \brief Default value provider for ezVariantSubAccessor.
+// Default value provider for ezVariantSubAccessor.
 class EZ_GUIFOUNDATION_DLL ezVariantSubDefaultStateProvider : public ezDefaultStateProvider
 {
 public:

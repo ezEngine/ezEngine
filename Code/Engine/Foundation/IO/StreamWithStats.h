@@ -3,7 +3,7 @@
 
 #include <Foundation/IO/Stream.h>
 
-/// \brief A stream reader that wraps another stream to track how many bytes are read from it.
+/// A stream reader that wraps another stream to track how many bytes are read from it.
 class EZ_FOUNDATION_DLL ezStreamReaderWithStats : public ezStreamReader
 {
 public:
@@ -38,7 +38,7 @@ public:
   ezUInt64 m_uiBytesSkipped = 0;
 };
 
-/// \brief A stream writer that wraps another stream to track how many bytes are written to it.
+/// A stream writer that wraps another stream to track how many bytes are written to it.
 class EZ_FOUNDATION_DLL ezStreamWriterWithStats : public ezStreamWriter
 {
 public:

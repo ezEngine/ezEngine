@@ -10,13 +10,13 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Uuid.h>
 
-/// \brief This namespace contains functions to convert between different types.
+/// This namespace contains functions to convert between different types.
 ///
 /// Contains helper functions to convert from strings to numerical values.
 /// To convert from numerical values to strings, use ezStringBuilder::Format, which provides a rich set of formatting options.
 namespace ezConversionUtils
 {
-  /// \brief Parses szString and converts it to an integer value. Returns EZ_FAILURE if the string contains no parsable integer value.
+  /// Parses szString and converts it to an integer value. Returns EZ_FAILURE if the string contains no parsable integer value.
   ///
   /// \param szString
   ///   If szString is nullptr or an empty string or starts with an some non-whitespace and non-sign character, EZ_FAILURE is returned.
@@ -37,15 +37,15 @@ namespace ezConversionUtils
   ///   EZ_FAILURE if the string starts with something that can not be interpreted as an integer.
   EZ_FOUNDATION_DLL ezResult StringToInt(ezStringView sText, ezInt32& out_iRes, const char** out_pLastParsePosition = nullptr); // [tested]
 
-  /// \brief Same as StringToInt() but expects the string to be a uint32.
+  /// Same as StringToInt() but expects the string to be a uint32.
   ///
   /// If the parsed value is a valid int but outside the uint32 value range, the function returns EZ_FAILURE.
   EZ_FOUNDATION_DLL ezResult StringToUInt(ezStringView sText, ezUInt32& out_uiRes, const char** out_pLastParsePosition = nullptr); // [tested]
 
-  /// \brief Same as StringToInt but converts to a 64bit integer value instead.
+  /// Same as StringToInt but converts to a 64bit integer value instead.
   EZ_FOUNDATION_DLL ezResult StringToInt64(ezStringView sText, ezInt64& out_iRes, const char** out_pLastParsePosition = nullptr); // [tested]
 
-  /// \brief Parses szString and converts it to a double value. Returns EZ_FAILURE if the string contains no parseable floating point value.
+  /// Parses szString and converts it to a double value. Returns EZ_FAILURE if the string contains no parseable floating point value.
   ///
   /// \param szString
   ///   If szString is nullptr or an empty string or starts with some non-whitespace and non-sign character, EZ_FAILURE is returned.
@@ -80,7 +80,7 @@ namespace ezConversionUtils
   ///   detecting the validity, the sign and where the value ends and then use atof to parse only that substring with maximum precision.
   EZ_FOUNDATION_DLL ezResult StringToFloat(ezStringView sText, double& out_fRes, const char** out_pLastParsePosition = nullptr); // [tested]
 
-  /// \brief Parses szString and checks that the first word it finds starts with a phrase that can be interpreted as a boolean value.
+  /// Parses szString and checks that the first word it finds starts with a phrase that can be interpreted as a boolean value.
   ///
   /// \param szString
   ///   If szString starts with whitespace characters, they are skipped. EZ_SUCCESS is returned (and out_Res is filled with true/false),
@@ -102,7 +102,7 @@ namespace ezConversionUtils
   EZ_FOUNDATION_DLL ezResult StringToBool(ezStringView sText, bool& out_bRes, const char** out_pLastParsePosition = nullptr); // [tested]
 
 
-  /// \brief Parses \a szText and tries to find up to \a uiNumFloats float values to extract. Skips all characters that cannot be
+  /// Parses \a szText and tries to find up to \a uiNumFloats float values to extract. Skips all characters that cannot be
   /// interpreted as numbers.
   ///
   /// This function can be used to convert string representations of vectors or other more complex numbers. It will parse the string from
@@ -123,18 +123,18 @@ namespace ezConversionUtils
   ///   The number of successfully extracted values (and thus valid values in out_pFloats).
   EZ_FOUNDATION_DLL ezUInt32 ExtractFloatsFromString(ezStringView sText, ezUInt32 uiNumFloats, float* out_pFloats, const char** out_pLastParsePosition = nullptr); // [tested]
 
-  /// \brief Converts a hex character ('0', '1', ... '9', 'A'/'a', ... 'F'/'f') to the corresponding int value 0 - 15.
+  /// Converts a hex character ('0', '1', ... '9', 'A'/'a', ... 'F'/'f') to the corresponding int value 0 - 15.
   ///
   /// \note Returns -1 for invalid HEX characters.
   EZ_FOUNDATION_DLL ezInt8 HexCharacterToIntValue(ezUInt32 uiCharacter); // [tested]
 
-  /// \brief Same as ConvertHexStringToUInt() with uiMaxHexCharacters set to 8.
+  /// Same as ConvertHexStringToUInt() with uiMaxHexCharacters set to 8.
   EZ_FOUNDATION_DLL ezResult ConvertHexStringToUInt32(ezStringView sHex, ezUInt32& out_uiResult); // [tested]
 
-  /// \brief Same as ConvertHexStringToUInt() with uiMaxHexCharacters set to 16.
+  /// Same as ConvertHexStringToUInt() with uiMaxHexCharacters set to 16.
   EZ_FOUNDATION_DLL ezResult ConvertHexStringToUInt64(ezStringView sHex, ezUInt64& out_uiResult); // [tested]
 
-  /// \brief Converts a hex string (i.e. 0xAABBCCDD) into its uint64 value.
+  /// Converts a hex string (i.e. 0xAABBCCDD) into its uint64 value.
   ///
   /// "0x" at the beginning is ignored.
   /// Empty strings are interpreted as 'valid', representing the value 0 (returns EZ_SUCCESS).
@@ -143,7 +143,7 @@ namespace ezConversionUtils
   /// If the first uiMaxHexCharacters (after the '0x') contain any non-HEX characters, parsing is interrupted and EZ_FAILURE is returned.
   EZ_FOUNDATION_DLL ezResult ConvertHexStringToUInt(ezStringView sHex, ezUInt64& out_uiResult, ezUInt32 uiMaxHexCharacters, ezUInt32* pTotalCharactersParsed); // [tested]
 
-  /// \brief Converts a HEX string to a binary value.
+  /// Converts a HEX string to a binary value.
   ///
   /// "0x" or "0X" at the start is allowed and will be skipped.
   /// A maximum of \a uiBinaryBuffer bytes is written to \a pBinary.
@@ -156,7 +156,7 @@ namespace ezConversionUtils
   /// be invalid and there is no error reported.
   EZ_FOUNDATION_DLL void ConvertHexToBinary(ezStringView sText, ezUInt8* pBinary, ezUInt32 uiBinaryBuffer); // [tested]
 
-  /// \brief Converts a binary stream to a HEX string.
+  /// Converts a binary stream to a HEX string.
   ///
   /// The result is returned by calling a lambda to append to an output container.
   /// The lambda signature must be:
@@ -165,117 +165,117 @@ namespace ezConversionUtils
   template <typename APPEND_CONTAINER_LAMBDA>
   inline void ConvertBinaryToHex(const void* pBinaryData, ezUInt32 uiBytes, APPEND_CONTAINER_LAMBDA append); // [tested]
 
-  /// \brief Converts a string that was written with ezConversionUtils::ToString(ezUuid) back to an ezUuid object.
+  /// Converts a string that was written with ezConversionUtils::ToString(ezUuid) back to an ezUuid object.
   ///
   /// Asserts that the string actually is a UUID.
   /// Use TryConvertStringToUuid() when the input is not guaranteed.
   EZ_FOUNDATION_DLL ezUuid ConvertStringToUuid(ezStringView sText); // [tested]
 
-  /// \brief Converts a string to an ezUuid and returns whether it was one.
+  /// Converts a string to an ezUuid and returns whether it was one.
   EZ_FOUNDATION_DLL ezResult TryConvertStringToUuid(ezStringView sText, ezUuid& out_uuid); // [tested]
 
-  /// \brief Returns true when the given string is in the exact format "{ 05af8d07-0b38-44a6-8d50-49731ae2625d }"
+  /// Returns true when the given string is in the exact format "{ 05af8d07-0b38-44a6-8d50-49731ae2625d }"
   /// This includes braces, whitespaces and dashes. This is the format that ToString produces.
   EZ_FOUNDATION_DLL bool IsStringUuid(ezStringView sText); // [tested]
 
-  /// \brief Converts a bool to a string
+  /// Converts a bool to a string
   EZ_ALWAYS_INLINE const ezStringBuilder& ToString(bool value, ezStringBuilder& out_sResult) // [tested]
   {
     out_sResult = value ? "true" : "false";
     return out_sResult;
   }
 
-  /// \brief Converts a 8bit signed integer to a string
+  /// Converts a 8bit signed integer to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(ezInt8 value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a 8bit unsigned integer to a string
+  /// Converts a 8bit unsigned integer to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(ezUInt8 value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a 16bit signed integer to a string
+  /// Converts a 16bit signed integer to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(ezInt16 value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a 16bit unsigned integer to a string
+  /// Converts a 16bit unsigned integer to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(ezUInt16 value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a 32bit signed integer to a string
+  /// Converts a 32bit signed integer to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(ezInt32 value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a 32bit unsigned integer to a string
+  /// Converts a 32bit unsigned integer to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(ezUInt32 value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a 64bit signed integer to a string
+  /// Converts a 64bit signed integer to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(ezInt64 value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a 64bit unsigned integer to a string
+  /// Converts a 64bit unsigned integer to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(ezUInt64 value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a float to a string
+  /// Converts a float to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(float value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a double to a string
+  /// Converts a double to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(double value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a color to a string
+  /// Converts a color to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezColor& value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a color to a string
+  /// Converts a color to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezColorGammaUB& value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a vec2 to a string
+  /// Converts a vec2 to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezVec2& value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a vec3 to a string
+  /// Converts a vec3 to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezVec3& value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a vec4 to a string
+  /// Converts a vec4 to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezVec4& value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a vec2I32 to a string
+  /// Converts a vec2I32 to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezVec2I32& value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a vec3I32 to a string
+  /// Converts a vec3I32 to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezVec3I32& value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a vec4I32 to a string
+  /// Converts a vec4I32 to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezVec4I32& value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a quat to a string
+  /// Converts a quat to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezQuat& value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a mat3 to a string
+  /// Converts a mat3 to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezMat3& value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a mat4 to a string
+  /// Converts a mat4 to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezMat4& value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a transform to a string
+  /// Converts a transform to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezTransform& value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a Uuid to a string
+  /// Converts a Uuid to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezUuid& value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts an angle to a string
+  /// Converts an angle to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezAngle& value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts a time to a string
+  /// Converts a time to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezTime& value, ezStringBuilder& out_sResult);
 
-  /// \brief Converts a ezStringView to a string
+  /// Converts a ezStringView to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezStringView& value, ezStringBuilder& out_sResult);
 
-  /// \brief Converts a hashed string to a string
+  /// Converts a hashed string to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezHashedString& value, ezStringBuilder& out_sResult);
 
-  /// \brief Converts a temp hashed string to a string. Will print the hash value since the original string can't be restored from a temp hashed string.
+  /// Converts a temp hashed string to a string. Will print the hash value since the original string can't be restored from a temp hashed string.
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezTempHashedString& value, ezStringBuilder& out_sResult);
 
-  /// \brief Converts a ezVariantArray to a string
+  /// Converts a ezVariantArray to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezDynamicArray<ezVariant>& value, ezStringBuilder& out_sResult);
 
-  /// \brief Converts a ezVariantDictionary to a string
+  /// Converts a ezVariantDictionary to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezHashTable<ezString, ezVariant>& value, ezStringBuilder& out_sResult);
 
-  /// \brief Fallback ToString implementation for all types that don't have one
+  /// Fallback ToString implementation for all types that don't have one
   template <typename T>
   EZ_ALWAYS_INLINE const ezStringBuilder& ToString(const T& value, ezStringBuilder& out_sResult)
   {
@@ -284,20 +284,20 @@ namespace ezConversionUtils
     return out_sResult;
   }
 
-  /// \brief Parses a string in the form "#RRGGBBAA" as a (gamma space) color.
+  /// Parses a string in the form "#RRGGBBAA" as a (gamma space) color.
   ///
   /// The # at the start is optional.
   /// If fewer characters are given, e.g. only "RRGGBB" or "RRGG" or even just "R" or "RRG", the remaining values are default initialized
   /// with black (alpha = FF).
   EZ_FOUNDATION_DLL ezResult ConvertHexStringToColor(ezStringView sText, ezColorGammaUB& ref_color);
 
-  /// \brief Returns the color with the given name.
+  /// Returns the color with the given name.
   ///
   /// Allowed are all predefined color names (case-insensitive), as well as Hex-Values in the form '#RRGGBB' and '#RRGGBBAA'
   /// If out_ValidColorName is a valid pointer, it contains true if the color name was known, otherwise false
   EZ_FOUNDATION_DLL ezColor GetColorByName(ezStringView sText, bool* out_pValidColorName = nullptr); // [tested]
 
-  /// \brief The inverse of GetColorByName
+  /// The inverse of GetColorByName
   EZ_FOUNDATION_DLL ezString GetColorName(const ezColor& col); // [tested]
 }; // namespace ezConversionUtils
 

@@ -6,7 +6,7 @@
 
 using ezSliderComponentManager = ezComponentManagerSimple<class ezSliderComponent, ezComponentUpdateType::WhenSimulating>;
 
-/// \brief Applies a sliding transform to the game object that it is attached to.
+/// Applies a sliding transform to the game object that it is attached to.
 ///
 /// The object is moved along a local axis either once or back and forth.
 class EZ_GAMEENGINE_DLL ezSliderComponent : public ezTransformComponent
@@ -30,19 +30,19 @@ public:
   ezSliderComponent();
   ~ezSliderComponent();
 
-  /// \brief How far to move the object along the axis before reaching the end point.
+  /// How far to move the object along the axis before reaching the end point.
   float m_fDistanceToTravel = 1.0f; // [ property ]
 
-  /// \brief The acceleration to use to reach the target speed.
+  /// The acceleration to use to reach the target speed.
   float m_fAcceleration = 0.0f; // [ property ]
 
-  /// \brief The deceleration to use to brake to zero speed before reaching the end.
+  /// The deceleration to use to brake to zero speed before reaching the end.
   float m_fDeceleration = 0.0; // [ property ]
 
-  /// \brief The axis along which to move the object.
+  /// The axis along which to move the object.
   ezEnum<ezBasisAxis> m_Axis = ezBasisAxis::PositiveZ; // [ property ]
 
-  /// \brief If non-zero, the slider starts at a random offset as if it had already been moving for up to this amount of time.
+  /// If non-zero, the slider starts at a random offset as if it had already been moving for up to this amount of time.
   ezTime m_RandomStart; // [ property ]
 
 protected:

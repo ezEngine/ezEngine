@@ -40,7 +40,7 @@ public:
   XrViewConfigurationType GetViewType() const { return m_PrimaryViewConfigurationType; }
   bool GetDepthComposition() const;
 
-  /// \brief Returns the graphics binding interface (D3D11, Vulkan, etc.)
+  /// Returns the graphics binding interface (D3D11, Vulkan, etc.)
   ezOpenXRGraphicsBinding* GetGraphicsBinding() const { return m_pGraphicsBinding.Borrow(); }
 
   virtual bool IsHmdPresent() const override;

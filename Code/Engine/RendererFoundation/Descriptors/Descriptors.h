@@ -16,7 +16,7 @@
 class ezWindowBase;
 class ezGALDevice;
 
-/// \brief Bind group layout for a single bind group.
+/// Bind group layout for a single bind group.
 /// Auto created by shader resource. Mostly used to quickly determine if a bind group still matches after e.g. switching the shader.
 struct ezGALBindGroupLayoutCreationDescription
 {
@@ -26,7 +26,7 @@ struct ezGALBindGroupLayoutCreationDescription
   ezHybridArray<ezShaderResourceBinding, 1> m_ImmutableSamplers; ///< If supported by the platform, contains immutable samplers. See ezGALImmutableSamplers.
 };
 
-/// \brief Push constant info
+/// Push constant info
 /// Used by ezGALPipelineLayoutCreationDescription.
 struct ezGALPushConstant
 {
@@ -35,7 +35,7 @@ struct ezGALPushConstant
   ezBitflags<ezGALShaderStageFlags> m_Stages;
 };
 
-/// \brief Pipeline layout.
+/// Pipeline layout.
 /// Auto created by shader resource. Mostly used for de-duplication of native resources in case pipelines share the same layout.
 struct ezGALPipelineLayoutCreationDescription : public ezHashableStruct<ezGALPipelineLayoutCreationDescription>
 {
@@ -43,7 +43,7 @@ struct ezGALPipelineLayoutCreationDescription : public ezHashableStruct<ezGALPip
   ezGALPushConstant m_PushConstants;                               ///< Only one push constant block is supported right now.
 };
 
-/// \brief Defines the complete state of a graphics pipeline, excluding bound resources (e.g. textures, buffers) and dynamic states (e.g. viewport).
+/// Defines the complete state of a graphics pipeline, excluding bound resources (e.g. textures, buffers) and dynamic states (e.g. viewport).
 /// All handles must be set except for m_hVertexDeclaration which is optional. Creating a graphics pipeline increases the reference count on all valid handles.
 struct ezGALGraphicsPipelineCreationDescription : public ezHashableStruct<ezGALGraphicsPipelineCreationDescription>
 {
@@ -59,7 +59,7 @@ struct ezGALGraphicsPipelineCreationDescription : public ezHashableStruct<ezGALG
   ezGALRenderPassDescriptor m_RenderPass; ///< Use ezGALRenderingSetup::GetRenderPass to set this.
 };
 
-/// \brief Defines the complete state of a compute pipeline, excluding bound resources (e.g. textures, buffers).
+/// Defines the complete state of a compute pipeline, excluding bound resources (e.g. textures, buffers).
 /// Creating a compute pipeline increases the reference count on the shader handle.
 struct ezGALComputePipelineCreationDescription : public ezHashableStruct<ezGALComputePipelineCreationDescription>
 {
@@ -92,10 +92,10 @@ struct ezGALDeviceCreationDescription
 struct ezGALShaderCreationDescription : public ezHashableStruct<ezGALShaderCreationDescription>
 {
   ezGALShaderCreationDescription();
-  /// \brief Needs to be overwritten as the base class impl can only handle pod types.
+  /// Needs to be overwritten as the base class impl can only handle pod types.
   ezGALShaderCreationDescription(const ezGALShaderCreationDescription& other);
   ~ezGALShaderCreationDescription();
-  /// \brief Needs to be overwritten as the base class impl can only handle pod types.
+  /// Needs to be overwritten as the base class impl can only handle pod types.
   void operator=(const ezGALShaderCreationDescription& other);
 
   bool HasByteCodeForStage(ezGALShaderStage::Enum stage) const;
@@ -151,7 +151,7 @@ struct ezGALDepthStencilStateCreationDescription : public ezHashableStruct<ezGAL
   ezUInt8 m_uiStencilWriteMask = 0xFF;
 };
 
-/// \brief Describes the settings for a new rasterizer state. See ezGALDevice::CreateRasterizerState
+/// Describes the settings for a new rasterizer state. See ezGALDevice::CreateRasterizerState
 struct ezGALRasterizerStateCreationDescription : public ezHashableStruct<ezGALRasterizerStateCreationDescription>
 {
   ezEnum<ezGALCullMode> m_CullMode = ezGALCullMode::Back; ///< Which sides of a triangle to cull. Default is ezGALCullMode::Back
@@ -279,7 +279,7 @@ struct ezGALRenderTargetViewCreationDescription : public ezHashableStruct<ezGALR
   bool m_bReadOnly = false; ///< Can be used for depth stencil views to create read only views (e.g. for soft particles using the native depth buffer)
 };
 
-/// \brief Type for important GAL events.
+/// Type for important GAL events.
 struct ezGALDeviceEvent
 {
   enum Type

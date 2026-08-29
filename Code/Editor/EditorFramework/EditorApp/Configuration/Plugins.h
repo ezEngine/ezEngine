@@ -8,7 +8,7 @@
 class ezOpenDdlWriter;
 class ezOpenDdlReader;
 
-/// \brief A plugin bundle lists all the files and information needed to get one feature plugin working
+/// A plugin bundle lists all the files and information needed to get one feature plugin working
 /// both in the editor and the runtime.
 ///
 /// So it lists the editor DLLs, the runtime DLLs, all the additional transitive dependencies that need to be packaged,
@@ -41,35 +41,35 @@ struct EZ_EDITORFRAMEWORK_DLL ezPluginBundle
   ezHybridArray<ezString, 1> m_EnabledInTemplates;          ///< In which project templates this plugin should be active by default.
   ezString m_sCMakeTargetName;                              ///< The CMake target name for linking user plugins against this plugin.
 
-  /// \brief Reads the bundle description, but not the state.
+  /// Reads the bundle description, but not the state.
   ezResult ReadBundleFromDDL(ezOpenDdlReader& ref_ddl);
 
-  /// \brief Writes only the bundle's state to a DDL file.
+  /// Writes only the bundle's state to a DDL file.
   void WriteStateToDDL(ezOpenDdlWriter& ref_ddl, const char* szOwnName) const;
 
-  /// \brief Reads only the bundle's state from a DDL file.
+  /// Reads only the bundle's state from a DDL file.
   void ReadStateFromDDL(ezOpenDdlReader& ref_ddl, const char* szOwnName);
 
-  /// \brief Checks whether two bundles have the same state.
+  /// Checks whether two bundles have the same state.
   bool IsStateEqual(const ezPluginBundle& rhs) const
   {
     return m_bSelected == rhs.m_bSelected && m_bLoadCopy == rhs.m_bLoadCopy;
   }
 };
 
-/// \brief Contains multiple ezPluginBundle's.
+/// Contains multiple ezPluginBundle's.
 struct EZ_EDITORFRAMEWORK_DLL ezPluginBundleSet
 {
   ezMap<ezString, ezPluginBundle, ezCompareString_NoCase> m_Plugins;
 
   void SetFromTemplate(const char* szTemplateName);
 
-  /// \brief Writes the state of all bundles to a DDL file.
+  /// Writes the state of all bundles to a DDL file.
   void WriteStateToDDL(ezOpenDdlWriter& ref_ddl) const;
 
-  /// \brief Reads the state of all bundles from a DDL file.
+  /// Reads the state of all bundles from a DDL file.
   void ReadStateFromDDL(ezOpenDdlReader& ref_ddl);
 
-  /// \brief Checks whether two bundle sets have the same state.
+  /// Checks whether two bundle sets have the same state.
   bool IsStateEqual(const ezPluginBundleSet& rhs) const;
 };

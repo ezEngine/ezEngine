@@ -10,7 +10,7 @@
 
 namespace
 {
-  /// \brief Writes the JSON-RPC 'id' back out exactly as the type it came in as.
+  /// Writes the JSON-RPC 'id' back out exactly as the type it came in as.
   ///
   /// The spec allows numbers, strings and null, and the client is entitled to reject a response whose
   /// id doesn't match what it sent.

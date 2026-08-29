@@ -4,7 +4,7 @@
 
 using ezJoltDistanceConstraintComponentManager = ezComponentManager<class ezJoltDistanceConstraintComponent, ezBlockStorageType::Compact>;
 
-/// \brief Implements a distance physics constraint.
+/// Implements a distance physics constraint.
 ///
 /// The two joined actors have to keep a minimum and maximum distance between each other.
 /// They are pushed apart if they come too close, and pulled together if they separate too much.
@@ -42,13 +42,13 @@ public:
   float GetMaxDistance() const { return m_fMaxDistance; } // [ property ]
   void SetMaxDistance(float value);                       // [ property ]
 
-  /// \brief Determines how often (per second) the constraint is enforced.
+  /// Determines how often (per second) the constraint is enforced.
   ///
   /// Higher values make the constraint stiffer, but can also lead to oscillation. Good values are in range 0.1 to 20.
   void SetFrequency(float value);                     // [ property ]
   float GetFrequency() const { return m_fFrequency; } // [ property ]
 
-  /// \brief How much to dampen actors when they overshoot the target position.
+  /// How much to dampen actors when they overshoot the target position.
   ///
   /// Lower values make the objects bounce back harder, higher values make them just stop.
   void SetDamping(float value);                   // [ property ]

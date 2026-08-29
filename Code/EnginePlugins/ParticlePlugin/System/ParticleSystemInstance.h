@@ -10,7 +10,7 @@
 
 struct ezMsgExtractRenderData;
 
-/// \brief A particle system stores all data for one 'layer' of a running particle effect
+/// A particle system stores all data for one 'layer' of a running particle effect
 class EZ_PARTICLEPLUGIN_DLL ezParticleSystemInstance
 {
 public:
@@ -48,10 +48,10 @@ public:
 
 
 
-  /// \brief Returns the desired stream, if it already exists, nullptr otherwise.
+  /// Returns the desired stream, if it already exists, nullptr otherwise.
   ezProcessingStream* QueryStream(ezTempHashedString sName, ezProcessingStream::DataType type) const;
 
-  /// \brief Returns the desired stream, if it already exists, creates it otherwise.
+  /// Returns the desired stream, if it already exists, creates it otherwise.
   void CreateStream(ezStringView sName, ezProcessingStream::DataType type, ezProcessingStream** pStream, ezParticleStreamBinding& ref_binding, bool bExpectInitializedValue);
 
   void ProcessEventQueue(ezParticleEventQueue queue);

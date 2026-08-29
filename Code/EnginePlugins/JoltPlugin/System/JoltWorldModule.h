@@ -90,16 +90,16 @@ public:
   virtual ezVec3 GetGravity() const override { return m_Settings.m_vObjectGravity; }
   ezVec3 GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }
 
-  /// \brief Queues an impulse to be applied on the given body as soon as that body is added to the Jolt scene.
+  /// Queues an impulse to be applied on the given body as soon as that body is added to the Jolt scene.
   void AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse, const ezVec3& vGlobalPosition);
 
-  /// \brief Queues an impulse to be applied on the given body as soon as that body is added to the Jolt scene.
+  /// Queues an impulse to be applied on the given body as soon as that body is added to the Jolt scene.
   void AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse);
 
-  /// \brief Queues an angular impulse to be applied on the given body as soon as that body is added to the Jolt scene.
+  /// Queues an angular impulse to be applied on the given body as soon as that body is added to the Jolt scene.
   void AddTorque(ezUInt32 uiBodyID, const ezVec3& vImpulse);
 
-  /// \brief Creates a force that acts upon the given Jolt body for a limited time.
+  /// Creates a force that acts upon the given Jolt body for a limited time.
   ///
   /// The force is applied every frame. It can be updated by calling this function again with a previously returned force ID.
   /// Once the duration is elapsed without an update, the force is removed.
@@ -108,7 +108,7 @@ public:
   /// If a valid ID is passed in, the existing force gets updated, and the same ID is returned.
   ezJoltForceId AddOrUpdateForce(ezJoltForceId forceId, ezUInt32 uiBodyID, ezTime duration, const ezVec3& vForce);
 
-  /// \brief Removes a previously added force. See AddOrUpdateForce().
+  /// Removes a previously added force. See AddOrUpdateForce().
   void ClearForce(ezJoltForceId id);
 
   //////////////////////////////////////////////////////////////////////////
@@ -196,7 +196,7 @@ public:
 
   void QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezNavmeshTriangle>& out_triangles) const;
 
-  /// \brief Returns the counter of the last Jolt update.
+  /// Returns the counter of the last Jolt update.
   /// Can be used to detect when no physics update was done (at high frame rates) to skip duplicate physics modifications.
   ezUInt64 GetJoltUpdateCounter() const { return m_uiJoltUpdateCounter; }
 
@@ -318,7 +318,7 @@ private:
   ezIdTable<ezJoltForceId, ezJoltForce> m_Forces;
 };
 
-/// \brief Implementation of the ezNavmeshGeoWorldModuleInterface that uses Jolt physics to retrieve the geometry
+/// Implementation of the ezNavmeshGeoWorldModuleInterface that uses Jolt physics to retrieve the geometry
 /// from which to generate a navmesh.
 class EZ_JOLTPLUGIN_DLL ezJoltNavmeshGeoWorldModule : public ezNavmeshGeoWorldModuleInterface
 {

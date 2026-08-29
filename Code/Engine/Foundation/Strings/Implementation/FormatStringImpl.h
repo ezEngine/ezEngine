@@ -30,7 +30,7 @@ public:
     m_sString = szFormat;
   }
 
-  /// \brief Generates the formatted text. Make sure to only call this function once and only when the formatted string is really needed.
+  /// Generates the formatted text. Make sure to only call this function once and only when the formatted string is really needed.
   ///
   /// Requires an ezStringBuilder as storage, ie. writes the formatted text into it. Additionally it returns a const char* to that
   /// string builder data for convenience.

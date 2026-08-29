@@ -5,7 +5,7 @@
 #include <RendererCore/Lights/Implementation/ReflectionProbeData.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-/// \brief Event generated on mapping changes.
+/// Event generated on mapping changes.
 /// \sa ezReflectionProbeMapping::m_Events
 struct ezReflectionProbeMappingEvent
 {
@@ -20,11 +20,11 @@ struct ezReflectionProbeMappingEvent
   Type m_Type;
 };
 
-/// \brief This class creates a reflection probe atlas and controls the mapping of added probes to the available atlas indices.
+/// This class creates a reflection probe atlas and controls the mapping of added probes to the available atlas indices.
 class ezReflectionProbeMapping
 {
 public:
-  /// \brief Creates a reflection probe atlas and mapping of the given size.
+  /// Creates a reflection probe atlas and mapping of the given size.
   /// \param uiAtlasSize How many probes the atlas can contain.
   ezReflectionProbeMapping(ezUInt32 uiAtlasSize);
   ~ezReflectionProbeMapping();
@@ -32,30 +32,30 @@ public:
   /// \name Probe management
   ///@{
 
-  /// \brief Adds a probe that will be considered for mapping into the atlas.
+  /// Adds a probe that will be considered for mapping into the atlas.
   void AddProbe(ezReflectionProbeId probe, ezBitflags<ezProbeFlags> flags);
 
-  /// \brief Marks previously added probe as dirty and potentially changes its flags.
+  /// Marks previously added probe as dirty and potentially changes its flags.
   void UpdateProbe(ezReflectionProbeId probe, ezBitflags<ezProbeFlags> flags);
 
-  /// \brief Should be called once a requested ezReflectionProbeMappingEvent::Type::ProbeUpdateRequested event has been completed.
+  /// Should be called once a requested ezReflectionProbeMappingEvent::Type::ProbeUpdateRequested event has been completed.
   /// \param probe The probe that has finished its update.
   void ProbeUpdateFinished(ezReflectionProbeId probe);
 
-  /// \brief Removes a probe. If the probe was mapped, ezReflectionProbeMappingEvent::Type::ProbeUnmapped will be fired when calling this function.
+  /// Removes a probe. If the probe was mapped, ezReflectionProbeMappingEvent::Type::ProbeUnmapped will be fired when calling this function.
   void RemoveProbe(ezReflectionProbeId probe);
 
   ///@}
   /// \name Render helpers
   ///@{
 
-  /// \brief Returns the index at which a given probe is mapped.
+  /// Returns the index at which a given probe is mapped.
   /// \param probe The probe that is being queried.
   /// \param bForExtraction If set, returns whether the index can be used for using the probe during rendering. If the probe was just mapped but not updated yet, -1 will be returned for bForExtraction = true but a valid index for bForExtraction = false so that the index can be rendered into.
   /// \return Returns the mapped index in the atlas or -1 of the probe is not mapped.
   ezInt32 GetReflectionIndex(ezReflectionProbeId probe, bool bForExtraction = false) const;
 
-  /// \brief Returns the atlas texture.
+  /// Returns the atlas texture.
   /// \return The texture handle of the cube map atlas.
   ezGALTextureHandle GetTexture() const { return m_hReflectionSpecularTexture; }
 
@@ -63,13 +63,13 @@ public:
   /// \name Compute atlas mapping
   ///@{
 
-  /// \brief Should be called in the PreExtraction phase. This will reset all probe weights.
+  /// Should be called in the PreExtraction phase. This will reset all probe weights.
   void PreExtraction();
 
-  /// \brief Adds weight to a probe. Should be called during extraction of the probe. The mapping will map the probes with the highest weights in the atlas over time. This can be called multiple times in a frame for a probe if it is visible in multiple views. The maximum weight is then taken.
+  /// Adds weight to a probe. Should be called during extraction of the probe. The mapping will map the probes with the highest weights in the atlas over time. This can be called multiple times in a frame for a probe if it is visible in multiple views. The maximum weight is then taken.
   void AddWeight(ezReflectionProbeId probe, float fPriority);
 
-  /// \brief Should be called in the PostExtraction phase. This will compute the best probe mapping and potentially fire ezReflectionProbeMappingEvent events to map / unmap or request updates of probes.
+  /// Should be called in the PostExtraction phase. This will compute the best probe mapping and potentially fire ezReflectionProbeMappingEvent events to map / unmap or request updates of probes.
   void PostExtraction();
 
   ///@}

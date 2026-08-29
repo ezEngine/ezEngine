@@ -97,7 +97,7 @@ void ezMcpInputTool::Execute(ezStringView sToolName, const ezVariantDictionary& 
 
 namespace
 {
-  /// \brief The flags of one slot, as the names a caller would recognise.
+  /// The flags of one slot, as the names a caller would recognise.
   ///
   /// Only the ones that change how a value should be chosen. The rest describe implementation details of
   /// the hardware and would just be noise in every listing.
@@ -119,7 +119,7 @@ namespace
     ref_writer.EndArray();
   }
 
-  /// \brief What the device is currently holding, shared between input_set's and input_sequence's result.
+  /// What the device is currently holding, shared between input_set's and input_sequence's result.
   void WriteHeldSlots(ezMcpJsonWriter& ref_writer, const ezDynamicArray<ezMcpInputDevice::HeldSlot>& held)
   {
     ref_writer.BeginArray("holding");

@@ -53,7 +53,7 @@ namespace
     return "Unknown";
   }
 
-  /// \brief Returns a live instance of an action, or nullptr.
+  /// Returns a live instance of an action, or nullptr.
   ///
   /// Global actions exist once per window they are mapped into, and all of those agree, so the first one
   /// is as good as any. Document and window actions exist once per document window they are mapped into,
@@ -81,7 +81,7 @@ namespace
     return nullptr;
   }
 
-  /// \brief Whether the action would let itself be triggered. True for the types that have no such flag.
+  /// Whether the action would let itself be triggered. True for the types that have no such flag.
   bool IsActionEnabled(const ezAction* pAction)
   {
     if (const ezButtonAction* pButton = ezDynamicCast<const ezButtonAction*>(pAction))
@@ -96,7 +96,7 @@ namespace
     return true;
   }
 
-  /// \brief Writes 'enabled', and 'checkable'/'checked' where they apply.
+  /// Writes 'enabled', and 'checkable'/'checked' where they apply.
   ///
   /// Everything that cannot be determined is written as the string "unknown" rather than omitted, so
   /// that a caller can tell 'not applicable or not known' apart from 'false'. That happens for
@@ -158,7 +158,7 @@ namespace
     }
   }
 
-  /// \brief Writes the strings a user would see for this action, skipping those that translate to nothing.
+  /// Writes the strings a user would see for this action, skipping those that translate to nothing.
   ///
   /// All three lookups are keyed on the action name.
   void WriteTranslations(ezMcpJsonWriter& ref_writer, const ezActionDescriptor& desc)

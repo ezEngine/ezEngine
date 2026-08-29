@@ -8,12 +8,12 @@
 
 using ezInputComponentManager = ezComponentManagerSimple<class ezInputComponent, ezComponentUpdateType::WhenSimulating>;
 
-/// \brief Which types of input events are broadcast
+/// Which types of input events are broadcast
 struct EZ_GAMEENGINE_DLL ezInputMessageGranularity
 {
   using StorageType = ezInt8;
 
-  /// \brief Which types of input events are broadcast
+  /// Which types of input events are broadcast
   enum Enum
   {
     PressOnly,           ///< Key pressed events are sent, but nothing else
@@ -26,7 +26,7 @@ struct EZ_GAMEENGINE_DLL ezInputMessageGranularity
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezInputMessageGranularity);
 
-/// \brief ezInputComponent raises this event when it detects input
+/// ezInputComponent raises this event when it detects input
 struct EZ_GAMEENGINE_DLL ezMsgInputActionTriggered : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgInputActionTriggered, ezMessage);
@@ -45,7 +45,7 @@ private:
   void SetInputAction(const char* szInputAction) { m_sInputAction.Assign(szInputAction); }
 };
 
-/// \brief This component polls all input events from the given input set every frame and broadcasts the information to components on the same game
+/// This component polls all input events from the given input set every frame and broadcasts the information to components on the same game
 /// object.
 ///
 /// To deactivate input handling, just deactivate the entire component.
@@ -71,7 +71,7 @@ public:
   ezInputComponent();
   ~ezInputComponent();
 
-  /// \brief Returns the amount to which szInputAction is active (0 to 1).
+  /// Returns the amount to which szInputAction is active (0 to 1).
   ///
   /// If bOnlyKeyPressed is set to true, only key press events return a non-zero value,
   /// ie key down and key released events are ignored.

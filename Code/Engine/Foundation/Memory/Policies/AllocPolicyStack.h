@@ -5,7 +5,7 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
-/// \brief This policy implements a stack allocator. It is designed for scenarios where you have a lot of short-lived allocations that are freed in a LIFO order,
+/// This policy implements a stack allocator. It is designed for scenarios where you have a lot of short-lived allocations that are freed in a LIFO order,
 /// but it also supports freeing in arbitrary order (at the cost of some fragmentation).
 ///
 /// For debugging purposes, the policy can also overwrite all freed memory with 0xCDCDCDCD to make it easier to find use-after-free situations.
@@ -35,7 +35,7 @@ public:
     }
   }
 
-  /// \brief Sets the maximum allocation size that can be handled by this stack allocator. Allocations larger than this size will be directly allocated from the parent allocator.
+  /// Sets the maximum allocation size that can be handled by this stack allocator. Allocations larger than this size will be directly allocated from the parent allocator.
   EZ_FORCE_INLINE void SetMaxAllocationSize(ezUInt32 uiSize)
   {
     EZ_ASSERT_DEV(m_Allocations.IsEmpty(), "Cannot change max allocation size while there are active allocations!");

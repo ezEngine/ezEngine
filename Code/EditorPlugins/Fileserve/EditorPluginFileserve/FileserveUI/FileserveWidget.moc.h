@@ -11,7 +11,7 @@ class ezQtFileserveActivityModel;
 class ezQtFileserveAllFilesModel;
 enum class ezFileserveActivityType;
 
-/// \brief A GUI for the ezFileServer
+/// A GUI for the ezFileServer
 ///
 /// By default the file server does run at startup. Using the command line option "-fs_nostart" prevents that.
 class EZ_EDITORPLUGINFILESERVE_DLL ezQtFileserveWidget : public QWidget, public Ui_ezQtFileserveWidget

@@ -4,16 +4,16 @@
 
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
 
-/// \brief An implementation for ezRemoteInterface built on top of Enet
+/// An implementation for ezRemoteInterface built on top of Enet
 class EZ_FOUNDATION_DLL ezRemoteInterfaceEnet : public ezRemoteInterface
 {
 public:
   ~ezRemoteInterfaceEnet();
 
-  /// \brief Allocates a new instance with the given allocator
+  /// Allocates a new instance with the given allocator
   static ezInternal::NewInstance<ezRemoteInterfaceEnet> Make(ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
 
-  /// \brief The port through which the connection was started
+  /// The port through which the connection was started
   ezUInt16 GetPort() const { return m_uiPort; }
 
 private:

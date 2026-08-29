@@ -6,7 +6,7 @@
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Transform.h>
 
-/// \brief A wrapper class that converts a ezMat3 into the correct data layout for shaders.
+/// A wrapper class that converts a ezMat3 into the correct data layout for shaders.
 class ezShaderMat3
 {
 public:
@@ -54,7 +54,7 @@ private:
   float m_Data[12];
 };
 
-/// \brief A wrapper class that converts a ezMat4 into the correct data layout for shaders.
+/// A wrapper class that converts a ezMat4 into the correct data layout for shaders.
 class ezShaderMat4
 {
 public:
@@ -86,7 +86,7 @@ private:
   float m_Data[16];
 };
 
-/// \brief A wrapper class that converts a ezTransform into the correct data layout for shaders.
+/// A wrapper class that converts a ezTransform into the correct data layout for shaders.
 class ezShaderTransform
 {
 public:
@@ -153,7 +153,7 @@ private:
   float m_Data[12];
 };
 
-/// \brief A wrapper class that converts a bool into the correct data layout for shaders.
+/// A wrapper class that converts a bool into the correct data layout for shaders.
 class ezShaderBool
 {
 public:

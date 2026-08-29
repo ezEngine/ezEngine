@@ -14,7 +14,7 @@ class _jobject;
 using jobject = _jobject*;
 struct AInputEvent;
 
-/// \brief Event fired by ezAndroidUtils::s_InputEvent.
+/// Event fired by ezAndroidUtils::s_InputEvent.
 /// Event listeners should inspect m_pEvent and set m_bHandled to true if they handled the event.
 struct ezAndroidInputEvent
 {

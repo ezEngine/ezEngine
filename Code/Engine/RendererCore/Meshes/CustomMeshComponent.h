@@ -2,7 +2,7 @@
 
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
-/// \brief Render data used to feed the ezMeshRenderer.
+/// Render data used to feed the ezMeshRenderer.
 class EZ_RENDERERCORE_DLL ezCustomMeshRenderData : public ezInstanceableRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCustomMeshRenderData, ezInstanceableRenderData);
@@ -25,7 +25,7 @@ public:
 using ezDynamicMeshBufferResourceHandle = ezTypedResourceHandle<class ezDynamicMeshBufferResource>;
 using ezCustomMeshComponentManager = ezComponentManager<class ezCustomMeshComponent, ezBlockStorageType::Compact>;
 
-/// \brief This component is used to render custom geometry.
+/// This component is used to render custom geometry.
 ///
 /// Sometimes game code needs to build geometry on the fly to visualize dynamic things.
 /// The ezDynamicMeshBufferResource is an easy to use resource to build geometry and change it frequently.
@@ -58,49 +58,49 @@ public:
   ezCustomMeshComponent();
   ~ezCustomMeshComponent();
 
-  /// \brief Creates a new dynamic mesh buffer.
+  /// Creates a new dynamic mesh buffer.
   ///
   /// The new buffer can hold the given number of vertices and indices (either 16 bit or 32 bit).
   ezDynamicMeshBufferResourceHandle CreateMeshResource(ezGALPrimitiveTopology::Enum topology, ezUInt32 uiMaxVertices, ezUInt32 uiMaxPrimitives, ezGALIndexType::Enum indexType);
 
-  /// \brief Returns the currently set mesh resource.
+  /// Returns the currently set mesh resource.
   ezDynamicMeshBufferResourceHandle GetMeshResource() const { return m_hDynamicMesh; }
 
-  /// \brief Sets which mesh buffer to use.
+  /// Sets which mesh buffer to use.
   ///
   /// This can be used to have multiple ezCustomMeshComponent's reference the same mesh buffer,
   /// such that the object gets instanced in different locations.
   void SetMeshResource(const ezDynamicMeshBufferResourceHandle& hMesh);
 
-  /// \brief Configures the component to render only a subset of the primitives in the mesh buffer.
+  /// Configures the component to render only a subset of the primitives in the mesh buffer.
   void SetUsePrimitiveRange(ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiNumPrimitives = ezMath::MaxValue<ezUInt32>());
 
-  /// \brief Sets the bounds that are used for culling.
+  /// Sets the bounds that are used for culling.
   ///
   /// Note: It is very important that this is called whenever the mesh buffer is modified and the size of
   /// the mesh has changed, otherwise the object might not appear or be culled incorrectly.
   void SetBounds(const ezBoundingBoxSphere& bounds);
 
-  /// \brief Sets the material for rendering.
+  /// Sets the material for rendering.
   void SetMaterial(const ezMaterialResourceHandle& hMaterial);
 
-  /// \brief Returns the material that is used for rendering.
+  /// Returns the material that is used for rendering.
   ezMaterialResourceHandle GetMaterial() const;
 
   // adds SetMaterialFile() and GetMaterialFile() for convenience
   EZ_ADD_RESOURCEHANDLE_ACCESSORS(Material, m_hMaterial);
 
-  /// \brief Sets the mesh instance color.
+  /// Sets the mesh instance color.
   void SetColor(const ezColor& color); // [ property ]
 
-  /// \brief Returns the mesh instance color.
+  /// Returns the mesh instance color.
   const ezColor& GetColor() const; // [ property ]
 
-  /// \brief An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
+  /// An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
   void SetCustomData(const ezVec4& vData); // [ property ]
   const ezVec4& GetCustomData() const;     // [ property ]
 
-  /// \brief Sets the sorting depth offset value.
+  /// Sets the sorting depth offset value.
   ///
   /// The effect of sorting depth depends on the RenderDataCategory that the mesh is rendered in.
   /// E.g. if the sorting function of the render data category is ezRenderSortingFunctions::ByDepthOffsetOnly

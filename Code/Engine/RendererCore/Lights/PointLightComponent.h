@@ -6,7 +6,7 @@
 
 using ezPointLightComponentManager = ezComponentManager<class ezPointLightComponent, ezBlockStorageType::Compact>;
 
-/// \brief The render data object for point lights.
+/// The render data object for point lights.
 class EZ_RENDERERCORE_DLL ezPointLightRenderData : public ezLightRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPointLightRenderData, ezLightRenderData);
@@ -17,7 +17,7 @@ public:
   ezQuat m_qGlobalRotation;
 };
 
-/// \brief Adds a dynamic point light to the scene, optionally casting shadows.
+/// Adds a dynamic point light to the scene, optionally casting shadows.
 ///
 /// For performance reasons, prefer to use ezSpotLightComponent where possible.
 /// Do not use shadows just to limit the light cone, when a spot light could achieve the same.
@@ -46,22 +46,22 @@ public:
   ezPointLightComponent();
   ~ezPointLightComponent();
 
-  /// \brief Sets the radius of the lightsource. If zero, the radius is automatically determined from the intensity.
+  /// Sets the radius of the lightsource. If zero, the radius is automatically determined from the intensity.
   void SetRange(float fRange); // [ property ]
   float GetRange() const;      // [ property ]
 
-  /// \brief Returns the final radius of the lightsource.
+  /// Returns the final radius of the lightsource.
   float GetEffectiveRange() const;
 
-  /// \brief Sets the length of the tube. Zero means the light is a point light.
+  /// Sets the length of the tube. Zero means the light is a point light.
   void SetLength(float fLength); // [ property ]
   float GetLength() const;       // [ property ]
 
-  /// \brief Radius of the tube's cross-section. Affects the size of specular highlights. Zero means the light is a point light.
+  /// Radius of the tube's cross-section. Affects the size of specular highlights. Zero means the light is a point light.
   void SetRadius(float fRadius); // [ property ]
   float GetRadius() const;       // [ property ]
 
-  /// \brief Sets the radius that is used to determine when to fade out shadows. If zero the radius of the lightsource is used.
+  /// Sets the radius that is used to determine when to fade out shadows. If zero the radius of the lightsource is used.
   void SetShadowFadeOutRange(float fRange); // [ property ]
   float GetShadowFadeOutRange() const;      // [ property ]
 

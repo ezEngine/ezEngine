@@ -31,22 +31,22 @@
 
 class ezFormatString;
 
-/// \brief Assert handler callback. Should return true to trigger a break point or false if the assert should be ignored
+/// Assert handler callback. Should return true to trigger a break point or false if the assert should be ignored
 using ezAssertHandler = bool (*)(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);
 
 EZ_FOUNDATION_DLL bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);
 
-/// \brief Gets the current assert handler. The default assert handler shows a dialog on windows or prints to the console on other platforms.
+/// Gets the current assert handler. The default assert handler shows a dialog on windows or prints to the console on other platforms.
 EZ_FOUNDATION_DLL ezAssertHandler ezGetAssertHandler();
 
-/// \brief Sets the assert handler. It is the responsibility of the user to chain assert handlers if needed.
+/// Sets the assert handler. It is the responsibility of the user to chain assert handlers if needed.
 EZ_FOUNDATION_DLL void ezSetAssertHandler(ezAssertHandler handler);
 
-/// \brief Called by the assert macros whenever a check failed. Returns true if the user wants to trigger a break point
+/// Called by the assert macros whenever a check failed. Returns true if the user wants to trigger a break point
 EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const class ezFormatString& msg);
 EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szMsg);
 
-/// \brief Dummy version of ezFmt that only takes a single argument
+/// Dummy version of ezFmt that only takes a single argument
 inline const char* ezFmt(const char* szFormat)
 {
   return szFormat;
@@ -62,7 +62,7 @@ EZ_FOUNDATION_DLL void MSVC_OutOfLine_DebugBreak(...);
 [[noreturn]] void ClangTidyDoNotReturn();
 #  define EZ_REPORT_FAILURE(szErrorMsg, ...) ClangTidyDoNotReturn()
 #else
-/// \brief Macro to report a failure when that code is reached. This will ALWAYS be executed, even in release builds, therefore might crash the
+/// Macro to report a failure when that code is reached. This will ALWAYS be executed, even in release builds, therefore might crash the
 /// application (or trigger a debug break).
 #  define EZ_REPORT_FAILURE(szErrorMsg, ...)                                                                       \
     do                                                                                                             \
@@ -82,7 +82,7 @@ EZ_FOUNDATION_DLL void MSVC_OutOfLine_DebugBreak(...);
 
 #  define EZ_ANALYSIS_ASSUME(bCondition) EZ_ASSERT_ALWAYS(bCondition, "")
 #else
-/// \brief Macro to raise an error, if a condition is not met. Allows to write a message using ezFormatString style. This assert will be triggered, even in
+/// Macro to raise an error, if a condition is not met. Allows to write a message using ezFormatString style. This assert will be triggered, even in
 /// non-development builds and cannot be deactivated.
 #  define EZ_ASSERT_ALWAYS(bCondition, szErrorMsg, ...)                                                                       \
     do                                                                                                                        \
@@ -97,25 +97,25 @@ EZ_FOUNDATION_DLL void MSVC_OutOfLine_DebugBreak(...);
       EZ_MSVC_ANALYSIS_WARNING_POP                                                                                            \
     } while (false)
 
-/// \brief Macro to inform the static analysis that the given condition can be assumed to be true. Useful to give additional information to
+/// Macro to inform the static analysis that the given condition can be assumed to be true. Useful to give additional information to
 /// static analysis if it can't figure it out by itself. Will do nothing outside of static analysis runs.
 #  define EZ_ANALYSIS_ASSUME(bCondition)
 #endif
 
-/// \brief This type of assert can be used to mark code as 'not (yet) implemented' and makes it easier to find it later on by just searching for these
+/// This type of assert can be used to mark code as 'not (yet) implemented' and makes it easier to find it later on by just searching for these
 /// asserts.
 #define EZ_ASSERT_NOT_IMPLEMENTED EZ_REPORT_FAILURE("Not implemented");
 
 // Occurrences of EZ_ASSERT_DEBUG are compiled out in non-debug builds
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-/// \brief Macro to raise an error, if a condition is not met.
+/// Macro to raise an error, if a condition is not met.
 ///
 /// Allows to write a message using ezFormatString style.
 /// Compiled out in non-debug builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
 #  define EZ_ASSERT_DEBUG EZ_ASSERT_ALWAYS
 #else
-/// \brief Macro to raise an error, if a condition is not met.
+/// Macro to raise an error, if a condition is not met.
 ///
 /// Allows to write a message using ezFormatString style.
 /// Compiled out in non-debug builds.
@@ -127,14 +127,14 @@ EZ_FOUNDATION_DLL void MSVC_OutOfLine_DebugBreak(...);
 // Occurrences of EZ_ASSERT_DEV are compiled out in non-development builds
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 
-/// \brief Macro to raise an error, if a condition is not met.
+/// Macro to raise an error, if a condition is not met.
 ///
 /// Allows to write a message using ezFormatString style.
 /// Compiled out in non-development builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
 #  define EZ_ASSERT_DEV EZ_ASSERT_ALWAYS
 
-/// \brief Macro to raise an error, if a condition is not met.
+/// Macro to raise an error, if a condition is not met.
 ///
 /// Allows to write a message using ezFormatString style.
 /// Compiled out in non-development builds, however the condition is always evaluated,
@@ -143,14 +143,14 @@ EZ_FOUNDATION_DLL void MSVC_OutOfLine_DebugBreak(...);
 
 #else
 
-/// \brief Macro to raise an error, if a condition is not met.
+/// Macro to raise an error, if a condition is not met.
 ///
 /// Allows to write a message using ezFormatString style.
 /// Compiled out in non-development builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
 #  define EZ_ASSERT_DEV(bCondition, szErrorMsg, ...)
 
-/// \brief Macro to raise an error, if a condition is not met.
+/// Macro to raise an error, if a condition is not met.
 ///
 /// Allows to write a message using ezFormatString style.
 /// Compiled out in non-development builds, however the condition is always evaluated,
@@ -164,7 +164,7 @@ EZ_FOUNDATION_DLL void MSVC_OutOfLine_DebugBreak(...);
 
 #if EZ_DISABLE_RELEASE_ASSERTS
 
-/// \brief An assert to check conditions even in release builds.
+/// An assert to check conditions even in release builds.
 ///
 /// These asserts can be disabled (and then their condition will not be evaluated),
 /// but this needs to be specifically done by the user by defining EZ_DISABLE_RELEASE_ASSERTS.
@@ -173,7 +173,7 @@ EZ_FOUNDATION_DLL void MSVC_OutOfLine_DebugBreak(...);
 
 #else
 
-/// \brief An assert to check conditions even in release builds.
+/// An assert to check conditions even in release builds.
 ///
 /// These asserts can be disabled (and then their condition will not be evaluated),
 /// but this needs to be specifically done by the user by defining EZ_DISABLE_RELEASE_ASSERTS.
@@ -182,7 +182,7 @@ EZ_FOUNDATION_DLL void MSVC_OutOfLine_DebugBreak(...);
 
 #endif
 
-/// \brief Macro to make unhandled cases in a switch block an error.
+/// Macro to make unhandled cases in a switch block an error.
 #define EZ_DEFAULT_CASE_NOT_IMPLEMENTED \
   default:                              \
     EZ_ASSERT_NOT_IMPLEMENTED           \

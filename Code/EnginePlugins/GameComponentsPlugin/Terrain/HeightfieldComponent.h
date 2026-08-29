@@ -36,7 +36,7 @@ private:
   ezDeque<ezComponentHandle> m_ComponentsToUpdate;
 };
 
-/// \brief This component utilizes a greyscale image to generate an elevation mesh, which is typically used for simple terrain
+/// This component utilizes a greyscale image to generate an elevation mesh, which is typically used for simple terrain
 ///
 /// The component always creates a mesh for rendering, which uses a single material.
 /// For different layers of grass, dirt, etc. the material can combine multiple textures and a mask.

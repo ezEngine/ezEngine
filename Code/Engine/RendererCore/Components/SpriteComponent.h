@@ -54,7 +54,7 @@ public:
 
 using ezSpriteComponentManager = ezComponentManagerSimple<class ezSpriteComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact>;
 
-/// \brief Renders a screen-oriented quad (billboard) with a maximum screen size.
+/// Renders a screen-oriented quad (billboard) with a maximum screen size.
 ///
 /// This component is typically used to attach an icon to a game object.
 /// The sprite becomes smaller the farther away it is, but when you come closer, its screen size gets clamped to a fixed maximum.
@@ -94,11 +94,11 @@ public:
   void SetColor(ezColor color);                               // [ property ]
   ezColor GetColor() const;                                   // [ property ]
 
-  /// \brief Sets the size of the sprite in world-space units. This determines how large the sprite will be at certain distances.
+  /// Sets the size of the sprite in world-space units. This determines how large the sprite will be at certain distances.
   void SetSize(float fSize); // [ property ]
   float GetSize() const;     // [ property ]
 
-  /// \brief Sets the maximum screen-space size in pixels. Once a sprite is close enough to have reached this size, it will not grow larger.
+  /// Sets the maximum screen-space size in pixels. Once a sprite is close enough to have reached this size, it will not grow larger.
   void SetMaxScreenSize(float fSize);                             // [ property ]
   float GetMaxScreenSize() const;                                 // [ property ]
 

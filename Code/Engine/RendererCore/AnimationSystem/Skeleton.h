@@ -20,7 +20,7 @@ namespace ozz::animation
   class Skeleton;
 }
 
-/// \brief Describes a single joint.
+/// Describes a single joint.
 /// The transforms of the joints are in their local space and thus need to be correctly multiplied with their parent transforms to get the
 /// final transform.
 class EZ_RENDERERCORE_DLL ezSkeletonJoint
@@ -28,7 +28,7 @@ class EZ_RENDERERCORE_DLL ezSkeletonJoint
 public:
   const ezTransform& GetRestPoseLocalTransform() const { return m_RestPoseLocal; }
 
-  /// \brief Returns ezInvalidJointIndex if no parent
+  /// Returns ezInvalidJointIndex if no parent
   ezUInt16 GetParentIndex() const { return m_uiParentIndex; }
 
   bool IsRootJoint() const { return m_uiParentIndex == ezInvalidJointIndex; }
@@ -70,7 +70,7 @@ private:
   float m_fStiffness = 0.0f;
 };
 
-/// \brief The skeleton class encapsulates the information about the joint structure for a model.
+/// The skeleton class encapsulates the information about the joint structure for a model.
 class EZ_RENDERERCORE_DLL ezSkeleton
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezSkeleton);
@@ -82,22 +82,22 @@ public:
 
   void operator=(ezSkeleton&& rhs);
 
-  /// \brief Returns the number of joints in the skeleton.
+  /// Returns the number of joints in the skeleton.
   ezUInt16 GetJointCount() const { return static_cast<ezUInt16>(m_Joints.GetCount()); }
 
-  /// \brief Returns the nth joint.
+  /// Returns the nth joint.
   const ezSkeletonJoint& GetJointByIndex(ezUInt16 uiIndex) const { return m_Joints[uiIndex]; }
 
-  /// \brief Allows to find a specific joint in the skeleton by name. Returns ezInvalidJointIndex if not found
+  /// Allows to find a specific joint in the skeleton by name. Returns ezInvalidJointIndex if not found
   ezUInt16 FindJointByName(const ezTempHashedString& sName) const;
 
-  /// \brief Checks if two skeletons are compatible (same joint count and hierarchy)
+  /// Checks if two skeletons are compatible (same joint count and hierarchy)
   // bool IsCompatibleWith(const ezSkeleton& other) const;
 
-  /// \brief Saves the skeleton in a given stream.
+  /// Saves the skeleton in a given stream.
   void Save(ezStreamWriter& inout_stream) const;
 
-  /// \brief Loads the skeleton from the given stream.
+  /// Loads the skeleton from the given stream.
   void Load(ezStreamReader& inout_stream);
 
   bool IsJointDescendantOf(ezUInt16 uiJoint, ezUInt16 uiExpectedParent) const;
@@ -106,7 +106,7 @@ public:
 
   ezUInt64 GetHeapMemoryUsage() const;
 
-  /// \brief The direction in which the bones shall point for visualization
+  /// The direction in which the bones shall point for visualization
   ezEnum<ezBasisAxis> m_BoneDirection;
 
 protected:

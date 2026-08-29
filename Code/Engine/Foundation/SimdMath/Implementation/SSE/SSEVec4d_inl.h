@@ -1109,7 +1109,7 @@ void ezSimdVec4d::NormalizeIfNotZero(const ezSimdDouble& fEpsilon)
 #endif
 }
 
-  ///\brief x = this[s0], y = this[s1], z = other[s2], w = other[s3]
+  ///x = this[s0], y = this[s1], z = other[s2], w = other[s3]
 template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetCombined(const ezSimdVec4d& other) const
 {

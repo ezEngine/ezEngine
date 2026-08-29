@@ -4,7 +4,7 @@
 
 using ezJoltShapeSphereComponentManager = ezComponentManager<class ezJoltShapeSphereComponent, ezBlockStorageType::FreeList>;
 
-/// \brief Adds a Jolt sphere shape to a Jolt actor.
+/// Adds a Jolt sphere shape to a Jolt actor.
 class EZ_JOLTPLUGIN_DLL ezJoltShapeSphereComponent : public ezJoltShapeComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezJoltShapeSphereComponent, ezJoltShapeComponent, ezJoltShapeSphereComponentManager);

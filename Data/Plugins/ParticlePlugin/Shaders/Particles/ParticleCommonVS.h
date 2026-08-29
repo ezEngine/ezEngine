@@ -21,7 +21,7 @@ static float2 QuadPosOffsets[6] =
     float2(0.0, 0.0),
     float2(1.0, 1.0),
     float2(0.0, 1.0),
-  };
+};
 
 static float2 QuadTexCoordsBillboard[6] =
   {
@@ -31,7 +31,7 @@ static float2 QuadTexCoordsBillboard[6] =
     float2(1.0, 0.0),
     float2(0.0, 1.0),
     float2(0.0, 0.0),
-  };
+};
 
 static float2 QuadTexCoordsAxisAligned[6] =
   {
@@ -41,7 +41,7 @@ static float2 QuadTexCoordsAxisAligned[6] =
     float2(0.0, 1.0),
     float2(1.0, 0.0),
     float2(0.0, 0.0),
-  };
+};
 
 uint CalcQuadParticleDataIndex(uint VertexID)
 {

@@ -98,7 +98,7 @@ struct ezArgP
 };
 
 
-/// \brief Formats a given number such that it will be in format [0, base){suffix} with suffix
+/// Formats a given number such that it will be in format [0, base){suffix} with suffix
 /// representing a power of base. Resulting numbers are output with a precision of 2 fractional digits
 /// and fractional digits are subject to rounding, so numbers at the upper boundary of [0, base)
 /// may be rounded up to the next power of base.
@@ -148,7 +148,7 @@ struct ezArgFileSize : public ezArgHumanReadable
   const char* const m_ByteSuffixes[6] = {"B", "KB", "MB", "GB", "TB", "PB"};
 };
 
-/// \brief Wraps a string that may contain sensitive information, such as user file paths.
+/// Wraps a string that may contain sensitive information, such as user file paths.
 ///
 /// The application can specify a function to scramble this type of information. By default no such function is set.
 /// A general purpose function is provided with 'BuildString_SensitiveUserData_Hash()'
@@ -170,11 +170,11 @@ struct ezArgSensitive
   using BuildStringCallback = ezStringView (*)(char*, ezUInt32, const ezArgSensitive&);
   EZ_FOUNDATION_DLL static BuildStringCallback s_BuildStringCB;
 
-  /// \brief Set s_BuildStringCB to this function to enable scrambling of sensitive data.
+  /// Set s_BuildStringCB to this function to enable scrambling of sensitive data.
   EZ_FOUNDATION_DLL static ezStringView BuildString_SensitiveUserData_Hash(char* szTmp, ezUInt32 uiLength, const ezArgSensitive& arg);
 };
 
-/// \brief Formats an ezEnum or ezBitflags value as its string representation using the reflection system.
+/// Formats an ezEnum or ezBitflags value as its string representation using the reflection system.
 ///
 /// By default the value name is output without the type prefix (e.g. "Value1" instead of "MyEnum::Value1"). Set bFullyQualifiedName to true to include the type prefix.
 /// Requires that the enum/bitflags type has been registered with the reflection system via EZ_BEGIN_STATIC_REFLECTED_ENUM / EZ_BEGIN_STATIC_REFLECTED_BITFLAGS.

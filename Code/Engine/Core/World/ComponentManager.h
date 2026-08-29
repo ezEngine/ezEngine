@@ -11,7 +11,7 @@
 #include <Core/World/Declarations.h>
 #include <Core/World/WorldModule.h>
 
-/// \brief Base class for all component managers. Do not derive directly from this class, but derive from ezComponentManager instead.
+/// Base class for all component managers. Do not derive directly from this class, but derive from ezComponentManager instead.
 ///
 /// Every component type has its corresponding manager type. The manager stores the components in memory blocks to minimize overhead
 /// on creation and deletion of components. Each manager can also register update functions to update its components during
@@ -26,36 +26,36 @@ protected:
   virtual ~ezComponentManagerBase();
 
 public:
-  /// \brief Checks whether the given handle references a valid component.
+  /// Checks whether the given handle references a valid component.
   bool IsValidComponent(const ezComponentHandle& hComponent) const;
 
-  /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
+  /// Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   bool TryGetComponent(const ezComponentHandle& hComponent, ezComponent*& out_pComponent);
 
-  /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
+  /// Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   bool TryGetComponent(const ezComponentHandle& hComponent, const ezComponent*& out_pComponent) const;
 
-  /// \brief Returns the number of components managed by this manager.
+  /// Returns the number of components managed by this manager.
   ezUInt32 GetComponentCount() const;
 
-  /// \brief Create a new component instance and returns a handle to it.
+  /// Create a new component instance and returns a handle to it.
   ezComponentHandle CreateComponent(ezGameObject* pOwnerObject);
 
-  /// \brief Create a new component instance and returns a handle to it.
+  /// Create a new component instance and returns a handle to it.
   template <typename ComponentType>
   ezTypedComponentHandle<ComponentType> CreateComponent(ezGameObject* pOwnerObject, ComponentType*& out_pComponent);
 
-  /// \brief Deletes the given component. Note that the component will be invalidated first and the actual deletion is postponed.
+  /// Deletes the given component. Note that the component will be invalidated first and the actual deletion is postponed.
   void DeleteComponent(const ezComponentHandle& hComponent);
 
-  /// \brief Deletes the given component. Note that the component will be invalidated first and the actual deletion is postponed.
+  /// Deletes the given component. Note that the component will be invalidated first and the actual deletion is postponed.
   void DeleteComponent(ezComponent* pComponent);
 
-  /// \brief Adds all components that this manager handles to the given array (array is not cleared).
+  /// Adds all components that this manager handles to the given array (array is not cleared).
   /// Prefer to use more efficient methods on derived classes, only use this if you need to go through a ezComponentManagerBase pointer.
   virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_allComponents, bool bOnlyActive) = 0;
 
-  /// \brief Adds all components that this manager handles to the given array (array is not cleared).
+  /// Adds all components that this manager handles to the given array (array is not cleared).
   /// Prefer to use more efficient methods on derived classes, only use this if you need to go through a ezComponentManagerBase pointer.
   virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_allComponents, bool bOnlyActive) = 0;
 
@@ -90,23 +90,23 @@ public:
   using ComponentType = T;
   using SUPER = ezComponentManagerBase;
 
-  /// \brief Although the constructor is public always use ezWorld::CreateComponentManager to create an instance.
+  /// Although the constructor is public always use ezWorld::CreateComponentManager to create an instance.
   ezComponentManager(ezWorld* pWorld);
   virtual ~ezComponentManager();
 
-  /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
+  /// Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   bool TryGetComponent(const ezComponentHandle& hComponent, ComponentType*& out_pComponent);
 
-  /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
+  /// Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   bool TryGetComponent(const ezComponentHandle& hComponent, const ComponentType*& out_pComponent) const;
 
-  /// \brief Returns an iterator over all components.
+  /// Returns an iterator over all components.
   typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::Iterator GetComponents(ezUInt32 uiStartIndex = 0);
 
-  /// \brief Returns an iterator over all components.
+  /// Returns an iterator over all components.
   typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::ConstIterator GetComponents(ezUInt32 uiStartIndex = 0) const;
 
-  /// \brief Returns the type id corresponding to the component type managed by this manager.
+  /// Returns the type id corresponding to the component type managed by this manager.
   static ezWorldModuleTypeId TypeId();
 
   virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_allComponents, bool bOnlyActive) override;
@@ -136,7 +136,7 @@ struct ezComponentUpdateType
   };
 };
 
-/// \brief Simple component manager implementation that calls an update method on all components every frame.
+/// Simple component manager implementation that calls an update method on all components every frame.
 template <typename ComponentType, ezComponentUpdateType::Enum UpdateType, ezBlockStorageType::Enum StorageType = ezBlockStorageType::FreeList, ezWorldUpdatePhase::Enum UpdatePhase = ezWorldUpdatePhase::PreAsync>
 class ezComponentManagerSimple final : public ezComponentManager<ComponentType, StorageType>
 {
@@ -145,7 +145,7 @@ public:
 
   virtual void Initialize() override;
 
-  /// \brief A simple update function that iterates over all components and calls Update() on every component
+  /// A simple update function that iterates over all components and calls Update() on every component
   void SimpleUpdate(const ezWorldModule::UpdateContext& context);
 
 private:
@@ -187,18 +187,18 @@ public:                                                                  \
     return ezWorldModuleTypeId(-1);                                      \
   }
 
-/// \brief Add this macro to a custom component type inside the type declaration.
+/// Add this macro to a custom component type inside the type declaration.
 #define EZ_DECLARE_COMPONENT_TYPE(componentType, baseType, managerType) \
   EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType);                   \
   EZ_ADD_COMPONENT_FUNCTIONALITY(componentType, baseType, managerType);
 
-/// \brief Add this macro to a custom abstract component type inside the type declaration.
+/// Add this macro to a custom abstract component type inside the type declaration.
 #define EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(componentType, baseType) \
   EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType);               \
   EZ_ADD_ABSTRACT_COMPONENT_FUNCTIONALITY(componentType, baseType);
 
 
-/// \brief Implements rtti and component specific functionality. Add this macro to a cpp file.
+/// Implements rtti and component specific functionality. Add this macro to a cpp file.
 ///
 /// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
 #define EZ_BEGIN_COMPONENT_TYPE(componentType, version, mode)                                                                            \
@@ -214,12 +214,12 @@ public:                                                                  \
   }                                                                                                                                      \
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, version, ezRTTINoAllocator)
 
-/// \brief Implements rtti and abstract component specific functionality. Add this macro to a cpp file.
+/// Implements rtti and abstract component specific functionality. Add this macro to a cpp file.
 ///
 /// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
 #define EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(componentType, version) EZ_BEGIN_ABSTRACT_DYNAMIC_REFLECTED_TYPE(componentType, version)
 
-/// \brief Ends the component implementation code block that was opened with EZ_BEGIN_COMPONENT_TYPE.
+/// Ends the component implementation code block that was opened with EZ_BEGIN_COMPONENT_TYPE.
 #define EZ_END_COMPONENT_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE
 #define EZ_END_ABSTRACT_COMPONENT_TYPE EZ_END_ABSTRACT_DYNAMIC_REFLECTED_TYPE
 

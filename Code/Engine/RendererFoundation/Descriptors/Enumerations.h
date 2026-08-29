@@ -2,7 +2,7 @@
 
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-/// \brief The type of a shader resource (ezShaderResourceBinding).
+/// The type of a shader resource (ezShaderResourceBinding).
 /// Shader resources need to be bound to a shader for it to function. This includes samplers, constant buffers, textures etc. which are all handled by EZ via GAL resource types / views. However, vertex buffers, index buffers and vertex layouts are not considered shader resources and are handled separately.
 /// \sa ezGALShaderTextureType, ezShaderResourceBinding
 struct ezGALShaderResourceType
@@ -59,7 +59,7 @@ struct ezGALShaderResourceType
   };
 };
 
-/// \brief General category of the shader resource (ezShaderResourceBinding).
+/// General category of the shader resource (ezShaderResourceBinding).
 /// Note that these are flags because some resources can be multiple resource types, e.g. ezGALShaderResourceType::TextureAndSampler.
 struct ezGALShaderResourceCategory
 {
@@ -91,7 +91,7 @@ struct ezGALShaderResourceCategory
 
 EZ_DECLARE_FLAGS_OPERATORS(ezGALShaderResourceCategory);
 
-/// \brief The texture type of the shader resource (ezShaderResourceBinding).
+/// The texture type of the shader resource (ezShaderResourceBinding).
 struct ezGALShaderTextureType
 {
   using StorageType = ezUInt8;
@@ -116,7 +116,7 @@ struct ezGALShaderTextureType
   static ezGALTextureType::Enum GetTextureType(ezGALShaderTextureType::Enum format);
 };
 
-/// \brief Defines a swap chain's present mode.
+/// Defines a swap chain's present mode.
 /// \sa ezGALWindowSwapChainCreationDescription
 struct ezGALPresentMode
 {
@@ -131,7 +131,7 @@ struct ezGALPresentMode
   };
 };
 
-/// \brief Defines the usage semantic of a vertex attribute.
+/// Defines the usage semantic of a vertex attribute.
 /// \sa ezGALVertexAttribute
 struct ezGALVertexAttributeSemantic
 {
@@ -175,7 +175,7 @@ struct ezGALVertexAttributeSemantic
   };
 };
 
-/// \brief Defines for what purpose a texture can be used for.
+/// Defines for what purpose a texture can be used for.
 /// \sa ezGALTextureCreationDescription
 struct ezGALTextureUsageFlags
 {
@@ -200,7 +200,7 @@ struct ezGALTextureUsageFlags
 };
 EZ_DECLARE_FLAGS_OPERATORS(ezGALTextureUsageFlags);
 
-/// \brief Defines for what purpose a buffer can be used for.
+/// Defines for what purpose a buffer can be used for.
 /// \sa ezGALBufferCreationDescription
 struct ezGALBufferUsageFlags
 {
@@ -239,7 +239,7 @@ struct ezGALBufferUsageFlags
 };
 EZ_DECLARE_FLAGS_OPERATORS(ezGALBufferUsageFlags);
 
-/// \brief Type of GPU->CPU query.
+/// Type of GPU->CPU query.
 struct ezGALQueryType
 {
   using StorageType = ezUInt8;
@@ -255,7 +255,7 @@ struct ezGALQueryType
   };
 };
 
-/// \brief Type of the shared texture (INTERNAL)
+/// Type of the shared texture (INTERNAL)
 struct ezGALSharedTextureType
 {
   using StorageType = ezUInt8;
@@ -269,7 +269,7 @@ struct ezGALSharedTextureType
   };
 };
 
-/// \brief Defines on what type of queue a render pass is being executed.
+/// Defines on what type of queue a render pass is being executed.
 /// Note that this does not mean a dedicated queue for this kind of task is used, it merely limits what kind of commands a pass is allowed to execute.
 struct ezGALQueueType
 {
@@ -284,7 +284,7 @@ struct ezGALQueueType
   };
 };
 
-/// \brief Describes the usage state of a GPU resource for barrier and layout transition purposes.
+/// Describes the usage state of a GPU resource for barrier and layout transition purposes.
 ///
 /// Read-only states can be combined via bitwise OR when a resource is used for multiple read purposes simultaneously (buffers ONLY, e.g., sampled in a shader while also bound as a vertex buffer).
 /// Write states are exclusive and must not be combined with other states.

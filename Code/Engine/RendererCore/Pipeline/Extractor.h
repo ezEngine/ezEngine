@@ -14,10 +14,10 @@ public:
   ezExtractor(const char* szName);
   virtual ~ezExtractor();
 
-  /// \brief Sets the name of the extractor.
+  /// Sets the name of the extractor.
   void SetName(const char* szName);
 
-  /// \brief returns the name of the extractor.
+  /// returns the name of the extractor.
   const char* GetName() const;
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) = 0;
@@ -28,10 +28,10 @@ public:
   virtual ezResult Deserialize(ezStreamReader& inout_stream);
 
 protected:
-  /// \brief returns true if the given object should be filtered by view tags.
+  /// returns true if the given object should be filtered by view tags.
   bool FilterByViewTags(const ezView& view, const ezGameObject* pObject) const;
 
-  /// \brief extracts the render data for the given object.
+  /// extracts the render data for the given object.
   void ExtractRenderData(const ezView& view, const ezGameObject* pObject, ezMsgExtractRenderData& msg, ezExtractedRenderData& extractedRenderData) const;
 
 private:
@@ -82,7 +82,7 @@ public:
   ezRenderData::Category m_OverrideCategory;
 };
 
-/// \brief Stores a list of game objects that should get highlighted by the renderer.
+/// Stores a list of game objects that should get highlighted by the renderer.
 ///
 /// Store an instance somewhere in your game code:
 /// ezSelectedObjectsContext m_SelectedObjects;
@@ -109,7 +109,7 @@ public:
   ezDeque<ezGameObjectHandle> m_Objects;
 };
 
-/// \brief An extractor that can be instantiated in a render pipeline, to define manually which objects should be rendered with a selection outline.
+/// An extractor that can be instantiated in a render pipeline, to define manually which objects should be rendered with a selection outline.
 ///
 /// \sa ezSelectedObjectsContext
 class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractor : public ezSelectedObjectsExtractorBase
@@ -124,7 +124,7 @@ public:
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
-  /// \brief The context is typically set through an ezView, through ezView::SetExtractorProperty("<name>", "SelectionContext", pointer);
+  /// The context is typically set through an ezView, through ezView::SetExtractorProperty("<name>", "SelectionContext", pointer);
   void SetSelectionContext(ezSelectedObjectsContext* pSelectionContext) { m_pSelectionContext = pSelectionContext; } // [ property ]
   ezSelectedObjectsContext* GetSelectionContext() const { return m_pSelectionContext; }                              // [ property ]
 

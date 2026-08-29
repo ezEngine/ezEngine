@@ -65,7 +65,7 @@ protected:
   void TransitionTexture(ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> newState, ezGALTextureRange range = {}, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
   void TransitionBuffer(ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> newState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
 
-  /// \brief Renders a unit cube and makes an image comparison if m_bCaptureImage is set and the current frame is in m_ImgCompFrames.
+  /// Renders a unit cube and makes an image comparison if m_bCaptureImage is set and the current frame is in m_ImgCompFrames.
   /// \param viewport Viewport to render into.
   /// \param mMVP Model View Projection matrix for camera. Use CreateSimpleMVP for convenience.
   /// \param uiRenderTargetClearMask What render targets if any should be cleared.

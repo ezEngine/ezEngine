@@ -7,7 +7,7 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Types/ArrayPtr.h>
 
-/// \brief This class provides implementations of different sorting algorithms.
+/// This class provides implementations of different sorting algorithms.
 ///
 /// Algorithm selection guidelines:
 /// - QuickSort: Fast general-purpose sorting. Best for large datasets (>16 elements). O(n log n) average, O(n²) worst case.
@@ -18,7 +18,7 @@
 class ezSorting
 {
 public:
-  /// \brief Sorts the elements in container using an in-place quicksort implementation (not stable).
+  /// Sorts the elements in container using an in-place quicksort implementation (not stable).
   ///
   /// Performance: O(n log n) average case, O(n²) worst case, O(log n) space complexity.
   /// The worst case occurs with already sorted or reverse-sorted input, but this is rare in practice.
@@ -27,7 +27,7 @@ public:
   template <typename Container, typename Comparer>
   static void QuickSort(Container& inout_container, const Comparer& comparer = Comparer()); // [tested]
 
-  /// \brief Sorts the elements in the array using an in-place quicksort implementation (not stable).
+  /// Sorts the elements in the array using an in-place quicksort implementation (not stable).
   ///
   /// Performance: O(n log n) average case, O(n²) worst case, O(log n) space complexity.
   /// See the container overload for detailed performance characteristics.
@@ -35,7 +35,7 @@ public:
   static void QuickSort(ezArrayPtr<T>& inout_arrayPtr, const Comparer& comparer = Comparer()); // [tested]
 
 
-  /// \brief Sorts the elements in container using insertion sort (stable and in-place).
+  /// Sorts the elements in container using insertion sort (stable and in-place).
   ///
   /// Performance: O(n²) worst case, O(n) best case (nearly sorted), O(1) space complexity.
   /// Stable - equal elements maintain their relative order. More efficient than QuickSort for:
@@ -46,7 +46,7 @@ public:
   template <typename Container, typename Comparer>
   static void InsertionSort(Container& inout_container, const Comparer& comparer = Comparer()); // [tested]
 
-  /// \brief Sorts the elements in the array using insertion sort (stable and in-place).
+  /// Sorts the elements in the array using insertion sort (stable and in-place).
   ///
   /// Performance: O(n²) worst case, O(n) best case (nearly sorted), O(1) space complexity.
   /// See the container overload for detailed performance characteristics.

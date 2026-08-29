@@ -400,7 +400,7 @@ void ezShaderTypeRegistry::PhantomTypeRegistryEventHandler(const ezPhantomRttiMa
 
 #include <Foundation/Serialization/GraphPatch.h>
 
-/// \brief Changes the base class of all shader types to ezShaderTypeBase (version 1) and
+/// Changes the base class of all shader types to ezShaderTypeBase (version 1) and
 /// sets their own version to 2.
 class ezShaderTypePatch_1_2 : public ezGraphPatch
 {

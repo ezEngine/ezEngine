@@ -8,7 +8,7 @@
 #include <Foundation/Reflection/Reflection.h>
 
 
-/// \brief A base class for user-defined data assets.
+/// A base class for user-defined data assets.
 ///
 /// Allows users to define their own asset types that can be created, edited and referenced in the editor without writing an editor plugin.
 ///
@@ -24,14 +24,14 @@ class EZ_CORE_DLL ezCustomData : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezCustomData, ezReflectedClass);
 
 public:
-  /// \brief Loads the serialized custom data using a robust serialization-based method.
+  /// Loads the serialized custom data using a robust serialization-based method.
   ///
   /// This function does not need to be overridden. It will work, even if the properties change.
   /// It is only virtual in case you want to hook into the deserialization process.
   virtual void Load(class ezAbstractObjectGraph& ref_graph, class ezRttiConverterContext& ref_context, const class ezAbstractObjectNode* pRootNode);
 };
 
-/// \brief Base class for resources that represent different implementations of ezCustomData
+/// Base class for resources that represent different implementations of ezCustomData
 ///
 /// These resources are automatically generated using these macros:
 ///   EZ_DECLARE_CUSTOM_DATA_RESOURCE(YourCustomData)
@@ -59,7 +59,7 @@ protected:
   ezResourceLoadDesc UpdateContent_Internal(ezStreamReader* Stream, const ezRTTI& rtti);
 };
 
-/// \brief Template resource type for sub-classed ezCustomData types.
+/// Template resource type for sub-classed ezCustomData types.
 ///
 /// See ezCustomDataResourceBase for details.
 template <typename T>
@@ -69,7 +69,7 @@ public:
   ezCustomDataResource();
   ~ezCustomDataResource();
 
-  /// \brief Provides read access to the custom data type.
+  /// Provides read access to the custom data type.
   ///
   /// Returns nullptr, if the resource wasn't loaded successfully.
   const T* GetData() const { return GetLoadingState() == ezResourceState::Loaded ? reinterpret_cast<const T*>(m_Data) : nullptr; }
@@ -90,7 +90,7 @@ private:
   };
 };
 
-/// \brief Helper macro to declare a ezCustomDataResource<T> and a matching resource handle
+/// Helper macro to declare a ezCustomDataResource<T> and a matching resource handle
 ///
 /// See ezCustomDataResourceBase for details.
 #define EZ_DECLARE_CUSTOM_DATA_RESOURCE(SELF)                              \
@@ -102,7 +102,7 @@ private:
                                                                            \
   using SELF##ResourceHandle = ezTypedResourceHandle<SELF##Resource>
 
-/// \brief Helper macro to define a ezCustomDataResource<T>
+/// Helper macro to define a ezCustomDataResource<T>
 ///
 /// See ezCustomDataResourceBase for details.
 #define EZ_DEFINE_CUSTOM_DATA_RESOURCE(SELF)                                                 \

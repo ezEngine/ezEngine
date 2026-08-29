@@ -20,7 +20,7 @@ struct ezPrefabInstantiationOptions
 
   bool m_bForceDynamic = false;
 
-  /// \brief If the prefab has a single root node with this non-empty name, rather than creating a new object, instead the m_hParent object is used.
+  /// If the prefab has a single root node with this non-empty name, rather than creating a new object, instead the m_hParent object is used.
   ezTempHashedString m_ReplaceNamedRootWithParent;
 
   enum class RandomSeedMode
@@ -39,14 +39,14 @@ struct ezPrefabInstantiationOptions
   ezProgress* m_pProgress = nullptr;
 };
 
-/// \brief Reads a world description from a stream. Allows to instantiate that world multiple times
+/// Reads a world description from a stream. Allows to instantiate that world multiple times
 ///        in different locations and different ezWorld's.
 ///
 /// The reader will ignore unknown component types and skip them during instantiation.
 class EZ_CORE_DLL ezWorldReader
 {
 public:
-  /// \brief A context object is returned from InstantiateWorld or InstantiatePrefab if a maxStepTime greater than zero is specified.
+  /// A context object is returned from InstantiateWorld or InstantiatePrefab if a maxStepTime greater than zero is specified.
   ///
   /// Call the Step() function periodically to complete the instantiation.
   /// Each step will try to spend not more than the given maxStepTime.
@@ -63,18 +63,18 @@ public:
 
     virtual ~InstantiationContextBase() = default;
 
-    /// \Brief Advance the instantiation by one step
+    /// Advance the instantiation by one step
     /// \return Whether the operation is finished or needs to be repeated.
     virtual StepResult Step() = 0;
 
-    /// \Brief Cancel the instantiation. This might lead to inconsistent states and must be used with care.
+    /// Cancel the instantiation. This might lead to inconsistent states and must be used with care.
     virtual void Cancel() = 0;
   };
 
   ezWorldReader();
   ~ezWorldReader();
 
-  /// \brief Reads all information about the world from the given stream.
+  /// Reads all information about the world from the given stream.
   ///
   /// Call this once to populate ezWorldReader with information how to instantiate the world.
   /// Afterwards \a stream can be deleted.
@@ -84,7 +84,7 @@ public:
   /// types. The warnings can be suppressed by setting warningOnUnkownSkip to false.
   ezResult ReadWorldDescription(ezStreamReader& inout_stream, bool bWarningOnUnkownSkip = true);
 
-  /// \brief Creates one instance of the world that was previously read by ReadWorldDescription().
+  /// Creates one instance of the world that was previously read by ReadWorldDescription().
   ///
   /// This is identical to calling InstantiatePrefab() with identity values, however, it is a bit
   /// more efficient, as unnecessary computations are skipped.
@@ -100,7 +100,7 @@ public:
   /// has to be valid as long as the instantiation is in progress.
   ezUniquePtr<InstantiationContextBase> InstantiateWorld(ezWorld& ref_world, const ezUInt16* pOverrideTeamID = nullptr, ezTime maxStepTime = ezTime::MakeZero(), ezProgress* pProgress = nullptr);
 
-  /// \brief Creates one instance of the world that was previously read by ReadWorldDescription().
+  /// Creates one instance of the world that was previously read by ReadWorldDescription().
   ///
   /// \param rootTransform is an additional transform that is applied to all root objects.
   /// \param hParent allows to attach the newly created objects immediately to a parent
@@ -117,32 +117,32 @@ public:
   /// has to be valid as long as the instantiation is in progress.
   ezUniquePtr<InstantiationContextBase> InstantiatePrefab(ezWorld& ref_world, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
 
-  /// \brief Gives access to the stream of data. Use this inside component deserialization functions to read data.
+  /// Gives access to the stream of data. Use this inside component deserialization functions to read data.
   ezStreamReader& GetStream() const;
 
-  /// \brief Used during component deserialization to read a handle to a game object.
+  /// Used during component deserialization to read a handle to a game object.
   ezGameObjectHandle ReadGameObjectHandle();
 
-  /// \brief Used during component deserialization to read a handle to a component.
+  /// Used during component deserialization to read a handle to a component.
   void ReadComponentHandle(ezComponentHandle& out_hComponent);
 
-  /// \brief Used during component deserialization to query the actual version number with which the
+  /// Used during component deserialization to query the actual version number with which the
   /// given component type was written. The version number is given through the EZ_BEGIN_COMPONENT_TYPE
   /// macro. Whenever the serialization of a component changes, that number should be increased.
   ezUInt32 GetComponentTypeVersion(const ezRTTI* pRtti) const;
 
-  /// \brief Returns whether world contains a component of given type.
+  /// Returns whether world contains a component of given type.
   bool HasComponentOfType(const ezRTTI* pRtti) const;
 
-  /// \brief Clears all data.
+  /// Clears all data.
   void ClearAndCompact();
 
-  /// \brief Returns the amount of bytes that are currently allocated on the heap.
+  /// Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const;
 
   using FindComponentTypeCallback = ezDelegate<const ezRTTI*(ezStringView sTypeName)>;
 
-  /// \brief An optional callback to redirect the lookup of a component type name to an ezRTTI type.
+  /// An optional callback to redirect the lookup of a component type name to an ezRTTI type.
   ///
   /// If specified, this is used by ALL world readers. The intention is to use this either for logging purposes,
   /// or to implement a whitelist or blacklist for specific component types.

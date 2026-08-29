@@ -8,7 +8,7 @@
 class ezStreamReader;
 class ezStreamWriter;
 
-/// \brief The different modes that tangents may use in a spline control point.
+/// The different modes that tangents may use in a spline control point.
 struct ezSplineTangentMode
 {
   using StorageType = ezUInt8;
@@ -27,7 +27,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezSplineTangentMode);
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Describes a spline consisting of cubic Bezier curves segments. Each control point defines the position, rotation, and scale at that point.
+/// Describes a spline consisting of cubic Bezier curves segments. Each control point defines the position, rotation, and scale at that point.
 /// The parameter fT to evaluate the spline is a combination of the control point index and the zero to one parameter in the fractional part to interpolate within that segment.
 struct EZ_CORE_DLL ezSpline
 {
@@ -78,39 +78,39 @@ struct EZ_CORE_DLL ezSpline
   ezUInt32 GetNumSegments() const;
 
 
-  /// \brief Calculates tangents for all control points with a tangent mode other than 'Custom'.
+  /// Calculates tangents for all control points with a tangent mode other than 'Custom'.
   void CalculateUpDirAndAutoTangents(const ezSimdVec4f& vGlobalUpDir = ezSimdVec4f(0, 0, 1), const ezSimdVec4f& vGlobalForwardDir = ezSimdVec4f(1, 0, 0));
 
 
-  /// \brief Returns the position of the spline at the given parameter fT.
+  /// Returns the position of the spline at the given parameter fT.
   ezSimdVec4f EvaluatePosition(float fT) const;
   ezSimdVec4f EvaluatePosition(ezUInt32 uiCp0, const ezSimdFloat& fT) const;
 
-  /// \brief Returns the derivative, aka the tangent of the spline at the given parameter fT. This also equals to the unnormalized forward direction.
+  /// Returns the derivative, aka the tangent of the spline at the given parameter fT. This also equals to the unnormalized forward direction.
   ezSimdVec4f EvaluateDerivative(float fT) const;
   ezSimdVec4f EvaluateDerivative(ezUInt32 uiCp0, const ezSimdFloat& fT) const;
 
-  /// \brief Returns the up direction of the spline at the given parameter fT.
+  /// Returns the up direction of the spline at the given parameter fT.
   ezSimdVec4f EvaluateUpDirection(float fT) const;
 
-  /// \brief Returns the scale of the spline at the given parameter fT.
+  /// Returns the scale of the spline at the given parameter fT.
   ezSimdVec4f EvaluateScale(float fT) const;
 
-  /// \brief Returns the full transform (consisting of position, scale, and orientation) of the spline at the given parameter fT.
+  /// Returns the full transform (consisting of position, scale, and orientation) of the spline at the given parameter fT.
   ezSimdTransform EvaluateTransform(float fT) const;
 
 
-  /// \brief Calculates the bounding volume of a single segment of the spline.
+  /// Calculates the bounding volume of a single segment of the spline.
   ezResult CalculateSegmentBounds(ezUInt32 uiSegmentIndex, ezSimdBBoxSphere& out_bounds) const;
 
-  /// \brief Calculates the bounding volume of the entire spline.
+  /// Calculates the bounding volume of the entire spline.
   ezResult CalculateBounds(ezSimdBBoxSphere& out_bounds) const;
 
 
-  /// \brief Finds the closest point on a single segment of the spline to the given point. Returns the position on the spline, the parameter fT, and the squared distance.
+  /// Finds the closest point on a single segment of the spline to the given point. Returns the position on the spline, the parameter fT, and the squared distance.
   ezSimdVec4f FindClosestPointOnSegment(ezUInt32 uiSegmentIndex, const ezSimdVec4f& vPoint, float& out_fT, float& out_fDistanceSquared, float fMaxError = 0.1f) const;
 
-  /// \brief Finds the closest point on the entire spline to the given point. Returns the position on the spline, the parameter fT, and the squared distance.
+  /// Finds the closest point on the entire spline to the given point. Returns the position on the spline, the parameter fT, and the squared distance.
   ezSimdVec4f FindClosestPoint(const ezSimdVec4f& vPoint, float& out_fT, float& out_fDistanceSquared, float fMaxError = 0.1f) const;
 
 private:

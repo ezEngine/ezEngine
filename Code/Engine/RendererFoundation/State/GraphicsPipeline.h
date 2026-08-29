@@ -4,7 +4,7 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-/// \brief Graphics pipeline state object combining shader, blend, depth-stencil, rasterizer state, and vertex declaration into a single object.
+/// Graphics pipeline state object combining shader, blend, depth-stencil, rasterizer state, and vertex declaration into a single object.
 class EZ_RENDERERFOUNDATION_DLL ezGALGraphicsPipeline : public ezGALObject<ezGALGraphicsPipelineCreationDescription>
 {
 public:

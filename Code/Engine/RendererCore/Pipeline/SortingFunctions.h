@@ -22,27 +22,27 @@ struct EZ_RENDERERCORE_DLL ezRenderSortingFunctions
 
   using Func = ezUInt64 (*)(const ezRenderData*, const ezCamera&);
 
-  /// \brief Sorts by render data type first, then by render data sorting key, then by depth front-to-back.
+  /// Sorts by render data type first, then by render data sorting key, then by depth front-to-back.
   ///
   /// Used for opaque geometry to minimize state changes and benefit from early-z rejection.
   static ezUInt64 ByRenderDataThenFrontToBackFunc(const ezRenderData* pRenderData, const ezCamera& camera);
 
-  /// \brief Sorts by depth back-to-front, then by render data type, then by render data sorting key.
+  /// Sorts by depth back-to-front, then by render data type, then by render data sorting key.
   ///
   /// Used for transparent geometry to ensure correct blending order.
   static ezUInt64 BackToFrontThenByRenderDataFunc(const ezRenderData* pRenderData, const ezCamera& camera);
 
-  /// \brief Sorts only by the render data's depth offset back-to-front, meaning render data with a higher depth offset is rendered first.
+  /// Sorts only by the render data's depth offset back-to-front, meaning render data with a higher depth offset is rendered first.
   ///
   /// This can be used for special cases like full-screen effects where the render order needs to be fully deterministic.
   static ezUInt64 ByDepthOffsetOnlyFunc(const ezRenderData* pRenderData, const ezCamera& camera);
 
-  /// \brief Sorts only by the render data's sorting key.
+  /// Sorts only by the render data's sorting key.
   ///
   /// Used for special cases like lights where the sorting key is already carefully constructed to achieve the desired order, and distance-based sorting is not needed.
   static ezUInt64 BySortingKeyOnlyFunc(const ezRenderData* pRenderData, const ezCamera& camera);
 
-  /// \brief Returns the sorting function corresponding to the given enum value.
+  /// Returns the sorting function corresponding to the given enum value.
   static Func GetFunction(Enum sortingFunction);
 };
 

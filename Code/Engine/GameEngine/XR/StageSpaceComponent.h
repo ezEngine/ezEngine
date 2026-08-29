@@ -8,7 +8,7 @@
 
 using ezStageSpaceComponentManager = ezSettingsComponentManager<class ezStageSpaceComponent>;
 
-/// \brief Singleton to set the type of stage space and its global transform in the world.
+/// Singleton to set the type of stage space and its global transform in the world.
 ///
 /// The global transform of the owner and the set stage space are read out by the XR
 /// implementation every frame.
@@ -24,7 +24,7 @@ public:
   // ezDeviceTrackingComponent Interface
   //
 
-  /// \brief Sets the stage space used by the XR experience.
+  /// Sets the stage space used by the XR experience.
   void SetStageSpace(ezEnum<ezXRStageSpace> space);
   ezEnum<ezXRStageSpace> GetStageSpace() const;
 

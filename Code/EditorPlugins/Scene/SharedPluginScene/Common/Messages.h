@@ -73,7 +73,7 @@ public:
   ezHybridArray<ezUuid, 1> m_HiddenLayers;
 };
 
-/// \brief Sent from the editor to the engine to communicate the desired child object order for a component.
+/// Sent from the editor to the engine to communicate the desired child object order for a component.
 ///
 /// Targets a component identified by its GUID. The component must handle ezMsgSyncChildOrder.
 /// Used in conjunction with ezSyncChildOrderAttribute.

@@ -15,7 +15,7 @@ class ezDocument;
 #  undef GetObject
 #endif
 
-/// \brief Standard root object for most documents.
+/// Standard root object for most documents.
 /// m_RootObjects stores what is in the document and m_TempObjects stores transient data used during editing which is not part of the document.
 class EZ_TOOLSFOUNDATION_DLL ezDocumentRoot : public ezReflectedClass
 {
@@ -25,7 +25,7 @@ class EZ_TOOLSFOUNDATION_DLL ezDocumentRoot : public ezReflectedClass
   ezHybridArray<ezReflectedClass*, 1> m_TempObjects;
 };
 
-/// \brief Implementation detail of ezDocumentObjectManager.
+/// Implementation detail of ezDocumentObjectManager.
 class ezDocumentRootObject : public ezDocumentStorageObject
 {
 public:
@@ -40,7 +40,7 @@ public:
   virtual void RemoveSubObject(ezDocumentObject* pObject) override;
 };
 
-/// \brief Used by ezDocumentObjectManager::m_StructureEvents.
+/// Used by ezDocumentObjectManager::m_StructureEvents.
 struct ezDocumentObjectStructureEvent
 {
   ezDocumentObjectStructureEvent() = default;
@@ -70,7 +70,7 @@ struct ezDocumentObjectStructureEvent
   ezVariant m_NewPropertyIndex;
 };
 
-/// \brief Used by ezDocumentObjectManager::m_PropertyEvents.
+/// Used by ezDocumentObjectManager::m_PropertyEvents.
 struct ezDocumentObjectPropertyEvent
 {
   ezDocumentObjectPropertyEvent() { m_pObject = nullptr; }
@@ -93,7 +93,7 @@ struct ezDocumentObjectPropertyEvent
   ezVariant m_NewIndex;
 };
 
-/// \brief Used by ezDocumentObjectManager::m_ObjectEvents.
+/// Used by ezDocumentObjectManager::m_ObjectEvents.
 struct ezDocumentObjectEvent
 {
   ezDocumentObjectEvent() { m_pObject = nullptr; }
@@ -109,11 +109,11 @@ struct ezDocumentObjectEvent
   const ezDocumentObject* m_pObject;
 };
 
-/// \brief Represents to content of a document. Every document has exactly one root object under which all objects need to be parented. The default root object is ezDocumentRoot.
+/// Represents to content of a document. Every document has exactly one root object under which all objects need to be parented. The default root object is ezDocumentRoot.
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectManager
 {
 public:
-  // \brief Storage for the object manager so it can be swapped when using multiple sub documents.
+  // Storage for the object manager so it can be swapped when using multiple sub documents.
   class Storage : public ezRefCounted
   {
   public:

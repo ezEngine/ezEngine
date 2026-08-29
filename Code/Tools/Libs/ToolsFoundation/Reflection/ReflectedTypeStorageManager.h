@@ -6,7 +6,7 @@
 class ezReflectedTypeStorageAccessor;
 class ezDocumentObject;
 
-/// \brief Manages all ezReflectedTypeStorageAccessor instances.
+/// Manages all ezReflectedTypeStorageAccessor instances.
 ///
 /// This class takes care of patching all ezReflectedTypeStorageAccessor instances when their
 /// ezRTTI is modified. It also provides the mapping from property name to the data
@@ -38,7 +38,7 @@ private:
       ezVariant m_DefaultValue;
     };
 
-    /// \brief Flattens all POD type properties of the given ezRTTI into m_PathToStorageInfoTable.
+    /// Flattens all POD type properties of the given ezRTTI into m_PathToStorageInfoTable.
     ///
     /// The functions first adds all parent class properties and then adds its own properties.
     /// POD type properties are added under the current path.

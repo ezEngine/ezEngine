@@ -6,7 +6,7 @@
 #  define EZ_TESTFRAMEWORK_ENTRY_POINT_CODE_INJECTION
 #endif
 
-/// \brief Macro to define the application entry point for all test applications
+/// Macro to define the application entry point for all test applications
 #define EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                    \
   /* Enables that on machines with multiple GPUs the NVIDIA GPU is preferred */           \
   EZ_TESTFRAMEWORK_ENTRY_POINT_CODE_INJECTION                                             \

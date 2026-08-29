@@ -36,7 +36,7 @@ public:
 
   void ClearProperties();
 
-  // \brief Inlines a custom variant type. Use to patch properties that have been turned into custom variant type.
+  // Inlines a custom variant type. Use to patch properties that have been turned into custom variant type.
   // \sa EZ_DEFINE_CUSTOM_VARIANT_TYPE, EZ_DECLARE_CUSTOM_VARIANT_TYPE
   ezResult InlineProperty(ezStringView sName);
 
@@ -111,7 +111,7 @@ struct EZ_FOUNDATION_DLL ezDiffOperation
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezDiffOperation);
 
 
-/// \brief An intermediate representation for serializing/deserializing reflected objects.
+/// An intermediate representation for serializing/deserializing reflected objects.
 ///
 /// The AbstractObjectGraph represents objects and their properties in a type-independent way,
 /// allowing for versioning, patching, and format conversion. It serves as the core of ezEngine's
@@ -153,11 +153,11 @@ public:
   const ezMap<ezUuid, ezAbstractObjectNode*>& GetAllNodes() const { return m_Nodes; }
   ezMap<ezUuid, ezAbstractObjectNode*>& GetAllNodes() { return m_Nodes; }
 
-  /// \brief Remaps all node guids by adding the given seed, or if bRemapInverse is true, by subtracting it/
+  /// Remaps all node guids by adding the given seed, or if bRemapInverse is true, by subtracting it/
   ///   This is mostly used to remap prefab instance graphs to their prefab template graph.
   void ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapInverse = false);
 
-  /// \brief Tries to remap the guids of this graph to those in rhsGraph by walking in both down the hierarchy, starting at root and
+  /// Tries to remap the guids of this graph to those in rhsGraph by walking in both down the hierarchy, starting at root and
   /// rhsRoot.
   ///
   ///  Note that in case of array properties the remapping assumes element indices to be equal
@@ -166,12 +166,12 @@ public:
   ///  applying native side changes to the original ezDocumentObject hierarchy using diffs.
   void ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* pRoot, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* pRhsRoot);
 
-  /// \brief Finds everything accessible by the given root node.
+  /// Finds everything accessible by the given root node.
   void FindTransitiveHull(const ezUuid& rootGuid, ezSet<ezUuid>& out_reachableNodes) const;
-  /// \brief Deletes everything not accessible by the given root node.
+  /// Deletes everything not accessible by the given root node.
   void PruneGraph(const ezUuid& rootGuid);
 
-  /// \brief Allows a node to be modified as a native object and automatically syncs changes back.
+  /// Allows a node to be modified as a native object and automatically syncs changes back.
   ///
   /// This temporarily converts the node (and its sub-hierarchy) to native objects, calls the provided
   /// callback to allow modifications, then converts the modified objects back to the graph representation.
@@ -179,7 +179,7 @@ public:
   /// Changes to the object hierarchy (adding/removing children) will be reflected in the graph.
   void ModifyNodeViaNativeCounterpart(ezAbstractObjectNode* pRootNode, ezDelegate<void(void*, const ezRTTI*)> callback);
 
-  /// \brief Allows to copy a node from another graph into this graph.
+  /// Allows to copy a node from another graph into this graph.
   ezAbstractObjectNode* CopyNodeIntoGraph(const ezAbstractObjectNode* pNode);
 
   ezAbstractObjectNode* CopyNodeIntoGraph(const ezAbstractObjectNode* pNode, FilterFunction& ref_filter);

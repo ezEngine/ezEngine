@@ -109,19 +109,19 @@ public:
   ezRenderData::Category GetRenderDataCategory();
   static ezRenderData::Category GetRenderDataCategory(const ezMaterialResourceHandle& hMaterial, bool* out_pWasFallback = nullptr, ezRenderData::Category fallbackCategory = ezDefaultRenderDataCategories::LitOpaque);
 
-  /// \brief Copies current desc to original desc so the material is not modified on reset
+  /// Copies current desc to original desc so the material is not modified on reset
   void PreserveCurrentDesc();
   virtual void ResetResource() override;
 
   const ezMaterialResourceDescriptor& GetCurrentDesc() const;
 
-  /// \brief In case the renderer uses structured buffers to store materials, this is the index into the buffer returns by ezMaterialManager::GetMaterialData.
+  /// In case the renderer uses structured buffers to store materials, this is the index into the buffer returns by ezMaterialManager::GetMaterialData.
   ///
   /// You only need to call this if you want to persist the index in some other storage as ezMaterialManager::GetMaterialData will return the index as well.
   /// Important: The index can change if the shader changes. This can only be done by unloading and reloading the material in which case the [] event is fired.
   ezMaterialId GetMaterialId() const { return m_MaterialId; }
 
-  /// \brief Returns the default material file name for the given type (materials in Data/Base/Materials/BaseMaterials).
+  /// Returns the default material file name for the given type (materials in Data/Base/Materials/BaseMaterials).
   static const char* GetDefaultMaterialFileName(DefaultMaterialType materialType);
 
 private:

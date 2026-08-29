@@ -1,5 +1,5 @@
 
-/// \brief [Internal] Storage for lambdas with captures in ezDelegate.
+/// [Internal] Storage for lambdas with captures in ezDelegate.
 struct EZ_FOUNDATION_DLL ezLambdaDelegateStorageBase
 {
   ezLambdaDelegateStorageBase() = default;
@@ -90,7 +90,7 @@ public:
 
   EZ_ALWAYS_INLINE ezDelegate(SelfType&& other) { *this = std::move(other); }
 
-  /// \brief Constructs the delegate from a member function type and takes the class instance on which to call the function later.
+  /// Constructs the delegate from a member function type and takes the class instance on which to call the function later.
   template <typename Method, typename Class>
   EZ_FORCE_INLINE ezDelegate(Method method, Class* pInstance)
   {
@@ -100,7 +100,7 @@ public:
     m_DispatchFunction = &DispatchToMethod<Method, Class>;
   }
 
-  /// \brief Constructs the delegate from a member function type and takes the (const) class instance on which to call the function later.
+  /// Constructs the delegate from a member function type and takes the (const) class instance on which to call the function later.
   template <typename Method, typename Class>
   EZ_FORCE_INLINE ezDelegate(Method method, const Class* pInstance)
   {
@@ -110,7 +110,7 @@ public:
     m_DispatchFunction = &DispatchToConstMethod<Method, Class>;
   }
 
-  /// \brief Constructs the delegate from a regular C function type.
+  /// Constructs the delegate from a regular C function type.
   template <typename Function>
   EZ_FORCE_INLINE ezDelegate(Function function, ezAllocator* pAllocator = AllocatorWrapper::GetAllocator())
   {
@@ -163,7 +163,7 @@ public:
 
   EZ_ALWAYS_INLINE ~ezDelegate() { Invalidate(); }
 
-  /// \brief Copies the data from another delegate.
+  /// Copies the data from another delegate.
   EZ_FORCE_INLINE void operator=(const SelfType& other)
   {
     Invalidate();
@@ -187,7 +187,7 @@ public:
     m_DispatchFunction = other.m_DispatchFunction;
   }
 
-  /// \brief Moves the data from another delegate.
+  /// Moves the data from another delegate.
   EZ_FORCE_INLINE void operator=(SelfType&& other)
   {
     Invalidate();
@@ -209,24 +209,24 @@ public:
     memset(other.m_Data, 0, DataSize);
   }
 
-  /// \brief Resets a delegate to an invalid state.
+  /// Resets a delegate to an invalid state.
   EZ_FORCE_INLINE void operator=(std::nullptr_t) { Invalidate(); }
 
-  /// \brief Function call operator. This will call the function that is bound to the delegate, or assert if nothing was bound.
+  /// Function call operator. This will call the function that is bound to the delegate, or assert if nothing was bound.
   EZ_FORCE_INLINE R operator()(Args... params) const
   {
     EZ_ASSERT_DEBUG(m_DispatchFunction != nullptr, "Delegate is not bound.");
     return (*m_DispatchFunction)(*this, params...);
   }
 
-  /// \brief This function only exists to make code compile, but it will assert when used. Use IsEqualIfNotHeapAllocated() instead.
+  /// This function only exists to make code compile, but it will assert when used. Use IsEqualIfNotHeapAllocated() instead.
   EZ_ALWAYS_INLINE bool operator==(const SelfType& other) const
   {
     EZ_REPORT_FAILURE("operator== for ezDelegate must not be used. Use IsEqualIfNotHeapAllocated() and read its documentation!");
     return false;
   }
 
-  /// \brief Checks whether two delegates are bound to the exact same function, including the class instance.
+  /// Checks whether two delegates are bound to the exact same function, including the class instance.
   /// \note If \a this or \a other or both return false for IsComparable(), the function returns always false!
   /// Therefore, do not use this to search for delegates that are not comparable. ezEvent uses this function, but goes to great lengths to
   /// assert that it is used correctly. It is best to not use this function at all.
@@ -236,10 +236,10 @@ public:
            memcmp(m_Data, other.m_Data, DataSize) == 0;
   }
 
-  /// \brief Returns true when the delegate is bound to a valid non-nullptr function.
+  /// Returns true when the delegate is bound to a valid non-nullptr function.
   EZ_ALWAYS_INLINE bool IsValid() const { return m_DispatchFunction != nullptr; }
 
-  /// \brief Resets a delegate to an invalid state.
+  /// Resets a delegate to an invalid state.
   EZ_FORCE_INLINE void Invalidate()
   {
     m_DispatchFunction = nullptr;
@@ -257,10 +257,10 @@ public:
     memset(m_Data, 0, DataSize);
   }
 
-  /// \brief Returns the class instance that is used to call a member function pointer on.
+  /// Returns the class instance that is used to call a member function pointer on.
   EZ_ALWAYS_INLINE void* GetClassInstance() const { return IsComparable() ? m_Instance.m_Ptr : nullptr; }
 
-  /// \brief Returns whether the delegate is comparable with other delegates of the same type. This is not the case for i.e. lambdas with captures.
+  /// Returns whether the delegate is comparable with other delegates of the same type. This is not the case for i.e. lambdas with captures.
   EZ_ALWAYS_INLINE bool IsComparable() const { return m_Instance.m_ConstPtr < InplaceLambda(); } // [tested]
 
 private:

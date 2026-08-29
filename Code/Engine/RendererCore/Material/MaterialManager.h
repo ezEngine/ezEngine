@@ -9,7 +9,7 @@
 class ezGALCommandEncoder;
 struct ezGALDeviceEvent;
 
-/// \brief Fired by ezMaterialManager::s_MaterialShaderChangedEvent in case a material is reloaded and now occupies another index / shader.
+/// Fired by ezMaterialManager::s_MaterialShaderChangedEvent in case a material is reloaded and now occupies another index / shader.
 struct EZ_RENDERERCORE_DLL ezMaterialShaderChanged
 {
   ezMaterialResourceHandle m_hMaterial;
@@ -24,7 +24,7 @@ class EZ_RENDERERCORE_DLL ezMaterialManager
   EZ_DECLARE_SINGLETON(ezMaterialManager);
 
 public:
-  /// \brief The material's render data. Accessed via ezMaterialManager::GetMaterialData.
+  /// The material's render data. Accessed via ezMaterialManager::GetMaterialData.
   struct EZ_RENDERERCORE_DLL MaterialData
   {
     ~MaterialData();
@@ -52,25 +52,25 @@ public:
   };
 
 public:
-  /// \brief Called by ezMaterialResource::UpdateContent and ezMaterialResource::CreateResource to add the material to the manager.
+  /// Called by ezMaterialResource::UpdateContent and ezMaterialResource::CreateResource to add the material to the manager.
   static void MaterialAdded(ezMaterialResource* pMaterial);
-  /// \brief Called by ezMaterialResource::SetModified to inform the material manager of changes.
+  /// Called by ezMaterialResource::SetModified to inform the material manager of changes.
   static void MaterialModified(ezMaterialResourceHandle hMaterial);
-  /// \brief Called by ezMaterialResource destructor to remove the material from the manager.
+  /// Called by ezMaterialResource destructor to remove the material from the manager.
   /// Note that we don't call this during unload to maintain the material index during reloading of materials.
   static void MaterialRemoved(ezMaterialResource* pMaterial);
-  /// \brief Returns the render data for a material resource. Can be nullptr if the material is not loaded yet or extraction + update was not executed yet.
+  /// Returns the render data for a material resource. Can be nullptr if the material is not loaded yet or extraction + update was not executed yet.
   static const MaterialData* GetMaterialData(const ezMaterialResource* pMaterial);
   /// Returns the bind group for the given material resource and layout.
   static ezGALBindGroupHandle GetMaterialBindGroup(const ezMaterialResource* pMaterial, ezGALBindGroupLayoutHandle hBindGroupLayout);
-  /// \brief Fired in case a material is reloaded and now occupies another index / shader.
+  /// Fired in case a material is reloaded and now occupies another index / shader.
   static ezEvent<const ezMaterialShaderChanged&, ezMutex> s_MaterialShaderChangedEvent;
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, MaterialManager);
   friend class ezMemoryUtils;
 
-  /// \brief How MaterialShaderConstants will store the material data.
+  /// How MaterialShaderConstants will store the material data.
   enum class MaterialStorageMode
   {
     MultipleConstantBuffer,
@@ -78,7 +78,7 @@ private:
     SingleStructuredBuffer,
   };
 
-  /// \brief Manages the constants for all materials of a single shader resource.
+  /// Manages the constants for all materials of a single shader resource.
   class MaterialShaderConstants
   {
   public:

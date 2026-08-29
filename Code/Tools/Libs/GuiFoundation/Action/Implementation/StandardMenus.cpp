@@ -108,10 +108,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 struct ezComparePanels
 {
-  /// \brief Returns true if a is less than b
+  /// Returns true if a is less than b
   EZ_ALWAYS_INLINE bool Less(const ezDynamicMenuAction::Item& p1, const ezDynamicMenuAction::Item& p2) const { return p1.m_sDisplay < p2.m_sDisplay; }
 
-  /// \brief Returns true if a is equal to b
+  /// Returns true if a is equal to b
   EZ_ALWAYS_INLINE bool Equal(const ezDynamicMenuAction::Item& p1, const ezDynamicMenuAction::Item& p2) const
   {
     return p1.m_sDisplay == p2.m_sDisplay;

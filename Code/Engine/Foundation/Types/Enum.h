@@ -4,7 +4,7 @@
 
 /// \file
 
-/// \brief A custom enum implementation that allows to define the underlying storage type to control its memory footprint.
+/// A custom enum implementation that allows to define the underlying storage type to control its memory footprint.
 ///
 /// Advantages over a simple C++ enum:
 /// 1) Storage type can be defined
@@ -41,37 +41,37 @@ public:
   using SelfType = ezEnum<Derived>;
   using StorageType = typename Derived::StorageType;
 
-  /// \brief Default constructor
+  /// Default constructor
   EZ_ALWAYS_INLINE ezEnum()
     : m_Value((StorageType)Derived::Default)
   {
   } // [tested]
 
-  /// \brief Copy constructor
+  /// Copy constructor
   EZ_ALWAYS_INLINE ezEnum(const SelfType& rh)
     : m_Value(rh.m_Value)
   {
   }
 
-  /// \brief Construct from a C++ enum, and implicit conversion from enum type
+  /// Construct from a C++ enum, and implicit conversion from enum type
   EZ_ALWAYS_INLINE ezEnum(typename Derived::Enum init)
     : m_Value((StorageType)init)
   {
   } // [tested]
 
-  /// \brief Assignment operator
+  /// Assignment operator
   EZ_ALWAYS_INLINE void operator=(const SelfType& rh) // [tested]
   {
     m_Value = rh.m_Value;
   }
 
-  /// \brief Assignment operator.
+  /// Assignment operator.
   EZ_ALWAYS_INLINE void operator=(const typename Derived::Enum value) // [tested]
   {
     m_Value = (StorageType)value;
   }
 
-  /// \brief Comparison operators
+  /// Comparison operators
   EZ_ALWAYS_INLINE bool operator==(const SelfType& rhs) const { return m_Value == rhs.m_Value; }
   EZ_ALWAYS_INLINE bool operator!=(const SelfType& rhs) const { return m_Value != rhs.m_Value; }
   EZ_ALWAYS_INLINE bool operator>(const SelfType& rhs) const { return m_Value > rhs.m_Value; }
@@ -90,19 +90,19 @@ public:
   EZ_ALWAYS_INLINE SelfType operator|(const SelfType& rhs) const { return static_cast<typename Derived::Enum>(m_Value | rhs.m_Value); } // [tested]
   EZ_ALWAYS_INLINE SelfType operator&(const SelfType& rhs) const { return static_cast<typename Derived::Enum>(m_Value & rhs.m_Value); } // [tested]
 
-  /// \brief Implicit conversion to enum type.
+  /// Implicit conversion to enum type.
   EZ_ALWAYS_INLINE operator typename Derived::Enum() const // [tested]
   {
     return static_cast<typename Derived::Enum>(m_Value);
   }
 
-  /// \brief Returns the enum value as an integer
+  /// Returns the enum value as an integer
   EZ_ALWAYS_INLINE StorageType GetValue() const // [tested]
   {
     return m_Value;
   }
 
-  /// \brief Sets the enum value through an integer
+  /// Sets the enum value through an integer
   EZ_ALWAYS_INLINE void SetValue(StorageType value) // [tested]
   {
     m_Value = value;
@@ -117,7 +117,7 @@ private:
   case name:                          \
     return EZ_PP_STRINGIFY(name);
 
-/// \brief Helper macro to generate a 'ToString' function for enum values.
+/// Helper macro to generate a 'ToString' function for enum values.
 ///
 /// Usage: EZ_ENUM_TO_STRING(Value1, Value2, Value3, Value4)
 /// Embed it into a struct (which defines the enums).

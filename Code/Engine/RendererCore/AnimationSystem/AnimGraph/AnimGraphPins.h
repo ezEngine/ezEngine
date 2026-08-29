@@ -140,7 +140,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphTriggerOutputPin : public ezAnimGraphOutput
 public:
   virtual ezAnimGraphPin::Type GetPinType() const override { return ezAnimGraphPin::Trigger; }
 
-  /// \brief Sets this output pin to the triggered state for this frame.
+  /// Sets this output pin to the triggered state for this frame.
   ///
   /// All pin states are reset before every graph update, so this only needs to be called
   /// when a pin should be set to the triggered state, but then it must be called every frame.

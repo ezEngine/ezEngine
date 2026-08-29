@@ -54,7 +54,7 @@ namespace ezExpression
   using Inputs = ezArrayPtr<ezArrayPtr<const Register>>; // Inputs are in SOA form, means inner array contains all values for one input parameter, one for each instance.
   using GlobalData = ezHashTable<ezHashedString, ezVariant>;
 
-  /// \brief Describes an input or output stream for a expression VM
+  /// Describes an input or output stream for a expression VM
   struct StreamDesc
   {
     ezHashedString m_sName;
@@ -77,7 +77,7 @@ namespace ezExpression
     ezResult Deserialize(ezStreamReader& inout_stream);
   };
 
-  /// \brief Describes an expression function and its signature, e.g. how many input parameter it has and their type
+  /// Describes an expression function and its signature, e.g. how many input parameter it has and their type
   struct FunctionDesc
   {
     using TypeList = ezSmallArray<ezEnum<ezExpression::RegisterType>, 8, ezStaticsAllocatorWrapper>;
@@ -108,7 +108,7 @@ namespace ezExpression
 
 } // namespace ezExpression
 
-/// \brief Describes an external function that can be called in expressions.
+/// Describes an external function that can be called in expressions.
 ///  These functions need to be state-less and thread-safe.
 struct ezExpressionFunction
 {
@@ -120,20 +120,20 @@ struct ezExpressionFunction
   ezExpression::ValidateGlobalDataFunction m_ValidateGlobalDataFunc;
 };
 
-/// \brief Contains the default expression functions that are always available in the expression system.
+/// Contains the default expression functions that are always available in the expression system.
 struct EZ_FOUNDATION_DLL ezDefaultExpressionFunctions
 {
   static ezExpressionFunction s_RandomFunc;
   static ezExpressionFunction s_PerlinNoiseFunc;
 };
 
-/// \brief Contains extended expression functions that need to be registered explicitly with the expression VM.
+/// Contains extended expression functions that need to be registered explicitly with the expression VM.
 struct EZ_FOUNDATION_DLL ezExtendedExpressionFunctions
 {
   static ezExpressionFunction s_SampleCurveFunc;
 };
 
-/// \brief Add this attribute a string property that should be interpreted as expression source.
+/// Add this attribute a string property that should be interpreted as expression source.
 ///
 /// The Inputs/Outputs property reference another array property on the same object that contains objects
 /// with a name and a type property that can be used for real time error checking of the expression source.

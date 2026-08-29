@@ -12,7 +12,7 @@ struct ezHashHelper<vk::DescriptorType>
   EZ_ALWAYS_INLINE static bool Equal(vk::DescriptorType a, vk::DescriptorType b) { return a == b; }
 };
 
-/// \brief Creates descriptor sets that are only valid for a single frame.
+/// Creates descriptor sets that are only valid for a single frame.
 /// Descriptors are created from pools that are put in the frame deletion queue once full. The frame deletion queue on the device will then call ReclaimPool and the entire pool is reset and reused. Pools are only destroyed on shutdown.
 class EZ_RENDERERVULKAN_DLL ezTransientDescriptorSetPoolVulkan
 {

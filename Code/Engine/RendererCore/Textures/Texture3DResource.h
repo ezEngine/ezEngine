@@ -17,7 +17,7 @@ class ezImage;
 
 using ezTexture3DResourceHandle = ezTypedResourceHandle<class ezTexture3DResource>;
 
-/// \brief Use this descriptor in calls to ezResourceManager::CreateResource<ezTexture3DResource> to create textures from data in memory.
+/// Use this descriptor in calls to ezResourceManager::CreateResource<ezTexture3DResource> to create textures from data in memory.
 struct EZ_RENDERERCORE_DLL ezTexture3DResourceDescriptor
 {
   /// Describes the texture format, etc.

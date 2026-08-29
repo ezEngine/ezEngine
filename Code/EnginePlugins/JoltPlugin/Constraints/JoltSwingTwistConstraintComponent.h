@@ -4,7 +4,7 @@
 
 using ezJoltSwingTwistConstraintComponentManager = ezComponentManager<class ezJoltSwingTwistConstraintComponent, ezBlockStorageType::Compact>;
 
-/// \brief Implements a swing-twist physics constraint.
+/// Implements a swing-twist physics constraint.
 ///
 /// This is similar to a cone constraint but with more control.
 /// The swing angle can be limited along Y and Z, so it can have a squashed shape, rather than perfectly round.
@@ -35,23 +35,23 @@ public:
   ezJoltSwingTwistConstraintComponent();
   ~ezJoltSwingTwistConstraintComponent();
 
-  /// \brief Sets how far the child actor may swing along the Y axis.
+  /// Sets how far the child actor may swing along the Y axis.
   void SetSwingLimitY(ezAngle f);                          // [ property ]
   ezAngle GetSwingLimitY() const { return m_SwingLimitY; } // [ property ]
 
-  /// \brief Sets how far the child actor may swing along the Z axis.
+  /// Sets how far the child actor may swing along the Z axis.
   void SetSwingLimitZ(ezAngle f);                          // [ property ]
   ezAngle GetSwingLimitZ() const { return m_SwingLimitZ; } // [ property ]
 
-  /// \brief Sets how difficult it is to rotate the constraint.
+  /// Sets how difficult it is to rotate the constraint.
   void SetFriction(float f);                        // [ property ]
   float GetFriction() const { return m_fFriction; } // [ property ]
 
-  /// \brief Sets how far the child actor can rotate around the twist axis in one direction.
+  /// Sets how far the child actor can rotate around the twist axis in one direction.
   void SetLowerTwistLimit(ezAngle f);                              // [ property ]
   ezAngle GetLowerTwistLimit() const { return m_LowerTwistLimit; } // [ property ]
 
-  /// \brief Sets how far the child actor can rotate around the twist axis in the other direction.
+  /// Sets how far the child actor can rotate around the twist axis in the other direction.
   void SetUpperTwistLimit(ezAngle f);                              // [ property ]
   ezAngle GetUpperTwistLimit() const { return m_UpperTwistLimit; } // [ property ]
 

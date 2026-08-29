@@ -9,7 +9,7 @@
 
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
-/// \brief Pre-computed data for one attractor, written by the main thread and consumed by particle tasks.
+/// Pre-computed data for one attractor, written by the main thread and consumed by particle tasks.
 struct ezParticleAttractorData
 {
   EZ_DECLARE_POD_TYPE();
@@ -79,47 +79,47 @@ public:
   void RequestWindSamples();
   void UpdateWindSamples(ezTime diff);
 
-  /// \brief Called by a behavior to signal that this effect needs attractor sampling each frame.
+  /// Called by a behavior to signal that this effect needs attractor sampling each frame.
   ///
   /// \a uiMaxAttractors limits how many of the closest attractors are tracked.
   void RequestAttractorSamples(ezUInt8 uiMaxAttractors);
 
-  /// \brief Refreshes the nearby attractor list and reads live properties.
+  /// Refreshes the nearby attractor list and reads live properties.
   ///
   /// Must be called from the main thread before particle tasks are dispatched. The spatial
   /// query (which attractors exist) is repeated ~once per second; position and properties
   /// are resolved from stored handles every frame so moving attractors stay accurate.
   void FindNearbyAttractors(ezTime diff);
 
-  /// \brief Returns the pre-computed attractor data, valid for use on worker threads during the current frame.
+  /// Returns the pre-computed attractor data, valid for use on worker threads during the current frame.
   ///
   /// Reads from the slot opposite to the one currently being written by the main thread,
   /// matching the double-buffer scheme used by the wind sampling system.
   ezArrayPtr<const ezParticleAttractorData> GetAttractorData() const;
 
-  /// \brief Returns the number of currently active particles across all systems.
+  /// Returns the number of currently active particles across all systems.
   ezUInt64 GetNumActiveParticles() const;
 
   /// @name Transform Related
   /// @{
 public:
-  /// \brief Whether the effect is simulated around the origin and thus not affected by instance position and rotation
+  /// Whether the effect is simulated around the origin and thus not affected by instance position and rotation
   bool IsSimulatedInLocalSpace() const { return m_bSimulateInLocalSpace; }
 
-  /// \brief Sets the transformation of this instance
+  /// Sets the transformation of this instance
   void SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity);
 
-  /// \brief Sets the transformation of this instance that should be used next frame.
+  /// Sets the transformation of this instance that should be used next frame.
   /// This function is typically used to set the transformation while the particle simulation is running to prevent race conditions.
   void SetTransformForNextFrame(const ezTransform& transform, const ezVec3& vParticleStartVelocity);
 
-  /// \brief Returns the transform of the main or shared instance.
+  /// Returns the transform of the main or shared instance.
   const ezTransform& GetTransform() const { return m_Transform; }
 
-  /// \brief For the renderer to know whether the instance transform has to be applied to each particle position.
+  /// For the renderer to know whether the instance transform has to be applied to each particle position.
   bool NeedsToApplyTransform() const { return m_bSimulateInLocalSpace || m_bIsSharedEffect; }
 
-  /// \brief Returns the wind at the given position.
+  /// Returns the wind at the given position.
   ///
   /// Returns a zero vector, if no wind value is available (invalid index).
   ezSimdVec4f GetWindAt(const ezSimdVec4f& vPosition) const;
@@ -154,28 +154,28 @@ private:
   /// @{
 
 public:
-  /// \brief Returns false when the effect is finished.
+  /// Returns false when the effect is finished.
   bool Update(const ezTime& diff);
 
-  /// \brief Returns the total (game) time that the effect is alive and has been updated.
+  /// Returns the total (game) time that the effect is alive and has been updated.
   ///
   /// Use this time, instead of a world clock, for time-dependent calculations. It is mostly tied to the world clock (game update),
   /// but additionally includes pre-simulation timings, which would otherwise be left out which can break some calculations.
   ezTime GetTotalEffectLifeTime() const { return m_TotalEffectLifeTime; }
 
 private: // friend ezParticleWorldModule
-  /// \brief Whether this instance is in a state where its update task should be run
+  /// Whether this instance is in a state where its update task should be run
   bool ShouldBeUpdated() const;
 
-  /// \brief Returns the task that is used to update the effect
+  /// Returns the task that is used to update the effect
   const ezSharedPtr<ezTask>& GetUpdateTask() { return m_pTask; }
 
 private: // friend ezParticleEffectUpdateTask
   friend class ezParticleEffectController;
-  /// \brief If the effect wants to skip all the initial behavior, this simulates it multiple times before it is shown the first time.
+  /// If the effect wants to skip all the initial behavior, this simulates it multiple times before it is shown the first time.
   void PreSimulate();
 
-  /// \brief Applies a given time step, without any restrictions.
+  /// Applies a given time step, without any restrictions.
   bool StepSimulation(const ezTime& tDiff);
 
 private:
@@ -187,7 +187,7 @@ private:
   /// @name Shared Instances
   /// @{
 public:
-  /// \brief Returns true, if this effect is configured to be simulated once per frame, but rendered by multiple instances.
+  /// Returns true, if this effect is configured to be simulated once per frame, but rendered by multiple instances.
   bool IsSharedEffect() const { return m_bIsSharedEffect; }
 
 private: // friend ezParticleWorldModule
@@ -201,16 +201,16 @@ private:
   /// \name Visibility and Culling
   /// @{
 public:
-  /// \brief Marks this effect as visible from at least one view.
+  /// Marks this effect as visible from at least one view.
   /// This affects simulation update rates.
   void SetIsVisible() const;
 
   void SetVisibleIf(ezParticleEffectInstance* pOtherVisible);
 
-  /// \brief Whether the effect has been marked as visible recently.
+  /// Whether the effect has been marked as visible recently.
   bool IsVisible() const;
 
-  /// \brief Returns the bounding volume of the effect.
+  /// Returns the bounding volume of the effect.
   /// The volume is in the local space of the effect.
   void GetBoundingVolume(ezBoundingBoxSphere& ref_volume) const;
 

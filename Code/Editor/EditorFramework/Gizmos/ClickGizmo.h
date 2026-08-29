@@ -4,7 +4,7 @@
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-/// \brief The click gizmo displays a simple shape that can be clicked.
+/// The click gizmo displays a simple shape that can be clicked.
 ///
 /// This can be used to provide the user with a way to select which part to edit further.
 class EZ_EDITORFRAMEWORK_DLL ezClickGizmo : public ezGizmo

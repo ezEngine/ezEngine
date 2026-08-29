@@ -9,7 +9,7 @@ struct RtsMsgNavigateTo : public ezMessage
   ezVec2 m_vTargetPosition;
 };
 
-/// \brief Tell the unit to stop and stay where it currently is
+/// Tell the unit to stop and stay where it currently is
 struct RtsMsgStopNavigation : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(RtsMsgStopNavigation, ezMessage);

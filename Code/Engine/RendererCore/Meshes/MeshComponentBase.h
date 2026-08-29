@@ -51,7 +51,7 @@ public:
 #endif
 };
 
-/// \brief This message is used to replace the material on a mesh.
+/// This message is used to replace the material on a mesh.
 struct EZ_RENDERERCORE_DLL ezMsgSetMeshMaterial : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgSetMeshMaterial, ezMessage);
@@ -69,7 +69,7 @@ struct EZ_RENDERERCORE_DLL ezMsgSetMeshMaterial : public ezMessage
   virtual void Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion) override;
 };
 
-/// \brief Base class for components that render static or animated meshes.
+/// Base class for components that render static or animated meshes.
 class EZ_RENDERERCORE_DLL ezMeshComponentBase : public ezRenderComponent
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, ezRenderComponent);
@@ -96,26 +96,26 @@ public:
   ezMeshComponentBase();
   ~ezMeshComponentBase();
 
-  /// \brief Changes which mesh to render.
+  /// Changes which mesh to render.
   void SetMesh(const ezMeshResourceHandle& hMesh);                                 // [ property ]
   EZ_ALWAYS_INLINE const ezMeshResourceHandle& GetMesh() const { return m_hMesh; } // [ property ]
 
   // adds SetMeshFile() and GetMeshFile() for convenience
   EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(Mesh, m_hMesh, SetMesh);
 
-  /// \brief Sets the material that should be used for the sub-mesh with the given index.
+  /// Sets the material that should be used for the sub-mesh with the given index.
   void SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial); // [ property ]
   ezMaterialResourceHandle GetMaterial(ezUInt32 uiIndex) const;                  // [ property ]
 
-  /// \brief An additional tint color passed to the renderer to modify the mesh.
+  /// An additional tint color passed to the renderer to modify the mesh.
   void SetColor(const ezColor& color);                // [ property ]
   const ezColor& GetColor() const { return m_Color; } // [ property ]
 
-  /// \brief An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
+  /// An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
   void SetCustomData(const ezVec4& vData);                      // [ property ]
   const ezVec4& GetCustomData() const { return m_vCustomData; } // [ property ]
 
-  /// \brief The sorting depth offset allows to tweak the order in which this mesh is rendered relative to other meshes.
+  /// The sorting depth offset allows to tweak the order in which this mesh is rendered relative to other meshes.
   ///
   /// This is mainly useful for transparent objects to render them before or after other meshes.
   void SetSortingDepthOffset(float fOffset);                            // [ property ]
@@ -125,7 +125,7 @@ public:
   void OnMsgSetColor(ezMsgSetColor& ref_msg);                           // [ msg handler ]
   void OnMsgSetCustomData(ezMsgSetCustomData& ref_msg);                 // [ msg handler ]
 
-  /// \brief Set custom instance data for this mesh component which can be used by custom material shaders when
+  /// Set custom instance data for this mesh component which can be used by custom material shaders when
   /// the simple custom data vector is not sufficient.
   ///
   /// Typically another component besides this mesh component would create and manage the buffer that holds the custom instance data.

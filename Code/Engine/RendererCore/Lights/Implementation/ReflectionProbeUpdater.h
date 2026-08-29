@@ -9,12 +9,12 @@
 
 EZ_DECLARE_FLAGS(ezUInt8, ezReflectionProbeUpdaterFlags, SkyLight, HasCustomCubeMap);
 
-/// \brief Renders reflection probes and stores filtered mipmap chains into an atlas texture as well as computing sky irradiance
+/// Renders reflection probes and stores filtered mipmap chains into an atlas texture as well as computing sky irradiance
 /// Rendering sky irradiance is optional and only done if m_iIrradianceOutputIndex != -1.
 class ezReflectionProbeUpdater
 {
 public:
-  /// \brief Defines the target specular reflection probe atlas and index as well as the sky irradiance atlas and index in case the rendered cube map is a sky light.
+  /// Defines the target specular reflection probe atlas and index as well as the sky irradiance atlas and index in case the rendered cube map is a sky light.
   struct TargetSlot
   {
     ezGALTextureHandle m_hSpecularOutputTexture;   ///< Must be a valid cube map texture array handle.
@@ -27,12 +27,12 @@ public:
   ezReflectionProbeUpdater();
   ~ezReflectionProbeUpdater();
 
-  /// \brief Returns how many new probes can be started this frame.
+  /// Returns how many new probes can be started this frame.
   /// \param out_updatesFinished Contains the probes that finished last frame.
   /// \return The number of new probes can be started this frame.
   ezUInt32 GetFreeUpdateSlots(ezDynamicArray<ezReflectionProbeRef>& out_updatesFinished);
 
-  /// \brief Starts rendering a new reflection probe.
+  /// Starts rendering a new reflection probe.
   /// \param probe The world and probe index to be rendered. Used as an identifier.
   /// \param desc Probe render settings.
   /// \param globalTransform World position to be rendered.
@@ -40,7 +40,7 @@ public:
   /// \return Returns EZ_FAILURE if no more free slots are available.
   ezResult StartDynamicUpdate(const ezReflectionProbeRef& probe, const ezReflectionProbeDesc& desc, const ezTransform& globalTransform, const TargetSlot& target);
 
-  /// \brief Starts filtering an existing cube map into a new reflection probe.
+  /// Starts filtering an existing cube map into a new reflection probe.
   /// \param probe The world and probe index to be rendered. Used as an identifier.
   /// \param desc Probe render settings.
   /// \param sourceTexture Cube map that should be filtered into a reflection probe.
@@ -48,13 +48,13 @@ public:
   /// \return Returns EZ_FAILURE if no more free slots are available.
   ezResult StartFilterUpdate(const ezReflectionProbeRef& probe, const ezReflectionProbeDesc& desc, ezTextureCubeResourceHandle hSourceTexture, const TargetSlot& target);
 
-  /// \brief Cancel a previously started update.
+  /// Cancel a previously started update.
   void CancelUpdate(const ezReflectionProbeRef& probe);
 
-  /// \brief Generates update steps. Should be called in PreExtraction phase.
+  /// Generates update steps. Should be called in PreExtraction phase.
   void GenerateUpdateSteps();
 
-  /// \brief Schedules probe rendering views. Should be called at some point during the extraction phase. Can be called multiple times. It will only do work on the first call after GenerateUpdateSteps.
+  /// Schedules probe rendering views. Should be called at some point during the extraction phase. Can be called multiple times. It will only do work on the first call after GenerateUpdateSteps.
   void ScheduleUpdateSteps();
 
 private:

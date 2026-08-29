@@ -12,7 +12,7 @@ struct ezMsgExtractRenderData;
 
 using ezRmlUiResourceHandle = ezTypedResourceHandle<class ezRmlUiResource>;
 
-/// \brief The RML configuration to be used on a specific platform
+/// The RML configuration to be used on a specific platform
 struct EZ_RMLUIPLUGIN_DLL ezRmlUiConfiguration
 {
   ezDynamicArray<ezString> m_Fonts;

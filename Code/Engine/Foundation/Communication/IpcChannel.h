@@ -8,7 +8,7 @@
 class ezIpcChannel;
 class ezMessageLoop;
 
-/// \brief Event data for ezIpcChannel::m_Events
+/// Event data for ezIpcChannel::m_Events
 struct EZ_FOUNDATION_DLL ezIpcChannelEvent
 {
   enum Type
@@ -33,7 +33,7 @@ struct EZ_FOUNDATION_DLL ezIpcChannelEvent
 
 
 
-/// \brief Base class for a communication channel between processes.
+/// Base class for a communication channel between processes.
 ///
 ///  The channel allows for byte blobs to be send back and forth between two processes.
 ///  A client should only try to connect to a server once the server has changed to ConnectionState::Connecting as this indicates the server is ready to be conneccted to.
@@ -68,7 +68,7 @@ public:
 
   virtual ~ezIpcChannel();
 
-  /// \brief Creates an IPC communication channel using pipes.
+  /// Creates an IPC communication channel using pipes.
   /// \param szAddress Name of the pipe, must be unique on a system and less than 200 characters.
   /// \param mode Whether to run in client or server mode.
   static ezInternal::NewInstance<ezIpcChannel> CreatePipeChannel(ezStringView sAddress, Mode::Enum mode);
@@ -78,22 +78,22 @@ public:
   ezEnum<Mode> GetMode() const { return m_Mode; }
   ezStringView GetAddress() const { return m_sAddress; }
 
-  /// \brief Connects async. Returns whether the state was changed from Disconnected to Connecting.
+  /// Connects async. Returns whether the state was changed from Disconnected to Connecting.
   ezResult Connect();
-  /// \brief Disconnect async. On completion, m_Events will be broadcasted.
+  /// Disconnect async. On completion, m_Events will be broadcasted.
   void Disconnect();
-  /// \brief Returns whether we have a connection.
+  /// Returns whether we have a connection.
   bool IsConnected() const { return m_ConnectionState == ConnectionState::Connected; }
-  /// \brief Returns the current state of the connection.
+  /// Returns the current state of the connection.
   ezEnum<ConnectionState> GetConnectionState() const { return ezEnum<ConnectionState>(m_ConnectionState); }
 
-  /// \brief Sends a message. pMsg can be destroyed after the call.
+  /// Sends a message. pMsg can be destroyed after the call.
   bool Send(ezArrayPtr<const ezUInt8> data);
 
   using ReceiveCallback = ezDelegate<void(ezArrayPtr<const ezUInt8> message)>;
   void SetReceiveCallback(ReceiveCallback callback);
 
-  /// \brief Block and wait for new messages and call ProcessMessages.
+  /// Block and wait for new messages and call ProcessMessages.
   ezResult WaitForMessages(ezTime timeout);
 
 public:
@@ -102,23 +102,23 @@ public:
 protected:
   ezIpcChannel(ezStringView sAddress, Mode::Enum mode);
 
-  /// \brief Override this and return true, if the surrounding infrastructure should call the 'Tick()' function.
+  /// Override this and return true, if the surrounding infrastructure should call the 'Tick()' function.
   virtual bool RequiresRegularTick() { return false; }
-  /// \brief Can implement regular updates, e.g. for polling network state.
+  /// Can implement regular updates, e.g. for polling network state.
   virtual void Tick() {}
 
-  /// \brief Called on worker thread after Connect was called.
+  /// Called on worker thread after Connect was called.
   virtual void InternalConnect() = 0;
-  /// \brief Called on worker thread after Disconnect was called.
+  /// Called on worker thread after Disconnect was called.
   virtual void InternalDisconnect() = 0;
-  /// \brief Called on worker thread to sent pending messages.
+  /// Called on worker thread to sent pending messages.
   virtual void InternalSend() = 0;
-  /// \brief Called by Send to determine whether the message loop need to be woken up.
+  /// Called by Send to determine whether the message loop need to be woken up.
   virtual bool NeedWakeup() const = 0;
 
-  /// \brief Sets the connection state and calls LogAndBroadcastConnectionState.
+  /// Sets the connection state and calls LogAndBroadcastConnectionState.
   void SetConnectionState(ezEnum<ConnectionState> state);
-  /// \brief Implementation needs to call this when new data has been received.
+  /// Implementation needs to call this when new data has been received.
   ///  data can be invalidated after the function.
   void ReceiveData(ezArrayPtr<const ezUInt8> data);
   void FlushPendingOperations();

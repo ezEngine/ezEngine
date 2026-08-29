@@ -8,7 +8,7 @@ public:
   ezBoxReflectionProbeComponentManager(ezWorld* pWorld);
 };
 
-/// \brief Box reflection probe component.
+/// Box reflection probe component.
 ///
 /// The generated reflection cube map is projected on a box defined by this component's extents. The influence volume can be smaller than the projection which is defined by a scale and shift parameter. Each side of the influence volume has a separate falloff parameter to smoothly blend the probe into others.
 class EZ_RENDERERCORE_DLL ezBoxReflectionProbeComponent : public ezReflectionProbeComponentBase
@@ -69,7 +69,7 @@ protected:
   bool m_bBoxProjection = true;
 };
 
-/// \brief A special visualizer attribute for box reflection probes
+/// A special visualizer attribute for box reflection probes
 class EZ_RENDERERCORE_DLL ezBoxReflectionProbeVisualizerAttribute : public ezVisualizerAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezBoxReflectionProbeVisualizerAttribute, ezVisualizerAttribute);

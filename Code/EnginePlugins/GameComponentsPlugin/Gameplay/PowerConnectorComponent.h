@@ -5,7 +5,7 @@
 struct ezMsgObjectGrabbed;
 struct ezMsgSensorDetectedObjectsChanged;
 
-/// \brief This event is posted by ezPowerConnectorComponent whenever the power input on a connector changes.
+/// This event is posted by ezPowerConnectorComponent whenever the power input on a connector changes.
 ///
 /// When a connector gets input through it's connection to another connector, this message is sent.
 /// This can then be used by scripts on parent nodes to switch other functionality on or off.
@@ -21,7 +21,7 @@ class EZ_GAMECOMPONENTS_DLL ezEventMsgSetPowerInput : public ezMessage
 
 using ezPowerConnectorComponentManager = ezComponentManager<class ezPowerConnectorComponent, ezBlockStorageType::Compact>;
 
-/// \brief This component is for propagating the flow of power in cables or fluid in pipes and determine whether it arrives at a receiver.
+/// This component is for propagating the flow of power in cables or fluid in pipes and determine whether it arrives at a receiver.
 ///
 /// This component is meant for building puzzles where you have to connect the right objects to power something.
 /// It uses physics constraints to physically connect two pieces and have them snap together.
@@ -69,7 +69,7 @@ protected:
   // ezPowerConnectorComponent
 
 public:
-  /// \brief Sets how much output (of whatever kind) this connector produces.
+  /// Sets how much output (of whatever kind) this connector produces.
   ///
   /// If this is zero, it is either a receiver, or a pass-through connector, e.g. a cable, or just currently inactive.
   /// If this is non-zero, it acts like a source, and when another connector gets connected to it, that output will be propagated
@@ -80,10 +80,10 @@ public:
   void SetBuddy(ezGameObjectHandle hObject);
   void SetConnectedTo(ezGameObjectHandle hObject);
 
-  /// \brief Whether the connector is currently connected to another connector.
+  /// Whether the connector is currently connected to another connector.
   bool IsConnected() const; // [ scriptable ]
 
-  /// \brief Whether the connector is physically attached to another connector.
+  /// Whether the connector is physically attached to another connector.
   bool IsAttached() const; // [ scriptable ]
 
   void Detach();           // [ scriptable ]
@@ -97,10 +97,10 @@ protected:
 
   void SetInput(ezUInt16 value);
 
-  /// \brief Whenever a ezMsgSensorDetectedObjectsChanged arrives, the connector attempts to connect to the reported object.
+  /// Whenever a ezMsgSensorDetectedObjectsChanged arrives, the connector attempts to connect to the reported object.
   void OnMsgSensorDetectedObjectsChanged(ezMsgSensorDetectedObjectsChanged& msg); // [ message handler ]
 
-  /// \brief Whenever the connector gets grabbed, it detaches from its current connection.
+  /// Whenever the connector gets grabbed, it detaches from its current connection.
   ///
   /// It also toggles the active flag of the child object with the name "ActiveWhenGrabbed".
   /// So to only have it connect to other connectors when grabbed, put the sensor component into such a child object.

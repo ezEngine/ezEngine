@@ -7,11 +7,11 @@
 class ezDocumentObjectManager;
 class ezDocumentObject;
 
-/// \brief Implements visitor pattern for content of the document object manager.
+/// Implements visitor pattern for content of the document object manager.
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectVisitor
 {
 public:
-  /// \brief Constructor
+  /// Constructor
   ///
   /// \param pManager
   ///   Manager that will be iterated through.
@@ -23,7 +23,7 @@ public:
     const ezDocumentObjectManager* pManager, ezStringView sChildrenProperty = "Children", ezStringView sRootProperty = "Children");
 
   using VisitorFunction = ezDelegate<bool(const ezDocumentObject*)>;
-  /// \brief Executes depth first traversal starting at the given node.
+  /// Executes depth first traversal starting at the given node.
   ///
   /// \param pObject
   ///   Object to start traversal at.

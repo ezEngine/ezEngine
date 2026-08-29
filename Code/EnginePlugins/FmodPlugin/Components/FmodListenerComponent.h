@@ -15,7 +15,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Represents the position of the sound listener
+/// Represents the position of the sound listener
 class EZ_FMODPLUGIN_DLL ezFmodListenerComponent : public ezFmodComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezFmodListenerComponent, ezFmodComponent, ezFmodListenerComponentManager);

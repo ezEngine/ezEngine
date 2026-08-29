@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Memory/Allocator.h>
 
-/// \brief This Allocation policy redirects all operations to its parent.
+/// This Allocation policy redirects all operations to its parent.
 ///
 /// \note Note that the stats are taken on the proxy as well as on the parent.
 ///
