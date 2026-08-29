@@ -1173,7 +1173,12 @@ void ezStringBuilder::ReadAll(ezStreamReader& inout_stream)
 
   Bytes.PushBack('\0');
 
-  *this = (const char*)&Bytes[0];
+  // A BOM is an encoding marker, not part of the text. Many editors write one silently, so it
+  // would otherwise end up in the first token of whatever parses the result.
+  const char* szData = (const char*)&Bytes[0];
+  ezUnicodeUtils::SkipUtf8Bom(szData);
+
+  *this = szData;
 }
 
 void ezStringBuilder::Trim(const char* szTrimChars)

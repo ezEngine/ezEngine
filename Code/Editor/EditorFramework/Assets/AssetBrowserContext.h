@@ -27,7 +27,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetBrowserSelection
 
   /// Called by the asset browser before it shows its context menu, and again with an empty selection
   /// once the menu is closed.
-  static void SetCurrent(ezAssetBrowserSelection&& ref_selection);
+  static void SetCurrent(ezAssetBrowserSelection&& selection);
 };
 
 /// The sub-menu of the "AssetBrowserContextMenu" action map that holds operations specific to the

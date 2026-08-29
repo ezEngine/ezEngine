@@ -14,9 +14,9 @@ const ezAssetBrowserSelection& ezAssetBrowserSelection::GetCurrent()
   return s_CurrentAssetBrowserSelection;
 }
 
-void ezAssetBrowserSelection::SetCurrent(ezAssetBrowserSelection&& ref_selection)
+void ezAssetBrowserSelection::SetCurrent(ezAssetBrowserSelection&& selection)
 {
-  s_CurrentAssetBrowserSelection = std::move(ref_selection);
+  s_CurrentAssetBrowserSelection = std::move(selection);
 }
 
 ezActionDescriptorHandle ezAssetBrowserContextMenu::s_hAssetMenu;

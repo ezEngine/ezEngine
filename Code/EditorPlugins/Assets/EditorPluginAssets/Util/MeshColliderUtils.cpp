@@ -61,6 +61,11 @@ namespace
 
 bool ezMeshColliderUtils::IsMeshAsset(const ezUuid& assetGuid)
 {
+  // The actions that call this refresh their state whenever a menu is built, which also happens
+  // in the headless ezEditorProcessor, where no asset curator exists.
+  if (ezAssetCurator::GetSingleton() == nullptr)
+    return false;
+
   auto pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
   if (!pSubAsset.isValid() || pSubAsset->m_pAssetInfo == nullptr || pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor == nullptr)
     return false;
