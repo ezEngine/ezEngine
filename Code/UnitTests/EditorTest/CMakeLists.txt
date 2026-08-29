@@ -10,6 +10,8 @@ ez_create_target(APPLICATION ${PROJECT_NAME})
 ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network)
 
 target_include_directories (${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../EditorPlugins/Scene")
+target_include_directories (${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../EditorPlugins/Jolt")
+target_include_directories (${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../EditorPlugins/Assets")
 
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
@@ -17,6 +19,8 @@ target_link_libraries(${PROJECT_NAME}
   EditorFramework
   EditorEngineProcessFramework
   EditorPluginScene
+  EditorPluginJolt
+  EditorPluginAssets
 )
 
 add_dependencies(${PROJECT_NAME}

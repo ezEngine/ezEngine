@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CreateMeshColliderDlg</class>
+ <widget class="QDialog" name="CreateMeshColliderDlg">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>500</width>
+    <height>320</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Create Collider from Mesh</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
+    <normaloff>:/GuiFoundation/EZ-logo.svg</normaloff>:/GuiFoundation/EZ-logo.svg</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="labelType">
+       <property name="text">
+        <string>Collider Type:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="ColliderType"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="labelSurface">
+       <property name="text">
+        <string>Surface:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayoutSurface">
+       <item>
+        <widget class="QLineEdit" name="SurfaceAsset">
+         <property name="placeholderText">
+          <string>&lt;none&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="SurfaceButton">
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="SurfaceClearButton">
+         <property name="text">
+          <string>x</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="labelPath">
+       <property name="text">
+        <string>Asset File:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayoutPath">
+       <item>
+        <widget class="QLineEdit" name="ColliderPath"/>
+       </item>
+       <item>
+        <widget class="QToolButton" name="BrowseButton">
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="WarningLabel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>13</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="OverwriteExisting">
+     <property name="text">
+      <string>Overwrite the collision mesh asset if it already exists</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="OpenAfterCreate">
+     <property name="text">
+      <string>Open collision meshes after creation</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="ButtonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../QtResources/resources.qrc"/>
+  <include location="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc"/>
+  <include location="../../../../Editor/EditorFramework/QtResources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

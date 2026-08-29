@@ -4,6 +4,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/CodeGen/CppProject.h>
 #include <EditorFramework/CodeGen/CppSettings.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
@@ -67,12 +68,45 @@ ezTestAppRun ezEditorTestProject::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInv
   return ezTestAppRun::Quit;
 }
 
+namespace
+{
+  /// Whether the engine process can create a document context for this type.
+  ///
+  /// The engine side gets its context types from the engine plugins that the project's plugin bundles
+  /// pull in. EditorTest links some editor plugins directly, though, so their document types are
+  /// registered even when the project selects no bundle at all. Creating such a document asserts in the
+  /// engine process and takes it down, which then fails every document after it as well.
+  bool HasEngineCounterpart(const ezDocumentTypeDescriptor* pDesc)
+  {
+    const ezStringView sManagerType = pDesc->m_pManager->GetDynamicRTTI()->GetTypeName();
+
+    for (auto it : ezQtEditorApp::GetSingleton()->GetPluginBundles().m_Plugins)
+    {
+      const ezPluginBundle& bundle = it.Value();
+
+      if (bundle.m_bSelected || bundle.m_bMandatory || bundle.m_EditorEnginePlugins.IsEmpty())
+        continue;
+
+      // The bundle's own name is what its types are named after, e.g. the 'Jolt' bundle owns
+      // ezJoltCollisionMeshAssetDocumentManager. Matching on it is enough here: a manager that is
+      // registered while its bundle is off can only have come from EditorTest linking that plugin.
+      if (sManagerType.FindSubString_NoCase(it.Key()) != nullptr)
+        return false;
+    }
+
+    return true;
+  }
+} // namespace
+
 ezTestAppRun ezEditorTestProject::CreateDocuments()
 {
   const auto& allDesc = ezDocumentManager::GetAllDocumentDescriptors();
   for (auto it : allDesc)
   {
     auto pDesc = it.Value();
+
+    if (pDesc->m_pManager != nullptr && !HasEngineCounterpart(pDesc))
+      continue;
 
     if (pDesc->m_bCanCreate)
     {

@@ -1409,6 +1409,26 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s == szText);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadAll (Utf8 BOM)")
+  {
+    ezDefaultMemoryStreamStorage StreamStorage;
+
+    ezMemoryStreamWriter MemoryWriter(&StreamStorage);
+    ezMemoryStreamReader MemoryReader(&StreamStorage);
+
+    // written as raw bytes, so that no editor can turn the BOM into something else
+    const ezUInt8 textWithBom[] = {0xEF, 0xBB, 0xBF, '#', ' ', 'S', 'o', 'm', 'e', ' ', 'T', 'e', 'x', 't'};
+
+    MemoryWriter.WriteBytes(textWithBom, EZ_ARRAY_SIZE(textWithBom)).IgnoreResult();
+
+    ezStringBuilder s;
+    s.ReadAll(MemoryReader);
+
+    // the BOM is an encoding marker and must not show up in the content
+    EZ_TEST_BOOL(s == "# Some Text");
+    EZ_TEST_BOOL(s.StartsWith("#"));
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetSubString_FromTo")
   {
     ezStringBuilder sb = "basf";

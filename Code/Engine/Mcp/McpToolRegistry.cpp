@@ -49,6 +49,36 @@ void ezMcpToolRegistry::UpdateProviders()
     ezRTTI::ForEachOptions::ExcludeNotConcrete);
 }
 
+void ezMcpToolRegistry::RemoveProvider(const ezRTTI* pProviderType)
+{
+  for (ezUInt32 i = s_Providers.GetCount(); i > 0; --i)
+  {
+    ezMcpToolProvider* pProvider = s_Providers[i - 1];
+
+    // GetDynamicRTTI() reads the vtable, so this must run before the module is actually unmapped
+    const ezRTTI* pRtti = pProvider->GetDynamicRTTI();
+    if (pRtti != pProviderType)
+      continue;
+
+    for (ezUInt32 uiTool = s_Tools.GetCount(); uiTool > 0; --uiTool)
+    {
+      const ezString& sToolName = s_Tools[uiTool - 1].m_sName;
+
+      if (s_ToolLookup.GetValueOrDefault(sToolName, nullptr) == pProvider)
+      {
+        s_ToolLookup.Remove(sToolName);
+        s_Tools.RemoveAtAndCopy(uiTool - 1);
+      }
+    }
+
+    pProvider->OnDeactivate();
+    pRtti->GetAllocator()->Deallocate(pProvider);
+
+    s_Providers.RemoveAtAndCopy(i - 1);
+    s_KnownTypes.Remove(pRtti);
+  }
+}
+
 void ezMcpToolRegistry::Clear()
 {
   for (ezMcpToolProvider* pProvider : s_Providers)

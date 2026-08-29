@@ -1,4 +1,4 @@
-# Asset Types
+﻿# Asset Types
 
 Jolt_Colmesh_Convex;Jolt Convex Collision Mesh;;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-collision-meshes.html
 Jolt_Colmesh_Triangle;Jolt Triangle Collision Mesh;;https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-collision-meshes.html
@@ -58,4 +58,7 @@ ezJoltCharacterDebugFlags::PrintState;Print Stats
 ezJoltCharacterDebugFlags::VisContacts;Visualize All Contacts
 ezJoltCharacterDebugFlags::VisFootCheck;Visualize Foot Check
 
+# Collision Meshes from Meshes
 
+Jolt.CreateColliderFromMesh;Create Collider...;Creates a Jolt collision mesh asset from this mesh asset, using the same import settings
+Jolt.CreateColliderFromMeshDocument;Create Collider...;Creates a Jolt collision mesh asset from this mesh asset, using the same import settings

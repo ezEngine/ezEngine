@@ -4,7 +4,9 @@
 #include <EditorFramework/Actions/CameraModeSwitchActions.h>
 #include <EditorFramework/Actions/CommonAssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
+#include <EditorFramework/Assets/AssetBrowserContext.h>
 #include <EditorPluginJolt/Actions/JoltActions.h>
+#include <EditorPluginJolt/Actions/MeshColliderActions.h>
 #include <EditorPluginJolt/CollisionMeshAsset/JoltCollisionMeshAssetObjects.h>
 #include <EditorPluginJolt/Dialogs/JoltProjectSettingsDlg.moc.h>
 #include <GameEngine/Physics/CollisionFilter.h>
@@ -54,6 +56,15 @@ void OnLoadPlugin()
     }
   }
 
+  // Creating collision meshes from mesh assets
+  {
+    ezMeshColliderActions::RegisterActions();
+
+    ezMeshColliderActions::MapActions("AssetBrowserContextMenu", ezAssetBrowserContextMenu::s_sAssetMenu).IgnoreResult();
+    ezMeshColliderActions::MapActions("MeshAssetMenuBar", "G.Asset", true).IgnoreResult();
+    ezMeshColliderActions::MapActions("AnimatedMeshAssetMenuBar", "G.Asset", true).IgnoreResult();
+  }
+
   // Scene
   {
     // Menu Bar
@@ -84,6 +95,7 @@ void OnUnloadPlugin()
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezClothSheetComponent_PropertyMetaStateEventHandler);
 
   ezJoltActions::UnregisterActions();
+  ezMeshColliderActions::UnregisterActions();
   ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler);
 }

@@ -12,6 +12,7 @@
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/Actions/ViewLightActions.h>
 #include <EditorFramework/Actions/WindowLayoutActions.h>
+#include <EditorFramework/Assets/AssetBrowserContext.h>
 #include <EditorFramework/CodeGen/CodeEditorPreferencesWidget.moc.h>
 #include <EditorFramework/CodeGen/CompilerPreferencesWidget.moc.h>
 #include <EditorFramework/CodeGen/CppProject.h>
@@ -99,6 +100,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezDefaultState::RegisterDefaultStateProvider(ezDynamicDefaultStateProvider::CreateProvider);
     ezProjectActions::RegisterActions();
     ezAssetActions::RegisterActions();
+    ezAssetBrowserContextMenu::RegisterActions();
     ezViewActions::RegisterActions();
     ezViewLightActions::RegisterActions();
     ezGameObjectContextActions::RegisterActions();
@@ -152,6 +154,11 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezActionMapManager::RegisterActionMap("AssetBrowserToolBar");
     ezAssetActions::MapToolBarActions("AssetBrowserToolBar", false);
 
+    // Plugins map actions here to offer operations on the asset types they own.
+    // The selection is not part of the action context, it has to be read from ezAssetBrowserSelection.
+    ezActionMapManager::RegisterActionMap("AssetBrowserContextMenu");
+    ezAssetBrowserContextMenu::MapActions();
+
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtFilePropertyWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezExternalFileBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtExternalFilePropertyWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezAssetBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtAssetPropertyWidget(); });
@@ -196,6 +203,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezDefaultState::UnregisterDefaultStateProvider(ezDynamicDefaultStateProvider::CreateProvider);
     ezProjectActions::UnregisterActions();
     ezAssetActions::UnregisterActions();
+    ezAssetBrowserContextMenu::UnregisterActions();
     ezViewActions::UnregisterActions();
     ezViewLightActions::UnregisterActions();
     ezGameObjectContextActions::UnregisterActions();
