@@ -13,10 +13,9 @@
 #include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
 #include <EditorPluginScene/Actions/LayerActions.h>
 #include <EditorPluginScene/Actions/MeshPrefabActions.h>
-#include <EditorPluginScene/McpTools/MeshPrefabTool.h>
 #include <EditorPluginScene/Actions/SceneActions.h>
-#include <Mcp/McpToolRegistry.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
+#include <EditorPluginScene/McpTools/MeshPrefabTool.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <EditorPluginScene/Scene/Scene2DocumentWindow.moc.h>
 #include <EditorPluginScene/Scene/SceneDocumentManager.h>
@@ -36,6 +35,7 @@
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
+#include <Mcp/McpToolRegistry.h>
 #include <RendererCore/Components/SplineComponent.h>
 #include <RendererCore/Lights/BoxReflectionProbeComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
