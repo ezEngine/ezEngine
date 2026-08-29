@@ -332,6 +332,11 @@ private:
 
   void SetupDocumentInfo(const ezDocumentTypeDescriptor* pTypeDescriptor);
 
+  /// Cleans up the given path and stores it as the document path.
+  ///
+  /// All document paths go through here, so that string comparisons against them are reliable.
+  void SetDocumentPath(ezStringView sPath);
+
   /// The document manager that owns this document.
   ezDocumentManager* m_pDocumentManager = nullptr;
 

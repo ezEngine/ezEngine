@@ -14,8 +14,6 @@ class ezFormatStringImpl : public ezFormatString
   // If a BuildString function requires more storage, it may need to do some trickery.
   // For an example look at BuildString for ezArgErrorCode, which uses an increased thread_local temp buffer.
   static constexpr ezUInt32 TempStringLength = 64;
-  // Maximum number of parameters. Results in compilation error if exceeded.
-  static constexpr ezUInt32 MaxNumParameters = 12;
 
 public:
   ezFormatStringImpl(ezStringView sFormat, ARGS&&... args)

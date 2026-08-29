@@ -417,3 +417,5 @@ class ezComponentInitBatchHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezComponentInitBatchHandle, ezComponentInitBatchId);
 };
+
+#include <Core/World/WorldLogLink.h>

@@ -178,6 +178,8 @@ void ezEngineProcessGameApplication::Run()
     {
       ezEngineProcessDocumentContext::UpdateDocumentContexts();
     }
+
+    SendQueuedLogMessages();
   } while (!bPendingOpInProgress && m_uiRedrawCountExecuted == m_uiRedrawCountReceived);
 
   // If the editor enqueues a frame to be rendered, the loop above will break due to m_uiRedrawCountExecuted != m_uiRedrawCountReceived, and we will render a frame.
@@ -190,20 +192,65 @@ void ezEngineProcessGameApplication::Run()
 
 void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
 {
-  ezLogMsgToEditor msg;
-  msg.m_Entry = ezLogEntry(e);
+  ezLogEntry entry(e);
 
   // the editor does not care about flushing caches, so no need to send this over
-  if (msg.m_Entry.m_Type == ezLogMsgType::Flush)
+  if (entry.m_Type == ezLogMsgType::Flush)
     return;
 
-  if (msg.m_Entry.m_sTag == "IPC")
+  if (entry.m_sTag == "IPC")
     return;
 
-  // Prevent infinite recursion by disabeling logging until we are done sending the message
+  // Resolving the links requires access to the document contexts, which is only allowed from the main thread.
+  // Messages that are logged from a worker thread and require link resolution are therefore queued and sent later.
+  // Consequently such messages can arrive out of order, but it's not worth the overhead to fix this rare case.
+  if (!ezThreadUtils::IsMainThread() && entry.m_sMsg.FindSubString("[[") != nullptr)
+  {
+    EZ_LOCK(m_QueuedLogMsgMutex);
+    m_QueuedLogMsgs.PushBack(std::move(entry));
+    return;
+  }
+
+  SendLogMessage(entry);
+}
+
+void ezEngineProcessGameApplication::SendLogMessage(ezLogEntry& ref_entry)
+{
+  // Prevent infinite recursion by disabling logging until we are done resolving and sending the message
   EZ_LOG_BLOCK_MUTE();
 
+  // Engine side code can only log object/component handles, translate those into links that the editor can navigate to.
+  {
+    ezStringBuilder sMsg = ref_entry.m_sMsg;
+
+    if (ezEngineProcessDocumentContext::ResolveLogLinks(sMsg))
+    {
+      ref_entry.m_sMsg = sMsg;
+    }
+  }
+
+  ezLogMsgToEditor msg;
+  msg.m_Entry = std::move(ref_entry);
+
   m_IPC.SendMessage(&msg);
+}
+
+void ezEngineProcessGameApplication::SendQueuedLogMessages()
+{
+  ezDeque<ezLogEntry> queued;
+  {
+    EZ_LOCK(m_QueuedLogMsgMutex);
+
+    if (m_QueuedLogMsgs.IsEmpty())
+      return;
+
+    queued.Swap(m_QueuedLogMsgs);
+  }
+
+  for (ezLogEntry& entry : queued)
+  {
+    SendLogMessage(entry);
+  }
 }
 
 static bool EmptyAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
@@ -725,6 +772,8 @@ void ezEngineProcessGameApplication::BaseInit_ConfigureLogging()
 
 void ezEngineProcessGameApplication::Deinit_ShutdownLogging()
 {
+  SendQueuedLogMessages();
+
   ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
   m_LogHTML.EndLog();
 

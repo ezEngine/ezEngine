@@ -65,7 +65,17 @@ public:
   static void UpdateDocumentContexts();
   static void DestroyDocumentContext(ezUuid guid);
 
-  // Returns the bounding box of the objects in the world.
+  /// Replaces handle based log links (see ezArgGameObject / ezArgComponent) with links that the editor can navigate to.
+  ///
+  /// Engine side code can only log object and component handles, since it doesn't know the document and object GUIDs
+  /// that the editor uses. This function looks the handles up in the document contexts and rewrites the link targets
+  /// to the 'asset:<doc-guid>#<obj-guid>' form. Links whose handle can't be resolved (e.g. because the object was
+  /// deleted, or the message came from a world that isn't an editor document) are replaced by their display text.
+  ///
+  /// Returns true if ref_sMessage was modified.
+  static bool ResolveLogLinks(ezStringBuilder& ref_sMessage);
+
+  /// Returns the bounding box of the objects in the world.
   ezBoundingBoxSphere GetWorldBounds(ezWorld* pWorld);
 
   void ProcessEditorEngineSyncObjectMsg(const ezEditorEngineSyncObjectMsg& msg);

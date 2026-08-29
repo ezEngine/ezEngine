@@ -1,5 +1,7 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
+#include <Core/World/WorldLogLink.h>
+
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -292,7 +294,7 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
 
   if (CreateShape(&bodyCfg, m_fWeightDensity, pMaterial).Failed())
   {
-    ezLog::Error("Jolt dynamic actor component '{}' has no valid shape.", GetOwner()->GetName());
+    ezLog::Error("Jolt dynamic actor component {} has no valid shape.", ezArgComponent(this));
     return;
   }
 

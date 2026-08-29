@@ -1,6 +1,7 @@
 #include <ToolsFoundation/ToolsFoundationPCH.h>
 
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Strings/PathUtils.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
@@ -22,7 +23,14 @@ ezToolsProject::ezToolsProject(ezStringView sProjectPath)
 {
   m_bIsClosing = false;
 
-  m_sProjectPath = sProjectPath;
+  ezStringBuilder sPath = sProjectPath;
+  sPath.MakeCleanPath();
+
+  // on Windows the same file can be referenced with an upper or lower case drive letter,
+  // normalizing it here makes sure that all string comparisons against the project path work
+  ezPathUtils::NormalizeWindowsDriveLetter(sPath);
+
+  m_sProjectPath = sPath;
   EZ_ASSERT_DEV(!m_sProjectPath.IsEmpty(), "Path cannot be empty.");
 }
 

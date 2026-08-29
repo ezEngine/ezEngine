@@ -1,5 +1,7 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
+#include <Core/World/WorldLogLink.h>
+
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
@@ -92,7 +94,7 @@ void ezJoltStaticActorComponent::OnSimulationStarted()
   JPH::BodyCreationSettings bodyCfg;
   if (CreateShape(&bodyCfg, 1.0f, pMaterial).Failed())
   {
-    ezLog::Error("Jolt static actor component '{}' has no valid shape.", GetOwner()->GetName());
+    ezLog::Error("Jolt static actor component {} has no valid shape.", ezArgComponent(this));
     return;
   }
 
