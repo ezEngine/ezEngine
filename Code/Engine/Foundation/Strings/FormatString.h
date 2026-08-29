@@ -60,6 +60,9 @@ class EZ_FOUNDATION_DLL ezFormatString
   EZ_DISALLOW_COPY_AND_ASSIGN(ezFormatString); // pass by reference, never pass by value
 
 public:
+  /// Maximum number of parameters that a single format string can have. Exceeding this results in a compilation error.
+  static constexpr ezUInt32 MaxNumParameters = 12;
+
   EZ_ALWAYS_INLINE ezFormatString() = default;
   EZ_ALWAYS_INLINE ezFormatString(const char* szString) { m_sString = szString; }
   EZ_ALWAYS_INLINE ezFormatString(ezStringView sString) { m_sString = sString; }

@@ -1,6 +1,7 @@
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkPCH.h>
 
 #include <Core/Prefabs/PrefabReferenceComponent.h>
+#include <Core/World/WorldLogLink.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
@@ -65,6 +66,119 @@ void ezEngineProcessDocumentContext::DestroyDocumentContext(ezUuid guid)
     pContext->Deinitialize();
     pContext->GetDynamicRTTI()->GetAllocator()->Deallocate(pContext);
   }
+}
+
+namespace
+{
+  /// \brief Searches all document contexts for the one whose world matches the world index that is baked into the handle.
+  const ezEngineProcessDocumentContext* FindContextForWorld(ezUInt32 uiWorldIndex, const ezHashTable<ezUuid, ezEngineProcessDocumentContext*>& contexts)
+  {
+    for (auto it = contexts.GetIterator(); it.IsValid(); ++it)
+    {
+      const ezWorld* pWorld = it.Value()->GetWorld();
+
+      if (pWorld != nullptr && pWorld->GetIndex() == uiWorldIndex)
+        return it.Value();
+    }
+
+    return nullptr;
+  }
+} // namespace
+
+bool ezEngineProcessDocumentContext::ResolveLogLinks(ezStringBuilder& ref_sMessage)
+{
+  if (ref_sMessage.FindSubString("[[") == nullptr)
+    return false;
+
+  // The document contexts may only be accessed from the main thread. Log messages from other threads
+  // therefore keep their handle based links, which the editor will simply not be able to navigate to.
+  if (!ezThreadUtils::IsMainThread())
+    return false;
+
+  bool bModified = false;
+  ezStringBuilder sResult;
+  ezStringBuilder sTarget;
+  ezStringView sRemaining = ref_sMessage;
+
+  while (const char* szStart = sRemaining.FindSubString("[["))
+  {
+    const char* szSeparator = sRemaining.FindSubString("|", szStart);
+    const char* szEnd = sRemaining.FindSubString("]]", szStart);
+
+    if (szSeparator == nullptr || szEnd == nullptr || szSeparator > szEnd)
+    {
+      // Not a well formed link, keep everything up to and including this '[[' as is and continue behind it.
+      sResult.Append(ezStringView(sRemaining.GetStartPointer(), szStart + 2));
+      sRemaining = ezStringView(szStart + 2, sRemaining.GetEndPointer());
+      continue;
+    }
+
+    ezStringView sText = ezStringView(szStart + 2, szSeparator);
+    sTarget = ezStringView(szSeparator + 1, szEnd);
+    sText.Trim();
+    sTarget.Trim();
+
+    // Everything in front of the link is copied unchanged.
+    sResult.Append(ezStringView(sRemaining.GetStartPointer(), szStart));
+
+    ezUuid documentGuid;
+    ezUuid objectGuid;
+
+    ezGameObjectHandle hObject;
+    ezComponentHandle hComponent;
+
+    if (ezWorldLogLinkUtils::ParseGameObjectLink(sTarget, hObject))
+    {
+      if (auto pContext = FindContextForWorld(hObject.GetInternalID().m_WorldIndex, s_DocumentContexts))
+      {
+        documentGuid = pContext->GetDocumentGuid();
+        objectGuid = pContext->GetContext().m_GameObjectMap.GetGuid(hObject);
+      }
+
+      bModified = true;
+    }
+    else if (ezWorldLogLinkUtils::ParseComponentLink(sTarget, hComponent))
+    {
+      if (auto pContext = FindContextForWorld(hComponent.GetInternalID().m_WorldIndex, s_DocumentContexts))
+      {
+        documentGuid = pContext->GetDocumentGuid();
+        objectGuid = pContext->GetContext().m_ComponentMap.GetGuid(hComponent);
+      }
+
+      bModified = true;
+    }
+    else
+    {
+      // Some other link scheme (e.g. an already resolved 'asset:' link), leave it untouched.
+      sResult.Append(ezStringView(szStart, szEnd + 2));
+      sRemaining = ezStringView(szEnd + 2, sRemaining.GetEndPointer());
+      continue;
+    }
+
+    if (documentGuid.IsValid() && objectGuid.IsValid())
+    {
+      ezStringBuilder sDocGuid, sObjGuid;
+      ezConversionUtils::ToString(documentGuid, sDocGuid);
+      ezConversionUtils::ToString(objectGuid, sObjGuid);
+
+      sResult.AppendFormat("[[{}|asset:{}#{}]]", sText, sDocGuid, sObjGuid);
+    }
+    else
+    {
+      // The handle couldn't be mapped to an editor object, so there is nothing to navigate to.
+      // Keep the text, but drop the link, otherwise the user would get a link that does nothing.
+      sResult.Append(sText);
+    }
+
+    sRemaining = ezStringView(szEnd + 2, sRemaining.GetEndPointer());
+  }
+
+  if (!bModified)
+    return false;
+
+  sResult.Append(sRemaining);
+  ref_sMessage = sResult;
+  return true;
 }
 
 ezBoundingBoxSphere ezEngineProcessDocumentContext::GetWorldBounds(ezWorld* pWorld)

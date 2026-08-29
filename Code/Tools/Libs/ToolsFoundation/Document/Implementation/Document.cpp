@@ -7,6 +7,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
+#include <Foundation/Strings/PathUtils.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/Progress.h>
@@ -60,7 +61,7 @@ ezDocument::ezDocument(ezStringView sPath, ezDocumentObjectManager* pDocumentObj
 {
   using ObjectMetaData = ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>;
   m_DocumentObjectMetaData = EZ_DEFAULT_NEW(ObjectMetaData);
-  m_sDocumentPath = sPath;
+  SetDocumentPath(sPath);
   m_pObjectManager = ezUniquePtr<ezDocumentObjectManager>(pDocumentObjectManagerImpl, ezFoundation::GetDefaultAllocator());
   m_pObjectManager->SetDocument(this);
   m_pCommandHistory = EZ_DEFAULT_NEW(ezCommandHistory, this);
@@ -162,9 +163,21 @@ ezTaskGroupID ezDocument::SaveDocumentAsync(AfterSaveCallback callback, bool bFo
   return m_ActiveSaveTask;
 }
 
+void ezDocument::SetDocumentPath(ezStringView sPath)
+{
+  ezStringBuilder sTmp = sPath;
+  sTmp.MakeCleanPath();
+
+  // on Windows the same file can be referenced with an upper or lower case drive letter,
+  // normalizing it here makes sure that all string comparisons against document paths work
+  ezPathUtils::NormalizeWindowsDriveLetter(sTmp);
+
+  m_sDocumentPath = sTmp;
+}
+
 void ezDocument::DocumentRenamed(ezStringView sNewDocumentPath)
 {
-  m_sDocumentPath = sNewDocumentPath;
+  SetDocumentPath(sNewDocumentPath);
 
   ezDocumentEvent e;
   e.m_pDocument = this;

@@ -7,6 +7,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
+#include <Foundation/Strings/PathUtils.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <ToolsFoundation/Document/DocumentUtils.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
@@ -186,6 +187,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
   ezFileStats fs;
   ezStringBuilder sPath = sPath2;
   sPath.MakeCleanPath();
+  ezPathUtils::NormalizeWindowsDriveLetter(sPath);
   if (!bCreate && ezOSFile::GetFileStats(sPath, fs).Failed())
   {
     return ezStatus("The file does not exist.");

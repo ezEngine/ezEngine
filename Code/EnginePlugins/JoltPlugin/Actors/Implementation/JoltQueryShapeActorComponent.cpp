@@ -1,5 +1,7 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
+#include <Core/World/WorldLogLink.h>
+
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Physics/SurfaceResource.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -99,7 +101,7 @@ void ezJoltQueryShapeActorComponent::OnSimulationStarted()
 
   if (CreateShape(&bodyCfg, 1.0f, GetJoltMaterial()).Failed())
   {
-    ezLog::Error("Jolt query-shape actor component '{}' has no valid shape.", GetOwner()->GetName());
+    ezLog::Error("Jolt query-shape actor component {} has no valid shape.", ezArgComponent(this));
     return;
   }
 

@@ -4,7 +4,10 @@
 #include <EditorEngineProcessFramework/LongOps/LongOpWorkerManager.h>
 #include <Foundation/Application/Config/FileSystemConfig.h>
 #include <Foundation/Application/Config/PluginConfig.h>
+#include <Foundation/Containers/Deque.h>
 #include <Foundation/Logging/HTMLWriter.h>
+#include <Foundation/Logging/LogEntry.h>
+#include <Foundation/Threading/Mutex.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 
@@ -85,4 +88,13 @@ private:
 
   ezUInt32 m_uiRedrawCountReceived = 0;
   ezUInt32 m_uiRedrawCountExecuted = 0;
+
+  /// Sends log messages that were queued up by LogWriter() from non-main threads.
+  void SendQueuedLogMessages();
+
+  /// Resolves the log links in the message and sends it to the editor. Must be called from the main thread.
+  void SendLogMessage(ezLogEntry& ref_entry);
+
+  ezMutex m_QueuedLogMsgMutex;
+  ezDeque<ezLogEntry> m_QueuedLogMsgs;
 };
