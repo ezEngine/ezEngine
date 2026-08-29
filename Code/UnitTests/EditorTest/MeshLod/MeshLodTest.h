@@ -22,6 +22,7 @@ private:
     ST_PrefabPicksThemUp,
     ST_PrimitiveMesh,
     ST_MultipleMeshes,
+    ST_SubMeshVariantsDoNotShare,
   };
 
   virtual void SetupSubTests() override;
@@ -42,6 +43,7 @@ private:
   void SimplificationLadder();
   void CreateLods();
   void ContinuesFromSimplifiedBase();
+  void SubMeshVariantsDoNotShare();
   void TransferredSettings();
   void ExistingLods();
   void PrefabPicksThemUp();

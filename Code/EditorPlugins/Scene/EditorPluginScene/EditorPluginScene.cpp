@@ -15,6 +15,7 @@
 #include <EditorPluginScene/Actions/MeshPrefabActions.h>
 #include <EditorPluginScene/Actions/SceneActions.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
+#include <EditorPluginScene/McpTools/MeshLodTool.h>
 #include <EditorPluginScene/McpTools/MeshPrefabTool.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <EditorPluginScene/Scene/Scene2DocumentWindow.moc.h>
@@ -279,6 +280,7 @@ void OnUnloadPlugin()
   ezSceneActions::UnregisterActions();
   ezMeshPrefabActions::UnregisterActions();
   ezMcpToolRegistry::RemoveProvider(ezGetStaticRTTI<ezMcpMeshPrefabTool>());
+  ezMcpToolRegistry::RemoveProvider(ezGetStaticRTTI<ezMcpMeshLodTool>());
 }
 
 EZ_PLUGIN_ON_LOADED()

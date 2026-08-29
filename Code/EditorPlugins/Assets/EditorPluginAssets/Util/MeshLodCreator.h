@@ -28,6 +28,10 @@ struct EZ_EDITORPLUGINASSETS_DLL ezMeshLodSource
   /// The mesh asset's "MeshFile". Empty for a procedural primitive, which cannot get LODs.
   ezString m_sMeshFile;
 
+  /// The mesh asset's "MeshIncludeTags". When set, the mesh is one sub-object of the model file
+  /// rather than all of it, which decides where its LODs may go - see GetLodFolderCandidates().
+  ezString m_sMeshIncludeTags;
+
   bool m_bIsPrimitive = false;
   bool m_bAnimated = false;
 
@@ -104,5 +108,11 @@ public:
   /// The mesh import writes them to "<Name>_data", using the mesh asset's name at import time. After
   /// a rename that folder still has the old name, which was derived from the source model file, hence
   /// the second candidate. sMeshFile may be empty, which yields one candidate.
-  static void GetLodFolderCandidates(ezStringView sMeshAssetPath, ezStringView sMeshFile, ezDynamicArray<ezString>& out_folders);
+  ///
+  /// sMeshIncludeTags is the mesh asset's "MeshIncludeTags". When it is set, the mesh is only one
+  /// sub-object of the model file, and several mesh assets typically share that file - each picking a
+  /// different part of it. The folder named after the source file is then dropped, because all of
+  /// those assets would resolve to it and claim each other's LODs, which renders the wrong geometry
+  /// at distance rather than merely a worse one. Only the mesh asset's own name remains.
+  static void GetLodFolderCandidates(ezStringView sMeshAssetPath, ezStringView sMeshFile, ezStringView sMeshIncludeTags, ezDynamicArray<ezString>& out_folders);
 };

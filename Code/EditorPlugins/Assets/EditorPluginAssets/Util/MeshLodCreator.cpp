@@ -98,6 +98,13 @@ namespace
         ref_source.m_sMeshFile = meshFile.Get<ezString>();
       }
 
+      // decides whether the LODs may share the folder named after the model file
+      const ezVariant includeTags = accessor.GetValue("MeshIncludeTags"_ezsv);
+      if (includeTags.IsA<ezString>())
+      {
+        ref_source.m_sMeshIncludeTags = includeTags.Get<ezString>();
+      }
+
       // Where the LOD ladder starts. A mesh that does not simplify at all starts from the full model,
       // no matter what value the (then unused) property happens to hold.
       const ezVariant bSimplify = accessor.GetValue(s_sSimplifyMesh);
@@ -138,10 +145,10 @@ namespace
 
   /// An existing folder is preferred over inventing a second one next to it, so that a mesh that was
   /// renamed after its import keeps writing into the folder its LODs are already in.
-  ezString DetermineLodFolder(ezStringView sMeshAssetPath, ezStringView sMeshFile)
+  ezString DetermineLodFolder(ezStringView sMeshAssetPath, ezStringView sMeshFile, ezStringView sMeshIncludeTags)
   {
     ezHybridArray<ezString, 2> candidates;
-    ezMeshLodCreator::GetLodFolderCandidates(sMeshAssetPath, sMeshFile, candidates);
+    ezMeshLodCreator::GetLodFolderCandidates(sMeshAssetPath, sMeshFile, sMeshIncludeTags, candidates);
 
     for (const ezString& sPath : candidates)
     {
@@ -154,7 +161,7 @@ namespace
   }
 } // namespace
 
-void ezMeshLodCreator::GetLodFolderCandidates(ezStringView sMeshAssetPath, ezStringView sMeshFile, ezDynamicArray<ezString>& out_folders)
+void ezMeshLodCreator::GetLodFolderCandidates(ezStringView sMeshAssetPath, ezStringView sMeshFile, ezStringView sMeshIncludeTags, ezDynamicArray<ezString>& out_folders)
 {
   out_folders.Clear();
 
@@ -164,7 +171,10 @@ void ezMeshLodCreator::GetLodFolderCandidates(ezStringView sMeshAssetPath, ezStr
   ezHybridArray<ezStringView, 2> names;
   names.PushBack(ezPathUtils::GetFileName(sMeshAssetPath));
 
-  if (!sMeshFile.IsEmpty())
+  // A mesh that imports only one sub-object shares its model file with the other sub-objects, which
+  // are separate mesh assets next to it. They would all resolve to the folder named after that file
+  // and take over whichever LODs got there first, so only this asset's own name is allowed.
+  if (!sMeshFile.IsEmpty() && sMeshIncludeTags.IsEmpty())
   {
     const ezStringView sSourceName = ezPathUtils::GetFileName(sMeshFile);
     if (sSourceName != names[0])
@@ -264,7 +274,7 @@ ezResult ezMeshLodCreator::GatherMeshLodSource(const ezUuid& meshAssetGuid, ezMe
   // a mesh asset that cannot be read leaves the source without a mesh file, which the caller reports
   ReadMeshAsset(sMeshAssetPath, out_source).IgnoreResult();
 
-  out_source.m_sLodFolder = DetermineLodFolder(sMeshAssetPath, out_source.m_sMeshFile);
+  out_source.m_sLodFolder = DetermineLodFolder(sMeshAssetPath, out_source.m_sMeshFile, out_source.m_sMeshIncludeTags);
 
   for (ezUInt32 uiLod = 1; uiLod <= s_uiMaxLods; ++uiLod)
   {

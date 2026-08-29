@@ -27,6 +27,7 @@ void ezEditorMeshLodTest::SetupSubTests()
   AddSubTest("Prefab Picks Them Up", SubTests::ST_PrefabPicksThemUp);
   AddSubTest("Primitive Mesh", SubTests::ST_PrimitiveMesh);
   AddSubTest("Multiple Meshes", SubTests::ST_MultipleMeshes);
+  AddSubTest("Sub Mesh Variants Do Not Share", SubTests::ST_SubMeshVariantsDoNotShare);
 }
 
 ezResult ezEditorMeshLodTest::InitializeTest()
@@ -81,6 +82,10 @@ ezTestAppRun ezEditorMeshLodTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInv
     case SubTests::ST_PrimitiveMesh:
       PrimitiveMesh();
       break;
+    case SubTests::ST_SubMeshVariantsDoNotShare:
+      SubMeshVariantsDoNotShare();
+      break;
+
     case SubTests::ST_MultipleMeshes:
       MultipleMeshes();
       break;
@@ -298,6 +303,65 @@ void ezEditorMeshLodTest::ContinuesFromSimplifiedBase()
   // a LOD of a mesh that is already at 50% has to be sparser than that mesh, not equal to it
   EZ_TEST_INT(ReadAssetProperty(sLod1, "MeshSimplification").ConvertTo<ezInt64>(), 75);
   EZ_TEST_INT(ReadAssetProperty(sLod2, "MeshSimplification").ConvertTo<ezInt64>(), 88);
+}
+
+void ezEditorMeshLodTest::SubMeshVariantsDoNotShare()
+{
+  // One model file that several mesh assets import a different part of, which is how a set of plant
+  // or rock variants is usually authored.
+  const ezString sSource = MakePrivateSourceMesh("LodVariants");
+  if (!EZ_TEST_BOOL(!sSource.IsEmpty()))
+    return;
+
+  ezVariantDictionary extrasA;
+  extrasA.Insert("MeshIncludeTags", "Variant_A");
+
+  ezVariantDictionary extrasB;
+  extrasB.Insert("MeshIncludeTags", "Variant_B");
+
+  const ezUuid guidA = CreateMeshAsset("MeshLod/VariantA.ezMeshAsset", sSource, &extrasA);
+  const ezUuid guidB = CreateMeshAsset("MeshLod/VariantB.ezMeshAsset", sSource, &extrasB);
+
+  if (!EZ_TEST_BOOL(guidA.IsValid() && guidB.IsValid()))
+    return;
+
+  ezMeshLodSource sourceA, sourceB;
+  if (!EZ_TEST_BOOL(ezMeshLodCreator::GatherMeshLodSource(guidA, sourceA).Succeeded()))
+    return;
+  if (!EZ_TEST_BOOL(ezMeshLodCreator::GatherMeshLodSource(guidB, sourceB).Succeeded()))
+    return;
+
+  EZ_TEST_STRING(sourceA.m_sMeshIncludeTags, "Variant_A");
+  EZ_TEST_STRING(sourceB.m_sMeshIncludeTags, "Variant_B");
+
+  // Each variant is named after its own mesh asset, not after the model file they share. Sharing it
+  // would make one variant render the other's geometry at distance.
+  EZ_TEST_BOOL_MSG(sourceA.m_sLodFolder.EndsWith("VariantA_data"), "A sub-mesh variant gets its own LOD folder.");
+  EZ_TEST_BOOL_MSG(sourceB.m_sLodFolder.EndsWith("VariantB_data"), "A sub-mesh variant gets its own LOD folder.");
+  EZ_TEST_BOOL(sourceA.m_sLodFolder != sourceB.m_sLodFolder);
+
+  ezMeshLodOptions options;
+  options.m_uiLodCount = 1;
+
+  ezUInt32 uiCreated = 0;
+  ezUInt32 uiSkipped = 0;
+  if (!EZ_TEST_BOOL(ezMeshLodCreator::CreateMeshLods(sourceA, options, uiCreated, uiSkipped).Succeeded()))
+    return;
+
+  EZ_TEST_INT(uiCreated, 1);
+
+  // The second variant must still create its own, rather than finding the first one's and skipping.
+  uiCreated = 0;
+  uiSkipped = 0;
+  if (!EZ_TEST_BOOL(ezMeshLodCreator::CreateMeshLods(sourceB, options, uiCreated, uiSkipped).Succeeded()))
+    return;
+
+  EZ_TEST_INT_MSG(uiCreated, 1, "The variants must not claim each other's LOD assets.");
+  EZ_TEST_INT(uiSkipped, 0);
+
+  // and each LOD simplifies the part its own mesh asset uses
+  EZ_TEST_STRING(ReadAssetProperty(ezMeshLodCreator::GetLodPath(sourceA, 1), "MeshIncludeTags").ConvertTo<ezString>(), "Variant_A");
+  EZ_TEST_STRING(ReadAssetProperty(ezMeshLodCreator::GetLodPath(sourceB, 1), "MeshIncludeTags").ConvertTo<ezString>(), "Variant_B");
 }
 
 void ezEditorMeshLodTest::TransferredSettings()

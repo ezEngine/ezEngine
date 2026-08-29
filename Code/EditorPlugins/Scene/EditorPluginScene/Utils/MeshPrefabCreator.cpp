@@ -137,10 +137,13 @@ namespace
   }
 
   /// Looks in the same folders that ezMeshLodCreator writes to, so that LODs it created are picked up.
-  void FindLodSiblings(ezStringView sMeshAssetPath, ezStringView sMeshFile, ezDynamicArray<ezUuid>& out_lodGuids)
+  ///
+  /// sMeshIncludeTags has to be passed for the same reason the creator needs it: without it a mesh
+  /// that is one sub-object of a shared model file would find the LODs of a sibling sub-object.
+  void FindLodSiblings(ezStringView sMeshAssetPath, ezStringView sMeshFile, ezStringView sMeshIncludeTags, ezDynamicArray<ezUuid>& out_lodGuids)
   {
     ezHybridArray<ezString, 2> folders;
-    ezMeshLodCreator::GetLodFolderCandidates(sMeshAssetPath, sMeshFile, folders);
+    ezMeshLodCreator::GetLodFolderCandidates(sMeshAssetPath, sMeshFile, sMeshIncludeTags, folders);
 
     for (const ezString& sFolder : folders)
     {
@@ -200,10 +203,13 @@ ezResult ezMeshPrefabCreator::GatherMeshPrefabSource(const ezUuid& meshAssetGuid
     out_source.m_sMeshFile = meshFile.Get<ezString>();
   }
 
-  FindLodSiblings(sMeshAssetPath, out_source.m_sMeshFile, out_source.m_LodGuids);
-
   ezVariantDictionary subMeshProperties;
   ezMeshColliderUtils::ReadMeshProperties(sMeshAssetPath, ezMeshColliderUtils::GetSubMeshPropertyNames(), subMeshProperties).IgnoreResult();
+
+  ezVariant includeTags;
+  subMeshProperties.TryGetValue("MeshIncludeTags", includeTags);
+
+  FindLodSiblings(sMeshAssetPath, out_source.m_sMeshFile, includeTags.IsA<ezString>() ? includeTags.Get<ezString>().GetView() : ezStringView(), out_source.m_LodGuids);
 
   out_source.m_ExistingTriangleColMesh = ezMeshColliderUtils::FindExisting(ezCollisionMeshKind::TriangleMesh, out_source.m_sMeshFile, subMeshProperties, out_source.m_sMeshAssetPath);
   out_source.m_ExistingConvexColMesh = ezMeshColliderUtils::FindExisting(ezCollisionMeshKind::ConvexHull, out_source.m_sMeshFile, subMeshProperties, out_source.m_sMeshAssetPath);
