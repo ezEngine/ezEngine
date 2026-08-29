@@ -154,6 +154,8 @@ void ezQtAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCuratorEvent& 
 {
   switch (e.m_Type)
   {
+    case ezAssetCuratorEvent::Type::AssetAdded:
+    case ezAssetCuratorEvent::Type::AssetMoved:
     case ezAssetCuratorEvent::Type::AssetUpdated:
     {
       VisibleEntry ve;
@@ -167,6 +169,17 @@ void ezQtAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCuratorEvent& 
       HandleEntry(ve, AssetOp::Updated);
       break;
     }
+    case ezAssetCuratorEvent::Type::AssetRemoved:
+    {
+      // A filter's verdict can depend on assets other than the one being filtered: the asset curator
+      // panel hides an asset whose missing dependencies all resolve to known assets, on the grounds
+      // that those are reported instead. Removing an asset can therefore change the verdict for
+      // everything that depends on it, without their own transform state changing - which means no
+      // event is sent for them. Re-evaluate those here, or they keep a stale verdict until the model
+      // is rebuilt from scratch.
+      ReEvaluateDependents(e.m_AssetGuid);
+      break;
+    }
     case ezAssetCuratorEvent::Type::AssetListReset:
     {
       m_ImportExtensions.Clear();
@@ -175,6 +188,41 @@ void ezQtAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCuratorEvent& 
     }
     default:
       break;
+  }
+}
+
+void ezQtAssetBrowserModel::ReEvaluateDependents(const ezUuid& removedAssetGuid)
+{
+  ezStringBuilder sRemovedGuid;
+  ezConversionUtils::ToString(removedAssetGuid, sRemovedGuid);
+
+  ezTempHybridArray<VisibleEntry, 8> toReEvaluate;
+
+  {
+    ezAssetCurator::ezLockedAssetTable allAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownAssets();
+
+    for (auto it : *allAssetsLocked)
+    {
+      const ezAssetInfo* pAssetInfo = it.Value();
+
+      auto references = [&](const ezSet<ezString>& deps) -> bool
+      {
+        return deps.Contains(sRemovedGuid);
+      };
+
+      if (!references(pAssetInfo->m_MissingTransformDeps) && !references(pAssetInfo->m_MissingThumbnailDeps) && !references(pAssetInfo->m_MissingPackageDeps))
+        continue;
+
+      auto& ve = toReEvaluate.ExpandAndGetRef();
+      ve.m_Guid = it.Key();
+      ve.m_sAbsFilePath = pAssetInfo->m_Path;
+      ve.m_Flags = ezAssetBrowserItemFlags::File | ezAssetBrowserItemFlags::Asset;
+    }
+  }
+
+  for (const VisibleEntry& ve : toReEvaluate)
+  {
+    HandleEntry(ve, AssetOp::Updated);
   }
 }
 

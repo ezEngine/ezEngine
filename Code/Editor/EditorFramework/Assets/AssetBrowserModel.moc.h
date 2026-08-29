@@ -129,6 +129,12 @@ private:
 
 private:
   void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
+
+  /// Re-runs the filter for every asset that lists the given asset among its missing dependencies.
+  /// Needed because a filter's verdict can depend on whether those dependencies resolve, which
+  /// changes when an asset is removed without any event being sent for the dependents themselves.
+  void ReEvaluateDependents(const ezUuid& removedAssetGuid);
+
   void HandleEntry(const VisibleEntry& entry, AssetOp op);
   void FileSystemFileEventHandler(const ezFileChangedEvent& e);
   void FileSystemFolderEventHandler(const ezFolderChangedEvent& e);
