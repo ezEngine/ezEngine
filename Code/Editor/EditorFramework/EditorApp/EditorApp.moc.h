@@ -277,6 +277,9 @@ private:
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
   void UiServicesEvents(const ezQtUiServices::Event& e);
 
+  /// Silences the assert dialog for the editor and every process it launches, for unattended mode.
+  void SetupSilentAsserts();
+
   void SetupNewProject();
   void LoadEditorPreferences();
   void LoadProjectPreferences();

@@ -36,6 +36,7 @@ void EditorPrintFunction(const char* szText)
   ezLog::Error("{}", sError.GetData());
 }
 
+static bool g_bUnattended = false;
 static ezAssertHandler g_PreviousAssertHandler = nullptr;
 
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
@@ -137,7 +138,10 @@ bool ezEngineProcessGameApplication::EditorAssertHandler(const char* szSourceFil
   // Wait for flush of IPC messages
   ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(500));
 
-  if (g_PreviousAssertHandler)
+  // Don't chain to the default handler, it would show a modal dialog that nobody is going to close.
+  // Returning true still breaks into an attached debugger and otherwise crashes the process, which is
+  // the same thing the default handler does once it is told to stay silent.
+  if (g_PreviousAssertHandler && !g_bUnattended)
     return g_PreviousAssertHandler(szSourceFile, uiLine, szFunction, szExpression, szAssertMsg);
 
   return true;
@@ -145,6 +149,10 @@ bool ezEngineProcessGameApplication::EditorAssertHandler(const char* szSourceFil
 
 void ezEngineProcessGameApplication::AddEditorAssertHandler()
 {
+  // '-headless' is what the editor passes when it runs as ezEditorProcessor, which has no user either
+  auto* pCmd = ezCommandLineUtils::GetGlobalInstance();
+  g_bUnattended = pCmd->GetBoolOption("-unattended", false) || pCmd->GetBoolOption("-headless", false);
+
   g_PreviousAssertHandler = ezGetAssertHandler();
   ezSetAssertHandler(EditorAssertHandler);
 }

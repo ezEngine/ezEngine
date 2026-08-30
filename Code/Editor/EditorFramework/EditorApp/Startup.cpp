@@ -64,6 +64,7 @@
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
+#include <Foundation/System/EnvironmentVariableUtils.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
@@ -346,6 +347,11 @@ ezResult ezQtEditorApp::CreateProjectFromCommandLine(ezStringView sTargetDirecto
   return EZ_SUCCESS;
 }
 
+void ezQtEditorApp::SetupSilentAsserts()
+{
+  ezEnvironmentVariableUtils::SetValueInt("EZ_SILENT_ASSERTS", 1).IgnoreResult();
+}
+
 void ezQtEditorApp::StartupEditor()
 {
   // Has to happen before anything below can ask a question - the startup flags, which the other
@@ -354,6 +360,7 @@ void ezQtEditorApp::StartupEditor()
   if (bUnattended)
   {
     ezQtUiServices::SetUnattended();
+    SetupSilentAsserts();
   }
 
   if (!bUnattended)
@@ -399,6 +406,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   if (IsInUnattendedMode())
   {
     ezQtUiServices::SetUnattended();
+    SetupSilentAsserts();
   }
 
   auto* pCmd = ezCommandLineUtils::GetGlobalInstance();
