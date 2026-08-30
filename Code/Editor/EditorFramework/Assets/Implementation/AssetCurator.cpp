@@ -592,6 +592,23 @@ ezTransformStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, ezBitf
 
     sAbsPath = pInfo->m_Path;
     res = ProcessAsset(pInfo, pAssetProfile, transformFlags);
+
+    // A manually triggered transform reports failures only through the log, leaving the transform state
+    // at whatever it was before. The asset curator panel filters on that state, so a broken asset would
+    // not be listed until something else invalidates it. Record the error here rather than in
+    // ProcessAsset, which recurses into the dependencies and would blame them for a failure of this
+    // asset. The background path does its own recording in ezAssetProcessor once the result comes back
+    // from the processor, so this only covers the manual case.
+    if (res.Failed() && transformFlags.IsSet(ezTransformFlags::TriggeredManually))
+    {
+      ezDynamicArray<ezLogEntry> logEntries;
+      auto& entry = logEntries.ExpandAndGetRef();
+      entry.m_sMsg = res.m_sMessage;
+      entry.m_Type = ezLogMsgType::ErrorMsg;
+
+      UpdateAssetTransformLog(assetGuid, logEntries);
+      UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::TransformError);
+    }
   }
   if (pTypeDesc && transformFlags.IsAnySet(ezTransformFlags::TriggeredManually))
   {

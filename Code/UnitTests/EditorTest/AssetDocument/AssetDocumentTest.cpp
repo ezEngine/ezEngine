@@ -164,6 +164,33 @@ void ezEditorAssetDocumentTest::SaveOnTransform()
     ezString sLabel = pAcc->GetByName<ezString>(pSubObject, "Label");
     EZ_TEST_STRING(sLabel, "initialShadingGroup");
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Verify Failed Transform State")
+  {
+    ezTestLogInterface log;
+    ezTestLogSystemScope logSystemScope(&log, true);
+    // Once while resolving the path for the transform, once while writing the asset's dependencies.
+    log.ExpectMessage("Failed to make path absolute 'Meshes/Missing.obj'", ezLogMsgType::ErrorMsg, 2);
+
+    // Point the asset at a mesh that does not exist, so that transforming it is bound to fail.
+    pAcc->StartTransaction("Set Invalid Mesh");
+    EZ_TEST_BOOL(pAcc->SetValueByName(pMeshAsset, "MeshFile", "Meshes/Missing.obj").Succeeded());
+    pAcc->FinishTransaction();
+    EZ_TEST_BOOL(pDoc->SaveDocument().Succeeded());
+
+    const ezTransformStatus res = ezAssetCurator::GetSingleton()->TransformAsset(pDoc->GetGuid(), ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
+    EZ_TEST_BOOL(res.Failed());
+    ProcessEvents();
+
+    // A failed manual transform has to leave the asset in the error state, or the asset curator panel
+    // does not list it, and it has to keep the message around, or the panel cannot say what went wrong.
+    const ezAssetCurator::ezLockedSubAsset subAsset = ezAssetCurator::GetSingleton()->GetSubAsset(pDoc->GetGuid());
+    if (EZ_TEST_BOOL(subAsset.isValid()))
+    {
+      EZ_TEST_BOOL(subAsset->m_pAssetInfo->m_TransformState == ezAssetInfo::TransformState::TransformError);
+      EZ_TEST_BOOL(!subAsset->m_pAssetInfo->m_LogEntries.IsEmpty());
+    }
+  }
   pDoc->GetDocumentManager()->CloseDocument(pDoc);
 }
 

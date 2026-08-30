@@ -672,6 +672,13 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
           }
         }
 
+        // Invalidating a dependent also invalidates everything that dependent transitively depends on,
+        // which can lead back to this asset. Being stale would make the update task recompute the state
+        // we just recorded, and since the error is only known to the code that ran the transform, that
+        // recomputation would silently drop it - the asset would fall back to NeedsTransform and the
+        // curator would stop reporting it. Keep the error until something actually changes on disk.
+        m_TransformStateStale.Remove(assetGuid);
+
         break;
       }
 

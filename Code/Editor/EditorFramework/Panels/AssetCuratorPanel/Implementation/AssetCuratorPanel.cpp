@@ -9,6 +9,7 @@
 #include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
 #include <GuiFoundation/Models/LogModel.moc.h>
 #include <QMenu>
+#include <QTimer>
 
 ezQtAssetCuratorFilter::ezQtAssetCuratorFilter(QObject* pParent)
   : ezQtAssetFilter(pParent)
@@ -20,47 +21,54 @@ void ezQtAssetCuratorFilter::SetFilterTransitive(bool bFilterTransitive)
   m_bFilterTransitive = bFilterTransitive;
 }
 
-bool ezQtAssetCuratorFilter::IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const
+bool ezQtAssetCuratorFilter::HasIssue(const ezSubAsset* pInfo)
 {
   if (!pInfo)
-    return true;
+    return false;
 
   if (!pInfo->m_bMainAsset)
+    return false;
+
+  const ezAssetInfo::TransformState state = pInfo->m_pAssetInfo->m_TransformState;
+
+  return state == ezAssetInfo::MissingTransformDependency || state == ezAssetInfo::CircularDependency || state == ezAssetInfo::MissingThumbnailDependency || state == ezAssetInfo::MissingPackageDependency || state == ezAssetInfo::TransformError;
+}
+
+bool ezQtAssetCuratorFilter::IsIndirectIssue(const ezSubAsset* pInfo)
+{
+  // An issue is 'indirect' when every dependency that this asset is missing resolves to an asset
+  // that the curator still knows about. Those assets are reported with their own issue, so listing
+  // everything downstream of them would only repeat the same root cause.
+  auto allDepsResolve = [](const ezSet<ezString>& deps) -> bool
+  {
+    for (const ezString& ref : deps)
+    {
+      if (!ezAssetCurator::GetSingleton()->FindSubAsset(ref).isValid())
+        return false;
+    }
+    return true;
+  };
+
+  switch (pInfo->m_pAssetInfo->m_TransformState)
+  {
+    case ezAssetInfo::MissingThumbnailDependency:
+      return allDepsResolve(pInfo->m_pAssetInfo->m_MissingThumbnailDeps);
+
+    case ezAssetInfo::MissingPackageDependency:
+      return allDepsResolve(pInfo->m_pAssetInfo->m_MissingPackageDeps);
+
+    default:
+      return false;
+  }
+}
+
+bool ezQtAssetCuratorFilter::IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const
+{
+  if (!HasIssue(pInfo))
     return true;
 
-  if ((pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingTransformDependency) && (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::CircularDependency) && (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingThumbnailDependency) && (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingPackageDependency) && (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::TransformError))
-  {
+  if (m_bFilterTransitive && IsIndirectIssue(pInfo))
     return true;
-  }
-
-  if (m_bFilterTransitive)
-  {
-    if (pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingThumbnailDependency)
-    {
-      for (auto& ref : pInfo->m_pAssetInfo->m_MissingThumbnailDeps)
-      {
-        if (!ezAssetCurator::GetSingleton()->FindSubAsset(ref).isValid())
-        {
-          return false;
-        }
-      }
-
-      return true;
-    }
-
-    if (pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingPackageDependency)
-    {
-      for (auto& ref : pInfo->m_pAssetInfo->m_MissingPackageDeps)
-      {
-        if (!ezAssetCurator::GetSingleton()->FindSubAsset(ref).isValid())
-        {
-          return false;
-        }
-      }
-
-      return true;
-    }
-  }
 
   return false;
 }
@@ -119,8 +127,15 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
               {
                 m_SelectedIndex = QPersistentModelIndex();
                 UpdateIssueInfo();
+                UpdateIndirectIssueCount();
               }),
     "signal/slot connection failed");
+
+  // An asset can become (or stop being) an indirect issue without ever entering the list, so the
+  // model's own signals are not enough to keep the count current - listen to the curator instead.
+  ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetCuratorPanel::AssetCuratorEventHandler, this));
+
+  UpdateIndirectIssueCount();
 
   EZ_VERIFY(connect(ClearHistory, &QToolButton::clicked, ProcessorProgress, &ezQtAssetProcessorProgressWidget::ClearHistory), "");
 }
@@ -128,6 +143,39 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
 ezQtAssetCuratorPanel::~ezQtAssetCuratorPanel()
 {
   ezAssetProcessor::GetSingleton()->RemoveLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
+  ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtAssetCuratorPanel::AssetCuratorEventHandler, this));
+}
+
+void ezQtAssetCuratorPanel::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
+{
+  switch (e.m_Type)
+  {
+    case ezAssetCuratorEvent::Type::AssetAdded:
+    case ezAssetCuratorEvent::Type::AssetMoved:
+    case ezAssetCuratorEvent::Type::AssetRemoved:
+    case ezAssetCuratorEvent::Type::AssetUpdated:
+    case ezAssetCuratorEvent::Type::AssetListReset:
+      ScheduleIndirectIssueCountUpdate();
+      break;
+
+    default:
+      break;
+  }
+}
+
+void ezQtAssetCuratorPanel::ScheduleIndirectIssueCountUpdate()
+{
+  // Curator events arrive in bursts, so coalesce them - recounting walks all known assets.
+  if (m_bIndirectCountScheduled)
+    return;
+
+  m_bIndirectCountScheduled = true;
+
+  QTimer::singleShot(200, this, [this]()
+    {
+      m_bIndirectCountScheduled = false;
+      UpdateIndirectIssueCount(); //
+    });
 }
 
 void ezQtAssetCuratorPanel::OnAssetSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
@@ -200,6 +248,37 @@ void ezQtAssetCuratorPanel::onCheckIndirectToggled(bool checked)
 {
   m_pFilter->SetFilterTransitive(!checked);
   m_Model->resetModel();
+  UpdateIndirectIssueCount();
+}
+
+void ezQtAssetCuratorPanel::UpdateIndirectIssueCount()
+{
+  ezUInt32 uiIndirect = 0;
+
+  {
+    ezAssetCurator::ezLockedSubAssetTable allAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
+
+    for (auto it : *allAssetsLocked)
+    {
+      const ezSubAsset* pSubAsset = &it.Value();
+
+      if (ezQtAssetCuratorFilter::HasIssue(pSubAsset) && ezQtAssetCuratorFilter::IsIndirectIssue(pSubAsset))
+      {
+        ++uiIndirect;
+      }
+    }
+  }
+
+  if (uiIndirect == 0)
+  {
+    CheckIndirect->setText("Show Indirect Issues");
+  }
+  else
+  {
+    ezStringBuilder sText;
+    sText.SetFormat(uiIndirect == 1 ? "Show {} Indirect Issue" : "Show {} Indirect Issues", uiIndirect);
+    CheckIndirect->setText(ezMakeQString(sText));
+  }
 }
 
 void ezQtAssetCuratorPanel::LogWriter(const ezLoggingEventData& e)
