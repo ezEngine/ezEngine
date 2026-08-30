@@ -39,6 +39,31 @@ struct ezTexture2DChannelMappingEnum
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTexture2DChannelMappingEnum);
 
+/// Channel mapping for array textures.
+///
+/// Unlike ezTexture2DChannelMappingEnum, these modes can't combine multiple input files,
+/// since every input file becomes one slice of the array. They only select which channels
+/// of each input are written to the output.
+struct ezTextureArrayChannelMappingEnum
+{
+  using StorageType = ezInt8;
+
+  enum Enum
+  {
+    RGBA,      ///< Take all four channels as they are.
+    RGB,       ///< Take RGB, discard alpha.
+    RG,        ///< Take red and green.
+    R_Red,     ///< Single channel output, taken from the input's red channel.
+    R_Green,   ///< Single channel output, taken from the input's green channel.
+    R_Blue,    ///< Single channel output, taken from the input's blue channel.
+    R_Alpha,   ///< Single channel output, taken from the input's alpha channel.
+
+    Default = RGBA,
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTextureArrayChannelMappingEnum);
+
 struct ezTexture2DResolution
 {
   using StorageType = ezInt8;
@@ -104,6 +129,7 @@ public:
   ezString GetAbsoluteInputFilePath(ezInt32 iInput) const;
 
   ezTexture2DChannelMappingEnum::Enum GetChannelMapping() const { return m_ChannelMapping; }
+  ezTextureArrayChannelMappingEnum::Enum GetArrayChannelMapping() const { return m_ArrayChannelMapping; }
 
   ezInt32 GetNumInputFiles() const;
 
@@ -132,5 +158,6 @@ public:
 
 private:
   ezEnum<ezTexture2DChannelMappingEnum> m_ChannelMapping;
+  ezEnum<ezTextureArrayChannelMappingEnum> m_ArrayChannelMapping;
   ezString m_Input[4];
 };

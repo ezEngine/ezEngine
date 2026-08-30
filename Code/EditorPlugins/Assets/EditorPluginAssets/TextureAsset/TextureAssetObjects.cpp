@@ -12,6 +12,11 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DChannelMappingEnum, 1)
   EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RGBWHITE_A1, ezTexture2DChannelMappingEnum::RGBWHITE_R1)
 EZ_END_STATIC_REFLECTED_ENUM;
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureArrayChannelMappingEnum, 1)
+  EZ_ENUM_CONSTANTS(ezTextureArrayChannelMappingEnum::RGBA, ezTextureArrayChannelMappingEnum::RGB, ezTextureArrayChannelMappingEnum::RG)
+  EZ_ENUM_CONSTANTS(ezTextureArrayChannelMappingEnum::R_Red, ezTextureArrayChannelMappingEnum::R_Green, ezTextureArrayChannelMappingEnum::R_Blue, ezTextureArrayChannelMappingEnum::R_Alpha)
+EZ_END_STATIC_REFLECTED_ENUM;
+
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DResolution, 1)
   EZ_ENUM_CONSTANTS(ezTexture2DResolution::Fixed64x64, ezTexture2DResolution::Fixed128x128, ezTexture2DResolution::Fixed256x256, ezTexture2DResolution::Fixed512x512, ezTexture2DResolution::Fixed1024x1024, ezTexture2DResolution::Fixed2048x2048)
   EZ_ENUM_CONSTANTS(ezTexture2DResolution::CVarRtResolution1, ezTexture2DResolution::CVarRtResolution2)
@@ -23,7 +28,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRenderTargetFormat, 1)
   EZ_ENUM_CONSTANTS(ezRenderTargetFormat::RG8, ezRenderTargetFormat::RG16, ezRenderTargetFormat::RG32)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 5, ezRTTIDefaultAllocator<ezTextureAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 6, ezRTTIDefaultAllocator<ezTextureAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -52,6 +57,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 5, ezRTTIDefaultAlloca
     EZ_MEMBER_PROPERTY("HdrExposureBias", m_fHdrExposureBias)->AddAttributes(new ezClampValueAttribute(-20.0f, 20.0f)),
 
     EZ_ENUM_MEMBER_PROPERTY("ChannelMapping", ezTexture2DChannelMappingEnum, m_ChannelMapping),
+    EZ_ENUM_MEMBER_PROPERTY("ArrayChannelMapping", ezTextureArrayChannelMappingEnum, m_ArrayChannelMapping),
 
     EZ_ACCESSOR_PROPERTY("Input1", GetInputFile0, SetInputFile0)->AddAttributes(new ezFileBrowserAttribute("Select Texture", ezFileBrowserAttribute::ImagesLdrAndHdr)),
     EZ_ACCESSOR_PROPERTY("Input2", GetInputFile1, SetInputFile1)->AddAttributes(new ezFileBrowserAttribute("Select Texture", ezFileBrowserAttribute::ImagesLdrAndHdr)),
@@ -89,6 +95,7 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
       props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Invisible;
       props["FlipHorizontal"].m_Visibility = ezPropertyUiState::Invisible;
       props["ChannelMapping"].m_Visibility = ezPropertyUiState::Invisible;
+      props["ArrayChannelMapping"].m_Visibility = ezPropertyUiState::Invisible;
       props["PreserveAlphaCoverage"].m_Visibility = ezPropertyUiState::Invisible;
       props["AlphaThreshold"].m_Visibility = ezPropertyUiState::Invisible;
       props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Invisible;
@@ -112,6 +119,7 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
       props["Resolution"].m_Visibility = ezPropertyUiState::Invisible;
 
       props["ChannelMapping"].m_Visibility = ezPropertyUiState::Invisible;
+      props["ArrayChannelMapping"].m_Visibility = ezPropertyUiState::Default;
       props["Input1"].m_Visibility = ezPropertyUiState::Invisible;
       props["Input2"].m_Visibility = ezPropertyUiState::Invisible;
       props["Input3"].m_Visibility = ezPropertyUiState::Invisible;
@@ -131,6 +139,25 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
       props["AddressModeV"].m_Visibility = ezPropertyUiState::Default;
       props["ArraySlices"].m_Visibility = ezPropertyUiState::Default;
       props["IsArrayTexture"].m_Visibility = ezPropertyUiState::Default;
+
+      const ezInt64 arrayMapping = e.m_pObject->GetTypeAccessor().GetValue("ArrayChannelMapping").ConvertTo<ezInt64>();
+      const bool hasMips = e.m_pObject->GetTypeAccessor().GetValue("MipmapMode").ConvertTo<ezInt32>() != ezTexConvMipmapMode::None;
+
+      if (arrayMapping == ezTextureArrayChannelMappingEnum::RGBA)
+      {
+        props["DilateColor"].m_Visibility = ezPropertyUiState::Default;
+
+        if (hasMips)
+        {
+          props["PreserveAlphaCoverage"].m_Visibility = ezPropertyUiState::Default;
+          props["AlphaThreshold"].m_Visibility = ezPropertyUiState::Default;
+        }
+      }
+
+      if (e.m_pObject->GetTypeAccessor().GetValue("Usage").ConvertTo<ezInt32>() == ezTexConvUsage::Hdr)
+      {
+        props["HdrExposureBias"].m_Visibility = ezPropertyUiState::Default;
+      }
     }
     else
     {
@@ -144,6 +171,7 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
       props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Disabled;
       props["FlipHorizontal"].m_Visibility = ezPropertyUiState::Default;
       props["ChannelMapping"].m_Visibility = ezPropertyUiState::Default;
+      props["ArrayChannelMapping"].m_Visibility = ezPropertyUiState::Invisible;
       props["Format"].m_Visibility = ezPropertyUiState::Invisible;
       props["Resolution"].m_Visibility = ezPropertyUiState::Invisible;
       props["PreserveAlphaCoverage"].m_Visibility = ezPropertyUiState::Disabled;

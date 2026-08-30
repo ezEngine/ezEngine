@@ -82,6 +82,14 @@ ezTexture2DChannelMappingEnum::RGB1_ABLACK;RGBA - Input1.rgb, Alpha = Black
 ezTexture2DChannelMappingEnum::RGBWHITE_A1;RGBA - RGB = White, Alpha = Input1.a
 ezTexture2DChannelMappingEnum::RGBWHITE_R1;RGBA - RGB = White, Alpha = Input1.r
 
+ezTextureArrayChannelMappingEnum::RGBA;RGBA - Input.rgba
+ezTextureArrayChannelMappingEnum::RGB;RGB - Input.rgb
+ezTextureArrayChannelMappingEnum::RG;Red Green - Input.rg
+ezTextureArrayChannelMappingEnum::R_Red;Red - Input.r
+ezTextureArrayChannelMappingEnum::R_Green;Red - Input.g
+ezTextureArrayChannelMappingEnum::R_Blue;Red - Input.b
+ezTextureArrayChannelMappingEnum::R_Alpha;Red - Input.a
+
 ezTextureCubeChannelMappingEnum::RGB1;Cubemap: RGB - Single Input
 ezTextureCubeChannelMappingEnum::RGBA1;Cubemap: RGBA - Single Input
 ezTextureCubeChannelMappingEnum::RGB1TO6;Cubemap: RGB - 6 Inputs
@@ -111,6 +119,7 @@ ezTextureAssetProperties::TextureFilter;Filtering
 ezTextureAssetProperties::PremultipliedAlpha;Premultiply Alpha
 ezTextureAssetProperties::CVarResScale;CVar Resolution Scale
 ezTextureAssetProperties::HdrExposureBias;HDR Exposure Bias
+ezTextureAssetProperties::ArrayChannelMapping;Channel Mapping
 
 ezTextureCubeAssetProperties::MipmapMode;Mipmaps
 ezTextureCubeAssetProperties::CompressionMode;Compression

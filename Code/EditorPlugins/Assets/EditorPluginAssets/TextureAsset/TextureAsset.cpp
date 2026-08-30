@@ -270,10 +270,49 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       arguments << temp.GetData();
       arguments << QString::fromUtf8(sAbsPath.GetData());
 
-      temp.SetFormat("-rgba{0}", i);
-      arguments << temp.GetData();
-      temp.SetFormat("in{0}.rgba", i);
-      arguments << temp.GetData();
+      switch (pProp->GetArrayChannelMapping())
+      {
+        case ezTextureArrayChannelMappingEnum::RGBA:
+          temp.SetFormat("-rgba{0}", i);
+          arguments << temp.GetData();
+          temp.SetFormat("in{0}.rgba", i);
+          arguments << temp.GetData();
+          break;
+
+        case ezTextureArrayChannelMappingEnum::RGB:
+          temp.SetFormat("-rgb{0}", i);
+          arguments << temp.GetData();
+          temp.SetFormat("in{0}.rgb", i);
+          arguments << temp.GetData();
+          break;
+
+        case ezTextureArrayChannelMappingEnum::RG:
+          temp.SetFormat("-rg{0}", i);
+          arguments << temp.GetData();
+          temp.SetFormat("in{0}.rg", i);
+          arguments << temp.GetData();
+          break;
+
+        case ezTextureArrayChannelMappingEnum::R_Red:
+        case ezTextureArrayChannelMappingEnum::R_Green:
+        case ezTextureArrayChannelMappingEnum::R_Blue:
+        case ezTextureArrayChannelMappingEnum::R_Alpha:
+        {
+          const char* szChannel = "r";
+          if (pProp->GetArrayChannelMapping() == ezTextureArrayChannelMappingEnum::R_Green)
+            szChannel = "g";
+          else if (pProp->GetArrayChannelMapping() == ezTextureArrayChannelMappingEnum::R_Blue)
+            szChannel = "b";
+          else if (pProp->GetArrayChannelMapping() == ezTextureArrayChannelMappingEnum::R_Alpha)
+            szChannel = "a";
+
+          temp.SetFormat("-r{0}", i);
+          arguments << temp.GetData();
+          temp.SetFormat("in{0}.{1}", i, szChannel);
+          arguments << temp.GetData();
+          break;
+        }
+      }
     }
   }
   else
