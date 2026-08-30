@@ -1,6 +1,7 @@
 #pragma once
 
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <RendererFoundation/Device/DeviceCapabilities.h>
 
 /// Minimum number of bits per channel that a texture format has to provide.
 ///

@@ -255,14 +255,29 @@ ezEnum<ezGALResourceFormat> ezSourcePass::FindFormat(ezEnum<ezRequiredTextureTyp
   ezArrayPtr<const TextureFormat> formats;
   switch (type)
   {
-    case ezRequiredTextureType::UNorm: formats = unormTextures; break;
-    case ezRequiredTextureType::SNorm: formats = snormTextures; break;
-    case ezRequiredTextureType::SRGB: formats = srgbTextures; break;
-    case ezRequiredTextureType::UInt: formats = uintTextures; break;
-    case ezRequiredTextureType::SInt: formats = sintTextures; break;
-    case ezRequiredTextureType::Float: formats = floatTextures; break;
-    case ezRequiredTextureType::Depth: formats = depthTextures; break;
-    default: return ezGALResourceFormat::Invalid;
+    case ezRequiredTextureType::UNorm:
+      formats = unormTextures;
+      break;
+    case ezRequiredTextureType::SNorm:
+      formats = snormTextures;
+      break;
+    case ezRequiredTextureType::SRGB:
+      formats = srgbTextures;
+      break;
+    case ezRequiredTextureType::UInt:
+      formats = uintTextures;
+      break;
+    case ezRequiredTextureType::SInt:
+      formats = sintTextures;
+      break;
+    case ezRequiredTextureType::Float:
+      formats = floatTextures;
+      break;
+    case ezRequiredTextureType::Depth:
+      formats = depthTextures;
+      break;
+    default:
+      return ezGALResourceFormat::Invalid;
   }
 
   const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();

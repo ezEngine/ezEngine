@@ -5,9 +5,9 @@
 #include <Core/Utils/Blackboard.h>
 #include <Core/World/World.h>
 #include <Foundation/IO/MemoryStream.h>
-#include <RendererCore/Pipeline/RenderPipelinePassGraph.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Passes/SwitchPass.h>
+#include <RendererCore/Pipeline/RenderPipelinePassGraph.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Pipeline/ViewData.h>
@@ -234,22 +234,22 @@ namespace
     connection.m_sTargetPin = szTargetPin;
   }
 
-  ezUniquePtr<ezRenderPipelinePassGraph> CreatePipeline(ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>&& passes, ezDynamicArray<ezRenderPipelineResourceLoaderConnection>& connections)
+  ezUniquePtr<ezRenderPipelinePassGraph> CreatePipeline(ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>&& passes, ezDynamicArray<ezRenderPipelineResourceLoaderConnection>& ref_connections)
   {
     ezDynamicArray<ezUniquePtr<ezExtractor>> extractors;
-    return EZ_DEFAULT_NEW(ezRenderPipelinePassGraph, std::move(passes), std::move(extractors), connections);
+    return EZ_DEFAULT_NEW(ezRenderPipelinePassGraph, std::move(passes), std::move(extractors), ref_connections);
   }
 
-  void CompileAndExecute(ezRenderPipelinePassGraph& pipeline, ezRenderGraph& ref_graph, ezDynamicArray<RecordedPass>& ref_executionOrder)
+  void CompileAndExecute(ezRenderPipelinePassGraph& ref_pipeline, ezRenderGraph& ref_graph, ezDynamicArray<RecordedPass>& ref_executionOrder)
   {
-    EZ_TEST_RESULT(pipeline.CullDeadPasses());
-    EZ_TEST_RESULT(pipeline.SortPasses());
+    EZ_TEST_RESULT(ref_pipeline.CullDeadPasses());
+    EZ_TEST_RESULT(ref_pipeline.SortPasses());
 
     ref_executionOrder.Clear();
     s_pExecutionOrder = &ref_executionOrder;
     ezViewData viewData;
     ezCamera camera;
-    EZ_TEST_BOOL(pipeline.AddRenderPasses(viewData, camera, ref_graph).Succeeded());
+    EZ_TEST_BOOL(ref_pipeline.AddRenderPasses(viewData, camera, ref_graph).Succeeded());
     s_pExecutionOrder = nullptr;
   }
 

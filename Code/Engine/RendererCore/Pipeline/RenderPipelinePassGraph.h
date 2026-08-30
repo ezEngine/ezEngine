@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Containers/Bitfield.h>
+#include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/Passes/SwitchPass.h>
 #include <RendererCore/Pipeline/SubGraphNode.h>
@@ -11,6 +12,8 @@
 /// Owns the passes and extractors of a pipeline and stores their connectivity in a flat, index-based form. The graph itself never changes after construction, only which parts of it are considered alive, which depends on the current switch values. Culling and sorting have to run again whenever a switch value changed.
 class EZ_RENDERERCORE_DLL ezRenderPipelinePassGraph
 {
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipelinePassGraph);
+
 public:
   struct SwitchInfo
   {

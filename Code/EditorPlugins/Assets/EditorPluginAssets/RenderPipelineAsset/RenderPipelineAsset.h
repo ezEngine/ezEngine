@@ -3,6 +3,8 @@
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
+struct ezAssetCuratorEvent;
+
 /// Declares the type of pin to prevent connecting textures to buffers.
 struct ezRenderPipelineResourceType
 {
