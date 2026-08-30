@@ -62,6 +62,7 @@ void ezView::SetWorld(ezWorld* pWorld)
 
     m_pWorldBlackboard = pWorld != nullptr ? pWorld->GetBlackboard() : nullptr;
     m_BlackboardChangeCounter[SourceBlackboard::World] = {};
+    m_bBlackboardMappingsDirty = true;
   }
 }
 
@@ -204,6 +205,7 @@ void ezView::SetBlackboard(const ezSharedPtr<ezBlackboard>& pBlackboard)
   {
     m_pViewBlackboard = pBlackboard;
     m_BlackboardChangeCounter[SourceBlackboard::View] = {};
+    m_bBlackboardMappingsDirty = true;
   }
 }
 
@@ -288,6 +290,8 @@ void ezView::EnsureUpToDate()
       // Re-evaluate all blackboards since the render pipeline has changed and the property mappings are not valid anymore.
       m_BlackboardChangeCounter[SourceBlackboard::World] = {};
       m_BlackboardChangeCounter[SourceBlackboard::View] = {};
+      m_PropertyMappings.Clear();
+      m_bBlackboardMappingsDirty = true;
     }
 
     ApplyPermutationVars();
@@ -333,99 +337,195 @@ void ezView::ApplyPropertiesFromBlackboard()
 
   bool bAnyStructureChanged = false;
   bool bAnyValuesChanged = false;
+  bool blackboardValuesChanged[SourceBlackboard::COUNT] = {};
 
   static_assert(EZ_ARRAY_SIZE(m_BlackboardChangeCounter) == EZ_ARRAY_SIZE(pBlackboards));
-  for (ezUInt32 i = EZ_ARRAY_SIZE(pBlackboards); i-- > 0;)
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(pBlackboards); ++i)
   {
     const ezBlackboard* pBlackboard = pBlackboards[i];
     if (pBlackboard == nullptr)
       continue;
 
-    auto& changeCounter = m_BlackboardChangeCounter[i];
+    ChangeCounter& changeCounter = m_BlackboardChangeCounter[i];
 
-    const bool bStructureChanged = changeCounter.m_uiStructure != pBlackboard->GetBlackboardChangeCounter();
-    if (bStructureChanged)
-    {
-      UpdatePropertyMappings(*pBlackboard, i);
+    bAnyStructureChanged |= changeCounter.m_uiStructure != pBlackboard->GetBlackboardChangeCounter();
+    changeCounter.m_uiStructure = pBlackboard->GetBlackboardChangeCounter();
 
-      changeCounter.m_uiStructure = pBlackboard->GetBlackboardChangeCounter();
-    }
-
-    bAnyStructureChanged |= bStructureChanged;
-    bAnyValuesChanged |= changeCounter.m_uiValue != pBlackboard->GetBlackboardEntryChangeCounter();
+    blackboardValuesChanged[i] = changeCounter.m_uiValue != pBlackboard->GetBlackboardEntryChangeCounter();
+    bAnyValuesChanged |= blackboardValuesChanged[i];
 
     changeCounter.m_uiValue = pBlackboard->GetBlackboardEntryChangeCounter();
   }
 
-  if (bAnyStructureChanged || bAnyValuesChanged)
+  // Adding or removing an entry can change which blackboard provides a mapping, so both have to be resolved together.
+  bool bSwitchChanged = false;
+  if (m_bBlackboardMappingsDirty || bAnyStructureChanged)
   {
-    for (auto& mapping : m_PropertyMappings)
-    {
-      const ezBlackboard* pBlackboard = pBlackboards[static_cast<ezUInt32>(mapping.Value().m_SourceIndex)];
-      EZ_ASSERT_DEBUG(pBlackboard != nullptr, "Property mapping has invalid source index.");
+    RebuildPropertyMappings(pBlackboards);
+    bSwitchChanged = RebuildSwitchMappings(pBlackboards);
 
-      auto pEntry = pBlackboard->GetEntry(mapping.Key());
-      if (pEntry != nullptr && (mapping.Value().m_uiChangeCounter != pEntry->m_uiChangeCounter || bAnyStructureChanged))
-      {
-        ezReflectionUtils::SetMemberPropertyValue(mapping.Value().m_pProperty, mapping.Value().m_pObject, pEntry->m_Value);
-        mapping.Value().m_uiChangeCounter = pEntry->m_uiChangeCounter;
-      }
-    }
+    m_bBlackboardMappingsDirty = false;
+  }
+  else if (bAnyValuesChanged)
+  {
+    UpdatePropertyMappings(blackboardValuesChanged);
+    bSwitchChanged = UpdateSwitchValues(blackboardValuesChanged);
+  }
+
+  if (bSwitchChanged)
+  {
+    ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
   }
 }
 
-void ezView::UpdatePropertyMappings(const ezBlackboard& blackboard, ezUInt32 uiSourceIndex)
+bool ezView::RebuildSwitchMappings(const ezBlackboard* const* pBlackboards)
+{
+  const ezArrayPtr<const ezRenderPipelinePassGraph::SwitchInfo> switches = m_pRenderPipeline->GetSwitches();
+  m_SwitchMappings.SetCount(switches.GetCount());
+
+  bool bSwitchChanged = false;
+  for (ezUInt32 i = 0; i < switches.GetCount(); ++i)
+  {
+    SwitchMapping& mapping = m_SwitchMappings[i];
+    mapping = {};
+
+    // The view blackboard overrides the world blackboard when both provide the same entry.
+    for (ezUInt32 uiSource = SourceBlackboard::COUNT; uiSource-- > 0;)
+    {
+      const ezBlackboard* pBlackboard = pBlackboards[uiSource];
+      if (pBlackboard == nullptr)
+        continue;
+
+      if (const ezBlackboard::Entry* pEntry = pBlackboard->GetEntry(switches[i].m_sBlackboardProperty))
+      {
+        mapping.m_pEntry = pEntry;
+        mapping.m_uiEntryChangeCounter = pEntry->m_uiChangeCounter;
+        mapping.m_SourceIndex = static_cast<SourceBlackboard>(uiSource);
+        break;
+      }
+    }
+
+    if (mapping.m_pEntry != nullptr && mapping.m_pEntry->m_Value.CanConvertTo<ezInt32>())
+    {
+      bSwitchChanged |= m_pRenderPipeline->SetSwitchValue(i, mapping.m_pEntry->m_Value.ConvertTo<ezInt32>());
+    }
+    else
+    {
+      if (mapping.m_pEntry != nullptr)
+      {
+        ezLog::Warning("Blackboard entry '{}' for switch '{}' is not an integer.", switches[i].m_sBlackboardProperty, switches[i].m_pSwitch->GetName());
+      }
+      bSwitchChanged |= m_pRenderPipeline->SetSwitchToDefault(i);
+    }
+  }
+
+  return bSwitchChanged;
+}
+
+bool ezView::UpdateSwitchValues(const bool* pBlackboardValuesChanged)
+{
+  bool bSwitchChanged = false;
+  for (ezUInt32 i = 0; i < m_SwitchMappings.GetCount(); ++i)
+  {
+    SwitchMapping& mapping = m_SwitchMappings[i];
+    if (mapping.m_pEntry == nullptr || !pBlackboardValuesChanged[mapping.m_SourceIndex] || mapping.m_uiEntryChangeCounter == mapping.m_pEntry->m_uiChangeCounter)
+      continue;
+
+    mapping.m_uiEntryChangeCounter = mapping.m_pEntry->m_uiChangeCounter;
+    if (mapping.m_pEntry->m_Value.CanConvertTo<ezInt32>())
+    {
+      bSwitchChanged |= m_pRenderPipeline->SetSwitchValue(i, mapping.m_pEntry->m_Value.ConvertTo<ezInt32>());
+    }
+    else
+    {
+      bSwitchChanged |= m_pRenderPipeline->SetSwitchToDefault(i);
+    }
+  }
+
+  return bSwitchChanged;
+}
+
+void ezView::RebuildPropertyMappings(const ezBlackboard* const* pBlackboards)
 {
   EZ_ASSERT_DEV(m_pRenderPipeline != nullptr, "Can only update mappings with a valid render pipeline");
 
-  // Reset the property value to the default value if the blackboard entry was removed
-  ezHybridArray<ezHashedString, 32> keysToRemove;
   for (auto it = m_PropertyMappings.GetIterator(); it.IsValid(); ++it)
   {
-    auto& mapping = it.Value();
-    if (mapping.m_SourceIndex == uiSourceIndex && blackboard.GetEntry(it.Key()) == nullptr)
+    it.Value().m_pEntry = nullptr;
+  }
+
+  // Ascending priority, so that entries of the view blackboard replace those of the world blackboard.
+  for (ezUInt32 uiSource = 0; uiSource < SourceBlackboard::COUNT; ++uiSource)
+  {
+    const ezBlackboard* pBlackboard = pBlackboards[uiSource];
+    if (pBlackboard == nullptr)
+      continue;
+
+    for (auto it = pBlackboard->GetAllEntries().GetIterator(); it.IsValid(); ++it)
     {
-      ezReflectionUtils::SetMemberPropertyValue(mapping.m_pProperty, mapping.m_pObject, mapping.m_DefaultValue);
-      keysToRemove.PushBack(it.Key());
+      const ezStringView sName = it.Key();
+      const char* szDot = sName.FindSubString(".");
+      if (szDot == nullptr)
+        continue;
+
+      const ezStringView sObjectName = ezStringView(sName.GetStartPointer(), szDot);
+
+      ezReflectedClass* pObject = m_pRenderPipeline->GetPassByName(sObjectName);
+      if (pObject == nullptr)
+      {
+        pObject = m_pRenderPipeline->GetExtractorByName(sObjectName);
+      }
+
+      if (pObject == nullptr)
+        continue;
+
+      const ezStringView sPropertyName = ezStringView(szDot + 1, sName.GetEndPointer());
+      const ezAbstractProperty* pAbstractProperty = pObject->GetDynamicRTTI()->FindPropertyByName(sPropertyName);
+      if (pAbstractProperty == nullptr || pAbstractProperty->GetCategory() != ezPropertyCategory::Member)
+        continue;
+
+      bool bExisted = false;
+      PropertyMapping& mapping = m_PropertyMappings.FindOrAdd(it.Key(), &bExisted);
+      if (!bExisted)
+      {
+        mapping.m_pObject = pObject;
+        mapping.m_pProperty = static_cast<const ezAbstractMemberProperty*>(pAbstractProperty);
+        // Read before any blackboard value was applied, so that the property can be restored once no blackboard provides this entry anymore.
+        mapping.m_DefaultValue = ezReflectionUtils::GetMemberPropertyValue(mapping.m_pProperty, mapping.m_pObject);
+      }
+
+      mapping.m_pEntry = &it.Value();
+      mapping.m_uiEntryChangeCounter = it.Value().m_uiChangeCounter;
+      mapping.m_SourceIndex = static_cast<SourceBlackboard>(uiSource);
     }
   }
 
-  // Remove old mappings
-  for (auto& key : keysToRemove)
+  for (auto it = m_PropertyMappings.GetIterator(); it.IsValid();)
   {
-    m_PropertyMappings.Remove(key);
-  }
+    PropertyMapping& mapping = it.Value();
 
-  // Add or update mappings
-  for (auto it = blackboard.GetAllEntries().GetIterator(); it.IsValid(); ++it)
-  {
-    const ezStringView sName = it.Key();
-    const char* szDot = sName.FindSubString(".");
-    if (szDot == nullptr)
-      continue;
-
-    const ezStringView sObjectName = ezStringView(sName.GetStartPointer(), szDot);
-
-    ezReflectedClass* pObject = m_pRenderPipeline->GetPassByName(sObjectName);
-    if (pObject == nullptr)
+    if (mapping.m_pEntry != nullptr)
     {
-      pObject = m_pRenderPipeline->GetExtractorByName(sObjectName);
+      ezReflectionUtils::SetMemberPropertyValue(mapping.m_pProperty, mapping.m_pObject, mapping.m_pEntry->m_Value);
+      ++it;
+      continue;
     }
 
-    if (pObject == nullptr)
+    ezReflectionUtils::SetMemberPropertyValue(mapping.m_pProperty, mapping.m_pObject, mapping.m_DefaultValue);
+    it = m_PropertyMappings.Remove(it);
+  }
+}
+
+void ezView::UpdatePropertyMappings(const bool* pBlackboardValuesChanged)
+{
+  for (auto it = m_PropertyMappings.GetIterator(); it.IsValid(); ++it)
+  {
+    PropertyMapping& mapping = it.Value();
+    if (!pBlackboardValuesChanged[mapping.m_SourceIndex] || mapping.m_uiEntryChangeCounter == mapping.m_pEntry->m_uiChangeCounter)
       continue;
 
-    const ezStringView sPropertyName = ezStringView(szDot + 1, sName.GetEndPointer());
-    const ezAbstractProperty* pAbstractProperty = pObject->GetDynamicRTTI()->FindPropertyByName(sPropertyName);
-    if (pAbstractProperty == nullptr || pAbstractProperty->GetCategory() != ezPropertyCategory::Member)
-      continue;
-
-    auto& mapping = m_PropertyMappings[it.Key()];
-    mapping.m_pObject = pObject;
-    mapping.m_pProperty = static_cast<const ezAbstractMemberProperty*>(pAbstractProperty);
-    mapping.m_uiChangeCounter = 0;
-    mapping.m_SourceIndex = ezMath::Max(mapping.m_SourceIndex, static_cast<SourceBlackboard>(uiSourceIndex));
-    mapping.m_DefaultValue = ezReflectionUtils::GetMemberPropertyValue(mapping.m_pProperty, mapping.m_pObject);
+    mapping.m_uiEntryChangeCounter = mapping.m_pEntry->m_uiChangeCounter;
+    ezReflectionUtils::SetMemberPropertyValue(mapping.m_pProperty, mapping.m_pObject, mapping.m_pEntry->m_Value);
   }
 }
 

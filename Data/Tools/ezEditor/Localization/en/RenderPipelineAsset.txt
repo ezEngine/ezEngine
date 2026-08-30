@@ -77,12 +77,22 @@ ezLSAODepthCompareFunction::NormalAndSampleDistance;Normal And Sample-Distance
 
 ezImguiExtractor;ImGUI Extractor
 
-ezSourceFormat::Color4Channel8BitNormalized_sRGB;Color 4-Channel 8-Bit Normalized sRGB
-ezSourceFormat::Color4Channel8BitNormalized;Color 4-Channel 8-Bit Normalized
-ezSourceFormat::Color4Channel16BitFloat;Color 4-Channel 16-Bit Float
-ezSourceFormat::Color4Channel32BitFloat;Color 4-Channel 32-Bit Float
-ezSourceFormat::Color3Channel11_11_10BitFloat;Color 3-Channel 11-11-10-Bit Float
-ezSourceFormat::Color3Channel32BitFloat;Color 3-Channel 32-Bit Float
-ezSourceFormat::Depth16Bit;Depth 16-Bit
-ezSourceFormat::Depth24BitStencil8Bit;Depth 24-Bit Stencil 8-Bit
-ezSourceFormat::Depth32BitFloat;Depth 32-Bit Float
+ezRequiredTextureType::UNorm;Unsigned Normalized
+ezRequiredTextureType::SNorm;Signed Normalized
+ezRequiredTextureType::SRGB;sRGB
+ezRequiredTextureType::UInt;Unsigned Integer
+ezRequiredTextureType::SInt;Signed Integer
+ezRequiredTextureType::Float;Float
+ezRequiredTextureType::Depth;Depth
+
+ezRequiredTexturePrecision::Bits_5;5 Bits
+ezRequiredTexturePrecision::Bits_8;8 Bits
+ezRequiredTexturePrecision::Bits_10;10 Bits
+ezRequiredTexturePrecision::Bits_16;16 Bits
+ezRequiredTexturePrecision::Bits_24;24 Bits
+ezRequiredTexturePrecision::Bits_32;32 Bits
+
+ezRequiredTextureChannels::Channels_1;1 Channel
+ezRequiredTextureChannels::Channels_2;2 Channels
+ezRequiredTextureChannels::Channels_3;3 Channels
+ezRequiredTextureChannels::Channels_4;4 Channels

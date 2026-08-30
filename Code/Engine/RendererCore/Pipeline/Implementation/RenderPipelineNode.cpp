@@ -2,8 +2,6 @@
 
 #include <RendererCore/Pipeline/RenderPipelineNode.h>
 
-// static_assert(sizeof(ezRenderPipelineNodePin) == 4);
-
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineNode, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -31,6 +29,21 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeOutputProviderPin, ezRenderPi
 EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodePassThroughPin, ezRenderPipelineNodePin, 1, ezRTTINoAllocator)
+EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeBufferInputPin, ezRenderPipelineNodePin, 1, ezRTTINoAllocator)
+EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeBufferOutputPin, ezRenderPipelineNodePin, 1, ezRTTINoAllocator)
+EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeBufferInputProviderPin, ezRenderPipelineNodeBufferInputPin, 1, ezRTTINoAllocator)
+EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeBufferOutputProviderPin, ezRenderPipelineNodeBufferOutputPin, 1, ezRTTINoAllocator)
+EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeBufferPassThroughPin, ezRenderPipelineNodePin, 1, ezRTTINoAllocator)
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -77,6 +90,8 @@ void ezRenderPipelineNode::InitializePins()
     sHashedName.Assign(pProp->GetPropertyName());
     m_NameToPin.Insert(sHashedName, pPin);
   }
+
+  AddDynamicPins(m_NameToPin);
 }
 
 ezHashedString ezRenderPipelineNode::GetPinName(const ezRenderPipelineNodePin* pPin) const

@@ -349,12 +349,42 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
     }
   }
 
+  const vk::PresentModeKHR presentMode = ezConversionUtilsVulkan::GetPresentMode(m_CurrentPresentMode, presentModes);
+
+  // Stretch scaling is only valid if the surface supports it for the present mode that is actually used, and it replaces the valid range for imageExtent. Some drivers support no scaling at all for FIFO, in which case requesting it makes every imageExtent invalid.
+  vk::Extent2D minImageExtent = surfaceCapabilities.minImageExtent;
+  vk::Extent2D maxImageExtent = surfaceCapabilities.maxImageExtent;
+  bool bUseStretchScaling = false;
+
+  const auto& extensions = m_pVulkanDevice->GetExtensions();
+  if (extensions.m_bSwapchainMaintenance1 && extensions.m_bSurfaceMaintenance1 && extensions.m_bSurfaceCapabilities2)
+  {
+    vk::SurfacePresentModeKHR surfacePresentMode;
+    surfacePresentMode.presentMode = presentMode;
+
+    vk::PhysicalDeviceSurfaceInfo2KHR surfaceInfo;
+    surfaceInfo.surface = m_VulkanSurface;
+    surfaceInfo.pNext = &surfacePresentMode;
+
+    vk::SurfacePresentScalingCapabilitiesKHR scalingCapabilities;
+    vk::SurfaceCapabilities2KHR surfaceCapabilities2;
+    surfaceCapabilities2.pNext = &scalingCapabilities;
+
+    if (m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilities2KHR(&surfaceInfo, &surfaceCapabilities2) == vk::Result::eSuccess &&
+        (scalingCapabilities.supportedPresentScaling & vk::PresentScalingFlagBitsKHR::eStretch))
+    {
+      bUseStretchScaling = true;
+      minImageExtent = scalingCapabilities.minScaledImageExtent;
+      maxImageExtent = scalingCapabilities.maxScaledImageExtent;
+    }
+  }
+
   swapChainCreateInfo.imageArrayLayers = 1;
   swapChainCreateInfo.imageColorSpace = desiredColorSpace;
   swapChainCreateInfo.imageExtent.width = m_WindowDesc.m_pWindow->GetClientAreaSize().width;
   swapChainCreateInfo.imageExtent.height = m_WindowDesc.m_pWindow->GetClientAreaSize().height;
-  swapChainCreateInfo.imageExtent.width = ezMath::Clamp(swapChainCreateInfo.imageExtent.width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
-  swapChainCreateInfo.imageExtent.height = ezMath::Clamp(swapChainCreateInfo.imageExtent.height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
+  swapChainCreateInfo.imageExtent.width = ezMath::Clamp(swapChainCreateInfo.imageExtent.width, minImageExtent.width, maxImageExtent.width);
+  swapChainCreateInfo.imageExtent.height = ezMath::Clamp(swapChainCreateInfo.imageExtent.height, minImageExtent.height, maxImageExtent.height);
   swapChainCreateInfo.imageFormat = desiredFormat;
 
   // We need eTransferDst to be able to resolve msaa textures into the backbuffer.
@@ -368,7 +398,7 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
   if (surfaceCapabilities.maxImageCount != 0)
     swapChainCreateInfo.minImageCount = ezMath::Min(swapChainCreateInfo.minImageCount, surfaceCapabilities.maxImageCount);
 
-  swapChainCreateInfo.presentMode = ezConversionUtilsVulkan::GetPresentMode(m_CurrentPresentMode, presentModes);
+  swapChainCreateInfo.presentMode = presentMode;
   swapChainCreateInfo.preTransform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
   swapChainCreateInfo.surface = m_VulkanSurface;
 
@@ -376,11 +406,9 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
   swapChainCreateInfo.pQueueFamilyIndices = nullptr;
   swapChainCreateInfo.queueFamilyIndexCount = 0;
 
-  // If the swapchain maintenance extension is available, request stretch scaling so the
-  // presentation engine scales the image to the surface size instead of returning
-  // VK_ERROR_OUT_OF_DATE_KHR when dimensions mismatch.
+  // Lets the presentation engine scale the image to the surface size instead of returning VK_ERROR_OUT_OF_DATE_KHR when the dimensions mismatch.
   vk::SwapchainPresentScalingCreateInfoKHR scalingInfo;
-  if (m_pVulkanDevice->GetExtensions().m_bSwapchainMaintenance1)
+  if (bUseStretchScaling)
   {
     scalingInfo.scalingBehavior = vk::PresentScalingFlagBitsKHR::eStretch;
     scalingInfo.pNext = swapChainCreateInfo.pNext;

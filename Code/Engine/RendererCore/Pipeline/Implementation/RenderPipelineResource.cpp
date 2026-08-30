@@ -8,11 +8,6 @@
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 
-void ezRenderPipelineResourceDescriptor::CreateFromRenderPipeline(const ezRenderPipeline* pPipeline)
-{
-  ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(pPipeline, *this);
-}
-
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineResource, 1, ezRTTIDefaultAllocator<ezRenderPipelineResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -39,35 +34,36 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResource::CreateRender
 // static
 ezRenderPipelineResourceHandle ezRenderPipelineResource::CreateMissingPipeline()
 {
-  ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
+  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
+  ezDynamicArray<const ezRenderPipelinePass*> passPointers;
+  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
 
-  ezSourcePass* pColorSourcePass = nullptr;
   {
     ezUniquePtr<ezSourcePass> pPass = EZ_DEFAULT_NEW(ezSourcePass, "ColorSource");
-    pColorSourcePass = pPass.Borrow();
-    pRenderPipeline->AddPass(std::move(pPass));
+    passPointers.PushBack(pPass.Borrow());
+    passes.PushBack(std::move(pPass));
   }
 
-  ezSimpleRenderPass* pSimplePass = nullptr;
   {
     ezUniquePtr<ezSimpleRenderPass> pPass = EZ_DEFAULT_NEW(ezSimpleRenderPass);
-    pSimplePass = pPass.Borrow();
-    pSimplePass->SetMessage("Render pipeline resource is missing. Ensure that the corresponding asset has been transformed.");
-    pRenderPipeline->AddPass(std::move(pPass));
+    pPass->SetMessage("Render pipeline resource is missing. Ensure that the corresponding asset has been transformed.");
+    passPointers.PushBack(pPass.Borrow());
+    passes.PushBack(std::move(pPass));
   }
 
-  ezTargetPass* pTargetPass = nullptr;
   {
     ezUniquePtr<ezTargetPass> pPass = EZ_DEFAULT_NEW(ezTargetPass);
-    pTargetPass = pPass.Borrow();
-    pRenderPipeline->AddPass(std::move(pPass));
+    passPointers.PushBack(pPass.Borrow());
+    passes.PushBack(std::move(pPass));
   }
 
-  EZ_VERIFY(pRenderPipeline->Connect(pColorSourcePass, "Output", pSimplePass, "Color"), "Connect failed!");
-  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "Color", pTargetPass, "Color0"), "Connect failed!");
+  connections.PushBack({0, 1, "Output", "Color"});
+  connections.PushBack({1, 2, "Color", "Color0"});
 
   ezRenderPipelineResourceDescriptor desc;
-  ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(pRenderPipeline.Borrow(), desc);
+  ezMemoryStreamContainerWrapperStorage<ezDynamicArray<ezUInt8>> storage(&desc.m_SerializedPipeline);
+  ezMemoryStreamWriter writer(&storage);
+  ezRenderPipelineResourceLoader::ExportPipeline(passPointers, {}, connections, writer).AssertSuccess("Failed to serialize missing render pipeline");
 
   return ezResourceManager::CreateResource<ezRenderPipelineResource>("MissingRenderPipeline", std::move(desc), "MissingRenderPipeline");
 }

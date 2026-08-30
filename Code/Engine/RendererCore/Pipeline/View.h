@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Utils/Blackboard.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/SharedPtr.h>
@@ -155,6 +156,7 @@ public:
 private:
   friend class ezRenderWorld;
   friend class ezMemoryUtils;
+  friend class ezGpuPipelineTest;
 
   ezViewId m_InternalId;
 
@@ -198,7 +200,10 @@ private:
 
   void ApplyPermutationVars();
   void ApplyPropertiesFromBlackboard();
-  void UpdatePropertyMappings(const ezBlackboard& blackboard, ezUInt32 uiSourceIndex);
+  void RebuildPropertyMappings(const ezBlackboard* const* pBlackboards);
+  void UpdatePropertyMappings(const bool* pBlackboardValuesChanged);
+  bool RebuildSwitchMappings(const ezBlackboard* const* pBlackboards);
+  bool UpdateSwitchValues(const bool* pBlackboardValuesChanged);
 
   ezSharedPtr<ezBlackboard> m_pWorldBlackboard;
   ezSharedPtr<ezBlackboard> m_pViewBlackboard;
@@ -223,13 +228,28 @@ private:
   {
     ezReflectedClass* m_pObject = nullptr;
     const ezAbstractMemberProperty* m_pProperty = nullptr;
-    ezUInt32 m_uiChangeCounter = 0;
+    // Only valid as long as the blackboard's structure does not change, see SwitchMapping::m_pEntry.
+    const ezBlackboard::Entry* m_pEntry = nullptr;
+    ezUInt32 m_uiEntryChangeCounter = 0;
     SourceBlackboard m_SourceIndex = SourceBlackboard::World;
 
     ezVariant m_DefaultValue;
   };
 
   ezHashTable<ezHashedString, PropertyMapping> m_PropertyMappings;
+
+  struct SwitchMapping
+  {
+    // Entries are stored in a hash table, so this pointer is only valid as long as the blackboard's structure does not change. ApplyPropertiesFromBlackboard detects such a change in the same frame it happens and rebuilds the mappings before they are read again.
+    const ezBlackboard::Entry* m_pEntry = nullptr;
+    ezUInt32 m_uiEntryChangeCounter = 0;
+    SourceBlackboard m_SourceIndex = SourceBlackboard::World;
+  };
+
+  ezDynamicArray<SwitchMapping> m_SwitchMappings;
+
+  // Forces both property and switch mappings to be resolved again, even if no blackboard reported a change. Necessary when a blackboard is attached or detached, because a detached blackboard cannot report the removal of its entries.
+  bool m_bBlackboardMappingsDirty = true;
 };
 
 #include <RendererCore/Pipeline/Implementation/View_inl.h>

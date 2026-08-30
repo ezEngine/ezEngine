@@ -7,6 +7,7 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererCore/Pipeline/RenderPipelinePassGraph.h>
 
 class ezProfilingId;
 class ezView;
@@ -33,28 +34,21 @@ public:
     RenderGraphBuilt,
   };
 
-  ezRenderPipeline();
+  ezRenderPipeline(ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>&& passes, ezDynamicArray<ezUniquePtr<ezExtractor>>&& extractors, ezArrayPtr<const ezRenderPipelineResourceLoaderConnection> connections);
   ~ezRenderPipeline();
 
-  void AddPass(ezUniquePtr<ezRenderPipelinePass>&& pPass);
-  void RemovePass(ezRenderPipelinePass* pPass);
   void GetPasses(ezDynamicArray<const ezRenderPipelinePass*>& ref_passes) const;
   void GetPasses(ezDynamicArray<ezRenderPipelinePass*>& ref_passes);
   ezRenderPipelinePass* GetPassByName(const ezStringView& sPassName);
   ezHashedString GetViewName() const;
 
-  bool Connect(ezRenderPipelinePass* pOutputNode, const char* szOutputPinName, ezRenderPipelinePass* pInputNode, const char* szInputPinName);
-  bool Connect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode, ezHashedString sInputPinName);
-  bool Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode, ezHashedString sInputPinName);
-
-  const ezRenderPipelinePassConnection* GetInputConnection(const ezRenderPipelinePass* pPass, ezHashedString sInputPinName) const;
-  const ezRenderPipelinePassConnection* GetOutputConnection(const ezRenderPipelinePass* pPass, ezHashedString sOutputPinName) const;
-
-  void AddExtractor(ezUniquePtr<ezExtractor>&& pExtractor);
-  void RemoveExtractor(ezExtractor* pExtractor);
   void GetExtractors(ezDynamicArray<const ezExtractor*>& ref_extractors) const;
   void GetExtractors(ezDynamicArray<ezExtractor*>& ref_extractors);
   ezExtractor* GetExtractorByName(const ezStringView& sExtractorName);
+
+  ezArrayPtr<const ezRenderPipelinePassGraph::SwitchInfo> GetSwitches() const { return m_PassGraph.GetSwitches(); }
+  bool SetSwitchValue(ezUInt32 uiSwitchIndex, ezInt32 iValue) { return m_PassGraph.SetSwitchValue(uiSwitchIndex, iValue); }
+  bool SetSwitchToDefault(ezUInt32 uiSwitchIndex) { return m_PassGraph.SetSwitchToDefault(uiSwitchIndex); }
 
   template <typename T>
   EZ_ALWAYS_INLINE T* GetFrameDataProvider() const
@@ -102,15 +96,9 @@ private:
   PipelineState Rebuild(const ezView& view);
   bool RebuildInternal(const ezView& view);
   bool RebuildRenderGraph(const ezViewData& viewData, const ezCamera& camera);
-  bool SortPasses();
   bool AddRenderPasses(const ezViewData& viewData, const ezCamera& camera);
   bool UpdateTextureProviders();
-  void SortExtractors();
   void UpdateViewData(const ezView& view, ezUInt32 uiDataIndex);
-
-  void RemoveConnections(ezRenderPipelinePass* pPass);
-  bool AreInputDescriptionsAvailable(const ezRenderPipelinePass* pPass, const ezHybridArray<ezRenderPipelinePass*, 32>& done) const;
-  bool ArePassThroughInputsDone(const ezRenderPipelinePass* pPass, const ezHybridArray<ezRenderPipelinePass*, 32>& done) const;
 
   ezFrameDataProviderBase* GetFrameDataProvider(const ezRTTI* pRtti) const;
 
@@ -145,24 +133,12 @@ private: // Member data
   // Render pass graph data
   PipelineState m_PipelineState = PipelineState::Uninitialized;
 
-  struct ConnectionData
-  {
-    // Inputs / outputs match the node pin indices. Value at index is nullptr if not connected.
-    ezDynamicArray<ezRenderPipelinePassConnection*> m_Inputs;
-    ezDynamicArray<ezRenderPipelinePassConnection*> m_Outputs;
-  };
-  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> m_Passes;       ///< The passes present in the pipeline on no particular order.
-  ezMap<const ezRenderPipelinePass*, ConnectionData> m_Connections; ///< Connections on each pass.
-  ezSet<const ezRenderPipelineNodePin*> m_TextureProviderPins;
+  ezRenderPipelinePassGraph m_PassGraph;
 
   /// Render Graph
   ezSharedPtr<ezRenderGraph> m_pRenderGraph;
   ezRenderViewContext m_RenderViewContext;
   ezUInt32 m_uiSettingsModificationCounter = 0;
-
-  // Extractors
-  ezDynamicArray<ezUniquePtr<ezExtractor>> m_Extractors;
-  ezDynamicArray<ezUniquePtr<ezExtractor>> m_SortedExtractors;
 
   // Data Providers
   mutable ezDynamicArray<ezUniquePtr<ezFrameDataProviderBase>> m_DataProviders;

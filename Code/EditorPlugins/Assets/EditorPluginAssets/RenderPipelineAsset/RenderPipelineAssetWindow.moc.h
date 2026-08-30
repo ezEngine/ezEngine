@@ -2,9 +2,8 @@
 
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtRenderPipelineAssetScene;
+class ezQtVisualGraphScene;
 class ezQtVisualGraphView;
 
 class ezQtRenderPipelineAssetDocumentWindow : public ezQtDocumentWindow
@@ -18,6 +17,7 @@ public:
 private Q_SLOTS:
 
 private:
-  ezQtRenderPipelineAssetScene* m_pScene;
-  ezQtVisualGraphView* m_pView;
+  // Both are owned by Qt: the scene through its parent, the view through the panel it is set on.
+  ezQtVisualGraphScene* m_pScene = nullptr;
+  ezQtVisualGraphView* m_pView = nullptr;
 };

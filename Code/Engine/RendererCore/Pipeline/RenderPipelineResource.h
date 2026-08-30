@@ -15,9 +15,6 @@ struct ezRenderPipelineResourceDescriptor
 {
   void Clear() {}
 
-  /// Serializes a render pipeline into this descriptor.
-  void CreateFromRenderPipeline(const ezRenderPipeline* pPipeline);
-
   ezDynamicArray<ezUInt8> m_SerializedPipeline;
   ezString m_sPath;
 };

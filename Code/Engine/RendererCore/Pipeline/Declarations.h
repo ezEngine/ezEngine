@@ -19,7 +19,6 @@ class ezRenderContext;
 class ezDebugRendererContext;
 
 struct ezRenderPipelineNodePin;
-struct ezRenderPipelinePassConnection;
 struct ezViewData;
 
 namespace ezInternal

@@ -40,16 +40,6 @@ struct EZ_RENDERERCORE_DLL ezRenderPipelinePinConnection
   };
 };
 
-/// Tracks connectivity of one output pin to many input pins. Created when connecting pins.
-struct ezRenderPipelinePassConnection
-{
-  ezRenderPipelinePassConnection() { m_pOutput = nullptr; }
-
-  ezRenderPipelinePinConnection m_Connection;
-  const ezRenderPipelineNodePin* m_pOutput;                  ///< The output pin that this connection spawns from.
-  ezHybridArray<const ezRenderPipelineNodePin*, 4> m_Inputs; ///< The various input pins this connection is connected to.
-};
-
 /// Shading quality settings for forward rendering.
 struct ezForwardRenderShadingQuality
 {
@@ -123,6 +113,7 @@ protected:
 
 private:
   friend class ezRenderPipeline;
+  friend class ezRenderPipelinePassGraph;
 
   bool m_bActive = true;
 
