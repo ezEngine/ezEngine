@@ -46,20 +46,24 @@ protected:
   virtual ezStringView GetBuildTimestamp() const;
 
   /// Anything host specific that app_info should report, added to the same object.
-  virtual void AddHostInfo(ezMcpJsonWriter& ref_writer) {}
+  virtual void AddHostInfo(ezMcpJsonWriter& ref_writer) { EZ_IGNORE_UNUSED(ref_writer); }
 
   /// Whether quitting is allowed right now. Return EZ_FAILURE to refuse.
   ///
   /// A refusal must never be a question to the user: a modal dialog with nobody at the keyboard never
   /// returns, and the process then hangs holding its port. Destructive choices are parameters, which is
   /// what \a bDiscardChanges is.
-  virtual ezResult CanQuit(bool bDiscardChanges) { return EZ_SUCCESS; }
+  virtual ezResult CanQuit(bool bDiscardChanges)
+  {
+    EZ_IGNORE_UNUSED(bDiscardChanges);
+    return EZ_SUCCESS;
+  }
 
   /// Explains a refusal from CanQuit(). Writes into the result object, after "quitting": false.
-  virtual void AddQuitRefusalInfo(ezMcpJsonWriter& ref_writer) {}
+  virtual void AddQuitRefusalInfo(ezMcpJsonWriter& ref_writer) { EZ_IGNORE_UNUSED(ref_writer); }
 
   /// Anything worth reporting about a quit that is going ahead, e.g. what got discarded.
-  virtual void AddQuitInfo(ezMcpJsonWriter& ref_writer) {}
+  virtual void AddQuitInfo(ezMcpJsonWriter& ref_writer) { EZ_IGNORE_UNUSED(ref_writer); }
 
   /// Actually shuts the process down.
   ///
