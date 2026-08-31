@@ -169,12 +169,24 @@ bool ezRenderPipeline::RebuildRenderGraph(const ezViewData& viewData, const ezCa
 
 bool ezRenderPipeline::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera)
 {
-  return m_PassGraph.AddRenderPasses(viewData, camera, *m_pRenderGraph).Succeeded();
+  const ezStatus res = m_PassGraph.AddRenderPasses(viewData, camera, *m_pRenderGraph);
+  if (res.Failed())
+  {
+    ezLog::Error("Failed to add render passes: {0}", res.GetMessageString());
+    return false;
+  }
+  return true;
 }
 
 bool ezRenderPipeline::UpdateTextureProviders()
 {
-  return m_PassGraph.UpdateTextureProviders(*m_pRenderGraph).Succeeded();
+  const ezStatus res = m_PassGraph.UpdateTextureProviders(*m_pRenderGraph);
+  if (res.Failed())
+  {
+    ezLog::Error("Failed to update texture providers: {0}", res.GetMessageString());
+    return false;
+  }
+  return true;
 }
 
 

@@ -429,6 +429,7 @@ void ezGpuPipelineTest::SetupSubTests()
   AddSubTest("BufferSwitch", SubTests::ST_BufferSwitch);
   AddSubTest("SubGraphBufferInlining", SubTests::ST_SubGraphBufferInlining);
   AddSubTest("IncompatiblePinConnection", SubTests::ST_IncompatiblePinConnection);
+  AddSubTest("SharedSourceSwitch", SubTests::ST_SharedSourceSwitch);
 }
 
 ezResult ezGpuPipelineTest::InitializeSubTest(ezInt32 iIdentifier)
@@ -489,6 +490,9 @@ ezTestAppRun ezGpuPipelineTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoc
       break;
     case SubTests::ST_IncompatiblePinConnection:
       IncompatiblePinConnection();
+      break;
+    case SubTests::ST_SharedSourceSwitch:
+      SharedSourceSwitch();
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -624,6 +628,42 @@ void ezGpuPipelineTest::TextureSwitch()
   CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
   TestExecutionOrder(executionOrder, expectedDefaultOrder);
   EZ_TEST_BOOL(!pPipeline->SetSwitchToDefault(0));
+}
+
+void ezGpuPipelineTest::SharedSourceSwitch()
+{
+  // One source feeding two switches. This graph has no cycle, so sorting must succeed.
+  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
+  const ezUInt32 uiSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "Source");
+
+  ezUniquePtr<ezTextureSwitchPass> pSwitchX = EZ_DEFAULT_NEW(ezTextureSwitchPass);
+  pSwitchX->SetName("SwitchX");
+  pSwitchX->m_sBlackboardProperty = "QualityX";
+  pSwitchX->m_Values.PushBack(10);
+  const ezUInt32 uiSwitchX = passes.GetCount();
+  passes.PushBack(std::move(pSwitchX));
+
+  ezUniquePtr<ezTextureSwitchPass> pSwitchY = EZ_DEFAULT_NEW(ezTextureSwitchPass);
+  pSwitchY->SetName("SwitchY");
+  pSwitchY->m_sBlackboardProperty = "QualityY";
+  pSwitchY->m_Values.PushBack(10);
+  const ezUInt32 uiSwitchY = passes.GetCount();
+  passes.PushBack(std::move(pSwitchY));
+
+  const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+
+  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+  Connect(connections, uiSource, "Output", uiSwitchX, "10");
+  Connect(connections, uiSource, "Output", uiSwitchY, "10");
+  Connect(connections, uiSwitchX, "Output", uiSink, "InputA");
+  Connect(connections, uiSwitchY, "Output", uiSink, "InputB");
+
+  ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+
+  ezDynamicArray<RecordedPass> executionOrder;
+  CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
+  const char* expectedOrder[] = {"Source", "Sink"};
+  TestExecutionOrder(executionOrder, expectedOrder);
 }
 
 void ezGpuPipelineTest::SubGraphInlining()

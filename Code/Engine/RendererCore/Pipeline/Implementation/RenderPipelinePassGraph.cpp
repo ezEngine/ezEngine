@@ -27,11 +27,6 @@ ezRenderPipelinePassGraph::ezRenderPipelinePassGraph(ezDynamicArray<ezUniquePtr<
       pinInfo.m_uiInputPinIndex = pPin->m_uiInputIndex;
       pinInfo.m_uiOutputPinIndex = pPin->m_uiOutputIndex;
       pinInfo.m_Flags = pPin->m_Type;
-      if (pPin->m_Type.IsAnySet(ezRenderPipelineNodePin::Type::Input | ezRenderPipelineNodePin::Type::PassThrough) &&
-          ezDynamicCast<const ezSwitchBasePass*>(m_Passes[uiPassIdx].Borrow()) != nullptr)
-      {
-        pinInfo.m_Flags.Add(ezRenderPipelineNodePin::Type::PassThrough);
-      }
       if (pinInfo.m_Flags.IsSet(ezRenderPipelineNodePin::Type::TextureProvider) && !pinInfo.m_Flags.IsSet(ezRenderPipelineNodePin::Type::Buffer))
       {
         m_TextureProviderPins.PushBack(uiPinIdx);
@@ -111,6 +106,16 @@ ezRenderPipelinePassGraph::ezRenderPipelinePassGraph(ezDynamicArray<ezUniquePtr<
     if (pTargetPin == nullptr)
     {
       ezLog::Warning("Failed to resolve pin '{0}' on node of type '{1}'", loaderConn.m_sTargetPin, m_Passes[loaderConn.m_uiTarget]->GetDynamicRTTI()->GetTypeName());
+      continue;
+    }
+    if (pSourcePin->m_uiOutputIndex == 0xFF)
+    {
+      ezLog::Error("Failed to connect pin '{0}' of node type '{1}', because it is not an output pin.", loaderConn.m_sSourcePin, m_Passes[loaderConn.m_uiSource]->GetDynamicRTTI()->GetTypeName());
+      continue;
+    }
+    if (pTargetPin->m_uiInputIndex == 0xFF)
+    {
+      ezLog::Error("Failed to connect to pin '{0}' of node type '{1}', because it is not an input pin.", loaderConn.m_sTargetPin, m_Passes[loaderConn.m_uiTarget]->GetDynamicRTTI()->GetTypeName());
       continue;
     }
     if (pSourcePin->m_Type.IsSet(ezRenderPipelineNodePin::Type::Buffer) != pTargetPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::Buffer))
@@ -362,7 +367,7 @@ ezResult ezRenderPipelinePassGraph::SortPasses()
   m_SortedPasses.Reserve(uiAlivePassCount);
 
   // Count source dependencies and the additional sibling-consumer dependencies required by
-  // pass-through inputs. Switch passes treat their selected dynamic input as pass-through.
+  // pass-through inputs.
   for (ezUInt32 uiConnection = 0; uiConnection < m_Connections.GetCount(); ++uiConnection)
   {
     if (!m_AliveConnections.IsBitSet(uiConnection))

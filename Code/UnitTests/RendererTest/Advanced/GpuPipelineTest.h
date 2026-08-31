@@ -25,6 +25,7 @@ private:
     ST_BufferSwitch,
     ST_SubGraphBufferInlining,
     ST_IncompatiblePinConnection,
+    ST_SharedSourceSwitch,
   };
 
   virtual void SetupSubTests() override;
@@ -46,6 +47,7 @@ private:
   void BufferSwitch();
   void SubGraphBufferInlining();
   void IncompatiblePinConnection();
+  void SharedSourceSwitch();
 
   ezSharedPtr<ezRenderGraph> m_pRenderGraph;
 };
