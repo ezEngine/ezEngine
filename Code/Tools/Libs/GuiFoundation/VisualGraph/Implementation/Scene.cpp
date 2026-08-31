@@ -10,6 +10,7 @@
 #include <GuiFoundation/VisualGraph/Pin.h>
 #include <GuiFoundation/VisualGraph/View.moc.h>
 #include <GuiFoundation/Widgets/SearchableMenu.moc.h>
+#include <GuiFoundation/Widgets/SearchableTypeMenu.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Command/VisualGraphCommands.h>
 #include <ToolsFoundation/VisualGraph/VisualGraphCommentNode.h>
@@ -797,6 +798,13 @@ void ezQtVisualGraphScene::ResetConnectablePinMarkup()
 
 void ezQtVisualGraphScene::OpenSearchMenu(QPoint screenPos)
 {
+  if (m_sRecentListName.IsEmpty() && GetDocument() != nullptr)
+  {
+    // by default every document type gets its own list, so that e.g. visual shader nodes and
+    // procedural placement nodes don't share one
+    m_sRecentListName = GetDocument()->GetDocumentTypeName();
+  }
+
   QMenu menu;
   ezQtSearchableMenu* pSearchMenu = new ezQtSearchableMenu(&menu);
   menu.addAction(pSearchMenu);
@@ -818,6 +826,13 @@ void ezQtVisualGraphScene::OpenSearchMenu(QPoint screenPos)
     commentDesc.m_sTypeName = "Comment";
     commentDesc.m_sCategory = ezMakeHashedString("Misc");
   }
+
+  // the full menu path of each template, used as its identity in the 'recently used' list
+  m_NodeCreationTemplatePaths.Clear();
+  m_NodeCreationTemplatePaths.SetCount(m_NodeCreationTemplates.GetCount());
+
+  ezHybridArray<ezString, 64> templateNames;
+  templateNames.SetCount(m_NodeCreationTemplates.GetCount());
 
   for (ezUInt32 i = 0; i < m_NodeCreationTemplates.GetCount(); ++i)
   {
@@ -846,7 +861,30 @@ void ezQtVisualGraphScene::OpenSearchMenu(QPoint screenPos)
 
     sFullPath.AppendPath(sCleanName);
 
-    pSearchMenu->AddItem(ezTranslate(sCleanName.GetData(tmp)), sFullPath, QVariant::fromValue(i));
+    m_NodeCreationTemplatePaths[i] = sFullPath;
+    templateNames[i] = ezTranslate(sCleanName.GetData(tmp));
+
+    pSearchMenu->AddItem(templateNames[i], sFullPath, QVariant::fromValue(i));
+  }
+
+  // add the recently used ones at the top
+  {
+    ezInt32 iToAdd = 8;
+
+    for (const ezString& sRecent : ezQtSearchableMenuRecentList::GetList(m_sRecentListName))
+    {
+      const ezUInt32 uiIndex = m_NodeCreationTemplatePaths.IndexOf(sRecent);
+
+      if (uiIndex == ezInvalidIndex)
+        continue;
+
+      sFullPath.Set(" *** RECENT ***/", m_NodeCreationTemplatePaths[uiIndex].GetView());
+
+      pSearchMenu->AddItem(templateNames[uiIndex], sFullPath, QVariant::fromValue(uiIndex));
+
+      if (--iToAdd <= 0)
+        break;
+    }
   }
 
   pSearchMenu->Finalize(m_sContextMenuSearchText);
@@ -1055,6 +1093,11 @@ void ezQtVisualGraphScene::OnMenuItemTriggered(const QString& sName, const QVari
   ezUInt32 uiTypeIndex = variant.value<ezUInt32>();
   if (uiTypeIndex >= m_NodeCreationTemplates.GetCount())
     return;
+
+  if (uiTypeIndex < m_NodeCreationTemplatePaths.GetCount())
+  {
+    ezQtSearchableMenuRecentList::UseEntry(m_sRecentListName, m_NodeCreationTemplatePaths[uiTypeIndex]);
+  }
 
   CreateNodeObject(m_NodeCreationTemplates[uiTypeIndex]);
 }

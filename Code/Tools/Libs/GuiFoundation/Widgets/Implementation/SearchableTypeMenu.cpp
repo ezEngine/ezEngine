@@ -7,7 +7,52 @@
 #include <GuiFoundation/Widgets/SearchableTypeMenu.moc.h>
 
 bool ezQtTypeMenu::s_bShowInDevelopmentFeatures = false;
-ezDynamicArray<ezString>* ezQtTypeMenu::s_pRecentList = nullptr;
+ezMap<ezString, ezDynamicArray<ezString>>* ezQtSearchableMenuRecentList::s_pStorage = nullptr;
+
+void ezQtSearchableMenuRecentList::SetStorage(ezMap<ezString, ezDynamicArray<ezString>>* pStorage)
+{
+  s_pStorage = pStorage;
+}
+
+void ezQtSearchableMenuRecentList::UseEntry(ezStringView sListName, ezStringView sEntry)
+{
+  if (s_pStorage == nullptr || sListName.IsEmpty())
+    return;
+
+  // the list is ordered most-recently-used first, which is also the order in which the menu displays it
+  auto& list = (*s_pStorage)[sListName];
+
+  const ezUInt32 uiIndex = list.IndexOf(sEntry);
+
+  if (uiIndex != ezInvalidIndex && uiIndex != 0)
+  {
+    // already in the list, but not at the front, remove it
+    list.RemoveAtAndCopy(uiIndex);
+  }
+
+  if (uiIndex != 0)
+  {
+    list.InsertAt(0, sEntry);
+  }
+
+  while (list.GetCount() > s_uiMaxEntries)
+  {
+    list.PopBack();
+  }
+}
+
+ezArrayPtr<const ezString> ezQtSearchableMenuRecentList::GetList(ezStringView sListName)
+{
+  if (s_pStorage == nullptr)
+    return {};
+
+  auto it = s_pStorage->Find(sListName);
+
+  if (!it.IsValid())
+    return {};
+
+  return it.Value();
+}
 
 struct TypeComparer
 {
@@ -79,15 +124,7 @@ void ezQtTypeMenu::OnMenuAction(const ezRTTI* pRtti)
 {
   m_pLastSelectedType = pRtti;
 
-  if (s_pRecentList && !s_pRecentList->Contains(pRtti->GetTypeName()))
-  {
-    if (s_pRecentList->GetCount() > 32)
-    {
-      s_pRecentList->RemoveAtAndCopy(0);
-    }
-
-    s_pRecentList->PushBack(pRtti->GetTypeName());
-  }
+  ezQtSearchableMenuRecentList::UseEntry(m_sActiveRecentList, pRtti->GetTypeName());
 
   Q_EMIT TypeSelected(ezMakeQString(pRtti->GetTypeName()));
 }
@@ -95,6 +132,7 @@ void ezQtTypeMenu::OnMenuAction(const ezRTTI* pRtti)
 void ezQtTypeMenu::FillMenu(QMenu* pMenu, const ezRTTI* pBaseType, bool bDerivedTypes, bool bSimpleMenu)
 {
   m_pMenu = pMenu;
+  m_sActiveRecentList = m_sRecentListName.IsEmpty() ? ezString(pBaseType->GetTypeName()) : m_sRecentListName;
 
   m_SupportedTypes.Clear();
   m_SupportedTypes.Insert(pBaseType);
@@ -151,13 +189,13 @@ void ezQtTypeMenu::FillMenu(QMenu* pMenu, const ezRTTI* pBaseType, bool bDerived
   if (m_pSearchableMenu != nullptr)
   {
     // add recently used sub-menu
-    if (s_pRecentList)
     {
       ezStringBuilder sInternalPath, sDisplayName;
 
       ezInt32 iToAdd = 8;
 
-      for (auto& sTypeName : *s_pRecentList)
+      auto lruList = ezQtSearchableMenuRecentList::GetList(m_sActiveRecentList);
+      for (const auto& sTypeName : lruList)
       {
         const ezRTTI* pRtti = ezRTTI::FindTypeByName(sTypeName);
 

@@ -1,7 +1,9 @@
 #pragma once
 
 #include <EditorFramework/Preferences/Preferences.h>
+#include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Types/RangeView.h>
 
 class ezEngineViewLightSettings;
 
@@ -71,7 +73,14 @@ public:
   void SetMaxFramerate(ezUInt16 uiFPS);
   ezUInt16 GetMaxFramerate() const { return m_uiMaxFramerate; }
 
-  ezHybridArray<ezString, 8> m_RecentlyCreatedTypes;
+  // The 'recently used' lists of the searchable menus, one list per use case (see ezQtSearchableMenuRecentList).
+  // Reflected as a map of strings, where each value holds the entries of one list, separated by semicolons.
+  const ezRangeView<const char*, ezUInt32> GetRecentLists() const;   // [ property ]
+  void SetRecentList(const char* szKey, const ezString& sValue);     // [ property ]
+  void RemoveRecentList(const char* szKey);                          // [ property ]
+  bool GetRecentList(const char* szKey, ezString& out_sValue) const; // [ property ]
+
+  ezMap<ezString, ezDynamicArray<ezString>> m_RecentLists;
 
   void SyncGlobalSettingsToEngine();
 

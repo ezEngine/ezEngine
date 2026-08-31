@@ -47,7 +47,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("DirectionalLightShadows", m_bDirectionalLightShadows),
     EZ_MEMBER_PROPERTY("DirectionalLightIntensity", m_fDirectionalLightIntensity)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
     EZ_MEMBER_PROPERTY("Fog", m_bFog),
-    EZ_ARRAY_MEMBER_PROPERTY("RecentTypes", m_RecentlyCreatedTypes)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MAP_ACCESSOR_PROPERTY("RecentLists", GetRecentLists, GetRecentList, SetRecentList, RemoveRecentList)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
 }
@@ -57,12 +57,73 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezEditorPreferencesUser::ezEditorPreferencesUser()
   : ezPreferences(Domain::Application, "General")
 {
-  ezQtTypeMenu::s_pRecentList = &m_RecentlyCreatedTypes;
+  ezQtSearchableMenuRecentList::SetStorage(&m_RecentLists);
 }
 
 ezEditorPreferencesUser::~ezEditorPreferencesUser()
 {
-  ezQtTypeMenu::s_pRecentList = nullptr;
+  ezQtSearchableMenuRecentList::SetStorage(nullptr);
+}
+
+const ezRangeView<const char*, ezUInt32> ezEditorPreferencesUser::GetRecentLists() const
+{
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_RecentLists.GetCount(); },
+    [](ezUInt32& ref_uiIt)
+    { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char*
+    {
+      auto it = m_RecentLists.GetIterator();
+      for (ezUInt32 i = 0; i < uiIt; ++i)
+      {
+        ++it;
+      }
+      return it.Key().GetData();
+    });
+}
+
+void ezEditorPreferencesUser::SetRecentList(const char* szKey, const ezString& sValue)
+{
+  ezDynamicArray<ezString>& list = m_RecentLists[szKey];
+  list.Clear();
+
+  ezTempHybridArray<ezStringView, 32> entries;
+  ezStringView(sValue).Split(false, entries, ";");
+
+  for (ezStringView sEntry : entries)
+  {
+    list.PushBack(sEntry);
+  }
+}
+
+void ezEditorPreferencesUser::RemoveRecentList(const char* szKey)
+{
+  m_RecentLists.Remove(szKey);
+}
+
+bool ezEditorPreferencesUser::GetRecentList(const char* szKey, ezString& out_sValue) const
+{
+  auto it = m_RecentLists.Find(szKey);
+
+  if (!it.IsValid())
+    return false;
+
+  ezStringBuilder sTmp;
+
+  for (const ezString& sEntry : it.Value())
+  {
+    if (!sTmp.IsEmpty())
+    {
+      sTmp.Append(";");
+    }
+
+    sTmp.Append(sEntry.GetView());
+  }
+
+  out_sValue = sTmp;
+  return true;
 }
 
 void ezEditorPreferencesUser::ApplyDefaultValues(ezEngineViewLightSettings& ref_settings)

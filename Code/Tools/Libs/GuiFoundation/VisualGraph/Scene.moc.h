@@ -104,6 +104,10 @@ private:
   void OpenSearchMenu(QPoint screenPos);
 
 protected:
+  /// Which 'recently used' list the node creation menu records to. See ezQtSearchableMenuRecentList.
+  /// If empty, the document type name is used when the menu is first opened.
+  ezString m_sRecentListName;
+
   virtual ezStatus RemoveNode(ezQtVisualGraphNode* pNode);
   virtual void RemoveSelectedNodesAction();
   virtual void AddCommentAroundSelectionAction();
@@ -139,6 +143,7 @@ private:
   ezBitflags<ConnectionDecorationFlags> m_ConnectionDecorationFlags;
 
   ezDynamicArray<ezVisualGraphNodeDesc> m_NodeCreationTemplates;
+  ezDynamicArray<ezString> m_NodeCreationTemplatePaths;
 
   static ezVec2 s_vLastMouseInteraction;
 };
