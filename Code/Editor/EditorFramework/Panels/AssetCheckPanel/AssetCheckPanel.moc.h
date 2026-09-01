@@ -31,7 +31,7 @@ protected:
 private:
   void RunButtonClicked();
   void ResultTreeItemDoubleClicked(QTreeWidgetItem* pItem, int iColumn);
-  
+
   void UpdateAssetTypeCombo();
   void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
 
