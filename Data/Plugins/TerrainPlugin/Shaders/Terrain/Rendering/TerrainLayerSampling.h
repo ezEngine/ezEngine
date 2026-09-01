@@ -51,3 +51,64 @@ float3 TriplanarSampleNormalArray(Texture2DArray tex, SamplerState samp, float3 
 
   return normalize(wsX * weights.x + wsY * weights.y + wsZ * weights.z);
 }
+
+/// Maximum number of layers TerrainHeightBlendWeights can process.
+#define TERRAIN_MAX_BLEND_LAYERS 5
+
+/// Redistributes linear splat weights using per-layer height (displacement) values, so that the
+/// layer with the highest local height wins a pixel instead of all layers averaging together.
+///
+/// This turns the transition between two layers from a linear cross-fade into an interlocking one:
+/// where a rock texture has raised stones its height is large, so the rock keeps those pixels even
+/// at a low splat weight, while the crevices between the stones fall below the neighbouring layer's
+/// height and show sand or dirt instead.
+///
+/// Each weight is biased by its height, then only layers within 'depth' of the highest biased value
+/// survive; the survivors are renormalized so the result still sums to 1.
+///
+/// The bias is scaled by the incoming weight, so a layer that is not painted at a pixel (weight 0)
+/// can never appear there no matter how tall its height map is.
+///
+/// depth: transition width. Small values (~0.02) give hard, per-stone cutout edges, large values
+/// (~0.5) approach the plain linear blend. Must be > 0, otherwise ties would produce zero total
+/// weight and the original weights are kept.
+/// strength: how far a height value may push a layer. 0 reproduces the linear blend exactly.
+///
+/// Weights whose corresponding entry in 'heights' is unused (layer disabled via TERRAIN_LAYER_COUNT)
+/// must be passed as 0 so they drop out of the maximum.
+void TerrainHeightBlendWeights(inout float weights[TERRAIN_MAX_BLEND_LAYERS], float heights[TERRAIN_MAX_BLEND_LAYERS], float depth, float strength)
+{
+  float biased[TERRAIN_MAX_BLEND_LAYERS];
+  float peak = 0.0;
+
+  [unroll] for (uint i = 0; i < TERRAIN_MAX_BLEND_LAYERS; ++i)
+  {
+    // Scaling the height term by the weight keeps unpainted layers (weight 0) out of the result
+    // and makes the bias fade in smoothly as a layer is painted in.
+    biased[i] = weights[i] * (1.0 + heights[i] * strength);
+    peak = max(peak, biased[i]);
+  }
+
+  const float cutoff = peak - depth;
+
+  float total = 0.0;
+  float result[TERRAIN_MAX_BLEND_LAYERS];
+
+  [unroll] for (uint j = 0; j < TERRAIN_MAX_BLEND_LAYERS; ++j)
+  {
+    result[j] = max(biased[j] - cutoff, 0.0);
+    total += result[j];
+  }
+
+  // total can only reach 0 if every weight was 0 (a pixel with no layers at all). Keep the
+  // input weights in that case rather than dividing by zero.
+  if (total <= 0.0)
+    return;
+
+  const float rcpTotal = 1.0 / total;
+
+  [unroll] for (uint k = 0; k < TERRAIN_MAX_BLEND_LAYERS; ++k)
+  {
+    weights[k] = result[k] * rcpTotal;
+  }
+}

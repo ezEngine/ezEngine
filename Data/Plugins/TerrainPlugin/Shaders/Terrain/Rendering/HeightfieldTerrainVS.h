@@ -90,7 +90,12 @@ VS_OUT FillHeightfieldTerrainVertexOutput(uint vertexID)
   const uint fullCellIndex = (uint)(clamp(cellBufY, 0, cellsFull - 1) * cellsFull + clamp(cellBufX, 0, cellsFull - 1));
 
   // Read per-cell-corner weights (unique slot per corner per cell — no sharing between cells).
-  const uint vtxWeightPacked = TerrainWeights[fullCellIndex * 4u + CornerSlot[vertInCell]];
+  const int wCellX = clamp(bufX, 0, cellsFull - 1);
+  const int wCellY = clamp(bufY, 0, cellsFull - 1);
+  const uint wSlot = (uint)clamp(bufX - wCellX, 0, 1) + (uint)clamp(bufY - wCellY, 0, 1) * 2u;
+  const uint weightCellIndex = (uint)(clamp(wCellY, 0, cellsFull - 1) * cellsFull + clamp(wCellX, 0, cellsFull - 1));
+
+  const uint vtxWeightPacked = TerrainWeights[weightCellIndex * 4u + wSlot];
 
   // Carve sentinel: Step3 writes 0xFFFFFFFF for carved corners.
   // NaN position causes the spec to cull any triangle touching this vertex.

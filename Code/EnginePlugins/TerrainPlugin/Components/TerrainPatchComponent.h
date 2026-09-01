@@ -95,13 +95,18 @@ public:
   ezUInt8 GetBaseMaterialIndex() const { return m_uiBaseMaterialIndex; }            // [ property ]
   void SetBaseMaterialIndex(ezUInt8 uiIndex);                                       // [ property ]
 
-  /// Divides the target grid-cell coverage used for automatic LOD selection, i.e. scales the
-  /// distance at which this patch switches LODs. 1 = default distance, > 1 switches later (at a
-  /// greater distance), < 1 switches earlier (at a smaller distance).
+  /// On-screen height, in pixels, that one grid cell has to fall below before the patch switches to
+  /// the next-coarser LOD. Larger values keep more detail (switching later, at a greater distance),
+  /// smaller values coarsen sooner.
+  ///
+  /// The value is measured against a 1080-pixel-high view, not the actual viewport, so the LOD a
+  /// patch picks does not change with the window size or display resolution. Terrain.LodQuality
+  /// scales it globally to drive a quality setting.
+  ///
   /// 0 ("LOD Disabled") turns automatic LOD off entirely: the patch always renders at full
   /// resolution and the skirt (only needed to hide seams against a coarser LOD neighbor) is off too.
-  float GetLodDistanceScale() const { return m_fLodDistanceScale; } // [ property ]
-  void SetLodDistanceScale(float fScale);                           // [ property ]
+  float GetLodCellPixelSize() const { return m_fLodCellPixelSize; } // [ property ]
+  void SetLodCellPixelSize(float fPixels);                          // [ property ]
 
   const ezTagSet& GetTags() const { return m_Tags; }                // [ property ]
   void Reflection_SetTag(const char* szTagName);                    // [ property ]
@@ -144,6 +149,6 @@ private:
   ezVec2 m_vImageOffset = ezVec2::MakeZero();
   ezVec2 m_vImageSize = ezVec2(1.0f);
   float m_fHeightScale = 32.0f;
-  float m_fLodDistanceScale = 1.0f;
+  float m_fLodCellPixelSize = 16.0f;
   bool m_bHeightImageDirty = false; ///< Set when the image resource reloads
 };
