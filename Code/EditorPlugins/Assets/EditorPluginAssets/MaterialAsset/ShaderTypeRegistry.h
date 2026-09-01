@@ -8,6 +8,7 @@
 #include <Foundation/Time/Timestamp.h>
 
 struct ezPhantomRttiManagerEvent;
+struct ezPluginEvent;
 
 class ezShaderTypeRegistry
 {
@@ -33,8 +34,12 @@ private:
     const ezRTTI* m_pType = nullptr;
   };
   void UpdateShaderType(ShaderData& data);
+
+  void RegisterBaseType();
   void PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e);
 
+  void PluginEventHandler(const ezPluginEvent& e);
+
   ezMap<ezString, ShaderData> m_ShaderTypes;
-  const ezRTTI* m_pBaseType;
+  const ezRTTI* m_pBaseType = nullptr;
 };
