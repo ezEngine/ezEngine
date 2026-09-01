@@ -856,6 +856,29 @@ ezResult ezCppProject::CleanBuildDir(const ezCppSettings& cfg)
   return ezOSFile::DeleteFolder(sBuildDir);
 }
 
+ezStatus ezCppProject::CheckBuildPathLength(const ezCppSettings& cfg)
+{
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  // Longest relative path observed below the build directory, e.g.
+  // "CMakeFiles/<version>/VCTargetsPath.tlog/ParallelCustomBuild.read.1.tlog". Targets nested deeper than
+  // that exist, so this is rounded up rather than taken as an exact bound. MSBuild writes these paths
+  // through .NET APIs that enforce MAX_PATH, which is why ezOSFile's long path support does not help.
+  constexpr ezUInt32 uiReservedForGeneratedFiles = 100;
+  constexpr ezUInt32 uiMaxPath = 260;
+
+  const ezStringBuilder sBuildDir = GetBuildDir(cfg);
+  const ezUInt32 uiBuildDirLength = sBuildDir.GetElementCount();
+
+  if (uiBuildDirLength + uiReservedForGeneratedFiles <= uiMaxPath)
+    return ezStatus(EZ_SUCCESS);
+
+  return ezStatus(ezFmt("The C++ build directory is too long for this system:\n\n{}\n\nIt uses {} of the {} characters Windows allows, leaving too little room for the files the build system creates below it. Move the project to a shorter directory.", sBuildDir, uiBuildDirLength, uiMaxPath));
+#else
+  EZ_IGNORE_UNUSED(cfg);
+  return ezStatus(EZ_SUCCESS);
+#endif
+}
+
 ezResult ezCppProject::RunCMake(const ezCppSettings& cfg)
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -864,6 +887,12 @@ ezResult ezCppProject::RunCMake(const ezCppSettings& cfg)
   if (!ExistsProjectCMakeListsTxt())
   {
     ezLog::Error("No CMakeLists.txt exists in target source directory '{}'", GetTargetSourceDir());
+    return EZ_FAILURE;
+  }
+
+  if (auto pathLength = CheckBuildPathLength(cfg); pathLength.Failed())
+  {
+    pathLength.LogFailure();
     return EZ_FAILURE;
   }
 

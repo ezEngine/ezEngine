@@ -125,6 +125,15 @@ struct EZ_EDITORFRAMEWORK_DLL ezCppProject : public ezPreferences
   /// Returns the full path to the generated solution file.
   static ezString GetSolutionPath(const ezCppSettings& cfg);
 
+  /// Checks that the build directory leaves enough room for the paths CMake and the compiler toolchain
+  /// generate below it.
+  ///
+  /// This is about the external build tools, not about ezEngine's own file access: ezOSFile goes through
+  /// ezDosDevicePath and handles paths beyond MAX_PATH, but MSBuild fails on the intermediate files it
+  /// writes itself (its .tlog files in particular). That failure otherwise surfaces only as an opaque
+  /// exception deep in the CMake output. Only ever fails on Windows.
+  static ezStatus CheckBuildPathLength(const ezCppSettings& cfg);
+
   /// Opens the solution file in the configured IDE.
   static ezStatus OpenSolution(const ezCppSettings& cfg);
 
