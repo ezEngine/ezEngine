@@ -45,6 +45,12 @@ namespace
   static ezHashTable<ezString, PermutationVarConfig> s_PermutationVarConfigs;
   static ezHashTable<ezString, const ezRTTI*> s_EnumTypes;
 
+  void ClearCachedTypes()
+  {
+    s_PermutationVarConfigs.Clear();
+    s_EnumTypes.Clear();
+  }
+
   const ezRTTI* GetPermutationType(const ezShaderParser::ParameterDefinition& def)
   {
     EZ_ASSERT_DEV(def.m_sType.IsEqual("Permutation"), "");
@@ -246,6 +252,22 @@ ezShaderTypeRegistry::ezShaderTypeRegistry()
   : m_SingletonRegistrar(this)
 {
   ezShaderTypeRegistry::GetSingleton();
+
+  RegisterBaseType();
+
+  ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
+  ezPlugin::Events().AddEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PluginEventHandler, this));
+}
+
+
+ezShaderTypeRegistry::~ezShaderTypeRegistry()
+{
+  ezPlugin::Events().RemoveEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PluginEventHandler, this));
+  ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
+}
+
+void ezShaderTypeRegistry::RegisterBaseType()
+{
   ezReflectedTypeDescriptor desc;
   desc.m_sTypeName = "ezShaderTypeBase";
   desc.m_sPluginName = "ShaderTypes";
@@ -254,14 +276,24 @@ ezShaderTypeRegistry::ezShaderTypeRegistry()
   desc.m_uiTypeVersion = 2;
 
   m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
-
-  ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
 }
 
-
-ezShaderTypeRegistry::~ezShaderTypeRegistry()
+void ezShaderTypeRegistry::PluginEventHandler(const ezPluginEvent& e)
 {
-  ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
+  // ezPhantomRttiManager deletes all phantom types on this event, regardless of which plugin unloads,
+  // so every cached type has to go, not just those belonging to e.m_sPluginBinary.
+  if (e.m_EventType == ezPluginEvent::Type::BeforeUnloading)
+  {
+    ClearCachedTypes();
+    m_ShaderTypes.Clear();
+    m_pBaseType = nullptr;
+  }
+
+  // This object outlives the types, so the base type has to be restored before it is used again.
+  if (e.m_EventType == ezPluginEvent::Type::AfterPluginChanges && m_pBaseType == nullptr)
+  {
+    RegisterBaseType();
+  }
 }
 
 const ezRTTI* ezShaderTypeRegistry::GetShaderType(ezStringView sShaderPath0)

@@ -11,7 +11,7 @@ BEGIN_PUSH_CONSTANTS(HeightfieldRenderConstants)
   UINT1(VertexIdxPitch);       ///< Number of buffer entries per row.
   UINT1(CellsPerSide);         ///< Number of full-resolution quads per side. Used to map rendered cells to baked material/weight cells.
   UINT1(InstanceDataOffset);   ///< Offset into the perInstanceData buffer for this patch (used for editor picking and world transform).
-  UINT1(FallbackMaterialSlot); ///< Material slot index (0–7) used as the implicit fallback layer. Weight = max(0, 1 - w0 - w1 - w2 - w3).
+  UINT1(FallbackMaterialSlot); ///< Material slot index (0–15) used as the implicit fallback layer. Weight = max(0, 1 - w0 - w1 - w2 - w3).
   UINT1(RenderCellsPerSide);   ///< Number of rendered quads per side, including skirt rings. Drives cellIndex decode.
   UINT1(VertexStep);           ///< Stored-buffer index step between adjacent rendered vertices (2^LOD).
   UINT1(SkirtCells);           ///< Number of skirt cell rings rendered on each side (0 = no skirt).
