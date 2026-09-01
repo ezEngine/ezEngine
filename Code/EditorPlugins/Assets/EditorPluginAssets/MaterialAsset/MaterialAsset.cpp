@@ -127,8 +127,8 @@ namespace
       // exposed as material properties, but [MATERIALCONFIG] may still evaluate them. Define those
       // as well, skipping any that the material exposes, whose own value takes precedence.
       {
-        ezHybridArray<ezHashedString, 16> permVars;
-        ezHybridArray<ezPermutationVar, 16> fixedPermVars;
+        ezTempHybridArray<ezHashedString, 16> permVars;
+        ezTempHybridArray<ezPermutationVar, 16> fixedPermVars;
         ezShaderParser::ParsePermutationSection(sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine), permVars, fixedPermVars);
 
         for (const auto& permVar : fixedPermVars)
@@ -1223,7 +1223,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
       if (bEmbedLowResData)
       {
         ezStringBuilder sFilename, sResourceName;
-        ezDynamicArray<ezUInt32> content;
+        ezTempArray<ezUInt32> content;
 
         // embed 2D texture data (not array textures - their lowres data has a different DDS structure)
         for (auto prop : Textures2D)
