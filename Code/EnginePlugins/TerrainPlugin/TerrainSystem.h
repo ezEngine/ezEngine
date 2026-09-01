@@ -230,7 +230,9 @@ public:
   /// Bakes the given heightfield patch and blocks while reading the result back to the CPU.
   ///
   /// out_heights receives the full stored height grid (CellsPerSide+9)² floats — 4 border rings on each
-  /// side beyond the rendered vertices. out_dominantMat receives the dominant material index per stored cell.
+  /// side beyond the rendered vertices. out_dominantMat receives the dominant material index per stored cell,
+  /// which is the material with the largest weight including the patch's implicit base material, or 0xFF for
+  /// carved cells.
   /// Must be called from the main/render thread with GPU device access.
   ezResult ReadbackHeightfieldData(ezUInt32 uiPatchIndex, ezDynamicArray<float>& out_heights, ezDynamicArray<ezUInt8>& out_dominantMat, ezTime timeout = ezTime::MakeFromSeconds(5.0));
 

@@ -870,10 +870,36 @@ ezResult ezTerrainSystem::ReadbackHeightfieldData(ezUInt32 uiPatchIndex, ezDynam
     auto lock = maskRB.LockBuffer(rawMemory);
     if (lock)
     {
+      // Step2 sorts only the four explicit brush slots, so slot 0 is the strongest brush material,
+      // which is not necessarily the strongest material overall: the base material is implicit and
+      // covers whatever weight the brushes leave over. Compare it against slot 0 here so a faint
+      // brush does not win over a base material that visually dominates the surface.
       const ezUInt32* pStoredMask = reinterpret_cast<const ezUInt32*>(rawMemory.GetPtr());
       out_dominantMat.SetCountUninitialized(S * S);
       for (ezUInt32 i = 0; i < S * S; ++i)
-        out_dominantMat[i] = static_cast<ezUInt8>(pStoredMask[i * 2] & 0xFFu);
+      {
+        const ezUInt32 uiIndices = pStoredMask[i * 2];
+        const ezUInt32 uiWeights = pStoredMask[i * 2 + 1];
+
+        const ezUInt8 uiTopBrushMat = static_cast<ezUInt8>(uiIndices & 0xFFu);
+
+        // 0xFF in slot 0 is the sentinel for a carved (non-colliding) vertex and must be preserved.
+        if (uiTopBrushMat == 0xFFu)
+        {
+          out_dominantMat[i] = 0xFFu;
+          continue;
+        }
+
+        const ezUInt32 uiTopBrushWeight = uiWeights & 0xFFu;
+        ezUInt32 uiTotalBrushWeight = 0;
+        for (ezUInt32 s = 0; s < 4; ++s)
+          uiTotalBrushWeight += (uiWeights >> (s * 8)) & 0xFFu;
+
+        // Weights are 8-bit unorm and clamped to sum <= 1 by Step2, so the remainder is the base material's share.
+        const ezUInt32 uiBaseWeight = (uiTotalBrushWeight >= 255) ? 0 : (255 - uiTotalBrushWeight);
+
+        out_dominantMat[i] = (uiBaseWeight > uiTopBrushWeight) ? patch.m_uiDefaultMaterialIndex : uiTopBrushMat;
+      }
     }
   }
 
