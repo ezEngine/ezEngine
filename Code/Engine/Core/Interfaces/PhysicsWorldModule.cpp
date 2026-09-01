@@ -83,6 +83,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgObjectGrabbed, 1, ezRTTIDefaultAllocator<ez
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPhysicsMakeTemporarilyDynamic);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicsMakeTemporarilyDynamic, 1, ezRTTIDefaultAllocator<ezMsgPhysicsMakeTemporarilyDynamic>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgReleaseObjectGrab);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgReleaseObjectGrab, 1, ezRTTIDefaultAllocator<ezMsgReleaseObjectGrab>)
 {

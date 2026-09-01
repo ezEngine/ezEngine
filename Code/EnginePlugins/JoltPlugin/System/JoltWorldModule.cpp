@@ -818,6 +818,11 @@ void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context
     pDynamicActorManager->UpdateDynamicActors();
   }
 
+  if (ezJoltStaticActorComponentManager* pStaticActorManager = GetWorld()->GetComponentManager<ezJoltStaticActorComponentManager>())
+  {
+    pStaticActorManager->UpdateTemporarilyDynamicActors();
+  }
+
   for (auto pCharacter : m_ActiveCharacters)
   {
     pCharacter->Update(m_SimulatedTimeStep);

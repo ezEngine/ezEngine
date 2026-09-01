@@ -2,10 +2,13 @@
 
 #include <Core/World/WorldLogLink.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyID.h>
+#include <Jolt/Physics/Body/BodyLock.h>
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/PhysicsSystem.h>
@@ -18,6 +21,49 @@
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
+
+ezJoltStaticActorComponentManager::ezJoltStaticActorComponentManager(ezWorld* pWorld)
+  : ezComponentManager<ezJoltStaticActorComponent, ezBlockStorageType::FreeList>(pWorld)
+{
+}
+
+ezJoltStaticActorComponentManager::~ezJoltStaticActorComponentManager() = default;
+
+void ezJoltStaticActorComponentManager::UpdateTemporarilyDynamicActors()
+{
+  if (m_TemporarilyDynamicActors.IsEmpty())
+    return;
+
+  EZ_PROFILE_SCOPE("UpdateTemporarilyDynamicActors");
+
+  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  auto* pSystem = pModule->GetJoltSystem();
+
+  for (ezComponentHandle hActor : m_TemporarilyDynamicActors)
+  {
+    ezJoltStaticActorComponent* pActor = nullptr;
+    if (!TryGetComponent(hActor, pActor))
+      continue;
+
+    JPH::BodyID bodyId(pActor->GetJoltBodyID());
+
+    JPH::BodyLockRead bodyLock(pSystem->GetBodyLockInterface(), bodyId);
+    if (!bodyLock.Succeeded())
+      continue;
+
+    const JPH::Body& body = bodyLock.GetBody();
+
+    if (!body.IsDynamic())
+      continue;
+
+    ezSimdTransform trans = pActor->GetOwner()->GetGlobalTransformSimd();
+
+    trans.m_Position = ezJoltConversionUtils::ToSimdVec3(body.GetPosition());
+    trans.m_Rotation = ezJoltConversionUtils::ToSimdQuat(body.GetRotation());
+
+    pActor->GetOwner()->SetGlobalTransform(trans);
+  }
+}
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezJoltStaticActorComponent, 1, ezComponentMode::Static)
@@ -32,6 +78,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltStaticActorComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
+    EZ_MESSAGE_HANDLER(ezMsgPhysicsMakeTemporarilyDynamic, OnMsgPhysicsMakeTemporarilyDynamic),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -77,6 +124,114 @@ void ezJoltStaticActorComponent::OnDeactivated()
   m_UsedSurfaces.Clear();
 
   SUPER::OnDeactivated();
+}
+
+bool ezJoltStaticActorComponent::CanBeMadeDynamic()
+{
+  // a triangle mesh can only ever be part of a static body
+  if (m_hCollisionMesh.IsValid())
+  {
+    ezResourceLock<ezJoltMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+
+    if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+      return false;
+
+    if (pMesh->HasTriangleMesh())
+      return false;
+
+    if (pMesh->GetNumConvexParts() > 0)
+      return true;
+  }
+
+  // otherwise the sub-shape components attached to this object have to provide the geometry,
+  // and those are all convex
+  ezTempHybridArray<ezJoltSubShape, 16> shapes;
+  ezTransform towner = GetOwner()->GetGlobalTransform();
+  towner.m_vScale.Set(1.0f);
+
+  GatherShapes(shapes, GetOwner(), towner, 1.0f, nullptr);
+
+  const bool bHasShapes = !shapes.IsEmpty();
+
+  for (auto& sub : shapes)
+  {
+    if (sub.m_pShape)
+    {
+      sub.m_pShape->Release();
+    }
+  }
+
+  return bHasShapes;
+}
+
+void ezJoltStaticActorComponent::OnMsgPhysicsMakeTemporarilyDynamic(ezMsgPhysicsMakeTemporarilyDynamic& msg)
+{
+  EZ_IGNORE_UNUSED(msg);
+
+  if (m_uiJoltBodyID == JPH::BodyID::cInvalidBodyID)
+    return;
+
+  ezJoltStaticActorComponentManager* pManager = GetWorld()->GetOrCreateComponentManager<ezJoltStaticActorComponentManager>();
+
+  if (pManager->m_TemporarilyDynamicActors.Contains(GetHandle()))
+    return;
+
+  if (!CanBeMadeDynamic())
+    return;
+
+  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  auto* pBodies = &pModule->GetJoltSystem()->GetBodyInterface();
+
+  auto* pMaterial = GetJoltMaterial();
+
+  JPH::BodyCreationSettings bodyCfg;
+  if (CreateShape(&bodyCfg, 1.0f, pMaterial).Failed())
+    return;
+
+  if (pMaterial == nullptr)
+    pMaterial = ezJoltCore::GetDefaultMaterial();
+
+  // A static Jolt body has no motion properties and can't be switched to a dynamic motion type, so the existing body
+  // is thrown away and a dynamic one is created in its place. The user data and the object filter ID are kept, so
+  // that everything that refers to this actor keeps working.
+  {
+    const JPH::BodyID oldBodyId(m_uiJoltBodyID);
+
+    if (pBodies->IsAdded(oldBodyId))
+      pBodies->RemoveBody(oldBodyId);
+    else
+      pModule->RemoveBodyFromQueue(oldBodyId);
+
+    pBodies->DestroyBody(oldBodyId);
+    m_uiJoltBodyID = JPH::BodyID::cInvalidBodyID;
+  }
+
+  const ezSimdTransform trans = GetOwner()->GetGlobalTransformSimd();
+
+  bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
+  bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized();
+  bodyCfg.mMotionType = JPH::EMotionType::Dynamic;
+  bodyCfg.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Dynamic);
+  bodyCfg.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateMassAndInertia;
+  bodyCfg.mRestitution = pMaterial->m_fRestitution;
+  bodyCfg.mFriction = pMaterial->m_fFriction;
+  bodyCfg.mCollisionGroup.SetGroupID(m_uiObjectFilterID);
+  bodyCfg.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter());
+  bodyCfg.mUserData = reinterpret_cast<ezUInt64>(GetUserData());
+
+  JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
+  if (pBody == nullptr)
+  {
+    ezLog::Error("Jolt body creation failed. You need to increase the maximum number of bodies.");
+    return;
+  }
+
+  m_uiJoltBodyID = pBody->GetID().GetIndexAndSequenceNumber();
+  pModule->QueueBodyToAdd(pBody, true);
+
+  GetOwner()->MakeDynamic();
+
+  pManager->m_TemporarilyDynamicActors.PushBack(GetHandle());
 }
 
 void ezJoltStaticActorComponent::OnSimulationStarted()

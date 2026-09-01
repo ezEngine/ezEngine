@@ -112,6 +112,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 8, ezComponentMode::Dynamic
   EZ_BEGIN_MESSAGEHANDLERS
   {
       EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, AddLinearImpulseAtPos),
+      EZ_MESSAGE_HANDLER(ezMsgPhysicsMakeTemporarilyDynamic, OnMsgPhysicsMakeTemporarilyDynamic),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_FUNCTIONS
@@ -209,6 +210,17 @@ void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& inout_stre
     s >> f;
     m_fBuoyancyFactor = f;
   }
+}
+
+void ezJoltDynamicActorComponent::OnMsgPhysicsMakeTemporarilyDynamic(ezMsgPhysicsMakeTemporarilyDynamic& msg)
+{
+  EZ_IGNORE_UNUSED(msg);
+
+  // a kinematic actor doesn't fall down, so switch it to a fully simulated one.
+  // Nothing is restored afterwards, because this only ever happens in a simulation whose world gets discarded.
+  SetKinematic(false);
+
+  GetOwner()->MakeDynamic();
 }
 
 void ezJoltDynamicActorComponent::SetKinematic(bool b)

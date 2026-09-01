@@ -5,7 +5,26 @@
 
 struct ezMsgExtractGeometry;
 
-using ezJoltStaticActorComponentManager = ezComponentManager<class ezJoltStaticActorComponent, ezBlockStorageType::FreeList>;
+struct ezMsgPhysicsMakeTemporarilyDynamic;
+
+/// Manager for ezJoltStaticActorComponent.
+///
+/// Beyond the default component management it keeps track of the static actors that were temporarily turned into
+/// dynamic ones, and copies their simulated transform back onto their owner objects.
+class EZ_JOLTPLUGIN_DLL ezJoltStaticActorComponentManager : public ezComponentManager<class ezJoltStaticActorComponent, ezBlockStorageType::FreeList>
+{
+public:
+  ezJoltStaticActorComponentManager(ezWorld* pWorld);
+  ~ezJoltStaticActorComponentManager();
+
+private:
+  friend class ezJoltWorldModule;
+  friend class ezJoltStaticActorComponent;
+
+  void UpdateTemporarilyDynamicActors();
+
+  ezDynamicArray<ezComponentHandle> m_TemporarilyDynamicActors;
+};
 
 /// Turns an object into an immovable obstacle in the physics simulation.
 ///
@@ -27,6 +46,8 @@ public:
 protected:
   virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
+
+  void OnMsgPhysicsMakeTemporarilyDynamic(ezMsgPhysicsMakeTemporarilyDynamic& msg);
 
   //////////////////////////////////////////////////////////////////////////
   // ezJoltActorComponent
@@ -55,6 +76,9 @@ public:
 protected:
   void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
   const ezJoltMaterial* GetJoltMaterial() const;
+
+  /// Whether the shapes of this actor could be used for a dynamic body. Triangle meshes can't.
+  bool CanBeMadeDynamic();
 
   ezJoltMeshResourceHandle m_hCollisionMesh;
 

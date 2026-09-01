@@ -3,6 +3,7 @@
 #include <EnginePluginScene/SceneContext/SceneContext.h>
 #include <EnginePluginScene/SceneView/SceneView.h>
 
+#include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Interfaces/SoundInterface.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/World/EventMessageHandlerComponent.h>
@@ -1174,6 +1175,24 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
 {
   if (!m_pWorld->GetWorldSimulationEnabled())
     return;
+
+  // Objects that don't move on their own can't be placed physically. Ask them to become simulated for the rest of
+  // this simulation, so that pressing the shortcut again records where they came to rest.
+  {
+    ezWorld* pMutableWorld = GetWorld();
+    EZ_LOCK(pMutableWorld->GetWriteMarker());
+
+    ezMsgPhysicsMakeTemporarilyDynamic makeDynamicMsg;
+
+    for (ezGameObjectHandle hObject : m_SelectionWithChildren)
+    {
+      ezGameObject* pObject = nullptr;
+      if (!pMutableWorld->TryGetObject(hObject, pObject))
+        continue;
+
+      pObject->SendMessage(makeDynamicMsg);
+    }
+  }
 
   const ezWorld* pWorld = GetWorld();
   EZ_LOCK(pWorld->GetReadMarker());

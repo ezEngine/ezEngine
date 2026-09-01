@@ -193,6 +193,20 @@ struct EZ_CORE_DLL ezMsgObjectGrabbed : public ezMessage
   bool m_bGotGrabbed = true;
 };
 
+/// Asks physics actors to temporarily become fully simulated, so that they fall down and settle realistically.
+///
+/// This is an editor-only tool: it is sent when the user asks the editor to record object transforms during a
+/// simulation, so that even objects that are normally not simulated can be placed physically.
+/// The change lasts only for the running simulation, nothing needs to be restored, because the runtime world is
+/// discarded when the simulation ends.
+///
+/// Actors that can't be simulated ignore this message. In particular a static actor that only has a concave
+/// (triangle mesh) collider can't become dynamic and stays as it is.
+struct EZ_CORE_DLL ezMsgPhysicsMakeTemporarilyDynamic : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicsMakeTemporarilyDynamic, ezMessage);
+};
+
 /// Send this to components such as ezJoltGrabObjectComponent to demand that m_hGrabbedObjectToRelease should no longer be grabbed.
 struct EZ_CORE_DLL ezMsgReleaseObjectGrab : public ezMessage
 {
