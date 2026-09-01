@@ -37,9 +37,6 @@ ezQtAssetCheckPanel::ezQtAssetCheckPanel(ads::CDockManager* pDockManager)
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetCheckPanel::DocumentManagerEventHandler, this));
 
   UpdateAssetTypeCombo();
-
-  ezAssetCheckRule::CreateRules(m_Rules);
-  FillRuleList();
 }
 
 ezQtAssetCheckPanel::~ezQtAssetCheckPanel()
@@ -102,6 +99,9 @@ void ezQtAssetCheckPanel::UpdateAssetTypeCombo()
 
 void ezQtAssetCheckPanel::FillRuleList()
 {
+  m_Rules.Clear();
+  ezAssetCheckRule::CreateRules(m_Rules);
+
   RuleList->clear();
 
   for (ezUInt32 i = 0; i < m_Rules.GetCount(); ++i)
