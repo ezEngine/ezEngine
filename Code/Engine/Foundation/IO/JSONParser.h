@@ -139,6 +139,7 @@ private:
   void ReadNextByte();
 
   void SkipStack(State s);
+  void PopStack();
 
   ezUInt8 m_uiCurByte;
   ezUInt8 m_uiNextByte;

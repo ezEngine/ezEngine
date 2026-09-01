@@ -43,7 +43,7 @@ void ezJSONParser::SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLineOf
 void ezJSONParser::StartParsing()
 {
   // remove the NotStarted state
-  m_StateStack.PopBack();
+  PopStack();
 
   // put the Finished state onto the stack
   {
@@ -154,6 +154,13 @@ void ezJSONParser::SkipStack(State s)
   m_bSkippingMode = false;
 }
 
+void ezJSONParser::PopStack()
+{
+  // The stack can be empty if the parser encountered a fatal error before
+  if (!m_StateStack.IsEmpty())
+    m_StateStack.PopBack();
+}
+
 bool ezJSONParser::ContinueParsing()
 {
   if (m_uiCurByte == '\0')
@@ -219,7 +226,7 @@ void ezJSONParser::ContinueObject()
     case '}':
       SkipWhitespace();
 
-      m_StateStack.PopBack();
+      PopStack();
 
       if (!m_bSkippingMode)
         OnEndObject();
@@ -247,7 +254,7 @@ void ezJSONParser::ContinueArray()
     {
       SkipWhitespace();
 
-      m_StateStack.PopBack();
+      PopStack();
 
       if (!m_bSkippingMode)
         OnEndArray();
@@ -287,7 +294,7 @@ void ezJSONParser::ContinueVariable()
     SkipWhitespace();
 
   // remove ReadingVariable from the stack
-  m_StateStack.PopBack();
+  PopStack();
 
   JSONState s;
 
@@ -322,7 +329,7 @@ void ezJSONParser::ContinueValue()
       SkipWhitespace();
 
       // remove ReadingValue from the stack
-      m_StateStack.PopBack();
+      PopStack();
 
       if (!m_bSkippingMode)
         OnReadValue(ezStringView((const char*)&m_TempString[0]));
@@ -346,7 +353,7 @@ void ezJSONParser::ContinueValue()
       const double fValue = ReadNumber();
 
       // remove ReadingValue from the stack
-      m_StateStack.PopBack();
+      PopStack();
 
       if (!m_bSkippingMode)
         OnReadValue(fValue);
@@ -357,7 +364,7 @@ void ezJSONParser::ContinueValue()
     case 'f':
     {
       // remove ReadingValue from the stack
-      m_StateStack.PopBack();
+      PopStack();
 
       ReadWord();
 
@@ -378,7 +385,7 @@ void ezJSONParser::ContinueValue()
     case 'N':
     {
       // remove ReadingValue from the stack
-      m_StateStack.PopBack();
+      PopStack();
 
       ReadWord();
 
@@ -403,7 +410,7 @@ void ezJSONParser::ContinueValue()
     case '[':
     {
       // remove ReadingValue from the stack
-      m_StateStack.PopBack();
+      PopStack();
 
       JSONState s;
       s.m_State = ReadingArray;
@@ -419,7 +426,7 @@ void ezJSONParser::ContinueValue()
     case '{':
     {
       // remove ReadingValue from the stack
-      m_StateStack.PopBack();
+      PopStack();
 
       JSONState s;
       s.m_State = ReadingObject;
@@ -448,7 +455,7 @@ void ezJSONParser::ContinueSeparator()
     SkipWhitespace();
 
   // remove ExpectSeparator from the stack
-  m_StateStack.PopBack();
+  PopStack();
 
   switch (m_uiCurByte)
   {
