@@ -55,26 +55,49 @@ namespace
     return EZ_FAILURE;
   }
 
+  /// Adds preprocessor defines for a permutation variable that the shader pinned to a fixed value
+  /// in its [PERMUTATIONS] section, e.g. "BLEND_MODE = BLEND_MODE_OPAQUE".
+  ///
+  /// Such a variable has no material property (it is not listed in [MATERIALPARAMETER]), so
+  /// AddDefines cannot produce its defines. Without this, a [MATERIALCONFIG] section that evaluates
+  /// the variable fails with "Undefined variable is evaluated". Enum variables also need every one
+  /// of their values defined, because the config compares against those names.
+  void AddFixedPermutationVarDefines(ezDynamicArray<ezString>& inout_defines, const ezPermutationVar& permVar)
+  {
+    ezStringBuilder sDefine;
+
+    ezStringBuilder sPath;
+    sPath.SetFormat("Shaders/PermutationVars/{0}.ezPermVar", permVar.m_sName);
+
+    ezString sAbsPath = sPath;
+    ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPath);
+
+    ezFileReader file;
+    if (file.Open(sAbsPath).Succeeded())
+    {
+      ezStringBuilder sContent;
+      sContent.ReadAll(file);
+
+      ezVariant defaultValue;
+      ezShaderParser::EnumDefinition enumDefinition;
+      ezShaderParser::ParsePermutationVarConfig(sContent, defaultValue, enumDefinition);
+
+      for (const auto& ev : enumDefinition.m_Values)
+      {
+        sDefine.SetFormat("{} {}", ev.m_sValueName, ev.m_iValueValue);
+        inout_defines.PushBack(sDefine);
+      }
+    }
+
+    sDefine.Set(permVar.m_sName.GetView(), " ", permVar.m_sValue.GetView());
+    inout_defines.PushBack(sDefine);
+  }
+
   ezResult ParseMaterialConfig(ezStringView sRelativeFileName, const ezDocumentObject* pShaderPropertyObject, ezVariantDictionary& out_materialConfig)
   {
     ezFileReader file;
     if (file.Open(sRelativeFileName).Failed())
       return EZ_FAILURE;
-
-    ezTempHybridArray<ezString, 16> defines;
-    {
-      ezTempHybridArray<const ezAbstractProperty*, 32> properties;
-      pShaderPropertyObject->GetType()->GetAllProperties(properties);
-
-      for (auto& pProp : properties)
-      {
-        const ezCategoryAttribute* pCategory = pProp->GetAttributeByType<ezCategoryAttribute>();
-        if (pCategory == nullptr || ezStringUtils::IsEqual(pCategory->GetCategory(), "Permutation") == false)
-          continue;
-
-        EZ_SUCCEED_OR_RETURN(AddDefines(defines, pShaderPropertyObject, pProp));
-      }
-    }
 
     ezString sContent;
     sContent.ReadAll(file);
@@ -82,6 +105,56 @@ namespace
     ezShaderHelper::GetShaderSections(sContent, sections);
     ezUInt32 uiFirstLine = 0;
     ezStringView sSectionContent = sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALCONFIG, uiFirstLine);
+
+    ezTempHybridArray<ezString, 16> defines;
+    {
+      ezTempHybridArray<const ezAbstractProperty*, 32> permutationProperties;
+      {
+        ezTempHybridArray<const ezAbstractProperty*, 32> properties;
+        pShaderPropertyObject->GetType()->GetAllProperties(properties);
+
+        for (auto& pProp : properties)
+        {
+          const ezCategoryAttribute* pCategory = pProp->GetAttributeByType<ezCategoryAttribute>();
+          if (pCategory == nullptr || ezStringUtils::IsEqual(pCategory->GetCategory(), "Permutation") == false)
+            continue;
+
+          permutationProperties.PushBack(pProp);
+        }
+      }
+
+      // Permutation variables that the shader pinned to a fixed value in [PERMUTATIONS] are not
+      // exposed as material properties, but [MATERIALCONFIG] may still evaluate them. Define those
+      // as well, skipping any that the material exposes, whose own value takes precedence.
+      {
+        ezHybridArray<ezHashedString, 16> permVars;
+        ezHybridArray<ezPermutationVar, 16> fixedPermVars;
+        ezShaderParser::ParsePermutationSection(sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine), permVars, fixedPermVars);
+
+        for (const auto& permVar : fixedPermVars)
+        {
+          bool bIsMaterialProperty = false;
+          for (auto& pProp : permutationProperties)
+          {
+            if (permVar.m_sName.GetView().IsEqual(pProp->GetPropertyName()))
+            {
+              bIsMaterialProperty = true;
+              break;
+            }
+          }
+
+          if (!bIsMaterialProperty)
+          {
+            AddFixedPermutationVarDefines(defines, permVar);
+          }
+        }
+      }
+
+      for (auto& pProp : permutationProperties)
+      {
+        EZ_SUCCEED_OR_RETURN(AddDefines(defines, pShaderPropertyObject, pProp));
+      }
+    }
 
     ezStringBuilder sOutput;
     EZ_SUCCEED_OR_RETURN(ezShaderParser::PreprocessSection(sSectionContent, defines, sOutput));

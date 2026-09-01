@@ -19,7 +19,7 @@ o
 			s{"Textures/cc0Textures.com/Rock01/Rock01_col.jpg"}
 		}
 		Uuid %DocumentID{u4{13285808494328753587,4875379662061631591}}
-		u4 %Hash{6389783012512281142}
+		u4 %Hash{15339336046977523516}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -45,13 +45,14 @@ o
 {
 	Uuid %id{u4{15109180656962947499,5567490920422787347}}
 	s %t{"ezTextureAssetProperties"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		s %AddressModeU{"ezImageAddressMode::Repeat"}
 		s %AddressModeV{"ezImageAddressMode::Repeat"}
 		s %AddressModeW{"ezImageAddressMode::Repeat"}
 		f %AlphaThreshold{0x0000003F}
+		s %ArrayChannelMapping{"ezTextureArrayChannelMappingEnum::RGB"}
 		VarArray %ArraySlices
 		{
 			s{"Textures/cc0Textures.com/Ground03/Ground03_col.jpg"}
@@ -130,7 +131,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezTextureAssetProperties"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o
@@ -164,6 +165,23 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderTargetFormat"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4439624141160076334,7137082278828783315}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezTextureArrayChannelMappingEnum"}
 		u3 %TypeVersion{1}
 	}
 }

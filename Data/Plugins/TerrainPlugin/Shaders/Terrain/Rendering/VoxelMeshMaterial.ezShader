@@ -1,5 +1,9 @@
 /// Renders the voxel terrain mesh using triplanar texture projection, blending between a base
 /// material and a brush-painted override material per vertex.
+///
+/// Both materials are picked out of a palette of 16 material slots. Each slot maps to two layers
+/// of the base/normal/roughness texture arrays: x for the top (Z-facing) projection, y for the
+/// side (XY-facing) projections.
 
 [PLATFORMS]
 ALL
@@ -19,10 +23,6 @@ MATERIAL_PREVIEW
 
 [MATERIALPARAMETER]
 
-Permutation BLEND_MODE;
-Permutation SHADING_MODE;
-Permutation TWO_SIDED;
-
 Texture2DArray LayerBaseTexture;
 Texture2DArray LayerNormalTexture;
 Texture2DArray LayerRoughnessTexture;
@@ -31,7 +31,6 @@ Texture2DArray LayerRoughnessTexture;
 float TextureScale @Default(0.5) @Clamp(0.001, 100.0);
 
 float RoughnessBias @Default(0.0) @Clamp(-1.0, 1.0);
-float MetallicValue  @Default(0.0) @Clamp(0.0, 1.0);
 
 int2 Material0TextureIndex @Default(0) @Clamp(0, 255);
 int2 Material1TextureIndex @Default(0) @Clamp(0, 255);
@@ -41,6 +40,14 @@ int2 Material4TextureIndex @Default(0) @Clamp(0, 255);
 int2 Material5TextureIndex @Default(0) @Clamp(0, 255);
 int2 Material6TextureIndex @Default(0) @Clamp(0, 255);
 int2 Material7TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material8TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material9TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material10TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material11TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material12TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material13TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material14TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material15TextureIndex @Default(0) @Clamp(0, 255);
 
 [MATERIALCONFIG]
 
@@ -54,7 +61,6 @@ int2 Material7TextureIndex @Default(0) @Clamp(0, 255);
 
 FLOAT1(TextureScale);
 FLOAT1(RoughnessBias);
-FLOAT1(MetallicValue);
 
 INT2(Material0TextureIndex);
 INT2(Material1TextureIndex);
@@ -64,6 +70,14 @@ INT2(Material4TextureIndex);
 INT2(Material5TextureIndex);
 INT2(Material6TextureIndex);
 INT2(Material7TextureIndex);
+INT2(Material8TextureIndex);
+INT2(Material9TextureIndex);
+INT2(Material10TextureIndex);
+INT2(Material11TextureIndex);
+INT2(Material12TextureIndex);
+INT2(Material13TextureIndex);
+INT2(Material14TextureIndex);
+INT2(Material15TextureIndex);
 
 [SHADER]
 
@@ -129,8 +143,8 @@ SamplerState LayerRoughnessTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 uint2 LookupTexIndices(uint matSlot)
 {
-  int2 MatTextureIndices[8] = { GetMaterialData(Material0TextureIndex), GetMaterialData(Material1TextureIndex), GetMaterialData(Material2TextureIndex), GetMaterialData(Material3TextureIndex), GetMaterialData(Material4TextureIndex), GetMaterialData(Material5TextureIndex), GetMaterialData(Material6TextureIndex), GetMaterialData(Material7TextureIndex) };
-  return MatTextureIndices[clamp(matSlot, 0u, 7u)];
+  int2 MatTextureIndices[16] = { GetMaterialData(Material0TextureIndex), GetMaterialData(Material1TextureIndex), GetMaterialData(Material2TextureIndex), GetMaterialData(Material3TextureIndex), GetMaterialData(Material4TextureIndex), GetMaterialData(Material5TextureIndex), GetMaterialData(Material6TextureIndex), GetMaterialData(Material7TextureIndex), GetMaterialData(Material8TextureIndex), GetMaterialData(Material9TextureIndex), GetMaterialData(Material10TextureIndex), GetMaterialData(Material11TextureIndex), GetMaterialData(Material12TextureIndex), GetMaterialData(Material13TextureIndex), GetMaterialData(Material14TextureIndex), GetMaterialData(Material15TextureIndex) };
+  return MatTextureIndices[clamp(matSlot, 0u, 15u)];
 }
 
 void FillCustomGlobals()
@@ -187,6 +201,6 @@ float GetRoughness()
   return lerp(mainRoughness, overrideRoughness, matStrength) + GetMaterialData(RoughnessBias);
 }
 
-float  GetMetallic()    { return GetMaterialData(MetallicValue); }
+float  GetMetallic()    { return 0.0f; }
 float  GetReflectance() { return 0.5f; }
 float  GetOpacity()     { return 1.0f; }
