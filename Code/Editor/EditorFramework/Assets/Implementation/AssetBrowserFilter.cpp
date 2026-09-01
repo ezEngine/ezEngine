@@ -17,6 +17,7 @@ void ezQtAssetBrowserFilter::Reset()
   SetShowFiles(true);
   SetShowNonImportableFiles(true);
   SetShowItemsInHiddenFolders(false);
+  SetShowPluginDataDirs(false);
   SetSortByRecentUse(false);
   SetTextFilter("");
   SetTypeFilter("");
@@ -73,6 +74,34 @@ void ezQtAssetBrowserFilter::SetShowItemsInHiddenFolders(bool bShow)
   m_bShowItemsInHiddenFolders = bShow;
 
   Q_EMIT FilterChanged();
+}
+
+void ezQtAssetBrowserFilter::SetShowPluginDataDirs(bool bShow)
+{
+  if (m_bShowPluginDataDirs == bShow)
+    return;
+
+  m_sTemporaryPinnedItem.Clear();
+  m_bShowPluginDataDirs = bShow;
+
+  Q_EMIT FilterChanged();
+  Q_EMIT PluginDataDirsChanged();
+}
+
+void ezQtAssetBrowserFilter::SetPluginDataDirNames(const ezSet<ezString>& names)
+{
+  if (m_PluginDataDirNames == names)
+    return;
+
+  m_PluginDataDirNames = names;
+
+  // while plugin data directories are shown, their names have no influence on what is visible
+  if (!m_bShowPluginDataDirs)
+  {
+    m_sTemporaryPinnedItem.Clear();
+    Q_EMIT FilterChanged();
+    Q_EMIT PluginDataDirsChanged();
+  }
 }
 
 void ezQtAssetBrowserFilter::SetSortByRecentUse(bool bSort)
@@ -163,6 +192,26 @@ void ezQtAssetBrowserFilter::SetTypeFilter(const char* szTypes)
   Q_EMIT TypeFilterChanged();
 }
 
+void ezQtAssetBrowserFilter::SetAllTypesFilter(ezStringView sTypes)
+{
+  m_sAllTypesFilter = sTypes;
+}
+
+bool ezQtAssetBrowserFilter::IsFilterActive() const
+{
+  if (!m_SearchFilter.IsEmpty())
+    return true;
+
+  if (!m_FileExtensions.IsEmpty())
+    return true;
+
+  // a type filter that lists every known type doesn't restrict anything
+  if (!m_sTypeFilter.IsEmpty() && m_sTypeFilter != m_sAllTypesFilter)
+    return true;
+
+  return false;
+}
+
 void ezQtAssetBrowserFilter::SetFileExtensionFilters(ezStringView sExtensions)
 {
   m_FileExtensions.Clear();
@@ -212,34 +261,75 @@ void ezQtAssetBrowserFilter::SetTemporaryPinnedItem(ezStringView sDataDirParentR
   Q_EMIT FilterChanged();
 }
 
-bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const
+bool ezQtAssetBrowserFilter::IsInHiddenFolder(ezStringView sDataDirParentRelativePath, bool bIsFolder) const
 {
-  // ignore all paths leading into the AssetCache
-  if (sDataDirParentRelativePath.FindSubString("/AssetCache/"))
+  // treat folders starting with a dot as hidden folders
+  if (sDataDirParentRelativePath.FindSubString("/."))
     return true;
 
-  // also ignore the AssetCache folder directly
-  if (bIsFolder && sDataDirParentRelativePath.GetFileNameAndExtension() == "AssetCache")
-    return true;
-
-  if (sDataDirParentRelativePath == m_sTemporaryPinnedItem)
-    return false;
-
-  if (!m_bShowFiles && !pInfo && !bIsFolder)
-    return true;
-
-  ezStringBuilder sExt;
-  if (m_bShowFiles && !m_bShowNonImportableFiles && !pInfo && !bIsFolder)
+  // '_data' folders hold the generated files of an asset and are hidden as well.
+  // The 'uses' search is an exception: it looks for references to a specific asset, and those often live in '_data' folders.
+  if (!(m_bUsesSearchActive && !m_SearchFilter.IsEmpty()))
   {
-    sExt = sDataDirParentRelativePath.GetFileExtension();
-    sExt.ToLower();
-    if (!m_ImportExtensions.Contains(sExt))
+    // skip the path filter prefix, it is the folder the user explicitly navigated to and may itself be a '_data' folder
+    const ezUInt32 uiSkip = ezMath::Min<ezUInt32>(m_sPathFilter.GetElementCount() + 1, sDataDirParentRelativePath.GetElementCount());
+    const char* szSearchStart = sDataDirParentRelativePath.GetStartPointer() + uiSkip;
+
+    // A folder path has no trailing separator, so searching for '_data/' only ever finds a parent folder. The folder
+    // itself has to be checked separately, otherwise '_data' folders would still be listed as folders.
+    if (bIsFolder && ezStringUtils::EndsWith_NoCase(szSearchStart, "_data", sDataDirParentRelativePath.GetEndPointer()))
+      return true;
+
+    if (ezStringUtils::FindSubString_NoCase(szSearchStart, "_data/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
       return true;
   }
 
+  return false;
+}
+
+bool ezQtAssetBrowserFilter::IsInPluginDataDir(ezStringView sDataDirParentRelativePath) const
+{
+  if (m_PluginDataDirNames.IsEmpty())
+    return false;
+
+  // the first path segment is the folder name of the data directory root
+  const char* szSep = sDataDirParentRelativePath.FindSubString("/");
+  const ezStringView sDataDirName = szSep != nullptr ? ezStringView(sDataDirParentRelativePath.GetStartPointer(), szSep) : sDataDirParentRelativePath;
+
+  return m_PluginDataDirNames.Contains(sDataDirName);
+}
+
+ezAssetFilterResult ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const
+{
+  // ignore all paths leading into the AssetCache
+  if (sDataDirParentRelativePath.FindSubString("/AssetCache/"))
+    return ezAssetFilterResult::Filtered;
+
+  // also ignore the AssetCache folder directly
+  if (bIsFolder && sDataDirParentRelativePath.GetFileNameAndExtension() == "AssetCache")
+    return ezAssetFilterResult::Filtered;
+
+  if (sDataDirParentRelativePath == m_sTemporaryPinnedItem)
+    return ezAssetFilterResult::Visible;
+
+  // Data directories provided by plugins are hidden entirely, including their own root folder. They are not reported
+  // as a separate exclusion reason, because the folder tree hides them as well, so there is no folder to browse into
+  // whose item count could be shown.
+  if (!m_bShowPluginDataDirs && IsInPluginDataDir(sDataDirParentRelativePath))
+    return ezAssetFilterResult::Filtered;
+
+  ezStringBuilder sExt;
+
+  // Whether this is a plain file, i.e. not an asset and not a folder. Those are hidden by the type combo box unless
+  // it is set to show files, so the check is deferred to the end, where it can be reported as its own exclusion reason.
+  const bool bIsPlainFile = !pInfo && !bIsFolder;
+
   // if the string is not found in the path, ignore this asset
   if (!sDataDirParentRelativePath.StartsWith(m_sPathFilter))
-    return true;
+    return ezAssetFilterResult::Filtered;
+
+  // when any filter is active, we search through sub-folders, otherwise only the current folder is listed
+  const bool bRecurseIntoSubFolders = IsFilterActive() || m_bShowItemsInSubFolders;
 
   if (bIsFolder)
   {
@@ -247,37 +337,16 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
     // if so, there is a sub-folder, and thus we ignore it
     if (ezStringUtils::FindSubString(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount(), "/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
     {
-      return true;
+      return ezAssetFilterResult::Filtered;
     }
   }
-
-  if (m_SearchFilter.IsEmpty() && !m_bShowItemsInSubFolders)
+  else if (!bRecurseIntoSubFolders)
   {
     // do we find another path separator after the prefix path?
     // if so, there is a sub-folder, and thus we ignore it
     if (ezStringUtils::FindSubString(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount(), "/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
     {
-      return true;
-    }
-  }
-  else if (m_sPathFilter.IsEmpty() && !bIsFolder) // <Root> folder
-  {
-    if (!m_bShowItemsInSubFolders && m_SearchFilter.IsEmpty())
-    {
-      return true;
-    }
-  }
-
-  if (!m_bShowItemsInHiddenFolders)
-  {
-    // treat folders starting with a dot as hidden folders
-    if (sDataDirParentRelativePath.FindSubString("/."))
-      return true;
-
-    if (!(m_bUsesSearchActive && !m_SearchFilter.IsEmpty()))
-    {
-      if (ezStringUtils::FindSubString_NoCase(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount() + 1, "_data/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
-        return true;
+      return ezAssetFilterResult::Filtered;
     }
   }
 
@@ -286,10 +355,10 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
     if (m_bUsesSearchActive)
     {
       if (pInfo == nullptr)
-        return true;
+        return ezAssetFilterResult::Filtered;
 
       if (!m_Uses.Contains(pInfo->m_Data.m_Guid))
-        return true;
+        return ezAssetFilterResult::Filtered;
     }
     else
     {
@@ -297,13 +366,13 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
       if (m_SearchFilter.PassesFilters(sDataDirParentRelativePath) == false)
       {
         if (pInfo == nullptr)
-          return true;
+          return ezAssetFilterResult::Filtered;
 
         if (m_SearchFilter.PassesFilters(pInfo->GetName()) == false)
         {
           ezConversionUtils::ToString(pInfo->m_Data.m_Guid, m_sTemp);
           if (m_SearchFilter.PassesFilters(m_sTemp) == false)
-            return true;
+            return ezAssetFilterResult::Filtered;
 
           // we could actually (partially) match the GUID
         }
@@ -315,7 +384,11 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
   if (bIsFolder)
   {
     // unless we have a type filter active
-    return !m_sTypeFilter.IsEmpty();
+    if (!m_sTypeFilter.IsEmpty())
+      return ezAssetFilterResult::Filtered;
+
+    // folders are never counted as hidden-folder matches, only the items inside them are
+    return !m_bShowItemsInHiddenFolders && IsInHiddenFolder(sDataDirParentRelativePath, true) ? ezAssetFilterResult::Filtered : ezAssetFilterResult::Visible;
   }
 
   if (!m_FileExtensions.IsEmpty())
@@ -323,19 +396,22 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
     sExt = sDataDirParentRelativePath.GetFileExtension();
     sExt.ToLower();
 
-    return !m_FileExtensions.Contains(sExt);
+    if (!m_FileExtensions.Contains(sExt))
+      return ezAssetFilterResult::Filtered;
   }
 
-  if (!m_sTypeFilter.IsEmpty())
+  if (!m_sTypeFilter.IsEmpty() && pInfo != nullptr)
   {
-    if (pInfo == nullptr) // if this is no asset, but we have an asset type filter active, always hide this thing
-      return true;
-
     m_sTemp.Set(";", pInfo->m_Data.m_sSubAssetsDocumentTypeName, ";");
 
     if (!m_sTypeFilter.FindSubString(m_sTemp))
-      return true;
+      return ezAssetFilterResult::Filtered;
   }
+
+  // A plain file is no asset, so an active asset type filter can never match it. Selecting an asset type in the combo
+  // box also turns m_bShowFiles off, so this is handled below as its own exclusion reason rather than here.
+  if (!m_sTypeFilter.IsEmpty() && bIsPlainFile && m_bShowFiles)
+    return ezAssetFilterResult::Filtered;
 
   if (pInfo && m_sRequiredTag != "*") // '*' means everything is allowed
   {
@@ -346,15 +422,34 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
       // if the required tag is empty, we only display assets without any tags
       // so the "default tag" (nothing at all) is already a tag for not-tagged items
       // if you really want to see all assets, use * as the required tag
-      return !tags.IsEmpty();
+      if (!tags.IsEmpty())
+        return ezAssetFilterResult::Filtered;
     }
     else
     {
       // otherwise search for ";required;" in the tags string (note the semicolons at the start and end as delimiters
       if (tags.FindSubString_NoCase(m_sRequiredTag) == nullptr)
-        return true;
+        return ezAssetFilterResult::Filtered;
     }
   }
 
-  return false;
+  // At this point the item passes every filter that has no switch of its own. What is left are the exclusions that the
+  // user can toggle, each of which is reported separately so that the browser can say how many items it is hiding.
+
+  if (bIsPlainFile && !m_bShowFiles)
+    return ezAssetFilterResult::NonAssetFile;
+
+  if (bIsPlainFile && !m_bShowNonImportableFiles)
+  {
+    sExt = sDataDirParentRelativePath.GetFileExtension();
+    sExt.ToLower();
+
+    if (!m_ImportExtensions.Contains(sExt))
+      return ezAssetFilterResult::NonImportableFile;
+  }
+
+  if (!m_bShowItemsInHiddenFolders && IsInHiddenFolder(sDataDirParentRelativePath, false))
+    return ezAssetFilterResult::HiddenFolder;
+
+  return ezAssetFilterResult::Visible;
 }

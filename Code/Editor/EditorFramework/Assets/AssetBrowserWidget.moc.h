@@ -73,6 +73,7 @@ private Q_SLOTS:
   void OnScrollToFile(QString sPreselectedFile);
   void OnShowSubFolderItemsToggled();
   void OnShowHiddenFolderItemsToggled();
+  void OnShowPluginDataDirsToggled();
   void OnResaveAssets();
   void on_ListAssets_customContextMenuRequested(const QPoint& pt);
   void OnListOpenExplorer();
@@ -110,6 +111,8 @@ private:
   void AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedAsset);
   void AddImportedViaMenu(QMenu* pMenu);
   void GetSelectedImportableFiles(ezDynamicArray<ezString>& out_Files) const;
+  void UpdateStatusBar();
+  void UpdatePluginDataDirNames();
   ezAssetBrowserSelection GetCurrentSelectionForActions() const;
 
   Mode m_Mode = Mode::Browser;

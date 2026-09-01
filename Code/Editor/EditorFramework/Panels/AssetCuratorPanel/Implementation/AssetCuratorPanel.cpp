@@ -62,15 +62,15 @@ bool ezQtAssetCuratorFilter::IsIndirectIssue(const ezSubAsset* pInfo)
   }
 }
 
-bool ezQtAssetCuratorFilter::IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const
+ezAssetFilterResult ezQtAssetCuratorFilter::IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const
 {
   if (!HasIssue(pInfo))
-    return true;
+    return ezAssetFilterResult::Filtered;
 
   if (m_bFilterTransitive && IsIndirectIssue(pInfo))
-    return true;
+    return ezAssetFilterResult::Filtered;
 
-  return false;
+  return ezAssetFilterResult::Visible;
 }
 
 EZ_IMPLEMENT_SINGLETON(ezQtAssetCuratorPanel);

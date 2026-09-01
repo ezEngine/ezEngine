@@ -107,6 +107,10 @@ void eqQtAssetBrowserFolderView::SetFilter(ezQtAssetBrowserFilter* pFilter)
 {
   m_pFilter = pFilter;
   EZ_VERIFY(connect(m_pFilter, SIGNAL(PathFilterChanged()), this, SLOT(OnPathFilterChanged())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pFilter, SIGNAL(PluginDataDirsChanged()), this, SLOT(OnPluginDataDirsChanged())) != nullptr, "signal/slot connection failed");
+
+  // the tree was built in the ctor without a filter, so it may show data directories that the filter wants hidden
+  OnPluginDataDirsChanged();
 }
 
 
@@ -487,6 +491,18 @@ void eqQtAssetBrowserFolderView::OnItemSelectionChanged()
   m_pFilter->SetPathFilter(sCurPath);
 }
 
+void eqQtAssetBrowserFolderView::OnPluginDataDirsChanged()
+{
+  // Folders are only ever added to the tree, so a change to which data directories are excluded means it has to be
+  // built from scratch. This must not be driven by FilterChanged(): selecting a folder sets the path filter, which
+  // would then destroy the very item that was just selected.
+  ClearDirectoryTree();
+  UpdateDirectoryTree();
+
+  // rebuilding cleared the selection, so restore the folder the path filter still points at
+  OnPathFilterChanged();
+}
+
 void eqQtAssetBrowserFolderView::OnPathFilterChanged()
 {
   const QString sPath = ezMakeQString(m_pFilter->GetPathFilter());
@@ -556,10 +572,11 @@ void eqQtAssetBrowserFolderView::UpdateDirectoryTree()
 
   m_uiKnownAssetFolderCount = Folders->GetCount();
 
-  ezStringBuilder tmp;
-
   for (const auto& sDir : *Folders)
   {
+    if (m_pFilter && !m_pFilter->GetShowPluginDataDirs() && m_pFilter->IsInPluginDataDir(sDir.Key().GetDataDirParentRelativePath()))
+      continue;
+
     BuildDirectoryTree(sDir.Key(), sDir.Key().GetDataDirParentRelativePath(), topLevelItem(0), "", false);
   }
 

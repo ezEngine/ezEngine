@@ -73,6 +73,7 @@ private Q_SLOTS:
   void OnFlushFileSystemEvents();
   void OnItemSelectionChanged();
   void OnPathFilterChanged();
+  void OnPluginDataDirsChanged();
 
 protected:
   virtual void dragMoveEvent(QDragMoveEvent* e) override;

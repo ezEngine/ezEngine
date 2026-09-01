@@ -262,6 +262,10 @@ void ezQtAssetBrowserModel::resetModel()
 
   m_EntriesToDisplay.Clear();
   m_DisplayedEntries.Clear();
+  m_ExcludedItems.Clear();
+
+  m_bSuppressExcludedItemSignal = true;
+  m_bExcludedItemCountsChanged = false;
 
   // Get Curator Mutex first to prevent deadlocks
   ezAssetCurator::ezLockedSubAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
@@ -272,7 +276,7 @@ void ezQtAssetBrowserModel::resetModel()
 
   for (const auto& folder : *allFolders)
   {
-    if (m_pFilter->IsAssetFiltered(folder.Key().GetDataDirParentRelativePath(), true, nullptr))
+    if (m_pFilter->IsAssetFiltered(folder.Key().GetDataDirParentRelativePath(), true, nullptr) != ezAssetFilterResult::Visible)
       continue;
 
     auto& entry = m_EntriesToDisplay.ExpandAndGetRef();
@@ -289,7 +293,8 @@ void ezQtAssetBrowserModel::resetModel()
       if (!mainAsset)
         continue;
 
-      if (!m_pFilter->IsAssetFiltered(file.Key().GetDataDirParentRelativePath(), false, &(*mainAsset)))
+      const ezAssetFilterResult mainResult = m_pFilter->IsAssetFiltered(file.Key().GetDataDirParentRelativePath(), false, &(*mainAsset));
+      if (mainResult == ezAssetFilterResult::Visible)
       {
         auto& entry = m_EntriesToDisplay.ExpandAndGetRef();
         entry.m_sAbsFilePath = file.Key();
@@ -297,13 +302,24 @@ void ezQtAssetBrowserModel::resetModel()
         entry.m_Flags = ezAssetBrowserItemFlags::File | ezAssetBrowserItemFlags::Asset;
         m_DisplayedEntries.Insert(entry.m_Guid);
       }
+      else
+      {
+        TrackExcludedItem(file.Key(), mainResult, true);
+      }
 
       for (const auto& subAssetGuid : mainAsset->m_pAssetInfo->m_SubAssets)
       {
         auto subAsset = ezAssetCurator::GetSingleton()->GetSubAsset(subAssetGuid);
 
-        if (subAsset && m_pFilter->IsAssetFiltered(file.Key().GetDataDirParentRelativePath(), false, &(*subAsset)))
-          continue;
+        if (subAsset)
+        {
+          const ezAssetFilterResult subResult = m_pFilter->IsAssetFiltered(file.Key().GetDataDirParentRelativePath(), false, &(*subAsset));
+
+          // Sub-assets are not tracked as excluded items: they share the path of their main asset, which is already
+          // accounted for above, and being assets they can never fall under the file-related exclusions.
+          if (subResult != ezAssetFilterResult::Visible)
+            continue;
+        }
 
         auto& entry = m_EntriesToDisplay.ExpandAndGetRef();
         entry.m_sAbsFilePath = file.Key();
@@ -314,8 +330,13 @@ void ezQtAssetBrowserModel::resetModel()
     }
     else
     {
-      if (m_pFilter->IsAssetFiltered(file.Key().GetDataDirParentRelativePath(), false, nullptr))
+      const ezAssetFilterResult result = m_pFilter->IsAssetFiltered(file.Key().GetDataDirParentRelativePath(), false, nullptr);
+
+      if (result != ezAssetFilterResult::Visible)
+      {
+        TrackExcludedItem(file.Key(), result, true);
         continue;
+      }
 
       auto& entry = m_EntriesToDisplay.ExpandAndGetRef();
       entry.m_sAbsFilePath = file.Key();
@@ -328,13 +349,75 @@ void ezQtAssetBrowserModel::resetModel()
   m_EntriesToDisplay.Sort(cmp);
 
   endResetModel();
+
+  m_bSuppressExcludedItemSignal = false;
+
+  if (m_bExcludedItemCountsChanged)
+  {
+    m_bExcludedItemCountsChanged = false;
+    Q_EMIT ExcludedItemCountsChanged();
+  }
+}
+
+void ezQtAssetBrowserModel::TrackExcludedItem(const ezDataDirPath& path, ezAssetFilterResult reason, bool bKnownUntracked /*= false*/)
+{
+  // The lookups below run directly off the view, so no string is allocated unless the path actually has to be inserted.
+  const ezStringView sPath = path.GetDataDirParentRelativePath();
+  bool bChanged = false;
+
+  if (!bKnownUntracked)
+  {
+    // an item can only ever fall under one reason at a time, so drop it from all the others
+    for (auto it : m_ExcludedItems)
+    {
+      if (it.Key() != reason)
+      {
+        bChanged |= it.Value().Remove(sPath);
+      }
+    }
+  }
+
+  if (reason != ezAssetFilterResult::Visible && reason != ezAssetFilterResult::Filtered)
+  {
+    ezSet<ezString>& items = m_ExcludedItems[reason];
+
+    if (!items.Contains(sPath))
+    {
+      items.Insert(sPath);
+      bChanged = true;
+    }
+  }
+
+  if (bChanged)
+  {
+    if (m_bSuppressExcludedItemSignal)
+      m_bExcludedItemCountsChanged = true;
+    else
+      Q_EMIT ExcludedItemCountsChanged();
+  }
+}
+
+ezUInt32 ezQtAssetBrowserModel::GetNumExcludedItems(ezAssetFilterResult reason) const
+{
+  auto it = m_ExcludedItems.Find(reason);
+  return it.IsValid() ? it.Value().GetCount() : 0;
 }
 
 void ezQtAssetBrowserModel::HandleEntry(const VisibleEntry& entry, AssetOp op)
 {
   auto subAsset = ezAssetCurator::GetSingleton()->GetSubAsset(entry.m_Guid);
 
-  if (m_pFilter->IsAssetFiltered(entry.m_sAbsFilePath.GetDataDirParentRelativePath(), entry.m_Flags.IsAnySet(ezAssetBrowserItemFlags::Folder | ezAssetBrowserItemFlags::DataDirectory), subAsset.Borrow()))
+  const ezAssetFilterResult filterResult = m_pFilter->IsAssetFiltered(entry.m_sAbsFilePath.GetDataDirParentRelativePath(), entry.m_Flags.IsAnySet(ezAssetBrowserItemFlags::Folder | ezAssetBrowserItemFlags::DataDirectory), subAsset.Borrow());
+
+  // Sub-assets share the path of their main asset, which is tracked in its own right, so tracking them too would
+  // overwrite that entry. A removed item is gone no matter what the filter says about it, so it is dropped from the
+  // bookkeeping rather than recorded under a verdict computed for an item that no longer exists.
+  if (!entry.m_Flags.IsSet(ezAssetBrowserItemFlags::SubAsset))
+  {
+    TrackExcludedItem(entry.m_sAbsFilePath, op == AssetOp::Remove ? ezAssetFilterResult::Visible : filterResult);
+  }
+
+  if (filterResult != ezAssetFilterResult::Visible)
   {
     if (!m_DisplayedEntries.Contains(entry.m_Guid))
     {
