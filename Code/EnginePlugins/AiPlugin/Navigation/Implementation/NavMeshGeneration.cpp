@@ -1,4 +1,5 @@
 #include <AiPlugin/Navigation/Implementation/NavMeshGeneration.h>
+#include <AiPlugin/Utils/RecastBuilder.h>
 #include <AiPlugin/Navigation/NavMesh.h>
 #include <Core/Interfaces/NavmeshGeoWorldModule.h>
 #include <Core/Physics/SurfaceResource.h>
@@ -7,7 +8,7 @@
 #include <Recast.h>
 #include <cstdint>
 
-void FillOutConfig(rcConfig& ref_cfg, const ezAiNavmeshConfig& config, const ezBoundingBox& bbox)
+EZ_AIPLUGIN_DLL void FillOutConfig(rcConfig& ref_cfg, const ezAiNavmeshConfig& config, const ezBoundingBox& bbox)
 {
   ezMemoryUtils::ZeroFill(&ref_cfg, 1);
   ref_cfg.bmin[0] = bbox.m_vMin.x;
@@ -39,7 +40,7 @@ void FillOutConfig(rcConfig& ref_cfg, const ezAiNavmeshConfig& config, const ezB
   rcCalcGridSize(ref_cfg.bmin, ref_cfg.bmax, ref_cfg.cs, &ref_cfg.width, &ref_cfg.height);
 }
 
-ezResult BuildRecastPolyMesh(const ezAiNavmeshConfig& config, ezBoundingBox aabb, rcPolyMesh& out_polyMesh, rcContext* pContext, ezArrayPtr<const ezVec3> vertices, ezArrayPtr<const ezAiNavMeshTriangle> triangles, ezArrayPtr<ezUInt8> triangleAreaIDs)
+EZ_AIPLUGIN_DLL ezResult BuildRecastPolyMesh(const ezAiNavmeshConfig& config, ezBoundingBox aabb, rcPolyMesh& out_polyMesh, rcContext* pContext, ezArrayPtr<const ezVec3> vertices, ezArrayPtr<const ezAiNavMeshTriangle> triangles, ezArrayPtr<ezUInt8> triangleAreaIDs)
 {
   const float* pVertices = &vertices[0].x;
   const ezInt32* pTriangles = &triangles[0].m_VertexIdx[0];

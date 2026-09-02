@@ -20,3 +20,10 @@ if (EZ_BUILD_EMBREE)
     BakingPlugin
   )
 endif()
+
+if (EZ_3RDPARTY_RECAST_SUPPORT)
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+    AiPlugin
+  )
+endif()
