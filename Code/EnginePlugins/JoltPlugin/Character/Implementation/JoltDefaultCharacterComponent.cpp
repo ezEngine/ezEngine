@@ -728,6 +728,14 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
     vRootVelocity -= vLatDir * fProj;
   }
 
+  // retrieve the actual up velocity
+  float groundVerticalVelocity = GetJoltCharacter()->GetGroundVelocity().GetZ();
+  if (GetJoltCharacter()->GetGroundState() == JPH::CharacterVirtual::EGroundState::OnGround // If on ground
+      && (m_fVelocityUp - groundVerticalVelocity) < 0.1f)                                   // And not moving away from ground
+  {
+    m_fVelocityUp = groundVerticalVelocity;
+  }
+
   ezVec3 vVelocityToApply = cfg.m_vVelocity + vGroundVelocity;
   vVelocityToApply += m_vVelocityLateral.GetAsVec3(0);
   vVelocityToApply += vRootVelocity;
@@ -742,14 +750,6 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
       // TODO: sometimes the CC reports contacts with zero normals
       InteractWithSurfaces(groundContact, cfg);
     }
-  }
-
-  // retrieve the actual up velocity
-  float groundVerticalVelocity = GetJoltCharacter()->GetGroundVelocity().GetZ();
-  if (GetJoltCharacter()->GetGroundState() == JPH::CharacterVirtual::EGroundState::OnGround // If on ground
-      && (m_fVelocityUp - groundVerticalVelocity) < 0.1f)                                   // And not moving away from ground
-  {
-    m_fVelocityUp = groundVerticalVelocity;
   }
 
   if (bWasOnGround)
