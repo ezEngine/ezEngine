@@ -12,6 +12,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Application/Application.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
@@ -34,6 +35,8 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
 
   m_pFilter = new ezQtAssetBrowserFilter(this);
   m_pFilter->SetShowItemsInSubFolders(pPreferences->m_bAssetBrowserShowItemsInSubFolders);
+
+  UpdatePluginDataDirNames();
 
   TreeFolderFilter->SetFilter(m_pFilter);
 
@@ -62,18 +65,30 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
     context.m_pDocument = nullptr;
     m_pToolbar->SetActionContext(context);
     m_pToolbar->setObjectName("AssetBrowserToolBar");
-    ToolBarLayout->insertWidget(0, m_pToolbar);
+    ToolBarLayout->insertWidget(1, m_pToolbar);
   }
 
   ButtonShowItemsSubFolders->setEnabled(true);
   ButtonShowItemsSubFolders->setChecked(m_pFilter->GetShowItemsInSubFolders());
   EZ_VERIFY(connect(ButtonShowItemsSubFolders, SIGNAL(toggled(bool)), this, SLOT(OnShowSubFolderItemsToggled())) != nullptr, "signal/slot connection failed");
 
+  ButtonShowItemsHiddenFolders->setChecked(m_pFilter->GetShowItemsInHiddenFolders());
+  EZ_VERIFY(connect(ButtonShowItemsHiddenFolders, SIGNAL(toggled(bool)), this, SLOT(OnShowHiddenFolderItemsToggled())) != nullptr, "signal/slot connection failed");
+
+  AssetStatusBar->setText(QString());
+
   EZ_VERIFY(connect(m_pFilter, SIGNAL(TextFilterChanged()), this, SLOT(OnTextFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pFilter, SIGNAL(TypeFilterChanged()), this, SLOT(OnTypeFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pFilter, SIGNAL(PathFilterChanged()), this, SLOT(OnPathFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pFilter, SIGNAL(FilterChanged()), this, SLOT(OnFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_Model.data(), SIGNAL(modelReset()), this, SLOT(OnModelReset())) != nullptr, "signal/slot connection failed");
+
+  // the status bar counts rows, so it has to follow every row change, not just a full model reset
+  connect(m_Model.data(), &QAbstractItemModel::rowsInserted, this, &ezQtAssetBrowserWidget::UpdateStatusBar);
+  connect(m_Model.data(), &QAbstractItemModel::rowsRemoved, this, &ezQtAssetBrowserWidget::UpdateStatusBar);
+
+  // items excluded by a single switch never show up as rows, so their counts need their own notification
+  connect(m_Model.data(), &ezQtAssetBrowserModel::ExcludedItemCountsChanged, this, &ezQtAssetBrowserWidget::UpdateStatusBar);
   EZ_VERIFY(connect(m_Model.data(), &ezQtAssetBrowserModel::editingFinished, this, &ezQtAssetBrowserWidget::OnFileEditingFinished, Qt::QueuedConnection), "signal/slot connection failed");
 
   EZ_VERIFY(connect(ListAssets->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(OnAssetSelectionChanged(const QItemSelection&, const QItemSelection&))) != nullptr, "signal/slot connection failed");
@@ -344,6 +359,28 @@ void ezQtAssetBrowserWidget::RestoreState(const char* szSettingsName)
   Settings.endGroup();
 }
 
+void ezQtAssetBrowserWidget::UpdatePluginDataDirNames()
+{
+  ezSet<ezString> bundleDirs;
+  ezQtEditorApp::GetSingleton()->GetActiveBundleDataDirectories(bundleDirs);
+
+  ezSet<ezString> names;
+
+  ezStringBuilder sAbsPath;
+  for (const ezString& sDir : bundleDirs)
+  {
+    if (ezFileSystem::ResolveSpecialDirectory(sDir, sAbsPath).Failed())
+      continue;
+
+    sAbsPath.MakeCleanPath();
+    sAbsPath.Trim(nullptr, "/");
+
+    names.Insert(sAbsPath.GetFileNameAndExtension());
+  }
+
+  m_pFilter->SetPluginDataDirNames(names);
+}
+
 void ezQtAssetBrowserWidget::ProjectEventHandler(const ezToolsProjectEvent& e)
 {
   switch (e.m_Type)
@@ -352,11 +389,13 @@ void ezQtAssetBrowserWidget::ProjectEventHandler(const ezToolsProjectEvent& e)
     {
       // this is necessary to detect new asset types when a plugin has been loaded (on project load)
       UpdateAssetTypes();
+      UpdatePluginDataDirNames();
     }
     break;
     case ezToolsProjectEvent::Type::ProjectClosed:
     {
       m_pFilter->Reset();
+      m_pFilter->SetPluginDataDirNames(ezSet<ezString>());
     }
     break;
     default:
@@ -615,6 +654,10 @@ void ezQtAssetBrowserWidget::OnFilterChanged()
   ButtonShowItemsSubFolders->blockSignals(true);
   ButtonShowItemsSubFolders->setChecked(!sText.isEmpty() || m_pFilter->GetShowItemsInSubFolders());
   ButtonShowItemsSubFolders->blockSignals(false);
+
+  ButtonShowItemsHiddenFolders->blockSignals(true);
+  ButtonShowItemsHiddenFolders->setChecked(m_pFilter->GetShowItemsInHiddenFolders());
+  ButtonShowItemsHiddenFolders->blockSignals(false);
 }
 
 void ezQtAssetBrowserWidget::OnTypeFilterChanged()
@@ -1152,6 +1195,13 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
   }
 
   {
+    QAction* pAction = m.addAction(QLatin1String("Show Plugin Directories"), this, SLOT(OnShowPluginDataDirsToggled()));
+    pAction->setCheckable(true);
+    pAction->setChecked(m_pFilter->GetShowPluginDataDirs());
+    pAction->setToolTip("Whether to show the data directories that the active plugins provide.");
+  }
+
+  {
     QAction* pAction = m.addAction(QIcon(":/GuiFoundation/Icons/SaveAll.svg"), QLatin1String("Re-save Assets in Folder"), this, SLOT(OnResaveAssets()));
     pAction->setToolTip("Opens every document and saves it. Used to get all documents to the latest version.");
   }
@@ -1214,6 +1264,35 @@ void ezQtAssetBrowserWidget::OnShowSubFolderItemsToggled()
 void ezQtAssetBrowserWidget::OnShowHiddenFolderItemsToggled()
 {
   m_pFilter->SetShowItemsInHiddenFolders(!m_pFilter->GetShowItemsInHiddenFolders());
+}
+
+void ezQtAssetBrowserWidget::OnShowPluginDataDirsToggled()
+{
+  m_pFilter->SetShowPluginDataDirs(!m_pFilter->GetShowPluginDataDirs());
+}
+
+void ezQtAssetBrowserWidget::UpdateStatusBar()
+{
+  const ezUInt32 uiVisible = (ezUInt32)m_Model->rowCount(QModelIndex());
+
+  ezStringBuilder sText;
+  sText.SetFormat("{} item{}", uiVisible, uiVisible == 1 ? "" : "s");
+
+  auto appendCount = [&](ezAssetFilterResult reason, ezStringView sSuffix)
+  {
+    const ezUInt32 uiCount = m_Model->GetNumExcludedItems(reason);
+
+    if (uiCount > 0)
+    {
+      sText.AppendFormat(" | {} {}", uiCount, sSuffix);
+    }
+  };
+
+  appendCount(ezAssetFilterResult::NonAssetFile, "files");
+  appendCount(ezAssetFilterResult::NonImportableFile, "non-importable files");
+  appendCount(ezAssetFilterResult::HiddenFolder, "in hidden folders");
+
+  AssetStatusBar->setText(ezMakeQString(sText));
 }
 
 void ezQtAssetBrowserWidget::OnResaveAssets()
@@ -1622,6 +1701,8 @@ void ezQtAssetBrowserWidget::OnAssetSelectionCurrentChanged(const QModelIndex& c
 
 void ezQtAssetBrowserWidget::OnModelReset()
 {
+  UpdateStatusBar();
+
   Q_EMIT ItemCleared();
 }
 
@@ -1970,6 +2051,7 @@ void ezQtAssetBrowserWidget::ShowOnlyTheseTypeFilters(ezStringView sFilters)
     }
   }
 
+  m_pFilter->SetAllTypesFilter(m_sAllTypesFilter);
   m_pFilter->SetTypeFilter(m_sAllTypesFilter);
 }
 

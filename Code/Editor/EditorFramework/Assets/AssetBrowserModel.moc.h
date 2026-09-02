@@ -13,13 +13,33 @@ struct ezAssetCuratorEvent;
 struct ezSubAsset;
 class ezQtAssetFilter;
 
+/// Verdict of ezQtAssetFilter::IsAssetFiltered() for a single item.
+///
+/// Everything but Visible means the item is not shown. The values other than Filtered name the single reason an item
+/// was excluded, which allows counting how many items a specific switch is hiding. They are only reported for items
+/// that pass every other filter.
+enum class ezAssetFilterResult : ezUInt8
+{
+  Visible,           ///< The item passes all filters and is shown.
+  Filtered,          ///< The item is excluded, either for several reasons or for one that has no dedicated switch.
+  HiddenFolder,      ///< Excluded only because it resides in a hidden folder. \see ezQtAssetBrowserFilter::SetShowItemsInHiddenFolders()
+  NonAssetFile,      ///< Excluded only because it is a plain file and files are not shown. \see ezQtAssetBrowserFilter::SetShowFiles()
+  NonImportableFile, ///< Excluded only because it is a file that can't be imported and those are not shown. \see ezQtAssetBrowserFilter::SetShowNonImportableFiles()
+};
+
 /// Interface class of the asset filter used to decide which items are shown in the asset browser.
 class EZ_EDITORFRAMEWORK_DLL ezQtAssetFilter : public QObject
 {
   Q_OBJECT
 public:
   explicit ezQtAssetFilter(QObject* pParent);
-  virtual bool IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const = 0;
+
+  /// Decides whether the given item is shown.
+  ///
+  /// Returning ezAssetFilterResult::HiddenFolder instead of ezAssetFilterResult::Filtered is optional. It allows
+  /// the model to count items that are only excluded because of the hidden-folder rule, so that their number can
+  /// be reported to the user. Such items are not shown either way.
+  virtual ezAssetFilterResult IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const = 0;
   virtual bool GetSortByRecentUse() const { return false; }
 
 Q_SIGNALS:
@@ -82,6 +102,9 @@ public:
   ezInt32 FindAssetIndex(const ezUuid& assetGuid) const;
   ezInt32 FindIndex(ezStringView sAbsPath) const;
 
+  /// Number of items that pass all filters, but are not displayed because of a single switch.
+  ezUInt32 GetNumExcludedItems(ezAssetFilterResult reason) const;
+
 public Q_SLOTS:
   void ThumbnailLoaded(QString sPath, QModelIndex index, QVariant userData1, QVariant userData2);
   void ThumbnailInvalidated(QString sPath, ezUInt32 uiImageID);
@@ -89,6 +112,9 @@ public Q_SLOTS:
 
 signals:
   void editingFinished(const QString& sAbsPath, const QString& sNewName, bool bIsAsset) const;
+
+  /// Emitted when the result of GetNumExcludedItems() changed for any reason.
+  void ExcludedItemCountsChanged();
 
 public: // QAbstractItemModel interface
   virtual QVariant data(const QModelIndex& index, int iRole) const override;
@@ -136,6 +162,17 @@ private:
   void ReEvaluateDependents(const ezUuid& removedAssetGuid);
 
   void HandleEntry(const VisibleEntry& entry, AssetOp op);
+
+  /// Records under which single-reason exclusion the given item currently falls, if any.
+  ///
+  /// Emits ExcludedItemCountsChanged() if this changed any of the counts, unless m_bSuppressExcludedItemSignal is set,
+  /// in which case the emit is deferred to whoever set that flag.
+  ///
+  /// Set bKnownUntracked only when the caller can guarantee that the path is not currently recorded under any reason,
+  /// which is the case while resetModel() refills the empty sets. It skips the scan that would drop the path from the
+  /// other reasons, so passing it wrongly leaves the item counted twice.
+  void TrackExcludedItem(const ezDataDirPath& path, ezAssetFilterResult reason, bool bKnownUntracked = false);
+
   void FileSystemFileEventHandler(const ezFileChangedEvent& e);
   void FileSystemFolderEventHandler(const ezFolderChangedEvent& e);
   void HandleFile(const ezFileChangedEvent& e);
@@ -153,6 +190,16 @@ private:
 
   ezDynamicArray<VisibleEntry> m_EntriesToDisplay;
   ezSet<ezUuid> m_DisplayedEntries;
+
+  // One set of paths per single-reason exclusion, indexed by ezAssetFilterResult.
+  // Keyed by path rather than by GUID, because plain files that are no assets have no GUID.
+  ezMap<ezAssetFilterResult, ezSet<ezString>> m_ExcludedItems;
+
+  // Set while resetModel() is between beginResetModel() and endResetModel(). It stops TrackExcludedItem() from
+  // emitting once per item, which would not only be wasteful but would also make listeners query rowCount() while
+  // the model is in reset state.
+  bool m_bSuppressExcludedItemSignal = false;
+  bool m_bExcludedItemCountsChanged = false;
 
   QFileIconProvider m_IconProvider;
 };

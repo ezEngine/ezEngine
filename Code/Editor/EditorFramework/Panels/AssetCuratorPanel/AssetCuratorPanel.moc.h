@@ -17,7 +17,7 @@ public:
   void SetFilterTransitive(bool bFilterTransitive);
 
 public:
-  virtual bool IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const override;
+  virtual ezAssetFilterResult IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const override;
 
   /// Whether this asset is in a state that the curator panel reports at all.
   static bool HasIssue(const ezSubAsset* pInfo);

@@ -5,6 +5,8 @@
     <file>Icons/Perspective.svg</file>
     <file>Icons/ObjectsVisible.svg</file>
     <file>Icons/ObjectsHidden.svg</file>
+    <file>Icons/HiddenFolderOff.svg</file>
+    <file>Icons/HiddenFolderOn.svg</file>
     <file>Icons/RenderMode.svg</file>
     <file>Icons/Asset.svg</file>
     <file>Icons/AssetCurator.svg</file>

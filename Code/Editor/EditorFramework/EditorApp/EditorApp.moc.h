@@ -219,6 +219,10 @@ public:
   void AddPluginDataDirDependency(const char* szSdkRootRelativePath, const char* szRootName = nullptr, bool bWriteable = false, ezUInt32 uiInsertIndex = ezInvalidIndex);
 
   const ezApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
+
+  /// Collects the data directories of all bundles that are currently active (mandatory, selected, or a transitive
+  /// requirement of one of those), normalized for comparison.
+  void GetActiveBundleDataDirectories(ezSet<ezString>& out_dirs) const;
   const ezApplicationPluginConfig GetRuntimePluginConfig(bool bIncludeEditorPlugins) const;
 
   void SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg);
@@ -299,10 +303,6 @@ private:
   void OpenDemoDocument();
 
   ezResult AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConfig::PluginConfig>& order, const ezPluginBundleSet& bundles, const ezString& start, bool bEditor, bool bEditorEngine, bool bRuntime) const;
-
-  /// Collects the data directories of all bundles that are currently active (mandatory, selected, or a transitive
-  /// requirement of one of those), normalized for comparison.
-  void GetActiveBundleDataDirectories(ezSet<ezString>& out_dirs) const;
 
   /// Collects the data directories declared by every known bundle (active or not), normalized for comparison.
   /// Used to identify and prune stale bundle data directory entries.
