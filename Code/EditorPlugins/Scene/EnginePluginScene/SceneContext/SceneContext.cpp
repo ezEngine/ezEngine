@@ -309,9 +309,14 @@ void ezSceneContext::AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine*
     const ezVec3 localPos = pChild->GetLocalPosition();
     const ezQuat localRot = pChild->GetLocalRotation();
 
+    // the child's local position is expressed in the parent's (scaled) space,
+    // so it has to be scaled by the parent's global scale before it can be subtracted
+    // from the child's global position, otherwise scaled prefabs end up misplaced
+    const ezVec3 vParentScale = pObject->GetGlobalScaling();
+
     // now adjust the position
-    state.m_vPosition -= state.m_qRotation * localRot.GetInverse() * localPos;
     state.m_qRotation = state.m_qRotation * localRot.GetInverse();
+    state.m_vPosition -= state.m_qRotation * vParentScale.CompMul(localPos);
   }
 
   // send a return message with the result
