@@ -21,11 +21,14 @@
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <RendererCore/Pipeline/View.h>
 
-ezCVarFloat cvar_TerrainLodTargetCoverage("Terrain.LodTargetCoverage", 0.005f, ezCVarFlags::Default,
-  "Target screen-space coverage (fraction of view height) of one terrain grid cell at which a patch switches to the next-coarser LOD.");
+ezCVarFloat cvar_TerrainLodQuality("Terrain.LodQuality", 1.0f, ezCVarFlags::Default, "Global multiplier for every terrain patch's LodCellPixelSize. > 1 keeps more detail (patches switch LOD later), < 1 coarsens sooner.");
+
+/// View height that LodCellPixelSize is measured against. Fixed rather than the actual viewport, so
+/// that a patch picks the same LOD (and therefore the same triangle count) on any display resolution.
+static constexpr float g_fLodReferenceViewHeight = 1080.0f;
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezTerrainPatchComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezTerrainPatchComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -38,7 +41,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTerrainPatchComponent, 2, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("HeightImageSize", GetHeightImageSize, SetHeightImageSize)->AddAttributes(new ezDefaultValueAttribute(ezVec2(1.0f))),
     EZ_ACCESSOR_PROPERTY("HeightImageScale", GetHeightImageScale, SetHeightImageScale)->AddAttributes(new ezDefaultValueAttribute(32.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ENUM_ACCESSOR_PROPERTY("Collider", ezTerrainPatchColliderMode, GetCollider, SetCollider),
-    EZ_ACCESSOR_PROPERTY("LodDistanceScale", GetLodDistanceScale, SetLodDistanceScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant()), new ezMinValueTextAttribute("LOD Disabled")),
+    EZ_ACCESSOR_PROPERTY("LodCellPixelSize", GetLodCellPixelSize, SetLodCellPixelSize)->AddAttributes(new ezDefaultValueAttribute(16.0f), new ezClampValueAttribute(0.0f, ezVariant()), new ezMinValueTextAttribute("LOD Disabled")),
     EZ_ARRAY_ACCESSOR_PROPERTY("Surfaces", Surfaces_GetCount, Surfaces_GetValue, Surfaces_SetValue, Surfaces_Insert, Surfaces_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_SET_ACCESSOR_PROPERTY("TerrainTags", GetTags, Reflection_SetTag, Reflection_RemoveTag)->AddAttributes(new ezTagSetWidgetAttribute("Terrain")),
   }
@@ -137,8 +140,8 @@ void ezTerrainPatchComponent::SerializeComponent(ezWorldWriter& inout_stream) co
   s << m_fHeightScale;
   s << m_uiStableId;
 
-  // Version 2
-  s << m_fLodDistanceScale;
+  // Version 3
+  s << m_fLodCellPixelSize;
 }
 
 void ezTerrainPatchComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -167,9 +170,14 @@ void ezTerrainPatchComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_fHeightScale;
   s >> m_uiStableId;
 
-  if (uiVersion >= 2)
+  if (uiVersion == 2)
   {
-    s >> m_fLodDistanceScale;
+    float fUnusedLodDistanceScale = 0.0f;
+    s >> fUnusedLodDistanceScale;
+  }
+  else if (uiVersion >= 3)
+  {
+    s >> m_fLodCellPixelSize;
   }
 }
 
@@ -314,8 +322,8 @@ ezResult ezTerrainPatchComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds
   ezVec3 vMax(m_fSize, m_fSize, m_fSize);
 
   // The skirt extends the 4-vertex border ring outward and pulls those vertices down by SkirtDepth.
-  // LodDistanceScale == 0 ("LOD Disabled") turns the skirt off, so the bounds stay tight in that case.
-  if (m_fLodDistanceScale > 0.0f)
+  // LodCellPixelSize == 0 ("LOD Disabled") turns the skirt off, so the bounds stay tight in that case.
+  if (m_fLodCellPixelSize > 0.0f)
   {
     const float fSkirtWorld = 4.0f * (m_fSize / static_cast<float>(m_Resolution.GetValue()));
     vMin.x -= fSkirtWorld;
@@ -374,20 +382,37 @@ void ezTerrainPatchComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg
   pRenderData->m_fGridSpacing = fGridSpacing;
   pRenderData->m_uiDefaultMaterialIndex = m_uiBaseMaterialIndex;
 
-  // LodDistanceScale == 0 is the "LOD Disabled" special value: always render at full resolution
+  // LodCellPixelSize == 0 is the "LOD Disabled" special value: always render at full resolution
   // and skip the skirt (there is no coarser neighbor LOD it would need to hide seams against).
-  const bool bLodEnabled = m_fLodDistanceScale > 0.0f;
+  const bool bLodEnabled = m_fLodCellPixelSize > 0.0f;
 
   ezUInt8 uiLod = 0;
   float fLodFade = 0.0f;
 
   if (bLodEnabled && msg.m_pView != nullptr)
   {
-    const ezVec3 vCenter = GetOwner()->GetGlobalTransform() * ezVec3(m_fSize * 0.5f, m_fSize * 0.5f, 0.0f);
-    const float fCoverage0 = CalculateGridCellScreenCoverage(vCenter, fGridSpacing, *msg.m_pView->GetLodCamera());
-    const float fTargetCoverage = cvar_TerrainLodTargetCoverage / m_fLodDistanceScale;
+    // Measure the cell size at the point of the patch closest to the camera, not at its center.
+    const ezCamera* pLodCamera = msg.m_pView->GetLodCamera();
+    const ezVec3 vCamPos = pLodCamera->GetCenterPosition();
 
-    const float fContinuousLod = ezMath::Clamp(ezMath::Log2(fTargetCoverage / ezMath::Max(fCoverage0, 0.00001f)), 0.0f, 2.0f);
+    // Clamp against the patch's own XY footprint in local space. The global bounds are not used here:
+    // they are padded by the skirt and span the full height range, which would pull the sample point
+    // away from the actual surface.
+    const ezTransform globalTransform = GetOwner()->GetGlobalTransform();
+    const ezVec3 vLocalCamPos = globalTransform.GetInverse() * vCamPos;
+    const ezVec3 vLocalNearest(
+      ezMath::Clamp(vLocalCamPos.x, 0.0f, m_fSize),
+      ezMath::Clamp(vLocalCamPos.y, 0.0f, m_fSize),
+      0.0f);
+
+    const ezVec3 vLodPos = globalTransform * vLocalNearest;
+    const float fCoverage0 = CalculateGridCellScreenCoverage(vLodPos, fGridSpacing, *pLodCamera);
+    // Coverage is a fraction of view height, so scaling by the reference height turns it into the
+    // on-screen height of one grid cell in pixels. Each LOD doubles the cell size, hence log2.
+    const float fCellPixels = fCoverage0 * g_fLodReferenceViewHeight;
+    const float fTargetPixels = ezMath::Max(m_fLodCellPixelSize * cvar_TerrainLodQuality, 0.00001f);
+
+    const float fContinuousLod = ezMath::Clamp(ezMath::Log2(fTargetPixels / ezMath::Max(fCellPixels, 0.00001f)), 0.0f, 2.0f);
 
     uiLod = (ezUInt8)ezMath::Trunc(fContinuousLod);
     const float fFrac = fContinuousLod - uiLod;
@@ -456,14 +481,14 @@ void ezTerrainPatchComponent::SetBaseMaterialIndex(ezUInt8 uiIndex)
   }
 }
 
-void ezTerrainPatchComponent::SetLodDistanceScale(float fScale)
+void ezTerrainPatchComponent::SetLodCellPixelSize(float fPixels)
 {
-  fScale = ezMath::Max(fScale, 0.0f);
-  if (m_fLodDistanceScale != fScale)
+  fPixels = ezMath::Max(fPixels, 0.0f);
+  if (m_fLodCellPixelSize != fPixels)
   {
-    const bool bSkirtChanged = (m_fLodDistanceScale > 0.0f) != (fScale > 0.0f);
+    const bool bSkirtChanged = (m_fLodCellPixelSize > 0.0f) != (fPixels > 0.0f);
 
-    m_fLodDistanceScale = fScale;
+    m_fLodCellPixelSize = fPixels;
     InvalidateCachedRenderData();
 
     if (bSkirtChanged)

@@ -20,17 +20,33 @@ MSAA
 CAMERA_MODE
 SHADING_QUALITY
 MATERIAL_PREVIEW
+TERRAIN_HEIGHT_BLEND
 
 [MATERIALPARAMETER]
+
+/// Enables height-based blending between layers. Requires LayerHeightTexture to be set.
+Permutation TERRAIN_HEIGHT_BLEND;
 
 Texture2DArray LayerBaseTexture;
 Texture2DArray LayerNormalTexture;
 Texture2DArray LayerRoughnessTexture;
 
+/// Per-layer height (displacement) map, only used when TERRAIN_HEIGHT_BLEND is enabled.
+/// Must use the same array layer indices as the base texture. Only the red channel is read.
+Texture2DArray LayerHeightTexture;
+
 /// World-space scale applied to triplanar UVs. Smaller values tile the texture more coarsely.
 float TextureScale @Default(0.5) @Clamp(0.001, 100.0);
 
 float RoughnessBias @Default(0.0) @Clamp(-1.0, 1.0);
+
+/// Width of the transition between two height-blended layers. Small values give hard,
+/// per-stone edges, large values approach a plain linear blend. TERRAIN_HEIGHT_BLEND only.
+float HeightBlendDepth @Default(0.15) @Clamp(0.001, 1.0);
+
+/// How far a layer's height may push it ahead of the other layers. 0 disables the effect
+/// and reproduces the linear blend. TERRAIN_HEIGHT_BLEND only.
+float HeightBlendStrength @Default(1.0) @Clamp(0.0, 8.0);
 
 int2 Material0TextureIndex @Default(0) @Clamp(0, 255);
 int2 Material1TextureIndex @Default(0) @Clamp(0, 255);
@@ -61,6 +77,8 @@ int2 Material15TextureIndex @Default(0) @Clamp(0, 255);
 
 FLOAT1(TextureScale);
 FLOAT1(RoughnessBias);
+FLOAT1(HeightBlendDepth);
+FLOAT1(HeightBlendStrength);
 
 INT2(Material0TextureIndex);
 INT2(Material1TextureIndex);
@@ -156,6 +174,11 @@ SamplerState LayerNormalTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 Texture2DArray LayerRoughnessTexture BIND_GROUP(BG_MATERIAL);
 SamplerState LayerRoughnessTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
+#if TERRAIN_HEIGHT_BLEND
+Texture2DArray LayerHeightTexture BIND_GROUP(BG_MATERIAL);
+SamplerState LayerHeightTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
+#endif
+
 /// Reads the cell-level material set and per-pixel blend weights from the VS interpolants.
 ///
 /// DataOffsets.y (nointerpolation) carries 4 cell-level material indices (sorted ascending by index),
@@ -211,11 +234,49 @@ void SampleTerrainMask()
   #endif
 }
 
+#if TERRAIN_HEIGHT_BLEND
+
+/// Samples the height map of every active layer and redistributes the blend weights, so that the
+/// tallest layer at a pixel wins it instead of all layers cross-fading linearly.
+///
+/// Disabled layers (TERRAIN_LAYER_COUNT < 5) already carry a weight of 0 from SampleTerrainMask,
+/// which keeps them out of the result and lets the compiler drop their texture fetches.
+void ApplyHeightBlend()
+{
+  float weights[TERRAIN_MAX_BLEND_LAYERS] = { G.MatWeight0, G.MatWeight1, G.MatWeight2, G.MatWeight3, G.MatWeightFallback };
+  const uint2 indices[TERRAIN_MAX_BLEND_LAYERS] = { G.TexIndices1, G.TexIndices2, G.TexIndices3, G.TexIndices4, G.TexIndicesFallback };
+
+  float heights[TERRAIN_MAX_BLEND_LAYERS];
+
+  [unroll] for (uint i = 0; i < TERRAIN_MAX_BLEND_LAYERS; ++i)
+  {
+    // Skipping the fetch for layers that do not contribute is the common case: most pixels are
+    // covered by only one or two layers.
+    heights[i] = (weights[i] > 0.0)
+      ? TriplanarSampleColorArray(LayerHeightTexture, LayerHeightTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, indices[i]).r
+      : 0.0;
+  }
+
+  TerrainHeightBlendWeights(weights, heights, GetMaterialData(HeightBlendDepth), GetMaterialData(HeightBlendStrength));
+
+  G.MatWeight0 = weights[0];
+  G.MatWeight1 = weights[1];
+  G.MatWeight2 = weights[2];
+  G.MatWeight3 = weights[3];
+  G.MatWeightFallback = weights[4];
+}
+
+#endif
+
 void FillCustomGlobals()
 {
   G.TpWeights = TriplanarWeights(G.Input.Normal);
   G.Scale = GetMaterialData(TextureScale);
   SampleTerrainMask();
+
+#if TERRAIN_HEIGHT_BLEND
+  ApplyHeightBlend();
+#endif
 }
 
 float3 GetNormal()

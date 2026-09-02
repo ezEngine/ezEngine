@@ -20,17 +20,33 @@ MSAA
 CAMERA_MODE
 SHADING_QUALITY
 MATERIAL_PREVIEW
+TERRAIN_HEIGHT_BLEND
 
 [MATERIALPARAMETER]
+
+/// Enables height-based blending between layers. Requires LayerHeightTexture to be set.
+Permutation TERRAIN_HEIGHT_BLEND;
 
 Texture2DArray LayerBaseTexture;
 Texture2DArray LayerNormalTexture;
 Texture2DArray LayerRoughnessTexture;
 
+/// Per-layer height (displacement) map, only used when TERRAIN_HEIGHT_BLEND is enabled.
+/// Must use the same array layer indices as the base texture. Only the red channel is read.
+Texture2DArray LayerHeightTexture;
+
 /// World-space scale applied to triplanar UVs. Smaller values tile the texture more coarsely.
 float TextureScale @Default(0.5) @Clamp(0.001, 100.0);
 
 float RoughnessBias @Default(0.0) @Clamp(-1.0, 1.0);
+
+/// Width of the transition between the base and the override material. Small values give hard,
+/// per-stone edges, large values approach a plain linear blend. TERRAIN_HEIGHT_BLEND only.
+float HeightBlendDepth @Default(0.15) @Clamp(0.001, 1.0);
+
+/// How far a layer's height may push it ahead of the other layer. 0 disables the effect
+/// and reproduces the linear blend. TERRAIN_HEIGHT_BLEND only.
+float HeightBlendStrength @Default(1.0) @Clamp(0.0, 8.0);
 
 int2 Material0TextureIndex @Default(0) @Clamp(0, 255);
 int2 Material1TextureIndex @Default(0) @Clamp(0, 255);
@@ -61,6 +77,8 @@ int2 Material15TextureIndex @Default(0) @Clamp(0, 255);
 
 FLOAT1(TextureScale);
 FLOAT1(RoughnessBias);
+FLOAT1(HeightBlendDepth);
+FLOAT1(HeightBlendStrength);
 
 INT2(Material0TextureIndex);
 INT2(Material1TextureIndex);
@@ -126,7 +144,8 @@ VS_OUT main(uint VertexID : SV_VertexID)
   float3 TpWeights; \
   float  Scale;     \
   uint2  BaseTexIdx; \
-  uint2  OverTexIdx;
+  uint2  OverTexIdx; \
+  float  MatStrength;
 
 #include <Shaders/Materials/MaterialPixelShader.h>
 #include <Shaders/Terrain/Rendering/VoxelMeshRenderConstants.h>
@@ -140,6 +159,11 @@ SamplerState LayerNormalTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 Texture2DArray LayerRoughnessTexture BIND_GROUP(BG_MATERIAL);
 SamplerState LayerRoughnessTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
+
+#if TERRAIN_HEIGHT_BLEND
+Texture2DArray LayerHeightTexture BIND_GROUP(BG_MATERIAL);
+SamplerState LayerHeightTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
+#endif
 
 uint2 LookupTexIndices(uint matSlot)
 {
@@ -172,11 +196,30 @@ void FillCustomGlobals()
     G.BaseTexIdx = G.BaseTexIdx.yy;
     G.OverTexIdx = G.OverTexIdx.yy;
   }
+
+  G.MatStrength = G.Input.TexCoord0.x;
+
+#if TERRAIN_HEIGHT_BLEND
+  // Redistribute the linear base/override blend by each layer's height, so that the taller
+  // layer wins a pixel instead of the two cross-fading evenly. Only the first two array
+  // entries are used; the rest stay at weight 0 and drop out of the maximum.
+  {
+    float weights[TERRAIN_MAX_BLEND_LAYERS] = { 1.0 - G.MatStrength, G.MatStrength, 0.0, 0.0, 0.0 };
+    float heights[TERRAIN_MAX_BLEND_LAYERS] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+    heights[0] = (weights[0] > 0.0) ? TriplanarSampleColorArray(LayerHeightTexture, LayerHeightTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.BaseTexIdx).r : 0.0;
+    heights[1] = (weights[1] > 0.0) ? TriplanarSampleColorArray(LayerHeightTexture, LayerHeightTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.OverTexIdx).r : 0.0;
+
+    TerrainHeightBlendWeights(weights, heights, GetMaterialData(HeightBlendDepth), GetMaterialData(HeightBlendStrength));
+
+    G.MatStrength = weights[1];
+  }
+#endif
 }
 
 float3 GetNormal()
 {
-  float matStrength = G.Input.TexCoord0.x;
+  float matStrength = G.MatStrength;
 
   float3 mainNormal     = TriplanarSampleNormalArray(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.BaseTexIdx);
   float3 overrideNormal = TriplanarSampleNormalArray(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.OverTexIdx);
@@ -185,7 +228,7 @@ float3 GetNormal()
 
 float3 GetBaseColor()
 {
-  float matStrength = G.Input.TexCoord0.x;
+  float matStrength = G.MatStrength;
 
   float3 mainColor     = TriplanarSampleColorArray(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.BaseTexIdx).rgb;
   float3 overrideColor = TriplanarSampleColorArray(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.OverTexIdx).rgb;
@@ -194,7 +237,7 @@ float3 GetBaseColor()
 
 float GetRoughness()
 {
-  float matStrength = G.Input.TexCoord0.x;
+  float matStrength = G.MatStrength;
 
   float mainRoughness     = TriplanarSampleColorArray(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.BaseTexIdx).r;
   float overrideRoughness = TriplanarSampleColorArray(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.OverTexIdx).r;
