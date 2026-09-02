@@ -33,12 +33,18 @@ public:
   ezUInt32 GetFreeUpdateSlots(ezDynamicArray<ezReflectionProbeRef>& out_updatesFinished);
 
   /// Starts rendering a new reflection probe.
+  ///
+  /// The six cube faces are normally rendered over six frames to spread the cost. A probe that has no content
+  /// yet is instead allowed to render several faces per frame, so that it becomes usable sooner.
   /// \param probe The world and probe index to be rendered. Used as an identifier.
   /// \param desc Probe render settings.
   /// \param globalTransform World position to be rendered.
   /// \param target Where the probe should be rendered into.
+  /// \param bFirstBake Set if the probe has no usable content yet. Allows rendering multiple faces per frame.
+  /// \param bSkyLight Set for the sky light, which renders all six faces at once as its result invalidates all other probes.
+  /// \param bSharingBudget Set if probes of the other kind (first bake vs. refresh) are also waiting. The per frame budget is then split between them instead of going to this probe alone.
   /// \return Returns EZ_FAILURE if no more free slots are available.
-  ezResult StartDynamicUpdate(const ezReflectionProbeRef& probe, const ezReflectionProbeDesc& desc, const ezTransform& globalTransform, const TargetSlot& target);
+  ezResult StartDynamicUpdate(const ezReflectionProbeRef& probe, const ezReflectionProbeDesc& desc, const ezTransform& globalTransform, const TargetSlot& target, bool bFirstBake = false, bool bSkyLight = false, bool bSharingBudget = false);
 
   /// Starts filtering an existing cube map into a new reflection probe.
   /// \param probe The world and probe index to be rendered. Used as an identifier.
@@ -47,6 +53,10 @@ public:
   /// \param target Where the probe should be rendered into.
   /// \return Returns EZ_FAILURE if no more free slots are available.
   ezResult StartFilterUpdate(const ezReflectionProbeRef& probe, const ezReflectionProbeDesc& desc, ezTextureCubeResourceHandle hSourceTexture, const TargetSlot& target);
+
+  /// Returns whether a probe that has no content yet is currently being rendered.
+  /// Used to decide whether the per frame budget has to be shared with such a probe.
+  bool IsFirstBakeInProgress() const;
 
   /// Cancel a previously started update.
   void CancelUpdate(const ezReflectionProbeRef& probe);
@@ -110,6 +120,9 @@ private:
     bool m_bInUse = false;
     ezEnum<UpdateStep> m_LastUpdateStep;
 
+    // How many cube faces this probe may render in a single frame. 1 for probes that already have content.
+    ezUInt8 m_uiRenderBurst = 1;
+
     ezHybridArray<Step, 8> m_UpdateSteps;
 
     ezGALTextureHandle m_hCubemap;
@@ -117,7 +130,8 @@ private:
   };
 
 private:
-  static void CreateViews(ezDynamicArray<ReflectionView>& views, ezUInt32 uiMaxRenderViews, const char* szNameSuffix, const char* szRenderPipelineResource);
+  static void CreateViews(ezDynamicArray<ReflectionView>& views, ezUInt32 uiNumViews, const char* szNameSuffix, const char* szRenderPipelineResource);
+  static ezUInt8 ComputeRenderBurst(bool bFirstBake, bool bSkyLight, bool bSharingBudget);
   void CreateReflectionViewsAndResources();
 
   void ResetProbeUpdateInfo(ezUInt32 uiInfo);
