@@ -3,6 +3,8 @@
 #include <Foundation/Math/Float16.h>
 #include <JoltPlugin/Actors/JoltActorComponent.h>
 
+struct ezMsgPhysicsMakeTemporarilyDynamic;
+
 //////////////////////////////////////////////////////////////////////////
 
 class EZ_JOLTPLUGIN_DLL ezJoltDynamicActorComponentManager : public ezComponentManager<class ezJoltDynamicActorComponent, ezBlockStorageType::FreeList>
@@ -159,6 +161,8 @@ public:
   void ClearForce(ezUInt32 uiForceID);
 
 protected:
+  void OnMsgPhysicsMakeTemporarilyDynamic(ezMsgPhysicsMakeTemporarilyDynamic& msg);
+
   const ezJoltMaterial* GetJoltMaterial() const;
 
   float GetWeight_Scale() const { return m_fWeightScale; }
