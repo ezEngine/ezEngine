@@ -2,6 +2,7 @@
 
 #include <Core/Messages/TransformChangedMessage.h>
 #include <Core/Physics/SurfaceResource.h>
+#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Algorithm/HashStream.h>
@@ -10,7 +11,10 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Types/TagRegistry.h>
 #include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Meshes/CpuMeshResource.h>
+#include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <TerrainPlugin/Components/TerrainVolumeComponent.h>
 #include <TerrainPlugin/Rendering/TerrainRenderData.h>
 #include <TerrainPlugin/TerrainSystem.h>
@@ -35,6 +39,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTerrainVolumeComponent, 1, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnMsgTransformChanged),
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_FUNCTIONS
@@ -370,6 +375,102 @@ void ezTerrainVolumeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
     msg.AddDependency(hIdxs, ezDefaultRenderDataCategories::LitOpaque, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::VertexShader);
   if (!hDrawArgs.IsInvalidated())
     msg.AddDependency(hDrawArgs, ezDefaultRenderDataCategories::LitOpaque, ezGALResourceState::DrawIndirect);
+}
+
+ezCpuMeshResourceHandle ezTerrainVolumeComponent::GenerateCpuMesh() const
+{
+  if (m_uiVoxelIndex == ezInvalidIndex)
+    return ezCpuMeshResourceHandle();
+
+  // Geometry extraction only holds a read lock on the world, so the module must not be created here.
+  // Reading the mesh back does mutate the terrain system, hence the const_cast.
+  const ezTerrainSystem* pConstTerrain = GetWorld()->GetModule<ezTerrainSystem>();
+  if (pConstTerrain == nullptr)
+    return ezCpuMeshResourceHandle();
+
+  ezTerrainSystem* pTerrain = const_cast<ezTerrainSystem*>(pConstTerrain);
+
+  // The hash covers everything that changes the shape of the mesh, so as long as it matches, the
+  // cached mesh is still the right one. Without this check, edits to the volume would go unnoticed.
+  const ezUInt64 uiContentHash = ComputeColliderContentHash(pTerrain->GetVoxelBrushOverlapHash(m_uiVoxelIndex));
+
+  if (m_hCpuMesh.IsValid() && m_uiCpuMeshHash == uiContentHash)
+    return m_hCpuMesh;
+
+  m_hCpuMesh.Invalidate();
+  m_uiCpuMeshHash = uiContentHash;
+
+  ezStringBuilder sResourceName;
+  sResourceName.SetFormat("TerrainVolumeCpuMesh:{}-{}", ezArgU(m_uiStableId, 16, true, 16, true), uiContentHash);
+
+  m_hCpuMesh = ezResourceManager::GetExistingResource<ezCpuMeshResource>(sResourceName);
+  if (m_hCpuMesh.IsValid())
+    return m_hCpuMesh;
+
+  // Reading back from the GPU blocks, so this is deliberately only done on demand.
+  ezTempArray<VoxelGpuVertex> verts;
+  ezTempArray<ezUInt32> indices;
+  ezUInt32 uiVertexCount = 0;
+  ezUInt32 uiTriangleCount = 0;
+
+  if (pTerrain->ReadbackVoxelData(m_uiVoxelIndex, verts, indices, uiVertexCount, uiTriangleCount).Failed())
+  {
+    ezLog::Warning("ezTerrainVolumeComponent: could not read back the voxel mesh, the volume provides no geometry.");
+    return ezCpuMeshResourceHandle();
+  }
+
+  // An empty volume is the normal case for one that no brush overlaps.
+  if (uiVertexCount == 0 || uiTriangleCount == 0)
+    return ezCpuMeshResourceHandle();
+
+  if (verts.GetCount() < uiVertexCount || indices.GetCount() < uiTriangleCount * 3)
+    return ezCpuMeshResourceHandle();
+
+  ezMeshResourceDescriptor desc;
+  desc.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"); // Data/Base/Materials/Common/Pattern.ezMaterialAsset
+  desc.MeshBufferDesc().AddCommonStreams();
+
+  auto& mb = desc.MeshBufferDesc();
+  mb.AllocateStreams(uiVertexCount, ezGALPrimitiveTopology::Triangles, uiTriangleCount);
+
+  // Only positions are filled in; normals and texture coordinates carry no information that a
+  // consumer of this mesh (navmesh generation, geometry export) would use.
+  auto positionData = mb.GetPositionData();
+
+  ezBoundingBox bounds = ezBoundingBox::MakeInvalid();
+
+  for (ezUInt32 i = 0; i < uiVertexCount; ++i)
+  {
+    positionData.GetPtr()[i] = verts[i].Position;
+    bounds.ExpandToInclude(verts[i].Position);
+  }
+
+  for (ezUInt32 uiTriangle = 0; uiTriangle < uiTriangleCount; ++uiTriangle)
+  {
+    mb.SetTriangleIndices(uiTriangle, indices[uiTriangle * 3 + 0], indices[uiTriangle * 3 + 1], indices[uiTriangle * 3 + 2]);
+  }
+
+  desc.SetBounds(ezBoundingBoxSphere::MakeFromBox(bounds));
+  desc.AddSubMesh(mb.GetPrimitiveCount(), 0, 0);
+
+  m_hCpuMesh = ezResourceManager::GetOrCreateResource<ezCpuMeshResource>(sResourceName, std::move(desc), sResourceName);
+  return m_hCpuMesh;
+}
+
+void ezTerrainVolumeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
+{
+  // A volume without a collider is not part of the world's physical representation, so it stays out of
+  // navmeshes and collision exports. It is still included when the render geometry is what's wanted.
+  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && !m_bEnableCollider)
+    return;
+
+  ezCpuMeshResourceHandle hMesh = GenerateCpuMesh();
+
+  if (!hMesh.IsValid())
+    return;
+
+  // The voxel vertices are in the volume's own space, the same space the baked Jolt collider uses.
+  msg.AddMeshObject(GetOwner()->GetGlobalTransform(), hMesh);
 }
 
 ezUInt64 ezTerrainVolumeComponent::ComputeColliderContentHash(ezUInt64 uiBrushOverlapHash) const

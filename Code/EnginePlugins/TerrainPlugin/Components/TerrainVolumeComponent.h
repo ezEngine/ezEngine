@@ -7,11 +7,13 @@
 #include <TerrainPlugin/TerrainPluginDLL.h>
 #include <TerrainPlugin/TerrainSystem.h>
 
+struct ezMsgExtractGeometry;
 struct ezMsgExtractRenderData;
 struct ezMsgTransformChanged;
 
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
+using ezCpuMeshResourceHandle = ezTypedResourceHandle<class ezCpuMeshResource>;
 
 using ezTerrainVolumeComponentManager = ezComponentManager<class ezTerrainVolumeComponent, ezBlockStorageType::Compact>;
 
@@ -42,6 +44,13 @@ protected:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnMsgTransformChanged(ezMsgTransformChanged& msg);
+
+  /// Provides the triangulated voxel surface, for navmesh generation, geometry export and similar.
+  ///
+  /// The mesh only exists on the GPU, so this reads it back, which is slow. The result is cached.
+  /// A volume with the collider disabled provides nothing for a collision mesh, since it is not meant
+  /// to be part of the world's physical representation, but it still provides its render geometry.
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
   // ezTerrainVolumeComponent
@@ -94,6 +103,18 @@ public:
 
 private:
   void OnObjectCreated(const ezAbstractObjectNode& node);
+
+  /// Builds (or returns the cached) CPU mesh of the voxel surface. Empty handle if unavailable.
+  ///
+  /// Blocks on a GPU readback, so this is only meant to be called for an explicit user action
+  /// (exporting the scene, generating a navmesh), not per frame. It requires the terrain system to
+  /// exist already, since it may only take a read lock on the world.
+  ezCpuMeshResourceHandle GenerateCpuMesh() const;
+
+  mutable ezCpuMeshResourceHandle m_hCpuMesh;
+
+  /// ComputeColliderContentHash() of the cached mesh, to detect that the volume changed underneath it.
+  mutable ezUInt64 m_uiCpuMeshHash = 0;
 
   ezUInt32 m_uiVoxelIndex = ezInvalidIndex;
   ezUInt64 m_uiStableId = 0;

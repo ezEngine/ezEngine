@@ -3,6 +3,8 @@
 #include <Core/World/World.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
+struct ezMsgExtractGeometry;
+
 using ezLodMeshComponentManager = ezComponentManager<class ezLodMeshComponent, ezBlockStorageType::Compact>;
 
 struct ezLodMeshLod
@@ -72,6 +74,11 @@ public:
 
   void OnMsgSetColor(ezMsgSetColor& ref_msg);           // [ msg handler ]
   void OnMsgSetCustomData(ezMsgSetCustomData& ref_msg); // [ msg handler ]
+
+  /// Provides the coarsest LOD that actually has a mesh, since the geometry is wanted for things like
+  /// exporting the scene, where the close-up detail is not useful. Only answers a request for render
+  /// geometry; collision geometry is expected to come from a dedicated collider component.
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const; // [ msg handler ]
 
 protected:
   void UpdateSelectedLod(const ezView& view) const;
