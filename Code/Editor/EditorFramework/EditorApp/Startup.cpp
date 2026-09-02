@@ -606,6 +606,12 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
     }
   }
 
+  if (!IsInHeadlessMode())
+  {
+    // Now that all plugins have been loaded, populate the asset check rules
+    ezQtAssetCheckPanel::GetSingleton()->FillRuleList();
+  }
+
   connect(m_pTimer, SIGNAL(timeout()), this, SLOT(SlotTimedUpdate()), Qt::QueuedConnection);
   m_pTimer->start(1);
 

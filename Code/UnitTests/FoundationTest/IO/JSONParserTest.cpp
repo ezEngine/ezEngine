@@ -683,4 +683,25 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Malformed")
+  {
+    const char* szTestData = "{\"a\":{\"b\":\" {";
+
+    StringStream stream(szTestData);
+
+    TestReader reader;
+
+    reader.Add(ParseResult(BeginObject));
+    reader.Add(ParseResult(Variable, "a"));
+
+    reader.Add(ParseResult(BeginObject));
+    reader.Add(ParseResult(Variable, "b"));
+    reader.Add(ParseResult(" {"));
+
+    reader.m_iExpectedParsingErrors = 1;
+    reader.ParseStream(stream);
+
+    EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0);
+  }
 }

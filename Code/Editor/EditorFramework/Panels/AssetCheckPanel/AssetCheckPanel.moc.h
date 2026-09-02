@@ -23,6 +23,8 @@ public:
   ezQtAssetCheckPanel(ads::CDockManager* pDockManager);
   ~ezQtAssetCheckPanel();
 
+  void FillRuleList();
+
 protected:
   virtual bool eventFilter(QObject* pWatched, QEvent* pEvent) override;
 
@@ -30,7 +32,6 @@ private:
   void RunButtonClicked();
   void ResultTreeItemDoubleClicked(QTreeWidgetItem* pItem, int iColumn);
 
-  void FillRuleList();
   void UpdateAssetTypeCombo();
   void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
 
