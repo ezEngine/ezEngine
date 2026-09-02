@@ -20,11 +20,11 @@ class ezQtAssetFilter;
 /// that pass every other filter.
 enum class ezAssetFilterResult : ezUInt8
 {
-  Visible,            ///< The item passes all filters and is shown.
-  Filtered,           ///< The item is excluded, either for several reasons or for one that has no dedicated switch.
-  HiddenFolder,       ///< Excluded only because it resides in a hidden folder. \see ezQtAssetBrowserFilter::SetShowItemsInHiddenFolders()
-  NonAssetFile,       ///< Excluded only because it is a plain file and files are not shown. \see ezQtAssetBrowserFilter::SetShowFiles()
-  NonImportableFile,  ///< Excluded only because it is a file that can't be imported and those are not shown. \see ezQtAssetBrowserFilter::SetShowNonImportableFiles()
+  Visible,           ///< The item passes all filters and is shown.
+  Filtered,          ///< The item is excluded, either for several reasons or for one that has no dedicated switch.
+  HiddenFolder,      ///< Excluded only because it resides in a hidden folder. \see ezQtAssetBrowserFilter::SetShowItemsInHiddenFolders()
+  NonAssetFile,      ///< Excluded only because it is a plain file and files are not shown. \see ezQtAssetBrowserFilter::SetShowFiles()
+  NonImportableFile, ///< Excluded only because it is a file that can't be imported and those are not shown. \see ezQtAssetBrowserFilter::SetShowNonImportableFiles()
 };
 
 /// Interface class of the asset filter used to decide which items are shown in the asset browser.
