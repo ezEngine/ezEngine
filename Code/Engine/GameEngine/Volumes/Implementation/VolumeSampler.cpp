@@ -133,30 +133,40 @@ void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Cate
       if (volumeValue.IsValid() == false)
         continue;
 
-      ezResult conversionStatus = EZ_SUCCESS;
-      ezEnum<ezVariantType> targetType = targetValue.GetType();
-      ezVariant newTargetValue = volumeValue.ConvertTo(targetType, &conversionStatus);
-      if (conversionStatus.Failed())
+      if (targetValue.IsValid())
       {
-        ezLog::Error("VolumeSampler: Can't convert volume value '{}' to '{}'.", sName, targetType);
-        continue;
+        ezResult conversionStatus = EZ_SUCCESS;
+        ezEnum<ezVariantType> targetType = targetValue.GetType();
+        ezVariant newTargetValue = volumeValue.ConvertTo(targetType, &conversionStatus);
+        if (conversionStatus.Failed())
+        {
+          ezLog::Error("VolumeSampler: Can't convert volume value '{}' to '{}'.", sName, targetType);
+          continue;
+        }
+
+        targetValue = ezMath::Lerp(targetValue, newTargetValue, double(info.m_fAlpha));
+      }
+      else
+      {
+        targetValue = volumeValue;
       }
 
-      targetValue = ezMath::Lerp(targetValue, newTargetValue, double(info.m_fAlpha));
       fTargetStrength = ezMath::Lerp(fTargetStrength, 1.0f, info.m_fAlpha);
     }
 
-    if (value.m_fInterpolationFactor > 0.0)
+    // When interpolation is disabled, use a factor of 1 so that Lerp simply returns the target value.
+    const double f = value.m_fInterpolationFactor > 0.0
+                       ? 1.0 - ezMath::Pow(value.m_fInterpolationFactor, deltaTime.GetSeconds())
+                       : 1.0;
+
+    // Update current value only if the target value is valid. Otherwise, keep the current value as is.
+    if (targetValue.IsValid())
     {
-      double f = 1.0 - ezMath::Pow(value.m_fInterpolationFactor, deltaTime.GetSeconds());
-      value.m_CurrentValue = ezMath::Lerp(value.m_CurrentValue, targetValue, f);
-      value.m_fCurrentStrength = ezMath::Lerp(value.m_fCurrentStrength, fTargetStrength, f);
+      value.m_CurrentValue = value.m_CurrentValue.IsValid() ? ezMath::Lerp(value.m_CurrentValue, targetValue, f) : targetValue;
     }
-    else
-    {
-      value.m_CurrentValue = targetValue;
-      value.m_fCurrentStrength = fTargetStrength;
-    }
+
+    // Always update strength, even if the value is invalid
+    value.m_fCurrentStrength = ezMath::Lerp(value.m_fCurrentStrength, fTargetStrength, f);
 
     if (pTargetBlackboard != nullptr)
     {

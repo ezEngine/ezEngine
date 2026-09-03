@@ -13,7 +13,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVolumeSamplerValue, ezNoBase, 1, ezRTTIDefaultA
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardKeysEnum")),
-    EZ_MEMBER_PROPERTY("DefaultValue", m_DefaultValue)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("DefaultValue", m_DefaultValue),
     EZ_MEMBER_PROPERTY("InterpolationDuration", m_InterpolationDuration),
   }
   EZ_END_PROPERTIES;

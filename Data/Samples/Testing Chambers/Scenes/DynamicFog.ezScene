@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10095897394996261,10807132643521334864}}
-		u4 %Hash{7028667606732717512}
+		u4 %Hash{14607950549278587434}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -326,7 +326,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %DefaultValue{0x0000803F}
+		Invalid %DefaultValue{}
 		Time %InterpolationDuration{d{0x0000000000001040}}
 		HashedString %Name{s{"Fog.Density"}}
 	}
@@ -481,7 +481,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Color %DefaultValue{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Invalid %DefaultValue{}
 		Time %InterpolationDuration{d{0x0000000000001040}}
 		HashedString %Name{s{"Fog.Color"}}
 	}
