@@ -895,7 +895,8 @@ ezResult ezTerrainSystem::ReadbackHeightfieldData(ezUInt32 uiPatchIndex, ezDynam
         for (ezUInt32 s = 0; s < 4; ++s)
           uiTotalBrushWeight += (uiWeights >> (s * 8)) & 0xFFu;
 
-        // Weights are 8-bit unorm and clamped to sum <= 1 by Step2, so the remainder is the base material's share.
+        // Step1 composites brushes with alpha semantics, so the weights sum to <= 1 and the remainder
+        // is the base material's share. A brush painting at full strength leaves no remainder and wins here.
         const ezUInt32 uiBaseWeight = (uiTotalBrushWeight >= 255) ? 0 : (255 - uiTotalBrushWeight);
 
         out_dominantMat[i] = (uiBaseWeight > uiTopBrushWeight) ? patch.m_uiDefaultMaterialIndex : uiTopBrushMat;

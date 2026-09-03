@@ -89,13 +89,14 @@ VS_OUT FillHeightfieldTerrainVertexOutput(uint vertexID)
   const int cellBufY = ((int)cellY - skirt) * step;
   const uint fullCellIndex = (uint)(clamp(cellBufY, 0, cellsFull - 1) * cellsFull + clamp(cellBufX, 0, cellsFull - 1));
 
-  // Read per-cell-corner weights (unique slot per corner per cell — no sharing between cells).
-  const int wCellX = clamp(bufX, 0, cellsFull - 1);
-  const int wCellY = clamp(bufY, 0, cellsFull - 1);
-  const uint wSlot = (uint)clamp(bufX - wCellX, 0, 1) + (uint)clamp(bufY - wCellY, 0, 1) * 2u;
-  const uint weightCellIndex = (uint)(clamp(wCellY, 0, cellsFull - 1) * cellsFull + clamp(wCellX, 0, cellsFull - 1));
-
-  const uint vtxWeightPacked = TerrainWeights[weightCellIndex * 4u + wSlot];
+  // Read this cell's own weights for this corner.
+  //
+  // Step3 stores four corner entries per cell, each remapped against that cell's material set, so a
+  // corner shared with a neighbour has a separate entry in every cell that touches it. The entry has
+  // to be selected by the cell being drawn and the corner within it — deriving the cell from the
+  // vertex position instead would read a neighbouring cell's entry, whose weights are ordered
+  // against that cell's material set and do not match the indices this cell renders with.
+  const uint vtxWeightPacked = TerrainWeights[fullCellIndex * 4u + CornerSlot[vertInCell]];
 
   // Carve sentinel: Step3 writes 0xFFFFFFFF for carved corners.
   // NaN position causes the spec to cull any triangle touching this vertex.

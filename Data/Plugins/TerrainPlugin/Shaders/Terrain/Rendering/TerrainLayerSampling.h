@@ -69,7 +69,9 @@ float3 TriplanarSampleNormalArray(Texture2DArray tex, SamplerState samp, float3 
 /// The bias is scaled by the incoming weight, so a layer that is not painted at a pixel (weight 0)
 /// can never appear there no matter how tall its height map is.
 ///
-/// depth: transition width. Small values (~0.02) give hard, per-stone cutout edges, large values
+/// depth: transition width, in the same 0..1 scale as the weights (the biased values are
+/// renormalized to sum to 1 before it is applied, so it does not drift with 'strength' or with how
+/// much height is present). Small values (~0.02) give hard, per-stone cutout edges, large values
 /// (~0.5) approach the plain linear blend. Must be > 0, otherwise ties would produce zero total
 /// weight and the original weights are kept.
 /// strength: how far a height value may push a layer. 0 reproduces the linear blend exactly.
@@ -80,13 +82,28 @@ void TerrainHeightBlendWeights(inout float weights[TERRAIN_MAX_BLEND_LAYERS], fl
 {
   float biased[TERRAIN_MAX_BLEND_LAYERS];
   float peak = 0.0;
+  float biasedTotal = 0.0;
 
   [unroll] for (uint i = 0; i < TERRAIN_MAX_BLEND_LAYERS; ++i)
   {
     // Scaling the height term by the weight keeps unpainted layers (weight 0) out of the result
     // and makes the bias fade in smoothly as a layer is painted in.
     biased[i] = weights[i] * (1.0 + heights[i] * strength);
+    biasedTotal += biased[i];
     peak = max(peak, biased[i]);
+  }
+
+  // Rescale so the biased values sum to 1 again, matching the incoming weights. The height term
+  // above inflates the total by an amount that depends on how much height happens to be present at
+  // this pixel, and 'depth' is an absolute offset below, so without this the same 'depth' would
+  // produce a different band width from pixel to pixel, and would also shift whenever 'strength'
+  // changes. Normalizing first keeps 'depth' meaning one thing across the whole surface.
+  if (biasedTotal > 0.0)
+  {
+    const float rcpBiasedTotal = 1.0 / biasedTotal;
+    [unroll] for (uint n = 0; n < TERRAIN_MAX_BLEND_LAYERS; ++n)
+      biased[n] *= rcpBiasedTotal;
+    peak *= rcpBiasedTotal;
   }
 
   const float cutoff = peak - depth;

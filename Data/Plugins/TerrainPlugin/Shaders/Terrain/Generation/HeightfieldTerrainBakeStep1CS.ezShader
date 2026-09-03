@@ -29,32 +29,73 @@ RWStructuredBuffer<uint2> BakedMask BIND_GROUP(BG_DRAW_CALL);
 /// All active terrain brushes.
 StructuredBuffer<TerrainBrushData> Brushes BIND_GROUP(BG_DRAW_CALL);
 
-/// Blends a material into the four-slot material accumulator.
-/// Raises the weight of an existing slot for the same material, or evicts the weakest slot.
+/// Composites a material into the four-slot material accumulator using alpha (over) semantics.
+///
+/// Brushes arrive in paint order (priority ascending), so each one is layered over what previous
+/// brushes left behind: everything already accumulated is attenuated by (1 - thisMatWeight) before
+/// the new material's weight is added. A brush at weight 1 therefore replaces all earlier materials
+/// outright, and two brushes at weight 0.5 give the later one 0.5 and the earlier one 0.25 rather
+/// than an order-independent 0.5/0.5 tie.
+///
+/// The base material's weight is implicit (1 - sum of the four slots) and is attenuated by the same
+/// factor automatically, so a brush at full strength is not diluted by the base material.
+///
+/// The accumulated total never exceeds 1, so slot weights need no later renormalization.
+/// If the material is not present and all four slots are occupied, the weakest slot is evicted,
+/// but only when the incoming weight is stronger.
 void BlendMaterial(uint thisMatIdx, float thisMatWeight,
                    inout uint matIdx0, inout float matWgt0,
                    inout uint matIdx1, inout float matWgt1,
                    inout uint matIdx2, inout float matWgt2,
                    inout uint matIdx3, inout float matWgt3)
 {
-  if (matIdx0 == thisMatIdx)
-    { matWgt0 = max(matWgt0, thisMatWeight); return; }
-  if (matIdx1 == thisMatIdx)
-    { matWgt1 = max(matWgt1, thisMatWeight); return; }
-  if (matIdx2 == thisMatIdx)
-    { matWgt2 = max(matWgt2, thisMatWeight); return; }
-  if (matIdx3 == thisMatIdx)
-    { matWgt3 = max(matWgt3, thisMatWeight); return; }
-
-  // Material not in any slot — evict the weakest slot if this weight is stronger.
-  if (matWgt0 <= matWgt1 && matWgt0 <= matWgt2 && matWgt0 <= matWgt3)
-    { if (thisMatWeight > matWgt0) { matIdx0 = thisMatIdx; matWgt0 = thisMatWeight; } }
-  else if (matWgt1 <= matWgt2 && matWgt1 <= matWgt3)
-    { if (thisMatWeight > matWgt1) { matIdx1 = thisMatIdx; matWgt1 = thisMatWeight; } }
-  else if (matWgt2 <= matWgt3)
-    { if (thisMatWeight > matWgt2) { matIdx2 = thisMatIdx; matWgt2 = thisMatWeight; } }
+  // Find the slot this material will occupy: its existing slot, or the weakest one to evict.
+  // An unused slot has weight 0 and is therefore always the weakest, so free slots fill up first.
+  int slot = -1;
+  if (matIdx0 == thisMatIdx) slot = 0;
+  else if (matIdx1 == thisMatIdx) slot = 1;
+  else if (matIdx2 == thisMatIdx) slot = 2;
+  else if (matIdx3 == thisMatIdx) slot = 3;
   else
-    { if (thisMatWeight > matWgt3) { matIdx3 = thisMatIdx; matWgt3 = thisMatWeight; } }
+  {
+    // Material not in any slot - target the weakest, but only take it if this weight is stronger.
+    // The displaced weight is dropped rather than redistributed, which slightly favours the base
+    // material at vertices covered by more than four materials.
+    if (matWgt0 <= matWgt1 && matWgt0 <= matWgt2 && matWgt0 <= matWgt3)
+      { if (thisMatWeight > matWgt0) slot = 0; }
+    else if (matWgt1 <= matWgt2 && matWgt1 <= matWgt3)
+      { if (thisMatWeight > matWgt1) slot = 1; }
+    else if (matWgt2 <= matWgt3)
+      { if (thisMatWeight > matWgt2) slot = 2; }
+    else
+      { if (thisMatWeight > matWgt3) slot = 3; }
+
+    if (slot < 0)
+    {
+      // Too weak to displace anything. Attenuating here would dim the visible layers for a
+      // material that is then thrown away, so this brush contributes nothing at all.
+      return;
+    }
+
+    // Take over the slot. The previous occupant's weight is discarded, not composited over.
+    if (slot == 0) { matIdx0 = thisMatIdx; matWgt0 = 0.0; }
+    else if (slot == 1) { matIdx1 = thisMatIdx; matWgt1 = 0.0; }
+    else if (slot == 2) { matIdx2 = thisMatIdx; matWgt2 = 0.0; }
+    else { matIdx3 = thisMatIdx; matWgt3 = 0.0; }
+  }
+
+  // Attenuate every existing layer, including the implicit base material's remainder, then add
+  // the new coverage on top of what is left.
+  const float keep = saturate(1.0 - thisMatWeight);
+  matWgt0 *= keep;
+  matWgt1 *= keep;
+  matWgt2 *= keep;
+  matWgt3 *= keep;
+
+  if (slot == 0) matWgt0 = saturate(matWgt0 + thisMatWeight);
+  else if (slot == 1) matWgt1 = saturate(matWgt1 + thisMatWeight);
+  else if (slot == 2) matWgt2 = saturate(matWgt2 + thisMatWeight);
+  else matWgt3 = saturate(matWgt3 + thisMatWeight);
 }
 
 /// Clears the deactivated sentinel so that a later Add brush can restore a vertex that was carved away earlier in the brush stack.
