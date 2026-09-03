@@ -199,6 +199,11 @@ void ezReflectionPool::Data::OnReflectionProbeMappingEvent(const ezUInt32 uiWorl
     {
       const ezReflectionProbeRef du = {uiWorldIndex, e.m_Id};
 
+      // The probe is already being rendered. Its flags only change once that finishes, so it would be
+      // requested again on every frame until then and start a second, redundant update of the same content.
+      if (m_ActiveDynamicUpdate.Contains(du))
+        break;
+
       ezDynamicArray<QueuedUpdate>& queue = e.m_bFirstBake ? m_InitialBakeQueue : m_RefreshQueue;
 
       bool bFound = false;
