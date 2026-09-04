@@ -453,6 +453,34 @@ namespace
       ++s;
     }
   }
+
+  void SkipWhitespaceAndComments(ezStringView& s)
+  {
+    while (true)
+    {
+      SkipWhitespace(s);
+
+      if (s.StartsWith("//"))
+      {
+        while (s.IsValid() && s.GetCharacter() != '\n')
+          ++s;
+      }
+      else if (s.StartsWith("/*"))
+      {
+        s.Shrink(2, 0);
+
+        while (s.IsValid() && !s.StartsWith("*/"))
+          ++s;
+
+        if (s.StartsWith("*/"))
+          s.Shrink(2, 0);
+      }
+      else
+      {
+        return;
+      }
+    }
+  }
 } // namespace
 
 ezResult ezShaderParser::PreprocessSection(ezStringView sSectionContent, ezArrayPtr<ezString> customDefines, ezStringBuilder& out_sResult)
@@ -826,7 +854,7 @@ void ezShaderParser::LayoutMaterialConstants(ezShaderConstantBufferLayout& ref_m
 // static
 void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_defaultValue, EnumDefinition& out_enumDefinition)
 {
-  SkipWhitespace(s);
+  SkipWhitespaceAndComments(s);
 
   ezStringBuilder name;
 

@@ -40,6 +40,21 @@ float TextureScale @Default(0.5) @Clamp(0.001, 100.0);
 
 float RoughnessBias @Default(0.0) @Clamp(-1.0, 1.0);
 
+/// Distance at which the distance-driven quality reductions begin, in world units.
+float DetailFadeStart @Default(50.0) @Clamp(0.0, 100000.0);
+
+/// Distance at which they reach full strength. Must be greater than DetailFadeStart,
+/// otherwise every distance-driven effect is disabled.
+float DetailFadeEnd @Default(150.0) @Clamp(0.0, 100000.0);
+
+/// How far roughness is pushed toward 1 at DetailFadeEnd. Dims distant reflections to stop
+/// specular flickering. 0 disables it.
+float DistanceRoughness @Default(0.3) @Clamp(0.0, 1.0);
+
+/// Turns sub-pixel normal variance into roughness, which removes specular shimmer on
+/// high-frequency terrain at any distance. 0 disables it.
+float NormalVarianceRoughness @Default(0.5) @Clamp(0.0, 4.0);
+
 /// Width of the transition between the base and the override material. Small values give hard,
 /// per-stone edges, large values approach a plain linear blend. TERRAIN_HEIGHT_BLEND only.
 float HeightBlendDepth @Default(0.15) @Clamp(0.001, 1.0);
@@ -77,6 +92,10 @@ int2 Material15TextureIndex @Default(0) @Clamp(0, 255);
 
 FLOAT1(TextureScale);
 FLOAT1(RoughnessBias);
+FLOAT1(DetailFadeStart);
+FLOAT1(DetailFadeEnd);
+FLOAT1(DistanceRoughness);
+FLOAT1(NormalVarianceRoughness);
 FLOAT1(HeightBlendDepth);
 FLOAT1(HeightBlendStrength);
 
@@ -99,13 +118,16 @@ INT2(Material15TextureIndex);
 
 [SHADER]
 
-#define USE_NORMAL
-#define USE_TANGENT
-#define USE_TEXCOORD0
 #define USE_SIMPLE_MATERIAL_MODEL
 #define USE_FOG
 #define USE_DECALS
 #define NO_SCREEN_SPACE_TECHNIQUES // deactivate AO on terrain geometry
+
+#if RENDER_PASS != RENDER_PASS_DEPTH_ONLY
+#  define USE_NORMAL
+#  define USE_TANGENT
+#  define USE_TEXCOORD0
+#endif
 
 [VERTEXSHADER]
 
@@ -122,7 +144,9 @@ VS_OUT main(VS_IN Input)
 
   // The preview mesh carries no per-vertex material strength. Pin it to 0 so only the
   // base material contributes, instead of whatever the mesh happens to have in TexCoord0.
+#if defined(USE_TEXCOORD0)
   Output.TexCoord0 = float2(0.0, 0.0);
+#endif
 
   return Output;
 }
@@ -140,16 +164,34 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
 [PIXELSHADER]
 
+#if RENDER_PASS == RENDER_PASS_DEPTH_ONLY
+
+#include <Shaders/Materials/MaterialPixelShader.h>
+
+float3 GetNormal()     { return float3(0, 0, 1); }
+float3 GetBaseColor()  { return float3(0, 0, 0); }
+float  GetRoughness()  { return 1.0f; }
+float  GetMetallic()   { return 0.0f; }
+float  GetReflectance(){ return 0.5f; }
+float  GetOpacity()    { return 1.0f; }
+
+#else
+
 #define CUSTOM_GLOBALS \
   float3 TpWeights; \
   float  Scale;     \
+  TriplanarUVs Uvs; \
+  float  CamDistance; \
+  float  NormalLength; \
   uint2  BaseTexIdx; \
   uint2  OverTexIdx; \
   float  MatStrength;
 
+#include <Shaders/Terrain/Rendering/TerrainLayerSamplingTypes.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
 #include <Shaders/Terrain/Rendering/VoxelMeshRenderConstants.h>
 #include <Shaders/Terrain/Rendering/TerrainLayerSampling.h>
+#include <Shaders/Terrain/Rendering/TerrainDistanceFade.h>
 
 Texture2DArray LayerBaseTexture BIND_GROUP(BG_MATERIAL);
 SamplerState LayerBaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
@@ -179,6 +221,11 @@ void FillCustomGlobals()
   G.TpWeights = TriplanarWeights(G.Input.Normal);
   G.Scale = GetMaterialData(TextureScale);
 
+  G.Uvs = ComputeTriplanarUVs(G.Input.WorldPosition, G.Input.Normal, G.Scale);
+  G.CamDistance = length(GetCameraPosition() - G.Input.WorldPosition);
+
+  G.NormalLength = 1.0;
+
   // In the material preview there is no volume: DataOffsets.y carries the mesh's custom
   // instance data offset rather than a material slot, and the render push constants are
   // not bound. Resolve both layers to material slot 0 instead.
@@ -207,8 +254,8 @@ void FillCustomGlobals()
     float weights[TERRAIN_MAX_BLEND_LAYERS] = { 1.0 - G.MatStrength, G.MatStrength, 0.0, 0.0, 0.0 };
     float heights[TERRAIN_MAX_BLEND_LAYERS] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
 
-    heights[0] = (weights[0] > 0.0) ? TriplanarSampleColorArray(LayerHeightTexture, LayerHeightTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.BaseTexIdx).r : 0.0;
-    heights[1] = (weights[1] > 0.0) ? TriplanarSampleColorArray(LayerHeightTexture, LayerHeightTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.OverTexIdx).r : 0.0;
+    heights[0] = (weights[0] > 0.0) ? TriplanarSampleColorArrayGrad(LayerHeightTexture, LayerHeightTexture_AutoSampler, G.Uvs, G.TpWeights, G.BaseTexIdx).r : 0.0;
+    heights[1] = (weights[1] > 0.0) ? TriplanarSampleColorArrayGrad(LayerHeightTexture, LayerHeightTexture_AutoSampler, G.Uvs, G.TpWeights, G.OverTexIdx).r : 0.0;
 
     TerrainHeightBlendWeights(weights, heights, GetMaterialData(HeightBlendDepth), GetMaterialData(HeightBlendStrength));
 
@@ -217,33 +264,77 @@ void FillCustomGlobals()
 #endif
 }
 
+/// The two layers are a lerp, so a pixel at either extreme needs only one of them, and painted
+/// voxel terrain is mostly at one extreme or the other. Safe only because the sampling uses
+/// gradients computed in FillCustomGlobals. Below this a layer contributes less than a 255th.
+#define VOXEL_BLEND_EPSILON 0.004
+
 float3 GetNormal()
 {
-  float matStrength = G.MatStrength;
+  const float matStrength = G.MatStrength;
 
-  float3 mainNormal     = TriplanarSampleNormalArray(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.BaseTexIdx);
-  float3 overrideNormal = TriplanarSampleNormalArray(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.OverTexIdx);
-  return normalize(lerp(mainNormal, overrideNormal, matStrength));
+  if (matStrength <= VOXEL_BLEND_EPSILON)
+    return TriplanarSampleNormalArrayGrad(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Uvs, G.TpWeights, G.BaseTexIdx);
+
+  if (matStrength >= 1.0 - VOXEL_BLEND_EPSILON)
+    return TriplanarSampleNormalArrayGrad(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Uvs, G.TpWeights, G.OverTexIdx);
+
+  const float3 mainNormal = TriplanarSampleNormalArrayGrad(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Uvs, G.TpWeights, G.BaseTexIdx);
+  const float3 overrideNormal = TriplanarSampleNormalArrayGrad(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Uvs, G.TpWeights, G.OverTexIdx);
+
+  // Only the mixed case can shorten the sum; the two single-layer paths above return a normal
+  // that is already unit length, leaving G.NormalLength at its initial 1.
+  const float3 blended = lerp(mainNormal, overrideNormal, matStrength);
+  const float lenSq = dot(blended, blended);
+  if (lenSq < 1e-12)
+    return G.Input.Normal;
+
+  const float len = sqrt(lenSq);
+  G.NormalLength = len;
+  return blended / len;
 }
 
 float3 GetBaseColor()
 {
-  float matStrength = G.MatStrength;
+  const float matStrength = G.MatStrength;
 
-  float3 mainColor     = TriplanarSampleColorArray(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.BaseTexIdx).rgb;
-  float3 overrideColor = TriplanarSampleColorArray(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.OverTexIdx).rgb;
+  if (matStrength <= VOXEL_BLEND_EPSILON)
+    return TriplanarSampleColorArrayGrad(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Uvs, G.TpWeights, G.BaseTexIdx).rgb;
+
+  if (matStrength >= 1.0 - VOXEL_BLEND_EPSILON)
+    return TriplanarSampleColorArrayGrad(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Uvs, G.TpWeights, G.OverTexIdx).rgb;
+
+  const float3 mainColor = TriplanarSampleColorArrayGrad(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Uvs, G.TpWeights, G.BaseTexIdx).rgb;
+  const float3 overrideColor = TriplanarSampleColorArrayGrad(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Uvs, G.TpWeights, G.OverTexIdx).rgb;
   return lerp(mainColor, overrideColor, matStrength);
+}
+
+float ApplyRoughnessFalloff(float roughness)
+{
+  const float r = TerrainNormalVarianceRoughness(roughness, G.NormalLength, GetMaterialData(NormalVarianceRoughness));
+
+  return TerrainDistanceRoughness(r, G.CamDistance,
+    GetMaterialData(DetailFadeStart), GetMaterialData(DetailFadeEnd), GetMaterialData(DistanceRoughness));
 }
 
 float GetRoughness()
 {
-  float matStrength = G.MatStrength;
+  const float matStrength = G.MatStrength;
+  const float bias = GetMaterialData(RoughnessBias);
 
-  float mainRoughness     = TriplanarSampleColorArray(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.BaseTexIdx).r;
-  float overrideRoughness = TriplanarSampleColorArray(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.OverTexIdx).r;
-  return lerp(mainRoughness, overrideRoughness, matStrength) + GetMaterialData(RoughnessBias);
+  if (matStrength <= VOXEL_BLEND_EPSILON)
+    return ApplyRoughnessFalloff(TriplanarSampleColorArrayGrad(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Uvs, G.TpWeights, G.BaseTexIdx).r + bias);
+
+  if (matStrength >= 1.0 - VOXEL_BLEND_EPSILON)
+    return ApplyRoughnessFalloff(TriplanarSampleColorArrayGrad(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Uvs, G.TpWeights, G.OverTexIdx).r + bias);
+
+  const float mainRoughness = TriplanarSampleColorArrayGrad(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Uvs, G.TpWeights, G.BaseTexIdx).r;
+  const float overrideRoughness = TriplanarSampleColorArrayGrad(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Uvs, G.TpWeights, G.OverTexIdx).r;
+  return ApplyRoughnessFalloff(lerp(mainRoughness, overrideRoughness, matStrength) + bias);
 }
 
 float  GetMetallic()    { return 0.0f; }
 float  GetReflectance() { return 0.5f; }
 float  GetOpacity()     { return 1.0f; }
+
+#endif // RENDER_PASS != RENDER_PASS_DEPTH_ONLY

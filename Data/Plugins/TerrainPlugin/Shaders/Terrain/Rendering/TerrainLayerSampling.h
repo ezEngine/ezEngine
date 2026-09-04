@@ -1,7 +1,15 @@
 #pragma once
 
-/// Shared pixel-shader resources and triplanar sampling helpers used by all terrain and voxel material shaders.
-/// Include this after MaterialPixelShader.h so that DecodeNormalTexture is available.
+/// Triplanar sampling helpers shared by the terrain and voxel material shaders.
+/// Include after MaterialPixelShader.h, which provides DecodeNormalTexture.
+///
+/// Sampling only exists in explicit-gradient form. The shaders skip zero-weight layers inside
+/// branches, where a plain Sample's implicit derivatives would be undefined.
+
+/// Weight at which one projection covers the pixel on its own and the other two fetches are
+/// skipped. Weights sum to 1, so this leaves under a 1000th for the other two - less than an
+/// 8-bit texture can represent.
+#define TERRAIN_TRIPLANAR_DOMINANT 0.999
 
 /// Triplanar blend weights matching the formula used by the engine's SampleTexture3Way helper.
 float3 TriplanarWeights(float3 worldNormal)
@@ -11,43 +19,45 @@ float3 TriplanarWeights(float3 worldNormal)
   return w / (w.x + w.y + w.z);
 }
 
-/// Samples one layer of a 2D array texture using triplanar projection.
-/// UV sign flips follow SampleTexture3Way convention so textures are consistent on both sides of each axis.
-/// matIndex: x = top/Z-facing texture array layer, y = side/XY-facing texture array layer.
-float4 TriplanarSampleColorArray(Texture2DArray tex, SamplerState samp, float3 worldPos, float3 worldNormal, float3 weights, float scale, uint2 matIndex)
+/// Samples one layer of a 2D array texture using precomputed triplanar UVs and gradients.
+/// Safe inside divergent flow control.
+float4 TriplanarSampleColorArrayGrad(Texture2DArray tex, SamplerState samp, TriplanarUVs uv, float3 weights, uint2 matIndex)
 {
-  float2 layer = (float2)matIndex;
-  float3 ns = sign(worldNormal) * scale;
+  const float2 layer = (float2)matIndex;
 
-  float4 cX = tex.Sample(samp, float3(worldPos.yz * float2(-ns.x, -scale), layer.y));
-  float4 cY = tex.Sample(samp, float3(worldPos.xz * float2(ns.y, -scale), layer.y));
-  float4 cZ = tex.Sample(samp, float3(worldPos.xy * float2(ns.z, scale), layer.x));
+  // TriplanarWeights drives the off-axis weights to exactly 0 on near-axis-aligned surfaces,
+  // which on a heightfield is most of the screen.
+  if (weights.z >= TERRAIN_TRIPLANAR_DOMINANT)
+    return tex.SampleGrad(samp, float3(uv.UvZ, layer.x), uv.DdxZ, uv.DdyZ);
+
+  const float4 cX = tex.SampleGrad(samp, float3(uv.UvX, layer.y), uv.DdxX, uv.DdyX);
+  const float4 cY = tex.SampleGrad(samp, float3(uv.UvY, layer.y), uv.DdxY, uv.DdyY);
+  const float4 cZ = tex.SampleGrad(samp, float3(uv.UvZ, layer.x), uv.DdxZ, uv.DdyZ);
 
   return cX * weights.x + cY * weights.y + cZ * weights.z;
 }
 
-/// Samples one layer of a 2D array normal map using triplanar projection and returns a world-space normal.
-/// UV sign flips match TriplanarSampleColorArray; tangent frames are derived from those same UVs so the
-/// normals are consistent with the color textures on both sides of each axis.
-/// matIndex: x = top/Z-facing texture array layer, y = side/XY-facing texture array layer.
-float3 TriplanarSampleNormalArray(Texture2DArray tex, SamplerState samp, float3 worldPos, float3 worldNormal, float3 weights, float scale, uint2 matIndex)
+/// Normal-map counterpart of TriplanarSampleColorArrayGrad. Each projection's tangent-space normal
+/// is rotated into world space by swizzling, with the axis signs applied so that back faces of a
+/// projection are not mirrored.
+float3 TriplanarSampleNormalArrayGrad(Texture2DArray tex, SamplerState samp, TriplanarUVs uv, float3 weights, uint2 matIndex)
 {
-  float2 layer = (float2)matIndex;
-  float3 sn = sign(worldNormal);
-  float3 ns = sn * scale;
+  const float2 layer = (float2)matIndex;
+  const float3 sn = uv.SignN;
 
-  float3 nX = DecodeNormalTexture(tex.Sample(samp, float3(worldPos.yz * float2(-ns.x, -scale), layer.y)));
-  float3 nY = DecodeNormalTexture(tex.Sample(samp, float3(worldPos.xz * float2(ns.y, -scale), layer.y)));
-  float3 nZ = DecodeNormalTexture(tex.Sample(samp, float3(worldPos.xy * float2(ns.z, scale), layer.x)));
+  if (weights.z >= TERRAIN_TRIPLANAR_DOMINANT)
+  {
+    const float3 nOnly = DecodeNormalTexture(tex.SampleGrad(samp, float3(uv.UvZ, layer.x), uv.DdxZ, uv.DdyZ));
+    return normalize(float3(nOnly.x * sn.z, nOnly.y, nOnly.z * sn.z));
+  }
 
-  // Reorient each tangent-space normal into world space using the tangent frame implied by the UV mapping above.
-  // Tangent frames (T, B, N) are derived as cross(dPos/dU, dPos/dV):
-  //   X proj: T=(0,-sn.x,0), B=(0,0,-1), N=(sn.x,0,0)  ->  (nX.z*sn.x, -nX.x*sn.x, -nX.y)
-  //   Y proj: T=(sn.y, 0,0), B=(0,0,-1), N=(0,sn.y,0)  ->  (nY.x*sn.y,  nY.z*sn.y,  -nY.y)
-  //   Z proj: T=(sn.z, 0,0), B=(0, 1,0), N=(0,0,sn.z)  ->  (nZ.x*sn.z,  nZ.y,        nZ.z*sn.z)
-  float3 wsX = float3(nX.z * sn.x, -nX.x * sn.x, -nX.y);
-  float3 wsY = float3(nY.x * sn.y, nY.z * sn.y, -nY.y);
-  float3 wsZ = float3(nZ.x * sn.z, nZ.y, nZ.z * sn.z);
+  const float3 nX = DecodeNormalTexture(tex.SampleGrad(samp, float3(uv.UvX, layer.y), uv.DdxX, uv.DdyX));
+  const float3 nY = DecodeNormalTexture(tex.SampleGrad(samp, float3(uv.UvY, layer.y), uv.DdxY, uv.DdyY));
+  const float3 nZ = DecodeNormalTexture(tex.SampleGrad(samp, float3(uv.UvZ, layer.x), uv.DdxZ, uv.DdyZ));
+
+  const float3 wsX = float3(nX.z * sn.x, -nX.x * sn.x, -nX.y);
+  const float3 wsY = float3(nY.x * sn.y, nY.z * sn.y, -nY.y);
+  const float3 wsZ = float3(nZ.x * sn.z, nZ.y, nZ.z * sn.z);
 
   return normalize(wsX * weights.x + wsY * weights.y + wsZ * weights.z);
 }
