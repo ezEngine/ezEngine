@@ -72,9 +72,9 @@ void main(uint3 DTid : SV_DispatchThreadID)
     return;
   }
 
-  // Clamp total explicit weight to 1.0 (brush overlap can exceed 1).
-  // The remainder (1 - total) becomes the implicit fallback material weight.
-  // If total <= 1.0, no normalization needed — the fallback simply covers the gap.
+  // Step1 composites brushes with alpha (over) semantics, so the total is already bounded by 1
+  // and the remainder (1 - total) is the implicit fallback material weight. This clamp only
+  // catches rounding drift from the 8-bit weight packing.
   float total = w[0] + w[1] + w[2] + w[3];
   if (total > 1.0)
   {
@@ -84,6 +84,8 @@ void main(uint3 DTid : SV_DispatchThreadID)
 
   // Sort slots descending by weight so slot 0 always holds the dominant explicit material.
   // 4-element sorting network: (0,1),(2,3),(0,2),(1,3),(1,2).
+  // The comparison does not swap on equal weights, which keeps Step1's slot order intact for
+  // ties. That order follows brush paint order, so the later (higher priority) brush stays ahead.
   #define SORT_PAIR(a, b) if (w[a] < w[b]) { float tw = w[a]; w[a] = w[b]; w[b] = tw; uint ti = matIdx[a]; matIdx[a] = matIdx[b]; matIdx[b] = ti; }
   SORT_PAIR(0, 1) SORT_PAIR(2, 3) SORT_PAIR(0, 2) SORT_PAIR(1, 3) SORT_PAIR(1, 2)
   #undef SORT_PAIR

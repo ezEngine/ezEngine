@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10138403709902337594,10715883720332191846}}
-		u4 %Hash{1217214977176822827}
+		u4 %Hash{16015561726401434239}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -36,7 +36,7 @@ o
 {
 	Uuid %id{u4{4902313082471471535,2320659061629185368}}
 	s %t{"ezTerrainPatchComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -46,7 +46,7 @@ o
 		Vec2 %HeightImageOffset{f{0,0x0000003F}}
 		f %HeightImageScale{0x00002041}
 		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
-		f %LodDistanceScale{0x0000803F}
+		f %LodCellPixelSize{0x00008041}
 		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
 		s %Resolution{"ezTerrainResolution::Res256"}
 		f %Size{0x00008042}
@@ -153,7 +153,7 @@ o
 {
 	Uuid %id{u4{13640485251980024227,4748128302252018986}}
 	s %t{"ezTerrainPatchComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -163,7 +163,7 @@ o
 		Vec2 %HeightImageOffset{f{0x0000003F,0x0000003F}}
 		f %HeightImageScale{0x00002041}
 		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
-		f %LodDistanceScale{0x0000803F}
+		f %LodCellPixelSize{0x00008041}
 		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
 		s %Resolution{"ezTerrainResolution::Res32"}
 		f %Size{0x00008042}
@@ -417,7 +417,7 @@ o
 		s %BlackboardName{""}
 		s %CameraRenderPipeline{""}
 		f %Dimensions{0x00002041}
-		i1 %EditorShortcut{-1}
+		i1 %EditorShortcut{1}
 		VarArray %ExcludeTags{}
 		f %ExposureCompensation{0}
 		f %FOV{0x00007042}
@@ -932,7 +932,7 @@ o
 {
 	Uuid %id{u4{7911259805998560353,10039771807902197148}}
 	s %t{"ezTerrainPatchComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -942,7 +942,7 @@ o
 		Vec2 %HeightImageOffset{f{0x0000003F,0}}
 		f %HeightImageScale{0x00002041}
 		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
-		f %LodDistanceScale{0x0000803F}
+		f %LodCellPixelSize{0x00008041}
 		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
 		s %Resolution{"ezTerrainResolution::Res64"}
 		f %Size{0x00008042}
@@ -1356,7 +1356,7 @@ o
 {
 	Uuid %id{u4{15771573940560771852,15235804835571430060}}
 	s %t{"ezTerrainPatchComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1366,7 +1366,7 @@ o
 		Vec2 %HeightImageOffset{f{0,0}}
 		f %HeightImageScale{0x00002041}
 		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
-		f %LodDistanceScale{0x0000803F}
+		f %LodCellPixelSize{0x00008041}
 		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
 		s %Resolution{"ezTerrainResolution::Res128"}
 		f %Size{0x00008042}
@@ -2181,7 +2181,7 @@ o
 		s %PluginName{"ezEditorPluginTerrain"}
 		VarArray %Properties{}
 		s %TypeName{"ezTerrainPatchComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
