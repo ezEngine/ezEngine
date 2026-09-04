@@ -13,22 +13,31 @@
 #include <Shaders/Materials/MaterialInterpolator.h>
 #include <Shaders/Terrain/Rendering/HeightfieldRenderConstants.h>
 
+/// Must match TERRAIN_MATERIAL_CELL_STEP in Generation/HeightfieldBakeConstants.h, which documents it.
+/// Redefined rather than included: that header also declares the bake constant buffer, which collides.
+#define TERRAIN_MATERIAL_CELL_STEP 4
+
 /// Baked heights produced by the compute shader, one float per grid vertex.
 StructuredBuffer<float> TerrainHeights BIND_GROUP(BG_DRAW_CALL);
 
 /// Per-vertex packed normals from TerrainNormalsCS: XY as 16-bit floats in a uint32.
 StructuredBuffer<uint> TerrainNormals BIND_GROUP(BG_DRAW_CALL);
 
-/// Per-cell top-4 explicit material indices baked by Step3 (uint per rendered cell).
+/// Per-cell top-4 explicit material indices baked by Step3 (uint per material cell).
 /// Packing: mat0|mat1<<8|mat2<<16|mat3<<24, ordered by descending brush weight (slot 0 = strongest).
 StructuredBuffer<uint> TerrainCellMaterials BIND_GROUP(BG_DRAW_CALL);
 
-/// Per-cell-corner blend weights baked by Step3 (uint per cell-corner, (CellsPerSide+8)²×4 entries,
-/// covering the rendered cells and the 4-cell border ring the skirt is drawn over).
+/// Per-cell-corner blend weights baked by Step3 (uint per cell-corner,
+/// ((CellsPerSide+8)/TERRAIN_MATERIAL_CELL_STEP)²×4 entries, covering the rendered cells and the
+/// 4-cell border ring the skirt is drawn over).
 /// Layout: cellIndex*4 + cornerSlot (TL=0,TR=1,BL=2,BR=3).
 /// Packing: w0|w1<<8|w2<<16|w3<<24 (8-bit unorm). Fallback weight = max(0, 1-w0-w1-w2-w3).
-/// Sentinel 0xFFFFFFFF marks a carved corner; the VS outputs NaN for those vertices.
+/// Sentinel 0xFFFFFFFF marks a corner whose vertex was carved away.
 StructuredBuffer<uint> TerrainWeights BIND_GROUP(BG_DRAW_CALL);
+
+/// One bit per stored-grid vertex, set when the vertex was carved away (bit i&31 of word i>>5).
+/// Full resolution, unlike the material weights: carving is a per-vertex decision.
+StructuredBuffer<uint> TerrainCarveMask BIND_GROUP(BG_DRAW_CALL);
 
 /// Decode a packed terrain normal (XY as f16, Z reconstructed).
 float3 DecodeTerrainNormal(uint packed)
@@ -37,6 +46,16 @@ float3 DecodeTerrainNormal(uint packed)
   float ny = f16tof32(packed >> 16u);
   float nz = sqrt(max(0.0, 1.0 - nx * nx - ny * ny));
   return float3(nx, ny, nz);
+}
+
+/// Unpack a corner's 4 blend weights (8-bit unorm each) into [0, 1] floats.
+/// The carve sentinel unpacks to zero weight, leaving the implicit fallback material.
+float4 UnpackWeights(uint packed)
+{
+  if (packed == 0xFFFFFFFFu)
+    return float4(0.0, 0.0, 0.0, 0.0);
+
+  return float4(packed & 0xFFu, (packed >> 8) & 0xFFu, (packed >> 16) & 0xFFu, (packed >> 24) & 0xFFu) * (1.0 / 255.0);
 }
 
 VS_OUT FillHeightfieldTerrainVertexOutput(uint vertexID)
@@ -84,29 +103,42 @@ VS_OUT FillHeightfieldTerrainVertexOutput(uint vertexID)
 
   const int idx = (int)GET_PUSH_CONSTANT(HeightfieldRenderConstants, FirstVertexIdx) + bufY * pitch + bufX;
 
-  // Material/weight buffers are baked per full-resolution cell over the whole stored grid, which is
-  // the rendered cells plus a 4-cell border ring on each side. Shifting by that border turns the
-  // cell's buffer coordinate into a stored-grid cell coordinate, so skirt cells address their own
-  // baked data rather than reusing the nearest inner cell's.
-  const int storedCellsPerSide = cellsFull + 8;
-  const int cellBufX = ((int)cellX - skirt) * step;
-  const int cellBufY = ((int)cellY - skirt) * step;
-  const int storedCellX = clamp(cellBufX + 4, 0, storedCellsPerSide - 1);
-  const int storedCellY = clamp(cellBufY + 4, 0, storedCellsPerSide - 1);
-  const uint fullCellIndex = (uint)(storedCellY * storedCellsPerSide + storedCellX);
+  // Material data is baked over the whole stored grid: the rendered cells plus the 4-cell border
+  // ring, hence the +4 that turns a buffer coordinate into a stored-grid one.
+  const int matCellsPerSide = (cellsFull + 8) / TERRAIN_MATERIAL_CELL_STEP;
 
-  // Read this cell's own weights for this corner.
-  //
-  // Step3 stores four corner entries per cell, each remapped against that cell's material set, so a
-  // corner shared with a neighbour has a separate entry in every cell that touches it. The entry has
-  // to be selected by the cell being drawn and the corner within it — deriving the cell from the
-  // vertex position instead would read a neighbouring cell's entry, whose weights are ordered
-  // against that cell's material set and do not match the indices this cell renders with.
-  const uint vtxWeightPacked = TerrainWeights[fullCellIndex * 4u + CornerSlot[vertInCell]];
+  const int storedVtxX = bufX + 4;
+  const int storedVtxY = bufY + 4;
 
-  // Carve sentinel: Step3 writes 0xFFFFFFFF for carved corners.
+  // The material cell comes from the cell being drawn, not from the vertex: it selects the index set
+  // in TerrainCellMaterials, which is nointerpolation and therefore taken from the provoking vertex
+  // alone. Deriving it per vertex lets a quad's corners pick different cells, and the non-provoking
+  // vertices' weights are then read against the wrong set.
+  const int cellStoredX = ((int)cellX - skirt) * step + 4;
+  const int cellStoredY = ((int)cellY - skirt) * step + 4;
+  const int matCellX = clamp(cellStoredX / TERRAIN_MATERIAL_CELL_STEP, 0, matCellsPerSide - 1);
+  const int matCellY = clamp(cellStoredY / TERRAIN_MATERIAL_CELL_STEP, 0, matCellsPerSide - 1);
+  const uint fullCellIndex = (uint)(matCellY * matCellsPerSide + matCellX);
+
+  // Position within that material cell. The material step is at least the coarsest LOD's vertex step
+  // and both grids share an origin, so a rendered cell never straddles a cell boundary and these stay
+  // in [0, 1] without clamping at any LOD.
+  const float fx = (float)(storedVtxX - matCellX * TERRAIN_MATERIAL_CELL_STEP) / (float)TERRAIN_MATERIAL_CELL_STEP;
+  const float fy = (float)(storedVtxY - matCellY * TERRAIN_MATERIAL_CELL_STEP) / (float)TERRAIN_MATERIAL_CELL_STEP;
+
+  // All four corners come from this one cell: Step3 remaps each corner against its own cell's
+  // material set, so entries from neighbouring cells cannot be mixed.
+  const uint cornerBase = fullCellIndex * 4u;
+  const uint packedTL = TerrainWeights[cornerBase + 0u];
+  const uint packedTR = TerrainWeights[cornerBase + 1u];
+  const uint packedBL = TerrainWeights[cornerBase + 2u];
+  const uint packedBR = TerrainWeights[cornerBase + 3u];
+
+  // Carve test at full resolution, so carving stays as sharp as the geometry: testing the
+  // interpolated corners instead would carve a whole material cell when one corner was carved.
   // NaN position causes the spec to cull any triangle touching this vertex.
-  if (vtxWeightPacked == 0xFFFFFFFFu)
+  const uint storedVtxIdx = (uint)(storedVtxY * pitch + storedVtxX);
+  if ((TerrainCarveMask[storedVtxIdx >> 5u] & (1u << (storedVtxIdx & 31u))) != 0u)
   {
     VS_OUT Discarded = (VS_OUT)0;
     const float fNaN = asfloat(0x7FC00000u);
@@ -188,11 +220,18 @@ VS_OUT FillHeightfieldTerrainVertexOutput(uint vertexID)
   const float3 worldTangent = normalize(mul(objectToWorldNormal, localTangent));
   const float3 worldBitangent = normalize(mul(objectToWorldNormal, localBitangent));
 
-  // Unpack 4 per-vertex weights (8-bit unorm) relative to the cell's top-4 explicit material set.
-  const float w0 = (vtxWeightPacked & 0xFFu) * (1.0 / 255.0);
-  const float w1 = ((vtxWeightPacked >> 8) & 0xFFu) * (1.0 / 255.0);
-  const float w2 = ((vtxWeightPacked >> 16) & 0xFFu) * (1.0 / 255.0);
-  const float w3 = ((vtxWeightPacked >> 24) & 0xFFu) * (1.0 / 255.0);
+  // A carved corner holds the sentinel, not weights. Its own vertex is culled, but it still
+  // contributes to surviving vertices in the same cell, so it unpacks to zero weight.
+  const float4 wTL = UnpackWeights(packedTL);
+  const float4 wTR = UnpackWeights(packedTR);
+  const float4 wBL = UnpackWeights(packedBL);
+  const float4 wBR = UnpackWeights(packedBR);
+  const float4 w = lerp(lerp(wTL, wTR, fx), lerp(wBL, wBR, fx), fy);
+
+  const float w0 = w.x;
+  const float w1 = w.y;
+  const float w2 = w.z;
+  const float w3 = w.w;
 
   VS_OUT Output;
   Output.Position = mul(GetWorldToScreenMatrix(), float4(worldPos, 1.0f));

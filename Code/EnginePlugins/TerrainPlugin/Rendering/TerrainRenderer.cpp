@@ -49,6 +49,7 @@ void ezTerrainHeightfieldRenderer::RenderBatch(const ezRenderViewContext& render
     bindGroup.BindBuffer("TerrainNormals", pRenderData->m_hNormalBuffer);
     bindGroup.BindBuffer("TerrainCellMaterials", pRenderData->m_hCellMaterialBuffer);
     bindGroup.BindBuffer("TerrainWeights", pRenderData->m_hVertexWeightBuffer);
+    bindGroup.BindBuffer("TerrainCarveMask", pRenderData->m_hCarveMaskBuffer);
 
     // Bind instance data buffer so the pixel shader can read GameObjectID for picking.
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();

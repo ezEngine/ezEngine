@@ -367,6 +367,7 @@ void ezTerrainPatchComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg
   const ezGALBufferHandle hNormalBuffer = pSystem->GetHeightfieldNormalBuffer(m_uiHeightfieldIndex);
   const ezGALBufferHandle hCellMaterialBuffer = pSystem->GetHeightfieldCellMaterialBuffer(m_uiHeightfieldIndex);
   const ezGALBufferHandle hVertexWeightBuffer = pSystem->GetHeightfieldMaterialVertexWeightBuffer(m_uiHeightfieldIndex);
+  const ezGALBufferHandle hCarveMaskBuffer = pSystem->GetHeightfieldCarveMaskBuffer(m_uiHeightfieldIndex);
 
   // Create instance data so the pixel shader can read GameObjectID for editor picking.
   auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, true, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset, GetUniqueIdForRendering());
@@ -377,6 +378,7 @@ void ezTerrainPatchComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg
   pRenderData->m_hNormalBuffer = hNormalBuffer;
   pRenderData->m_hCellMaterialBuffer = hCellMaterialBuffer;
   pRenderData->m_hVertexWeightBuffer = hVertexWeightBuffer;
+  pRenderData->m_hCarveMaskBuffer = hCarveMaskBuffer;
   const float fGridSpacing = m_fSize / static_cast<float>(m_Resolution.GetValue());
   pRenderData->m_uiCellsPerSide = (ezUInt32)m_Resolution.GetValue();
   pRenderData->m_fGridSpacing = fGridSpacing;
@@ -444,6 +446,8 @@ void ezTerrainPatchComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg
     msg.AddDependency(hCellMaterialBuffer, ezDefaultRenderDataCategories::LitOpaque, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::VertexShader);
   if (!hVertexWeightBuffer.IsInvalidated())
     msg.AddDependency(hVertexWeightBuffer, ezDefaultRenderDataCategories::LitOpaque, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::VertexShader);
+  if (!hCarveMaskBuffer.IsInvalidated())
+    msg.AddDependency(hCarveMaskBuffer, ezDefaultRenderDataCategories::LitOpaque, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::VertexShader);
 }
 
 void ezTerrainPatchComponent::OnMsgTransformChanged(ezMsgTransformChanged& msg)

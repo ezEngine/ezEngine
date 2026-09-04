@@ -329,6 +329,7 @@ ezUInt32 ezTerrainSystem::CreateHeightfieldTerrain(ezUInt32 uiCellsPerSide)
 
   ezTerrainData_Heightfield& patch = m_Heightfields[uiIndex];
   patch.m_uiCellsPerSide = uiCellsPerSide;
+
   patch.m_bInUse = true;
   patch.m_bDirty = true;
 
@@ -355,9 +356,9 @@ ezUInt32 ezTerrainSystem::CreateHeightfieldTerrain(ezUInt32 uiCellsPerSide)
   patch.m_hBakedNormals = ezGALDevice::GetDefaultDevice()->CreateBuffer(normDesc);
 
   // Per-cell top-4 material indices (uint per cell), written by Step3 and bound as SRV in the VS.
-  // Covers the border cells as well as the rendered ones, so that skirt cells have real data
-  // instead of reusing the nearest inner cell's. Grid width = uiStoredSize - 1 cells per side.
-  const ezUInt32 uiStoredCellsPerSide = uiStoredSize - 1;
+  // Covers the border cells too, so skirt cells have real data instead of reusing the nearest inner
+  // cell's. The stored grid is a power of two plus 8 cells wide, so it divides evenly by the step.
+  const ezUInt32 uiStoredCellsPerSide = (uiStoredSize - 1) / ezTerrainMaterialCellStep;
 
   ezGALBufferCreationDescription cellMatDesc;
   cellMatDesc.m_uiStructSize = sizeof(ezUInt32);
@@ -377,6 +378,17 @@ ezUInt32 ezTerrainSystem::CreateHeightfieldTerrain(ezUInt32 uiCellsPerSide)
   weightDesc.m_ResourceAccess.m_bImmutable = false;
 
   patch.m_hVertexWeights = ezGALDevice::GetDefaultDevice()->CreateBuffer(weightDesc);
+
+  // One carve bit per stored-grid vertex, written by Step2 and bound as SRV in the VS. Full
+  // resolution regardless of the material cell step, because carving is a per-vertex decision.
+  // Rounded up to whole words; trailing bits of the last word are written as not carved.
+  ezGALBufferCreationDescription carveDesc;
+  carveDesc.m_uiStructSize = sizeof(ezUInt32);
+  carveDesc.m_uiTotalSize = ((uiStoredSize * uiStoredSize + 31) / 32) * sizeof(ezUInt32);
+  carveDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
+  carveDesc.m_ResourceAccess.m_bImmutable = false;
+
+  patch.m_hCarveMask = ezGALDevice::GetDefaultDevice()->CreateBuffer(carveDesc);
 
   return uiIndex;
 }
@@ -400,6 +412,7 @@ void ezTerrainSystem::DestroyHeightfieldTerrain(ezUInt32& uiIdx)
   pDevice->DestroyBuffer(data.m_hBakedNormals);
   pDevice->DestroyBuffer(data.m_hCellMaterials);
   pDevice->DestroyBuffer(data.m_hVertexWeights);
+  pDevice->DestroyBuffer(data.m_hCarveMask);
 
   data.m_bInUse = false;
 }
@@ -439,6 +452,14 @@ ezGALBufferHandle ezTerrainSystem::GetHeightfieldMaterialVertexWeightBuffer(ezUI
 {
   if (uiPatchIndex < m_Heightfields.GetCount() && m_Heightfields[uiPatchIndex].m_bInUse)
     return m_Heightfields[uiPatchIndex].m_hVertexWeights;
+
+  return ezGALBufferHandle();
+}
+
+ezGALBufferHandle ezTerrainSystem::GetHeightfieldCarveMaskBuffer(ezUInt32 uiPatchIndex) const
+{
+  if (uiPatchIndex < m_Heightfields.GetCount() && m_Heightfields[uiPatchIndex].m_bInUse)
+    return m_Heightfields[uiPatchIndex].m_hCarveMask;
 
   return ezGALBufferHandle();
 }
@@ -679,6 +700,7 @@ void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
   // Import all buffers into the graph.
   auto hGraphSrc = graph.ImportBuffer(hSourceBuffer);
   auto hGraphBrush = graph.ImportBuffer(hBrushBuffer);
+  auto hGraphCarve = graph.ImportBuffer(patch.m_hCarveMask);
   auto hGraphBakedH = graph.ImportBuffer(patch.m_hBakedHeights);
   auto hGraphBakedM = graph.ImportBuffer(m_hHeightfieldSharedMask);
   auto hGraphBakedN = graph.ImportBuffer(patch.m_hBakedNormals);
@@ -727,9 +749,10 @@ void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
     auto pass = graph.AddComputePass("TerrainHFBakeStep2");
     pass.ReadBuffer(hGraphBakedH);
     pass.WriteBuffer(hGraphBakedM); // RWStructuredBuffer: normalizes weights in-place, needs UAV state
+    pass.WriteBuffer(hGraphCarve);
     pass.WriteBuffer(hGraphBakedN);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, c2, uiGroups, hGraphBakedH, hGraphBakedN, hGraphBakedM](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, c2, uiGroups, hGraphBakedH, hGraphBakedN, hGraphBakedM, hGraphCarve](const ezRenderGraphContext& ctx)
       {
         auto* pRC = ctx.GetRenderContext();
         const bool bPrevAsync = pRC->GetAllowAsyncShaderLoading();
@@ -743,6 +766,7 @@ void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
         bg.BindBuffer("BakedHeights", ctx.ResolveBuffer(hGraphBakedH));
         bg.BindBuffer("BakedNormals", ctx.ResolveBuffer(hGraphBakedN));
         bg.BindBuffer("BakedMask", ctx.ResolveBuffer(hGraphBakedM));
+        bg.BindBuffer("BakedCarveMask", ctx.ResolveBuffer(hGraphCarve));
         bg.BindBuffer("HeightfieldBakeConstants", m_hHeightfieldBakeConstants);
         pRC->Dispatch(uiGroups, uiGroups, 1).AssertSuccess(); });
   }
@@ -753,9 +777,9 @@ void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
     HeightfieldBakeConstants c3;
     c3.VertexIdxPitch = uiStoredSize;
     // Step3 covers the border cells too, so skirt cells get their own material set and weights.
-    c3.CellsPerSide = uiStoredSize - 1;
+    c3.CellsPerSide = (uiStoredSize - 1) / ezTerrainMaterialCellStep;
 
-    const ezUInt32 uiCellGroups = (uiStoredSize - 1 + 15) / 16;
+    const ezUInt32 uiCellGroups = (c3.CellsPerSide + 15) / 16;
 
     auto hGraphCellMat = graph.ImportBuffer(patch.m_hCellMaterials);
     auto hGraphVtxW = graph.ImportBuffer(patch.m_hVertexWeights);
