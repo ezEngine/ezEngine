@@ -354,10 +354,14 @@ ezUInt32 ezTerrainSystem::CreateHeightfieldTerrain(ezUInt32 uiCellsPerSide)
 
   patch.m_hBakedNormals = ezGALDevice::GetDefaultDevice()->CreateBuffer(normDesc);
 
-  // Per-cell top-3 material indices (uint per cell), written by Step3 and bound as SRV in the VS.
+  // Per-cell top-4 material indices (uint per cell), written by Step3 and bound as SRV in the VS.
+  // Covers the border cells as well as the rendered ones, so that skirt cells have real data
+  // instead of reusing the nearest inner cell's. Grid width = uiStoredSize - 1 cells per side.
+  const ezUInt32 uiStoredCellsPerSide = uiStoredSize - 1;
+
   ezGALBufferCreationDescription cellMatDesc;
   cellMatDesc.m_uiStructSize = sizeof(ezUInt32);
-  cellMatDesc.m_uiTotalSize = uiCellsPerSide * uiCellsPerSide * sizeof(ezUInt32);
+  cellMatDesc.m_uiTotalSize = uiStoredCellsPerSide * uiStoredCellsPerSide * sizeof(ezUInt32);
   cellMatDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
   cellMatDesc.m_ResourceAccess.m_bImmutable = false;
 
@@ -368,7 +372,7 @@ ezUInt32 ezTerrainSystem::CreateHeightfieldTerrain(ezUInt32 uiCellsPerSide)
   // Each corner slot is unique — no inter-thread write conflicts in Step3.
   ezGALBufferCreationDescription weightDesc;
   weightDesc.m_uiStructSize = sizeof(ezUInt32);
-  weightDesc.m_uiTotalSize = uiCellsPerSide * uiCellsPerSide * 4 * sizeof(ezUInt32);
+  weightDesc.m_uiTotalSize = uiStoredCellsPerSide * uiStoredCellsPerSide * 4 * sizeof(ezUInt32);
   weightDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
   weightDesc.m_ResourceAccess.m_bImmutable = false;
 
@@ -748,9 +752,10 @@ void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
   {
     HeightfieldBakeConstants c3;
     c3.VertexIdxPitch = uiStoredSize;
-    c3.CellsPerSide = patch.m_uiCellsPerSide;
+    // Step3 covers the border cells too, so skirt cells get their own material set and weights.
+    c3.CellsPerSide = uiStoredSize - 1;
 
-    const ezUInt32 uiCellGroups = (patch.m_uiCellsPerSide + 15) / 16;
+    const ezUInt32 uiCellGroups = (uiStoredSize - 1 + 15) / 16;
 
     auto hGraphCellMat = graph.ImportBuffer(patch.m_hCellMaterials);
     auto hGraphVtxW = graph.ImportBuffer(patch.m_hVertexWeights);

@@ -11,5 +11,5 @@ CONSTANT_BUFFER2(HeightfieldBakeConstants, 3, BG_DRAW_CALL)
   UINT1(BrushCount);           ///< Number of valid entries in the Brushes structured buffer. 0 means no brushes — heights come from SourceHeights only.
   UINT1(DefaultMaterialIndex); ///< Step2 only: material index used to fill any weight not covered by brushes during normalization.
   FLOAT2(PatchOrigin);         ///< World-space patch origin. Used to sample brush noise in absolute world space.
-  UINT1(CellsPerSide);         ///< Step3 only: number of rendered quads per side (= VertexIdxPitch - 9).
+  UINT1(CellsPerSide);         ///< Step3 only: number of quads per side across the whole stored grid, border included (= VertexIdxPitch - 1).
 };

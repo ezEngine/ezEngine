@@ -99,8 +99,8 @@ struct ezTerrainData_Heightfield
   ezTransform m_GlobalTransform = ezTransform::MakeIdentity();
   ezGALBufferHandle m_hBakedHeights;          ///< Persistent, bound as UAV in heights CS and SRV in VS.
   ezGALBufferHandle m_hBakedNormals;          ///< Persistent, bound as UAV in normals CS and SRV in VS.
-  ezGALBufferHandle m_hCellMaterials;         ///< Per-cell top-3 material indices (uint/cell), baked by Step3 CS. SRV in VS.
-  ezGALBufferHandle m_hVertexWeights;         ///< Per-vertex f16 blend weights relative to cell top-3 (uint/vertex), baked by Step3 CS. SRV in VS.
+  ezGALBufferHandle m_hCellMaterials;         ///< Per-cell top-4 material indices (uint/cell), baked by Step3 CS over the stored grid including the border ring. SRV in VS.
+  ezGALBufferHandle m_hVertexWeights;         ///< Per-cell-corner blend weights relative to that cell's top-4 (4 uint/cell), baked by Step3 CS over the same grid. SRV in VS.
   ezUInt8 m_uiDefaultMaterialIndex = 0;
   ezImageDataResourceHandle m_hHeightImage;   ///< Optional greyscale image used as baseline height source; sampled each bake.
   ezVec2 m_vImageOffset = ezVec2::MakeZero(); ///< UV offset into m_hHeightImage; selects the top-left corner of the sampled rect.

@@ -23,7 +23,8 @@ StructuredBuffer<uint> TerrainNormals BIND_GROUP(BG_DRAW_CALL);
 /// Packing: mat0|mat1<<8|mat2<<16|mat3<<24, ordered by descending brush weight (slot 0 = strongest).
 StructuredBuffer<uint> TerrainCellMaterials BIND_GROUP(BG_DRAW_CALL);
 
-/// Per-cell-corner blend weights baked by Step3 (uint per cell-corner, CellsPerSide²×4 entries).
+/// Per-cell-corner blend weights baked by Step3 (uint per cell-corner, (CellsPerSide+8)²×4 entries,
+/// covering the rendered cells and the 4-cell border ring the skirt is drawn over).
 /// Layout: cellIndex*4 + cornerSlot (TL=0,TR=1,BL=2,BR=3).
 /// Packing: w0|w1<<8|w2<<16|w3<<24 (8-bit unorm). Fallback weight = max(0, 1-w0-w1-w2-w3).
 /// Sentinel 0xFFFFFFFF marks a carved corner; the VS outputs NaN for those vertices.
@@ -83,11 +84,16 @@ VS_OUT FillHeightfieldTerrainVertexOutput(uint vertexID)
 
   const int idx = (int)GET_PUSH_CONSTANT(HeightfieldRenderConstants, FirstVertexIdx) + bufY * pitch + bufX;
 
-  // Material/weight buffers are baked per full-resolution cell. Map this rendered cell to the covering
-  // full-resolution cell (clamped so skirt cells reuse the edge cell's material).
+  // Material/weight buffers are baked per full-resolution cell over the whole stored grid, which is
+  // the rendered cells plus a 4-cell border ring on each side. Shifting by that border turns the
+  // cell's buffer coordinate into a stored-grid cell coordinate, so skirt cells address their own
+  // baked data rather than reusing the nearest inner cell's.
+  const int storedCellsPerSide = cellsFull + 8;
   const int cellBufX = ((int)cellX - skirt) * step;
   const int cellBufY = ((int)cellY - skirt) * step;
-  const uint fullCellIndex = (uint)(clamp(cellBufY, 0, cellsFull - 1) * cellsFull + clamp(cellBufX, 0, cellsFull - 1));
+  const int storedCellX = clamp(cellBufX + 4, 0, storedCellsPerSide - 1);
+  const int storedCellY = clamp(cellBufY + 4, 0, storedCellsPerSide - 1);
+  const uint fullCellIndex = (uint)(storedCellY * storedCellsPerSide + storedCellX);
 
   // Read this cell's own weights for this corner.
   //
