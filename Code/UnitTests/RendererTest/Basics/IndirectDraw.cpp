@@ -223,7 +223,7 @@ void ezRendererTestIndirectDraw::DrawIndexedInstancedIndirectOffset()
   // Fill valid args at byte offset 20 using UpdateBuffer from CPU.
   // DrawIndexedInstanced args: {indexCount=6, instanceCount=1, startIndex=0, baseVertex=0, startInstance=0}
   {
-    ezUInt32 args[5] = {6, 1, 0, 0, 0};
+    alignas(16) ezUInt32 args[5] = {6, 1, 0, 0, 0};
     m_pEncoder->UpdateBuffer(m_hIndirectArgsBuffer, 20, ezMakeArrayPtr(reinterpret_cast<const ezUInt8*>(args), sizeof(args)), ezGALUpdateMode::AheadOfTime);
   }
 

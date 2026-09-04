@@ -291,6 +291,7 @@ void ezGALCommandEncoder::UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestO
   EZ_ASSERT_DEBUG(m_CurrentCommandEncoderType != CommandEncoderType::Render || updateMode == ezGALUpdateMode::TransientConstantBuffer || updateMode == ezGALUpdateMode::AheadOfTime, "Only discard updates on dynamic buffers are supported within a render scope");
 
   EZ_ASSERT_DEV(!sourceData.IsEmpty(), "Source data for buffer update is invalid!");
+  EZ_CHECK_ALIGNMENT(sourceData.GetPtr(), 16);
 
   const ezGALBuffer* pDest = m_Device.GetBuffer(hDest);
 

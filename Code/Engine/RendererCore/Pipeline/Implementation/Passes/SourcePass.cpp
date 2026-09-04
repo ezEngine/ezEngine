@@ -308,10 +308,9 @@ ezStatus ezSourcePass::GetOutputDescription(const ezViewData& viewData, const ez
     {
       const ezGALTextureCreationDescription& renderTargetDesc = pTexture->GetDescription();
       const ezGALResourceFormat::Enum preferredFormat = renderTargetDesc.m_Format;
-      const bool bMatchingType = type == ezRequiredTextureType::SRGB ? ezGALResourceFormat::IsSrgb(preferredFormat) : !ezGALResourceFormat::IsSrgb(preferredFormat);
+      const bool bMatchingType = (type == ezRequiredTextureType::SRGB) == ezGALResourceFormat::IsSrgb(preferredFormat);
       if (bMatchingType && !ezGALResourceFormat::IsIntegerFormat(preferredFormat) && !ezGALResourceFormat::IsDepthFormat(preferredFormat) &&
-          ezGALResourceFormat::GetChannelCount(preferredFormat) == 4 && ezGALResourceFormat::GetBitsPerElement(preferredFormat) == 32 &&
-          renderTargetDesc.m_SampleCount == msaaMode && pDevice->GetCapabilities().m_FormatSupport[preferredFormat].AreAllSet(requiredSupport))
+          ezGALResourceFormat::GetChannelCount(preferredFormat) == 4 && ezGALResourceFormat::GetBitsPerElement(preferredFormat) == 32 && pDevice->GetCapabilities().m_FormatSupport[preferredFormat].AreAllSet(requiredSupport))
       {
         format = preferredFormat;
       }
@@ -319,8 +318,10 @@ ezStatus ezSourcePass::GetOutputDescription(const ezViewData& viewData, const ez
   }
 
   out_desc.SetAsRenderTarget(static_cast<ezUInt32>(viewData.m_ViewPortRect.width), static_cast<ezUInt32>(viewData.m_ViewPortRect.height), camera.IsStereoscopic() ? 2 : 1, format, msaaMode);
+  out_desc.m_Type = ezGALTextureType::Texture2DArray;
   if (bUAV)
     out_desc.m_TextureFlags.Add(ezGALTextureUsageFlags::UnorderedAccess);
+
   return EZ_SUCCESS;
 }
 
