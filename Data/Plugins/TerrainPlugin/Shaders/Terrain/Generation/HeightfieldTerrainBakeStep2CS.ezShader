@@ -23,6 +23,23 @@ RWStructuredBuffer<uint> BakedNormals BIND_GROUP(BG_DRAW_CALL);
 /// The fallback material's weight is implicit: 1 - (w0+w1+w2+w3).
 RWStructuredBuffer<uint2> BakedMask BIND_GROUP(BG_DRAW_CALL);
 
+/// Output: one bit per stored-grid vertex, set when carved away. Bit (i & 31) of word (i >> 5).
+///
+/// BakedMask holds the same flag in its 0xFF sentinel, but is shared scratch that the next patch's
+/// bake overwrites, so it cannot be read at render time. The material weights are baked coarser than
+/// the geometry, so the VS needs this separately to keep carving at full resolution.
+RWStructuredBuffer<uint> BakedCarveMask BIND_GROUP(BG_DRAW_CALL);
+
+/// Reads the carve sentinel of one stored-grid vertex. Out-of-range indices read as not carved, so
+/// the last partial word is well defined.
+bool IsVertexCarved(uint vertexIdx, uint uiVertexCount)
+{
+  if (vertexIdx >= uiVertexCount)
+    return false;
+
+  return (BakedMask[vertexIdx].x & 0xFFu) == 0xFFu;
+}
+
 float SampleHeight(int2 pos)
 {
   int2 clamped = clamp(pos, 0, int2((int)VertexIdxPitch - 1, (int)VertexIdxPitch - 1));
@@ -53,6 +70,26 @@ void main(uint3 DTid : SV_DispatchThreadID)
 
   // Unpack 4 material indices and weights from Step1 output.
   uint2 mask = BakedMask[vertexIdx];
+
+  // The thread owning a word gathers all 32 flags and writes it outright, rather than each thread
+  // setting its own bit — that would make 32 threads race on one address, needing atomics and a
+  // pre-cleared buffer. One writer per word also overwrites stale flags from a previous bake.
+  //
+  // Reading other threads' BakedMask entries is safe: this pass never changes the sentinel, so the
+  // bits are the same whether or not those threads have run.
+  if ((vertexIdx & 31u) == 0u)
+  {
+    const uint uiVertexCount = VertexIdxPitch * VertexIdxPitch;
+
+    uint uiWord = 0u;
+    for (uint uiBit = 0; uiBit < 32u; ++uiBit)
+    {
+      if (IsVertexCarved(vertexIdx + uiBit, uiVertexCount))
+        uiWord |= 1u << uiBit;
+    }
+
+    BakedCarveMask[vertexIdx >> 5u] = uiWord;
+  }
 
   uint matIdx[4];
   float w[4];

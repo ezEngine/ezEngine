@@ -46,6 +46,11 @@ struct EZ_TERRAINPLUGIN_DLL ezTerrainResolution
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TERRAINPLUGIN_DLL, ezTerrainResolution);
 
+/// Full-resolution quads spanned by one baked material cell along each axis.
+/// Must match TERRAIN_MATERIAL_CELL_STEP in Shaders/Terrain/Generation/HeightfieldBakeConstants.h,
+/// which documents it. Together they fix the size and layout of the material buffers.
+inline constexpr ezUInt32 ezTerrainMaterialCellStep = 4;
+
 /// Vertex sampling stride for the heightfield patch collision mesh.
 /// The enumerator value equals the vertex stride (skip factor) used when sub-sampling full-resolution data.
 struct EZ_TERRAINPLUGIN_DLL ezTerrainPatchColliderMode
@@ -101,6 +106,7 @@ struct ezTerrainData_Heightfield
   ezGALBufferHandle m_hBakedNormals;          ///< Persistent, bound as UAV in normals CS and SRV in VS.
   ezGALBufferHandle m_hCellMaterials;         ///< Per-cell top-4 material indices (uint/cell), baked by Step3 CS over the stored grid including the border ring. SRV in VS.
   ezGALBufferHandle m_hVertexWeights;         ///< Per-cell-corner blend weights relative to that cell's top-4 (4 uint/cell), baked by Step3 CS over the same grid. SRV in VS.
+  ezGALBufferHandle m_hCarveMask;             ///< One bit per stored-grid vertex, set when carved away. Written by Step2 CS, SRV in VS. Always full resolution.
   ezUInt8 m_uiDefaultMaterialIndex = 0;
   ezImageDataResourceHandle m_hHeightImage;   ///< Optional greyscale image used as baseline height source; sampled each bake.
   ezVec2 m_vImageOffset = ezVec2::MakeZero(); ///< UV offset into m_hHeightImage; selects the top-left corner of the sampled rect.
@@ -219,6 +225,10 @@ public:
 
   /// Returns the per-vertex f16 weight buffer (uint/vertex) baked by Step3. Bound as SRV in VS.
   ezGALBufferHandle GetHeightfieldMaterialVertexWeightBuffer(ezUInt32 uiPatchIndex) const;
+
+  /// Returns the per-vertex carve bitmask buffer (32 vertices per uint) written by Step2. SRV in VS.
+  ezGALBufferHandle GetHeightfieldCarveMaskBuffer(ezUInt32 uiPatchIndex) const;
+
 
   /// Returns the number of quads per side (= resolution enum value) for the given patch.
   ezUInt32 GetHeightfieldCellsPerSide(ezUInt32 uiPatchIndex) const;

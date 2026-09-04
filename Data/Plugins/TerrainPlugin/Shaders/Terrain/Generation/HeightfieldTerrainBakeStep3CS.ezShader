@@ -1,5 +1,8 @@
-/// For each rendered quad cell, determines the top-4 materials across its four corners and
-/// remaps per-corner blend weights relative to that cell-level material set for use in the pixel shader.
+/// For each material cell, determines the top-4 materials across its four corners and remaps
+/// per-corner blend weights relative to that cell-level material set for use in the pixel shader.
+///
+/// A material cell spans TERRAIN_MATERIAL_CELL_STEP quads along each axis, so the baked material
+/// resolution is coarser than the geometry and the VS interpolates these corner weights across it.
 
 [PLATFORMS]
 ALL
@@ -17,7 +20,8 @@ ALL
 StructuredBuffer<uint2> BakedMask BIND_GROUP(BG_DRAW_CALL);
 
 /// Per-cell top-4 explicit material indices, ordered by descending accumulated weight.
-/// One uint per stored-grid cell (rendered cells plus the border ring): mat0|mat1<<8|mat2<<16|mat3<<24.
+/// One uint per material cell over the stored grid (rendered cells plus the border ring):
+/// mat0|mat1<<8|mat2<<16|mat3<<24.
 RWStructuredBuffer<uint> CellMaterials BIND_GROUP(BG_DRAW_CALL);
 
 /// Per-cell-corner 4-weight pack relative to the cell's top-4 material set.
@@ -73,17 +77,19 @@ void main(uint3 DTid : SV_DispatchThreadID)
   const uint cx = DTid.x;
   const uint cy = DTid.y;
 
-  // CellsPerSide covers the whole stored grid (rendered cells plus the 4-cell border on each side),
-  // so cell (0,0) is the outermost border cell and the corner lookup starts at stored vertex 0.
-  const uint firstVtx = 0u;
+  // CellsPerSide counts material cells over the whole stored grid (rendered cells plus the 4-cell
+  // border), so cell (0,0) is the outermost border cell and indexing starts at stored vertex 0.
+  const uint step = TERRAIN_MATERIAL_CELL_STEP;
+  const uint vx = cx * step;
+  const uint vy = cy * step;
 
   // Corner order: TL=0, TR=1, BL=2, BR=3 — matches CornerSlot[] in the VS.
   const uint vtxIdx[4] =
   {
-    firstVtx + (cy + 0) * VertexIdxPitch + (cx + 0), // TL
-    firstVtx + (cy + 0) * VertexIdxPitch + (cx + 1), // TR
-    firstVtx + (cy + 1) * VertexIdxPitch + (cx + 0), // BL
-    firstVtx + (cy + 1) * VertexIdxPitch + (cx + 1), // BR
+    (vy + 0)    * VertexIdxPitch + (vx + 0),    // TL
+    (vy + 0)    * VertexIdxPitch + (vx + step), // TR
+    (vy + step) * VertexIdxPitch + (vx + 0),    // BL
+    (vy + step) * VertexIdxPitch + (vx + step), // BR
   };
 
   // Unpack all 4 corner vertices; track which are carved.

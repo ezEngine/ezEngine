@@ -3,6 +3,16 @@
 #include <Shaders/Common/ConstantBufferMacros.h>
 #include <Shaders/Common/Platforms.h>
 
+/// Full-resolution quads spanned by one baked material cell along each axis.
+///
+/// Material indices and weights are baked per material cell and interpolated across it in the VS.
+/// Must be at least the coarsest LOD's vertex step (4): a rendered cell straddling a cell boundary
+/// would need corner weights from several cells, and each cell's weights are ordered against its own
+/// material set, so they cannot be mixed.
+///
+/// Changing this requires a re-bake, and ezTerrainMaterialCellStep in TerrainSystem.h must match.
+#define TERRAIN_MATERIAL_CELL_STEP 4
+
 /// Push constants for HeightfieldTerrainBakeStep1CS and HeightfieldTerrainBakeStep2CS.
 CONSTANT_BUFFER2(HeightfieldBakeConstants, 3, BG_DRAW_CALL)
 {
@@ -11,5 +21,5 @@ CONSTANT_BUFFER2(HeightfieldBakeConstants, 3, BG_DRAW_CALL)
   UINT1(BrushCount);           ///< Number of valid entries in the Brushes structured buffer. 0 means no brushes — heights come from SourceHeights only.
   UINT1(DefaultMaterialIndex); ///< Step2 only: material index used to fill any weight not covered by brushes during normalization.
   FLOAT2(PatchOrigin);         ///< World-space patch origin. Used to sample brush noise in absolute world space.
-  UINT1(CellsPerSide);         ///< Step3 only: number of quads per side across the whole stored grid, border included (= VertexIdxPitch - 1).
+  UINT1(CellsPerSide);         ///< Step3 only: number of material cells per side across the whole stored grid, border included (= (VertexIdxPitch - 1) / TERRAIN_MATERIAL_CELL_STEP).
 };

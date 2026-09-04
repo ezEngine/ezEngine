@@ -31,14 +31,19 @@ public:
   /// Packing: mat0 | (mat1 << 8) | (mat2 << 16) | (mat3 << 24), ordered by descending brush weight (slot 0 = strongest).
   ezGALBufferHandle m_hCellMaterialBuffer;
 
-  /// Per-cell-corner 4-weight pack baked by Step3 (uint per cell-corner, CellsPerSide²×4 entries).
+  /// Per-cell-corner 4-weight pack baked by Step3
+  /// (uint per cell-corner, ((CellsPerSide+8)/ezTerrainMaterialCellStep)²×4 entries).
   /// Layout: cellIndex * 4 + cornerSlot, cornerSlot = TL:0, TR:1, BL:2, BR:3.
   /// Packing: w0 | (w1 << 8) | (w2 << 16) | (w3 << 24) (8-bit unorm). w_fallback reconstructed in VS.
-  /// Sentinel 0xFFFFFFFF marks carved corners; the VS outputs NaN for those vertices.
+  /// Sentinel 0xFFFFFFFF marks a corner whose vertex was carved away.
   ezGALBufferHandle m_hVertexWeightBuffer;
+
+  /// One bit per stored-grid vertex, set when the vertex was carved away (bit i&31 of word i>>5).
+  ezGALBufferHandle m_hCarveMaskBuffer;
 
   /// Number of rendered quads per side (= ezTerrainResolution enum value, e.g. 128).
   ezUInt32 m_uiCellsPerSide = 128;
+
 
   /// World-space distance between adjacent vertices.
   float m_fGridSpacing = 1.0f;
