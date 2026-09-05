@@ -5,10 +5,10 @@
 
 #include <ToolsFoundation/VisualGraph/VisualGraphCommandAccessor.h>
 
-#include <RendererCore/Pipeline/Implementation/RenderPipelinePassGraph.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <RendererCore/Pipeline/Extractor.h>
+#include <RendererCore/Pipeline/Implementation/RenderPipelinePassGraph.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRenderPipelineResourceType, 1)
