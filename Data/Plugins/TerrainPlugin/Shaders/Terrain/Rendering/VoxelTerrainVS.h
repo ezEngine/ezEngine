@@ -29,17 +29,25 @@ VS_OUT FillVoxelTerrainVertexOutput(uint vertexID)
   const float3x3 objectToWorldNormal = TransformToRotation(instanceData.ObjectToWorldNormal);
 
   const float3 worldPos = mul(objectToWorld, float4(v.Position, 1.0f)).xyz;
-  const float3 worldNormal = normalize(mul(objectToWorldNormal, v.Normal));
-  const float3 worldTangent = normalize(mul(objectToWorldNormal, v.Tangent));
-  const float3 worldBitan = cross(worldNormal, worldTangent) * v.BitangentSign;
 
   VS_OUT Output;
   Output.Position = mul(GetWorldToScreenMatrix(), float4(worldPos, 1.0f));
   Output.WorldPosition = worldPos;
+
+#if defined(USE_NORMAL)
+  const float3 worldNormal = normalize(mul(objectToWorldNormal, v.Normal));
   Output.Normal = worldNormal;
+#endif
+
+#if defined(USE_TANGENT)
+  const float3 worldTangent = normalize(mul(objectToWorldNormal, v.Tangent));
   Output.Tangent = worldTangent;
-  Output.BiTangent = worldBitan;
+  Output.BiTangent = cross(worldNormal, worldTangent) * v.BitangentSign;
+#endif
+
+#if defined(USE_TEXCOORD0)
   Output.TexCoord0 = float2(v.MaterialStrength, 0.0f);
+#endif
   Output.DataOffsets = uint3(GET_PUSH_CONSTANT(VoxelMeshRenderConstants, InstanceDataOffset), v.Material, 0);
   return Output;
 }
