@@ -1,4 +1,4 @@
-#include <RendererCore/Pipeline/RenderPipelinePassGraph.h>
+#include <RendererCore/Pipeline/Implementation/RenderPipelinePassGraph.h>
 
 #include <Core/Graphics/Camera.h>
 #include <RendererCore/Pipeline/Extractor.h>

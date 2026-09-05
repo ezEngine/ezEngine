@@ -10,7 +10,7 @@
 #include <RendererFoundation/Profiling/Profiling.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, 1, ezRTTINoAllocator)
+EZ_BEGIN_ABSTRACT_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, 1)
 {
   EZ_BEGIN_PROPERTIES
   {

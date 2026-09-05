@@ -3,7 +3,7 @@
 #include <RendererCore/Pipeline/RenderPipelineNode.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineNode, 1, ezRTTINoAllocator)
+EZ_BEGIN_ABSTRACT_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineNode, 1)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodePin, ezNoBase, 1, ezRTTINoAllocator)

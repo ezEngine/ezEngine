@@ -1,5 +1,6 @@
 #include <RendererTest/RendererTestPCH.h>
 
+#include <RendererCore/Pipeline/Implementation/RenderPipelinePassGraph.h>
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/Utils/Blackboard.h>
@@ -7,7 +8,6 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Passes/SwitchPass.h>
-#include <RendererCore/Pipeline/RenderPipelinePassGraph.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Pipeline/ViewData.h>

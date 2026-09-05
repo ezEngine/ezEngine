@@ -6,8 +6,8 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <RendererCore/Pipeline/Implementation/RenderPipelinePassGraph.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
-#include <RendererCore/Pipeline/RenderPipelinePassGraph.h>
 
 class ezProfilingId;
 class ezView;
