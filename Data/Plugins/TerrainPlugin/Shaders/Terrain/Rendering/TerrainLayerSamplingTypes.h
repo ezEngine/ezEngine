@@ -36,8 +36,11 @@ TriplanarUVs ComputeTriplanarUVs(float3 worldPos, float3 worldNormal, float scal
   r.UvY = worldPos.xz * float2(ns.y, -scale);
   r.UvZ = worldPos.xy * float2(ns.z, scale);
 
-  r.DdxX = ddx(r.UvX); r.DdyX = ddy(r.UvX);
-  r.DdxY = ddx(r.UvY); r.DdyY = ddy(r.UvY);
-  r.DdxZ = ddx(r.UvZ); r.DdyZ = ddy(r.UvZ);
+  r.DdxX = ddx(r.UvX);
+  r.DdyX = ddy(r.UvX);
+  r.DdxY = ddx(r.UvY);
+  r.DdyY = ddy(r.UvY);
+  r.DdxZ = ddx(r.UvZ);
+  r.DdyZ = ddy(r.UvZ);
   return r;
 }
