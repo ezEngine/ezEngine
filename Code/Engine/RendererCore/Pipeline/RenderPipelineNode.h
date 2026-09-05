@@ -24,6 +24,7 @@ struct ezRenderPipelineNodePin
       Output = EZ_BIT(1),          ///< Pin provides output to other nodes.
       PassThrough = EZ_BIT(2),     ///< Pin passes data through without modification.
       TextureProvider = EZ_BIT(3), ///< Pass provides pin texture to the pipeline each frame.
+      Buffer = EZ_BIT(4),          ///< Pin is used for buffer connections instead of texture connections.
 
       Default = 0
     };
@@ -34,6 +35,7 @@ struct ezRenderPipelineNodePin
       StorageType Output : 1;
       StorageType PassThrough : 1;
       StorageType TextureProvider : 1;
+      StorageType Buffer : 1;
     };
   };
 
@@ -84,6 +86,46 @@ struct ezRenderPipelineNodePassThroughPin : public ezRenderPipelineNodePin
   EZ_ALWAYS_INLINE ezRenderPipelineNodePassThroughPin() { m_Type = Type::PassThrough; }
 };
 
+/// Input pin for receiving buffer data from other nodes.
+struct ezRenderPipelineNodeBufferInputPin : public ezRenderPipelineNodePin
+{
+  EZ_DECLARE_POD_TYPE();
+
+  EZ_ALWAYS_INLINE ezRenderPipelineNodeBufferInputPin() { m_Type = Type::Input | Type::Buffer; }
+};
+
+/// Output pin for sending buffer data to other nodes.
+struct ezRenderPipelineNodeBufferOutputPin : public ezRenderPipelineNodePin
+{
+  EZ_DECLARE_POD_TYPE();
+
+  EZ_ALWAYS_INLINE ezRenderPipelineNodeBufferOutputPin() { m_Type = Type::Output | Type::Buffer; }
+};
+
+/// Buffer input pin that also provides the buffer's texture each frame.
+struct ezRenderPipelineNodeBufferInputProviderPin : public ezRenderPipelineNodeBufferInputPin
+{
+  EZ_DECLARE_POD_TYPE();
+
+  EZ_ALWAYS_INLINE ezRenderPipelineNodeBufferInputProviderPin() { m_Type = Type::Input | Type::TextureProvider | Type::Buffer; }
+};
+
+/// Buffer output pin that also provides the buffer's texture each frame.
+struct ezRenderPipelineNodeBufferOutputProviderPin : public ezRenderPipelineNodeBufferOutputPin
+{
+  EZ_DECLARE_POD_TYPE();
+
+  EZ_ALWAYS_INLINE ezRenderPipelineNodeBufferOutputProviderPin() { m_Type = Type::Output | Type::TextureProvider | Type::Buffer; }
+};
+
+/// Buffer pin that forwards data without modification.
+struct ezRenderPipelineNodeBufferPassThroughPin : public ezRenderPipelineNodePin
+{
+  EZ_DECLARE_POD_TYPE();
+
+  EZ_ALWAYS_INLINE ezRenderPipelineNodeBufferPassThroughPin() { m_Type = Type::PassThrough | Type::Buffer; }
+};
+
 /// Base class for nodes in a render pipeline.
 ///
 /// Nodes represent stages in the rendering pipeline and are connected via pins.
@@ -97,10 +139,18 @@ public:
 
   void InitializePins();
 
+  /// Returns the name that the pin is registered under.
+  ///
+  /// Pins that were added through AddDynamicPins are also reachable under their reflected property name, in which case it is unspecified which of the two names is returned.
   ezHashedString GetPinName(const ezRenderPipelineNodePin* pPin) const;
   const ezRenderPipelineNodePin* GetPinByName(ezTempHashedString sName) const;
   const ezArrayPtr<const ezRenderPipelineNodePin* const> GetInputPins() const { return m_InputPins; }
   const ezArrayPtr<const ezRenderPipelineNodePin* const> GetOutputPins() const { return m_OutputPins; }
+
+  /// Allows a node to expose its reflected pins under additional, data driven names.
+  ///
+  /// Called at the end of InitializePins. This only adds name lookups, the pins themselves still have to be reflected members, so GetInputPins and GetOutputPins are unaffected.
+  virtual void AddDynamicPins(ezHashTable<ezHashedString, const ezRenderPipelineNodePin*>& ref_nameToPin) {}
 
 private:
   ezDynamicArray<const ezRenderPipelineNodePin*> m_InputPins;
@@ -109,8 +159,15 @@ private:
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezRenderPipelineNodePin);
+
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezRenderPipelineNodeInputPin);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezRenderPipelineNodeOutputPin);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezRenderPipelineNodeInputProviderPin);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezRenderPipelineNodeOutputProviderPin);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezRenderPipelineNodePassThroughPin);
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezRenderPipelineNodeBufferInputPin);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezRenderPipelineNodeBufferOutputPin);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezRenderPipelineNodeBufferInputProviderPin);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezRenderPipelineNodeBufferOutputProviderPin);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezRenderPipelineNodeBufferPassThroughPin);

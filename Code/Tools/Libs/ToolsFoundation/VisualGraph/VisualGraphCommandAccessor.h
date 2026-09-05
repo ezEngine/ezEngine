@@ -23,7 +23,6 @@ public:
   virtual ezStatus AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid) override;
   virtual ezStatus RemoveObject(const ezDocumentObject* pObject) override;
 
-private:
   bool IsNode(const ezDocumentObject* pObject) const;
   bool IsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const;
 

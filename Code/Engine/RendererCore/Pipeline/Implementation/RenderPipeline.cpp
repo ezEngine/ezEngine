@@ -37,11 +37,17 @@ ezCVarBool cvar_SpatialCullingOcclusionVisView("Spatial.Occlusion.VisView", fals
 ezCVarFloat cvar_SpatialCullingOcclusionBoundsInlation("Spatial.Occlusion.BoundsInflation", 0.5f, ezCVarFlags::Default, "How much to inflate bounds during occlusion check.");
 ezCVarFloat cvar_SpatialCullingOcclusionFarPlane("Spatial.Occlusion.FarPlane", 50.0f, ezCVarFlags::Default, "Far plane distance for finding occluders.");
 
-ezRenderPipeline::ezRenderPipeline()
+ezRenderPipeline::ezRenderPipeline(ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>&& passes, ezDynamicArray<ezUniquePtr<ezExtractor>>&& extractors, ezArrayPtr<const ezRenderPipelineResourceLoaderConnection> connections)
+  : m_PassGraph(std::move(passes), std::move(extractors), connections)
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   m_AverageCullingTime = ezTime::MakeFromSeconds(0.1f);
 #endif
+
+  for (const ezUniquePtr<ezRenderPipelinePass>& pPass : m_PassGraph.GetPasses())
+  {
+    pPass->m_pPipeline = this;
+  }
 
   ezRenderGraphManager::s_RenderEvent.AddEventHandler(ezMakeDelegate(&ezRenderPipeline::OnRenderEvent, this));
 }
@@ -54,11 +60,6 @@ ezRenderPipeline::~ezRenderPipeline()
 
   m_Data[0].Clear();
   m_Data[1].Clear();
-
-  while (!m_Passes.IsEmpty())
-  {
-    RemovePass(m_Passes.PeekBack().Borrow());
-  }
 }
 
 void ezRenderPipeline::OnRenderEvent(const ezRenderGraphRenderEvent& e)
@@ -85,39 +86,11 @@ void ezRenderPipeline::OnRenderEvent(const ezRenderGraphRenderEvent& e)
   }
 }
 
-void ezRenderPipeline::AddPass(ezUniquePtr<ezRenderPipelinePass>&& pPass)
-{
-  m_PipelineState = PipelineState::Uninitialized;
-  pPass->m_pPipeline = this;
-  pPass->InitializePins();
-
-  auto it = m_Connections.Insert(pPass.Borrow(), ConnectionData());
-  it.Value().m_Inputs.SetCount(pPass->GetInputPins().GetCount());
-  it.Value().m_Outputs.SetCount(pPass->GetOutputPins().GetCount());
-  m_Passes.PushBack(std::move(pPass));
-}
-
-void ezRenderPipeline::RemovePass(ezRenderPipelinePass* pPass)
-{
-  for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
-  {
-    if (m_Passes[i].Borrow() == pPass)
-    {
-      m_PipelineState = PipelineState::Uninitialized;
-      RemoveConnections(pPass);
-      m_Connections.Remove(pPass);
-      pPass->m_pPipeline = nullptr;
-      m_Passes.RemoveAtAndCopy(i);
-      break;
-    }
-  }
-}
-
 void ezRenderPipeline::GetPasses(ezDynamicArray<const ezRenderPipelinePass*>& ref_passes) const
 {
-  ref_passes.Reserve(m_Passes.GetCount());
+  ref_passes.Reserve(ref_passes.GetCount() + m_PassGraph.GetPasses().GetCount());
 
-  for (auto& pPass : m_Passes)
+  for (const ezUniquePtr<ezRenderPipelinePass>& pPass : m_PassGraph.GetPasses())
   {
     ref_passes.PushBack(pPass.Borrow());
   }
@@ -125,9 +98,9 @@ void ezRenderPipeline::GetPasses(ezDynamicArray<const ezRenderPipelinePass*>& re
 
 void ezRenderPipeline::GetPasses(ezDynamicArray<ezRenderPipelinePass*>& ref_passes)
 {
-  ref_passes.Reserve(m_Passes.GetCount());
+  ref_passes.Reserve(ref_passes.GetCount() + m_PassGraph.GetPasses().GetCount());
 
-  for (auto& pPass : m_Passes)
+  for (const ezUniquePtr<ezRenderPipelinePass>& pPass : m_PassGraph.GetPasses())
   {
     ref_passes.PushBack(pPass.Borrow());
   }
@@ -135,192 +108,12 @@ void ezRenderPipeline::GetPasses(ezDynamicArray<ezRenderPipelinePass*>& ref_pass
 
 ezRenderPipelinePass* ezRenderPipeline::GetPassByName(const ezStringView& sPassName)
 {
-  for (auto& pPass : m_Passes)
-  {
-    if (sPassName.IsEqual(pPass->GetName()))
-    {
-      return pPass.Borrow();
-    }
-  }
-
-  return nullptr;
+  return m_PassGraph.GetPassByName(sPassName);
 }
 
 ezHashedString ezRenderPipeline::GetViewName() const
 {
   return m_sName;
-}
-
-bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, const char* szOutputPinName, ezRenderPipelinePass* pInputNode, const char* szInputPinName)
-{
-  ezHashedString sOutputPinName;
-  sOutputPinName.Assign(szOutputPinName);
-  ezHashedString sInputPinName;
-  sInputPinName.Assign(szInputPinName);
-  return Connect(pOutputNode, sOutputPinName, pInputNode, sInputPinName);
-}
-
-bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode, ezHashedString sInputPinName)
-{
-  ezLogBlock b("ezRenderPipeline::Connect");
-
-  auto itOut = m_Connections.Find(pOutputNode);
-  if (!itOut.IsValid())
-  {
-    ezLog::Error("Output node '{0}' not added to pipeline!", pOutputNode->GetName());
-    return false;
-  }
-  auto itIn = m_Connections.Find(pInputNode);
-  if (!itIn.IsValid())
-  {
-    ezLog::Error("Input node '{0}' not added to pipeline!", pInputNode->GetName());
-    return false;
-  }
-  const ezRenderPipelineNodePin* pPinSource = pOutputNode->GetPinByName(sOutputPinName);
-  if (!pPinSource)
-  {
-    ezLog::Error("Source pin '{0}::{1}' does not exist!", pOutputNode->GetName(), sOutputPinName);
-    return false;
-  }
-  const ezRenderPipelineNodePin* pPinTarget = pInputNode->GetPinByName(sInputPinName);
-  if (!pPinTarget)
-  {
-    ezLog::Error("Target pin '{0}::{1}' does not exist!", pInputNode->GetName(), sInputPinName);
-    return false;
-  }
-  if (itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] != nullptr)
-  {
-    ezLog::Error("Pins already connected: '{0}::{1}' -> '{2}::{3}'!", pOutputNode->GetName(), sOutputPinName, pInputNode->GetName(), sInputPinName);
-    return false;
-  }
-
-  // Add at output
-  ezRenderPipelinePassConnection* pConnection = itOut.Value().m_Outputs[pPinSource->m_uiOutputIndex];
-  if (pConnection == nullptr)
-  {
-    pConnection = EZ_DEFAULT_NEW(ezRenderPipelinePassConnection);
-    pConnection->m_pOutput = pPinSource;
-    pConnection->m_Connection = ezRenderPipelinePinConnection(ezRenderPipelinePinConnection::Connectivity::Texture);
-    itOut.Value().m_Outputs[pPinSource->m_uiOutputIndex] = pConnection;
-  }
-  else
-  {
-    // Check that only one passthrough is connected
-    if (pPinTarget->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough))
-    {
-      for (const ezRenderPipelineNodePin* pPin : pConnection->m_Inputs)
-      {
-        if (pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough))
-        {
-          ezLog::Error("A pass through pin is already connected to the '{0}' pin!", sOutputPinName);
-          return false;
-        }
-      }
-    }
-  }
-
-  // Add at input
-  pConnection->m_Inputs.PushBack(pPinTarget);
-  itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] = pConnection;
-  m_PipelineState = PipelineState::Uninitialized;
-
-  if (pPinSource->m_Type.IsSet(ezRenderPipelineNodePin::Type::TextureProvider))
-  {
-    m_TextureProviderPins.Insert(pPinSource);
-  }
-  if (pPinTarget->m_Type.IsSet(ezRenderPipelineNodePin::Type::TextureProvider))
-  {
-    m_TextureProviderPins.Insert(pPinTarget);
-  }
-
-  return true;
-}
-
-bool ezRenderPipeline::Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode, ezHashedString sInputPinName)
-{
-  ezLogBlock b("ezRenderPipeline::Connect");
-
-  auto itOut = m_Connections.Find(pOutputNode);
-  if (!itOut.IsValid())
-  {
-    ezLog::Error("Output node '{0}' not added to pipeline!", pOutputNode->GetName());
-    return false;
-  }
-  auto itIn = m_Connections.Find(pInputNode);
-  if (!itIn.IsValid())
-  {
-    ezLog::Error("Input node '{0}' not added to pipeline!", pInputNode->GetName());
-    return false;
-  }
-  const ezRenderPipelineNodePin* pPinSource = pOutputNode->GetPinByName(sOutputPinName);
-  if (!pPinSource)
-  {
-    ezLog::Error("Source pin '{0}::{1}' does not exist!", pOutputNode->GetName(), sOutputPinName);
-    return false;
-  }
-  const ezRenderPipelineNodePin* pPinTarget = pInputNode->GetPinByName(sInputPinName);
-  if (!pPinTarget)
-  {
-    ezLog::Error("Target pin '{0}::{1}' does not exist!", pInputNode->GetName(), sInputPinName);
-    return false;
-  }
-  if (itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] == nullptr || itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] != itOut.Value().m_Outputs[pPinSource->m_uiOutputIndex])
-  {
-    ezLog::Error("Pins not connected: '{0}::{1}' -> '{2}::{3}'!", pOutputNode->GetName(), sOutputPinName, pInputNode->GetName(), sInputPinName);
-    return false;
-  }
-
-  // Remove at input
-  ezRenderPipelinePassConnection* pConnection = itOut.Value().m_Outputs[pPinSource->m_uiOutputIndex];
-  pConnection->m_Inputs.RemoveAndCopy(pPinTarget);
-  itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] = nullptr;
-
-  if (pConnection->m_Inputs.IsEmpty())
-  {
-    // Remove at output
-    itOut.Value().m_Outputs[pPinSource->m_uiOutputIndex] = nullptr;
-    EZ_DEFAULT_DELETE(pConnection);
-  }
-
-  if (pPinSource->m_Type.IsSet(ezRenderPipelineNodePin::Type::TextureProvider))
-  {
-    m_TextureProviderPins.Remove(pPinSource);
-  }
-  if (pPinTarget->m_Type.IsSet(ezRenderPipelineNodePin::Type::TextureProvider))
-  {
-    m_TextureProviderPins.Remove(pPinTarget);
-  }
-
-  m_PipelineState = PipelineState::Uninitialized;
-  return true;
-}
-
-const ezRenderPipelinePassConnection* ezRenderPipeline::GetInputConnection(const ezRenderPipelinePass* pPass, ezHashedString sInputPinName) const
-{
-  auto it = m_Connections.Find(pPass);
-  if (!it.IsValid())
-    return nullptr;
-
-  auto& data = it.Value();
-  const ezRenderPipelineNodePin* pPin = pPass->GetPinByName(sInputPinName);
-  if (!pPin || pPin->m_uiInputIndex == 0xFF)
-    return nullptr;
-
-  return data.m_Inputs[pPin->m_uiInputIndex];
-}
-
-const ezRenderPipelinePassConnection* ezRenderPipeline::GetOutputConnection(const ezRenderPipelinePass* pPass, ezHashedString sOutputPinName) const
-{
-  auto it = m_Connections.Find(pPass);
-  if (!it.IsValid())
-    return nullptr;
-
-  auto& data = it.Value();
-  const ezRenderPipelineNodePin* pPin = pPass->GetPinByName(sOutputPinName);
-  if (!pPin)
-    return nullptr;
-
-  return data.m_Outputs[pPin->m_uiOutputIndex];
 }
 
 bool ezRenderPipeline::ShouldRender() const
@@ -347,9 +140,8 @@ ezRenderPipeline::PipelineState ezRenderPipeline::Rebuild(const ezView& view)
 bool ezRenderPipeline::RebuildInternal(const ezView& view)
 {
   UpdateViewData(view, ezRenderWorld::GetDataIndexForRendering());
-  if (!SortPasses())
+  if (m_PassGraph.CullDeadPasses().Failed() || m_PassGraph.SortPasses().Failed())
     return false;
-  SortExtractors();
   m_PipelineState = PipelineState::Initialized;
   return true;
 }
@@ -375,318 +167,28 @@ bool ezRenderPipeline::RebuildRenderGraph(const ezViewData& viewData, const ezCa
   return true;
 }
 
-bool ezRenderPipeline::SortPasses()
-{
-  ezLogBlock b("Sort Passes");
-  ezTempHybridArray<ezRenderPipelinePass*, 32> done;
-  done.Reserve(m_Passes.GetCount());
-
-  ezTempHybridArray<ezRenderPipelinePass*, 8> usable;     // Stack of passes with all connections setup, they can be asked for descriptions.
-  ezTempHybridArray<ezRenderPipelinePass*, 8> candidates; // Not usable yet, but all input connections are available
-
-  // Find all source passes from which we can start the output description propagation.
-  for (auto& pPass : m_Passes)
-  {
-    // if (std::all_of(cbegin(it.Value().m_Inputs), cend(it.Value().m_Inputs), [](ezRenderPipelinePassConnection* pConn){return pConn ==
-    // nullptr; }))
-    if (AreInputDescriptionsAvailable(pPass.Borrow(), done))
-    {
-      usable.PushBack(pPass.Borrow());
-    }
-  }
-
-  // Via a depth first traversal, order the passes
-  while (!usable.IsEmpty())
-  {
-    ezRenderPipelinePass* pPass = usable.PeekBack();
-    ezLogBlock b2("Traverse", pPass->GetName());
-
-    usable.PopBack();
-    ConnectionData& data = m_Connections[pPass];
-
-    EZ_ASSERT_DEBUG(data.m_Inputs.GetCount() == pPass->GetInputPins().GetCount(), "Input pin count missmatch!");
-    EZ_ASSERT_DEBUG(data.m_Outputs.GetCount() == pPass->GetOutputPins().GetCount(), "Output pin count missmatch!");
-
-    // Check for new candidate passes. Can't be done in the previous loop as multiple connections may be required by a node.
-    for (ezUInt32 i = 0; i < data.m_Outputs.GetCount(); i++)
-    {
-      if (data.m_Outputs[i] != nullptr)
-      {
-        // Go through all inputs this connection is connected to and test the corresponding node for availability
-        for (const ezRenderPipelineNodePin* pPin : data.m_Outputs[i]->m_Inputs)
-        {
-          EZ_ASSERT_DEBUG(pPin->m_pParent != nullptr, "Pass was not initialized!");
-          ezRenderPipelinePass* pTargetPass = static_cast<ezRenderPipelinePass*>(pPin->m_pParent);
-          if (done.Contains(pTargetPass))
-          {
-            ezLog::Error("Loop detected, graph not supported!");
-            return false;
-          }
-
-          if (!usable.Contains(pTargetPass) && !candidates.Contains(pTargetPass))
-          {
-            candidates.PushBack(pTargetPass);
-          }
-        }
-      }
-    }
-
-    done.PushBack(pPass);
-
-    // Check for usable candidates. Reverse order for depth first traversal.
-    for (ezInt32 i = (ezInt32)candidates.GetCount() - 1; i >= 0; i--)
-    {
-      ezRenderPipelinePass* pCandidatePass = candidates[i];
-      if (AreInputDescriptionsAvailable(pCandidatePass, done) && ArePassThroughInputsDone(pCandidatePass, done))
-      {
-        usable.PushBack(pCandidatePass);
-        candidates.RemoveAtAndCopy(i);
-      }
-    }
-  }
-
-  if (done.GetCount() < m_Passes.GetCount())
-  {
-    ezLog::Error("Pipeline: Not all nodes could be initialized");
-    for (auto& pass : m_Passes)
-    {
-      if (!done.Contains(pass.Borrow()))
-      {
-        ezLog::Error("Failed to initialize node: {} - {}", pass->GetName(), pass->GetDynamicRTTI()->GetTypeName());
-      }
-    }
-    return false;
-  }
-
-  struct ezPipelineSorter
-  {
-    /// Returns true if a is less than b
-    EZ_FORCE_INLINE bool Less(const ezUniquePtr<ezRenderPipelinePass>& a, const ezUniquePtr<ezRenderPipelinePass>& b) const { return m_pDone->IndexOf(a.Borrow()) < m_pDone->IndexOf(b.Borrow()); }
-
-    /// Returns true if a is equal to b
-    EZ_ALWAYS_INLINE bool Equal(const ezUniquePtr<ezRenderPipelinePass>& a, const ezUniquePtr<ezRenderPipelinePass>& b) const { return a.Borrow() == b.Borrow(); }
-
-    ezTempHybridArray<ezRenderPipelinePass*, 32>* m_pDone;
-  };
-
-  ezPipelineSorter sorter;
-  sorter.m_pDone = &done;
-  m_Passes.Sort(sorter);
-  return true;
-}
-
 bool ezRenderPipeline::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera)
 {
-  ezLogBlock b("RebuildRenderGraph");
-  ezTempHybridArray<ezRenderPipelinePinConnection, 10> inputs;
-  ezTempHybridArray<ezRenderPipelinePinConnection, 10> outputs;
-
-  for (auto& pPass : m_Passes)
+  const ezStatus res = m_PassGraph.AddRenderPasses(viewData, camera, *m_pRenderGraph);
+  if (res.Failed())
   {
-    ezLogBlock b2("AddRenderPasses", pPass->GetName());
-
-    if (camera.IsStereoscopic() && !pPass->IsStereoAware())
-    {
-      ezLog::Error("View '{0}' uses a stereoscopic camera, but the render pass '{1}' does not support stereo rendering!", viewData.m_sName, pPass->GetName());
-    }
-
-    ConnectionData& data = m_Connections[pPass.Borrow()];
-
-    EZ_ASSERT_DEBUG(data.m_Inputs.GetCount() == pPass->GetInputPins().GetCount(), "Input pin count missmatch!");
-    EZ_ASSERT_DEBUG(data.m_Outputs.GetCount() == pPass->GetOutputPins().GetCount(), "Output pin count missmatch!");
-
-    inputs.Clear();
-    inputs.SetCount(data.m_Inputs.GetCount());
-    outputs.Clear();
-    outputs.SetCount(data.m_Outputs.GetCount());
-    // Fill inputs array
-    for (ezUInt32 i = 0; i < data.m_Inputs.GetCount(); i++)
-    {
-      if (data.m_Inputs[i] != nullptr)
-      {
-        inputs[i] = data.m_Inputs[i]->m_Connection;
-      }
-      else
-      {
-        inputs[i] = ezRenderPipelinePinConnection(ezRenderPipelinePinConnection::Connectivity::None);
-      }
-    }
-    // Fill the outputs array
-    for (ezUInt32 i = 0; i < data.m_Outputs.GetCount(); i++)
-    {
-      ezRenderPipelinePinConnection& out = outputs[i];
-      const ezRenderPipelineNodePin* pPin = pPass->GetOutputPins()[i];
-      if (data.m_Outputs[i] != nullptr)
-      {
-        out = data.m_Outputs[i]->m_Connection;
-        if (pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough))
-        {
-          out = inputs[pPin->m_uiInputIndex];
-        }
-      }
-      else
-      {
-        out = ezRenderPipelinePinConnection(ezRenderPipelinePinConnection::Connectivity::None);
-      }
-    }
-    m_pRenderGraph->PushMarker(pPass->GetName());
-    ezStatus result = EZ_SUCCESS;
-    if (pPass->m_bActive)
-      result = pPass->AddRenderPasses(viewData, camera, *m_pRenderGraph, inputs, outputs);
-    else
-      result = pPass->AddRenderPassesInactive(viewData, camera, *m_pRenderGraph, inputs, outputs);
-
-    m_pRenderGraph->PopMarker();
-    if (result.Failed())
-    {
-      ezLog::Error("Pass '{}' pf type '{}' failed: {}", pPass->GetName(), pPass->GetDynamicRTTI()->GetTypeName(), result.GetMessageString());
-      return false;
-    }
-
-    // Check that all connected output pins have been written to.
-    for (ezUInt32 i = 0; i < outputs.GetCount(); i++)
-    {
-      ezRenderPipelinePinConnection& out = outputs[i];
-      const ezRenderPipelineNodePin* pPin = pPass->GetOutputPins()[i];
-      if (out.m_Connectivity == ezRenderPipelinePinConnection::Connectivity::Texture && out.m_TextureHandle.IsInvalidated())
-      {
-        // ezLog::Error("Pass '{}' of type {}: connected output pin '{}' was not written to by {}", pPass->GetName(), pPass->GetDynamicRTTI()->GetTypeName(), pPass->GetPinName(pPin), pPass->IsActive() ? "AddRenderPasses" : "AddRenderPassesInactive");
-        // return false;
-      }
-      if (pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough))
-      {
-        ezRenderPipelinePinConnection& in = inputs[pPin->m_uiInputIndex];
-        if (out.m_TextureHandle != in.m_TextureHandle)
-        {
-          ezLog::Error("Pass '{}' of type {}: connected output pin '{}' has passthrough set but the output does not match the input", pPass->GetName(), pPass->GetDynamicRTTI()->GetTypeName(), pPass->GetPinName(pPin));
-          return false;
-        }
-      }
-    }
-
-    // Copy queried outputs into the output connections.
-    for (ezUInt32 i = 0; i < data.m_Outputs.GetCount(); i++)
-    {
-      if (data.m_Outputs[i] != nullptr)
-      {
-        data.m_Outputs[i]->m_Connection = outputs[i];
-      }
-    }
+    ezLog::Error("Failed to add render passes: {0}", res.GetMessageString());
+    return false;
   }
   return true;
 }
 
 bool ezRenderPipeline::UpdateTextureProviders()
 {
-  ezHashTable<ezRenderGraphTextureHandle, const ezRenderPipelineNodePin*, ezHashHelper<ezRenderGraphTextureHandle>, ezTempAllocatorWrapper> updates;
-  updates.Reserve(m_TextureProviderPins.GetCount());
-  for (const ezRenderPipelineNodePin* pPin : m_TextureProviderPins)
+  const ezStatus res = m_PassGraph.UpdateTextureProviders(*m_pRenderGraph);
+  if (res.Failed())
   {
-    const ezRenderPipelinePass* pPass = static_cast<const ezRenderPipelinePass*>(pPin->m_pParent);
-    ConnectionData& data = m_Connections[pPass];
-
-    ezRenderGraphTextureHandle hTexture = {};
-    if (pPin->m_uiInputIndex != 0xFF)
-    {
-      ezRenderPipelinePassConnection* pConnection = data.m_Inputs[pPin->m_uiInputIndex];
-      EZ_ASSERT_DEBUG(pConnection->m_Connection.m_Connectivity == ezRenderPipelinePinConnection::Connectivity::Texture, "Wrong connectivity for a texture provider pin!");
-      hTexture = pConnection->m_Connection.m_TextureHandle;
-    }
-    else if (pPin->m_uiOutputIndex != 0xFF)
-    {
-      ezRenderPipelinePassConnection* pConnection = data.m_Outputs[pPin->m_uiOutputIndex];
-      EZ_ASSERT_DEBUG(pConnection->m_Connection.m_Connectivity == ezRenderPipelinePinConnection::Connectivity::Texture, "Wrong connectivity for a texture provider pin!");
-      hTexture = pConnection->m_Connection.m_TextureHandle;
-    }
-    else
-    {
-      EZ_REPORT_FAILURE("Texture provider pin is invalid!");
-    }
-
-    if (updates.Contains(hTexture))
-    {
-      ezLog::Error("Two texture provider pins found for the same texture handle - render pipeline is invalid!");
-      return false;
-    }
-    updates.Insert(hTexture, pPin);
+    ezLog::Error("Failed to update texture providers: {0}", res.GetMessageString());
+    return false;
   }
-
-  for (auto it : updates)
-  {
-    ezRenderGraphTextureHandle hTexture = it.Key();
-    const ezRenderPipelineNodePin* pPin = it.Value();
-    ezRenderPipelinePass* pPass = static_cast<ezRenderPipelinePass*>(pPin->m_pParent);
-    const ezGALTextureCreationDescription& desc = m_pRenderGraph->GetTextureDesc(hTexture);
-    ezGALTextureHandle hTextureHandle = pPass->QueryTextureProvider(pPin, desc);
-    if (!hTextureHandle.IsInvalidated())
-    {
-      ezStatus result = m_pRenderGraph->ReplaceImportedTexture(hTexture, hTextureHandle);
-      if (result.Failed() && !result.GetMessageString().IsEmpty())
-      {
-        ezLog::Error("Failed to replace texture from node '{}' of type '{}' at pin '{}': {}", pPass->GetName(), pPass->GetDynamicRTTI()->GetTypeName(), pPass->GetPinName(pPin), result.GetMessageString());
-        return false;
-      }
-    }
-  }
-
   return true;
 }
 
-
-void ezRenderPipeline::SortExtractors()
-{
-  struct Helper
-  {
-    static bool FindDependency(const ezHashedString& sDependency, ezArrayPtr<ezUniquePtr<ezExtractor>> container)
-    {
-      for (auto& extractor : container)
-      {
-        if (sDependency == ezTempHashedString(extractor->GetDynamicRTTI()->GetTypeNameHash()))
-        {
-          return true;
-        }
-      }
-
-      return false;
-    }
-  };
-
-  m_SortedExtractors.Clear();
-  m_SortedExtractors.Reserve(m_Extractors.GetCount());
-
-  ezUInt32 uiIndex = 0;
-  while (!m_Extractors.IsEmpty())
-  {
-    ezUniquePtr<ezExtractor>& extractor = m_Extractors[uiIndex];
-
-    bool allDependenciesFound = true;
-    for (auto& sDependency : extractor->m_DependsOn)
-    {
-      if (!Helper::FindDependency(sDependency, m_SortedExtractors))
-      {
-        allDependenciesFound = false;
-        break;
-      }
-    }
-
-    if (allDependenciesFound)
-    {
-      m_SortedExtractors.PushBack(std::move(extractor));
-      m_Extractors.RemoveAtAndCopy(uiIndex);
-    }
-    else
-    {
-      ++uiIndex;
-    }
-
-    if (uiIndex >= m_Extractors.GetCount())
-    {
-      uiIndex = 0;
-    }
-  }
-
-  m_Extractors.Swap(m_SortedExtractors);
-}
 
 void ezRenderPipeline::UpdateViewData(const ezView& view, ezUInt32 uiDataIndex)
 {
@@ -703,28 +205,11 @@ void ezRenderPipeline::UpdateViewData(const ezView& view, ezUInt32 uiDataIndex)
   data.SetViewData(view.GetData());
 }
 
-void ezRenderPipeline::AddExtractor(ezUniquePtr<ezExtractor>&& pExtractor)
-{
-  m_Extractors.PushBack(std::move(pExtractor));
-}
-
-void ezRenderPipeline::RemoveExtractor(ezExtractor* pExtractor)
-{
-  for (ezUInt32 i = 0; i < m_Extractors.GetCount(); ++i)
-  {
-    if (m_Extractors[i].Borrow() == pExtractor)
-    {
-      m_Extractors.RemoveAtAndCopy(i);
-      break;
-    }
-  }
-}
-
 void ezRenderPipeline::GetExtractors(ezDynamicArray<const ezExtractor*>& ref_extractors) const
 {
-  ref_extractors.Reserve(m_Extractors.GetCount());
+  ref_extractors.Reserve(ref_extractors.GetCount() + m_PassGraph.GetExtractors().GetCount());
 
-  for (auto& pExtractor : m_Extractors)
+  for (const ezUniquePtr<ezExtractor>& pExtractor : m_PassGraph.GetExtractors())
   {
     ref_extractors.PushBack(pExtractor.Borrow());
   }
@@ -732,9 +217,9 @@ void ezRenderPipeline::GetExtractors(ezDynamicArray<const ezExtractor*>& ref_ext
 
 void ezRenderPipeline::GetExtractors(ezDynamicArray<ezExtractor*>& ref_extractors)
 {
-  ref_extractors.Reserve(m_Extractors.GetCount());
+  ref_extractors.Reserve(ref_extractors.GetCount() + m_PassGraph.GetExtractors().GetCount());
 
-  for (auto& pExtractor : m_Extractors)
+  for (const ezUniquePtr<ezExtractor>& pExtractor : m_PassGraph.GetExtractors())
   {
     ref_extractors.PushBack(pExtractor.Borrow());
   }
@@ -743,95 +228,7 @@ void ezRenderPipeline::GetExtractors(ezDynamicArray<ezExtractor*>& ref_extractor
 
 ezExtractor* ezRenderPipeline::GetExtractorByName(const ezStringView& sExtractorName)
 {
-  for (auto& pExtractor : m_Extractors)
-  {
-    if (sExtractorName.IsEqual(pExtractor->GetName()))
-    {
-      return pExtractor.Borrow();
-    }
-  }
-
-  return nullptr;
-}
-
-void ezRenderPipeline::RemoveConnections(ezRenderPipelinePass* pPass)
-{
-  auto it = m_Connections.Find(pPass);
-  if (!it.IsValid())
-    return;
-
-  ConnectionData& data = it.Value();
-  for (ezUInt32 i = 0; i < data.m_Inputs.GetCount(); i++)
-  {
-    ezRenderPipelinePassConnection* pConn = data.m_Inputs[i];
-    if (pConn != nullptr)
-    {
-      ezRenderPipelinePass* pSource = static_cast<ezRenderPipelinePass*>(pConn->m_pOutput->m_pParent);
-      bool bRes = Disconnect(pSource, pSource->GetPinName(pConn->m_pOutput), pPass, pPass->GetPinName(pPass->GetInputPins()[i]));
-      EZ_IGNORE_UNUSED(bRes);
-      EZ_ASSERT_DEBUG(bRes, "ezRenderPipeline::RemoveConnections should not fail to disconnect pins!");
-    }
-  }
-  for (ezUInt32 i = 0; i < data.m_Outputs.GetCount(); i++)
-  {
-    ezRenderPipelinePassConnection* pConn = data.m_Outputs[i];
-    while (pConn != nullptr)
-    {
-      ezRenderPipelinePass* pTarget = static_cast<ezRenderPipelinePass*>(pConn->m_Inputs[0]->m_pParent);
-      bool bRes = Disconnect(pPass, pPass->GetPinName(pConn->m_pOutput), pTarget, pTarget->GetPinName(pConn->m_Inputs[0]));
-      EZ_IGNORE_UNUSED(bRes);
-      EZ_ASSERT_DEBUG(bRes, "ezRenderPipeline::RemoveConnections should not fail to disconnect pins!");
-
-      pConn = data.m_Outputs[i];
-    }
-  }
-}
-
-bool ezRenderPipeline::AreInputDescriptionsAvailable(const ezRenderPipelinePass* pPass, const ezHybridArray<ezRenderPipelinePass*, 32>& done) const
-{
-  auto it = m_Connections.Find(pPass);
-  const ConnectionData& data = it.Value();
-  for (ezUInt32 i = 0; i < data.m_Inputs.GetCount(); i++)
-  {
-    const ezRenderPipelinePassConnection* pConn = data.m_Inputs[i];
-    if (pConn != nullptr)
-    {
-      // If the connections source is not done yet, the connections output is undefined yet and the inputs can't be processed yet.
-      if (!done.Contains(static_cast<ezRenderPipelinePass*>(pConn->m_pOutput->m_pParent)))
-      {
-        return false;
-      }
-    }
-  }
-
-  return true;
-}
-
-bool ezRenderPipeline::ArePassThroughInputsDone(const ezRenderPipelinePass* pPass, const ezHybridArray<ezRenderPipelinePass*, 32>& done) const
-{
-  auto it = m_Connections.Find(pPass);
-  const ConnectionData& data = it.Value();
-  auto inputs = pPass->GetInputPins();
-  for (ezUInt32 i = 0; i < inputs.GetCount(); i++)
-  {
-    const ezRenderPipelineNodePin* pPin = inputs[i];
-    if (pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough))
-    {
-      const ezRenderPipelinePassConnection* pConn = data.m_Inputs[pPin->m_uiInputIndex];
-      if (pConn != nullptr)
-      {
-        for (const ezRenderPipelineNodePin* pInputPin : pConn->m_Inputs)
-        {
-          // Any input that is also connected to the source of pPin must be done before we can use the pass through input
-          if (pInputPin != pPin && !done.Contains(static_cast<ezRenderPipelinePass*>(pInputPin->m_pParent)))
-          {
-            return false;
-          }
-        }
-      }
-    }
-  }
-  return true;
+  return m_PassGraph.GetExtractorByName(sExtractorName);
 }
 
 ezFrameDataProviderBase* ezRenderPipeline::GetFrameDataProvider(const ezRTTI* pRtti) const
@@ -893,7 +290,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   data.SetViewDebugContext(view.GetHandle());
 
   // Extract object render data
-  for (auto& pExtractor : m_Extractors)
+  for (const ezUniquePtr<ezExtractor>& pExtractor : m_PassGraph.GetExtractors())
   {
     if (pExtractor->m_bActive)
     {
@@ -910,7 +307,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
 
   data.SortAndBatch();
 
-  for (auto& pExtractor : m_Extractors)
+  for (const ezUniquePtr<ezExtractor>& pExtractor : m_PassGraph.GetExtractors())
   {
     if (pExtractor->m_bActive)
     {

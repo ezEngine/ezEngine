@@ -553,6 +553,7 @@ ezTestAppRun ezRenderGraphTest::StressTestRenderGraph(ezUInt32 uiNumPasses)
 
     constexpr ezUInt32 uiNumTextures = 32;
     constexpr ezUInt32 uiNumBuffers = 8;
+    constexpr ezUInt32 uiNumResolutions = 3;
 
     ezGALResourceFormat::Enum textureFormats[] = {
       ezGALResourceFormat::RGBAHalf,
@@ -564,9 +565,11 @@ ezTestAppRun ezRenderGraphTest::StressTestRenderGraph(ezUInt32 uiNumPasses)
     };
 
     ezStaticArray<ezRenderGraphTextureHandle, uiNumTextures> textures;
+    ezStaticArray<ezUInt32, uiNumTextures> textureResolutionIndices;
     for (ezUInt32 i = 0; i < uiNumTextures; ++i)
     {
-      const ezUInt32 uiDivisor = 1u << rng.UIntInRange(3);
+      const ezUInt32 uiResolutionIndex = rng.UIntInRange(uiNumResolutions);
+      const ezUInt32 uiDivisor = 1u << uiResolutionIndex;
       const ezUInt32 w = ezMath::Max(1u, uiBaseWidth / uiDivisor);
       const ezUInt32 h = ezMath::Max(1u, uiBaseHeight / uiDivisor);
       const auto format = textureFormats[rng.UIntInRange(EZ_ARRAY_SIZE(textureFormats))];
@@ -575,11 +578,18 @@ ezTestAppRun ezRenderGraphTest::StressTestRenderGraph(ezUInt32 uiNumPasses)
       desc.SetAsRenderTarget(w, h, format, ezGALMSAASampleCount::None);
       desc.m_TextureFlags.Add(ezGALTextureUsageFlags::UnorderedAccess);
       textures.PushBack(graph.CreateTexture(desc));
+      textureResolutionIndices.PushBack(uiResolutionIndex);
     }
 
-    ezGALTextureCreationDescription depthDesc;
-    depthDesc.SetAsRenderTarget(uiBaseWidth, uiBaseHeight, ezGALResourceFormat::D16, ezGALMSAASampleCount::None);
-    ezRenderGraphTextureHandle hDepth = graph.CreateTexture(depthDesc);
+    ezStaticArray<ezRenderGraphTextureHandle, uiNumResolutions> depthTextures;
+    for (ezUInt32 i = 0; i < uiNumResolutions; ++i)
+    {
+      const ezUInt32 uiDivisor = 1u << i;
+
+      ezGALTextureCreationDescription depthDesc;
+      depthDesc.SetAsRenderTarget(ezMath::Max(1u, uiBaseWidth / uiDivisor), ezMath::Max(1u, uiBaseHeight / uiDivisor), ezGALResourceFormat::D16, ezGALMSAASampleCount::None);
+      depthTextures.PushBack(graph.CreateTexture(depthDesc));
+    }
 
     ezStaticArray<ezRenderGraphBufferHandle, uiNumBuffers> buffers;
     for (ezUInt32 i = 0; i < uiNumBuffers; ++i)
@@ -607,11 +617,12 @@ ezTestAppRun ezRenderGraphTest::StressTestRenderGraph(ezUInt32 uiNumPasses)
         const ezUInt32 uiReads = 1 + rng.UIntInRange(3);
         for (ezUInt32 r = 0; r < uiReads; ++r)
           pass.ReadTexture(textures[rng.UIntInRange(uiNumTextures)]);
-        pass.AddColorTarget(textures[rng.UIntInRange(uiNumTextures)], {}, ezGALRenderTargetLoadOp::Clear);
+        const ezUInt32 uiColorTextureIndex = rng.UIntInRange(uiNumTextures);
+        pass.AddColorTarget(textures[uiColorTextureIndex], {}, ezGALRenderTargetLoadOp::Clear);
         pass.SetClearColor(0, ezColor::Black);
         if (rng.Bool())
         {
-          pass.AddDepthStencilTarget(hDepth);
+          pass.AddDepthStencilTarget(depthTextures[textureResolutionIndices[uiColorTextureIndex]]);
           pass.SetClearDepth();
         }
         if (rng.Bool())

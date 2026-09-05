@@ -23,13 +23,16 @@ public:
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
 protected:
-  ezRenderPipelineNodeOutputProviderPin m_PinOutput;                    ///< Provides previous frame's texture.
+  ezRenderPipelineNodeOutputProviderPin m_PinOutput;                                       ///< Provides previous frame's texture.
 
-  ezEnum<ezSourceFormat> m_Format = ezSourceFormat::Default;            ///< Texture format for the history buffer.
-  ezEnum<ezGALMSAASampleCount> m_MsaaMode = ezGALMSAASampleCount::None; ///< MSAA sample count.
-  ezColor m_ClearColor = ezColor::Black;                                ///< Initial clear color for first frame.
-
-  bool m_bFirstExecute = true;                                          ///< Whether this is the first frame (clears to m_ClearColor).
+  ezEnum<ezRequiredTextureType> m_Type = ezRequiredTextureType::SRGB;                      ///< How the texture contents are interpreted.
+  ezEnum<ezRequiredTexturePrecision> m_MinPrecision = ezRequiredTexturePrecision::Bits_8;  ///< Minimum bits per channel.
+  ezEnum<ezRequiredTextureChannels> m_MinChannels = ezRequiredTextureChannels::Channels_4; ///< Minimum channel count.
+  ezEnum<ezGALMSAASampleCount> m_MsaaMode = ezGALMSAASampleCount::None;                    ///< MSAA sample count.
+  ezColor m_ClearColor = ezColor::Black;                                                   ///< Initial clear color for first frame.
+  float m_fClearDepth = 1.0f;                                                              ///< Initial clear depth for first frame.
+  bool m_bUAV = false;
+  ezGALTextureHandle m_hTextureCleared = {};
 };
 
 /// Frame data provider that manages history texture storage across frames.

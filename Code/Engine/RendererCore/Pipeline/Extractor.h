@@ -36,6 +36,7 @@ protected:
 
 private:
   friend class ezRenderPipeline;
+  friend class ezRenderPipelinePassGraph;
 
   bool m_bActive;
 

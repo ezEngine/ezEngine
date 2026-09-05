@@ -1,12 +1,12 @@
-#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
-#include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetScene.moc.h>
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <GuiFoundation/VisualGraph/View.moc.h>
 
 
@@ -39,7 +39,7 @@ ezQtRenderPipelineAssetDocumentWindow::ezQtRenderPipelineAssetDocumentWindow(ezD
 
   // Central Widget
   {
-    m_pScene = new ezQtRenderPipelineAssetScene(this);
+    m_pScene = new ezQtVisualGraphScene(this);
     m_pScene->InitScene(static_cast<const ezVisualGraphObjectManager*>(pDocument->GetObjectManager()));
 
     m_pView = new ezQtVisualGraphView(this);
