@@ -11,8 +11,14 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-ezCVarInt cvar_RenderingReflectionPoolMaxRenderViews("Rendering.ReflectionPool.MaxRenderViews", 1, ezCVarFlags::Default, "The maximum number of render views for reflection probes each frame");
-ezCVarInt cvar_RenderingReflectionPoolMaxFilterViews("Rendering.ReflectionPool.MaxFilterViews", 1, ezCVarFlags::Default, "The maximum number of filter views for reflection probes each frame");
+ezCVarInt cvar_RenderingReflectionPoolMaxUpdatesPerFrame("Rendering.ReflectionPool.MaxUpdatesPerFrame", 1, ezCVarFlags::Default, "How many cube faces of a reflection probe may be rendered per frame. Higher values make probes resolve faster at a higher peak cost per frame. Probes that have no content yet always render at least 2 faces, and a sky light without content always renders all 6 at once, so that it does not hold up every other probe.");
+
+// A probe never needs more than one view per cube face, and never more than one filter step at a time.
+// The views themselves are cheap (a view plus a blackboard, the render targets live on ProbeUpdateInfo),
+// so the pool is fixed at the maximum instead of following the CVar above: a smaller pool could not
+// satisfy the burst sizes below, which are allowed to exceed the configured budget.
+static constexpr ezUInt32 s_uiNumRenderViews = 6;
+static constexpr ezUInt32 s_uiNumFilterViews = 1;
 
 
 
@@ -94,7 +100,7 @@ ezUInt32 ezReflectionProbeUpdater::GetFreeUpdateSlots(ezDynamicArray<ezReflectio
   return uiCount;
 }
 
-ezResult ezReflectionProbeUpdater::StartDynamicUpdate(const ezReflectionProbeRef& probe, const ezReflectionProbeDesc& desc, const ezTransform& globalTransform, const TargetSlot& target)
+ezResult ezReflectionProbeUpdater::StartDynamicUpdate(const ezReflectionProbeRef& probe, const ezReflectionProbeDesc& desc, const ezTransform& globalTransform, const TargetSlot& target, bool bFirstBake /*= false*/, bool bSkyLight /*= false*/, bool bSharingBudget /*= false*/)
 {
   EZ_ASSERT_DEBUG(target.m_hIrradianceOutputTexture.IsInvalidated() == (target.m_iIrradianceOutputIndex == -1), "Invalid irradiance output settings.");
   EZ_ASSERT_DEBUG(!target.m_hSpecularOutputTexture.IsInvalidated() && target.m_iSpecularOutputIndex != -1, "Specular output invalid.");
@@ -110,11 +116,37 @@ ezResult ezReflectionProbeUpdater::StartDynamicUpdate(const ezReflectionProbeRef
       slot->m_globalTransform.m_vScale = ezVec3(1.0f);
       slot->m_sourceTexture.Invalidate();
       slot->m_TargetSlot = target;
+      slot->m_uiRenderBurst = ComputeRenderBurst(bFirstBake, bSkyLight, bSharingBudget);
       slot->m_bInUse = true;
       return EZ_SUCCESS;
     }
   }
   return EZ_FAILURE;
+}
+
+ezUInt8 ezReflectionProbeUpdater::ComputeRenderBurst(bool bFirstBake, bool bSkyLight, bool bSharingBudget)
+{
+  constexpr ezInt32 iNumFaces = (ezInt32)UpdateStep::RenderFace5 + 1;
+
+  if (bSkyLight && bFirstBake)
+  {
+    // Completing the sky light marks all other probes dirty, so anything rendered before that is wasted.
+    // Rendering all faces at once gets it done in a single frame, no matter how small the budget is.
+    return (ezUInt8)iNumFaces;
+  }
+
+  const ezInt32 iBudget = ezMath::Clamp<ezInt32>(cvar_RenderingReflectionPoolMaxUpdatesPerFrame, 1, iNumFaces);
+
+  if (!bFirstBake)
+  {
+    // A probe that already has content is not worth rushing, so it stays within the budget. While a probe
+    // without content is waiting, it drops to a single face so that the other one can use the rest.
+    return bSharingBudget ? (ezUInt8)1 : (ezUInt8)iBudget;
+  }
+
+  // A probe without any content renders at least 2 faces per frame even if the budget is lower, so that it
+  // becomes usable quickly. While a refresh is waiting, one face of the budget is left to it.
+  return (ezUInt8)ezMath::Max(2, bSharingBudget ? iBudget - 1 : iBudget);
 }
 
 ezResult ezReflectionProbeUpdater::StartFilterUpdate(const ezReflectionProbeRef& probe, const ezReflectionProbeDesc& desc, ezTextureCubeResourceHandle hSourceTexture, const TargetSlot& target)
@@ -140,6 +172,17 @@ ezResult ezReflectionProbeUpdater::StartFilterUpdate(const ezReflectionProbeRef&
     }
   }
   return EZ_FAILURE;
+}
+
+bool ezReflectionProbeUpdater::IsFirstBakeInProgress() const
+{
+  for (const auto& slot : m_DynamicUpdates)
+  {
+    // Only probes without any content are given a burst larger than one.
+    if (slot->m_bInUse && slot->m_uiRenderBurst > 1)
+      return true;
+  }
+  return false;
 }
 
 void ezReflectionProbeUpdater::CancelUpdate(const ezReflectionProbeRef& probe)
@@ -184,7 +227,11 @@ void ezReflectionProbeUpdater::GenerateUpdateSteps()
 
     if (UpdateStep::IsRenderStep(nextStep))
     {
-      if (uiRenderViewIndex < m_RenderViews.GetCount())
+      // Probes that already have content render a single face per frame. Only probes without any content
+      // are allowed to consume several render views at once, so the steady state cost stays unchanged.
+      const bool bBurstExhausted = updateSteps.GetCount() >= pUpdateInfo->m_uiRenderBurst;
+
+      if (uiRenderViewIndex < m_RenderViews.GetCount() && !bBurstExhausted)
       {
         updateSteps.PushBack({(ezUInt8)uiRenderViewIndex, nextStep});
         ++uiRenderViewIndex;
@@ -196,8 +243,13 @@ void ezReflectionProbeUpdater::GenerateUpdateSteps()
     }
     else if (nextStep == UpdateStep::Filter)
     {
-      // don't do render and filter in one frame
-      if (uiFilterViewIndex < m_FilterViews.GetCount() && updateSteps.IsEmpty())
+      // The filter reads the cube map that the render steps write, so it may only run in the same frame if
+      // all six faces are queued in that frame as well. ScheduleUpdateSteps submits the steps in reverse and
+      // ezRenderWorld renders the last added view first, so the faces are rendered before the filter reads
+      // them. Probes that render their faces over several frames keep filtering in a separate frame.
+      const bool bAllFacesThisFrame = updateSteps.GetCount() == (ezUInt32)UpdateStep::RenderFace5 + 1;
+
+      if (uiFilterViewIndex < m_FilterViews.GetCount() && (updateSteps.IsEmpty() || bAllFacesThisFrame))
       {
         updateSteps.PushBack({(ezUInt8)uiFilterViewIndex, nextStep});
         ++uiFilterViewIndex;
@@ -279,49 +331,39 @@ void ezReflectionProbeUpdater::ScheduleUpdateSteps()
   }
 }
 
-void ezReflectionProbeUpdater::CreateViews(ezDynamicArray<ReflectionView>& views, ezUInt32 uiMaxRenderViews, const char* szNameSuffix, const char* szRenderPipelineResource)
+void ezReflectionProbeUpdater::CreateViews(ezDynamicArray<ReflectionView>& views, ezUInt32 uiNumViews, const char* szNameSuffix, const char* szRenderPipelineResource)
 {
-  uiMaxRenderViews = ezMath::Max<ezUInt32>(uiMaxRenderViews, 1);
+  ezStringBuilder sName;
 
-  if (uiMaxRenderViews > views.GetCount())
+  for (ezUInt32 i = views.GetCount(); i < uiNumViews; ++i)
   {
-    ezStringBuilder sName;
+    auto& renderView = views.ExpandAndGetRef();
 
-    ezUInt32 uiCurrentCount = views.GetCount();
-    for (ezUInt32 i = uiCurrentCount; i < uiMaxRenderViews; ++i)
-    {
-      auto& renderView = views.ExpandAndGetRef();
+    sName.SetFormat("Reflection Probe {} {}", szNameSuffix, i);
 
-      sName.SetFormat("Reflection Probe {} {}", szNameSuffix, i);
+    ezView* pView = nullptr;
+    renderView.m_hView = ezRenderWorld::CreateView(sName, pView);
 
-      ezView* pView = nullptr;
-      renderView.m_hView = ezRenderWorld::CreateView(sName, pView);
+    pView->SetCameraUsageHint(ezCameraUsageHint::Reflection);
+    pView->SetViewport(ezRectFloat(0.0f, 0.0f, static_cast<float>(s_uiReflectionCubeMapSize), static_cast<float>(s_uiReflectionCubeMapSize)));
 
-      pView->SetCameraUsageHint(ezCameraUsageHint::Reflection);
-      pView->SetViewport(ezRectFloat(0.0f, 0.0f, static_cast<float>(s_uiReflectionCubeMapSize), static_cast<float>(s_uiReflectionCubeMapSize)));
+    pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>(szRenderPipelineResource));
 
-      pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>(szRenderPipelineResource));
+    renderView.m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90.0f, 0.1f, 100.0f);
+    pView->SetCamera(&renderView.m_Camera);
 
-      renderView.m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90.0f, 0.1f, 100.0f);
-      pView->SetCamera(&renderView.m_Camera);
-
-      sName.Append(" Blackboard");
-      pView->SetBlackboard(ezBlackboard::Create(sName));
-    }
-  }
-  else if (uiMaxRenderViews < views.GetCount())
-  {
-    views.SetCount(uiMaxRenderViews);
+    sName.Append(" Blackboard");
+    pView->SetBlackboard(ezBlackboard::Create(sName));
   }
 }
 
 void ezReflectionProbeUpdater::CreateReflectionViewsAndResources()
 {
   // ReflectionRenderPipeline.ezRenderPipelineAsset
-  CreateViews(m_RenderViews, cvar_RenderingReflectionPoolMaxRenderViews, "Render", "{ 734898e8-b1a2-0da2-c4ae-701912983c2f }");
+  CreateViews(m_RenderViews, s_uiNumRenderViews, "Render", "{ 734898e8-b1a2-0da2-c4ae-701912983c2f }");
 
   // ReflectionFilterPipeline.ezRenderPipelineAsset
-  CreateViews(m_FilterViews, cvar_RenderingReflectionPoolMaxFilterViews, "Filter", "{ 3437db17-ddf1-4b67-b80f-9999d6b0c352 }");
+  CreateViews(m_FilterViews, s_uiNumFilterViews, "Filter", "{ 3437db17-ddf1-4b67-b80f-9999d6b0c352 }");
 
   if (m_DynamicUpdates.IsEmpty())
   {
@@ -343,6 +385,7 @@ void ezReflectionProbeUpdater::ResetProbeUpdateInfo(ezUInt32 uiInfo)
   info->m_globalTransform.SetIdentity();
   info->m_sourceTexture.Invalidate();
   info->m_LastUpdateStep = UpdateStep::Default;
+  info->m_uiRenderBurst = 1;
   info->m_UpdateSteps.Clear();
 
   m_DynamicUpdates.RemoveAtAndCopy(uiInfo);
