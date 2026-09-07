@@ -5,7 +5,7 @@
         "type": "git",
         "git": {
           "repositoryUrl": "https://github.com/zeux/meshoptimizer",
-          "commitHash": "dc9d09ed83e1004aef47a1c3c597e0ec64848a37"
+          "commitHash": "9d9890c73011d75920af614485296d1e03e95448"
         }
       }
     }
