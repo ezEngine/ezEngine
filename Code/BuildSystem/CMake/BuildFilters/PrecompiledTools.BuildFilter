@@ -26,7 +26,7 @@ set_property(GLOBAL PROPERTY EZ_BUILD_FILTER_PrecompiledTools
     stb_image
     TexConv
     zstd
-    mikktspace
+    meshoptimizer
     Utilities
     ads
     SPIRV-Reflect

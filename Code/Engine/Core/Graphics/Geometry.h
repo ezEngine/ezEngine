@@ -134,7 +134,9 @@ public:
 
   /// Computes tangents. This function can increase or reduce vertex count.
   ///
-  /// The tangent generation is done by Morten S. Mikkelsen's tangent space generation code.
+  /// All polygons are triangulated first, since the tangent generation only works on triangles.
+  /// Vertices are split up where the tangent space differs (for instance along UV mirror seams)
+  /// and merged where they become identical.
   void ComputeTangents();
 
   /// Checks whether present tangents are meaningful and resets them, if necessary

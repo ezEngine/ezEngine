@@ -15,7 +15,7 @@ target_link_libraries(${PROJECT_NAME}
   Texture
 
   PRIVATE
-  mikktspace
+  meshoptimizer
 )
 
 if (EZ_3RDPARTY_LUA_SUPPORT)
