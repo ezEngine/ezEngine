@@ -30,6 +30,7 @@
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool ezRenderPipeline::cvar_SpatialCullingVis("Spatial.Culling.Vis", false, ezCVarFlags::Default, "Enables debug visualization of visibility culling");
 ezCVarBool cvar_SpatialCullingShowStats("Spatial.Culling.ShowStats", false, ezCVarFlags::Default, "Display some stats of the visibility culling");
+ezCVarBool cvar_RenderingShowStats("Rendering.ShowStats", false, ezCVarFlags::Default, "Display the number of drawcalls and triangles rendered in the previous frame (all views and passes combined)");
 #endif
 
 ezCVarBool cvar_SpatialCullingOcclusionEnable("Spatial.Occlusion.Enable", true, ezCVarFlags::Default, "Use software rasterization for occlusion culling.");
@@ -440,6 +441,23 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
     view.GetWorld()->GetSpatialSystem()->GetInternalStats(sb);
     ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", sb, ezColor::AntiqueWhite);
+  }
+
+  if (cvar_RenderingShowStats && bIsMainView)
+  {
+    // these numbers are gathered while rendering, so they are one frame old and they cover all views and passes,
+    // including shadow map rendering
+    const ezRenderContext::Statistics& renderStats = ezRenderContext::GetLastFrameStatistics();
+
+    ezStringBuilder sb;
+
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "RenderStats", "Render Stats (whole frame)", ezColor::Yellow);
+
+    sb.SetFormat("Drawcalls: {0}", renderStats.m_uiDrawcalls);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "RenderStats", sb, ezColor::Yellow);
+
+    sb.SetFormat("Triangles: {0}", ezArgHumanReadable((ezInt64)renderStats.m_uiTriangles));
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "RenderStats", sb, ezColor::Yellow);
   }
 #endif
 }

@@ -97,9 +97,13 @@ ezRenderContext::Statistics::Statistics()
   Reset();
 }
 
+ezRenderContext::Statistics ezRenderContext::s_LastFrameStatistics;
+
 void ezRenderContext::Statistics::Reset()
 {
   m_uiFailedDrawcalls = 0;
+  m_uiDrawcalls = 0;
+  m_uiTriangles = 0;
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_BIND_GROUPS; ++i)
   {
     m_uiModifiedBindGroup[i] = 0;
@@ -462,6 +466,15 @@ ezResult ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiF
   {
     uiInstanceCount *= 2;
   }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  m_Statistics.m_uiDrawcalls++;
+
+  if (m_GraphicsPipeline.m_Topology == ezGALPrimitiveTopology::Triangles || m_GraphicsPipeline.m_Topology == ezGALPrimitiveTopology::TriangleStrip)
+  {
+    m_Statistics.m_uiTriangles += ezUInt64(uiPrimitiveCount) * uiInstanceCount;
+  }
+#endif
 
   if (uiInstanceCount > 1)
   {
@@ -952,6 +965,11 @@ void ezRenderContext::GALStaticDeviceEventHandler(const ezGALDeviceEvent& e)
     if (s_pDefaultInstance)
     {
       ezRenderContext::Statistics stats = s_pDefaultInstance->GetAndResetStatistics();
+      s_LastFrameStatistics = stats;
+
+      ezStats::SetStat("RenderContext/Drawcalls", stats.m_uiDrawcalls);
+      ezStats::SetStat("RenderContext/Triangles", (double)stats.m_uiTriangles);
+
       for (ezUInt32 i = 0; i < EZ_GAL_MAX_BIND_GROUPS; ++i)
       {
         ezStringBuilder groupName;
