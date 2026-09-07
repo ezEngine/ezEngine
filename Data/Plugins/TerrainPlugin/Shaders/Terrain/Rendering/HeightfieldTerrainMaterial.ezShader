@@ -21,11 +21,17 @@ CAMERA_MODE
 SHADING_QUALITY
 MATERIAL_PREVIEW
 TERRAIN_HEIGHT_BLEND
+TERRAIN_LAYER_COUNT
 
 [MATERIALPARAMETER]
 
 /// Enables height-based blending between layers. Requires LayerHeightTexture to be set.
 Permutation TERRAIN_HEIGHT_BLEND;
+
+/// How many of the baked per-cell material layers are blended, counting the implicit fallback.
+/// The bake always produces 4 explicit layers plus the fallback; lowering this drops the weakest
+/// ones (which carry the least coverage) and removes 3 texture fetches per dropped layer per map.
+Permutation TERRAIN_LAYER_COUNT;
 
 Texture2DArray LayerBaseTexture;
 Texture2DArray LayerNormalTexture;
@@ -39,6 +45,28 @@ Texture2DArray LayerHeightTexture;
 float TextureScale @Default(0.5) @Clamp(0.001, 100.0);
 
 float RoughnessBias @Default(0.0) @Clamp(-1.0, 1.0);
+
+/// Distance at which the distance-driven quality reductions begin, in world units.
+float DetailFadeStart @Default(50.0) @Clamp(0.0, 100000.0);
+
+/// Distance at which they reach full strength. Must be greater than DetailFadeStart,
+/// otherwise every distance-driven effect is disabled.
+float DetailFadeEnd @Default(150.0) @Clamp(0.0, 100000.0);
+
+/// How far roughness is pushed toward 1 at DetailFadeEnd. Dims distant reflections to stop
+/// specular flickering. 0 disables it.
+float DistanceRoughness @Default(0.3) @Clamp(0.0, 1.0);
+
+/// Turns sub-pixel normal variance into roughness, which removes specular shimmer on
+/// high-frequency terrain at any distance. 0 disables it.
+float NormalVarianceRoughness @Default(0.5) @Clamp(0.0, 4.0);
+
+/// Fades the weaker material layers out with distance, so far terrain blends fewer of them.
+/// The weakest layer is gone by DetailFadeEnd, and each further layer one more DetailFadeEnd
+/// minus DetailFadeStart beyond that; the strongest explicit layer and the fallback are never
+/// dropped. Each layer fades smoothly and its weight passes to the fallback, so there is no pop.
+/// 0 disables it.
+float LayerDistanceFade @Default(1.0) @Clamp(0.0, 1.0);
 
 /// Width of the transition between two height-blended layers. Small values give hard,
 /// per-stone edges, large values approach a plain linear blend. TERRAIN_HEIGHT_BLEND only.
@@ -77,6 +105,11 @@ int2 Material15TextureIndex @Default(0) @Clamp(0, 255);
 
 FLOAT1(TextureScale);
 FLOAT1(RoughnessBias);
+FLOAT1(DetailFadeStart);
+FLOAT1(DetailFadeEnd);
+FLOAT1(DistanceRoughness);
+FLOAT1(NormalVarianceRoughness);
+FLOAT1(LayerDistanceFade);
 FLOAT1(HeightBlendDepth);
 FLOAT1(HeightBlendStrength);
 
@@ -99,18 +132,35 @@ INT2(Material15TextureIndex);
 
 [SHADER]
 
-#define USE_NORMAL
-#define USE_TANGENT
-#define USE_TEXCOORD0
 #define USE_SIMPLE_MATERIAL_MODEL
 #define USE_FOG
 #define USE_DECALS
 #define NO_SCREEN_SPACE_TECHNIQUES // deactivate AO on terrain geometry
-#define TERRAIN_LAYER_COUNT 5
+
+/// TERRAIN_LAYER_COUNT is an enumerator index, not a layer count, so translate it into the number
+/// the code below compares against. Every enumerator is listed explicitly: a catch-all #else would
+/// silently pick a count for any value that stopped matching.
+#if TERRAIN_LAYER_COUNT == TERRAIN_LAYER_COUNT_2
+#  define TERRAIN_ACTIVE_LAYERS 2
+#elif TERRAIN_LAYER_COUNT == TERRAIN_LAYER_COUNT_3
+#  define TERRAIN_ACTIVE_LAYERS 3
+#elif TERRAIN_LAYER_COUNT == TERRAIN_LAYER_COUNT_4
+#  define TERRAIN_ACTIVE_LAYERS 4
+#elif TERRAIN_LAYER_COUNT == TERRAIN_LAYER_COUNT_5
+#  define TERRAIN_ACTIVE_LAYERS 5
+#else
+#  error "Unhandled TERRAIN_LAYER_COUNT value."
+#endif
+
+#if RENDER_PASS != RENDER_PASS_DEPTH_ONLY
+#  define USE_NORMAL
+#  define USE_TANGENT
+#  define USE_TEXCOORD0
 
 /// Custom interpolator carrying w2 (x) and w3 (y) from the VS to the PS.
 /// w0 and w1 are in TexCoord0.xy; w_fallback is reconstructed in the PS.
-#define CUSTOM_INTERPOLATOR float2 MatWeightsHi : TEXCOORD2;
+#  define CUSTOM_INTERPOLATOR float2 MatWeightsHi : TEXCOORD2;
+#endif
 
 [VERTEXSHADER]
 
@@ -128,8 +178,10 @@ VS_OUT main(VS_IN Input)
   // FillVertexData does not know about CUSTOM_INTERPOLATOR, so MatWeightsHi would stay
   // uninitialized here. The preview mesh also has no baked terrain weights at all, so
   // pin the blend to material slot 0 at full strength: w0 = 1, all other weights 0.
+#if defined(USE_TEXCOORD0)
   Output.TexCoord0 = float2(1.0, 0.0);
   Output.MatWeightsHi = float2(0.0, 0.0);
+#endif
 
   return Output;
 }
@@ -147,9 +199,25 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
 [PIXELSHADER]
 
+#if RENDER_PASS == RENDER_PASS_DEPTH_ONLY
+
+#include <Shaders/Materials/MaterialPixelShader.h>
+
+float3 GetNormal()     { return float3(0, 0, 1); }
+float3 GetBaseColor()  { return float3(0, 0, 0); }
+float  GetRoughness()  { return 1.0f; }
+float  GetMetallic()   { return 0.0f; }
+float  GetReflectance(){ return 0.5f; }
+float  GetOpacity()    { return 1.0f; }
+
+#else
+
 #define CUSTOM_GLOBALS                 \
   float3 TpWeights;                   \
   float  Scale;                       \
+  TriplanarUVs Uvs;                   \
+  float  CamDistance;                 \
+  float  NormalLength;                \
   uint2  TexIndices1;                 \
   uint2  TexIndices2;                 \
   uint2  TexIndices3;                 \
@@ -161,9 +229,11 @@ VS_OUT main(uint VertexID : SV_VertexID)
   float  MatWeight3;                  \
   float  MatWeightFallback;
 
+#include <Shaders/Terrain/Rendering/TerrainLayerSamplingTypes.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
 #include <Shaders/Terrain/Rendering/TerrainLayerSampling.h>
 #include <Shaders/Terrain/Rendering/HeightfieldRenderConstants.h>
+#include <Shaders/Terrain/Rendering/TerrainDistanceFade.h>
 
 Texture2DArray LayerBaseTexture BIND_GROUP(BG_MATERIAL);
 SamplerState LayerBaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
@@ -179,12 +249,58 @@ Texture2DArray LayerHeightTexture BIND_GROUP(BG_MATERIAL);
 SamplerState LayerHeightTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 #endif
 
+/// Fades the weaker layers out with view distance and hands their weight to the fallback.
+void ApplyLayerDistanceFade()
+{
+  const float amount = GetMaterialData(LayerDistanceFade);
+  if (amount <= 0.0)
+    return;
+
+  const float fadeStart = GetMaterialData(DetailFadeStart);
+  const float span = GetMaterialData(DetailFadeEnd) - fadeStart;
+  if (span <= 0.0)
+    return;
+
+  const float dist = G.CamDistance;
+
+  // Band n covers [fadeStart + n*span, fadeStart + (n+1)*span]. Layer 3 uses band 0, layer 2
+  // band 1, layer 1 band 2. 'amount' scales how much of each layer is actually removed.
+  float freed = 0.0;
+
+  #if TERRAIN_ACTIVE_LAYERS >= 5
+  {
+    const float keep = lerp(1.0, TerrainLayerDistanceFade(dist, fadeStart, fadeStart + span), amount);
+    freed += G.MatWeight3 * (1.0 - keep);
+    G.MatWeight3 *= keep;
+  }
+  #endif
+
+  #if TERRAIN_ACTIVE_LAYERS >= 4
+  {
+    const float keep = lerp(1.0, TerrainLayerDistanceFade(dist, fadeStart + span, fadeStart + 2.0 * span), amount);
+    freed += G.MatWeight2 * (1.0 - keep);
+    G.MatWeight2 *= keep;
+  }
+  #endif
+
+  #if TERRAIN_ACTIVE_LAYERS >= 3
+  {
+    const float keep = lerp(1.0, TerrainLayerDistanceFade(dist, fadeStart + 2.0 * span, fadeStart + 3.0 * span), amount);
+    freed += G.MatWeight1 * (1.0 - keep);
+    G.MatWeight1 *= keep;
+  }
+  #endif
+
+  G.MatWeightFallback += freed;
+}
+
 /// Reads the cell-level material set and per-pixel blend weights from the VS interpolants.
 ///
 /// DataOffsets.y (nointerpolation) carries 4 cell-level material indices (sorted ascending by index),
 /// identical for all 6 vertices of the cell. TexCoord0.xy carries w0/w1, MatWeightsHi.xy carries w2/w3.
 /// The fallback material slot index comes from the FallbackMaterialSlot push constant.
-/// TERRAIN_LAYER_COUNT controls how many explicit slots are active (3=2 explicit, 4=3 explicit, 5=4 explicit).
+/// TERRAIN_ACTIVE_LAYERS counts the blended layers including the fallback, so it activates
+/// TERRAIN_ACTIVE_LAYERS-1 explicit slots (2=1 explicit, 3=2, 4=3, 5=4).
 void SampleTerrainMask()
 {
   // In the material preview there is no terrain: DataOffsets.y carries the mesh's custom
@@ -216,22 +332,34 @@ void SampleTerrainMask()
   G.TexIndices4 = MatTextureIndices[clamp(matIdx3, 0u, 15u)];
   G.TexIndicesFallback = MatTextureIndices[clamp(fallbackIdx, 0u, 15u)];
 
+  // Dropping a layer gives its weight to the fallback rather than renormalizing the survivors.
+  // The bake sorts the slots by descending coverage, so the ones dropped here are the weakest,
+  // and the fallback is what the terrain reads as anyway where nothing is painted.
   G.MatWeight0 = w0;
-  G.MatWeight1 = w1;
 
-  #if TERRAIN_LAYER_COUNT >= 5
+  #if TERRAIN_ACTIVE_LAYERS >= 5
+    G.MatWeight1 = w1;
     G.MatWeight2 = w2;
     G.MatWeight3 = w3;
     G.MatWeightFallback = max(0.0, 1.0 - w0 - w1 - w2 - w3);
-  #elif TERRAIN_LAYER_COUNT >= 4
+  #elif TERRAIN_ACTIVE_LAYERS == 4
+    G.MatWeight1 = w1;
     G.MatWeight2 = w2;
     G.MatWeight3 = 0.0;
     G.MatWeightFallback = max(0.0, 1.0 - w0 - w1 - w2);
-  #else // TERRAIN_LAYER_COUNT == 3
+  #elif TERRAIN_ACTIVE_LAYERS == 3
+    G.MatWeight1 = w1;
     G.MatWeight2 = 0.0;
     G.MatWeight3 = 0.0;
     G.MatWeightFallback = max(0.0, 1.0 - w0 - w1);
+  #else // TERRAIN_ACTIVE_LAYERS == 2: one explicit layer plus the fallback.
+    G.MatWeight1 = 0.0;
+    G.MatWeight2 = 0.0;
+    G.MatWeight3 = 0.0;
+    G.MatWeightFallback = max(0.0, 1.0 - w0);
   #endif
+
+  ApplyLayerDistanceFade();
 }
 
 #if TERRAIN_HEIGHT_BLEND
@@ -239,7 +367,7 @@ void SampleTerrainMask()
 /// Samples the height map of every active layer and redistributes the blend weights, so that the
 /// tallest layer at a pixel wins it instead of all layers cross-fading linearly.
 ///
-/// Disabled layers (TERRAIN_LAYER_COUNT < 5) already carry a weight of 0 from SampleTerrainMask,
+/// Disabled layers (TERRAIN_ACTIVE_LAYERS < 5) already carry a weight of 0 from SampleTerrainMask,
 /// which keeps them out of the result and lets the compiler drop their texture fetches.
 void ApplyHeightBlend()
 {
@@ -253,7 +381,7 @@ void ApplyHeightBlend()
     // Skipping the fetch for layers that do not contribute is the common case: most pixels are
     // covered by only one or two layers.
     heights[i] = (weights[i] > 0.0)
-      ? TriplanarSampleColorArray(LayerHeightTexture, LayerHeightTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, indices[i]).r
+      ? TriplanarSampleColorArrayGrad(LayerHeightTexture, LayerHeightTexture_AutoSampler, G.Uvs, G.TpWeights, indices[i]).r
       : 0.0;
   }
 
@@ -272,6 +400,12 @@ void FillCustomGlobals()
 {
   G.TpWeights = TriplanarWeights(G.Input.Normal);
   G.Scale = GetMaterialData(TextureScale);
+
+  G.Uvs = ComputeTriplanarUVs(G.Input.WorldPosition, G.Input.Normal, G.Scale);
+  G.CamDistance = length(GetCameraPosition() - G.Input.WorldPosition);
+
+  G.NormalLength = 1.0;
+
   SampleTerrainMask();
 
 #if TERRAIN_HEIGHT_BLEND
@@ -279,75 +413,109 @@ void FillCustomGlobals()
 #endif
 }
 
+#define TERRAIN_ACCUM_COLOR(tex, weight, indices)                                                       \
+  if (weight > 0.0)                                                                                     \
+  {                                                                                                     \
+    result += TriplanarSampleColorArrayGrad(tex, tex##_AutoSampler, G.Uvs, G.TpWeights, indices).rgb * weight; \
+  }
+
+#define TERRAIN_ACCUM_SCALAR(tex, weight, indices)                                                      \
+  if (weight > 0.0)                                                                                     \
+  {                                                                                                     \
+    result += TriplanarSampleColorArrayGrad(tex, tex##_AutoSampler, G.Uvs, G.TpWeights, indices).r * weight; \
+  }
+
+#define TERRAIN_ACCUM_NORMAL(tex, weight, indices)                                                      \
+  if (weight > 0.0)                                                                                     \
+  {                                                                                                     \
+    result += TriplanarSampleNormalArrayGrad(tex, tex##_AutoSampler, G.Uvs, G.TpWeights, indices) * weight; \
+  }
+
 float3 GetNormal()
 {
-  const float3 n0 = TriplanarSampleNormalArray(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices1);
-  const float3 n1 = TriplanarSampleNormalArray(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices2);
+  float3 result = float3(0.0, 0.0, 0.0);
 
-  float3 result = n0 * G.MatWeight0 + n1 * G.MatWeight1;
-
-  #if TERRAIN_LAYER_COUNT >= 4
-    const float3 n2 = TriplanarSampleNormalArray(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices3);
-    result += n2 * G.MatWeight2;
+  TERRAIN_ACCUM_NORMAL(LayerNormalTexture, G.MatWeight0, G.TexIndices1)
+  #if TERRAIN_ACTIVE_LAYERS >= 3
+    TERRAIN_ACCUM_NORMAL(LayerNormalTexture, G.MatWeight1, G.TexIndices2)
   #endif
 
-  #if TERRAIN_LAYER_COUNT >= 5
-    const float3 n3 = TriplanarSampleNormalArray(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices4);
-    result += n3 * G.MatWeight3;
+  #if TERRAIN_ACTIVE_LAYERS >= 4
+    TERRAIN_ACCUM_NORMAL(LayerNormalTexture, G.MatWeight2, G.TexIndices3)
   #endif
 
-  const float3 nFallback = TriplanarSampleNormalArray(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndicesFallback);
-  result += nFallback * G.MatWeightFallback;
+  #if TERRAIN_ACTIVE_LAYERS >= 5
+    TERRAIN_ACCUM_NORMAL(LayerNormalTexture, G.MatWeight3, G.TexIndices4)
+  #endif
 
-  return normalize(result);
+  TERRAIN_ACCUM_NORMAL(LayerNormalTexture, G.MatWeightFallback, G.TexIndicesFallback)
+
+  // A pixel whose weights all rounded to zero would leave result at 0; fall back to the
+  // interpolated vertex normal rather than normalizing a zero vector.
+  const float lenSq = dot(result, result);
+  if (lenSq < 1e-12)
+  {
+    G.NormalLength = 1.0;
+    return G.Input.Normal;
+  }
+
+  const float len = sqrt(lenSq);
+  G.NormalLength = len;
+
+  return result / len;
 }
 
 float3 GetBaseColor()
 {
-  const float3 c0 = TriplanarSampleColorArray(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices1).rgb;
-  const float3 c1 = TriplanarSampleColorArray(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices2).rgb;
+  float3 result = float3(0.0, 0.0, 0.0);
 
-  float3 result = c0 * G.MatWeight0 + c1 * G.MatWeight1;
-
-  #if TERRAIN_LAYER_COUNT >= 4
-    const float3 c2 = TriplanarSampleColorArray(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices3).rgb;
-    result += c2 * G.MatWeight2;
+  TERRAIN_ACCUM_COLOR(LayerBaseTexture, G.MatWeight0, G.TexIndices1)
+  #if TERRAIN_ACTIVE_LAYERS >= 3
+    TERRAIN_ACCUM_COLOR(LayerBaseTexture, G.MatWeight1, G.TexIndices2)
   #endif
 
-  #if TERRAIN_LAYER_COUNT >= 5
-    const float3 c3 = TriplanarSampleColorArray(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices4).rgb;
-    result += c3 * G.MatWeight3;
+  #if TERRAIN_ACTIVE_LAYERS >= 4
+    TERRAIN_ACCUM_COLOR(LayerBaseTexture, G.MatWeight2, G.TexIndices3)
   #endif
 
-  const float3 cFallback = TriplanarSampleColorArray(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndicesFallback).rgb;
-  result += cFallback * G.MatWeightFallback;
+  #if TERRAIN_ACTIVE_LAYERS >= 5
+    TERRAIN_ACCUM_COLOR(LayerBaseTexture, G.MatWeight3, G.TexIndices4)
+  #endif
+
+  TERRAIN_ACCUM_COLOR(LayerBaseTexture, G.MatWeightFallback, G.TexIndicesFallback)
 
   return result;
 }
 
 float GetRoughness()
 {
-  const float r0 = TriplanarSampleColorArray(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices1).r;
-  const float r1 = TriplanarSampleColorArray(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices2).r;
+  float result = 0.0;
 
-  float result = r0 * G.MatWeight0 + r1 * G.MatWeight1;
-
-  #if TERRAIN_LAYER_COUNT >= 4
-    const float r2 = TriplanarSampleColorArray(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices3).r;
-    result += r2 * G.MatWeight2;
+  TERRAIN_ACCUM_SCALAR(LayerRoughnessTexture, G.MatWeight0, G.TexIndices1)
+  #if TERRAIN_ACTIVE_LAYERS >= 3
+    TERRAIN_ACCUM_SCALAR(LayerRoughnessTexture, G.MatWeight1, G.TexIndices2)
   #endif
 
-  #if TERRAIN_LAYER_COUNT >= 5
-    const float r3 = TriplanarSampleColorArray(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices4).r;
-    result += r3 * G.MatWeight3;
+  #if TERRAIN_ACTIVE_LAYERS >= 4
+    TERRAIN_ACCUM_SCALAR(LayerRoughnessTexture, G.MatWeight2, G.TexIndices3)
   #endif
 
-  const float rFallback = TriplanarSampleColorArray(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndicesFallback).r;
-  result += rFallback * G.MatWeightFallback;
+  #if TERRAIN_ACTIVE_LAYERS >= 5
+    TERRAIN_ACCUM_SCALAR(LayerRoughnessTexture, G.MatWeight3, G.TexIndices4)
+  #endif
 
-  return result + GetMaterialData(RoughnessBias);
+  TERRAIN_ACCUM_SCALAR(LayerRoughnessTexture, G.MatWeightFallback, G.TexIndicesFallback)
+
+  result += GetMaterialData(RoughnessBias);
+
+  result = TerrainNormalVarianceRoughness(result, G.NormalLength, GetMaterialData(NormalVarianceRoughness));
+
+  return TerrainDistanceRoughness(result, G.CamDistance,
+    GetMaterialData(DetailFadeStart), GetMaterialData(DetailFadeEnd), GetMaterialData(DistanceRoughness));
 }
 
 float GetMetallic()    { return 0.0f; }
 float GetReflectance() { return 0.5f; }
 float GetOpacity()     { return 1.0f; }
+
+#endif // RENDER_PASS != RENDER_PASS_DEPTH_ONLY

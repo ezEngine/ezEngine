@@ -1,0 +1,9 @@
+// How many baked material layers the terrain shaders blend, counting the implicit fallback.
+enum TERRAIN_LAYER_COUNT
+{
+  TERRAIN_LAYER_COUNT_2,
+  TERRAIN_LAYER_COUNT_3,
+  TERRAIN_LAYER_COUNT_4,
+  TERRAIN_LAYER_COUNT_5,
+  default = 1
+};

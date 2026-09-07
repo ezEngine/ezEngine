@@ -14,7 +14,7 @@ o
 			s{"Shaders/Terrain/Rendering/HeightfieldTerrainMaterial.ezShader"}
 		}
 		Uuid %DocumentID{u4{2939980432966898598,5123535222320404264}}
-		u4 %Hash{2175574400443948647}
+		u4 %Hash{5176759378660577778}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -44,7 +44,14 @@ o
 	u3 %v{2}
 	p
 	{
+		f %DetailFadeEnd{0x00001643}
+		f %DetailFadeStart{0x00004842}
+		f %DistanceRoughness{0x9A99993E}
+		f %HeightBlendDepth{0x9A99193E}
+		f %HeightBlendStrength{0x0000803F}
 		s %LayerBaseTexture{"{ c658f867-d3f8-43a8-b32d-55326fac60b8 }"}
+		f %LayerDistanceFade{0x0000803F}
+		s %LayerHeightTexture{""}
 		s %LayerNormalTexture{"{ 6ce1da02-2df2-45b2-b832-05f2ca1c58b0 }"}
 		s %LayerRoughnessTexture{"{ fad8ea85-dca7-471c-8ed2-2aa362a6e98a }"}
 		Vec2i %Material0TextureIndex{i3{0,3}}
@@ -63,7 +70,10 @@ o
 		Vec2i %Material7TextureIndex{i3{0,0}}
 		Vec2i %Material8TextureIndex{i3{0,0}}
 		Vec2i %Material9TextureIndex{i3{0,0}}
+		f %NormalVarianceRoughness{0x0000003F}
 		f %RoughnessBias{0x9A99993E}
+		b %TERRAIN_HEIGHT_BLEND{0}
+		s %TERRAIN_LAYER_COUNT{"TERRAIN_LAYER_COUNT::TERRAIN_LAYER_COUNT_4"}
 		f %TextureScale{0x0000803E}
 	}
 }
@@ -101,6 +111,21 @@ Types
 {
 o
 {
+	Uuid %id{u4{12069708629301776720,67012498554694102}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		i3 %ConstantValue{3}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"TERRAIN_LAYER_COUNT::TERRAIN_LAYER_COUNT_5"}
+		s %Type{"ezInt32"}
+	}
+}
+o
+{
 	Uuid %id{u4{7369592584561371515,150400655728789348}}
 	s %t{"ezAssetBrowserAttribute"}
 	u3 %v{1}
@@ -113,12 +138,33 @@ o
 }
 o
 {
+	Uuid %id{u4{10672315248821158020,179910596886057100}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i4 %Value{0}
+	}
+}
+o
+{
 	Uuid %id{u4{9205541992466402666,186874392873755262}}
 	s %t{"ezCategoryAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %Category{"Constant"}
+		s %Category{"Texture 2D Array"}
+	}
+}
+o
+{
+	Uuid %id{u4{18308791882563814745,203515907974022957}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i4 %Max{255}
+		i4 %Min{0}
 	}
 }
 o
@@ -128,7 +174,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Constant"}
+		s %Category{"Texture 2D Array"}
 	}
 }
 o
@@ -138,8 +184,8 @@ o
 	u3 %v{1}
 	p
 	{
-		i4 %Max{255}
-		i4 %Min{0}
+		d %Max{0x00000000006AF840}
+		d %Min{0}
 	}
 }
 o
@@ -155,6 +201,61 @@ o
 }
 o
 {
+	Uuid %id{u4{16485452990292330254,1121001473970618846}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{12520160862183815312,1158941142778598753}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{17883027717386338810,17458077941186039043}}
+			Uuid{u4{6569368953563292095,16494892384683494934}}
+			Uuid{u4{9569518251607794526,6607092935971004369}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Material11TextureIndex"}
+		s %Type{"ezVec2I32"}
+	}
+}
+o
+{
+	Uuid %id{u4{16412303273944805495,1212576274389728207}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{1710323405866019760,1251243441414123688}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		i3 %ConstantValue{2}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"TERRAIN_LAYER_COUNT::TERRAIN_LAYER_COUNT_4"}
+		s %Type{"ezInt32"}
+	}
+}
+o
+{
 	Uuid %id{u4{15413940758266627569,1279269645272081217}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -164,13 +265,12 @@ o
 		{
 			Uuid{u4{7250675865458471679,14531238039950568399}}
 			Uuid{u4{9913575226874912632,15347216907554822691}}
-			Uuid{u4{14248664697253576779,2873200965269304292}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"Material0TextureIndex"}
-		s %Type{"ezVec2I32"}
+		s %Name{"LayerHeightTexture"}
+		s %Type{"ezString"}
 	}
 }
 o
@@ -209,8 +309,8 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"Material4TextureIndex"}
-		s %Type{"ezVec2I32"}
+		s %Name{"DetailFadeEnd"}
+		s %Type{"float"}
 	}
 }
 o
@@ -229,23 +329,46 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"Material14TextureIndex"}
+		s %Name{"Material4TextureIndex"}
 		s %Type{"ezVec2I32"}
 	}
 }
 o
 {
-	Uuid %id{u4{8820087521711943202,1773338324845188565}}
-	s %t{"ezDefaultValueAttribute"}
+	Uuid %id{u4{16335394635301454693,1737494308735698540}}
+	s %t{"ezCategoryAttribute"}
 	u3 %v{1}
 	p
 	{
-		d %Value{0x000000000000E03F}
+		s %Category{"Constant"}
 	}
 }
 o
 {
-	Uuid %id{u4{16464840001761193246,2198804663616932243}}
+	Uuid %id{u4{8820087521711943202,1773338324845188565}}
+	s %t{"ezAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
+		s %RequiredTag{""}
+	}
+}
+o
+{
+	Uuid %id{u4{18117489964292268012,1805092991287234378}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i4 %Max{255}
+		i4 %Min{0}
+	}
+}
+o
+{
+	Uuid %id{u4{5652526738073281610,1952280738535507060}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
 	p
@@ -255,7 +378,17 @@ o
 }
 o
 {
-	Uuid %id{u4{8987311824184136364,2409447045907881852}}
+	Uuid %id{u4{16464840001761193246,2198804663616932243}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		d %Value{0x0000000000C06240}
+	}
+}
+o
+{
+	Uuid %id{u4{4198074495338471950,2369286958872476224}}
 	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
 	p
@@ -266,13 +399,13 @@ o
 }
 o
 {
-	Uuid %id{u4{14248664697253576779,2873200965269304292}}
+	Uuid %id{u4{8987311824184136364,2409447045907881852}}
 	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
 	p
 	{
-		i4 %Max{255}
-		i4 %Min{0}
+		d %Max{0x0000000000002040}
+		d %Min{0}
 	}
 }
 o
@@ -285,13 +418,12 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{13190717143765194437,8548150097298246046}}
-			Uuid{u4{5464329951760534644,12906048599693856869}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"LayerBaseTexture"}
-		s %Type{"ezString"}
+		s %Name{"TERRAIN_HEIGHT_BLEND"}
+		s %Type{"bool"}
 	}
 }
 o
@@ -301,7 +433,7 @@ o
 	u3 %v{1}
 	p
 	{
-		i4 %Value{0}
+		d %Value{0}
 	}
 }
 o
@@ -316,12 +448,53 @@ o
 }
 o
 {
+	Uuid %id{u4{11645471629338567715,3403615986446464018}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i4 %Max{255}
+		i4 %Min{0}
+	}
+}
+o
+{
 	Uuid %id{u4{1988912220773894488,3468905694479318033}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
 	p
 	{
+		d %Value{0x000000000000F03F}
+	}
+}
+o
+{
+	Uuid %id{u4{7529508801036155283,3658285239355829804}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
 		i4 %Value{0}
+	}
+}
+o
+{
+	Uuid %id{u4{5877074315639393525,3770462819600735557}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{37249423877281366,8276535100810871563}}
+			Uuid{u4{7529508801036155283,3658285239355829804}}
+			Uuid{u4{9045978581583065342,18428894937491690442}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Material6TextureIndex"}
+		s %Type{"ezVec2I32"}
 	}
 }
 o
@@ -361,8 +534,8 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"Material9TextureIndex"}
-		s %Type{"ezVec2I32"}
+		s %Name{"HeightBlendStrength"}
+		s %Type{"float"}
 	}
 }
 o
@@ -381,8 +554,18 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"Material15TextureIndex"}
+		s %Name{"Material5TextureIndex"}
 		s %Type{"ezVec2I32"}
+	}
+}
+o
+{
+	Uuid %id{u4{14601882517188426695,4525152091223970829}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
 	}
 }
 o
@@ -397,13 +580,33 @@ o
 }
 o
 {
+	Uuid %id{u4{12152399311985567776,4764872268882798184}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{6036001158941637075,17802389732328037611}}
+			Uuid{u4{7581591733663768612,17992789728269732326}}
+			Uuid{u4{4198074495338471950,2369286958872476224}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Material14TextureIndex"}
+		s %Type{"ezVec2I32"}
+	}
+}
+o
+{
 	Uuid %id{u4{16476296193928194358,4786681196936811731}}
 	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
 	p
 	{
-		i4 %Max{255}
-		i4 %Min{0}
+		d %Max{0x000000000000F03F}
+		d %Min{0xFCA9F1D24D62503F}
 	}
 }
 o
@@ -422,8 +625,19 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"Material1TextureIndex"}
-		s %Type{"ezVec2I32"}
+		s %Name{"TextureScale"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{17203298723546164386,5605781596748664585}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i4 %Max{255}
+		i4 %Min{0}
 	}
 }
 o
@@ -452,7 +666,27 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"Material12TextureIndex"}
+		s %Name{"Material2TextureIndex"}
+		s %Type{"ezVec2I32"}
+	}
+}
+o
+{
+	Uuid %id{u4{4583982028366450019,6161268091588636960}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{14601882517188426695,4525152091223970829}}
+			Uuid{u4{10672315248821158020,179910596886057100}}
+			Uuid{u4{11645471629338567715,3403615986446464018}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Material9TextureIndex"}
 		s %Type{"ezVec2I32"}
 	}
 }
@@ -463,8 +697,28 @@ o
 	u3 %v{1}
 	p
 	{
-		i4 %Max{255}
-		i4 %Min{0}
+		d %Max{0x00000000006AF840}
+		d %Min{0}
+	}
+}
+o
+{
+	Uuid %id{u4{1336037387047791160,6454066589016885858}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{6563016698852059067,17503352743004224854}}
+			Uuid{u4{2376981321516353237,9840032468653905571}}
+			Uuid{u4{18117489964292268012,1805092991287234378}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Material12TextureIndex"}
+		s %Type{"ezVec2I32"}
 	}
 }
 o
@@ -474,8 +728,8 @@ o
 	u3 %v{1}
 	p
 	{
-		i4 %Max{255}
-		i4 %Min{0}
+		d %Max{0x000000000000F03F}
+		d %Min{0}
 	}
 }
 o
@@ -494,8 +748,34 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"Material5TextureIndex"}
-		s %Type{"ezVec2I32"}
+		s %Name{"DistanceRoughness"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{8691052114951979646,6600019732779189274}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{1}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"TERRAIN_LAYER_COUNT::Default"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{9569518251607794526,6607092935971004369}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i4 %Max{255}
+		i4 %Min{0}
 	}
 }
 o
@@ -533,9 +813,53 @@ o
 			Uuid{u4{16331638923269598771,9456887736781520849}}
 			Uuid{u4{8990274543164517455,1581340151129969481}}
 			Uuid{u4{16958132923163242020,4502293605212118720}}
+			Uuid{u4{5877074315639393525,3770462819600735557}}
+			Uuid{u4{10332662905821166192,7394157695202134438}}
+			Uuid{u4{5182259047919394677,15929927060125901618}}
+			Uuid{u4{4583982028366450019,6161268091588636960}}
+			Uuid{u4{11085264537604208453,13611551932350270583}}
+			Uuid{u4{12520160862183815312,1158941142778598753}}
+			Uuid{u4{1336037387047791160,6454066589016885858}}
+			Uuid{u4{18066984931075501039,15749112657138355668}}
+			Uuid{u4{12152399311985567776,4764872268882798184}}
+			Uuid{u4{15888129782685754049,14678349001995441870}}
 		}
 		s %TypeName{"Shaders/Terrain/Rendering/HeightfieldTerrainMaterial.ezShader"}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{13328727669727062355,6952870625715257493}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{8691052114951979646,6600019732779189274}}
+			Uuid{u4{13145545523292746002,15375711250010411577}}
+			Uuid{u4{7918194815859837583,13933425052954966241}}
+			Uuid{u4{1710323405866019760,1251243441414123688}}
+			Uuid{u4{12069708629301776720,67012498554694102}}
+		}
+		s %TypeName{"TERRAIN_LAYER_COUNT"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10904068194824620910,6957729818446917274}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
 	}
 }
 o
@@ -555,8 +879,8 @@ o
 	u3 %v{1}
 	p
 	{
-		i4 %Max{255}
-		i4 %Min{0}
+		d %Max{0x0000000000005940}
+		d %Min{0xFCA9F1D24D62503F}
 	}
 }
 o
@@ -567,6 +891,37 @@ o
 	p
 	{
 		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{14718291313743502098,7208541282696313580}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i4 %Max{255}
+		i4 %Min{0}
+	}
+}
+o
+{
+	Uuid %id{u4{10332662905821166192,7394157695202134438}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{461432912756223032,8989465043873713048}}
+			Uuid{u4{9764287098515015059,15699503400351132839}}
+			Uuid{u4{17203298723546164386,5605781596748664585}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Material7TextureIndex"}
+		s %Type{"ezVec2I32"}
 	}
 }
 o
@@ -587,7 +942,7 @@ o
 	u3 %v{1}
 	p
 	{
-		i4 %Value{0}
+		d %Value{0x0000000000004940}
 	}
 }
 o
@@ -606,8 +961,28 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"Material10TextureIndex"}
+		s %Name{"Material0TextureIndex"}
 		s %Type{"ezVec2I32"}
+	}
+}
+o
+{
+	Uuid %id{u4{37249423877281366,8276535100810871563}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{13733969756782393792,8367871711637362742}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i4 %Value{0}
 	}
 }
 o
@@ -626,8 +1001,8 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"Material3TextureIndex"}
-		s %Type{"ezVec2I32"}
+		s %Name{"DetailFadeStart"}
+		s %Type{"float"}
 	}
 }
 o
@@ -637,7 +1012,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Texture 2D Array"}
+		s %Category{"Permutation"}
 	}
 }
 o
@@ -678,13 +1053,12 @@ o
 		{
 			Uuid{u4{9205541992466402666,186874392873755262}}
 			Uuid{u4{8820087521711943202,1773338324845188565}}
-			Uuid{u4{17749391292166086983,15577698135042086177}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"TextureScale"}
-		s %Type{"float"}
+		s %Name{"LayerNormalTexture"}
+		s %Type{"ezString"}
 	}
 }
 o
@@ -703,8 +1077,18 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"Material6TextureIndex"}
-		s %Type{"ezVec2I32"}
+		s %Name{"NormalVarianceRoughness"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{461432912756223032,8989465043873713048}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
 	}
 }
 o
@@ -726,6 +1110,16 @@ o
 }
 o
 {
+	Uuid %id{u4{11816312644178277284,9396037123001561422}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i4 %Value{0}
+	}
+}
+o
+{
 	Uuid %id{u4{16331638923269598771,9456887736781520849}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -740,7 +1134,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"Material13TextureIndex"}
+		s %Name{"Material3TextureIndex"}
 		s %Type{"ezVec2I32"}
 	}
 }
@@ -767,11 +1161,13 @@ o
 o
 {
 	Uuid %id{u4{5957660404394561304,9515383668883416018}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezAssetBrowserAttribute"}
 	u3 %v{1}
 	p
 	{
-		d %Value{0}
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
+		s %RequiredTag{""}
 	}
 }
 o
@@ -784,13 +1180,22 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{16907322887811790051,13687322136943272676}}
-			Uuid{u4{4251194945262961408,11821115039431085430}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"LayerNormalTexture"}
-		s %Type{"ezString"}
+		s %Flags{"ezPropertyFlags::IsEnum"}
+		s %Name{"TERRAIN_LAYER_COUNT"}
+		s %Type{"TERRAIN_LAYER_COUNT"}
+	}
+}
+o
+{
+	Uuid %id{u4{2376981321516353237,9840032468653905571}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i4 %Value{0}
 	}
 }
 o
@@ -819,7 +1224,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"Material11TextureIndex"}
+		s %Name{"Material1TextureIndex"}
 		s %Type{"ezVec2I32"}
 	}
 }
@@ -834,13 +1239,22 @@ o
 		{
 			Uuid{u4{16890735475343751395,438795542531386630}}
 			Uuid{u4{5957660404394561304,9515383668883416018}}
-			Uuid{u4{5916727006005447353,16807514780976745976}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"RoughnessBias"}
-		s %Type{"float"}
+		s %Name{"LayerRoughnessTexture"}
+		s %Type{"ezString"}
+	}
+}
+o
+{
+	Uuid %id{u4{9148790651075073791,11257534082662237277}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i4 %Value{0}
 	}
 }
 o
@@ -866,18 +1280,6 @@ o
 }
 o
 {
-	Uuid %id{u4{4251194945262961408,11821115039431085430}}
-	s %t{"ezAssetBrowserAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
-		s %Filter{";CompatibleAsset_Texture_2D;"}
-		s %RequiredTag{""}
-	}
-}
-o
-{
 	Uuid %id{u4{3331401452160560417,11930522611801557628}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -891,7 +1293,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"LayerRoughnessTexture"}
+		s %Name{"LayerBaseTexture"}
 		s %Type{"ezString"}
 	}
 }
@@ -922,8 +1324,8 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"Material2TextureIndex"}
-		s %Type{"ezVec2I32"}
+		s %Name{"RoughnessBias"}
+		s %Type{"float"}
 	}
 }
 o
@@ -938,14 +1340,13 @@ o
 }
 o
 {
-	Uuid %id{u4{5464329951760534644,12906048599693856869}}
-	s %t{"ezAssetBrowserAttribute"}
+	Uuid %id{u4{18305013262455841048,13229273622886424627}}
+	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
-		s %Filter{";CompatibleAsset_Texture_2D;"}
-		s %RequiredTag{""}
+		i4 %Max{255}
+		i4 %Min{0}
 	}
 }
 o
@@ -960,12 +1361,32 @@ o
 }
 o
 {
+	Uuid %id{u4{11085264537604208453,13611551932350270583}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{16412303273944805495,1212576274389728207}}
+			Uuid{u4{11816312644178277284,9396037123001561422}}
+			Uuid{u4{18305013262455841048,13229273622886424627}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Material10TextureIndex"}
+		s %Type{"ezVec2I32"}
+	}
+}
+o
+{
 	Uuid %id{u4{16907322887811790051,13687322136943272676}}
 	s %t{"ezCategoryAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %Category{"Texture 2D Array"}
+		s %Category{"Permutation"}
 	}
 }
 o
@@ -975,7 +1396,33 @@ o
 	u3 %v{1}
 	p
 	{
-		i4 %Value{0}
+		d %Value{0x000000000000E03F}
+	}
+}
+o
+{
+	Uuid %id{u4{7918194815859837583,13933425052954966241}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		i3 %ConstantValue{1}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"TERRAIN_LAYER_COUNT::TERRAIN_LAYER_COUNT_3"}
+		s %Type{"ezInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{9950643931557968123,14146833621878340295}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i4 %Max{255}
+		i4 %Min{0}
 	}
 }
 o
@@ -996,7 +1443,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Constant"}
+		s %Category{"Texture 2D Array"}
 	}
 }
 o
@@ -1006,7 +1453,27 @@ o
 	u3 %v{1}
 	p
 	{
-		i4 %Value{0}
+		d %Value{0x000000000000E03F}
+	}
+}
+o
+{
+	Uuid %id{u4{15888129782685754049,14678349001995441870}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{16335394635301454693,1737494308735698540}}
+			Uuid{u4{9148790651075073791,11257534082662237277}}
+			Uuid{u4{9950643931557968123,14146833621878340295}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Material15TextureIndex"}
+		s %Type{"ezVec2I32"}
 	}
 }
 o
@@ -1039,22 +1506,28 @@ o
 o
 {
 	Uuid %id{u4{9913575226874912632,15347216907554822691}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezAssetBrowserAttribute"}
 	u3 %v{1}
 	p
 	{
-		i4 %Value{0}
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
+		s %RequiredTag{""}
 	}
 }
 o
 {
-	Uuid %id{u4{17749391292166086983,15577698135042086177}}
-	s %t{"ezClampValueAttribute"}
-	u3 %v{1}
+	Uuid %id{u4{13145545523292746002,15375711250010411577}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
 	p
 	{
-		d %Max{0x0000000000005940}
-		d %Min{0xFCA9F1D24D62503F}
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		i3 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"TERRAIN_LAYER_COUNT::TERRAIN_LAYER_COUNT_2"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -1069,13 +1542,43 @@ o
 }
 o
 {
+	Uuid %id{u4{9764287098515015059,15699503400351132839}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i4 %Value{0}
+	}
+}
+o
+{
+	Uuid %id{u4{18066984931075501039,15749112657138355668}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{10904068194824620910,6957729818446917274}}
+			Uuid{u4{13733969756782393792,8367871711637362742}}
+			Uuid{u4{14718291313743502098,7208541282696313580}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Material13TextureIndex"}
+		s %Type{"ezVec2I32"}
+	}
+}
+o
+{
 	Uuid %id{u4{9799177655920870254,15804462813259033477}}
 	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
 	p
 	{
-		i4 %Max{255}
-		i4 %Min{0}
+		d %Max{0x000000000000F03F}
+		d %Min{0}
 	}
 }
 o
@@ -1085,7 +1588,27 @@ o
 	u3 %v{1}
 	p
 	{
-		i4 %Value{0}
+		d %Value{0x333333333333D33F}
+	}
+}
+o
+{
+	Uuid %id{u4{5182259047919394677,15929927060125901618}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{16485452990292330254,1121001473970618846}}
+			Uuid{u4{5652526738073281610,1952280738535507060}}
+			Uuid{u4{18308791882563814745,203515907974022957}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Material8TextureIndex"}
+		s %Type{"ezVec2I32"}
 	}
 }
 o
@@ -1115,7 +1638,7 @@ o
 	u3 %v{1}
 	p
 	{
-		i4 %Value{0}
+		d %Value{0x000000000000F03F}
 	}
 }
 o
@@ -1130,18 +1653,7 @@ o
 }
 o
 {
-	Uuid %id{u4{5916727006005447353,16807514780976745976}}
-	s %t{"ezClampValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		d %Max{0x000000000000F03F}
-		d %Min{0x000000000000F0BF}
-	}
-}
-o
-{
-	Uuid %id{u4{901121186701669687,16911889839370700666}}
+	Uuid %id{u4{6569368953563292095,16494892384683494934}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
 	p
@@ -1151,13 +1663,23 @@ o
 }
 o
 {
+	Uuid %id{u4{901121186701669687,16911889839370700666}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		d %Value{0x333333333333C33F}
+	}
+}
+o
+{
 	Uuid %id{u4{10110885146045856267,17055361430250250091}}
 	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
 	p
 	{
-		i4 %Max{255}
-		i4 %Min{0}
+		d %Max{0x000000000000F03F}
+		d %Min{0x000000000000F0BF}
 	}
 }
 o
@@ -1176,8 +1698,28 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"Material8TextureIndex"}
-		s %Type{"ezVec2I32"}
+		s %Name{"HeightBlendDepth"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{17883027717386338810,17458077941186039043}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{6563016698852059067,17503352743004224854}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
 	}
 }
 o
@@ -1214,8 +1756,8 @@ o
 	u3 %v{1}
 	p
 	{
-		i4 %Max{255}
-		i4 %Min{0}
+		d %Max{0x0000000000001040}
+		d %Min{0}
 	}
 }
 o
@@ -1244,8 +1786,18 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType"}
-		s %Name{"Material7TextureIndex"}
-		s %Type{"ezVec2I32"}
+		s %Name{"LayerDistanceFade"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{6036001158941637075,17802389732328037611}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
 	}
 }
 o
@@ -1267,6 +1819,16 @@ o
 }
 o
 {
+	Uuid %id{u4{7581591733663768612,17992789728269732326}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i4 %Value{0}
+	}
+}
+o
+{
 	Uuid %id{u4{5030680158680079231,18410952876772242771}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1280,6 +1842,17 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialAssetProperties"}
 		u3 %TypeVersion{4}
+	}
+}
+o
+{
+	Uuid %id{u4{9045978581583065342,18428894937491690442}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i4 %Max{255}
+		i4 %Min{0}
 	}
 }
 }

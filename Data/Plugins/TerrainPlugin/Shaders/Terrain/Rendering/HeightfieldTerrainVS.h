@@ -147,7 +147,10 @@ VS_OUT FillHeightfieldTerrainVertexOutput(uint vertexID)
   }
 
   float h = TerrainHeights[idx];
+
+#if defined(USE_NORMAL)
   float3 localNormal = DecodeTerrainNormal(TerrainNormals[idx]);
+#endif
 
   // LOD fade: pull the vertices that vanish at the next-coarser level toward the position they
   // interpolate to there. A vertex vanishes when its inner-grid index is odd along an axis; it then
@@ -167,16 +170,22 @@ VS_OUT FillHeightfieldTerrainVertexOutput(uint vertexID)
     const int sp = step * pitch;
 
     float targetH = h;
+#if defined(USE_NORMAL)
     float3 targetN = localNormal;
+#endif
     if (ox && !oy)
     {
       targetH = 0.5 * (TerrainHeights[idx - sx] + TerrainHeights[idx + sx]);
+#if defined(USE_NORMAL)
       targetN = 0.5 * (DecodeTerrainNormal(TerrainNormals[idx - sx]) + DecodeTerrainNormal(TerrainNormals[idx + sx]));
+#endif
     }
     else if (!ox && oy)
     {
       targetH = 0.5 * (TerrainHeights[idx - sp] + TerrainHeights[idx + sp]);
+#if defined(USE_NORMAL)
       targetN = 0.5 * (DecodeTerrainNormal(TerrainNormals[idx - sp]) + DecodeTerrainNormal(TerrainNormals[idx + sp]));
+#endif
     }
     else if (ox && oy)
     {
@@ -184,11 +193,15 @@ VS_OUT FillHeightfieldTerrainVertexOutput(uint vertexID)
       // lies exactly on that diagonal in the coarser LOD — its true height/normal there is the
       // average of the TR and BL corners only, not a bilinear blend of all 4 corners.
       targetH = 0.5 * (TerrainHeights[idx + sx - sp] + TerrainHeights[idx - sx + sp]);
+#if defined(USE_NORMAL)
       targetN = 0.5 * (DecodeTerrainNormal(TerrainNormals[idx + sx - sp]) + DecodeTerrainNormal(TerrainNormals[idx - sx + sp]));
+#endif
     }
 
     h = lerp(h, targetH, fade);
+#if defined(USE_NORMAL)
     localNormal = normalize(lerp(localNormal, targetN, fade));
+#endif
   }
 
   // Skirt vertices keep their real height and normal but are pushed down to hide seams between patches.
@@ -210,16 +223,36 @@ VS_OUT FillHeightfieldTerrainVertexOutput(uint vertexID)
   const float gridSpacing = GET_PUSH_CONSTANT(HeightfieldRenderConstants, GridSpacing);
   const float3 localPos = float3((float)bufX * gridSpacing, (float)bufY * gridSpacing, h + zOffset);
 
+  const float3 worldPos = mul(objectToWorld, float4(localPos, 1.0f)).xyz;
+
+#if defined(USE_NORMAL)
+  const float3 worldNormal = normalize(mul(objectToWorldNormal, localNormal));
+#endif
+
+#if defined(USE_TANGENT)
   // Analytical tangent for a heightfield: lies in the XZ plane, perpendicular to the normal.
   // Derived from dP/du = (GridSpacing, 0, dH/dx), orthogonalized: float3(n.z, 0, -n.x).
   const float3 localTangent = normalize(float3(localNormal.z, 0.0, -localNormal.x));
   const float3 localBitangent = cross(localNormal, localTangent);
 
-  const float3 worldPos = mul(objectToWorld, float4(localPos, 1.0f)).xyz;
-  const float3 worldNormal = normalize(mul(objectToWorldNormal, localNormal));
   const float3 worldTangent = normalize(mul(objectToWorldNormal, localTangent));
   const float3 worldBitangent = normalize(mul(objectToWorldNormal, localBitangent));
+#endif
 
+  VS_OUT Output;
+  Output.Position = mul(GetWorldToScreenMatrix(), float4(worldPos, 1.0f));
+  Output.WorldPosition = worldPos;
+
+#if defined(USE_NORMAL)
+  Output.Normal = worldNormal;
+#endif
+
+#if defined(USE_TANGENT)
+  Output.Tangent = worldTangent;
+  Output.BiTangent = worldBitangent;
+#endif
+
+#if defined(USE_TEXCOORD0)
   // A carved corner holds the sentinel, not weights. Its own vertex is culled, but it still
   // contributes to surviving vertices in the same cell, so it unpacks to zero weight.
   const float4 wTL = UnpackWeights(packedTL);
@@ -228,22 +261,11 @@ VS_OUT FillHeightfieldTerrainVertexOutput(uint vertexID)
   const float4 wBR = UnpackWeights(packedBR);
   const float4 w = lerp(lerp(wTL, wTR, fx), lerp(wBL, wBR, fx), fy);
 
-  const float w0 = w.x;
-  const float w1 = w.y;
-  const float w2 = w.z;
-  const float w3 = w.w;
-
-  VS_OUT Output;
-  Output.Position = mul(GetWorldToScreenMatrix(), float4(worldPos, 1.0f));
-  Output.WorldPosition = worldPos;
-  Output.Normal = worldNormal;
-  Output.Tangent = worldTangent;
-  Output.BiTangent = worldBitangent;
-
   // TexCoord0: w0, w1. MatWeightsHi: w2, w3 (via CUSTOM_INTERPOLATOR).
   // The PS reconstructs w_fallback = max(0, 1 - w0 - w1 - w2 - w3).
-  Output.TexCoord0 = float2(w0, w1);
-  Output.MatWeightsHi = float2(w2, w3);
+  Output.TexCoord0 = float2(w.x, w.y);
+  Output.MatWeightsHi = float2(w.z, w.w);
+#endif
 
   // DataOffsets.x: instance data offset.
   // DataOffsets.y: 4 cell-level material indices — identical for all 6 vertices of this cell.
