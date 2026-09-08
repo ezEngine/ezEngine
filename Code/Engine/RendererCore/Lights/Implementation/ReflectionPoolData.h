@@ -66,9 +66,36 @@ struct ezReflectionPool::Data
   void PreExtraction();
   void PostExtraction();
 
-  // Dynamic Update Queue (all worlds combined)
+  // Update Queues (all worlds combined)
+
+  struct QueuedUpdate
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezReflectionProbeRef m_probe;
+    float m_fPriority = 0.0f;
+    ezUInt64 m_uiEnqueuedFrame = 0; ///< Only used by m_RefreshQueue, to age waiting probes.
+  };
+
+  /// Removes a probe from one of the update queues, if it is in there.
+  static void RemoveFromQueue(ezDynamicArray<QueuedUpdate>& ref_queue, const ezReflectionProbeRef& probe);
+
+  /// Sorts a queue so that the probe to update next is at the front.
+  /// \param fAgeWeight How much a probe's priority grows per frame that it has been waiting. Zero sorts
+  ///   purely by priority, which can starve low priority probes.
+  static void SortQueue(ezDynamicArray<QueuedUpdate>& ref_queue, float fAgeWeight);
+
+  // Probes that have never completed an update and thus have no usable content yet. Sorted by priority and
+  // drained before m_RefreshQueue, so that a probe cannot be starved by probes that already look correct.
+  ezDynamicArray<QueuedUpdate> m_InitialBakeQueue;
+
+  // Probes that already have content and want to re-render it. Ordered by priority as well, so that the
+  // probes around the camera are corrected first after a sky light update dirtied everything. The priority
+  // is raised the longer a probe waits, so that distant probes cannot be starved by closer ones.
+  ezDynamicArray<QueuedUpdate> m_RefreshQueue;
+
+  // Dedup across both queues. A probe is in at most one of them.
   ezHashSet<ezReflectionProbeRef> m_PendingDynamicUpdate;
-  ezDeque<ezReflectionProbeRef> m_DynamicUpdateQueue;
 
   ezHashSet<ezReflectionProbeRef> m_ActiveDynamicUpdate;
   ezReflectionProbeUpdater m_ReflectionProbeUpdater;

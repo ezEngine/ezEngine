@@ -2,8 +2,11 @@
 
 #include <RendererCore/Lights/Implementation/ReflectionPoolData.h>
 #include <RendererCore/Lights/Implementation/ReflectionProbeMapping.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
+
+ezCVarInt cvar_RenderingReflectionPoolSkyLightRefreshFrames("Rendering.ReflectionPool.SkyLightRefreshFrames", 60, ezCVarFlags::Default, "How many frames must pass between two updates of a dynamic sky light. Each update invalidates every other reflection probe, so a low value keeps the scene busy re-rendering probes. Set to 0 to update the sky light every frame.");
 
 ezReflectionProbeMapping::ezReflectionProbeMapping(ezUInt32 uiAtlasSize)
   : m_uiAtlasSize(uiAtlasSize)
@@ -66,6 +69,11 @@ void ezReflectionProbeMapping::UpdateProbe(ezReflectionProbeId probe, ezBitflags
 void ezReflectionProbeMapping::ProbeUpdateFinished(ezReflectionProbeId probe)
 {
   ProbeDataInternal& probeData0 = m_RegisteredProbes[probe.m_InstanceIndex];
+  if (m_SkyLight == probe)
+  {
+    m_uiLastSkyLightUpdateFrame = ezRenderWorld::GetFrameCounter();
+    m_bSkyLightUpdatedOnce = true;
+  }
   if (m_SkyLight == probe && probeData0.m_Flags.IsSet(ezProbeMappingFlags::Dirty))
   {
     // If the sky irradiance changed all other probes are no longer valid and need to be marked as dirty.
@@ -216,35 +224,59 @@ void ezReflectionProbeMapping::PostExtraction()
     }
   }
 
-  // Enqueue dynamic probe updates
+  // Enqueue probe updates
   {
-    // We add the skylight again as we want to consider it for dynamic updates.
+    // Newly mapped probes were appended by MapProbe, so restore the priority order before enqueuing.
+    m_ActiveProbes.Sort();
+
+    // The sky light drives the ambient of every other probe and its completion marks them all dirty, so it
+    // has to be requested before everything else. It is not part of m_ActiveProbes (it occupies the fixed
+    // atlas index 0, which the loops above skip), so it is handled separately here.
     if (!m_SkyLight.IsInvalidated())
     {
-      m_ActiveProbes.PushBack({m_SkyLight, ezMath::MaxValue<float>()});
+      const ProbeDataInternal& skyLightData = m_RegisteredProbes[m_SkyLight.m_InstanceIndex];
+      const bool bFirstBake = !skyLightData.m_Flags.IsSet(ezProbeMappingFlags::Usable);
+
+      // A sky light that has no content yet is always requested. Once it has content, refreshes are rate
+      // limited, as each one invalidates all other probes and would otherwise keep the scene from settling.
+      if (bFirstBake || IsSkyLightRefreshDue())
+      {
+        RequestUpdate(skyLightData);
+      }
     }
+
     const ezUInt32 uiMaxCount = m_ActiveProbes.GetCount();
     for (ezUInt32 i = 0; i < uiMaxCount; i++)
     {
       const SortedProbes probe = m_ActiveProbes[i];
       const ProbeDataInternal& probeData = m_RegisteredProbes[probe.m_uiIndex.m_InstanceIndex];
-      if (probeData.m_Flags.IsSet(ezProbeMappingFlags::Dynamic))
-      {
-        ezReflectionProbeMappingEvent e = {probeData.m_id, ezReflectionProbeMappingEvent::Type::ProbeUpdateRequested};
-        m_Events.Broadcast(e);
-      }
-      else
-      {
 
-        // #TODO Add static probes once resources are loaded.
-        if (probeData.m_Flags.IsSet(ezProbeMappingFlags::Dirty))
-        {
-          ezReflectionProbeMappingEvent e = {probeData.m_id, ezReflectionProbeMappingEvent::Type::ProbeUpdateRequested};
-          m_Events.Broadcast(e);
-        }
+      // #TODO Add static probes once resources are loaded.
+      if (probeData.m_Flags.IsSet(ezProbeMappingFlags::Dynamic) || probeData.m_Flags.IsSet(ezProbeMappingFlags::Dirty))
+      {
+        RequestUpdate(probeData);
       }
     }
   }
+}
+
+void ezReflectionProbeMapping::RequestUpdate(const ProbeDataInternal& probeData)
+{
+  ezReflectionProbeMappingEvent e = {probeData.m_id, ezReflectionProbeMappingEvent::Type::ProbeUpdateRequested};
+  e.m_fPriority = probeData.m_fPriority;
+  e.m_bFirstBake = !probeData.m_Flags.IsSet(ezProbeMappingFlags::Usable);
+  m_Events.Broadcast(e);
+}
+
+bool ezReflectionProbeMapping::IsSkyLightRefreshDue() const
+{
+  if (!m_bSkyLightUpdatedOnce)
+    return true;
+
+  const ezUInt64 uiInterval = (ezUInt64)ezMath::Max<ezInt64>(0, cvar_RenderingReflectionPoolSkyLightRefreshFrames);
+
+  const ezUInt64 uiCurrentFrame = ezRenderWorld::GetFrameCounter();
+  return uiCurrentFrame >= m_uiLastSkyLightUpdateFrame + uiInterval;
 }
 
 void ezReflectionProbeMapping::MapProbe(ezReflectionProbeId id, ezInt32 iReflectionIndex)
@@ -253,7 +285,9 @@ void ezReflectionProbeMapping::MapProbe(ezReflectionProbeId id, ezInt32 iReflect
 
   probeData.m_uiReflectionIndex = iReflectionIndex;
   m_MappedCubes[probeData.m_uiReflectionIndex] = id;
-  m_ActiveProbes.PushBack({id, 0.0f});
+  // Push the actual priority so that the update enqueue order below stays sorted. A freshly mapped probe
+  // has no content yet, so sorting it to the back would delay exactly the probes that need an update most.
+  m_ActiveProbes.PushBack({id, probeData.m_fPriority});
 
   ezReflectionProbeMappingEvent e = {id, ezReflectionProbeMappingEvent::Type::ProbeMapped};
   m_Events.Broadcast(e);
@@ -266,6 +300,11 @@ void ezReflectionProbeMapping::UnmapProbe(ezReflectionProbeId id)
   {
     m_MappedCubes[probeData.m_uiReflectionIndex].Invalidate();
     probeData.m_uiReflectionIndex = -1;
+
+    // The atlas slot is given up, so whatever content was rendered into it is gone. If the probe is mapped
+    // again later it has to be treated as a first bake, otherwise it would be sampled before being rendered.
+    probeData.m_Flags.Remove(ezProbeMappingFlags::Usable);
+    probeData.m_Flags.Add(ezProbeMappingFlags::Dirty);
 
     ezReflectionProbeMappingEvent e = {id, ezReflectionProbeMappingEvent::Type::ProbeUnmapped};
     m_Events.Broadcast(e);

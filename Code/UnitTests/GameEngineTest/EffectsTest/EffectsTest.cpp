@@ -76,7 +76,7 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
 
     case SubTests::Reflections:
     {
-      m_ImgCompFrames.PushBack({30});
+      m_ImgCompFrames.PushBack({8});
 
       return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Reflections.ezBinScene");
     }

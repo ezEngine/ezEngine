@@ -18,6 +18,13 @@ struct ezReflectionProbeMappingEvent
 
   ezReflectionProbeId m_Id;
   Type m_Type;
+
+  /// Only valid for ProbeUpdateRequested. The probe's priority this frame. Used to order pending updates.
+  float m_fPriority = 0.0f;
+
+  /// Only valid for ProbeUpdateRequested. Set if the probe has never completed an update, i.e. it has no
+  /// usable content yet. Such probes are updated before refreshes of probes that already have content.
+  bool m_bFirstBake = false;
 };
 
 /// This class creates a reflection probe atlas and controls the mapping of added probes to the available atlas indices.
@@ -114,8 +121,8 @@ private:
 
     EZ_ALWAYS_INLINE bool operator<(const SortedProbes& other) const
     {
-      if (m_fPriority > other.m_fPriority) // we want to sort descending (higher priority first)
-        return true;
+      if (m_fPriority != other.m_fPriority) // we want to sort descending (higher priority first)
+        return m_fPriority > other.m_fPriority;
 
       return m_uiIndex < other.m_uiIndex;
     }
@@ -135,10 +142,17 @@ private:
 private:
   void MapProbe(ezReflectionProbeId id, ezInt32 iReflectionIndex);
   void UnmapProbe(ezReflectionProbeId id);
+  void RequestUpdate(const ProbeDataInternal& probeData);
+  bool IsSkyLightRefreshDue() const;
 
 private:
   ezDynamicArray<ProbeDataInternal> m_RegisteredProbes;
   ezReflectionProbeId m_SkyLight;
+
+  // Frame in which the sky light last completed an update. Its completion marks every other probe dirty,
+  // so refreshing it every frame would keep the entire scene from ever settling.
+  ezUInt64 m_uiLastSkyLightUpdateFrame = 0;
+  bool m_bSkyLightUpdatedOnce = false;
 
   ezUInt32 m_uiAtlasSize = 32;
   ezDynamicArray<ezReflectionProbeId> m_MappedCubes;

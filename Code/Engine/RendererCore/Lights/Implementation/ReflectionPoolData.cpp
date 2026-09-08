@@ -9,8 +9,11 @@
 #include <RendererCore/Meshes/MeshComponentBase.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/RenderGraph/RenderGraph.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
+
+ezCVarFloat cvar_RenderingReflectionPoolRefreshAgeWeight("Rendering.ReflectionPool.RefreshAgeWeight", 0.005f, ezCVarFlags::Default, "How much a reflection probe's update priority grows for every frame that it waits to be refreshed. Probe priority is roughly radius/distance, so at 0.005 a waiting probe overtakes a much closer one after about two seconds. Set to 0 to sort purely by distance, which can starve distant probes.");
 
 //////////////////////////////////////////////////////////////////////////
 /// ezReflectionPool::Data
@@ -179,7 +182,10 @@ void ezReflectionPool::Data::OnReflectionProbeMappingEvent(const ezUInt32 uiWorl
       if (m_PendingDynamicUpdate.Contains(probeUpdate))
       {
         m_PendingDynamicUpdate.Remove(probeUpdate);
-        m_DynamicUpdateQueue.RemoveAndCopy(probeUpdate);
+
+        // The probe may be in either queue.
+        RemoveFromQueue(m_InitialBakeQueue, probeUpdate);
+        RemoveFromQueue(m_RefreshQueue, probeUpdate);
       }
 
       if (m_ActiveDynamicUpdate.Contains(probeUpdate))
@@ -191,13 +197,36 @@ void ezReflectionPool::Data::OnReflectionProbeMappingEvent(const ezUInt32 uiWorl
     break;
     case ezReflectionProbeMappingEvent::Type::ProbeUpdateRequested:
     {
-      // For now, we just manage a FIFO queue of all dynamic probes that have a high enough priority.
       const ezReflectionProbeRef du = {uiWorldIndex, e.m_Id};
-      ezReflectionPool::Data::WorldReflectionData& data = *s_pData->m_WorldReflectionData[uiWorldIndex];
-      if (!m_PendingDynamicUpdate.Contains(du))
+
+      // The probe is already being rendered. Its flags only change once that finishes, so it would be
+      // requested again on every frame until then and start a second, redundant update of the same content.
+      if (m_ActiveDynamicUpdate.Contains(du))
+        break;
+
+      ezDynamicArray<QueuedUpdate>& queue = e.m_bFirstBake ? m_InitialBakeQueue : m_RefreshQueue;
+
+      bool bFound = false;
+      for (QueuedUpdate& update : queue)
       {
+        if (update.m_probe == du)
+        {
+          // Already pending: keep the highest priority seen rather than dropping the request. The frame it
+          // was enqueued in is kept, so that waiting still ages the probe.
+          update.m_fPriority = ezMath::Max(update.m_fPriority, e.m_fPriority);
+          bFound = true;
+          break;
+        }
+      }
+
+      if (!bFound)
+      {
+        // A probe can change queues: one that lost its content must not stay queued for a mere refresh, and
+        // one that just gained content moves the other way.
+        RemoveFromQueue(e.m_bFirstBake ? m_RefreshQueue : m_InitialBakeQueue, du);
+
         m_PendingDynamicUpdate.Insert(du);
-        m_DynamicUpdateQueue.PushBack(du);
+        queue.PushBack({du, e.m_fPriority, ezRenderWorld::GetFrameCounter()});
       }
     }
     break;
@@ -206,6 +235,28 @@ void ezReflectionPool::Data::OnReflectionProbeMappingEvent(const ezUInt32 uiWorl
 
 //////////////////////////////////////////////////////////////////////////
 /// Dynamic Update
+
+void ezReflectionPool::Data::RemoveFromQueue(ezDynamicArray<QueuedUpdate>& ref_queue, const ezReflectionProbeRef& probe)
+{
+  for (ezUInt32 i = ref_queue.GetCount(); i-- > 0;)
+  {
+    if (ref_queue[i].m_probe == probe)
+    {
+      ref_queue.RemoveAtAndCopy(i);
+    }
+  }
+}
+
+void ezReflectionPool::Data::SortQueue(ezDynamicArray<QueuedUpdate>& ref_queue, float fAgeWeight)
+{
+  const ezUInt64 uiCurrentFrame = ezRenderWorld::GetFrameCounter();
+
+  ref_queue.Sort([=](const QueuedUpdate& a, const QueuedUpdate& b)
+    {
+      const float fA = a.m_fPriority + fAgeWeight * (float)(uiCurrentFrame - a.m_uiEnqueuedFrame);
+      const float fB = b.m_fPriority + fAgeWeight * (float)(uiCurrentFrame - b.m_uiEnqueuedFrame);
+      return fA > fB; });
+}
 
 void ezReflectionPool::Data::PreExtraction()
 {
@@ -225,7 +276,7 @@ void ezReflectionPool::Data::PreExtraction()
   // Schedule new dynamic updates
   {
     ezTempHybridArray<ezReflectionProbeRef, 4> updatesFinished;
-    const ezUInt32 uiCount = ezMath::Min(m_ReflectionProbeUpdater.GetFreeUpdateSlots(updatesFinished), m_DynamicUpdateQueue.GetCount());
+    ezUInt32 uiFreeSlots = m_ReflectionProbeUpdater.GetFreeUpdateSlots(updatesFinished);
     for (const ezReflectionProbeRef& probe : updatesFinished)
     {
       m_ActiveDynamicUpdate.Remove(probe);
@@ -237,11 +288,36 @@ void ezReflectionPool::Data::PreExtraction()
       data.m_mapping.ProbeUpdateFinished(probe.m_Id);
     }
 
-    for (ezUInt32 i = 0; i < uiCount; i++)
+    // Probes without any content are updated before refreshes of probes that already look correct, and among
+    // themselves in priority order, so that the most visible parts of the scene resolve first. They are only
+    // in this queue until they have been rendered once, so they need no aging to avoid starvation.
+    SortQueue(m_InitialBakeQueue, 0.0f);
+
+    // Refreshes are also ordered by priority, so that the probes around the camera are corrected first after
+    // a sky light update dirtied all of them. Here waiting does raise a probe's priority, as probes return to
+    // this queue over and over and a distant one would otherwise never get its turn.
+    SortQueue(m_RefreshQueue, cvar_RenderingReflectionPoolRefreshAgeWeight);
+
+    ezUInt32 uiInitialBakeIndex = 0;
+    ezUInt32 uiRefreshIndex = 0;
+    while (uiFreeSlots > 0 && (uiInitialBakeIndex < m_InitialBakeQueue.GetCount() || uiRefreshIndex < m_RefreshQueue.GetCount()))
     {
-      ezReflectionProbeRef nextUpdate = m_DynamicUpdateQueue.PeekFront();
-      m_DynamicUpdateQueue.PopFront();
+      const bool bFirstBake = uiInitialBakeIndex < m_InitialBakeQueue.GetCount();
+
+      ezReflectionProbeRef nextUpdate;
+      if (bFirstBake)
+      {
+        nextUpdate = m_InitialBakeQueue[uiInitialBakeIndex].m_probe;
+        ++uiInitialBakeIndex;
+      }
+      else
+      {
+        nextUpdate = m_RefreshQueue[uiRefreshIndex].m_probe;
+        ++uiRefreshIndex;
+      }
+
       m_PendingDynamicUpdate.Remove(nextUpdate);
+      --uiFreeSlots;
 
       if (s_pData->m_WorldReflectionData[nextUpdate.m_uiWorldIndex] == nullptr)
         continue;
@@ -253,7 +329,8 @@ void ezReflectionPool::Data::PreExtraction()
       target.m_hSpecularOutputTexture = data.m_mapping.GetTexture();
       target.m_iSpecularOutputIndex = data.m_mapping.GetReflectionIndex(nextUpdate.m_Id);
 
-      if (probeData.m_Flags.IsSet(ezProbeFlags::SkyLight))
+      const bool bSkyLight = probeData.m_Flags.IsSet(ezProbeFlags::SkyLight);
+      if (bSkyLight)
       {
         target.m_hIrradianceOutputTexture = m_hSkyIrradianceTexture;
         target.m_iIrradianceOutputIndex = nextUpdate.m_uiWorldIndex;
@@ -266,10 +343,20 @@ void ezReflectionPool::Data::PreExtraction()
       }
       else
       {
-        EZ_VERIFY(m_ReflectionProbeUpdater.StartDynamicUpdate(nextUpdate, probeData.m_desc, probeData.m_GlobalTransform, target).Succeeded(), "GetFreeUpdateSlots returned incorrect result");
+        // The per frame budget is split when both kinds of work are present: probes without any content
+        // get the larger share, refreshes a single face. Whichever kind is alone gets the whole budget.
+        // A refresh also has to consider first bakes that are already running in the other update slot.
+        const bool bSharingBudget = bFirstBake ? !m_RefreshQueue.IsEmpty() : (uiInitialBakeIndex < m_InitialBakeQueue.GetCount() || m_ReflectionProbeUpdater.IsFirstBakeInProgress());
+
+        EZ_VERIFY(m_ReflectionProbeUpdater.StartDynamicUpdate(nextUpdate, probeData.m_desc, probeData.m_GlobalTransform, target, bFirstBake, bSkyLight, bSharingBudget).Succeeded(), "GetFreeUpdateSlots returned incorrect result");
       }
       m_ActiveDynamicUpdate.Insert(nextUpdate);
     }
+
+    // Both queues are sorted, so the entries that were started this frame are the ones at the front.
+    m_InitialBakeQueue.RemoveAtAndCopy(0, uiInitialBakeIndex);
+    m_RefreshQueue.RemoveAtAndCopy(0, uiRefreshIndex);
+
     m_ReflectionProbeUpdater.GenerateUpdateSteps();
   }
 }
