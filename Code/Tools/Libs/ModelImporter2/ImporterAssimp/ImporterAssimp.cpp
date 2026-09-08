@@ -62,12 +62,15 @@ namespace ezModelImporter2
     // JoinIdenticalVertices: Assimp doesn't use index buffer at all if this is not specified.
     // TransformUVCoords:     As of now we do not have a concept for uv transforms.
     // Process_FlipUVs:       Assimp assumes OpenGl style UV coordinate system otherwise.
-    // ImproveCacheLocality:  Reorders triangles for better vertex cache locality.
+    //
+    // Note: aiProcess_ImproveCacheLocality is deliberately not used. It optimizes every mesh in the source file
+    // on its own, whereas the importer merges those meshes into a single mesh buffer afterwards. The result is
+    // optimized with meshoptimizer once the merged buffer exists, which also produces better results.
 
     ezUInt32 uiAssimpFlags = 0;
     if (m_Options.m_pMeshOutput != nullptr)
     {
-      uiAssimpFlags |= aiProcess_Triangulate | aiProcess_TransformUVCoords | aiProcess_FlipUVs | aiProcess_ImproveCacheLocality;
+      uiAssimpFlags |= aiProcess_Triangulate | aiProcess_TransformUVCoords | aiProcess_FlipUVs;
 
       if (!m_Options.m_bImportSkinningData)
       {

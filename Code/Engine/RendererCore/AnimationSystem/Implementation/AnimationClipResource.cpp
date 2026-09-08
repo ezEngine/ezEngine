@@ -11,6 +11,10 @@
 #include <ozz/animation/runtime/animation.h>
 #include <ozz/animation/runtime/skeleton.h>
 
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+#  include <Foundation/IO/CompressedStreamZstd.h>
+#endif
+
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipResource, 1, ezRTTIDefaultAllocator<ezAnimationClipResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -130,57 +134,108 @@ void ezAnimationClipResourceDescriptor::operator=(ezAnimationClipResourceDescrip
 
 ezResult ezAnimationClipResourceDescriptor::Serialize(ezStreamWriter& inout_stream) const
 {
-  inout_stream.WriteVersion(10);
+  inout_stream.WriteVersion(11);
+
+  ezUInt8 uiCompressionMode = 0;
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  uiCompressionMode = 1;
+  ezCompressedStreamWriterZstd compressor(&inout_stream, 0, ezCompressedStreamWriterZstd::Compression::Average);
+  ezStreamWriter& stream = compressor;
+#else
+  ezStreamWriter& stream = inout_stream;
+#endif
+
+  // the compression mode is written to the uncompressed stream, everything after it is compressed
+  inout_stream << uiCompressionMode;
 
   const ezUInt16 uiNumJoints = static_cast<ezUInt16>(m_JointInfos.GetCount());
-  inout_stream << uiNumJoints;
+  stream << uiNumJoints;
   for (ezUInt32 i = 0; i < m_JointInfos.GetCount(); ++i)
   {
     const auto& val = m_JointInfos.GetValue(i);
 
-    inout_stream << m_JointInfos.GetKey(i);
-    inout_stream << val.m_uiPositionIdx;
-    inout_stream << val.m_uiPositionCount;
-    inout_stream << val.m_uiRotationIdx;
-    inout_stream << val.m_uiRotationCount;
-    inout_stream << val.m_uiScaleIdx;
-    inout_stream << val.m_uiScaleCount;
+    stream << m_JointInfos.GetKey(i);
+    stream << val.m_uiPositionIdx;
+    stream << val.m_uiPositionCount;
+    stream << val.m_uiRotationIdx;
+    stream << val.m_uiRotationCount;
+    stream << val.m_uiScaleIdx;
+    stream << val.m_uiScaleCount;
   }
 
-  inout_stream << m_Duration;
-  inout_stream << m_uiNumTotalPositions;
-  inout_stream << m_uiNumTotalRotations;
-  inout_stream << m_uiNumTotalScales;
+  stream << m_Duration;
+  stream << m_uiNumTotalPositions;
+  stream << m_uiNumTotalRotations;
+  stream << m_uiNumTotalScales;
 
-  EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_Transforms));
+  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_Transforms));
 
-  inout_stream << m_vConstantRootMotion;
+  stream << m_vConstantRootMotion;
 
-  m_EventTrack.Save(inout_stream);
+  m_EventTrack.Save(stream);
 
-  inout_stream << m_bAdditive;
+  stream << m_bAdditive;
 
   const ezUInt16 uiNumCustomCurves = static_cast<ezUInt16>(m_CustomCurves.GetCount());
-  inout_stream << uiNumCustomCurves;
+  stream << uiNumCustomCurves;
 
   for (const auto& cc : m_CustomCurves)
   {
-    inout_stream << cc.m_sName;
-    cc.m_Curve.Save(inout_stream);
+    stream << cc.m_sName;
+    cc.m_Curve.Save(stream);
   }
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  EZ_SUCCEED_OR_RETURN(compressor.FinishCompressedStream());
+#endif
 
   return EZ_SUCCESS;
 }
 
 ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 {
-  const ezTypeVersion uiVersion = inout_stream.ReadVersion(10);
+  const ezTypeVersion uiVersion = inout_stream.ReadVersion(11);
 
   if (uiVersion < 6)
     return EZ_FAILURE;
 
+  ezStreamReader* pStream = &inout_stream;
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  ezCompressedStreamReaderZstd decompressor;
+#endif
+
+  if (uiVersion >= 11)
+  {
+    ezUInt8 uiCompressionMode = 0;
+    inout_stream >> uiCompressionMode;
+
+    switch (uiCompressionMode)
+    {
+      case 0:
+        break;
+
+      case 1:
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+        decompressor.SetInputStream(&inout_stream);
+        pStream = &decompressor;
+        break;
+#else
+        ezLog::Error("Animation clip is compressed with zstandard, but support for this compression scheme is not compiled in.");
+        return EZ_FAILURE;
+#endif
+
+      default:
+        ezLog::Error("Animation clip uses an unknown compression mode {}.", uiCompressionMode);
+        return EZ_FAILURE;
+    }
+  }
+
+  ezStreamReader& stream = *pStream;
+
   ezUInt16 uiNumJoints = 0;
-  inout_stream >> uiNumJoints;
+  stream >> uiNumJoints;
 
   m_JointInfos.Reserve(uiNumJoints);
 
@@ -188,53 +243,53 @@ ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& inout_st
 
   for (ezUInt16 i = 0; i < uiNumJoints; ++i)
   {
-    inout_stream >> hs;
+    stream >> hs;
 
     JointInfo ji;
-    inout_stream >> ji.m_uiPositionIdx;
-    inout_stream >> ji.m_uiPositionCount;
-    inout_stream >> ji.m_uiRotationIdx;
-    inout_stream >> ji.m_uiRotationCount;
-    inout_stream >> ji.m_uiScaleIdx;
-    inout_stream >> ji.m_uiScaleCount;
+    stream >> ji.m_uiPositionIdx;
+    stream >> ji.m_uiPositionCount;
+    stream >> ji.m_uiRotationIdx;
+    stream >> ji.m_uiRotationCount;
+    stream >> ji.m_uiScaleIdx;
+    stream >> ji.m_uiScaleCount;
 
     m_JointInfos.Insert(hs, ji);
   }
 
   m_JointInfos.Sort();
 
-  inout_stream >> m_Duration;
-  inout_stream >> m_uiNumTotalPositions;
-  inout_stream >> m_uiNumTotalRotations;
-  inout_stream >> m_uiNumTotalScales;
+  stream >> m_Duration;
+  stream >> m_uiNumTotalPositions;
+  stream >> m_uiNumTotalRotations;
+  stream >> m_uiNumTotalScales;
 
-  EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_Transforms));
+  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_Transforms));
 
   if (uiVersion >= 7)
   {
-    inout_stream >> m_vConstantRootMotion;
+    stream >> m_vConstantRootMotion;
   }
 
   if (uiVersion >= 8)
   {
-    m_EventTrack.Load(inout_stream);
+    m_EventTrack.Load(stream);
   }
 
   if (uiVersion >= 9)
   {
-    inout_stream >> m_bAdditive;
+    stream >> m_bAdditive;
   }
 
   if (uiVersion >= 10)
   {
     ezUInt16 uiNumCustomCurves = 0;
-    inout_stream >> uiNumCustomCurves;
+    stream >> uiNumCustomCurves;
 
     m_CustomCurves.SetCount(uiNumCustomCurves);
     for (auto& cc : m_CustomCurves)
     {
-      inout_stream >> cc.m_sName;
-      cc.m_Curve.Load(inout_stream);
+      stream >> cc.m_sName;
+      cc.m_Curve.Load(stream);
       cc.m_Curve.SortControlPoints();
       cc.m_Curve.CreateLinearApproximation();
     }
