@@ -11,6 +11,9 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
 
+EZ_RENDERERCORE_DLL ezCVarFloat cvar_RenderingLodCoverageScale("Rendering.Lod.CoverageScale", 1.0f, ezCVarFlags::Save, "Scales the screen space coverage that LOD components compute. Values below 1 switch to lower detail LODs earlier, values above 1 keep higher detail LODs longer.");
+EZ_RENDERERCORE_DLL ezCVarInt cvar_RenderingLodForce("Rendering.Lod.Force", -1, ezCVarFlags::Save, "If non-negative, all LOD components use this LOD index (0 = highest detail), disabling the automatic selection.");
+
 static float CalculateSphereScreenSpaceCoverage(const ezBoundingSphere& sphere, const ezCamera& camera)
 {
   if (camera.IsPerspective())
@@ -178,7 +181,7 @@ void ezLodComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   const float fScale = ezMath::Max(vScale.x, vScale.y, vScale.z);
   const ezVec3 vCenter = GetOwner()->GetGlobalTransform() * m_vBoundsOffset;
 
-  const float fCoverage = CalculateSphereScreenSpaceCoverage(ezBoundingSphere::MakeFromCenterAndRadius(vCenter, fScale * m_fBoundsRadius), *msg.m_pView->GetCullingCamera());
+  const float fCoverage = CalculateSphereScreenSpaceCoverage(ezBoundingSphere::MakeFromCenterAndRadius(vCenter, fScale * m_fBoundsRadius), *msg.m_pView->GetCullingCamera()) * ezMath::Max(0.0f, (float)cvar_RenderingLodCoverageScale);
 
   // clamp the input value, this is to prevent issues while editing the threshold array
   ezInt32 iNewLod = ezMath::Clamp<ezInt32>(m_iCurLod, 0, iNumLods);
@@ -222,6 +225,11 @@ void ezLodComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   }
 
   iNewLod = ezMath::Clamp(iNewLod, 0, iNumLods);
+
+  if (cvar_RenderingLodForce >= 0)
+  {
+    iNewLod = ezMath::Min<ezInt32>(cvar_RenderingLodForce, iNumLods);
+  }
 
   if (GetShowDebugInfo())
   {

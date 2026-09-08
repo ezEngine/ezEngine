@@ -3,6 +3,7 @@
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <RendererCore/Components/LodComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/LodMeshComponent.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
@@ -263,7 +264,7 @@ void ezLodMeshComponent::UpdateSelectedLod(const ezView& view) const
   const float fScale = ezMath::Max(vScale.x, vScale.y, vScale.z);
   const ezVec3 vCenter = GetOwner()->GetGlobalTransform() * m_vBoundsOffset;
 
-  const float fCoverage = CalculateSphereScreenSpaceCoverage(ezBoundingSphere::MakeFromCenterAndRadius(vCenter, fScale * m_fBoundsRadius), *view.GetLodCamera());
+  const float fCoverage = CalculateSphereScreenSpaceCoverage(ezBoundingSphere::MakeFromCenterAndRadius(vCenter, fScale * m_fBoundsRadius), *view.GetLodCamera()) * ezMath::Max(0.0f, (float)cvar_RenderingLodCoverageScale);
 
   // clamp the input value, this is to prevent issues while editing the threshold array
   ezInt32 iNewLod = ezMath::Clamp<ezInt32>(m_iCurLod, 0, iNumLods);
@@ -307,6 +308,12 @@ void ezLodMeshComponent::UpdateSelectedLod(const ezView& view) const
   }
 
   iNewLod = ezMath::Clamp(iNewLod, 0, iNumLods);
+
+  if (cvar_RenderingLodForce >= 0)
+  {
+    iNewLod = ezMath::Min<ezInt32>(cvar_RenderingLodForce, iNumLods - 1);
+  }
+
   m_iCurLod = iNewLod;
 
   if (GetShowDebugInfo())
