@@ -5,6 +5,7 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezBlackboardEntryFlags, 1)
@@ -388,6 +389,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezBlackboardCondition, ezNoBase, 1, ezRTTIDefault
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezBlackboardCondition);
 // clang-format on
 
 bool ezBlackboardCondition::IsConditionMet(const ezBlackboard& blackboard) const
@@ -404,25 +407,23 @@ bool ezBlackboardCondition::IsConditionMet(const ezBlackboard& blackboard) const
 
 constexpr ezTypeVersion s_BlackboardConditionVersion = 1;
 
-ezResult ezBlackboardCondition::Serialize(ezStreamWriter& inout_stream) const
+void operator<<(ezStreamWriter& inout_stream, const ezBlackboardCondition& cond)
 {
   inout_stream.WriteVersion(s_BlackboardConditionVersion);
 
-  inout_stream << m_sEntryName;
-  inout_stream << m_Operator;
-  inout_stream << m_fComparisonValue;
-  return EZ_SUCCESS;
+  inout_stream << cond.m_sEntryName;
+  inout_stream << cond.m_Operator;
+  inout_stream << cond.m_fComparisonValue;
 }
 
-ezResult ezBlackboardCondition::Deserialize(ezStreamReader& inout_stream)
+void operator>>(ezStreamReader& inout_stream, ezBlackboardCondition& ref_cond)
 {
   const ezTypeVersion uiVersion = inout_stream.ReadVersion(s_BlackboardConditionVersion);
   EZ_IGNORE_UNUSED(uiVersion);
 
-  inout_stream >> m_sEntryName;
-  inout_stream >> m_Operator;
-  inout_stream >> m_fComparisonValue;
-  return EZ_SUCCESS;
+  inout_stream >> ref_cond.m_sEntryName;
+  inout_stream >> ref_cond.m_Operator;
+  inout_stream >> ref_cond.m_fComparisonValue;
 }
 
 EZ_STATICLINK_FILE(Core, Core_Utils_Implementation_Blackboard);

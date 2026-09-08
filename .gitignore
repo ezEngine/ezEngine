@@ -1,3 +1,4 @@
+.vs/
 .vscode/
 .claude/*
 !.claude/settings.json

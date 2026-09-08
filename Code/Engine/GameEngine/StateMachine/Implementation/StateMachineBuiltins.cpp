@@ -1,7 +1,11 @@
 #include <GameEngine/GameEnginePCH.h>
 
-#include <Foundation/IO/TypeVersionContext.h>
 #include <GameEngine/StateMachine/StateMachineBuiltins.h>
+
+#include <Foundation/IO/TypeVersionContext.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/RttiConverter.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_NestedStateMachine, 1, ezRTTIDefaultAllocator<ezStateMachineState_NestedStateMachine>)
@@ -237,7 +241,7 @@ EZ_END_STATIC_REFLECTED_ENUM;
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineTransition_BlackboardConditions, 1, ezRTTIDefaultAllocator<ezStateMachineTransition_BlackboardConditions>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineTransition_BlackboardConditions, 2, ezRTTIDefaultAllocator<ezStateMachineTransition_BlackboardConditions>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -286,6 +290,61 @@ ezResult ezStateMachineTransition_BlackboardConditions::Deserialize(ezStreamRead
   inout_stream >> m_Operator;
   return inout_stream.ReadArray(m_Conditions);
 }
+
+// Before version 2 each ezBlackboardCondition was a reflected class, so the "Conditions" array stored references to
+// separate sub-nodes. ezBlackboardCondition is now a custom variant type, so the conditions are inlined as values into
+// the array. This patch rebuilds the condition objects from the referenced sub-nodes and removes those nodes.
+class ezStateMachineTransition_BlackboardConditions_1_2 : public ezGraphPatch
+{
+public:
+  ezStateMachineTransition_BlackboardConditions_1_2()
+    : ezGraphPatch("ezStateMachineTransition_BlackboardConditions", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto* pConditions = pNode->FindProperty("Conditions");
+    if (pConditions == nullptr || !pConditions->m_Value.IsA<ezVariantArray>())
+      return;
+
+    const ezVariantArray oldArray = pConditions->m_Value.Get<ezVariantArray>();
+
+    ezVariantArray newArray;
+    newArray.Reserve(oldArray.GetCount());
+
+    for (const ezVariant& element : oldArray)
+    {
+      if (!element.IsA<ezUuid>())
+      {
+        // Already inlined (e.g. patched before), keep as-is.
+        newArray.PushBack(element);
+        continue;
+      }
+
+      const ezUuid guid = element.Get<ezUuid>();
+      ezAbstractObjectNode* pConditionNode = pGraph->GetNode(guid);
+      if (pConditionNode == nullptr)
+        continue;
+
+      ezRttiConverterContext context;
+      ezRttiConverterReader reader(pGraph, &context);
+      void* pObject = reader.CreateObjectFromNode(pConditionNode);
+      if (pObject == nullptr)
+        continue;
+
+      ezVariant value;
+      value.MoveTypedObject(pObject, ezGetStaticRTTI<ezBlackboardCondition>());
+      newArray.PushBack(value);
+
+      pGraph->RemoveNode(guid);
+    }
+
+    pConditions->m_Value = newArray;
+  }
+};
+
+ezStateMachineTransition_BlackboardConditions_1_2 g_ezStateMachineTransition_BlackboardConditions_1_2;
 
 //////////////////////////////////////////////////////////////////////////
 
