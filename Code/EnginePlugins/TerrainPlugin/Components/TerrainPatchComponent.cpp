@@ -1,5 +1,6 @@
 #include <TerrainPlugin/TerrainPluginPCH.h>
 
+#include <Core/Graphics/Geometry.h>
 #include <Core/Messages/TransformChangedMessage.h>
 #include <Core/Physics/SurfaceResource.h>
 #include <Core/ResourceManager/ResourceManager.h>
@@ -11,6 +12,7 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Types/TagRegistry.h>
 #include <RendererCore/Components/RenderComponent.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
@@ -24,6 +26,8 @@
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <RendererCore/Pipeline/View.h>
 
+ezCVarBool cvar_TerrainVisOccluder("Terrain.VisOccluder", false, ezCVarFlags::Default, "Draws the occlusion culling geometry of all terrain patches. The occluder is baked when the simulation starts, so it only exists in a simulating or exported scene.");
+
 ezCVarFloat cvar_TerrainLodQuality("Terrain.LodQuality", 1.0f, ezCVarFlags::Default, "Global multiplier for every terrain patch's LodCellPixelSize. > 1 keeps more detail (patches switch LOD later), < 1 coarsens sooner.");
 
 /// View height that LodCellPixelSize is measured against. Fixed rather than the actual viewport, so
@@ -31,7 +35,7 @@ ezCVarFloat cvar_TerrainLodQuality("Terrain.LodQuality", 1.0f, ezCVarFlags::Defa
 static constexpr float g_fLodReferenceViewHeight = 1080.0f;
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezTerrainPatchComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezTerrainPatchComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -44,6 +48,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTerrainPatchComponent, 3, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("HeightImageSize", GetHeightImageSize, SetHeightImageSize)->AddAttributes(new ezDefaultValueAttribute(ezVec2(1.0f))),
     EZ_ACCESSOR_PROPERTY("HeightImageScale", GetHeightImageScale, SetHeightImageScale)->AddAttributes(new ezDefaultValueAttribute(32.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ENUM_ACCESSOR_PROPERTY("Collider", ezTerrainPatchColliderMode, GetCollider, SetCollider),
+    EZ_ACCESSOR_PROPERTY("OcclusionCellSize", GetOcclusionCellSize, SetOcclusionCellSize)->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(0.0f, 64.0f), new ezMinValueTextAttribute("Occlusion Disabled")),
     EZ_ACCESSOR_PROPERTY("LodCellPixelSize", GetLodCellPixelSize, SetLodCellPixelSize)->AddAttributes(new ezDefaultValueAttribute(16.0f), new ezClampValueAttribute(0.0f, ezVariant()), new ezMinValueTextAttribute("LOD Disabled")),
     EZ_ARRAY_ACCESSOR_PROPERTY("Surfaces", Surfaces_GetCount, Surfaces_GetValue, Surfaces_SetValue, Surfaces_Insert, Surfaces_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_SET_ACCESSOR_PROPERTY("TerrainTags", GetTags, Reflection_SetTag, Reflection_RemoveTag)->AddAttributes(new ezTagSetWidgetAttribute("Terrain")),
@@ -54,6 +59,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTerrainPatchComponent, 3, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnMsgTransformChanged),
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
+    EZ_MESSAGE_HANDLER(ezMsgExtractOccluderData, OnMsgExtractOccluderData),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_FUNCTIONS
@@ -146,6 +152,11 @@ void ezTerrainPatchComponent::SerializeComponent(ezWorldWriter& inout_stream) co
 
   // Version 3
   s << m_fLodCellPixelSize;
+
+  // Version 4
+  s << m_fOcclusionCellSize;
+  s.WriteArray(m_OccluderVertices).AssertSuccess();
+  s.WriteArray(m_OccluderIndices).AssertSuccess();
 }
 
 void ezTerrainPatchComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -182,6 +193,13 @@ void ezTerrainPatchComponent::DeserializeComponent(ezWorldReader& inout_stream)
   else if (uiVersion >= 3)
   {
     s >> m_fLodCellPixelSize;
+  }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_fOcclusionCellSize;
+    s.ReadArray(m_OccluderVertices).AssertSuccess();
+    s.ReadArray(m_OccluderIndices).AssertSuccess();
   }
 }
 
@@ -302,11 +320,15 @@ void ezTerrainPatchComponent::OnActivated()
   data.m_vImageSize = m_vImageSize;
   data.m_fHeightScale = m_fHeightScale;
 
+  UpdateOccluder();
+
   TriggerLocalBoundsUpdate();
 }
 
 void ezTerrainPatchComponent::OnDeactivated()
 {
+  m_pOccluderObject.Clear();
+
   if (auto* pSystem = GetWorld()->GetModule<ezTerrainSystem>())
   {
     pSystem->RemoveHeightfieldTerrain(m_uiHeightfieldIndex);
@@ -338,6 +360,14 @@ ezResult ezTerrainPatchComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds
   }
 
   ref_bounds = ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(vMin, vMax));
+
+  // Registered separately, with its own (much tighter in Z) bounds, so that the occlusion query can
+  // ignore patches whose occluder geometry is off screen.
+  if (m_pOccluderObject != nullptr && m_OccluderBounds.IsValid())
+  {
+    ref_msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(m_OccluderBounds), ezDefaultSpatialDataCategories::OcclusionStatic);
+  }
+
   return EZ_SUCCESS;
 }
 
@@ -467,6 +497,105 @@ void ezTerrainPatchComponent::OnMsgTransformChanged(ezMsgTransformChanged& msg)
 void ezTerrainPatchComponent::SetCollider(ezEnum<ezTerrainPatchColliderMode> mode)
 {
   m_ColliderMode = mode;
+}
+
+void ezTerrainPatchComponent::SetOcclusionCellSize(float fCellSize)
+{
+  fCellSize = ezMath::Max(fCellSize, 0.0f);
+
+  if (m_fOcclusionCellSize == fCellSize)
+    return;
+
+  // Only read during the bake, changing it has no effect on an already baked occluder.
+  m_fOcclusionCellSize = fCellSize;
+}
+
+void ezTerrainPatchComponent::SetBakedOccluder(ezArrayPtr<const ezVec3> vertices, ezArrayPtr<const ezUInt32> indices)
+{
+  if (vertices.IsEmpty() || indices.GetCount() < 3)
+  {
+    m_OccluderVertices.Clear();
+    m_OccluderIndices.Clear();
+  }
+  else
+  {
+    m_OccluderVertices = vertices;
+    m_OccluderIndices = indices;
+  }
+
+  UpdateOccluder();
+  TriggerLocalBoundsUpdate();
+}
+
+void ezTerrainPatchComponent::UpdateOccluder()
+{
+  m_pOccluderObject.Clear();
+  m_OccluderBounds = ezBoundingBox::MakeInvalid();
+
+  // Deliberately not checking m_fOcclusionCellSize: it is a bake time input and may have been changed
+  // afterwards, in which case it doesn't describe this mesh anymore.
+  if (m_OccluderVertices.IsEmpty() || m_OccluderIndices.GetCount() < 3)
+    return;
+
+  ezGeometry geo;
+
+  for (const ezVec3& vPos : m_OccluderVertices)
+  {
+    geo.AddVertex(vPos, ezVec3(0, 0, 1));
+    m_OccluderBounds.ExpandToInclude(vPos);
+  }
+
+  ezUInt32 idx[3];
+
+  for (ezUInt32 i = 0; i + 2 < m_OccluderIndices.GetCount(); i += 3)
+  {
+    idx[0] = m_OccluderIndices[i + 0];
+    idx[1] = m_OccluderIndices[i + 1];
+    idx[2] = m_OccluderIndices[i + 2];
+
+    geo.AddPolygon(idx, false);
+  }
+
+  ezHashStreamWriter64 hashWriter;
+  hashWriter.WriteBytes(m_OccluderVertices.GetData(), m_OccluderVertices.GetCount() * sizeof(ezVec3)).AssertSuccess();
+  hashWriter.WriteBytes(m_OccluderIndices.GetData(), m_OccluderIndices.GetCount() * sizeof(ezUInt32)).AssertSuccess();
+
+  // Only the geometry hash, so that patches with identical meshes share one object.
+  ezStringBuilder sName;
+  sName.SetFormat("TerrainOccluder-{}", ezArgU(hashWriter.GetHashValue(), 16, true, 16, true));
+
+  m_pOccluderObject = ezRasterizerObject::CreateMesh(sName, geo);
+}
+
+void ezTerrainPatchComponent::DebugDrawOccluder() const
+{
+  if (m_pOccluderObject == nullptr)
+    return;
+
+  const ezTransform tOwner = GetOwner()->GetGlobalTransform();
+
+  ezTempHybridArray<ezDebugRendererTriangle, 256> triangles;
+  triangles.Reserve(m_OccluderIndices.GetCount() / 3);
+
+  for (ezUInt32 i = 0; i + 2 < m_OccluderIndices.GetCount(); i += 3)
+  {
+    const ezVec3 v0 = tOwner * m_OccluderVertices[m_OccluderIndices[i + 0]];
+    const ezVec3 v1 = tOwner * m_OccluderVertices[m_OccluderIndices[i + 1]];
+    const ezVec3 v2 = tOwner * m_OccluderVertices[m_OccluderIndices[i + 2]];
+
+    triangles.PushBack(ezDebugRendererTriangle(v0, v1, v2));
+  }
+
+  // Single sided, to match the backface culling of the software rasterizer.
+  ezDebugRenderer::DrawSolidTriangles(GetWorld(), triangles, ezColor::Orange.WithAlpha(0.5f), false);
+}
+
+void ezTerrainPatchComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const
+{
+  if (m_pOccluderObject == nullptr)
+    return;
+
+  msg.AddOccluder(m_pOccluderObject.Borrow(), GetOwner()->GetGlobalTransform());
 }
 
 void ezTerrainPatchComponent::OnObjectCreated(const ezAbstractObjectNode& node)
@@ -790,6 +919,11 @@ void ezTerrainPatchComponentManager::Update(const ezWorldModule::UpdateContext& 
           pSystem->ModifyHeightfieldTerrain(pComp->m_uiHeightfieldIndex); // marks patch dirty for rebake
           pComp->m_bHeightImageDirty = false;
         }
+      }
+
+      if (cvar_TerrainVisOccluder)
+      {
+        pComp->DebugDrawOccluder();
       }
     }
   }
