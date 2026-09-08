@@ -117,6 +117,7 @@ ezResult ezReflectionProbeUpdater::StartDynamicUpdate(const ezReflectionProbeRef
       slot->m_sourceTexture.Invalidate();
       slot->m_TargetSlot = target;
       slot->m_uiRenderBurst = ComputeRenderBurst(bFirstBake, bSkyLight, bSharingBudget);
+      slot->m_bFirstBake = bFirstBake;
       slot->m_bInUse = true;
       return EZ_SUCCESS;
     }
@@ -167,6 +168,7 @@ ezResult ezReflectionProbeUpdater::StartFilterUpdate(const ezReflectionProbeRef&
       slot->m_globalTransform.SetIdentity();
       slot->m_sourceTexture = hSourceTexture;
       slot->m_TargetSlot = target;
+      slot->m_bFirstBake = false;
       slot->m_bInUse = true;
       return EZ_SUCCESS;
     }
@@ -178,8 +180,7 @@ bool ezReflectionProbeUpdater::IsFirstBakeInProgress() const
 {
   for (const auto& slot : m_DynamicUpdates)
   {
-    // Only probes without any content are given a burst larger than one.
-    if (slot->m_bInUse && slot->m_uiRenderBurst > 1)
+    if (slot->m_bInUse && slot->m_bFirstBake)
       return true;
   }
   return false;
@@ -386,6 +387,7 @@ void ezReflectionProbeUpdater::ResetProbeUpdateInfo(ezUInt32 uiInfo)
   info->m_sourceTexture.Invalidate();
   info->m_LastUpdateStep = UpdateStep::Default;
   info->m_uiRenderBurst = 1;
+  info->m_bFirstBake = false;
   info->m_UpdateSteps.Clear();
 
   m_DynamicUpdates.RemoveAtAndCopy(uiInfo);

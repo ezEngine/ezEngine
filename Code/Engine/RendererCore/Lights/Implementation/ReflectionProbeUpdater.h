@@ -118,6 +118,10 @@ private:
     };
 
     bool m_bInUse = false;
+
+    // Whether this probe had no usable content when the update was started.
+    bool m_bFirstBake = false;
+
     ezEnum<UpdateStep> m_LastUpdateStep;
 
     // How many cube faces this probe may render in a single frame. 1 for probes that already have content.
