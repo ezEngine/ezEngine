@@ -15,7 +15,6 @@ target_link_libraries(${PROJECT_NAME}
   RendererCore
 
   PRIVATE
-  mikktspace
   ozz
   meshoptimizer
 )

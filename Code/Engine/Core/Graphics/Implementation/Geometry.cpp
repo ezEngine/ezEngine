@@ -3,7 +3,7 @@
 #include <Core/Graphics/Geometry.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Math/Quat.h>
-#include <mikktspace/mikktspace.h>
+#include <meshoptimizer/meshoptimizer.h>
 
 bool ezGeometry::GeoOptions::IsFlipWindingNecessary() const
 {
@@ -178,117 +178,74 @@ void ezGeometry::ComputeSmoothVertexNormals()
   }
 }
 
-struct TangentContext
-{
-  TangentContext(ezGeometry* pGeom)
-    : m_pGeom(pGeom)
-  {
-    m_Polygons = m_pGeom->GetPolygons();
-  }
-
-  static int getNumFaces(const SMikkTSpaceContext* pContext)
-  {
-    TangentContext& context = *static_cast<TangentContext*>(pContext->m_pUserData);
-    return context.m_pGeom->GetPolygons().GetCount();
-  }
-  static int getNumVerticesOfFace(const SMikkTSpaceContext* pContext, const int iFace)
-  {
-    TangentContext& context = *static_cast<TangentContext*>(pContext->m_pUserData);
-    return context.m_pGeom->GetPolygons()[iFace].m_Vertices.GetCount();
-  }
-  static void getPosition(const SMikkTSpaceContext* pContext, float pPosOut[], const int iFace, const int iVert)
-  {
-    TangentContext& context = *static_cast<TangentContext*>(pContext->m_pUserData);
-    ezUInt32 iVertexIndex = context.m_pGeom->GetPolygons()[iFace].m_Vertices[iVert];
-    const ezVec3& pos = context.m_pGeom->GetVertices()[iVertexIndex].m_vPosition;
-    pPosOut[0] = pos.x;
-    pPosOut[1] = pos.y;
-    pPosOut[2] = pos.z;
-  }
-  static void getNormal(const SMikkTSpaceContext* pContext, float pNormOut[], const int iFace, const int iVert)
-  {
-    TangentContext& context = *static_cast<TangentContext*>(pContext->m_pUserData);
-    ezUInt32 iVertexIndex = context.m_pGeom->GetPolygons()[iFace].m_Vertices[iVert];
-    const ezVec3& normal = context.m_pGeom->GetVertices()[iVertexIndex].m_vNormal;
-    pNormOut[0] = normal.x;
-    pNormOut[1] = normal.y;
-    pNormOut[2] = normal.z;
-  }
-  static void getTexCoord(const SMikkTSpaceContext* pContext, float pTexcOut[], const int iFace, const int iVert)
-  {
-    TangentContext& context = *static_cast<TangentContext*>(pContext->m_pUserData);
-    ezUInt32 iVertexIndex = context.m_pGeom->GetPolygons()[iFace].m_Vertices[iVert];
-    const ezVec2& tex = context.m_pGeom->GetVertices()[iVertexIndex].m_vTexCoord;
-    pTexcOut[0] = tex.x;
-    pTexcOut[1] = tex.y;
-  }
-  static void setTSpaceBasic(const SMikkTSpaceContext* pContext, const float pTangent[], const float fSign, const int iFace, const int iVert)
-  {
-    TangentContext& context = *static_cast<TangentContext*>(pContext->m_pUserData);
-    ezUInt32 iVertexIndex = context.m_pGeom->GetPolygons()[iFace].m_Vertices[iVert];
-    ezGeometry::Vertex v = context.m_pGeom->GetVertices()[iVertexIndex];
-    v.m_vTangent.x = pTangent[0];
-    v.m_vTangent.y = pTangent[1];
-    v.m_vTangent.z = pTangent[2];
-    v.m_fBiTangentSign = fSign;
-
-    bool existed = false;
-    auto it = context.m_VertMap.FindOrAdd(v, &existed);
-    if (!existed)
-    {
-      it.Value() = context.m_Vertices.GetCount();
-      context.m_Vertices.PushBack(v);
-    }
-    ezUInt32 iNewVertexIndex = it.Value();
-    context.m_Polygons[iFace].m_Vertices[iVert] = iNewVertexIndex;
-  }
-
-  static void setTSpace(const SMikkTSpaceContext* pContext, const float pTangent[], const float pBiTangent[], const float fMagS, const float fMagT, const tbool isOrientationPreserving, const int iFace, const int iVert)
-  {
-    EZ_IGNORE_UNUSED(pContext);
-    EZ_IGNORE_UNUSED(pTangent);
-    EZ_IGNORE_UNUSED(pBiTangent);
-    EZ_IGNORE_UNUSED(fMagS);
-    EZ_IGNORE_UNUSED(fMagT);
-    EZ_IGNORE_UNUSED(isOrientationPreserving);
-    EZ_IGNORE_UNUSED(iFace);
-    EZ_IGNORE_UNUSED(iVert);
-  }
-
-  ezGeometry* m_pGeom;
-  ezMap<ezGeometry::Vertex, ezUInt32> m_VertMap;
-  ezDeque<ezGeometry::Vertex> m_Vertices;
-  ezDeque<ezGeometry::Polygon> m_Polygons;
-};
-
 void ezGeometry::ComputeTangents()
 {
-  for (ezUInt32 i = 0; i < m_Polygons.GetCount(); ++i)
+  // the tangent generation works on triangles only
+  TriangulatePolygons();
+
+  const ezUInt32 uiVertexCount = m_Vertices.GetCount();
+  const ezUInt32 uiIndexCount = m_Polygons.GetCount() * 3;
+
+  if (uiVertexCount == 0 || uiIndexCount == 0)
+    return;
+
+  // meshopt needs contiguous data, ezDeque is not
+
+  ezTempArray<ezVec3> positions;
+  positions.SetCountUninitialized(uiVertexCount);
+
+  ezTempArray<ezVec3> normals;
+  normals.SetCountUninitialized(uiVertexCount);
+
+  ezTempArray<ezVec2> texCoords;
+  texCoords.SetCountUninitialized(uiVertexCount);
+
+  for (ezUInt32 v = 0; v < uiVertexCount; ++v)
   {
-    if (m_Polygons[i].m_Vertices.GetCount() > 4)
-    {
-      ezLog::Error("Tangent generation does not support polygons with more than 4 vertices");
-      break;
-    }
+    positions[v] = m_Vertices[v].m_vPosition;
+    normals[v] = m_Vertices[v].m_vNormal;
+    texCoords[v] = m_Vertices[v].m_vTexCoord;
   }
 
-  SMikkTSpaceInterface sMikkTInterface;
-  sMikkTInterface.m_getNumFaces = &TangentContext::getNumFaces;
-  sMikkTInterface.m_getNumVerticesOfFace = &TangentContext::getNumVerticesOfFace;
-  sMikkTInterface.m_getPosition = &TangentContext::getPosition;
-  sMikkTInterface.m_getNormal = &TangentContext::getNormal;
-  sMikkTInterface.m_getTexCoord = &TangentContext::getTexCoord;
-  sMikkTInterface.m_setTSpaceBasic = &TangentContext::setTSpaceBasic;
-  sMikkTInterface.m_setTSpace = &TangentContext::setTSpace;
-  TangentContext context(this);
+  ezTempArray<ezUInt32> indices;
+  indices.SetCountUninitialized(uiIndexCount);
 
-  SMikkTSpaceContext sMikkTContext;
-  sMikkTContext.m_pInterface = &sMikkTInterface;
-  sMikkTContext.m_pUserData = &context;
+  for (ezUInt32 p = 0; p < m_Polygons.GetCount(); ++p)
+  {
+    indices[p * 3 + 0] = m_Polygons[p].m_Vertices[0];
+    indices[p * 3 + 1] = m_Polygons[p].m_Vertices[1];
+    indices[p * 3 + 2] = m_Polygons[p].m_Vertices[2];
+  }
 
-  genTangSpaceDefault(&sMikkTContext);
-  m_Polygons = std::move(context.m_Polygons);
-  m_Vertices = std::move(context.m_Vertices);
+  // one tangent per triangle corner
+  ezTempArray<ezVec4> tangents;
+  tangents.SetCountUninitialized(uiIndexCount);
+
+  meshopt_generateTangents(&tangents[0].x, indices.GetData(), uiIndexCount, &positions[0].x, uiVertexCount, sizeof(ezVec3), &normals[0].x, sizeof(ezVec3), &texCoords[0].x, sizeof(ezVec2), meshopt_TangentCompatible);
+
+  // build a new vertex list, splitting up vertices whose corners ended up with different tangents
+  // (and merging those that become identical)
+  ezMap<Vertex, ezUInt32> vertMap;
+  ezDeque<Vertex> newVertices;
+
+  for (ezUInt32 i = 0; i < uiIndexCount; ++i)
+  {
+    Vertex v = m_Vertices[indices[i]];
+    v.m_vTangent = tangents[i].GetAsVec3();
+    v.m_fBiTangentSign = tangents[i].w;
+
+    bool bExisted = false;
+    auto it = vertMap.FindOrAdd(v, &bExisted);
+    if (!bExisted)
+    {
+      it.Value() = newVertices.GetCount();
+      newVertices.PushBack(v);
+    }
+
+    m_Polygons[i / 3].m_Vertices[i % 3] = it.Value();
+  }
+
+  m_Vertices = std::move(newVertices);
 }
 
 void ezGeometry::ValidateTangents(float fEpsilon)

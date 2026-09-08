@@ -9,7 +9,6 @@
 
 #include <assimp/scene.h>
 #include <meshoptimizer/meshoptimizer.h>
-#include <mikktspace/mikktspace.h>
 
 namespace ezModelImporter2
 {
@@ -26,10 +25,10 @@ namespace ezModelImporter2
 
     ezUInt32 numIndices = pMesh->mNumFaces * 3;
 
-    ezDynamicArray<ezUInt32> indices;
+    ezTempArray<ezUInt32> indices;
     indices.Reserve(numIndices);
 
-    ezDynamicArray<ezUInt32> simplifiedIndices;
+    ezTempArray<ezUInt32> simplifiedIndices;
     simplifiedIndices.SetCountUninitialized(numIndices);
 
     for (ezUInt32 face = 0; face < pMesh->mNumFaces; ++face)
@@ -68,7 +67,7 @@ namespace ezModelImporter2
       simplifiedIndices.SetCount(static_cast<ezUInt32>(numNewIndices));
     }
 
-    ezDynamicArray<ezUInt32> remapTable;
+    ezTempArray<ezUInt32> remapTable;
     remapTable.SetCountUninitialized(pMesh->mNumVertices);
     const size_t numUniqueVerts = meshopt_optimizeVertexFetchRemap(remapTable.GetData(), simplifiedIndices.GetData(), numNewIndices, pMesh->mNumVertices);
 
@@ -127,7 +126,7 @@ namespace ezModelImporter2
 
     pMesh->mNumVertices = static_cast<ezUInt32>(numUniqueVerts);
 
-    ezDynamicArray<ezUInt32> newIndices;
+    ezTempArray<ezUInt32> newIndices;
     newIndices.SetCountUninitialized(static_cast<ezUInt32>(numNewIndices));
 
     meshopt_remapIndexBuffer(newIndices.GetData(), simplifiedIndices.GetData(), numNewIndices, remapTable.GetData());
@@ -477,112 +476,6 @@ namespace ezModelImporter2
     }
   }
 
-  struct MikkData
-  {
-    ezMeshBufferResourceDescriptor* m_pMeshBuffer = nullptr;
-    const ezUInt16* m_pIndices16 = nullptr;
-    const ezUInt32* m_pIndices32 = nullptr;
-    const ezVec3* m_pPositions = nullptr;
-    const ezUInt8* m_pNormals = nullptr;
-    const ezUInt8* m_pTexCoords = nullptr;
-    ezUInt8* m_pTangents = nullptr;
-    ezUInt32 m_uiNormalsStride = 0;
-    ezUInt32 m_uiTexCoordsStride = 0;
-    ezUInt32 m_uiTangentsStride = 0;
-    ezGALResourceFormat::Enum m_NormalsFormat;
-    ezGALResourceFormat::Enum m_TexCoordsFormat;
-    ezGALResourceFormat::Enum m_TangentsFormat;
-  };
-
-  static int MikkGetNumFaces(const SMikkTSpaceContext* pContext)
-  {
-    MikkData* pMikkData = static_cast<MikkData*>(pContext->m_pUserData);
-    return pMikkData->m_pMeshBuffer->GetPrimitiveCount();
-  }
-
-  static int MikkGetNumVerticesOfFace(const SMikkTSpaceContext* pContext, int iFace)
-  { //
-    return 3;
-  }
-
-  static void MikkGetPosition16(const SMikkTSpaceContext* pContext, float pData[], int iFace, int iVert)
-  {
-    MikkData* pMikkData = static_cast<MikkData*>(pContext->m_pUserData);
-    const ezUInt32 uiVertexIdx = pMikkData->m_pIndices16[iFace * 3 + iVert];
-
-    const ezVec3* pSrcData = pMikkData->m_pPositions + uiVertexIdx;
-    pData[0] = pSrcData->x;
-    pData[1] = pSrcData->y;
-    pData[2] = pSrcData->z;
-  }
-
-  static void MikkGetPosition32(const SMikkTSpaceContext* pContext, float pData[], int iFace, int iVert)
-  {
-    MikkData* pMikkData = static_cast<MikkData*>(pContext->m_pUserData);
-    const ezUInt32 uiVertexIdx = pMikkData->m_pIndices32[iFace * 3 + iVert];
-
-    const ezVec3* pSrcData = pMikkData->m_pPositions + uiVertexIdx;
-    pData[0] = pSrcData->x;
-    pData[1] = pSrcData->y;
-    pData[2] = pSrcData->z;
-  }
-
-  static void MikkGetNormal16(const SMikkTSpaceContext* pContext, float pData[], int iFace, int iVert)
-  {
-    MikkData* pMikkData = static_cast<MikkData*>(pContext->m_pUserData);
-    const ezUInt32 uiVertexIdx = pMikkData->m_pIndices16[iFace * 3 + iVert];
-
-    ezVec3* pDest = reinterpret_cast<ezVec3*>(pData);
-    ezMeshBufferUtils::DecodeNormal(ezConstByteArrayPtr(pMikkData->m_pNormals + (uiVertexIdx * pMikkData->m_uiNormalsStride), 32), pMikkData->m_NormalsFormat, *pDest).IgnoreResult();
-  }
-
-  static void MikkGetNormal32(const SMikkTSpaceContext* pContext, float pData[], int iFace, int iVert)
-  {
-    MikkData* pMikkData = static_cast<MikkData*>(pContext->m_pUserData);
-    const ezUInt32 uiVertexIdx = pMikkData->m_pIndices32[iFace * 3 + iVert];
-
-    ezVec3* pDest = reinterpret_cast<ezVec3*>(pData);
-    ezMeshBufferUtils::DecodeNormal(ezConstByteArrayPtr(pMikkData->m_pNormals + (uiVertexIdx * pMikkData->m_uiNormalsStride), 32), pMikkData->m_NormalsFormat, *pDest).IgnoreResult();
-  }
-
-  static void MikkGetTexCoord16(const SMikkTSpaceContext* pContext, float pData[], int iFace, int iVert)
-  {
-    MikkData* pMikkData = static_cast<MikkData*>(pContext->m_pUserData);
-    const ezUInt32 uiVertexIdx = pMikkData->m_pIndices16[iFace * 3 + iVert];
-
-    ezVec2* pDest = reinterpret_cast<ezVec2*>(pData);
-    ezMeshBufferUtils::DecodeTexCoord(ezConstByteArrayPtr(pMikkData->m_pTexCoords + (uiVertexIdx * pMikkData->m_uiTexCoordsStride), 32), pMikkData->m_TexCoordsFormat, *pDest).IgnoreResult();
-  }
-
-  static void MikkGetTexCoord32(const SMikkTSpaceContext* pContext, float pData[], int iFace, int iVert)
-  {
-    MikkData* pMikkData = static_cast<MikkData*>(pContext->m_pUserData);
-    const ezUInt32 uiVertexIdx = pMikkData->m_pIndices32[iFace * 3 + iVert];
-
-    ezVec2* pDest = reinterpret_cast<ezVec2*>(pData);
-    ezMeshBufferUtils::DecodeTexCoord(ezConstByteArrayPtr(pMikkData->m_pTexCoords + (uiVertexIdx * pMikkData->m_uiTexCoordsStride), 32), pMikkData->m_TexCoordsFormat, *pDest).IgnoreResult();
-  }
-
-  static void MikkSetTangents16(const SMikkTSpaceContext* pContext, const float pTangent[], const float fSign, const int iFace, const int iVert)
-  {
-    MikkData* pMikkData = static_cast<MikkData*>(pContext->m_pUserData);
-    const ezUInt32 uiVertexIdx = pMikkData->m_pIndices16[iFace * 3 + iVert];
-
-    const ezVec3 tangent = *reinterpret_cast<const ezVec3*>(pTangent);
-
-    ezMeshBufferUtils::EncodeTangent(tangent, fSign, ezByteArrayPtr(pMikkData->m_pTangents + (uiVertexIdx * pMikkData->m_uiTangentsStride), 32), pMikkData->m_TangentsFormat).IgnoreResult();
-  }
-
-  static void MikkSetTangents32(const SMikkTSpaceContext* pContext, const float pTangent[], const float fSign, const int iFace, const int iVert)
-  {
-    MikkData* pMikkData = static_cast<MikkData*>(pContext->m_pUserData);
-    const ezUInt32 uiVertexIdx = pMikkData->m_pIndices32[iFace * 3 + iVert];
-
-    const ezVec3 tangent = *reinterpret_cast<const ezVec3*>(pTangent);
-
-    ezMeshBufferUtils::EncodeTangent(tangent, fSign, ezByteArrayPtr(pMikkData->m_pTangents + (uiVertexIdx * pMikkData->m_uiTangentsStride), 32), pMikkData->m_TangentsFormat).IgnoreResult();
-  }
-
   ezResult ImporterAssimp::RecomputeTangents()
   {
     auto& md = m_Options.m_pMeshOutput->MeshBufferDesc();
@@ -590,52 +483,64 @@ namespace ezModelImporter2
     if (!md.HasIndexBuffer())
       return EZ_FAILURE;
 
-    MikkData mikkd;
-    mikkd.m_pMeshBuffer = &md;
-    mikkd.m_pIndices16 = reinterpret_cast<const ezUInt16*>(md.GetIndexBufferData().GetData());
-    mikkd.m_pIndices32 = reinterpret_cast<const ezUInt32*>(md.GetIndexBufferData().GetData());
+    ezUInt32 uiNormalsStride = 0;
+    ezUInt32 uiTexCoordsStride = 0;
+    ezUInt32 uiTangentsStride = 0;
 
-    mikkd.m_pPositions = md.GetPositionData().GetPtr();
+    const ezVec3* pPositions = md.GetPositionData().GetPtr();
+    const ezUInt8* pNormals = md.GetNormalData(&uiNormalsStride).GetPtr();
+    const ezUInt8* pTexCoords = md.GetTexCoord0Data(&uiTexCoordsStride).GetPtr();
+    ezUInt8* pTangents = md.GetTangentData(&uiTangentsStride).GetPtr();
 
-    mikkd.m_pNormals = md.GetNormalData(&mikkd.m_uiNormalsStride).GetPtr();
-    mikkd.m_NormalsFormat = md.GetVertexStreamConfig().GetNormalFormat();
-
-    mikkd.m_pTexCoords = md.GetTexCoord0Data(&mikkd.m_uiTexCoordsStride).GetPtr();
-    mikkd.m_TexCoordsFormat = md.GetVertexStreamConfig().GetTexCoordFormat();
-
-    mikkd.m_pTangents = md.GetTangentData(&mikkd.m_uiTangentsStride).GetPtr();
-    mikkd.m_TangentsFormat = md.GetVertexStreamConfig().GetTangentFormat();
-
-    if (mikkd.m_pPositions == nullptr || mikkd.m_pTexCoords == nullptr || mikkd.m_pNormals == nullptr || mikkd.m_pTangents == nullptr)
+    if (pPositions == nullptr || pNormals == nullptr || pTexCoords == nullptr || pTangents == nullptr)
       return EZ_FAILURE;
 
-    // Use Morton S. Mikkelsen's tangent calculation.
-    SMikkTSpaceContext context;
-    SMikkTSpaceInterface functions;
-    context.m_pUserData = &mikkd;
-    context.m_pInterface = &functions;
+    const ezGALResourceFormat::Enum normalsFormat = md.GetVertexStreamConfig().GetNormalFormat();
+    const ezGALResourceFormat::Enum texCoordsFormat = md.GetVertexStreamConfig().GetTexCoordFormat();
+    const ezGALResourceFormat::Enum tangentsFormat = md.GetVertexStreamConfig().GetTangentFormat();
 
-    functions.m_setTSpace = nullptr;
-    functions.m_getNumFaces = MikkGetNumFaces;
-    functions.m_getNumVerticesOfFace = MikkGetNumVerticesOfFace;
+    const ezUInt32 uiVertexCount = md.GetVertexCount();
+    const ezUInt32 uiIndexCount = md.GetPrimitiveCount() * 3;
+
+    // meshopt needs plain float data, the streams are stored in packed GPU formats
+    ezTempArray<ezVec3> normals;
+    normals.SetCountUninitialized(uiVertexCount);
+
+    ezTempArray<ezVec2> texCoords;
+    texCoords.SetCountUninitialized(uiVertexCount);
+
+    for (ezUInt32 v = 0; v < uiVertexCount; ++v)
+    {
+      ezMeshBufferUtils::DecodeNormal(ezConstByteArrayPtr(pNormals + (v * uiNormalsStride), 32), normalsFormat, normals[v]).IgnoreResult();
+      ezMeshBufferUtils::DecodeTexCoord(ezConstByteArrayPtr(pTexCoords + (v * uiTexCoordsStride), 32), texCoordsFormat, texCoords[v]).IgnoreResult();
+    }
+
+    // one tangent per triangle corner
+    ezTempArray<ezVec4> tangents;
+    tangents.SetCountUninitialized(uiIndexCount);
 
     if (md.Uses32BitIndices())
     {
-      functions.m_getPosition = MikkGetPosition32;
-      functions.m_getNormal = MikkGetNormal32;
-      functions.m_getTexCoord = MikkGetTexCoord32;
-      functions.m_setTSpaceBasic = MikkSetTangents32;
+      const ezUInt32* pIndices = reinterpret_cast<const ezUInt32*>(md.GetIndexBufferData().GetData());
+      meshopt_generateTangents(&tangents[0].x, pIndices, uiIndexCount, &pPositions[0].x, uiVertexCount, sizeof(ezVec3), &normals[0].x, sizeof(ezVec3), &texCoords[0].x, sizeof(ezVec2), meshopt_TangentCompatible);
+
+      // Corners of a vertex that is shared between faces with different tangent spaces (UV mirror seams)
+      // overwrite each other, since the vertices are not split up here.
+      for (ezUInt32 i = 0; i < uiIndexCount; ++i)
+      {
+        ezMeshBufferUtils::EncodeTangent(tangents[i].GetAsVec3(), tangents[i].w, ezByteArrayPtr(pTangents + (pIndices[i] * uiTangentsStride), 32), tangentsFormat).IgnoreResult();
+      }
     }
     else
     {
-      functions.m_getPosition = MikkGetPosition16;
-      functions.m_getNormal = MikkGetNormal16;
-      functions.m_getTexCoord = MikkGetTexCoord16;
-      functions.m_setTSpaceBasic = MikkSetTangents16;
-    }
+      const ezUInt16* pIndices = reinterpret_cast<const ezUInt16*>(md.GetIndexBufferData().GetData());
+      meshopt_generateTangents(&tangents[0].x, pIndices, uiIndexCount, &pPositions[0].x, uiVertexCount, sizeof(ezVec3), &normals[0].x, sizeof(ezVec3), &texCoords[0].x, sizeof(ezVec2), meshopt_TangentCompatible);
 
-    if (!genTangSpaceDefault(&context))
-      return EZ_FAILURE;
+      for (ezUInt32 i = 0; i < uiIndexCount; ++i)
+      {
+        ezMeshBufferUtils::EncodeTangent(tangents[i].GetAsVec3(), tangents[i].w, ezByteArrayPtr(pTangents + (pIndices[i] * uiTangentsStride), 32), tangentsFormat).IgnoreResult();
+      }
+    }
 
     return EZ_SUCCESS;
   }
