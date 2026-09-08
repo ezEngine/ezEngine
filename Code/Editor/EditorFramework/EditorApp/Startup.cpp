@@ -41,6 +41,7 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorFramework/Project/ProjectCreation.h>
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
+#include <EditorFramework/PropertyGrid/BlackboardConditionWidget.moc.h>
 #include <EditorFramework/PropertyGrid/DynamicEnumPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/DynamicStringEnumPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/ExposedBoneWidget.moc.h>
@@ -75,10 +76,11 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
-#include <QSvgRenderer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
+
+#include <QSvgRenderer>
 #include <ads/DockManager.h>
 
 void ezCompilerPreferences_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
@@ -168,6 +170,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezExposedParametersAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtExposedParametersPropertyWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezGameObjectReferenceAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtGameObjectReferencePropertyWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezExposedBone>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtExposedBoneWidget(); });
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezBlackboardCondition>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtBlackboardConditionWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCompilerPreferences>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtCompilerPreferencesWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCodeEditorPreferences>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtCodeEditorPreferencesWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezImageSliderUiAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtPropertyEditorSliderWidget(); });
@@ -225,6 +228,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezGameObjectReferenceAttribute>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezExposedParametersAttribute>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezExposedBone>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezBlackboardCondition>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezCompilerPreferences>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezCodeEditorPreferences>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezImageSliderUiAttribute>());

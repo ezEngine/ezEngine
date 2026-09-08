@@ -5,6 +5,7 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezBlackboardEntryFlags, 1)
@@ -388,6 +389,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezBlackboardCondition, ezNoBase, 1, ezRTTIDefault
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezBlackboardCondition);
 // clang-format on
 
 bool ezBlackboardCondition::IsConditionMet(const ezBlackboard& blackboard) const
@@ -423,6 +426,16 @@ ezResult ezBlackboardCondition::Deserialize(ezStreamReader& inout_stream)
   inout_stream >> m_Operator;
   inout_stream >> m_fComparisonValue;
   return EZ_SUCCESS;
+}
+
+void operator<<(ezStreamWriter& inout_stream, const ezBlackboardCondition& value)
+{
+  value.Serialize(inout_stream).AssertSuccess();
+}
+
+void operator>>(ezStreamReader& inout_stream, ezBlackboardCondition& ref_value)
+{
+  ref_value.Deserialize(inout_stream).AssertSuccess();
 }
 
 EZ_STATICLINK_FILE(Core, Core_Utils_Implementation_Blackboard);

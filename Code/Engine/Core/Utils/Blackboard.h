@@ -252,6 +252,30 @@ struct EZ_CORE_DLL ezBlackboardCondition
 
   ezResult Serialize(ezStreamWriter& inout_stream) const;
   ezResult Deserialize(ezStreamReader& inout_stream);
+
+  bool operator==(const ezBlackboardCondition& rhs) const
+  {
+    return m_sEntryName == rhs.m_sEntryName && m_fComparisonValue == rhs.m_fComparisonValue && m_Operator == rhs.m_Operator;
+  }
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezBlackboardCondition);
+EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezBlackboardCondition);
+
+EZ_CORE_DLL void operator<<(ezStreamWriter& inout_stream, const ezBlackboardCondition& value);
+EZ_CORE_DLL void operator>>(ezStreamReader& inout_stream, ezBlackboardCondition& ref_value);
+
+template <>
+struct ezHashHelper<ezBlackboardCondition>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezBlackboardCondition& cond)
+  {
+    ezUInt32 uiHash = ezHashingUtils::xxHash32(&cond.m_fComparisonValue, sizeof(double), cond.m_sEntryName.GetHash());
+    const ezComparisonOperator::StorageType uiOperator = cond.m_Operator.GetValue();
+    uiHash = ezHashingUtils::xxHash32(&uiOperator, sizeof(uiOperator), uiHash);
+
+    return uiHash;
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(const ezBlackboardCondition& a, const ezBlackboardCondition& b) { return a == b; }
+};
