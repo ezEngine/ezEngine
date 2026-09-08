@@ -522,7 +522,7 @@ namespace ezModelImporter2
     if (md.Uses32BitIndices())
     {
       const ezUInt32* pIndices = reinterpret_cast<const ezUInt32*>(md.GetIndexBufferData().GetData());
-      meshopt_generateTangents(&tangents[0].x, pIndices, uiIndexCount, &pPositions[0].x, uiVertexCount, sizeof(ezVec3), &normals[0].x, sizeof(ezVec3), &texCoords[0].x, sizeof(ezVec2), 0);
+      meshopt_generateTangents(&tangents[0].x, pIndices, uiIndexCount, &pPositions[0].x, uiVertexCount, sizeof(ezVec3), &normals[0].x, sizeof(ezVec3), &texCoords[0].x, sizeof(ezVec2), meshopt_TangentCompatible);
 
       // Corners of a vertex that is shared between faces with different tangent spaces (UV mirror seams)
       // overwrite each other, since the vertices are not split up here.
@@ -534,7 +534,7 @@ namespace ezModelImporter2
     else
     {
       const ezUInt16* pIndices = reinterpret_cast<const ezUInt16*>(md.GetIndexBufferData().GetData());
-      meshopt_generateTangents(&tangents[0].x, pIndices, uiIndexCount, &pPositions[0].x, uiVertexCount, sizeof(ezVec3), &normals[0].x, sizeof(ezVec3), &texCoords[0].x, sizeof(ezVec2), 0);
+      meshopt_generateTangents(&tangents[0].x, pIndices, uiIndexCount, &pPositions[0].x, uiVertexCount, sizeof(ezVec3), &normals[0].x, sizeof(ezVec3), &texCoords[0].x, sizeof(ezVec2), meshopt_TangentCompatible);
 
       for (ezUInt32 i = 0; i < uiIndexCount; ++i)
       {

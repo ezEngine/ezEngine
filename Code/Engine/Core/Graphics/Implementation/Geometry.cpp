@@ -221,7 +221,7 @@ void ezGeometry::ComputeTangents()
   ezTempArray<ezVec4> tangents;
   tangents.SetCountUninitialized(uiIndexCount);
 
-  meshopt_generateTangents(&tangents[0].x, indices.GetData(), uiIndexCount, &positions[0].x, uiVertexCount, sizeof(ezVec3), &normals[0].x, sizeof(ezVec3), &texCoords[0].x, sizeof(ezVec2), 0);
+  meshopt_generateTangents(&tangents[0].x, indices.GetData(), uiIndexCount, &positions[0].x, uiVertexCount, sizeof(ezVec3), &normals[0].x, sizeof(ezVec3), &texCoords[0].x, sizeof(ezVec2), meshopt_TangentCompatible);
 
   // build a new vertex list, splitting up vertices whose corners ended up with different tangents
   // (and merging those that become identical)
