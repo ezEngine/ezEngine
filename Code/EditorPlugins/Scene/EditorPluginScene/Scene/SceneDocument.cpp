@@ -56,7 +56,7 @@ void ezSceneDocument_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
   props["LocalScaling"].m_Visibility = ezPropertyUiState::Invisible;
   props["LocalUniformScaling"].m_Visibility = ezPropertyUiState::Invisible;
   props["GlobalKey"].m_Visibility = ezPropertyUiState::Invisible;
-  props["Tags"].m_Visibility = ezPropertyUiState::Invisible;
+  // props["Tags"].m_Visibility = ezPropertyUiState::Invisible;
 }
 
 ezSceneDocument::ezSceneDocument(ezStringView sDocumentPath, DocumentType documentType)

@@ -419,6 +419,16 @@ ezWorldReader::InstantiationContext::StepResult ezWorldReader::InstantiationCont
           {
             pParent->MakeDynamic();
           }
+
+          auto& tags = m_WorldReader.m_RootObjectsToCreate[0].m_Desc.m_Tags;
+          if (!tags.IsEmpty())
+          {
+            // add all the tags from the instantiated object
+            for (auto it = tags.GetIterator(); it.IsValid(); ++it)
+            {
+              pParent->SetTag(*it);
+            }
+          }
         }
       }
     }
