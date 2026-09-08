@@ -250,9 +250,6 @@ struct EZ_CORE_DLL ezBlackboardCondition
 
   bool IsConditionMet(const ezBlackboard& blackboard) const;
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
-
   bool operator==(const ezBlackboardCondition& rhs) const
   {
     return m_sEntryName == rhs.m_sEntryName && m_fComparisonValue == rhs.m_fComparisonValue && m_Operator == rhs.m_Operator;
@@ -262,15 +259,16 @@ struct EZ_CORE_DLL ezBlackboardCondition
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezBlackboardCondition);
 EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezBlackboardCondition);
 
-EZ_CORE_DLL void operator<<(ezStreamWriter& inout_stream, const ezBlackboardCondition& value);
-EZ_CORE_DLL void operator>>(ezStreamReader& inout_stream, ezBlackboardCondition& ref_value);
+EZ_CORE_DLL void operator<<(ezStreamWriter& inout_stream, const ezBlackboardCondition& cond);
+EZ_CORE_DLL void operator>>(ezStreamReader& inout_stream, ezBlackboardCondition& ref_cond);
 
 template <>
 struct ezHashHelper<ezBlackboardCondition>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezBlackboardCondition& cond)
   {
-    ezUInt32 uiHash = ezHashingUtils::xxHash32(&cond.m_fComparisonValue, sizeof(double), cond.m_sEntryName.GetHash());
+    ezUInt32 uiHash = ezHashHelper<ezUInt64>::Hash(cond.m_sEntryName.GetHash());
+    uiHash = ezHashingUtils::xxHash32(&cond.m_fComparisonValue, sizeof(double), uiHash);
     const ezComparisonOperator::StorageType uiOperator = cond.m_Operator.GetValue();
     uiHash = ezHashingUtils::xxHash32(&uiOperator, sizeof(uiOperator), uiHash);
 
