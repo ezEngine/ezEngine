@@ -6,7 +6,7 @@
 
 class ezApplication;
 
-extern EZ_FOUNDATION_DLL void ezAndroidRun(struct android_app* pAndroidApp, ezApplication* pApp);
+EZ_FOUNDATION_DLL extern void ezAndroidRun(struct android_app* pAndroidApp, ezApplication* pApp);
 
 namespace ezApplicationDetails
 {

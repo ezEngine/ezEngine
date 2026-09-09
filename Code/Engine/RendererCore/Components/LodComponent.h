@@ -9,10 +9,10 @@
 ///
 /// Values below 1 switch to lower detail LODs earlier, values above 1 keep higher detail LODs longer.
 /// Affects ezLodComponent, ezLodMeshComponent and ezLodAnimatedMeshComponent.
-extern EZ_RENDERERCORE_DLL ezCVarFloat cvar_RenderingLodCoverageScale;
+EZ_RENDERERCORE_DLL extern ezCVarFloat cvar_RenderingLodCoverageScale;
 
 /// If non-negative, all LOD components use this LOD index (0 = highest detail), disabling the automatic selection.
-extern EZ_RENDERERCORE_DLL ezCVarInt cvar_RenderingLodForce;
+EZ_RENDERERCORE_DLL extern ezCVarInt cvar_RenderingLodForce;
 
 using ezLodComponentManager = ezComponentManager<class ezLodComponent, ezBlockStorageType::FreeList>;
 
