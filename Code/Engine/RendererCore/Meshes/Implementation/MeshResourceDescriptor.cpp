@@ -6,10 +6,29 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
+#include <meshoptimizer/meshoptimizer.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 #  include <Foundation/IO/CompressedStreamZstd.h>
 #endif
+
+namespace
+{
+  /// Number of mantissa bits that are kept when the position stream is stored with the exponential filter.
+  ///
+  /// The filter rounds every position component to a multiple of a power of two that is shared by all vertices,
+  /// which is the same precision that a 16 bit normalized position format would give, but the data stays float
+  /// in memory and on the GPU. Because the lowest byte of every component becomes zero, the generic compression
+  /// that is applied on top of this shrinks the position stream noticeably.
+  /// Do not raise this above 16 without measuring, the compression gain comes from the zeroed byte.
+  constexpr int s_iPositionFilterBits = 16;
+
+  enum class ezMeshPositionFilter : ezUInt8
+  {
+    None = 0,
+    Exponential = 1,
+  };
+} // namespace
 
 ezMeshResourceDescriptor::ezMeshResourceDescriptor()
 {
@@ -194,7 +213,16 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
   }
 
   {
-    chunk.BeginChunk("VertexBuffer", 2);
+    chunk.BeginChunk("VertexBuffer", 3);
+
+    const auto& streamConfig = m_MeshBufferDescriptor.GetVertexStreamConfig();
+
+    // the position filter is lossy, so it is only applied to meshes that were not imported with high precision
+    const bool bFilterPositions = !streamConfig.m_bUseHighPrecision && streamConfig.GetPositionFormat() == ezGALResourceFormat::XYZFloat;
+
+    chunk << static_cast<ezUInt8>(bFilterPositions ? ezMeshPositionFilter::Exponential : ezMeshPositionFilter::None);
+
+    ezDynamicArray<ezUInt8> filteredPositions;
 
     const ezUInt32 uiNumBuffers = m_MeshBufferDescriptor.GetNumVertexBuffers();
     for (ezUInt32 i = 0; i < uiNumBuffers; ++i)
@@ -205,7 +233,19 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
       // size in bytes
       chunk << data.GetCount();
 
-      if (!data.IsEmpty())
+      if (data.IsEmpty())
+        continue;
+
+      if (bFilterPositions && type == ezMeshVertexStreamType::Position)
+      {
+        filteredPositions.SetCountUninitialized(data.GetCount());
+
+        meshopt_encodeFilterExp(filteredPositions.GetData(), m_MeshBufferDescriptor.GetVertexCount(), streamConfig.GetPositionElementSize(),
+          s_iPositionFilterBits, reinterpret_cast<const float*>(data.GetData()), meshopt_EncodeExpSharedComponent);
+
+        chunk.WriteBytes(filteredPositions.GetData(), filteredPositions.GetCount()).IgnoreResult();
+      }
+      else
       {
         chunk.WriteBytes(data.GetData(), data.GetCount()).IgnoreResult();
       }
@@ -422,10 +462,18 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
 
     if (ci.m_sChunkName == "VertexBuffer")
     {
-      if (ci.m_uiChunkVersion != 2)
+      if (ci.m_uiChunkVersion != 2 && ci.m_uiChunkVersion != 3)
       {
         ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
         return EZ_FAILURE;
+      }
+
+      ezUInt8 uiPositionFilter = static_cast<ezUInt8>(ezMeshPositionFilter::None);
+
+      // Version 3: the position stream may be stored in a filtered representation
+      if (ci.m_uiChunkVersion >= 3)
+      {
+        chunk >> uiPositionFilter;
       }
 
       const ezUInt32 uiNumBuffers = m_MeshBufferDescriptor.GetNumVertexBuffers();
@@ -442,9 +490,14 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
           return EZ_FAILURE;
         }
 
-        if (!data.IsEmpty())
+        if (data.IsEmpty())
+          continue;
+
+        chunk.ReadBytes(data.GetData(), data.GetCount());
+
+        if (type == ezMeshVertexStreamType::Position && uiPositionFilter == static_cast<ezUInt8>(ezMeshPositionFilter::Exponential))
         {
-          chunk.ReadBytes(data.GetData(), data.GetCount());
+          meshopt_decodeFilterExp(data.GetData(), m_MeshBufferDescriptor.GetVertexCount(), m_MeshBufferDescriptor.GetVertexStreamConfig().GetPositionElementSize());
         }
       }
     }
