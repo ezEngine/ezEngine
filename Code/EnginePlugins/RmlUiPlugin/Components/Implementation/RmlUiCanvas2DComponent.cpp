@@ -176,8 +176,6 @@ void ezRmlUiCanvas2DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
 
   if (m_pContext != nullptr)
   {
-    // The texture is also used in shadow maps as we don't know what the depth shader compiler is culling or what the material is using the texture for.
-    ezRenderWorld::AddViewDependency(*msg.m_pView, m_hTexture, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::Thumbnail)
       return;
 
@@ -188,6 +186,7 @@ void ezRmlUiCanvas2DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
     pRenderData->m_vOffset = m_vFinalOffset;
 
     msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::GUI, ezRenderData::Caching::Never);
+    msg.AddDependency(m_hTexture, ezDefaultRenderDataCategories::GUI, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
   }
 }
 
