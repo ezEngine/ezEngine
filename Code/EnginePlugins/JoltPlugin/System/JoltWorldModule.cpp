@@ -46,7 +46,8 @@ ezCVarBool cvar_JoltDebugDrawConstraintFrames("Jolt.DebugDraw.ConstraintFrames",
 ezCVarBool cvar_JoltDebugDrawBodies("Jolt.DebugDraw.Bodies", false, ezCVarFlags::None, "Visualize physics bodies.");
 #endif
 
-ezCVarBool cvar_JoltVisualizeGeometry("Jolt.Visualize.Geometry", false, ezCVarFlags::None, "Renders collision geometry.");
+ezCVarBool cvar_JoltVisualizeGeometry("Jolt.Visualize.Geometry", false, ezCVarFlags::None, "Renders collision geometry, color coded by shape type.");
+ezCVarBool cvar_JoltVisualizeSurfaces("Jolt.Visualize.Surfaces", false, ezCVarFlags::None, "Renders collision geometry, color coded by the debug color of the assigned surface. Takes precedence over 'Jolt.Visualize.Geometry'.");
 ezCVarBool cvar_JoltVisualizeGeometryExclusive("Jolt.Visualize.Exclusive", false, ezCVarFlags::Save, "Hides regularly rendered geometry.");
 ezCVarFloat cvar_JoltVisualizeDistance("Jolt.Visualize.Distance", 30.0f, ezCVarFlags::Save, "How far away objects to visualize.");
 
@@ -1062,7 +1063,11 @@ void ezJoltWorldModule::DebugDrawGeometry()
 
   const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag("PhysicsCollider");
 
-  if (cvar_JoltVisualizeGeometry && cvar_JoltVisualizeGeometryExclusive)
+  // both visualizations draw the same geometry, so only one of them is active at a time
+  const bool bSurfaceColors = cvar_JoltVisualizeSurfaces;
+  const bool bVisualize = cvar_JoltVisualizeGeometry || cvar_JoltVisualizeSurfaces;
+
+  if (bVisualize && cvar_JoltVisualizeGeometryExclusive)
   {
     // deactivate other geometry rendering
     pView->m_IncludeTags.Set(tag);
@@ -1072,18 +1077,32 @@ void ezJoltWorldModule::DebugDrawGeometry()
     pView->m_IncludeTags.Remove(tag);
   }
 
-  if (cvar_JoltVisualizeGeometry)
+  if (bSurfaceColors != m_bDebugGeoSurfaceColors)
+  {
+    // the colors are baked into the render components, so switching between the two visualizations has to rebuild them
+    m_bDebugGeoSurfaceColors = bSurfaceColors;
+
+    for (auto it : m_DebugDrawComponents)
+    {
+      GetWorld()->DeleteObjectDelayed(it.Value().m_hObject);
+    }
+
+    m_DebugDrawComponents.Clear();
+    m_DebugDrawShapeGeo.Clear();
+  }
+
+  if (bVisualize)
   {
     const ezVec3 vCenterPos = pView->GetCamera()->GetCenterPosition();
 
-    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Static, tag);
-    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Dynamic, tag);
-    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Query, tag);
-    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Ragdoll, tag);
-    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Trigger, tag);
-    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Rope, tag);
-    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Cloth, tag);
-    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Debris, tag);
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Static, tag, bSurfaceColors);
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Dynamic, tag, bSurfaceColors);
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Query, tag, bSurfaceColors);
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Ragdoll, tag, bSurfaceColors);
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Trigger, tag, bSurfaceColors);
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Rope, tag, bSurfaceColors);
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Cloth, tag, bSurfaceColors);
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Debris, tag, bSurfaceColors);
   }
 
   for (auto it = m_DebugDrawComponents.GetIterator(); it.IsValid();)
@@ -1112,7 +1131,7 @@ void ezJoltWorldModule::DebugDrawGeometry()
   }
 }
 
-void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, ezPhysicsShapeType::Enum shapeType, const ezTag& tag)
+void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, ezPhysicsShapeType::Enum shapeType, const ezTag& tag, bool bSurfaceColors)
 {
   const ezVec3 vAabbMin = vCenter - ezVec3(fRadius);
   const ezVec3 vAabbMax = vCenter + ezVec3(fRadius);
@@ -1142,6 +1161,8 @@ void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, 
 
   ezTempHybridArray<ezVec3, cMaxTriangles * 3> positionsTmp2;
   ezTempHybridArray<const JPH::PhysicsMaterial*, cMaxTriangles> materialsTmp2;
+  ezTempHybridArray<const JPH::PhysicsMaterial*, 8> distinctMaterials;
+  ezTempHybridArray<ezVec3, cMaxTriangles * 3> partPositions;
 
   for (const JPH::TransformedShape& ts : collector.mHits)
   {
@@ -1180,7 +1201,7 @@ void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, 
     positionsTmp2.Clear();
     materialsTmp2.Clear();
 
-    if (!shapeGeo.m_hMesh.IsValid() || (geo.m_bMutableGeometry && lock.GetBody().IsActive()))
+    if (shapeGeo.m_Parts.IsEmpty() || (geo.m_bMutableGeometry && lock.GetBody().IsActive()))
     {
       shapeGeo.m_Bounds = ezBoundingBox::MakeInvalid();
 
@@ -1200,36 +1221,68 @@ void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, 
 
       if (positionsTmp2.GetCount() >= 3)
       {
-        ezDynamicMeshBufferResourceDescriptor desc;
-        desc.m_Topology = ezGALPrimitiveTopology::Triangles;
-        desc.m_uiMaxVertices = positionsTmp2.GetCount();
-        desc.m_uiMaxPrimitives = positionsTmp2.GetCount() / 3;
-        desc.m_IndexType = ezGALIndexType::None;
-        desc.m_bColorStream = false;
-
-        ezStringBuilder sGuid;
-        sGuid.SetFormat("ColMeshVisGeo_{}", s_iColMeshVisGeoCounter.Increment());
-
-        if (!shapeGeo.m_hMesh.IsValid())
+        distinctMaterials.Clear();
+        for (const JPH::PhysicsMaterial* pMaterial : materialsTmp2)
         {
-          shapeGeo.m_hMesh = ezResourceManager::CreateResource<ezDynamicMeshBufferResource>(sGuid, std::move(desc));
+          if (!distinctMaterials.Contains(pMaterial))
+            distinctMaterials.PushBack(pMaterial);
         }
 
-        ezResourceLock<ezDynamicMeshBufferResource> pMeshBuf(shapeGeo.m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
+        shapeGeo.m_Parts.SetCount(distinctMaterials.GetCount());
 
-        auto positionData = pMeshBuf->AccessPositionData();
-        auto nttData = pMeshBuf->AccessNormalTangentTexCoord0Data();
-        for (ezUInt32 vtxIdx = 0; vtxIdx < positionData.GetCount(); ++vtxIdx)
+        for (ezUInt32 uiPart = 0; uiPart < distinctMaterials.GetCount(); ++uiPart)
         {
-          const auto& pos = positionsTmp2[vtxIdx];
-          positionData[vtxIdx] = pos;
+          const JPH::PhysicsMaterial* pPartMaterial = distinctMaterials[uiPart];
 
-          auto& vtx = nttData[vtxIdx];
-          vtx.m_vTexCoord.SetZero();
-          vtx.m_vEncodedNormal.SetZero();
-          vtx.m_vEncodedTangent.SetZero();
+          partPositions.Clear();
+          for (ezUInt32 uiTriIdx = 0; uiTriIdx < materialsTmp2.GetCount(); ++uiTriIdx)
+          {
+            if (materialsTmp2[uiTriIdx] == pPartMaterial)
+            {
+              partPositions.PushBackRange(positionsTmp2.GetArrayPtr().GetSubArray(uiTriIdx * 3, 3));
+            }
+          }
 
-          shapeGeo.m_Bounds.ExpandToInclude(pos);
+          auto& part = shapeGeo.m_Parts[uiPart];
+
+          // every material that Jolt hands out is an ezJoltMaterial, because ezJoltCore also replaces Jolt's default material
+          part.m_SurfaceColor = pPartMaterial ? static_cast<const ezJoltMaterial*>(pPartMaterial)->m_DebugColor : ezColor::White;
+
+          if (!part.m_hMesh.IsValid())
+          {
+            ezDynamicMeshBufferResourceDescriptor desc;
+            desc.m_Topology = ezGALPrimitiveTopology::Triangles;
+            desc.m_uiMaxVertices = partPositions.GetCount();
+            desc.m_uiMaxPrimitives = partPositions.GetCount() / 3;
+            desc.m_IndexType = ezGALIndexType::None;
+            desc.m_bColorStream = false;
+
+            ezStringBuilder sGuid;
+            sGuid.SetFormat("ColMeshVisGeo_{}", s_iColMeshVisGeoCounter.Increment());
+
+            part.m_hMesh = ezResourceManager::CreateResource<ezDynamicMeshBufferResource>(sGuid, std::move(desc));
+          }
+
+          ezResourceLock<ezDynamicMeshBufferResource> pMeshBuf(part.m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
+
+          auto positionData = pMeshBuf->AccessPositionData();
+          auto nttData = pMeshBuf->AccessNormalTangentTexCoord0Data();
+
+          // for mutable geometry the mesh is reused, so it may not have the same size as the new data
+          const ezUInt32 uiNumVertices = ezMath::Min(positionData.GetCount(), partPositions.GetCount());
+
+          for (ezUInt32 vtxIdx = 0; vtxIdx < uiNumVertices; ++vtxIdx)
+          {
+            const auto& pos = partPositions[vtxIdx];
+            positionData[vtxIdx] = pos;
+
+            auto& vtx = nttData[vtxIdx];
+            vtx.m_vTexCoord.SetZero();
+            vtx.m_vEncodedNormal.SetZero();
+            vtx.m_vEncodedTangent.SetZero();
+
+            shapeGeo.m_Bounds.ExpandToInclude(pos);
+          }
         }
       }
     }
@@ -1248,16 +1301,21 @@ void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, 
     geo.m_hObject = GetWorld()->CreateObject(gd, pObj);
     geo.m_bMutableGeometry = lock.GetBody().IsSoftBody();
 
-    ezCustomMeshComponent* pMesh;
-    ezCustomMeshComponent::CreateComponent(pObj, pMesh);
-
     const bool bKinematic = (lock.GetBody().GetMotionType() == JPH::EMotionType::Kinematic);
     const auto& vis = s_Vis[ezMath::FirstBitLow((ezUInt32)shapeType)][bKinematic ? 1 : 0];
 
-    pMesh->SetMeshResource(shapeGeo.m_hMesh);
-    pMesh->SetBounds(shapeGeo.m_Bounds);
-    pMesh->SetMaterialFile(vis.m_szMaterial);
-    pMesh->SetColor(vis.m_Color);
+    for (const auto& part : shapeGeo.m_Parts)
+    {
+      ezCustomMeshComponent* pMesh;
+      ezCustomMeshComponent::CreateComponent(pObj, pMesh);
+
+      pMesh->SetMeshResource(part.m_hMesh);
+      pMesh->SetBounds(shapeGeo.m_Bounds);
+      pMesh->SetMaterialFile(vis.m_szMaterial);
+
+      // the material of the shape type is kept either way, so that for example triggers stay transparent
+      pMesh->SetColor(bSurfaceColors ? part.m_SurfaceColor.WithAlpha(vis.m_Color.a) : vis.m_Color);
+    }
   }
 }
 

@@ -2,7 +2,7 @@
 
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAsset.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceAssetDocument, 2, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceAssetDocument, 3, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSurfaceAssetDocument::ezSurfaceAssetDocument(ezStringView sDocumentPath)

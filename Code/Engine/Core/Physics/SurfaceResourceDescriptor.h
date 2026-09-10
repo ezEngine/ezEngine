@@ -5,6 +5,7 @@
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Containers/ArrayMap.h>
+#include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/RangeView.h>
@@ -88,6 +89,10 @@ public:
   ezHashedString m_sSlideInteractionPrefab;
   ezHashedString m_sRollInteractionPrefab;
   ezInt8 m_iGroundType = -1; ///< What kind of ground this is for navigation purposes. Ground type properties need to be specified elsewhere, this is just a number.
+
+  /// Color to use when visualizing which surface is assigned to which geometry (see the CVar 'Jolt.Visualize.Surfaces').
+  /// Has no effect on anything but debug visualizations.
+  ezColorGammaUB m_DebugColor = ezColorGammaUB(255, 255, 255);
 
   ezHybridArray<ezSurfaceInteraction, 16> m_Interactions;
 };

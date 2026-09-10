@@ -223,6 +223,7 @@ void ezJoltCore::Startup()
 
   s_pDefaultMaterial = new ezJoltMaterial;
   s_pDefaultMaterial->AddRef();
+  s_pDefaultMaterial->m_DebugColor = ezColor::DimGrey;
   JPH::PhysicsMaterial::sDefault = s_pDefaultMaterial;
 
 #ifdef JPH_DEBUG_RENDERER
@@ -283,6 +284,7 @@ void ezJoltCore::SurfaceResourceEventHandler(const ezSurfaceResourceEvent& e)
       EZ_ASSERT_DEV(pJoltMat->m_pSurface == e.m_pSurface, "Invalid surface");
     }
 
+    pJoltMat->m_DebugColor = desc.m_DebugColor;
     pJoltMat->m_fRestitution = desc.m_fPhysicsRestitution;
     pJoltMat->m_fFriction = ezMath::Lerp(desc.m_fPhysicsFrictionStatic, desc.m_fPhysicsFrictionDynamic, 0.5f);
 
