@@ -38,7 +38,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 3, ezRTTIDefaultAll
     EZ_ACCESSOR_PROPERTY("OnCollideInteraction", GetCollisionInteraction, SetCollisionInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
     EZ_ACCESSOR_PROPERTY("SlideReaction", GetSlideReactionPrefabFile, SetSlideReactionPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("RollReaction", GetRollReactionPrefabFile, SetRollReactionPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
-    EZ_MEMBER_PROPERTY("DebugColor", m_DebugColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(255, 255, 255))),
+    EZ_MEMBER_PROPERTY("DebugColor", m_DebugColor),
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_Interactions),
   }
   EZ_END_PROPERTIES;

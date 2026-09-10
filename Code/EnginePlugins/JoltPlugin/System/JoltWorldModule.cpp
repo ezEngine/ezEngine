@@ -1168,6 +1168,7 @@ void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, 
   {
     DebugBodyShapeKey key;
     key.m_uiBodyID = ts.mBodyID.GetIndexAndSequenceNumber();
+    key.m_uiSubShapeID = ts.mSubShapeIDCreator.GetID().GetValue();
     key.m_pShapePtr = ts.mShape.GetPtr();
 
     bool bExisted = false;
@@ -1246,7 +1247,7 @@ void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, 
           auto& part = shapeGeo.m_Parts[uiPart];
 
           // every material that Jolt hands out is an ezJoltMaterial, because ezJoltCore also replaces Jolt's default material
-          part.m_SurfaceColor = pPartMaterial ? static_cast<const ezJoltMaterial*>(pPartMaterial)->m_DebugColor : ezColor::White;
+          part.m_SurfaceColor = pPartMaterial ? static_cast<const ezJoltMaterial*>(pPartMaterial)->m_DebugColor : ezColorGammaUB(ezColor::White);
 
           if (!part.m_hMesh.IsValid())
           {
@@ -1313,8 +1314,8 @@ void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, 
       pMesh->SetBounds(shapeGeo.m_Bounds);
       pMesh->SetMaterialFile(vis.m_szMaterial);
 
-      // the material of the shape type is kept either way, so that for example triggers stay transparent
-      pMesh->SetColor(bSurfaceColors ? part.m_SurfaceColor.WithAlpha(vis.m_Color.a) : vis.m_Color);
+      // the alpha of the shape type color is kept either way, so that for example triggers stay transparent
+      pMesh->SetColor(bSurfaceColors ? ezColor(part.m_SurfaceColor).WithAlpha(vis.m_Color.a) : vis.m_Color);
     }
   }
 }

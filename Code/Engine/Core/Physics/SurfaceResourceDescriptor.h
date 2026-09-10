@@ -92,7 +92,7 @@ public:
 
   /// Color to use when visualizing which surface is assigned to which geometry (see the CVar 'Jolt.Visualize.Surfaces').
   /// Has no effect on anything but debug visualizations.
-  ezColorGammaUB m_DebugColor = ezColorGammaUB(255, 255, 255);
+  ezColorGammaUB m_DebugColor = ezColor::White;
 
   ezHybridArray<ezSurfaceInteraction, 16> m_Interactions;
 };
