@@ -5,11 +5,13 @@
 #include <GameEngine/Utils/ImageDataResource.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Rasterizer/RasterizerObject.h>
 #include <TerrainPlugin/TerrainPluginDLL.h>
 #include <TerrainPlugin/TerrainSystem.h>
 
 struct ezMsgExtractGeometry;
 struct ezMsgExtractRenderData;
+struct ezMsgExtractOccluderData;
 struct ezMsgTransformChanged;
 struct ezResourceEvent;
 class ezAbstractObjectNode;
@@ -57,6 +59,7 @@ protected:
 protected:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const;
 
   void OnMsgTransformChanged(ezMsgTransformChanged& msg);
 
@@ -121,6 +124,23 @@ public:
   float GetLodCellPixelSize() const { return m_fLodCellPixelSize; } // [ property ]
   void SetLodCellPixelSize(float fPixels);                          // [ property ]
 
+  /// Size in meters of one cell of the CPU occlusion culling geometry. 0 disables the occluder.
+  ///
+  /// The occluder is a coarse mesh, baked during scene export and when the editor starts the simulation, so a
+  /// patch has no occluder in the plain editor viewport. The value is only read during that bake, changing it
+  /// afterwards has no effect until the next one. A patch whose Collider mode is 'None' gets no occluder,
+  /// since both are baked from the same data, and the value is clamped to the collider's grid spacing.
+  float GetOcclusionCellSize() const { return m_fOcclusionCellSize; } // [ property ]
+  void SetOcclusionCellSize(float fCellSize);                         // [ property ]
+
+  /// Replaces the baked occluder mesh (local space). Called by the scene export modifier, empty arrays
+  /// remove the occluder.
+  void SetBakedOccluder(ezArrayPtr<const ezVec3> vertices, ezArrayPtr<const ezUInt32> indices);
+
+  /// Draws the occluder geometry as solid, single sided triangles. Called for all patches while the CVar
+  /// 'Terrain.VisOccluder' is enabled.
+  void DebugDrawOccluder() const;
+
   const ezTagSet& GetTags() const { return m_Tags; }                // [ property ]
   void Reflection_SetTag(const char* szTagName);                    // [ property ]
   void Reflection_RemoveTag(const char* szTagName);                 // [ property ]
@@ -163,6 +183,10 @@ private:
   /// ComputeColliderContentHash() of each cached mesh, to detect that the terrain changed underneath it.
   mutable ezUInt64 m_uiCpuMeshHash[2] = {0, 0};
 
+  /// (Re)creates m_pOccluderObject and m_OccluderBounds from the baked mesh. Clears both when no mesh
+  /// has been baked.
+  void UpdateOccluder();
+
   ezUInt32 m_uiHeightfieldIndex = ezInvalidIndex;
   ezUInt64 m_uiStableId = 0;
   mutable ezInstanceDataOffset m_InstanceDataOffset;
@@ -181,4 +205,10 @@ private:
   float m_fHeightScale = 32.0f;
   float m_fLodCellPixelSize = 16.0f;
   bool m_bHeightImageDirty = false; ///< Set when the image resource reloads
+
+  float m_fOcclusionCellSize = 0.0f;
+  ezDynamicArray<ezVec3> m_OccluderVertices; ///< Local space vertices of the baked occluder mesh.
+  ezDynamicArray<ezUInt32> m_OccluderIndices;
+  ezBoundingBox m_OccluderBounds;            ///< Local space bounds of the occluder geometry. Invalid when there is none.
+  ezSharedPtr<const ezRasterizerObject> m_pOccluderObject;
 };
