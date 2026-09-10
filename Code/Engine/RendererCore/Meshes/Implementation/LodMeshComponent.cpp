@@ -1,13 +1,16 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Messages/SetColorMessage.h>
+#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Components/LodComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/LodMeshComponent.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLodMeshLod, ezNoBase, 2, ezRTTIDefaultAllocator<ezLodMeshLod>)
@@ -47,6 +50,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezLodMeshComponent, 2, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
     EZ_MESSAGE_HANDLER(ezMsgSetCustomData, OnMsgSetCustomData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -191,6 +195,30 @@ void ezLodMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
     ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(hMaterial);
 
     msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
+  }
+}
+
+void ezLodMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const
+{
+  if (ref_msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
+    return;
+
+  for (ezUInt32 i = m_Meshes.GetCount(); i > 0; --i)
+  {
+    const ezMeshResourceHandle& hMesh = m_Meshes[i - 1].m_hMesh;
+
+    if (!hMesh.IsValid())
+      continue;
+
+    // A procedurally created mesh only exists on the GPU side, there is no file to load a CPU mesh from.
+    {
+      ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::PointerOnly);
+      if (pMesh->GetBaseResourceFlags().IsAnySet(ezResourceFlags::IsCreatedResource))
+        continue;
+    }
+
+    ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), ezResourceManager::LoadResource<ezCpuMeshResource>(hMesh.GetResourceID()));
+    return;
   }
 }
 

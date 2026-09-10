@@ -12,7 +12,10 @@
 #include <Foundation/Types/TagRegistry.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Meshes/CpuMeshResource.h>
+#include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <TerrainPlugin/Components/TerrainPatchComponent.h>
 #include <TerrainPlugin/Rendering/TerrainRenderData.h>
 #include <TerrainPlugin/TerrainSystem.h>
@@ -50,6 +53,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTerrainPatchComponent, 3, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnMsgTransformChanged),
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_FUNCTIONS
@@ -510,6 +514,185 @@ ezString ezTerrainPatchComponent::Surfaces_GetValue(ezUInt32 uiIndex) const
   if (uiIndex >= m_Surfaces.GetCount() || !m_Surfaces[uiIndex].IsValid())
     return {};
   return m_Surfaces[uiIndex].GetResourceID();
+}
+
+ezCpuMeshResourceHandle ezTerrainPatchComponent::GenerateCpuMesh(ezUInt32 uiStride) const
+{
+  if (m_uiHeightfieldIndex == ezInvalidIndex)
+    return ezCpuMeshResourceHandle();
+
+  // Geometry extraction only holds a read lock on the world, so the module must not be created here.
+  // Reading the heights back does mutate the terrain system, hence the const_cast.
+  const ezTerrainSystem* pConstTerrain = GetWorld()->GetModule<ezTerrainSystem>();
+  if (pConstTerrain == nullptr)
+    return ezCpuMeshResourceHandle();
+
+  ezTerrainSystem* pTerrain = const_cast<ezTerrainSystem*>(pConstTerrain);
+
+  const ezUInt32 uiCellsPerSide = pTerrain->GetHeightfieldCellsPerSide(m_uiHeightfieldIndex);
+  if (uiCellsPerSide < 2)
+    return ezCpuMeshResourceHandle();
+
+  // Sub-sampling has to divide the grid evenly, otherwise the mesh would not span the full patch, so a
+  // stride that doesn't is halved until it does. All the values that get passed in are powers of two.
+  uiStride = ezMath::Max(1u, uiStride);
+  while (uiStride > 1 && (uiCellsPerSide % uiStride) != 0)
+  {
+    uiStride /= 2;
+  }
+
+  // The stride differs per extraction mode, so each mode gets its own cache slot. Slot 0 holds the
+  // full-resolution mesh, which is what the render geometry asks for.
+  const ezUInt32 uiCacheSlot = (uiStride <= 1) ? 0 : 1;
+
+  // The hash covers everything that changes the shape of the mesh, so as long as it matches, the
+  // cached mesh is still the right one. Without this check, edits to the terrain would go unnoticed.
+  const ezUInt64 uiContentHash = ComputeColliderContentHash(pTerrain->GetHeightfieldBrushOverlapHash(m_uiHeightfieldIndex));
+
+  if (m_hCpuMesh[uiCacheSlot].IsValid() && m_uiCpuMeshHash[uiCacheSlot] == uiContentHash)
+    return m_hCpuMesh[uiCacheSlot];
+
+  m_hCpuMesh[uiCacheSlot].Invalidate();
+  m_uiCpuMeshHash[uiCacheSlot] = uiContentHash;
+
+  // The stride is not part of the content hash, so it has to be part of the name: the same patch can
+  // have a render-resolution and a collider-resolution mesh alive at the same time.
+  ezStringBuilder sResourceName;
+  sResourceName.SetFormat("TerrainPatchCpuMesh:{}-{}-{}", ezArgU(m_uiStableId, 16, true, 16, true), uiContentHash, uiStride);
+
+  m_hCpuMesh[uiCacheSlot] = ezResourceManager::GetExistingResource<ezCpuMeshResource>(sResourceName);
+  if (m_hCpuMesh[uiCacheSlot].IsValid())
+    return m_hCpuMesh[uiCacheSlot];
+
+  // Reading back from the GPU blocks, so this is deliberately only done on demand.
+  ezTempArray<float> bakedHeights;
+  ezTempArray<ezUInt8> dominantIndices;
+  if (pTerrain->ReadbackHeightfieldData(m_uiHeightfieldIndex, bakedHeights, dominantIndices).Failed())
+  {
+    ezLog::Warning("ezTerrainPatchComponent: could not read back the height data, the patch provides no geometry.");
+    return ezCpuMeshResourceHandle();
+  }
+
+  // The stored grid carries 4 border rings on each side beyond the rendered vertices.
+  constexpr ezUInt32 uiBorder = 4;
+  const ezUInt32 uiStoredRowStride = uiCellsPerSide + 2 * uiBorder + 1;
+
+  if (bakedHeights.GetCount() < uiStoredRowStride * uiStoredRowStride)
+    return ezCpuMeshResourceHandle();
+
+  const ezUInt32 uiNumVertices = (uiCellsPerSide / uiStride) + 1;
+  const ezUInt32 uiNumCells = uiNumVertices - 1;
+
+  const bool bHasDominantIndices = dominantIndices.GetCount() == bakedHeights.GetCount();
+
+  // Index of the stored sample that grid coordinate (x, y) of the mesh reads from. Only the rendered
+  // vertices are covered - the border rings exist for the skirt and for normal computation, and the
+  // skirt is deliberately left out here, since it only hides seams against a coarser LOD neighbor.
+  auto SourceIndex = [&](ezUInt32 x, ezUInt32 y) -> ezUInt32
+  {
+    return (uiBorder + y * uiStride) * uiStoredRowStride + (uiBorder + x * uiStride);
+  };
+
+  // Cells that were carved away have no surface and get no triangles - the shaders drop those vertices
+  // too, so they are holes on screen as well. Counting them up front keeps the index buffer free of
+  // degenerate triangles, which every consumer of the mesh would have to process, since they read the
+  // mesh buffer rather than the submesh.
+  ezUInt32 uiNumTriangles = uiNumCells * uiNumCells * 2;
+
+  if (bHasDominantIndices)
+  {
+    uiNumTriangles = 0;
+
+    for (ezUInt32 y = 0; y < uiNumCells; ++y)
+    {
+      for (ezUInt32 x = 0; x < uiNumCells; ++x)
+      {
+        if (dominantIndices[SourceIndex(x, y)] != 0xFFu)
+          uiNumTriangles += 2;
+      }
+    }
+  }
+
+  if (uiNumTriangles == 0)
+    return ezCpuMeshResourceHandle();
+
+  ezMeshResourceDescriptor desc;
+  desc.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"); // Data/Base/Materials/Common/Pattern.ezMaterialAsset
+  desc.MeshBufferDesc().AddCommonStreams();
+
+  auto& mb = desc.MeshBufferDesc();
+  mb.AllocateStreams(uiNumVertices * uiNumVertices, ezGALPrimitiveTopology::Triangles, uiNumTriangles);
+
+  // The patch occupies [0; m_fSize] in its own space, with the origin at a corner rather than the
+  // center - the same convention that GetLocalBounds() and the LOD selection use.
+  const float fGridSpacing = m_fSize / (float)uiCellsPerSide * (float)uiStride;
+
+  auto positionData = mb.GetPositionData();
+
+  ezBoundingBox bounds = ezBoundingBox::MakeInvalid();
+
+  for (ezUInt32 y = 0; y < uiNumVertices; ++y)
+  {
+    for (ezUInt32 x = 0; x < uiNumVertices; ++x)
+    {
+      const ezVec3 vPos(x * fGridSpacing, y * fGridSpacing, bakedHeights[SourceIndex(x, y)]);
+
+      positionData.GetPtr()[y * uiNumVertices + x] = vPos;
+      bounds.ExpandToInclude(vPos);
+    }
+  }
+
+  // Only positions are filled in; normals and texture coordinates carry no information that a
+  // consumer of this mesh (navmesh generation, geometry export) would use.
+
+  ezUInt32 uiTriangleIdx = 0;
+
+  for (ezUInt32 y = 0; y < uiNumCells; ++y)
+  {
+    for (ezUInt32 x = 0; x < uiNumCells; ++x)
+    {
+      if (bHasDominantIndices && dominantIndices[SourceIndex(x, y)] == 0xFFu)
+        continue;
+
+      const ezUInt32 uiIdx = y * uiNumVertices + x;
+
+      mb.SetTriangleIndices(uiTriangleIdx + 0, uiIdx, uiIdx + 1, uiIdx + uiNumVertices);
+      mb.SetTriangleIndices(uiTriangleIdx + 1, uiIdx + 1, uiIdx + uiNumVertices + 1, uiIdx + uiNumVertices);
+      uiTriangleIdx += 2;
+    }
+  }
+
+  EZ_ASSERT_DEBUG(uiTriangleIdx == uiNumTriangles, "Triangle count doesn't match what was allocated.");
+
+  desc.SetBounds(ezBoundingBoxSphere::MakeFromBox(bounds));
+  desc.AddSubMesh(mb.GetPrimitiveCount(), 0, 0);
+
+  m_hCpuMesh[uiCacheSlot] = ezResourceManager::GetOrCreateResource<ezCpuMeshResource>(sResourceName, std::move(desc), sResourceName);
+  return m_hCpuMesh[uiCacheSlot];
+}
+
+void ezTerrainPatchComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
+{
+  ezUInt32 uiStride = 1;
+
+  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh)
+  {
+    // A patch without a collider is not part of the world's physical representation, so it stays out of
+    // navmeshes and collision exports.
+    if (m_ColliderMode == ezTerrainPatchColliderMode::None)
+      return;
+
+    // The enumerator value is the vertex stride, so the collision mesh is as coarse as the collider.
+    uiStride = (ezUInt32)m_ColliderMode.GetValue();
+  }
+
+  // Render geometry is provided at the full render resolution (stride 1).
+  ezCpuMeshResourceHandle hMesh = GenerateCpuMesh(uiStride);
+
+  if (!hMesh.IsValid())
+    return;
+
+  msg.AddMeshObject(GetOwner()->GetGlobalTransform(), hMesh);
 }
 
 ezUInt64 ezTerrainPatchComponent::ComputeColliderContentHash(ezUInt64 uiBrushOverlapHash) const

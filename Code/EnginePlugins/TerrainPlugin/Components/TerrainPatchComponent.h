@@ -8,12 +8,14 @@
 #include <TerrainPlugin/TerrainPluginDLL.h>
 #include <TerrainPlugin/TerrainSystem.h>
 
+struct ezMsgExtractGeometry;
 struct ezMsgExtractRenderData;
 struct ezMsgTransformChanged;
 struct ezResourceEvent;
 class ezAbstractObjectNode;
 
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
+using ezCpuMeshResourceHandle = ezTypedResourceHandle<class ezCpuMeshResource>;
 
 class EZ_TERRAINPLUGIN_DLL ezTerrainPatchComponentManager : public ezComponentManager<class ezTerrainPatchComponent, ezBlockStorageType::Compact>
 {
@@ -57,6 +59,17 @@ protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   void OnMsgTransformChanged(ezMsgTransformChanged& msg);
+
+  /// Provides the terrain surface as a triangle mesh, for navmesh generation, geometry export and similar.
+  ///
+  /// The heights only exist on the GPU, so this reads them back, which is slow and only possible on the
+  /// main thread. The mesh is therefore built on demand and cached.
+  ///
+  /// Render geometry is provided at the full render resolution, collision geometry at the resolution the
+  /// collider setting asks for. Neither includes the skirt, which only exists to hide LOD seams. A patch
+  /// with the collider disabled provides nothing for a collision mesh, since it is not meant to be part
+  /// of the world's physical representation, but it still provides its render geometry.
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
   // ezTerrainPatchComponent
@@ -132,6 +145,23 @@ public:
 
 private:
   void OnObjectCreated(const ezAbstractObjectNode& node);
+
+  /// Builds (or returns the cached) CPU mesh of the terrain surface. Empty handle if unavailable.
+  ///
+  /// uiStride is the spacing, in full-resolution cells, between the mesh's vertices. 1 reproduces the
+  /// render resolution, higher values sub-sample it. It has to divide the cell count evenly, otherwise
+  /// the mesh would not span the whole patch.
+  ///
+  /// Blocks on a GPU readback of the height data, so this is only meant to be called for an explicit
+  /// user action (exporting the scene, generating a navmesh), not per frame. It requires the terrain
+  /// system to exist already, since it may only take a read lock on the world.
+  ezCpuMeshResourceHandle GenerateCpuMesh(ezUInt32 uiStride) const;
+
+  /// One cache slot per ezWorldGeoExtractionUtil::ExtractionMode, since the two resolutions differ.
+  mutable ezCpuMeshResourceHandle m_hCpuMesh[2];
+
+  /// ComputeColliderContentHash() of each cached mesh, to detect that the terrain changed underneath it.
+  mutable ezUInt64 m_uiCpuMeshHash[2] = {0, 0};
 
   ezUInt32 m_uiHeightfieldIndex = ezInvalidIndex;
   ezUInt64 m_uiStableId = 0;
