@@ -334,12 +334,19 @@ void ezPrefabReferenceComponent::ClearPreviousInstances()
     for (ezUInt32 ip1 = comps.GetCount(); ip1 > 0; ip1--)
     {
       const ezUInt32 i = ip1 - 1;
+      ezComponent* pComp = comps[i];
 
-      if (comps[i] != this && // don't try to delete yourself
-          comps[i]->WasCreatedByPrefab())
+      if (pComp == this || // don't try to delete yourself
+          pComp->WasCreatedByPrefab() == false)
+        continue;
+
+      // Prevent other prefab components from deleting its instances. This might lead to an endless loop of prefab components deleting each other.
+      if (pComp->IsInstanceOf<ezPrefabReferenceComponent>())
       {
-        comps[i]->DeleteComponent();
+        pComp->SetUserFlag((ezUInt8)PrefabComponentFlags::SelfDeletion, true);
       }
+
+      pComp->DeleteComponent();
     }
 
     for (auto it = GetOwner()->GetChildren(); it.IsValid(); ++it)
