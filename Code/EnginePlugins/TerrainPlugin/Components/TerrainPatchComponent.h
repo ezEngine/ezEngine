@@ -182,7 +182,7 @@ private:
 
   /// ComputeColliderContentHash() of each cached mesh, to detect that the terrain changed underneath it.
   mutable ezUInt64 m_uiCpuMeshHash[2] = {0, 0};
-  
+
   /// (Re)creates m_pOccluderObject and m_OccluderBounds from the baked mesh. Clears both when no mesh
   /// has been baked.
   void UpdateOccluder();
