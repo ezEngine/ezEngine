@@ -11,7 +11,7 @@ o
 		s %AssetType{"Surface"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10025688183499857836,5231213208591960990}}
-		u4 %Hash{7817525437087873239}
+		u4 %Hash{9621382473583941494}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -49,10 +49,11 @@ o
 {
 	Uuid %id{u4{17150390421160160129,5124127796172148969}}
 	s %t{"ezSurfaceResourceDescriptor"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		s %BaseSurface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+		ColorGamma %DebugColor{u1{130,194,217,255}}
 		f %DynamicFriction{0xCDCC4C3D}
 		i1 %GroundType{-1}
 		VarArray %Interactions
@@ -97,7 +98,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSurfaceResourceDescriptor"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

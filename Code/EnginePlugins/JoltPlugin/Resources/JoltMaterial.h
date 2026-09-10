@@ -15,4 +15,5 @@ public:
 
   float m_fRestitution = 0.0f;
   float m_fFriction = 0.2f;
+  ezColor m_DebugColor = ezColor::White;
 };

@@ -26,7 +26,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceInteraction, ezNoBase, 1, ezRTTIDefaultA
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 2, ezRTTIDefaultAllocator<ezSurfaceResourceDescriptor>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 3, ezRTTIDefaultAllocator<ezSurfaceResourceDescriptor>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -38,6 +38,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 2, ezRTTIDefaultAll
     EZ_ACCESSOR_PROPERTY("OnCollideInteraction", GetCollisionInteraction, SetCollisionInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
     EZ_ACCESSOR_PROPERTY("SlideReaction", GetSlideReactionPrefabFile, SetSlideReactionPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("RollReaction", GetRollReactionPrefabFile, SetRollReactionPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
+    EZ_MEMBER_PROPERTY("DebugColor", m_DebugColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(255, 255, 255))),
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_Interactions),
   }
   EZ_END_PROPERTIES;
@@ -90,7 +91,7 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& inout_stream)
   ezUInt8 uiVersion = 0;
 
   inout_stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= 8, "Invalid version {0} for surface resource", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= 9, "Invalid version {0} for surface resource", uiVersion);
 
   inout_stream >> m_fPhysicsRestitution;
   inout_stream >> m_fPhysicsFrictionStatic;
@@ -162,11 +163,16 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& inout_stream)
   {
     inout_stream >> m_iGroundType;
   }
+
+  if (uiVersion >= 9)
+  {
+    inout_stream >> m_DebugColor;
+  }
 }
 
 void ezSurfaceResourceDescriptor::Save(ezStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 8;
+  const ezUInt8 uiVersion = 9;
 
   inout_stream << uiVersion;
   inout_stream << m_fPhysicsRestitution;
@@ -207,6 +213,9 @@ void ezSurfaceResourceDescriptor::Save(ezStreamWriter& inout_stream) const
 
   // version 8
   inout_stream << m_iGroundType;
+
+  // version 9
+  inout_stream << m_DebugColor;
 }
 
 void ezSurfaceResourceDescriptor::SetCollisionInteraction(const char* szName)

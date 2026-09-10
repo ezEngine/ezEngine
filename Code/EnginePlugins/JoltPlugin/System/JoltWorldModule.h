@@ -225,7 +225,7 @@ private:
   ezTime CalculateUpdateSteps();
 
   void DebugDrawGeometry();
-  void DebugDrawGeometry(const ezVec3& vCenter, float fRadius, ezPhysicsShapeType::Enum shapeType, const ezTag& tag);
+  void DebugDrawGeometry(const ezVec3& vCenter, float fRadius, ezPhysicsShapeType::Enum shapeType, const ezTag& tag, bool bSurfaceColors);
 
   struct DebugGeo
   {
@@ -234,9 +234,17 @@ private:
     bool m_bMutableGeometry = false;
   };
 
-  struct DebugGeoShape
+  /// The triangles of a shape that use one surface. A mesh can only be drawn with a single color,
+  /// so shapes whose triangles use different surfaces are split into several of these.
+  struct DebugGeoShapePart
   {
     ezDynamicMeshBufferResourceHandle m_hMesh;
+    ezColor m_SurfaceColor = ezColor::White;
+  };
+
+  struct DebugGeoShape
+  {
+    ezSmallArray<DebugGeoShapePart, 1> m_Parts;
     ezBoundingBox m_Bounds;
     ezUInt32 m_uiLastSeenCounter = 0;
   };
@@ -263,6 +271,7 @@ private:
   ezUInt64 m_uiJoltUpdateCounter = 0;
 
   ezUInt32 m_uiDebugGeoLastSeenCounter = 0;
+  bool m_bDebugGeoSurfaceColors = false; ///< which of the two visualizations the cached debug geometry was built for
   ezMap<DebugBodyShapeKey, DebugGeo> m_DebugDrawComponents;
   ezMap<const void*, DebugGeoShape> m_DebugDrawShapeGeo;
 
