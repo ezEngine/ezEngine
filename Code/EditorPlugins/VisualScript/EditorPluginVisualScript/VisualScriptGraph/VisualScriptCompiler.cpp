@@ -233,7 +233,7 @@ namespace
     &FillUserData_DynamicReflectedProperty,    // GetReflectedProperty,
     &FillUserData_DynamicReflectedProperty,    // SetReflectedProperty,
     &FillUserData_ReflectedPropertyOrFunction, // InplaceCoroutine,
-    nullptr,                                   // GetOwner,
+    nullptr,                                   // GetScriptOwner,
     &FillUserData_ReflectedPropertyOrFunction, // SendMessage,
 
     nullptr,                                   // FirstBuiltin,
@@ -270,6 +270,13 @@ namespace
     nullptr,                                   // Builtin_Min,
     nullptr,                                   // Builtin_Max,
     nullptr,                                   // Builtin_Clamp,
+    nullptr,                                   // Builtin_BitwiseAnd,
+    nullptr,                                   // Builtin_BitwiseOr,
+    nullptr,                                   // Builtin_BitwiseXor,
+    nullptr,                                   // Builtin_BitwiseNot,
+    nullptr,                                   // Builtin_BitshiftLeft,
+    nullptr,                                   // Builtin_BitshiftRight,
+    nullptr,                                   // Builtin_IsBitSet,
     &FillUserData_Builtin_Expression,          // Builtin_Expression,
 
     nullptr,                                   // Builtin_ToBool,

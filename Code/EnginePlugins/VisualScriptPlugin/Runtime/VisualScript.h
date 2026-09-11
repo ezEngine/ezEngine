@@ -62,6 +62,13 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
       Builtin_Min,
       Builtin_Max,
       Builtin_Clamp,
+      Builtin_BitwiseAnd,
+      Builtin_BitwiseOr,
+      Builtin_BitwiseXor,
+      Builtin_BitwiseNot,
+      Builtin_BitshiftLeft,
+      Builtin_BitshiftRight,
+      Builtin_IsBitSet,
       Builtin_Expression,
 
       Builtin_ToBool,

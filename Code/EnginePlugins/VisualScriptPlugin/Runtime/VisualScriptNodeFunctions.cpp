@@ -1021,6 +1021,78 @@ namespace
 
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Clamp);
 
+  static ExecResult NodeFunction_Builtin_BitwiseAnd(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezInt32 a = inout_context.GetData<ezInt32>(node.GetInputDataOffset(0));
+    ezInt32 b = inout_context.GetData<ezInt32>(node.GetInputDataOffset(1));
+    inout_context.SetData(node.GetOutputDataOffset(0), ezInt32(a & b));
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_BitwiseOr(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezInt32 a = inout_context.GetData<ezInt32>(node.GetInputDataOffset(0));
+    ezInt32 b = inout_context.GetData<ezInt32>(node.GetInputDataOffset(1));
+    inout_context.SetData(node.GetOutputDataOffset(0), ezInt32(a | b));
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_BitwiseXor(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezInt32 a = inout_context.GetData<ezInt32>(node.GetInputDataOffset(0));
+    ezInt32 b = inout_context.GetData<ezInt32>(node.GetInputDataOffset(1));
+    inout_context.SetData(node.GetOutputDataOffset(0), ezInt32(a ^ b));
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_BitwiseNot(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezInt32 a = inout_context.GetData<ezInt32>(node.GetInputDataOffset(0));
+    inout_context.SetData(node.GetOutputDataOffset(0), ezInt32(~a));
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_BitshiftLeft(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezInt32 a = inout_context.GetData<ezInt32>(node.GetInputDataOffset(0));
+    ezInt32 b = inout_context.GetData<ezInt32>(node.GetInputDataOffset(1));
+
+    // Shifting by a negative amount or by more bits than the type has is undefined behavior in C++,
+    // so the shift amount is clamped to keep the result deterministic for arbitrary script input.
+    const ezInt32 iShift = ezMath::Clamp(b, 0, 31);
+    inout_context.SetData(node.GetOutputDataOffset(0), ezInt32(ezUInt32(a) << iShift));
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_BitshiftRight(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezInt32 a = inout_context.GetData<ezInt32>(node.GetInputDataOffset(0));
+    ezInt32 b = inout_context.GetData<ezInt32>(node.GetInputDataOffset(1));
+
+    // See NodeFunction_Builtin_BitshiftLeft. This is an arithmetic shift, so the sign bit is preserved.
+    const ezInt32 iShift = ezMath::Clamp(b, 0, 31);
+    inout_context.SetData(node.GetOutputDataOffset(0), ezInt32(a >> iShift));
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_IsBitSet(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezInt32 iValue = inout_context.GetData<ezInt32>(node.GetInputDataOffset(0));
+    ezInt32 iBitIndex = inout_context.GetData<ezInt32>(node.GetInputDataOffset(1));
+
+    // Bit indices outside the range of the type would be undefined behavior when shifting, so they are reported as 'not set'.
+    const bool bIsSet = (iBitIndex >= 0 && iBitIndex < 32) ? (ezUInt32(iValue) & EZ_BIT(iBitIndex)) != 0 : false;
+    inout_context.SetData(node.GetOutputDataOffset(0), bIsSet);
+
+    return ExecResult::RunNext(0);
+  }
+
   static ExecResult NodeFunction_Builtin_Expression(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     auto pModule = GetScriptModule(inout_context);
@@ -1720,6 +1792,13 @@ namespace
     {nullptr, &NodeFunction_Builtin_Min_Getter},               // Builtin_Min,
     {nullptr, &NodeFunction_Builtin_Max_Getter},               // Builtin_Max,
     {nullptr, &NodeFunction_Builtin_Clamp_Getter},             // Builtin_Clamp,
+    {&NodeFunction_Builtin_BitwiseAnd},                        // Builtin_BitwiseAnd,
+    {&NodeFunction_Builtin_BitwiseOr},                         // Builtin_BitwiseOr,
+    {&NodeFunction_Builtin_BitwiseXor},                        // Builtin_BitwiseXor,
+    {&NodeFunction_Builtin_BitwiseNot},                        // Builtin_BitwiseNot,
+    {&NodeFunction_Builtin_BitshiftLeft},                      // Builtin_BitshiftLeft,
+    {&NodeFunction_Builtin_BitshiftRight},                     // Builtin_BitshiftRight,
+    {&NodeFunction_Builtin_IsBitSet},                          // Builtin_IsBitSet,
     {&NodeFunction_Builtin_Expression},                        // Builtin_Expression,
 
     {nullptr, &NodeFunction_Builtin_ToBool_Getter},            // Builtin_ToBool,

@@ -1012,6 +1012,65 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     RegisterNodeType(typeDesc, std::move(nodeDesc), sMathCategory);
   }
 
+  // Builtin_BitwiseAnd, Builtin_BitwiseOr, Builtin_BitwiseXor, Builtin_BitwiseNot, Builtin_BitshiftLeft, Builtin_BitshiftRight
+  {
+    ezVisualScriptNodeDescription::Type::Enum bitwiseNodeTypes[] = {
+      ezVisualScriptNodeDescription::Type::Builtin_BitwiseAnd,
+      ezVisualScriptNodeDescription::Type::Builtin_BitwiseOr,
+      ezVisualScriptNodeDescription::Type::Builtin_BitwiseXor,
+      ezVisualScriptNodeDescription::Type::Builtin_BitwiseNot,
+      ezVisualScriptNodeDescription::Type::Builtin_BitshiftLeft,
+      ezVisualScriptNodeDescription::Type::Builtin_BitshiftRight,
+    };
+
+    const char* szBitwiseNodeTitles[] = {
+      "{A} & {B}",
+      "{A} | {B}",
+      "{A} ^ {B}",
+      "~{A}",
+      "{A} << {B}",
+      "{A} >> {B}",
+    };
+
+    static_assert(EZ_ARRAY_SIZE(bitwiseNodeTypes) == EZ_ARRAY_SIZE(szBitwiseNodeTitles));
+
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(bitwiseNodeTypes); ++i)
+    {
+      FillDesc(typeDesc, ezVisualScriptNodeDescription::Type::GetName(bitwiseNodeTypes[i]), mathColor);
+
+      auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, szBitwiseNodeTitles[i]);
+      typeDesc.m_Attributes.PushBack(pAttr);
+
+      NodeDesc nodeDesc;
+      nodeDesc.m_Type = bitwiseNodeTypes[i];
+
+      AddInputDataPin<int>(typeDesc, nodeDesc, "A");
+      if (bitwiseNodeTypes[i] != ezVisualScriptNodeDescription::Type::Builtin_BitwiseNot)
+        AddInputDataPin<int>(typeDesc, nodeDesc, "B");
+
+      AddOutputDataPin<int>(nodeDesc, "");
+
+      RegisterNodeType(typeDesc, std::move(nodeDesc), sMathCategory);
+    }
+  }
+
+  // Builtin_IsBitSet
+  {
+    FillDesc(typeDesc, "Builtin_IsBitSet", mathColor);
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "IsBitSet({Value}, {BitIndex})");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_IsBitSet;
+
+    AddInputDataPin<int>(typeDesc, nodeDesc, "Value");
+    AddInputDataPin<int>(typeDesc, nodeDesc, "BitIndex");
+    AddOutputDataPin<bool>(nodeDesc, "");
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sMathCategory);
+  }
+
   // Builtin_Expression
   {
     FillDesc(typeDesc, "Builtin_Expression", mathColor);

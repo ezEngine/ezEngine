@@ -57,6 +57,13 @@ namespace
     "Builtin_Min",
     "Builtin_Max",
     "Builtin_Clamp",
+    "Builtin_BitwiseAnd",
+    "Builtin_BitwiseOr",
+    "Builtin_BitwiseXor",
+    "Builtin_BitwiseNot",
+    "Builtin_BitshiftLeft",
+    "Builtin_BitshiftRight",
+    "Builtin_IsBitSet",
     "Builtin_Expression",
 
     "Builtin_ToBool",
@@ -165,7 +172,7 @@ ezVisualScriptGraphDescription::ezVisualScriptGraphDescription()
 
 ezVisualScriptGraphDescription::~ezVisualScriptGraphDescription() = default;
 
-static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 9;
+static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 10;
 
 // static
 ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScriptNodeDescription> nodes, const ezVisualScriptDataDescription& localDataDesc, ezStreamWriter& inout_stream)
