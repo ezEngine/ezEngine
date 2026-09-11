@@ -239,7 +239,7 @@ private:
   struct DebugGeoShapePart
   {
     ezDynamicMeshBufferResourceHandle m_hMesh;
-    ezColor m_SurfaceColor = ezColor::White;
+    ezColorGammaUB m_SurfaceColor = ezColor::White;
   };
 
   struct DebugGeoShape
@@ -252,19 +252,26 @@ private:
   struct DebugBodyShapeKey
   {
     ezUInt32 m_uiBodyID;
+    /// Identifies the sub-shape within the body. Necessary because the same shape instance can be
+    /// referenced multiple times by a compound shape (e.g. several colliders using the same mesh resource),
+    /// in which case the shape pointer alone is not unique.
+    ezUInt32 m_uiSubShapeID;
     const void* m_pShapePtr;
 
     bool operator<(const DebugBodyShapeKey& rhs) const
     {
-      if (m_uiBodyID == rhs.m_uiBodyID)
-        return m_pShapePtr < rhs.m_pShapePtr;
+      if (m_uiBodyID != rhs.m_uiBodyID)
+        return m_uiBodyID < rhs.m_uiBodyID;
 
-      return m_uiBodyID < rhs.m_uiBodyID;
+      if (m_uiSubShapeID != rhs.m_uiSubShapeID)
+        return m_uiSubShapeID < rhs.m_uiSubShapeID;
+
+      return m_pShapePtr < rhs.m_pShapePtr;
     }
 
     bool operator==(const DebugBodyShapeKey& rhs) const
     {
-      return (m_uiBodyID == rhs.m_uiBodyID) && (m_pShapePtr == rhs.m_pShapePtr);
+      return (m_uiBodyID == rhs.m_uiBodyID) && (m_uiSubShapeID == rhs.m_uiSubShapeID) && (m_pShapePtr == rhs.m_pShapePtr);
     }
   };
 
