@@ -73,6 +73,10 @@ ezResult ezFallbackGameState::SpawnPlayer(ezStringView sStartPosition, const ezT
 {
   m_iActiveCameraComponentIndex = -3;
 
+  m_pMainWorld->GetBlackboard()->SetEntryValue("Renderer.EnableAO", 1);
+  m_pMainWorld->GetBlackboard()->SetEntryValue("Renderer.EnableSSS", 1);
+  m_pMainWorld->GetBlackboard()->SetEntryValue("Renderer.MSAA", 4);
+
   if (SUPER::SpawnPlayer(sStartPosition, startPositionOffset).Succeeded())
     return EZ_SUCCESS;
 
@@ -135,6 +139,9 @@ void ezFallbackGameState::ConfigureInputActions()
 
   RegisterInputAction("Game", "NextCamera", ezInputSlot_KeyPageDown);
   RegisterInputAction("Game", "PrevCamera", ezInputSlot_KeyPageUp);
+  RegisterInputAction("Game", "ToggleAO", ezInputSlot_KeyO);
+  RegisterInputAction("Game", "ToggleSSS", ezInputSlot_KeyP);
+  RegisterInputAction("Game", "ToggleMSAA", ezInputSlot_KeyM);
 }
 
 const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
@@ -239,6 +246,40 @@ void ezFallbackGameState::ProcessInput()
   {
     EZ_LOCK(m_pMainWorld->GetReadMarker());
 
+    float fInput = 0.0f;
+    if (ezInputManager::GetInputActionState("Game", "ToggleAO", &fInput) == ezKeyState::Pressed)
+    {
+      static bool ao = false;
+      ao = !ao;
+      m_pMainWorld->GetBlackboard()->SetEntryValue("Renderer.EnableAO", ao ? 1 : 0);
+    }
+    if (ezInputManager::GetInputActionState("Game", "ToggleSSS", &fInput) == ezKeyState::Pressed)
+    {
+      static bool sss = false;
+      sss = !sss;
+      m_pMainWorld->GetBlackboard()->SetEntryValue("Renderer.EnableSSS", sss ? 1 : 0);
+    }
+    if (ezInputManager::GetInputActionState("Game", "ToggleMSAA", &fInput) == ezKeyState::Pressed)
+    {
+      static ezInt32 msaa = 0;
+      msaa = (msaa + 1) % 3;
+
+      switch (msaa)
+      {
+        case 0:
+          m_pMainWorld->GetBlackboard()->SetEntryValue("Renderer.MSAA", 1);
+          break;
+        case 1:
+          m_pMainWorld->GetBlackboard()->SetEntryValue("Renderer.MSAA", 2);
+          break;
+        case 2:
+          m_pMainWorld->GetBlackboard()->SetEntryValue("Renderer.MSAA", 4);
+          break;
+      }
+
+      ezLog::Info("MSAA: {}", 1 << msaa);
+    }
+
     if (ezInputManager::GetInputActionState("Game", "NextCamera") == ezKeyState::Pressed)
       ++m_iActiveCameraComponentIndex;
     if (ezInputManager::GetInputActionState("Game", "PrevCamera") == ezKeyState::Pressed)
@@ -252,7 +293,6 @@ void ezFallbackGameState::ProcessInput()
 
     float fRotateSpeed = 180.0f;
     float fMoveSpeed = 10.0f;
-    float fInput = 0.0f;
 
     if (ezInputManager::GetInputActionState("Game", "Run", &fInput) != ezKeyState::Up)
       fMoveSpeed *= 10.0f;
