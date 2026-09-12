@@ -137,4 +137,12 @@ private:
   ezInt32 m_iTemporaryDepth = -1;
   ezInt32 m_iPreSuspendTemporaryDepth = -1;
   bool m_bIsInUndoRedo = false;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  void CaptureTemporaryModeStackTrace();
+
+  /// Call stack of whoever last enabled temporary mode. Printed when temporary mode gets nested, since the actual bug is that this caller never ended it.
+  void* m_TemporaryModeStackTrace[32];
+  ezUInt32 m_uiTemporaryModeStackTraceLength = 0;
+#endif
 };

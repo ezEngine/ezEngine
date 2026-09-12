@@ -1,5 +1,6 @@
 #include <ToolsFoundation/ToolsFoundationPCH.h>
 
+#include <Foundation/System/StackTracer.h>
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <ToolsFoundation/Document/Document.h>
 
@@ -64,8 +65,25 @@ ezCommandHistory::~ezCommandHistory()
   }
 }
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+void ezCommandHistory::CaptureTemporaryModeStackTrace()
+{
+  ezArrayPtr<void*> trace(m_TemporaryModeStackTrace);
+  m_uiTemporaryModeStackTraceLength = ezStackTracer::GetStackTrace(trace);
+}
+#endif
+
 void ezCommandHistory::BeginTemporaryCommands(ezStringView sDisplayString, bool bFireEventsWhenUndoingTempCommands)
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (m_bTemporaryMode)
+  {
+    ezLog::Print("\nezCommandHistory::BeginTemporaryCommands: Temporary mode is already active. It was enabled here and never ended:\n\n");
+    ezStackTracer::ResolveStackTrace(ezArrayPtr<void*>(m_TemporaryModeStackTrace, m_uiTemporaryModeStackTraceLength), &ezLog::Print);
+    ezLog::Print("\n");
+  }
+#endif
+
   EZ_ASSERT_DEV(!m_bTemporaryMode, "Temporary Mode cannot be nested");
   StartTransaction(sDisplayString);
   StartTransaction("[Temporary]");
@@ -73,6 +91,10 @@ void ezCommandHistory::BeginTemporaryCommands(ezStringView sDisplayString, bool 
   m_bFireEventsWhenUndoingTempCommands = bFireEventsWhenUndoingTempCommands;
   m_bTemporaryMode = true;
   m_iTemporaryDepth = (ezInt32)m_pHistoryStorage->m_TransactionStack.GetCount();
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  CaptureTemporaryModeStackTrace();
+#endif
 }
 
 void ezCommandHistory::CancelTemporaryCommands()
@@ -112,6 +134,11 @@ void ezCommandHistory::ResumeTemporaryTransaction()
     StartTransaction("[Temporary]");
   }
   m_bTemporaryMode = true;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  CaptureTemporaryModeStackTrace();
+#endif
+
   EZ_ASSERT_DEV(m_iPreSuspendTemporaryDepth == (ezInt32)m_pHistoryStorage->m_TransactionStack.GetCount(), "");
 }
 
