@@ -406,7 +406,7 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
   swapChainCreateInfo.pQueueFamilyIndices = nullptr;
   swapChainCreateInfo.queueFamilyIndexCount = 0;
 
-  // Lets the presentation engine scale the image to the surface size instead of returning VK_ERROR_OUT_OF_DATE_KHR when the dimensions mismatch.
+  // Stretch scaling lets the presentation engine scale to the surface size instead of returning VK_ERROR_OUT_OF_DATE_KHR when the dimensions mismatch.
   vk::SwapchainPresentScalingCreateInfoKHR scalingInfo;
   if (bUseStretchScaling)
   {

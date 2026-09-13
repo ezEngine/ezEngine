@@ -1,24 +1,24 @@
 template <typename Resource, typename Dependency>
-void ezDependencyTracker<Resource, Dependency>::AddResource(Resource* pResource, const ezSet<const Dependency*>& dependencies)
+void ezDependencyTracker<Resource, Dependency>::AddResource(const Resource& resource, const ezSet<Dependency>& dependencies)
 {
   EZ_LOCK(m_Mutex);
   bool bExisted = false;
-  auto resourceHead = m_ResourceHead.FindOrAdd(pResource, &bExisted);
+  auto resourceHead = m_ResourceHead.FindOrAdd(resource, &bExisted);
   EZ_IGNORE_UNUSED(bExisted);
   EZ_ASSERT_DEBUG(!bExisted, "Resource already tracked");
 
-  for (const Dependency* pDependency : dependencies)
+  for (const Dependency& dependency : dependencies)
   {
-    InsertItem(resourceHead, pResource, pDependency);
+    InsertItem(resourceHead, resource, dependency);
   }
 }
 
 template <typename Resource, typename Dependency>
-void ezDependencyTracker<Resource, Dependency>::RemoveResource(Resource* pResource)
+void ezDependencyTracker<Resource, Dependency>::RemoveResource(const Resource& resource)
 {
   EZ_LOCK(m_Mutex);
 
-  auto resourceHead = m_ResourceHead.Find(pResource);
+  auto resourceHead = m_ResourceHead.Find(resource);
   EZ_ASSERT_DEBUG(resourceHead.IsValid(), "Resource not tracked");
 
   Item* pItem = resourceHead.Value();
@@ -33,12 +33,12 @@ void ezDependencyTracker<Resource, Dependency>::RemoveResource(Resource* pResour
 }
 
 template <typename Resource, typename Dependency>
-void ezDependencyTracker<Resource, Dependency>::DependencyDestroyed(Dependency* pDependency)
+void ezDependencyTracker<Resource, Dependency>::DependencyDestroyed(const Dependency& dependency)
 {
-  ezSet<Resource*> invalidResources;
+  ezSet<Resource> invalidResources;
   {
     EZ_LOCK(m_Mutex);
-    auto dependencyHead = m_DependencyHead.Find(pDependency);
+    auto dependencyHead = m_DependencyHead.Find(dependency);
     if (!dependencyHead.IsValid())
       return;
 
@@ -47,21 +47,21 @@ void ezDependencyTracker<Resource, Dependency>::DependencyDestroyed(Dependency* 
     {
       Item* pCurrentItem = pItem;
       pItem = pItem->m_pNextResource;
-      invalidResources.Insert(pCurrentItem->m_pResource);
+      invalidResources.Insert(pCurrentItem->m_Resource);
       // This will destroy pCurrentItem so we must move pItem forward before this.
       RemoveDependencyItem(dependencyHead, pCurrentItem);
     }
     m_DependencyHead.Remove(dependencyHead);
   }
 
-  for (Resource* pResource : invalidResources)
+  for (const Resource& resource : invalidResources)
   {
-    m_ResourceInvalidatedEvent.Broadcast(pResource);
+    m_ResourceInvalidatedEvent.Broadcast(resource);
   }
 }
 
 template <typename Resource, typename Dependency>
-void ezDependencyTracker<Resource, Dependency>::InsertItem(typename ResourceHeadMap::Iterator resourceHead, Resource* pResource, const Dependency* pDependency)
+void ezDependencyTracker<Resource, Dependency>::InsertItem(typename ResourceHeadMap::Iterator resourceHead, const Resource& resource, const Dependency& dependency)
 {
   Item* pItem = nullptr;
   if (m_pFreeList != nullptr)
@@ -75,10 +75,10 @@ void ezDependencyTracker<Resource, Dependency>::InsertItem(typename ResourceHead
     m_Dependencies.PushBack();
     pItem = &m_Dependencies.PeekBack();
   }
-  pItem->m_pResource = pResource;
-  pItem->m_pDependency = pDependency;
+  pItem->m_Resource = resource;
+  pItem->m_Dependency = dependency;
 
-  auto dependencyHead = m_DependencyHead.FindOrAdd(pDependency);
+  auto dependencyHead = m_DependencyHead.FindOrAdd(dependency);
 
   if (dependencyHead.Value() != nullptr)
   {
@@ -118,12 +118,12 @@ void ezDependencyTracker<Resource, Dependency>::RemoveResourceItem(typename Reso
     if (pItem->m_pNextResource == nullptr)
     {
       // Last instance of this dependency, remove key.
-      m_DependencyHead.Remove(pItem->m_pDependency);
+      m_DependencyHead.Remove(pItem->m_Dependency);
     }
     else
     {
       // Update head to next item in list.
-      m_DependencyHead.Insert(pItem->m_pDependency, pItem->m_pNextResource);
+      m_DependencyHead.Insert(pItem->m_Dependency, pItem->m_pNextResource);
     }
   }
 
@@ -154,12 +154,12 @@ void ezDependencyTracker<Resource, Dependency>::RemoveDependencyItem(typename De
     if (pItem->m_pNextDependency == nullptr)
     {
       // Last instance of this resource, set to nullptr
-      m_ResourceHead.Insert(pItem->m_pResource, nullptr);
+      m_ResourceHead.Insert(pItem->m_Resource, nullptr);
     }
     else
     {
       // Update head to next item in list.
-      m_ResourceHead.Insert(pItem->m_pResource, pItem->m_pNextDependency);
+      m_ResourceHead.Insert(pItem->m_Resource, pItem->m_pNextDependency);
     }
   }
 

@@ -1105,6 +1105,7 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
       m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = true;
       m_Capabilities.m_bSupportsIndirectDraw = true;
       m_Capabilities.m_bSupportsSharedTextures = true;
+      m_Capabilities.m_bSupportsDepthBiasClamp = true;
       m_Capabilities.m_bSupportsWireframe = true;
       break;
 

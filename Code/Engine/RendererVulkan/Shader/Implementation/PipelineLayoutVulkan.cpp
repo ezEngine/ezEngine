@@ -31,6 +31,12 @@ ezResult ezGALPipelineLayoutVulkan::InitPlatform(ezGALDevice* pDevice)
   for (ezUInt32 i = 0; i < uiMaxSets; ++i)
   {
     const ezGALBindGroupLayout* pBindGroupLayout = pVulkanDevice->GetBindGroupLayout(m_Description.m_BindGroups[i]);
+    if (pBindGroupLayout == nullptr)
+    {
+      // Vulkan needs a valid (possibly empty) layout for every set in the range, gaps cannot be expressed.
+      ezLog::Error("Failed to create Vulkan pipeline layout: no bind group layout for set {} of {}.", i, uiMaxSets);
+      return EZ_FAILURE;
+    }
     descriptorSetLayouts[i] = static_cast<const ezGALBindGroupLayoutVulkan*>(pBindGroupLayout)->GetDescriptorSetLayout();
   }
 
@@ -47,7 +53,7 @@ ezResult ezGALPipelineLayoutVulkan::InitPlatform(ezGALDevice* pDevice)
     layoutInfo.pPushConstantRanges = &m_PushConstants;
   }
 
-  VK_ASSERT_DEBUG(pVulkanDevice->GetVulkanDevice().createPipelineLayout(&layoutInfo, nullptr, &m_PipelineLayout));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createPipelineLayout(&layoutInfo, nullptr, &m_PipelineLayout));
 
   return EZ_SUCCESS;
 }

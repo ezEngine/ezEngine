@@ -143,8 +143,9 @@ void ezQueryPoolVulkan::AfterBeginFrame(vk::CommandBuffer commandBuffer)
   }
 }
 
-void ezQueryPoolVulkan::EnsureFreeQueryPoolSize(vk::CommandBuffer commandBuffer)
+void ezQueryPoolVulkan::BeginRenderPass(vk::CommandBuffer commandBuffer)
 {
+  m_bInsideRenderPass = true;
   m_OcclusionPool.EnsureFreeQueryPoolSize(commandBuffer, 1);
   m_TimestampPool.EnsureFreeQueryPoolSize(commandBuffer, 3);
 }
@@ -232,29 +233,33 @@ void ezQueryPoolVulkan::Pool::EnsureFreeQueryPoolSize(vk::CommandBuffer commandB
 
 ezGALTimestampHandle ezQueryPoolVulkan::InsertTimestamp(vk::CommandBuffer commandBuffer, vk::PipelineStageFlagBits pipelineStage)
 {
-  ezGALTimestampHandle hTimestamp = m_TimestampPool.CreateQuery(commandBuffer);
+  ezGALTimestampHandle hTimestamp = m_TimestampPool.CreateQuery(commandBuffer, m_bInsideRenderPass);
   Query query = m_TimestampPool.GetQuery(hTimestamp);
   commandBuffer.writeTimestamp(pipelineStage, query.m_pool, query.uiQueryIndex);
 
   return hTimestamp;
 }
 
-ezGALPoolHandle ezQueryPoolVulkan::Pool::CreateQuery(vk::CommandBuffer commandBuffer)
+ezGALPoolHandle ezQueryPoolVulkan::Pool::CreateQuery(vk::CommandBuffer commandBuffer, bool bInsideRenderPass)
 {
   const ezUInt64 uiPoolIndex = m_pCurrentFrame->m_uiNextIndex / m_uiPoolSize;
   if (uiPoolIndex == m_pCurrentFrame->m_pools.GetCount())
   {
+    EZ_ASSERT_DEV(!bInsideRenderPass || !m_freePools.IsEmpty(), "Ran out of pre-allocated query pools inside a render pass. A fresh pool cannot be reset here, EnsureFreeQueryPoolSize has to reserve more.");
     m_pCurrentFrame->m_pools.PushBack(GetFreePool());
   }
 
   ezGALPoolHandle hPool = {m_pCurrentFrame->m_uiNextIndex, m_pCurrentFrame->m_uiFrameCounter};
   m_pCurrentFrame->m_uiNextIndex++;
 
-  for (vk::QueryPool pool : m_resetPools)
+  if (!bInsideRenderPass)
   {
-    commandBuffer.resetQueryPool(pool, 0, m_uiPoolSize);
+    for (vk::QueryPool pool : m_resetPools)
+    {
+      commandBuffer.resetQueryPool(pool, 0, m_uiPoolSize);
+    }
+    m_resetPools.Clear();
   }
-  m_resetPools.Clear();
 
   return hPool;
 }
@@ -285,7 +290,7 @@ ezEnum<ezGALAsyncResult> ezQueryPoolVulkan::GetTimestampResult(ezGALTimestampHan
 
 ezGALPoolHandle ezQueryPoolVulkan::BeginOcclusionQuery(vk::CommandBuffer commandBuffer, ezEnum<ezGALQueryType> type)
 {
-  ezGALPoolHandle hPool = m_OcclusionPool.CreateQuery(commandBuffer);
+  ezGALPoolHandle hPool = m_OcclusionPool.CreateQuery(commandBuffer, m_bInsideRenderPass);
   Query query = m_OcclusionPool.GetQuery(hPool);
   commandBuffer.beginQuery(query.m_pool, query.uiQueryIndex, type == ezGALQueryType::NumSamplesPassed ? vk::QueryControlFlagBits::ePrecise : (vk::QueryControlFlagBits)0);
 

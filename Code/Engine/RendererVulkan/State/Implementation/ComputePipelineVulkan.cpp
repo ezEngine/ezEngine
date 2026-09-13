@@ -36,7 +36,7 @@ ezResult ezGALComputePipelineVulkan::InitPlatform(ezGALDevice* pDevice)
     pipe.stage.pName = "main";
   }
 
-  VK_ASSERT_DEV(pDeviceVulkan->GetVulkanDevice().createComputePipelines(ezResourceCacheVulkan::GetPipelineCache(), 1, &pipe, nullptr, &m_Pipeline));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(pDeviceVulkan->GetVulkanDevice().createComputePipelines(ezResourceCacheVulkan::GetPipelineCache(), 1, &pipe, nullptr, &m_Pipeline));
 
   return EZ_SUCCESS;
 }

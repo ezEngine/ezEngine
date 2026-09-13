@@ -31,7 +31,7 @@ protected:
   virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
   virtual void SetDebugNamePlatform(const char* szName) const override;
-  void CreateBuffer();
+  ezResult CreateBuffer();
 
 protected:
   vk::Buffer m_Buffer = {};

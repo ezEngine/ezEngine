@@ -40,10 +40,19 @@ ezResult ezGALBindGroupLayoutVulkan::InitPlatform(ezGALDevice* pDevice)
   }
 
   // Build m_ResourceUsage
+  // Immutable samplers are counted as well, they occupy a descriptor in the pool just like any other binding.
   for (ezUInt32 i = 0; i < m_Description.m_ResourceBindings.GetCount(); i++)
   {
     const ezShaderResourceBinding& ezBinding = m_Description.m_ResourceBindings[i];
     m_ResourceUsage.m_Usage[ezBinding.m_ResourceType.GetValue()]++;
+    EZ_ASSERT_DEV(ezBinding.m_uiArraySize == 1, "Descriptor arrays are not supported, binding '{}' requests {} elements.", ezBinding.m_sName, ezBinding.m_uiArraySize);
+
+  }
+  for (ezUInt32 i = 0; i < m_Description.m_ImmutableSamplers.GetCount(); i++)
+  {
+    const ezShaderResourceBinding& ezBinding = m_Description.m_ImmutableSamplers[i];
+    m_ResourceUsage.m_Usage[ezBinding.m_ResourceType.GetValue()]++;
+    EZ_ASSERT_DEV(ezBinding.m_uiArraySize == 1, "Descriptor arrays are not supported, binding '{}' requests {} elements.", ezBinding.m_sName, ezBinding.m_uiArraySize);
   }
 
   const ezGALImmutableSamplers::ImmutableSamplers& immutableSamplers = ezGALImmutableSamplers::GetImmutableSamplers();
@@ -68,7 +77,7 @@ ezResult ezGALBindGroupLayoutVulkan::InitPlatform(ezGALDevice* pDevice)
   vk::DescriptorSetLayoutCreateInfo descriptorSetLayout;
   descriptorSetLayout.bindingCount = bindings.GetCount();
   descriptorSetLayout.pBindings = bindings.GetData();
-  VK_ASSERT_DEBUG(pVulkanDevice->GetVulkanDevice().createDescriptorSetLayout(&descriptorSetLayout, nullptr, &m_DescriptorSetLayout));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createDescriptorSetLayout(&descriptorSetLayout, nullptr, &m_DescriptorSetLayout));
 
   m_pDescriptorSetPool = ezDescriptorSetPoolVulkan::GetPool(m_ResourceUsage);
 

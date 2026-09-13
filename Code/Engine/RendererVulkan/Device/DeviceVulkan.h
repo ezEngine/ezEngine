@@ -123,6 +123,8 @@ public:
     bool m_bDeviceSwapChain = false;
     bool m_bShaderViewportIndexLayer = false;
 
+    bool m_bConservativeRasterization = false;
+
     vk::PhysicalDeviceCustomBorderColorFeaturesEXT m_borderColorEXT;
     bool m_bBorderColorFloat = false;
 
@@ -174,6 +176,9 @@ public:
   const ezVulkanDispatchContext& GetDispatchContext() const { return m_DispatchContext; }
   vk::PipelineStageFlags GetSupportedStages() const;
 
+  /// Shader stages the device lacks the features for. These must be masked out of every pipeline barrier, otherwise the stage mask is invalid (VUID-vkCmdPipelineBarrier-srcStageMask-04996).
+  vk::PipelineStageFlags GetUnsupportedStages() const;
+
   vk::CommandBuffer& GetCurrentCommandBuffer();
   ezQueryPoolVulkan& GetQueryPool() const;
   ezFenceQueueVulkan& GetFenceQueue() const;
@@ -217,11 +222,11 @@ public:
   }
 
   template <typename T>
-  void DeleteLater(T& ref_object, void* pContext)
+  void DeleteLater(T& ref_object, void* pContext, ezBitflags<PendingDeletionFlags> flags = {})
   {
     if (ref_object)
     {
-      PendingDeletion del = {ref_object.objectType, {}, (void*)ref_object, nullptr};
+      PendingDeletion del = {ref_object.objectType, flags, (void*)ref_object, nullptr};
       del.m_pContext = pContext;
       DeleteLaterImpl(static_cast<const PendingDeletion&>(del));
     }
@@ -257,7 +262,7 @@ public:
     {
       vk::DebugUtilsObjectNameInfoEXT nameInfo;
       nameInfo.objectType = ref_object.objectType;
-      nameInfo.objectHandle = (uint64_t) static_cast<typename T::NativeType>(ref_object);
+      nameInfo.objectHandle = (uint64_t)static_cast<typename T::NativeType>(ref_object);
       nameInfo.pObjectName = szName;
 
       SetDebugName(nameInfo, pAllocation);
@@ -444,6 +449,7 @@ private:
 
   ezGALFormatLookupTableVulkan m_FormatLookupTable;
   vk::PipelineStageFlags m_SupportedStages;
+  vk::PipelineStageFlags m_UnsupportedStages;
   vk::PhysicalDeviceMemoryProperties m_MemoryProperties;
 
   ezUniquePtr<ezGALCommandEncoderImplVulkan> m_pCommandEncoderImpl;
