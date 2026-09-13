@@ -46,7 +46,6 @@ ezResult ezGALBindGroupLayoutVulkan::InitPlatform(ezGALDevice* pDevice)
     const ezShaderResourceBinding& ezBinding = m_Description.m_ResourceBindings[i];
     m_ResourceUsage.m_Usage[ezBinding.m_ResourceType.GetValue()]++;
     EZ_ASSERT_DEV(ezBinding.m_uiArraySize == 1, "Descriptor arrays are not supported, binding '{}' requests {} elements.", ezBinding.m_sName, ezBinding.m_uiArraySize);
-
   }
   for (ezUInt32 i = 0; i < m_Description.m_ImmutableSamplers.GetCount(); i++)
   {

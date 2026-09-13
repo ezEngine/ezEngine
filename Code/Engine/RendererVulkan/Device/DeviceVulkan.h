@@ -262,7 +262,7 @@ public:
     {
       vk::DebugUtilsObjectNameInfoEXT nameInfo;
       nameInfo.objectType = ref_object.objectType;
-      nameInfo.objectHandle = (uint64_t)static_cast<typename T::NativeType>(ref_object);
+      nameInfo.objectHandle = (uint64_t) static_cast<typename T::NativeType>(ref_object);
       nameInfo.pObjectName = szName;
 
       SetDebugName(nameInfo, pAllocation);
