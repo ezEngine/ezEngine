@@ -81,7 +81,7 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
   if (m_Description.m_BufferFlags.AreAllSet(ezGALBufferUsageFlags::Transient | ezGALBufferUsageFlags::ConstantBuffer))
     return EZ_SUCCESS;
 
-  CreateBuffer();
+  EZ_SUCCEED_OR_RETURN(CreateBuffer());
 
   if (!pInitialData.IsEmpty())
   {
@@ -123,7 +123,7 @@ const vk::DescriptorBufferInfo& ezGALBufferVulkan::GetBufferInfo() const
   return m_ResourceBufferInfo;
 }
 
-void ezGALBufferVulkan::CreateBuffer()
+ezResult ezGALBufferVulkan::CreateBuffer()
 {
   vk::BufferCreateInfo bufferCreateInfo;
   bufferCreateInfo.usage = m_Usage;
@@ -135,8 +135,9 @@ void ezGALBufferVulkan::CreateBuffer()
   ezVulkanAllocationCreateInfo allocCreateInfo;
   allocCreateInfo.m_usage = ezVulkanMemoryUsage::Auto;
 
-  VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_Buffer, m_pAlloc, &m_AllocInfo));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_Buffer, m_pAlloc, &m_AllocInfo));
   m_ResourceBufferInfo.buffer = m_Buffer;
+  return EZ_SUCCESS;
 }
 
 void ezGALBufferVulkan::SetDebugNamePlatform(const char* szName) const

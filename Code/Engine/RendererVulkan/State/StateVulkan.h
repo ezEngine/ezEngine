@@ -64,6 +64,7 @@ protected:
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
   vk::PipelineRasterizationStateCreateInfo m_RasterizerState = {};
+  vk::PipelineRasterizationConservativeStateCreateInfoEXT m_ConservativeRasterState = {}; ///< Only chained into m_RasterizerState::pNext when conservative rasterization is requested.
 };
 
 class EZ_RENDERERVULKAN_DLL ezGALSamplerStateVulkan : public ezGALSamplerState

@@ -21,7 +21,10 @@ private:
     ST_FloatSampling, // Either natively or emulated sampling of floating point textures e.g. depth textures.
     ST_ProxyTexture,
     ST_Material,
-    ST_MSAAResolve
+    ST_MSAAResolve,
+    ST_ViewFormatOverride,
+    ST_DepthBias,
+    ST_ConservativeRasterization
   };
 
   enum ImageCaptureFrames
@@ -45,6 +48,9 @@ private:
   void Tessellation();
   void Compute();
   void MSAAResolve();
+  void ViewFormatOverride();
+  void DepthBias();
+  void ConservativeRasterization();
   ezTestAppRun Material();
   ezTestAppRun SharedTexture();
   void OffscreenProcessMessageFunc(const ezIpcProcessMessageProtocol::Event& msg);
@@ -60,6 +66,10 @@ private:
   // Proxy texture test
   ezGALTextureHandle m_hProxyTexture2D[2];
 
+  // Render target view format override test
+  ezGALTextureHandle m_hOverrideTexture2D[2];
+  ezGALRenderTargetViewHandle m_hOverrideRTV[2];
+  ezEnum<ezGALResourceFormat> m_OverrideSrgbFormat;
   // Float sampling test
   ezGALSamplerStateHandle m_hDepthSamplerState;
 
@@ -74,6 +84,20 @@ private:
   ezShaderResourceHandle m_hMSAAStencilShader;
   ezGALReadbackTextureHelper m_MSAAReadback;
   ezEnum<ezGALMSAASampleCount> m_MSAASamples;
+
+  // Depth Bias Test
+  ezGALTextureHandle m_hDepthBiasColor;
+  ezGALTextureHandle m_hDepthBiasDepth;
+  ezMeshBufferResourceHandle m_hDepthBiasQuadMesh;
+  ezShaderResourceHandle m_hDepthBiasShader;
+  ezGALReadbackTextureHelper m_DepthBiasReadback;
+  float m_fDepthBiasUnit = 0.0f; ///< Minimum resolvable depth difference of the chosen depth format, the unit that m_iDepthBias is measured in.
+
+  // Conservative Rasterization Test
+  ezGALTextureHandle m_hConservativeRasterColor;
+  ezMeshBufferResourceHandle m_hConservativeRasterQuadMesh;
+  ezShaderResourceHandle m_hConservativeRasterShader;
+  ezGALReadbackTextureHelper m_ConservativeRasterReadback;
 
   // Material Test
   ezTexture2DResourceHandle m_hTexture;

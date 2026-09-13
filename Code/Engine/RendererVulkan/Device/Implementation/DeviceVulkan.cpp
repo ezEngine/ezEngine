@@ -311,12 +311,14 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
   {
     m_SupportedStages &= ~vk::PipelineStageFlags(vk::PipelineStageFlagBits::eGeometryShader);
     ezLog::Warning("Geometry shaders are not supported.");
+    m_UnsupportedStages |= vk::PipelineStageFlagBits::eGeometryShader;
   }
 
   if (!features.features.tessellationShader)
   {
     m_SupportedStages &= ~vk::PipelineStageFlags(vk::PipelineStageFlagBits::eTessellationControlShader | vk::PipelineStageFlagBits::eTessellationEvaluationShader);
     ezLog::Warning("Tessellation shaders are not supported.");
+    m_UnsupportedStages |= vk::PipelineStageFlagBits::eTessellationControlShader | vk::PipelineStageFlagBits::eTessellationEvaluationShader;
   }
 
   // Only use the extension if it allows us to not specify a format or we would need to create different samplers for every texture.
@@ -335,6 +337,9 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
   }
 
   AddExtIfSupported(VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME, m_Extensions.m_bImageFormatList);
+
+  // The extension has no feature struct that would need to be chained into the device, its presence is enough.
+  AddExtIfSupported(VK_EXT_CONSERVATIVE_RASTERIZATION_EXTENSION_NAME, m_Extensions.m_bConservativeRasterization);
 
   AddExtIfSupported(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME, m_Extensions.m_bTimelineSemaphore);
 
@@ -998,7 +1003,7 @@ vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore, bool bAddUpdateFor
 
   {
     m_PerFrameData[m_uiCurrentPerFrameData].m_CommandBufferFences.PushBack(renderFence);
-    m_GraphicsQueue.m_queue.submit(1, &submitInfo, renderFence);
+    VK_LOG_ERROR(m_GraphicsQueue.m_queue.submit(1, &submitInfo, renderFence));
   }
 
   m_pCommandEncoderImpl->AfterCommandBufferSubmit(renderFence);
@@ -1587,6 +1592,9 @@ void ezGALDeviceVulkan::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchain
 
   m_PerFrameData[m_uiCurrentPerFrameData].m_uiFrame = m_uiFrameCounter;
 
+  // Must run after ReclaimResources above, which is what hands the descriptor sets of destroyed bind groups back to their pools.
+  ezDescriptorSetPoolVulkan::BeginFrame();
+
   m_pStagingBufferPool->AfterBeginFrame();
   m_pInitContext->AfterBeginFrame();
 
@@ -1729,7 +1737,8 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
 #endif
   m_Capabilities.m_bSupportsVSRenderTargetArrayIndex = m_Extensions.m_bShaderViewportIndexLayer;
 
-  m_Capabilities.m_bSupportsConservativeRasterization = false; // need to query for VK_EXT_CONSERVATIVE_RASTERIZATION
+  m_Capabilities.m_bSupportsConservativeRasterization = m_Extensions.m_bConservativeRasterization;
+  m_Capabilities.m_bSupportsDepthBiasClamp = features.features.depthBiasClamp;
   m_Capabilities.m_bSupportsWireframe = features.features.fillModeNonSolid;
 
   m_Capabilities.m_FormatSupport.SetCount(ezGALResourceFormat::ENUM_COUNT);
@@ -1839,6 +1848,11 @@ vk::PipelineStageFlags ezGALDeviceVulkan::GetSupportedStages() const
   return m_SupportedStages;
 }
 
+vk::PipelineStageFlags ezGALDeviceVulkan::GetUnsupportedStages() const
+{
+  return m_UnsupportedStages;
+}
+
 ezInt32 ezGALDeviceVulkan::GetMemoryIndex(vk::MemoryPropertyFlags properties, const vk::MemoryRequirements& requirements) const
 {
 
@@ -1892,8 +1906,11 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
         }
         break;
       case vk::ObjectType::eImageView:
-        m_Device.destroyImageView(reinterpret_cast<vk::ImageView&>(deletion.m_pObject));
-        break;
+      {
+        vk::ImageView imageView = reinterpret_cast<vk::ImageView&>(deletion.m_pObject);
+        m_Device.destroyImageView(imageView);
+      }
+      break;
       case vk::ObjectType::eImage:
       {
         auto& image = reinterpret_cast<vk::Image&>(deletion.m_pObject);

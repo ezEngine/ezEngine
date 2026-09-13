@@ -160,15 +160,33 @@ ezGALRasterizerStateVulkan::~ezGALRasterizerStateVulkan() = default;
 
 ezResult ezGALRasterizerStateVulkan::InitPlatform(ezGALDevice* pDevice)
 {
-  // TODO conservative raster extension
   // TODO scissor test is always enabled for vulkan
-  // const bool NeedsStateDesc2 = m_Description.m_bConservativeRasterization;
+
+  auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+
+  if (m_Description.m_bConservativeRasterization)
+  {
+    if (!pVulkanDevice->GetCapabilities().m_bSupportsConservativeRasterization)
+    {
+      ezLog::Error("Rasterizer state description enables conservative rasterization which is not available!");
+      return EZ_FAILURE;
+    }
+
+    // Overestimation is what D3D11_CONSERVATIVE_RASTERIZATION_MODE_ON does. Any overestimation beyond the hardware minimum is not requested.
+    m_ConservativeRasterState.conservativeRasterizationMode = vk::ConservativeRasterizationModeEXT::eOverestimate;
+    m_ConservativeRasterState.extraPrimitiveOverestimationSize = 0.0f;
+    m_RasterizerState.pNext = &m_ConservativeRasterState;
+  }
 
   m_RasterizerState.cullMode = GALCullModeToVulkan[m_Description.m_CullMode];
-  m_RasterizerState.depthBiasClamp = m_Description.m_fDepthBiasClamp;
-  m_RasterizerState.depthBiasConstantFactor = static_cast<float>(m_Description.m_iDepthBias); // TODO does this have the intended effect?
+  m_RasterizerState.depthBiasEnable = m_Description.m_iDepthBias != 0 || m_Description.m_fSlopeScaledDepthBias != 0.0f || m_Description.m_fDepthBiasClamp != 0.0f;
+  m_RasterizerState.depthBiasConstantFactor = static_cast<float>(m_Description.m_iDepthBias);
   m_RasterizerState.depthBiasSlopeFactor = m_Description.m_fSlopeScaledDepthBias;
-  m_RasterizerState.depthClampEnable = m_Description.m_fDepthBiasClamp > 0.f;
+  // A non-zero bias clamp requires a device feature, without it the value must stay at zero.
+  m_RasterizerState.depthBiasClamp = pVulkanDevice->GetCapabilities().m_bSupportsDepthBiasClamp ? m_Description.m_fDepthBiasClamp : 0.0f;
+
+  // Matches DX11, which always sets DepthClipEnable. Vulkan's depthClampEnable is the inverse of depth clipping and unrelated to the depth bias clamp above.
+  m_RasterizerState.depthClampEnable = VK_FALSE;
   m_RasterizerState.frontFace = m_Description.m_bFrontCounterClockwise ? vk::FrontFace::eCounterClockwise : vk::FrontFace::eClockwise;
   m_RasterizerState.lineWidth = 1.f;
   m_RasterizerState.polygonMode = m_Description.m_bWireFrame ? vk::PolygonMode::eLine : vk::PolygonMode::eFill;
@@ -204,7 +222,12 @@ ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
   samplerCreateInfo.addressModeW = GALTextureAddressModeToVulkan[desc.m_AddressW];
   if (desc.m_MagFilter == ezGALTextureFilterMode::Anisotropic || desc.m_MinFilter == ezGALTextureFilterMode::Anisotropic || desc.m_MipFilter == ezGALTextureFilterMode::Anisotropic)
   {
-    samplerCreateInfo.anisotropyEnable = VK_TRUE;
+    const float fMaxAnisotropy = pVulkanDevice->GetPhysicalDeviceProperties().limits.maxSamplerAnisotropy;
+    if (pVulkanDevice->GetPhysicalDeviceFeatures().features.samplerAnisotropy && fMaxAnisotropy > 1.0f)
+    {
+      samplerCreateInfo.anisotropyEnable = VK_TRUE;
+      samplerCreateInfo.maxAnisotropy = ezMath::Clamp(static_cast<float>(desc.m_uiMaxAnisotropy), 1.0f, fMaxAnisotropy);
+    }
   }
 
   vk::SamplerCustomBorderColorCreateInfoEXT customBorderColor;
@@ -248,7 +271,6 @@ ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
   samplerCreateInfo.compareOp = GALCompareFuncToVulkan[desc.m_SampleCompareFunc];
   samplerCreateInfo.magFilter = GALFilterToVulkanFilter[desc.m_MagFilter];
   samplerCreateInfo.minFilter = GALFilterToVulkanFilter[desc.m_MinFilter];
-  samplerCreateInfo.maxAnisotropy = static_cast<float>(desc.m_uiMaxAnisotropy);
   samplerCreateInfo.maxLod = desc.m_fMaxMip;
   samplerCreateInfo.minLod = desc.m_fMinMip;
   samplerCreateInfo.mipLodBias = desc.m_fMipLodBias;

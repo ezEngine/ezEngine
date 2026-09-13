@@ -122,7 +122,7 @@ ezResult ezGALGraphicsPipelineVulkan::InitPlatform(ezGALDevice* pDevice)
   if (bTessellation)
     pipe.pTessellationState = &tessellationInfo;
 
-  VK_ASSERT_DEV(pDeviceVulkan->GetVulkanDevice().createGraphicsPipelines(ezResourceCacheVulkan::GetPipelineCache(), 1, &pipe, nullptr, &m_Pipeline));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(pDeviceVulkan->GetVulkanDevice().createGraphicsPipelines(ezResourceCacheVulkan::GetPipelineCache(), 1, &pipe, nullptr, &m_Pipeline));
 
   return EZ_SUCCESS;
 }

@@ -20,7 +20,10 @@ public:
   void AfterBeginFrame(vk::CommandBuffer commandBuffer);
 
   /// We have to call this before each begin rendering call as if we run out of queries inside a render pass, we can't recover given that resetQueryPool can only be called outside a render pass which is necessary to be called on every new pool.
-  void EnsureFreeQueryPoolSize(vk::CommandBuffer commandBuffer);
+  void BeginRenderPass(vk::CommandBuffer commandBuffer);
+
+  /// Must track the render pass state because vkCmdResetQueryPool is only legal outside a render pass instance.
+  void EndRenderPass() { m_bInsideRenderPass = false; }
 
   /// Inserts a timestamp into the given command buffer.
   /// \param commandBuffer Target command buffer to insert the timestamp into.
@@ -83,7 +86,7 @@ private:
     QueryPool* CreatePool();
     void BeginFrame(vk::CommandBuffer commandBuffer, ezUInt64 uiCurrentFrame, ezUInt64 uiSafeFrame);
     void EnsureFreeQueryPoolSize(vk::CommandBuffer commandBuffer, ezUInt32 uiFreePools);
-    ezGALPoolHandle CreateQuery(vk::CommandBuffer commandBuffer);
+    ezGALPoolHandle CreateQuery(vk::CommandBuffer commandBuffer, bool bInsideRenderPass);
     Query GetQuery(ezGALPoolHandle hPool);
     ezEnum<ezGALAsyncResult> GetResult(ezGALPoolHandle hPool, ezUInt64& out_uiResult, bool bForce);
 
@@ -102,6 +105,7 @@ private:
   };
 
   ezGALDeviceVulkan* m_pDevice = nullptr;
+  bool m_bInsideRenderPass = false;
 
   // Timestamp conversion and calibration data.
   double m_fNanoSecondsPerTick = 0;

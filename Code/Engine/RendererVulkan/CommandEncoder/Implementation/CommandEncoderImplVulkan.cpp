@@ -73,6 +73,7 @@ void ezGALCommandEncoderImplVulkan::Reset()
   }
   m_DescriptorCache.Clear();
   m_PushConstants.Clear();
+  m_bPushConstantsDirty = false;
 
   m_RenderPass = vk::RenderPassBeginInfo();
 }
@@ -112,6 +113,8 @@ void ezGALCommandEncoderImplVulkan::MarkAllStateDirty()
   m_bDynamicOffsetsDirty = true;
   // Vulkan dynamic state (including stencil reference) is per-command-buffer, so we must re-emit it whenever a new command buffer becomes active. The HasStencilTest guard in FlushDeferredStateChanges suppresses the call when it is not needed.
   m_bStencilRefDirty = true;
+  // Push constants are per-command-buffer state as well, but only worth re-pushing if we actually hold data.
+  m_bPushConstantsDirty = !m_PushConstants.IsEmpty();
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_BIND_GROUPS; i++)
   {
     m_DescriptorSets[i] = nullptr;
@@ -348,7 +351,7 @@ void ezGALCommandEncoderImplVulkan::ResolveTexturePlatform(const ezGALTexture* p
     vk::Extent3D sourceMipLevelSize = pVulkanSource->GetMipLevelSize(sourceSubResource.m_uiMipLevel);
     vk::Offset3D sourceMipLevelEndOffset = {(ezInt32)sourceMipLevelSize.width, (ezInt32)sourceMipLevelSize.height, (ezInt32)sourceMipLevelSize.depth};
     vk::Extent3D dstMipLevelSize = pVulkanDestination->GetMipLevelSize(destinationSubResource.m_uiMipLevel);
-    vk::Offset3D dstMipLevelEndOffset = {(ezInt32)sourceMipLevelSize.width, (ezInt32)sourceMipLevelSize.height, (ezInt32)sourceMipLevelSize.depth};
+    vk::Offset3D dstMipLevelEndOffset = {(ezInt32)dstMipLevelSize.width, (ezInt32)dstMipLevelSize.height, (ezInt32)dstMipLevelSize.depth};
 
     vk::ImageBlit imageBlitRegion;
     imageBlitRegion.srcSubresource = resolveRegion.srcSubresource;
@@ -501,7 +504,7 @@ void ezGALCommandEncoderImplVulkan::BeginRenderingPlatform(const ezGALRenderingS
   // #TODO_VULKAN we should always have a command buffer, so this call should not be necessary.
   m_GALDeviceVulkan.GetCurrentCommandBuffer();
   // We have to ensure we have enough queries before entering the render pass as we can't replenish pools while within.
-  m_GALDeviceVulkan.GetQueryPool().EnsureFreeQueryPoolSize(*m_pCommandBuffer);
+  m_GALDeviceVulkan.GetQueryPool().BeginRenderPass(*m_pCommandBuffer);
 
   m_RenderPass.renderPass = ezResourceCacheVulkan::RequestRenderPass(renderingSetup.GetRenderPass());
   m_RenderPass.framebuffer = ezResourceCacheVulkan::RequestFrameBuffer(m_RenderPass.renderPass, renderingSetup.GetFrameBuffer());
@@ -546,6 +549,7 @@ void ezGALCommandEncoderImplVulkan::BeginRenderingPlatform(const ezGALRenderingS
 void ezGALCommandEncoderImplVulkan::EndRenderingPlatform()
 {
   m_pCommandBuffer->endRenderPass();
+  m_GALDeviceVulkan.GetQueryPool().EndRenderPass();
 
   m_DepthMask = {};
   m_uiLayers = 0;
@@ -560,7 +564,7 @@ void ezGALCommandEncoderImplVulkan::ClearPlatform(const ezColor& clearColor, ezU
   ezHybridArray<vk::ClearAttachment, 8> attachments;
 
   // Clear color
-  if (uiRenderTargetClearMask != 0)
+  if (uiRenderTargetClearMask != 0 && m_pGraphicsPipeline != nullptr)
   {
     for (ezUInt32 i = 0; i < EZ_GAL_MAX_RENDERTARGET_COUNT; i++)
     {
@@ -576,7 +580,7 @@ void ezGALCommandEncoderImplVulkan::ClearPlatform(const ezColor& clearColor, ezU
   // Clear depth / stencil
   if ((bClearDepth || bClearStencil) && m_DepthMask != vk::ImageAspectFlagBits::eNone)
   {
-    vk::ClearAttachment& attachment = attachments.ExpandAndGetRef();
+    vk::ClearAttachment attachment;
     if (bClearDepth && (m_DepthMask & vk::ImageAspectFlagBits::eDepth))
     {
       attachment.aspectMask |= vk::ImageAspectFlagBits::eDepth;
@@ -587,7 +591,14 @@ void ezGALCommandEncoderImplVulkan::ClearPlatform(const ezColor& clearColor, ezU
       attachment.aspectMask |= vk::ImageAspectFlagBits::eStencil;
       attachment.clearValue.depthStencil.setStencil(uiStencilClear);
     }
+
+    // A zero aspect mask is invalid, e.g. when only depth is cleared on a stencil-only target.
+    if (attachment.aspectMask != vk::ImageAspectFlagBits::eNone)
+      attachments.PushBack(attachment);
   }
+
+  if (attachments.IsEmpty())
+    return;
 
   vk::ClearRect rect;
   rect.baseArrayLayer = 0;
@@ -689,6 +700,8 @@ void ezGALCommandEncoderImplVulkan::SetGraphicsPipelinePlatform(const ezGALGraph
       {
         m_BindGroupDirty[i] = true;
       }
+      // An incompatible layout also invalidates push constants.
+      m_bPushConstantsDirty = m_bPushConstantsDirty || !m_PushConstants.IsEmpty();
     }
     if (bScissorEnabled != m_bScissorEnabled)
     {
@@ -717,6 +730,8 @@ void ezGALCommandEncoderImplVulkan::SetComputePipelinePlatform(const ezGALComput
       {
         m_BindGroupDirty[i] = true;
       }
+      // An incompatible layout also invalidates push constants.
+      m_bPushConstantsDirty = m_bPushConstantsDirty || !m_PushConstants.IsEmpty();
     }
     m_bPipelineStateDirty = true;
   }

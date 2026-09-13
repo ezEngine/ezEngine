@@ -329,7 +329,7 @@ protected:
   SamplerStateTable m_SamplerStates;
   BindGroupLayoutTable m_BindGroupLayouts;
   BindGroupTable m_BindGroups;
-  ezDependencyTracker<ezGALBindGroup, ezGALResourceBase> m_BindGroupTracker;
+  ezDependencyTracker<ezGALBindGroup*, const ezGALResourceBase*> m_BindGroupTracker;
   PipelineLayoutTable m_PipelineLayouts;
   GraphicsPipelineTable m_GraphicsPipelines;
   ComputePipelineTable m_ComputePipelines;
