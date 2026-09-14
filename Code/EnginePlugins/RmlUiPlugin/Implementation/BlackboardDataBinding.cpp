@@ -6,8 +6,103 @@
 
 namespace ezRmlUiInternal
 {
-  VariantVariableDefinition::VariantVariableDefinition()
-    : VariableDefinition(Rml::DataVariableType::Scalar)
+  Rml::DataVariableType GetVariableType(const ezVariant& value)
+  {
+    if (value.IsA<ezVariantArray>())
+      return Rml::DataVariableType::Array;
+
+    if (value.IsA<ezVariantDictionary>())
+      return Rml::DataVariableType::Struct;
+
+    return Rml::DataVariableType::Scalar;
+  }
+
+  /// Shared implementation for looking up a child of an array or dictionary value.
+  Rml::DataVariable GetChild(const ezVariant& value, Rml::DataVariableType type, const Rml::DataAddressEntry& address, const VariantDefinitionSet& definitions)
+  {
+    if (type == Rml::DataVariableType::Array)
+    {
+      if (!value.IsA<ezVariantArray>())
+        return Rml::DataVariable();
+
+      const ezVariantArray& a = value.Get<ezVariantArray>();
+
+      const int index = address.index;
+      const int count = static_cast<int>(a.GetCount());
+      if (index < 0 || index >= count)
+      {
+        if (address.name == "size")
+          return Rml::MakeLiteralIntVariable(count);
+
+        ezLog::Warning("Data array index out of bounds.");
+        return Rml::DataVariable();
+      }
+
+      return definitions.GetDefinition(a[index]);
+    }
+
+    if (type == Rml::DataVariableType::Struct)
+    {
+      if (!value.IsA<ezVariantDictionary>())
+        return Rml::DataVariable();
+
+      if (address.name.empty())
+      {
+        ezLog::Warning("Expected a dictionary member name but none was given.");
+        return Rml::DataVariable();
+      }
+
+      const ezVariantDictionary& d = value.Get<ezVariantDictionary>();
+
+      const ezStringView sName = ezRmlUiConversionUtils::ToStringView(address.name);
+      const ezVariant* pElement = nullptr;
+      if (!d.TryGetValue(sName, pElement))
+      {
+        ezLog::Warning("Member '{}' not found in variant dictionary.", sName);
+        return Rml::DataVariable();
+      }
+
+      return definitions.GetDefinition(*pElement);
+    }
+
+    ezLog::Warning("Tried to get the child of a scalar type.");
+    return Rml::DataVariable();
+  }
+
+  //////////////////////////////////////////////////////////////////
+
+  VariantDefinitionSet::VariantDefinitionSet()
+    : m_Scalar(Rml::DataVariableType::Scalar, *this)
+    , m_Array(Rml::DataVariableType::Array, *this)
+    , m_Struct(Rml::DataVariableType::Struct, *this)
+  {
+  }
+
+  Rml::DataVariable VariantDefinitionSet::GetDefinition(const ezVariant& value) const
+  {
+    const VariantVariableDefinition* pDefinition = &m_Scalar;
+
+    switch (GetVariableType(value))
+    {
+      case Rml::DataVariableType::Array:
+        pDefinition = &m_Array;
+        break;
+      case Rml::DataVariableType::Struct:
+        pDefinition = &m_Struct;
+        break;
+      default:
+        break;
+    }
+
+    // The RmlUi interface is non-const throughout, but neither the definitions nor the value are modified through it.
+    return Rml::DataVariable(const_cast<VariantVariableDefinition*>(pDefinition), const_cast<ezVariant*>(&value));
+  }
+
+  //////////////////////////////////////////////////////////////////
+
+  VariantVariableDefinition::VariantVariableDefinition(Rml::DataVariableType type, const VariantDefinitionSet& definitions)
+    : VariableDefinition(type)
+    , m_Definitions(definitions)
   {
   }
 
@@ -21,15 +116,49 @@ namespace ezRmlUiInternal
 
   bool VariantVariableDefinition::Set(void* pPtr, const Rml::Variant& variant)
   {
-    ezLog::Warning("Can't set the value of an element in an variantarray. Arrays are read-only.");
+    ezLog::Warning("Can't set the value of an element inside a variant array or dictionary. Nested values are read-only.");
 
     return false;
   }
 
+  int VariantVariableDefinition::Size(void* pPtr)
+  {
+    ezVariant* pValue = static_cast<ezVariant*>(pPtr);
+
+    if (pValue->IsA<ezVariantArray>())
+    {
+      return static_cast<int>(pValue->Get<ezVariantArray>().GetCount());
+    }
+
+    return 0;
+  }
+
+  Rml::DataVariable VariantVariableDefinition::Child(void* pPtr, const Rml::DataAddressEntry& address)
+  {
+    ezVariant* pValue = static_cast<ezVariant*>(pPtr);
+
+    return GetChild(*pValue, Type(), address, m_Definitions);
+  }
+
+  Rml::StringList VariantVariableDefinition::ReflectMemberNames()
+  {
+    // RmlUi does not pass the instance pointer here, so the concrete dictionary and therefore its
+    // keys are unknown at this point. Member access via 'obj.key' works regardless, only iterating
+    // over the members of a nested dictionary with 'data-for' is unsupported.
+    if (Type() == Rml::DataVariableType::Struct)
+    {
+      ezLog::Warning("Iterating over the members of a variant dictionary is not supported. Access the members by name instead.");
+      return Rml::StringList();
+    }
+
+    return VariableDefinition::ReflectMemberNames();
+  }
+
   ////////////////////////////////////////////////////////////////
 
-  BlackboardVariableDefinition::BlackboardVariableDefinition(bool bIsArray)
-    : VariableDefinition(bIsArray ? Rml::DataVariableType::Array : Rml::DataVariableType::Scalar)
+  BlackboardVariableDefinition::BlackboardVariableDefinition(Rml::DataVariableType type, const VariantDefinitionSet& definitions)
+    : VariableDefinition(type)
+    , m_Definitions(definitions)
   {
   }
 
@@ -37,8 +166,7 @@ namespace ezRmlUiInternal
   {
     auto pInfo = static_cast<EntryInfo*>(pPtr);
 
-    ezVariant v = pInfo->m_pBlackboard->GetEntryValue(pInfo->m_sName);
-    out_variant = ezRmlUiConversionUtils::ToVariant(v);
+    out_variant = ezRmlUiConversionUtils::ToVariant(pInfo->m_CachedValue);
 
     return true;
   }
@@ -47,13 +175,21 @@ namespace ezRmlUiInternal
   {
     auto pInfo = static_cast<EntryInfo*>(pPtr);
 
+    if (Type() != Rml::DataVariableType::Scalar)
+    {
+      ezLog::Warning("Can't set the value of a variant array or dictionary. Only scalar entries are writable.");
+      return false;
+    }
+
     ezVariant::Type::Enum targetType = ezVariant::Type::Invalid;
     if (auto pEntry = pInfo->m_pBlackboard->GetEntry(pInfo->m_sName))
     {
       targetType = pEntry->m_Value.GetType();
     }
 
-    pInfo->m_pBlackboard->SetEntryValue(pInfo->m_sName, ezRmlUiConversionUtils::ToVariant(variant, targetType));
+    pInfo->m_CachedValue = ezRmlUiConversionUtils::ToVariant(variant, targetType);
+
+    pInfo->m_pBlackboard->SetEntryValue(pInfo->m_sName, pInfo->m_CachedValue);    
 
     return true;
   }
@@ -62,10 +198,9 @@ namespace ezRmlUiInternal
   {
     auto pInfo = static_cast<EntryInfo*>(pPtr);
 
-    ezVariant v = pInfo->m_pBlackboard->GetEntryValue(pInfo->m_sName);
-    if (v.IsA<ezVariantArray>())
+    if (pInfo->m_CachedValue.IsA<ezVariantArray>())
     {
-      return static_cast<int>(v.Get<ezVariantArray>().GetCount());
+      return static_cast<int>(pInfo->m_CachedValue.Get<ezVariantArray>().GetCount());
     }
 
     return 0;
@@ -75,33 +210,28 @@ namespace ezRmlUiInternal
   {
     auto pInfo = static_cast<EntryInfo*>(pPtr);
 
-    ezVariant v = pInfo->m_pBlackboard->GetEntryValue(pInfo->m_sName);
-    if (!v.IsA<ezVariantArray>())
-      return Rml::DataVariable();
+    return GetChild(pInfo->m_CachedValue, Type(), address, m_Definitions);
+  }
 
-    auto& a = v.Get<ezVariantArray>();
-
-    const int index = address.index;
-    const int count = static_cast<int>(a.GetCount());
-    if (index < 0 || index >= count)
+  Rml::StringList BlackboardVariableDefinition::ReflectMemberNames()
+  {
+    // See VariantVariableDefinition::ReflectMemberNames.
+    if (Type() == Rml::DataVariableType::Struct)
     {
-      if (address.name == "size")
-        return Rml::MakeLiteralIntVariable(count);
-
-      ezLog::Warning("Data array index out of bounds.");
-      return Rml::DataVariable();
+      ezLog::Warning("Iterating over the members of a variant dictionary is not supported. Access the members by name instead.");
+      return Rml::StringList();
     }
 
-    const ezVariant& element = a[index];
-    return Rml::DataVariable(&m_ScalarDefinition, const_cast<ezVariant*>(&element));
+    return VariableDefinition::ReflectMemberNames();
   }
 
   //////////////////////////////////////////////////////////////////
 
   BlackboardDataBinding::BlackboardDataBinding(const ezSharedPtr<ezBlackboard>& pBlackboard)
     : m_pBlackboard(pBlackboard)
-    , m_ScalarDefinition(false)
-    , m_ArrayDefinition(true)
+    , m_ScalarDefinition(Rml::DataVariableType::Scalar, m_VariantDefinitions)
+    , m_ArrayDefinition(Rml::DataVariableType::Array, m_VariantDefinitions)
+    , m_StructDefinition(Rml::DataVariableType::Struct, m_VariantDefinitions)
   {
   }
 
@@ -130,19 +260,29 @@ namespace ezRmlUiInternal
       auto type = it.Value().m_Value.GetType();
       if ((type >= ezVariantType::Invalid && type <= ezVariantType::Double) ||
           type == ezVariantType::String || type == ezVariantType::HashedString ||
-          type == ezVariantType::VariantArray)
+          type == ezVariantType::VariantArray || type == ezVariantType::VariantDictionary)
       {
         auto& info = m_EntryInfos.ExpandAndGetRef();
         info.m_pBlackboard = m_pBlackboard;
         info.m_sName = it.Key();
         info.m_uiChangeCounter = it.Value().m_uiChangeCounter;
-        info.m_bIsArray = type == ezVariantType::VariantArray;
+        info.m_CachedValue = it.Value().m_Value;
+        info.m_Type = GetVariableType(info.m_CachedValue);
       }
     }
 
     for (auto& info : m_EntryInfos)
     {
-      auto pDefinition = info.m_bIsArray ? &m_ArrayDefinition : &m_ScalarDefinition;
+      BlackboardVariableDefinition* pDefinition = &m_ScalarDefinition;
+      if (info.m_Type == Rml::DataVariableType::Array)
+      {
+        pDefinition = &m_ArrayDefinition;
+      }
+      else if (info.m_Type == Rml::DataVariableType::Struct)
+      {
+        pDefinition = &m_StructDefinition;
+      }
+
       constructor.BindCustomDataVariable(ezRmlUiConversionUtils::ToString(info.m_sName), Rml::DataVariable(pDefinition, &info));
     }
 
@@ -180,6 +320,16 @@ namespace ezRmlUiInternal
 
         if (pEntry != nullptr && info.m_uiChangeCounter != pEntry->m_uiChangeCounter)
         {
+          // Refresh the cached value before marking the variable dirty, so that RmlUi reads the
+          // new value and any pointers it takes into nested elements stay valid.
+          info.m_CachedValue = pEntry->m_Value;
+
+          const Rml::DataVariableType newType = GetVariableType(info.m_CachedValue);
+          if (newType != info.m_Type)
+          {
+            ezLog::Warning("Blackboard entry '{}' changed its data variable type after setup. This is not supported, the binding will keep using the original type.", info.m_sName);
+          }
+
           m_hDataModel.DirtyVariable(ezRmlUiConversionUtils::ToString(info.m_sName));
           info.m_uiChangeCounter = pEntry->m_uiChangeCounter;
           bUpdated = true;
