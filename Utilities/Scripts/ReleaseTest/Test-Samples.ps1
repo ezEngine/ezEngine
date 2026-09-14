@@ -12,7 +12,7 @@ param(
 	[Parameter(Mandatory = $true)][string]$OutputDir,
 	# explicit binary folder, e.g. a build workspace output; derived from -SdkDir when empty
 	[string]$BinDir = "",
-	[string[]]$Renderer = @("DX11", "Vulkan"),
+	[string[]]$Renderer = @("Vulkan"),
 	# substring filter on the project name, e.g. -Only PacMan
 	[string]$Only = "",
 	# test the local sample projects; only useful to turn off when isolating another switch below
