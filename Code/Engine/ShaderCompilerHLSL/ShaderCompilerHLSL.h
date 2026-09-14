@@ -13,9 +13,6 @@ class EZ_SHADERCOMPILERHLSL_DLL ezShaderCompilerHLSL : public ezShaderProgramCom
 public:
   virtual void GetSupportedPlatforms(ezHybridArray<ezString, 4>& out_platforms) override
   {
-    out_platforms.PushBack("DX11_SM40_93");
-    out_platforms.PushBack("DX11_SM40");
-    out_platforms.PushBack("DX11_SM41");
     out_platforms.PushBack("DX11_SM50");
   }
 

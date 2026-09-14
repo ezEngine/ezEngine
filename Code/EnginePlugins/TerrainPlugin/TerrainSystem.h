@@ -70,9 +70,21 @@ struct EZ_TERRAINPLUGIN_DLL ezTerrainPatchColliderMode
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TERRAINPLUGIN_DLL, ezTerrainPatchColliderMode);
 
+/// One node of the tessellated polyline that a spline brush follows.
+struct ezTerrainData_SplineNode
+{
+  ezVec3 m_vPosition;      ///< World space.
+  ezVec3 m_vUpDir;         ///< World-space brush Z axis at this node.
+  float m_fArcLength = 0.0f; ///< Distance along the spline from its start.
+};
+
 /// CPU-side description of one terrain modification brush.
 ///
 /// Components write to this each frame; the terrain system uploads the data to GPU before each bake.
+///
+/// A brush either is a box around m_vPosition, or, if m_SplineNodes has at least two entries, sweeps
+/// its cross-section along the polyline through those nodes. In the latter case m_qRotation is ignored
+/// and m_vHalfExtents.x extends the brush past both ends of an open spline.
 struct ezTerrainData_Brush
 {
   bool m_bInUse = false;
@@ -93,6 +105,19 @@ struct ezTerrainData_Brush
   float m_fNoiseStrength = 0.0f;
   float m_fNoiseFrequency = 1.0f;
   ezTagSet m_Tags;                             ///< If non-empty, the brush only affects terrain objects that have at least one matching tag.
+  ezDynamicArray<ezTerrainData_SplineNode> m_SplineNodes; ///< Polyline the brush follows. Fewer than two nodes = box brush.
+  float m_fSplineLength = 0.0f;                ///< Arc length of the spline; equals the arc length of the last node.
+  bool m_bSplineClosed = false;                ///< The last node connects back to the first, so the brush has no ends.
+};
+
+/// Hash over everything of one brush that influences the bake of one terrain object.
+///
+/// Terrain objects store one entry per brush that affects them, so that after brush modifications only
+/// the modified brushes have to be evaluated again to decide whether a rebake is needed.
+struct ezTerrainBrushContribution
+{
+  ezUInt32 m_uiBrushIndex = 0;
+  ezUInt64 m_uiHash = 0; ///< Never 0, that value represents a brush that does not affect the object.
 };
 
 /// CPU-side state for one heightfield patch managed by ezTerrainSystem.
@@ -114,10 +139,9 @@ struct ezTerrainData_Heightfield
   float m_fHeightScale = 0.0f;                ///< Multiplier applied to the [0, 1] greyscale sample to produce a world-space height.
   float m_fGridSpacing = 1.0f;
   ezTagSet m_Tags;                            ///< Identity tags for this heightfield; matched against brush include-tag filters.
-  /// Hash of the indices of brushes that spatially overlap this heightfield.
-  /// Updated each time brush state is re-evaluated; compared against the previous value to skip
-  /// re-bakes when the set of relevant brushes (and whether any are present) has not changed.
-  ezUInt64 m_uiBrushOverlapHash = 0;
+  /// All brushes that affect this heightfield, sorted by brush index.
+  ezDynamicArray<ezTerrainBrushContribution> m_BrushContributions;
+  bool m_bBrushContributionsValid = false; ///< If false, m_BrushContributions is rebuilt from all brushes.
 };
 
 /// CPU-side state for one voxel terrain volume managed by ezTerrainSystem.
@@ -143,7 +167,9 @@ struct ezTerrainData_Voxel
 
   float m_fFillHeight = 0.0f; ///< World-space Z height below which voxels start as solid (when m_bInitialSolid is true).
   ezTagSet m_Tags;            ///< Identity tags for this voxel volume; matched against brush include-tag filters.
-  ezUInt64 m_uiBrushOverlapHash = 0;
+  ezUInt64 m_uiBrushOverlapHash = 0;                                ///< Combined hash of m_BrushContributions and the volume properties that affect the bake. Updated when the volume is baked.
+  ezDynamicArray<ezTerrainBrushContribution> m_BrushContributions; ///< All brushes that affect this volume, sorted by brush index.
+  bool m_bBrushContributionsValid = false;                          ///< If false, m_BrushContributions is rebuilt from all brushes.
 };
 
 /// Manages GPU resources and compute shader dispatch for all terrain patches in a world.
@@ -184,21 +210,73 @@ public:
   /// Allocates a brush slot and returns its index. Reuses freed slots before growing the array.
   ezUInt32 CreateBrushData();
 
-  /// Releases the brush slot and sets uiIdx to ezInvalidIndex. Marks all brushes dirty for rebake.
+  /// Releases the brush slot and sets uiIdx to ezInvalidIndex. Terrain objects it affected rebake next frame.
   void RemoveBrushData(ezUInt32& ref_uiIdx);
 
   const ezTerrainData_Brush& ReadBrushData(ezUInt32 uiIdx) const;
 
-  /// Returns a mutable reference and marks the brush set dirty so all patches rebake next frame.
+  /// Returns a mutable reference and marks the brush as modified.
+  ///
+  /// Next frame only this brush is evaluated again, and only terrain objects whose result it changes rebake.
+  /// Calling this without actually changing anything therefore doesn't cause rebakes.
   ezTerrainData_Brush& ModifyBrushData(ezUInt32 uiIdx);
 
 private:
+  /// Number of spline segments that share one bounding box in BrushCache::m_ChunkBounds.
+  static constexpr ezUInt32 SplineChunkSegments = 16;
+
+  /// Data derived from an ezTerrainData_Brush for culling. Rebuilt by UpdateBrushCaches after the brush was modified.
+  struct BrushCache
+  {
+    bool m_bValid = false;
+    bool m_bChanged = false;                     ///< The brush is in m_ChangedBrushes.
+    ezBoundingBox m_NodeBounds;                  ///< World-space bounds of all spline nodes, not grown by the brush reach.
+    ezDynamicArray<ezBoundingBox> m_ChunkBounds; ///< Same as m_NodeBounds, for every SplineChunkSegments segments.
+  };
+
+  /// The space and extent of one terrain object, against which brushes are culled.
+  struct CullRegion
+  {
+    ezTransform m_InvTransform;  ///< World space to terrain object space.
+    ezBoundingBox m_LocalBounds; ///< Extent including the border, used for spline brushes.
+    float m_fSize = 0.0f;        ///< Extent without the border, used for box brushes.
+    bool m_bVoxel = false;       ///< Box brushes include their Z extent in the culling radius only for voxels.
+  };
+
+  static CullRegion MakeCullRegion(const ezTerrainData_Heightfield& heightfield);
+  static CullRegion MakeCullRegion(const ezTerrainData_Voxel& vol);
+
+  /// Marks the brush cache as outdated and queues the brush for re-evaluation in UpdateTerrain.
+  void MarkBrushChanged(ezUInt32 uiIdx);
+
+  /// Rebuilds the caches of all changed brushes that are outdated. Must be called before any brush culling.
+  void UpdateBrushCaches();
+
+  /// Determines whether a brush can affect a terrain object, and for spline brushes which part of it.
+  ///
+  /// With bIgnoreZ the brush is only tested against the XY extent of the region.
+  /// For spline brushes out_uiFirstNode and out_uiLastNode enclose all segments that come close enough, including
+  /// those in between. For box brushes they are not written.
+  bool FindBrushOverlap(ezUInt32 uiBrush, const CullRegion& region, bool bIgnoreZ, ezUInt32& out_uiFirstNode, ezUInt32& out_uiLastNode) const;
+
+  /// Spline part of FindBrushOverlap. Rejects whole chunks of segments through the brush cache first.
+  bool FindSplineNodeRange(ezUInt32 uiBrush, const CullRegion& region, bool bIgnoreZ, ezUInt32& out_uiFirstNode, ezUInt32& out_uiLastNode) const;
+
   /// Creates a transient GPU structured buffer from the provided brush array.
   /// Always allocates at least one element so shader bindings stay valid when the brush list is empty.
   ezGALBufferHandle CreateBrushBuffer(ezDynamicArray<TerrainBrushData>& brushes, ezGALDevice* pDevice) const;
 
-  bool m_bBrushesDirty = true;
+  /// Same as CreateBrushBuffer, for the polyline nodes of spline brushes.
+  ezGALBufferHandle CreateSplineNodeBuffer(ezDynamicArray<TerrainSplineNode>& nodes, ezGALDevice* pDevice) const;
+
+  /// Uploads the node range found by FindSplineNodeRange into nodes and sets the spline fields of bd.
+  /// Also overrides bd.Position with the center of the range, which makes the height-based bake order
+  /// meaningful for spline brushes, and resets the brush rotation, which does not apply to spline brushes.
+  static void SetupSplineBrush(const ezTerrainData_Brush& brush, const ezTransform& invTrans, ezUInt32 uiFirstNode, ezUInt32 uiLastNode, TerrainBrushData& bd, ezDynamicArray<TerrainSplineNode>& nodes);
+
   ezDeque<ezTerrainData_Brush> m_Brushes;
+  ezDeque<BrushCache> m_BrushCaches;         ///< Parallel to m_Brushes.
+  ezDynamicArray<ezUInt32> m_ChangedBrushes; ///< Brushes modified or removed since the last UpdateTerrain.
 
   //////////////////////////////////////////////////////////////////////////
   // Heightfields
@@ -235,7 +313,8 @@ public:
 
   /// Returns a hash over all brushes whose footprint overlaps this patch's XY extent.
   /// Changes when the set of relevant brushes changes. Returns 0 for invalid indices.
-  ezUInt64 GetHeightfieldBrushOverlapHash(ezUInt32 uiPatchIndex) const;
+  /// Always computed from scratch, so it is valid even if the terrain was not updated since brushes changed.
+  ezUInt64 GetHeightfieldBrushOverlapHash(ezUInt32 uiPatchIndex);
 
   /// Bakes the given heightfield patch and blocks while reading the result back to the CPU.
   ///
@@ -269,11 +348,17 @@ private:
 
   /// Populates brushes with all active brushes whose footprint overlaps the heightfield's XY extent,
   /// sorted in bake order: priority ascending, Carve last within the same priority.
-  void FindHeightfieldOverlappingBrushes(const ezTerrainData_Heightfield& heightfield, ezDynamicArray<TerrainBrushData>& brushes) const;
+  void FindHeightfieldOverlappingBrushes(const ezTerrainData_Heightfield& heightfield, ezDynamicArray<TerrainBrushData>& brushes, ezDynamicArray<TerrainSplineNode>& splineNodes) const;
 
-  /// Returns a hash over the indices of all brushes whose footprint overlaps the heightfield's XY extent.
-  /// Returns 0 when no brush overlaps. Used to detect changes in the set of relevant brushes per patch.
-  ezUInt64 ComputeHeightfieldBrushOverlapHash(const ezTerrainData_Heightfield& heightfield) const;
+  /// Hash of the brush with index uiBrush for this heightfield, or 0 if it doesn't affect it.
+  ezUInt64 ComputeHeightfieldBrushContribution(const ezTerrainData_Heightfield& heightfield, const CullRegion& region, ezUInt32 uiBrush) const;
+
+  /// Evaluates all brushes (bAllBrushes) or only m_ChangedBrushes and updates heightfield.m_BrushContributions.
+  /// Returns true if any contribution changed.
+  bool UpdateHeightfieldBrushContributions(ezTerrainData_Heightfield& heightfield, bool bAllBrushes);
+
+  /// Combines the given contributions with the heightfield properties that affect the bake.
+  static ezUInt64 ComputeHeightfieldBrushOverlapHash(const ezTerrainData_Heightfield& heightfield, const ezDynamicArray<ezTerrainBrushContribution>& contributions);
 
   /// Shared heightfield bake scratch: intermediate material mask (uint2/vertex), written by Step1/2 and read
   /// by Step3 within one bake. Sized to the largest patch's stored grid; m_uiSharedMaskStoredSize tracks it.
@@ -337,8 +422,12 @@ private:
 
   /// Populates brushes with all active brushes whose footprint overlaps the voxel volume's 3D extent,
   /// sorted in bake order: priority ascending, Carve last within the same priority.
-  void FindVoxelOverlappingBrushes(const ezTerrainData_Voxel& vol, ezDynamicArray<TerrainBrushData>& brushes) const;
-  ezUInt64 ComputeVoxelBrushOverlapHash(const ezTerrainData_Voxel& vol) const;
+  void FindVoxelOverlappingBrushes(const ezTerrainData_Voxel& vol, ezDynamicArray<TerrainBrushData>& brushes, ezDynamicArray<TerrainSplineNode>& splineNodes) const;
+
+  /// Same as the heightfield counterparts.
+  ezUInt64 ComputeVoxelBrushContribution(const ezTerrainData_Voxel& vol, const CullRegion& region, ezUInt32 uiBrush) const;
+  bool UpdateVoxelBrushContributions(ezTerrainData_Voxel& vol, bool bAllBrushes);
+  static ezUInt64 ComputeVoxelBrushOverlapHash(const ezTerrainData_Voxel& vol, const ezDynamicArray<ezTerrainBrushContribution>& contributions);
 
   ezConstantBufferStorageHandle m_hVoxelBakeConstants;
   ezDynamicArray<ezTerrainData_Voxel> m_VoxelVolumes;
