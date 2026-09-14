@@ -25,8 +25,7 @@ void Spline_FindClosest(TerrainBrushData brush, float3 p, bool bPlanar, out floa
   float bestT = 0.0;
   float bestDistSq = 3.0e38;
 
-  [loop]
-  for (uint i = firstNode; i < lastNode; ++i)
+  [loop] for (uint i = firstNode; i < lastNode; ++i)
   {
     float3 ab = SplineNodes[i + 1].Position - SplineNodes[i].Position;
     float3 ap = p - SplineNodes[i].Position;

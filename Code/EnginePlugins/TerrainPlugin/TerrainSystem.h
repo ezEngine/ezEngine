@@ -73,8 +73,8 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_TERRAINPLUGIN_DLL, ezTerrainPatchColliderMode);
 /// One node of the tessellated polyline that a spline brush follows.
 struct ezTerrainData_SplineNode
 {
-  ezVec3 m_vPosition;      ///< World space.
-  ezVec3 m_vUpDir;         ///< World-space brush Z axis at this node.
+  ezVec3 m_vPosition;        ///< World space.
+  ezVec3 m_vUpDir;           ///< World-space brush Z axis at this node.
   float m_fArcLength = 0.0f; ///< Distance along the spline from its start.
 };
 
@@ -106,8 +106,8 @@ struct ezTerrainData_Brush
   float m_fNoiseFrequency = 1.0f;
   ezTagSet m_Tags;                             ///< If non-empty, the brush only affects terrain objects that have at least one matching tag.
   ezDynamicArray<ezTerrainData_SplineNode> m_SplineNodes; ///< Polyline the brush follows. Fewer than two nodes = box brush.
-  float m_fSplineLength = 0.0f;                ///< Arc length of the spline; equals the arc length of the last node.
-  bool m_bSplineClosed = false;                ///< The last node connects back to the first, so the brush has no ends.
+  float m_fSplineLength = 0.0f;                           ///< Arc length of the spline; equals the arc length of the last node.
+  bool m_bSplineClosed = false;                           ///< The last node connects back to the first, so the brush has no ends.
 };
 
 /// Hash over everything of one brush that influences the bake of one terrain object.
@@ -167,9 +167,9 @@ struct ezTerrainData_Voxel
 
   float m_fFillHeight = 0.0f; ///< World-space Z height below which voxels start as solid (when m_bInitialSolid is true).
   ezTagSet m_Tags;            ///< Identity tags for this voxel volume; matched against brush include-tag filters.
-  ezUInt64 m_uiBrushOverlapHash = 0;                                ///< Combined hash of m_BrushContributions and the volume properties that affect the bake. Updated when the volume is baked.
+  ezUInt64 m_uiBrushOverlapHash = 0;                               ///< Combined hash of m_BrushContributions and the volume properties that affect the bake. Updated when the volume is baked.
   ezDynamicArray<ezTerrainBrushContribution> m_BrushContributions; ///< All brushes that affect this volume, sorted by brush index.
-  bool m_bBrushContributionsValid = false;                          ///< If false, m_BrushContributions is rebuilt from all brushes.
+  bool m_bBrushContributionsValid = false;                         ///< If false, m_BrushContributions is rebuilt from all brushes.
 };
 
 /// Manages GPU resources and compute shader dispatch for all terrain patches in a world.
