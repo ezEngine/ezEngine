@@ -25,10 +25,10 @@ struct EZ_SHADER_STRUCT TerrainBrushData
   FLOAT1(CpuPriority);                                            ///< CPU-side sort key only; not read by shaders.
   FLOAT1(Padding0);
 
-  UINT1(FirstSplineNode); ///< Index of the first entry in the SplineNodes buffer. Only valid if SplineNodeCount >= 2.
-  UINT1(SplineNodeCount); ///< Number of polyline nodes the brush follows. Below 2 the brush is a plain box around Position.
-  FLOAT1(SplineLength);   ///< Arc length of the whole spline, not just of the uploaded node range. Needed to round the ends.
-  UINT1(SplineFlags);     ///< Combination of the ezTerrainSplineFlags_* values.
+  UINT1(FirstSplineNode);                                         ///< Index of the first entry in the SplineNodes buffer. Only valid if SplineNodeCount >= 2.
+  UINT1(SplineNodeCount);                                         ///< Number of polyline nodes the brush follows. Below 2 the brush is a plain box around Position.
+  FLOAT1(SplineLength);                                           ///< Arc length of the whole spline, not just of the uploaded node range. Needed to round the ends.
+  UINT1(SplineFlags);                                             ///< Combination of the ezTerrainSplineFlags_* values.
 };
 
 /// One node of the polyline a spline brush follows. The spline is tessellated on the CPU, so the GPU
@@ -41,9 +41,9 @@ struct EZ_SHADER_STRUCT TerrainSplineNode
   FLOAT1(Padding);
 };
 
-#define ezTerrainSplineFlags_StartCap 1 ///< The uploaded node range begins at the real start of the spline, so the brush ends there.
-#define ezTerrainSplineFlags_EndCap 2   ///< The uploaded node range ends at the real end of the spline, so the brush ends there.
-#define ezTerrainSplineFlags_Closed 4   ///< The spline is a loop and has no ends at all.
+#define ezTerrainSplineFlags_StartCap 1   ///< The uploaded node range begins at the real start of the spline, so the brush ends there.
+#define ezTerrainSplineFlags_EndCap 2     ///< The uploaded node range ends at the real end of the spline, so the brush ends there.
+#define ezTerrainSplineFlags_Closed 4     ///< The spline is a loop and has no ends at all.
 
 #define ezTerrainModifyMode_Max 0         ///< 2D: raise terrain up to brush height, never lower
 #define ezTerrainModifyMode_Min 1         ///< 2D: lower terrain down to brush height, never raise
