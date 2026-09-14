@@ -74,6 +74,9 @@ void ezTerrainBrushBaseComponent::OnActivated()
 {
   SUPER::OnActivated();
   GetOwner()->EnableStaticTransformChangesNotifications();
+
+  // Spline changes may have been missed while inactive.
+  m_hSplineCacheSource.Invalidate();
   RefreshBrushes();
 }
 
@@ -90,6 +93,7 @@ void ezTerrainBrushBaseComponent::OnMsgTransformChanged(ezMsgTransformChanged& m
 
 void ezTerrainBrushBaseComponent::OnMsgSplineChanged(ezMsgSplineChanged& msg)
 {
+  m_hSplineCacheSource.Invalidate();
   RefreshBrushes();
 }
 
@@ -120,6 +124,10 @@ void ezTerrainBrushBaseComponent::FillBrush(ezTerrainData_Brush& brush, const ez
   brush.m_fNoiseFrequency = m_fNoiseFrequency;
   brush.m_iPriority = m_iPriority;
   brush.m_Tags = m_Tags;
+  // Brush slots are reused, so leftovers from a previous spline brush have to be removed.
+  brush.m_SplineNodes.Clear();
+  brush.m_fSplineLength = 0.0f;
+  brush.m_bSplineClosed = false;
   FillBrushSpecificProperties(brush, fHalfSizeX);
 }
 
@@ -135,54 +143,36 @@ void ezTerrainBrushBaseComponent::RefreshBrushes()
   const ezSplineComponent* pSpline = nullptr;
   if (GetOwner()->TryGetComponentOfBaseType(pSpline))
   {
-    const float fTotalLength = pSpline->GetTotalLength();
-    if (fTotalLength <= 0.0f)
+    // Also catches a different spline component, which doesn't necessarily send a change message.
+    if (m_hSplineCacheSource != pSpline->GetHandle())
+    {
+      UpdateSplineCache(*pSpline);
+    }
+
+    if (m_SplineCache.GetCount() < 2)
       return;
 
-    constexpr float fMaxStep = 10.0f;
-    constexpr float fMinStep = 0.5f;
-    constexpr float fTolerance = 0.1f;
+    const ezUInt32 uiIdx = pSystem->CreateBrushData();
+    m_BrushIndices.PushBack(uiIdx);
 
-    auto PlaceBrush = [&](float d0, float d1)
+    const ezTransform globalTransform = GetOwner()->GetGlobalTransform();
+
+    ezTerrainData_Brush& brush = pSystem->ModifyBrushData(uiIdx);
+    FillBrush(brush, globalTransform, 0.0f);
+    brush.m_fSplineLength = m_SplineCache.PeekBack().m_fArcLength;
+    brush.m_bSplineClosed = pSpline->GetClosed();
+
+    // Same result as evaluating the spline in global space: the spline space is the owner's space.
+    brush.m_SplineNodes.SetCount(m_SplineCache.GetCount());
+    for (ezUInt32 i = 0; i < m_SplineCache.GetCount(); ++i)
     {
-      const float dMid = (d0 + d1) * 0.5f;
-      const float fSegmentHalfLength = (d1 - d0) * 0.5f;
-      const ezTransform trans = pSpline->GetTransformAtDistance(dMid, ezSplineComponentSpace::Global);
+      const ezTerrainData_SplineNode& src = m_SplineCache[i];
+      ezTerrainData_SplineNode& dst = brush.m_SplineNodes[i];
 
-      const ezUInt32 uiIdx = pSystem->CreateBrushData();
-      m_BrushIndices.PushBack(uiIdx);
-      FillBrush(pSystem->ModifyBrushData(uiIdx), trans, fSegmentHalfLength);
-    };
-
-    auto Subdivide = [&](auto& self, float d0, float d1) -> void
-    {
-      const float fLength = d1 - d0;
-      const float dMid = (d0 + d1) * 0.5f;
-
-      if (fLength <= fMinStep)
-      {
-        PlaceBrush(d0, d1);
-        return;
-      }
-
-      if (fLength <= fMaxStep)
-      {
-        const ezVec3 p0 = pSpline->GetTransformAtDistance(d0, ezSplineComponentSpace::Global).m_vPosition;
-        const ezVec3 p1 = pSpline->GetTransformAtDistance(d1, ezSplineComponentSpace::Global).m_vPosition;
-        const ezVec3 pMidActual = pSpline->GetTransformAtDistance(dMid, ezSplineComponentSpace::Global).m_vPosition;
-
-        if ((pMidActual - (p0 + p1) * 0.5f).GetLength() <= fTolerance)
-        {
-          PlaceBrush(d0, d1);
-          return;
-        }
-      }
-
-      self(self, d0, dMid);
-      self(self, dMid, d1);
-    };
-
-    Subdivide(Subdivide, 0.0f, fTotalLength);
+      dst.m_vPosition = globalTransform * src.m_vPosition;
+      dst.m_vUpDir = globalTransform.m_qRotation * src.m_vUpDir;
+      dst.m_fArcLength = src.m_fArcLength;
+    }
   }
   else
   {
@@ -190,6 +180,65 @@ void ezTerrainBrushBaseComponent::RefreshBrushes()
     m_BrushIndices.PushBack(uiIdx);
     FillBrush(pSystem->ModifyBrushData(uiIdx), GetOwner()->GetGlobalTransform(), m_fHalfSizeX);
   }
+}
+
+void ezTerrainBrushBaseComponent::UpdateSplineCache(const ezSplineComponent& spline)
+{
+  m_SplineCache.Clear();
+  m_hSplineCacheSource = spline.GetHandle();
+
+  const float fTotalLength = spline.GetTotalLength();
+  if (fTotalLength <= 0.0f)
+    return;
+
+  // The spline is tessellated into a polyline that the bake shaders sweep the brush cross-section along.
+  // Straight parts get few nodes, curves as many as needed to stay within fTolerance of the spline.
+  // All of this happens in spline space, so for a scaled object the distances are scaled as well.
+  constexpr float fMaxStep = 10.0f;
+  constexpr float fMinStep = 0.5f;
+  constexpr float fTolerance = 0.1f;
+
+  auto AddNode = [&](float fDistance)
+  {
+    const ezTransform trans = spline.GetTransformAtDistance(fDistance, ezSplineComponentSpace::Local);
+
+    ezTerrainData_SplineNode& node = m_SplineCache.ExpandAndGetRef();
+    node.m_vPosition = trans.m_vPosition;
+    node.m_vUpDir = trans.m_qRotation * ezVec3::MakeAxisZ();
+    node.m_fArcLength = fDistance;
+  };
+
+  // Only adds the start of each accepted piece; the end is the start of the next one.
+  auto Subdivide = [&](auto& self, float d0, float d1) -> void
+  {
+    const float fLength = d1 - d0;
+    const float dMid = (d0 + d1) * 0.5f;
+
+    if (fLength <= fMinStep)
+    {
+      AddNode(d0);
+      return;
+    }
+
+    if (fLength <= fMaxStep)
+    {
+      const ezVec3 p0 = spline.GetPositionAtDistance(d0, ezSplineComponentSpace::Local);
+      const ezVec3 p1 = spline.GetPositionAtDistance(d1, ezSplineComponentSpace::Local);
+      const ezVec3 pMidActual = spline.GetPositionAtDistance(dMid, ezSplineComponentSpace::Local);
+
+      if ((pMidActual - (p0 + p1) * 0.5f).GetLength() <= fTolerance)
+      {
+        AddNode(d0);
+        return;
+      }
+    }
+
+    self(self, d0, dMid);
+    self(self, dMid, d1);
+  };
+
+  Subdivide(Subdivide, 0.0f, fTotalLength);
+  AddNode(fTotalLength);
 }
 
 void ezTerrainBrushBaseComponent::SetHalfSizeX(float fSize)
