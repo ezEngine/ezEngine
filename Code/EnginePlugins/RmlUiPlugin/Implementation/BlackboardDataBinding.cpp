@@ -189,7 +189,7 @@ namespace ezRmlUiInternal
 
     pInfo->m_CachedValue = ezRmlUiConversionUtils::ToVariant(variant, targetType);
 
-    pInfo->m_pBlackboard->SetEntryValue(pInfo->m_sName, pInfo->m_CachedValue);    
+    pInfo->m_pBlackboard->SetEntryValue(pInfo->m_sName, pInfo->m_CachedValue);
 
     return true;
   }
