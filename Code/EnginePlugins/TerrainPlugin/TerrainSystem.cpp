@@ -541,32 +541,32 @@ ezTerrainSystem::CullRegion ezTerrainSystem::MakeCullRegion(const ezTerrainData_
 }
 
 /// Hashes the parts of a spline brush that FindSplineNodeRange selected, in world space.
-static void HashSplineNodes(ezHashStreamWriter64& writer, const ezTerrainData_Brush& brush, ezUInt32 uiFirstNode, ezUInt32 uiLastNode)
+static void HashSplineNodes(ezHashStreamWriter64& inout_writer, const ezTerrainData_Brush& brush, ezUInt32 uiFirstNode, ezUInt32 uiLastNode)
 {
-  writer << uiFirstNode << uiLastNode << brush.m_fSplineLength << brush.m_bSplineClosed;
+  inout_writer << uiFirstNode << uiLastNode << brush.m_fSplineLength << brush.m_bSplineClosed;
 
   for (ezUInt32 i = uiFirstNode; i <= uiLastNode; ++i)
   {
     const auto& n = brush.m_SplineNodes[i];
-    writer << n.m_vPosition.x << n.m_vPosition.y << n.m_vPosition.z;
-    writer << n.m_vUpDir.x << n.m_vUpDir.y << n.m_vUpDir.z;
-    writer << n.m_fArcLength;
+    inout_writer << n.m_vPosition.x << n.m_vPosition.y << n.m_vPosition.z;
+    inout_writer << n.m_vUpDir.x << n.m_vUpDir.y << n.m_vUpDir.z;
+    inout_writer << n.m_fArcLength;
   }
 }
 
 /// Hashes all brush properties that affect a bake, except the spline nodes.
-static void HashBrushProperties(ezHashStreamWriter64& writer, const ezTerrainData_Brush& brush)
+static void HashBrushProperties(ezHashStreamWriter64& inout_writer, const ezTerrainData_Brush& brush)
 {
-  writer << brush.m_vPosition.x << brush.m_vPosition.y << brush.m_vPosition.z;
-  writer << brush.m_qRotation.x << brush.m_qRotation.y << brush.m_qRotation.z << brush.m_qRotation.w;
-  writer << brush.m_vHalfExtents.x << brush.m_vHalfExtents.y;
-  writer << brush.m_fHalfExtentZ << brush.m_fHalfExtentYTop;
-  writer << brush.m_fInnerRadius << brush.m_fOuterRadius << brush.m_fFalloff;
-  writer << brush.m_ModifyMode.GetValue();
-  writer << brush.m_uiMaterialIndex << brush.m_fMaterialStrength;
-  writer << brush.m_fNoiseStrength << brush.m_fNoiseFrequency;
-  writer << brush.m_iPriority;
-  brush.m_Tags.Save(writer);
+  inout_writer << brush.m_vPosition.x << brush.m_vPosition.y << brush.m_vPosition.z;
+  inout_writer << brush.m_qRotation.x << brush.m_qRotation.y << brush.m_qRotation.z << brush.m_qRotation.w;
+  inout_writer << brush.m_vHalfExtents.x << brush.m_vHalfExtents.y;
+  inout_writer << brush.m_fHalfExtentZ << brush.m_fHalfExtentYTop;
+  inout_writer << brush.m_fInnerRadius << brush.m_fOuterRadius << brush.m_fFalloff;
+  inout_writer << brush.m_ModifyMode.GetValue();
+  inout_writer << brush.m_uiMaterialIndex << brush.m_fMaterialStrength;
+  inout_writer << brush.m_fNoiseStrength << brush.m_fNoiseFrequency;
+  inout_writer << brush.m_iPriority;
+  brush.m_Tags.Save(inout_writer);
 }
 
 /// Finalizes a contribution hash, making sure it can't be confused with 'does not affect'.
@@ -647,7 +647,7 @@ static bool UpdateBrushContributions(ezDynamicArray<ezTerrainBrushContribution>&
 ///
 /// Brush slots are handed out in activation order, so the same set of brushes can end up in different slots.
 /// The result is stored for detecting stale baked data, where that must not count as a change.
-static void HashBrushContributions(ezHashStreamWriter64& writer, const ezDynamicArray<ezTerrainBrushContribution>& contributions)
+static void HashBrushContributions(ezHashStreamWriter64& inout_writer, const ezDynamicArray<ezTerrainBrushContribution>& contributions)
 {
   ezHybridArray<ezUInt64, 16> hashes;
   hashes.SetCountUninitialized(contributions.GetCount());
@@ -659,10 +659,10 @@ static void HashBrushContributions(ezHashStreamWriter64& writer, const ezDynamic
 
   hashes.Sort();
 
-  writer << hashes.GetCount();
+  inout_writer << hashes.GetCount();
   for (ezUInt64 uiHash : hashes)
   {
-    writer << uiHash;
+    inout_writer << uiHash;
   }
 }
 
