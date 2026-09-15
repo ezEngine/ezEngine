@@ -8,13 +8,16 @@
 
 struct ezMsgTransformChanged;
 struct ezMsgSplineChanged;
+class ezSplineComponent;
 
 /// Abstract base for all terrain brush components.
 ///
 /// Handles creation and cleanup of TerrainSystem brushes, including automatic spline-path support:
-/// if an ezSplineComponent exists on the same game object the brush stamps along the spline instead of
-/// acting as a single brush. Properties common to 2D and 3D brushes are declared here and inherited by
-/// both ezTerrainBrush2DComponent and ezTerrainBrush3DComponent.
+/// if an ezSplineComponent exists on the same game object, the brush cross-section is swept along the
+/// spline and HalfSizeX is ignored. The spline is tessellated on the CPU and evaluated as one brush in
+/// the bake shaders, so overlapping parts of the path do not apply the brush twice.
+/// Properties common to 2D and 3D brushes are declared here and inherited by both ezTerrainBrush2DComponent
+/// and ezTerrainBrush3DComponent.
 class EZ_TERRAINPLUGIN_DLL ezTerrainBrushBaseComponent : public ezComponent
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezTerrainBrushBaseComponent, ezComponent);
@@ -89,6 +92,16 @@ protected:
   virtual void FillBrushSpecificProperties(ezTerrainData_Brush& brush, float fHalfSizeX) = 0;
 
   ezSmallArray<ezUInt32, 1> m_BrushIndices;
+
+  /// Tessellates the spline into m_SplineCache.
+  void UpdateSplineCache(const ezSplineComponent& spline);
+
+  /// Polyline through the spline on the same object, in the spline's local space.
+  ///
+  /// Tessellating the spline is by far the most expensive part of RefreshBrushes. Transform and property
+  /// changes only transform the cached nodes, the spline is only tessellated again when it changes.
+  ezDynamicArray<ezTerrainData_SplineNode> m_SplineCache;
+  ezComponentHandle m_hSplineCacheSource; ///< The spline m_SplineCache was built from. Invalid if the cache is outdated.
 
   float m_fHalfSizeX = 0.0f;
   float m_fInnerRadius = 0.0f;

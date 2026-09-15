@@ -381,53 +381,6 @@ ezResult ezShaderCompilerHLSL::AddFakeBindGroupAssignments(ezShaderProgramData& 
 
 const char* GetProfileName(ezStringView sPlatform, ezGALShaderStage::Enum stage)
 {
-  if (sPlatform == "DX11_SM40_93")
-  {
-    switch (stage)
-    {
-      case ezGALShaderStage::VertexShader:
-        return "vs_4_0_level_9_3";
-      case ezGALShaderStage::PixelShader:
-        return "ps_4_0_level_9_3";
-      default:
-        break;
-    }
-  }
-
-  if (sPlatform == "DX11_SM40")
-  {
-    switch (stage)
-    {
-      case ezGALShaderStage::VertexShader:
-        return "vs_4_0";
-      case ezGALShaderStage::GeometryShader:
-        return "gs_4_0";
-      case ezGALShaderStage::PixelShader:
-        return "ps_4_0";
-      case ezGALShaderStage::ComputeShader:
-        return "cs_4_0";
-      default:
-        break;
-    }
-  }
-
-  if (sPlatform == "DX11_SM41")
-  {
-    switch (stage)
-    {
-      case ezGALShaderStage::GeometryShader:
-        return "gs_4_0";
-      case ezGALShaderStage::VertexShader:
-        return "vs_4_1";
-      case ezGALShaderStage::PixelShader:
-        return "ps_4_1";
-      case ezGALShaderStage::ComputeShader:
-        return "cs_4_1";
-      default:
-        break;
-    }
-  }
-
   if (sPlatform == "DX11_SM50")
   {
     switch (stage)

@@ -2,7 +2,7 @@
 
 #define PLATFORM_DX11 EZ_OFF
 
-#if defined(DX11_SM40_93) || defined(DX11_SM40) || defined(DX11_SM41) || defined(DX11_SM50)
+#if defined(DX11_SM50)
 
 #  undef PLATFORM_SHADER
 #  define PLATFORM_SHADER EZ_ON
