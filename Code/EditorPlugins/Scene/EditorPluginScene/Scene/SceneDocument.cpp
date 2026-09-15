@@ -740,6 +740,29 @@ void ezSceneDocument::HideUnselectedObjects()
   ShowOrHideSelectedObjects(ShowOrHide::Show);
 }
 
+bool ezSceneDocument::AreSelectedObjectsHidden() const
+{
+  bool bHasGameObject = false;
+
+  const auto& sel = GetSelectionManager()->GetSelection();
+
+  for (auto pItem : sel)
+  {
+    if (!pItem->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+      continue;
+
+    bHasGameObject = true;
+
+    const bool bHidden = m_DocumentObjectMetaData->BeginReadMetaData(pItem->GetGuid())->m_bHidden;
+    m_DocumentObjectMetaData->EndReadMetaData();
+
+    if (!bHidden)
+      return false;
+  }
+
+  return bHasGameObject;
+}
+
 void ezSceneDocument::SetGameMode(GameMode::Enum mode)
 {
   if (m_GameMode == mode)

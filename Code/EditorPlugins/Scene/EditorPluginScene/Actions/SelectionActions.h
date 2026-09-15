@@ -90,6 +90,9 @@ public:
 private:
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
 
+  /// Updates the action state when the 'hidden' flag of an object changes.
+  void DocumentMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
+
   void UpdateEnableState();
 
   ezSceneDocument* m_pSceneDocument;

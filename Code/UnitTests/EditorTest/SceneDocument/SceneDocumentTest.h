@@ -18,6 +18,7 @@ private:
     ST_PrefabOperations,
     ST_ComponentOperations,
     ST_ObjectPropertyPath,
+    ST_HideShowSelection,
   };
 
   virtual void SetupSubTests() override;
@@ -31,6 +32,7 @@ private:
   void PrefabOperations();
   void ComponentOperations();
   void ObjectPropertyPath();
+  void HideShowSelection();
 
   static void CheckHierarchy(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pRoot, ezDelegate<void(const ezDocumentObject* pChild)> functor);
 
