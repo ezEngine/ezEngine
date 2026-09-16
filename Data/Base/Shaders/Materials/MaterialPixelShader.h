@@ -169,16 +169,28 @@ PS_OUT main(PS_IN Input)
   }
   else if (RenderPass == EDITOR_RENDER_PASS_LIGHT_COUNT || RenderPass == EDITOR_RENDER_PASS_DECAL_COUNT)
   {
-    float lightCount = RenderPass == EDITOR_RENDER_PASS_LIGHT_COUNT ? GET_LIGHT_INDEX(clusterData.counts) : GET_DECAL_INDEX(clusterData.counts);
+    uint count = (RenderPass == EDITOR_RENDER_PASS_LIGHT_COUNT) ? GET_LIGHT_INDEX(clusterData.counts) : GET_DECAL_INDEX(clusterData.counts);
     float3 heatmap = 0;
-    if (lightCount > 0)
+    if (count > 0)
     {
-      float x = (lightCount - 1) / 16;
+      float x = float(count - 1) / 16;
       heatmap.r = saturate(x);
       heatmap.g = saturate(2 - x);
     }
 
-    Output.Color = float4(lerp(litColor, heatmap, 0.7), 1);
+    const int TILE = 32; // repeat the readout every 32 screen pixels
+
+    int2 local = ((int2)Input.Position.xy % TILE);
+    float glyph = 0;
+    if (count > 0)
+    {
+      glyph = SampleNumber(count, local);
+    }
+
+    float3 color = lerp(litColor, heatmap, 0.2);
+    float3 glyphColor = lerp(heatmap, float3(1, 1, 1), 0.3);
+    color = lerp(color, glyphColor, saturate(glyph));
+    Output.Color = float4(color, 1);
   }
   else if (RenderPass == EDITOR_RENDER_PASS_TEXCOORDS_UV0)
   {

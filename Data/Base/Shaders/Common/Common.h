@@ -148,3 +148,58 @@ float SmoothMinCubic(float a, float b, float k = 0.1)
   float h = max(k - abs(a - b), 0.0) / k;
   return min(a, b) - h * h * h * k * (1.0 / 6.0);
 }
+
+// Returns 1 if pixel (cell) is inside a lit part of 'digit'. cell is in [0..2]x[0..4].
+//
+// Each glyph is 3x5 pixels. Every row is padded to 4 bits so that it occupies exactly
+// one hex digit, which makes the constants below readable as the glyphs they encode:
+// the 5 hex digits are the rows from top to bottom, and within a row the 3 low bits
+// are the pixels from left to right (e.g. 7 = '###', 5 = '# #', 1 = '  #').
+float SampleDigit(uint digit, int2 cell)
+{
+  static const uint s_Digits[10] =
+  {
+    0x75557, // 0
+    0x26227, // 1
+    0x71747, // 2
+    0x71717, // 3
+    0x55711, // 4
+    0x74717, // 5
+    0x74757, // 6
+    0x71111, // 7
+    0x75757, // 8
+    0x75717  // 9
+  };
+
+  if (any(cell < 0) || cell.x > 2 || cell.y > 4 || digit > 9)
+    return 0;
+
+  return (s_Digits[digit] >> ((4 - cell.y) * 4 + (2 - cell.x))) & 1;
+}
+
+// Renders up to 3 decimal digits of 'x' into the cell grid, magnified by 'pixelSize'.
+float SampleNumber(uint x, int2 cell, int pixelSize = 3)
+{
+  x = min(x, 999); // clamp to 3 digits
+
+  cell /= pixelSize; // scale down to glyph coordinates
+  if (cell.x < 0)
+    return 0;
+
+  uint slot = uint(cell.x) >> 2;       // which digit this pixel falls into
+  int2 local = int2(cell.x & 3, cell.y); // position within that digit's slot
+
+  uint numDigits = (x >= 100) ? 3 : ((x >= 10) ? 2 : 1);
+  if (slot >= numDigits)
+    return 0;
+
+  // Shift the wanted digit into the ones place, most significant digit first.
+  uint digit = x;
+  uint exponent = numDigits - 1 - slot;
+  if (exponent >= 1)
+    digit /= 10;
+  if (exponent >= 2)
+    digit /= 10;
+
+  return SampleDigit(digit % 10, local);
+}
