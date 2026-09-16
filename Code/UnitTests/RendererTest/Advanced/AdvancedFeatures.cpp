@@ -11,7 +11,81 @@
 #include <RendererTest/Advanced/AdvancedFeatures.h>
 #include <RendererTest/Basics/RendererTestUtils.h>
 #undef CreateWindow
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  include <sys/prctl.h>
+#endif
 
+namespace
+{
+  /// One column of the depth bias test. Each column draws a reference quad, then the same quad again pushed away from the viewer by s_uiDepthBiasGapUnits and rasterized with the depth bias under test. The biased quad wins the 'Less' depth test exactly if the bias pulls it back in front of the reference quad.
+  struct DepthBiasCase
+  {
+    const char* m_szName;
+    bool m_bSloped;        ///< Whether the quads are tilted, which is what makes the slope scaled bias do anything.
+    ezInt32 m_iDepthBias;
+    float m_fSlopeScaledDepthBias;
+    float m_fClampUnits;   ///< Depth bias clamp, in depth format units. Zero means no clamping.
+    bool m_bExpectVisible; ///< Whether the biased quad is expected to pass the depth test.
+  };
+
+  constexpr DepthBiasCase s_DepthBiasCases[] = {
+    // Without any bias the biased quad is behind the reference quad and must not show up. This is the baseline the other cases are contrasted against.
+    {"NoBias", false, 0, 0.0f, 0.0f, false},
+    // A negative constant bias is much larger than the gap and pulls the quad in front.
+    {"ConstantTowardsViewer", false, -4000, 0.0f, 0.0f, true},
+    // The same magnitude in the other direction pushes it further away.
+    {"ConstantAwayFromViewer", false, 4000, 0.0f, 0.0f, false},
+    // The slope scaled bias is multiplied with the depth slope of the primitive, which is zero for a screen aligned quad.
+    {"SlopeScaledOnFlatGeometry", false, 0, -8.0f, 0.0f, false},
+    {"SlopedNoBias", true, 0, 0.0f, 0.0f, false},
+    // Same but with tilted geometry. Now the non-zero slope makes the slope scaled bias take effect.
+    {"SlopedSlopeScaled", true, 0, -4.0f, 0.0f, true},
+    {"SlopedConstant", true, -4000, 0.0f, 0.0f, true},
+    // The clamp limits the bias to a magnitude smaller than the gap, so the quad stays hidden despite the large constant bias.
+    {"ClampBelowGap", false, -4000, 0.0f, -50.0f, false},
+    // The same clamp, but now permissive enough to still clear the gap.
+    {"ClampAboveGap", false, -4000, 0.0f, -2000.0f, true},
+  };
+
+  constexpr ezUInt32 s_uiDepthBiasCaseCount = EZ_ARRAY_SIZE(s_DepthBiasCases);
+  constexpr ezUInt32 s_uiDepthBiasCellSize = 32;
+  constexpr float s_fDepthBiasBaseDepth = 0.5f;
+  /// Depth difference between the reference and the biased quad, in depth format units. Small enough that every 'visible' case clears it by at least a factor of four, large enough that the depth buffer quantization cannot swallow it.
+  constexpr float s_fDepthBiasGapUnits = 200.0f;
+  /// Depth added per unit of the quad's local x, which spans the full cell. The resulting window space slope is 2 * s / s_uiDepthBiasCellSize.
+  constexpr float s_fDepthBiasSlope = 0.15f;
+
+  /// One cell of the conservative rasterization test. Each cell rasterizes a single quad, either one that is too small to contain a pixel center or
+  /// one that comfortably covers 8x8 pixels, and counts how many pixels of the cell ended up lit.
+  struct ConservativeRasterCase
+  {
+    const char* m_szName;
+    bool m_bSubPixel; ///< Whether the quad is the sub-pixel one. Otherwise it is the 8x8 pixel one.
+    bool m_bConservative;
+    ezUInt32 m_uiMinLitPixels;
+    ezUInt32 m_uiMaxLitPixels;
+  };
+
+  constexpr ConservativeRasterCase s_ConservativeRasterCases[] = {
+    // Standard rasterization only produces a fragment when the pixel center is covered, which the sub-pixel quad deliberately avoids.
+    {"SubPixelNormal", true, false, 0, 0},
+    // Conservative (overestimated) rasterization produces a fragment for every pixel the quad touches at all, so the very same quad now shows up.
+    {"SubPixelConservative", true, true, 1, 9},
+    // A quad that covers whole pixels must be unaffected: overestimation may only ever add coverage, never remove any.
+    {"CoveringNormal", false, false, 64, 64},
+    {"CoveringConservative", false, true, 64, 100},
+  };
+
+  constexpr ezUInt32 s_uiConservativeRasterCaseCount = EZ_ARRAY_SIZE(s_ConservativeRasterCases);
+  constexpr ezUInt32 s_uiConservativeRasterCellSize = 16;
+  /// Window space rect of the sub-pixel quad within its cell. It lies inside pixel 8 but excludes that pixel's center at 8.5.
+  constexpr float s_fConservativeRasterSubPixelMin = 8.05f;
+  constexpr float s_fConservativeRasterSubPixelMax = 8.45f;
+  /// Window space rect of the covering quad within its cell. The fractional bounds keep the pixel centers 4.5 to 11.5 covered without landing on a
+  /// pixel edge, so standard rasterization produces exactly 8x8 fragments regardless of the fill rule.
+  constexpr float s_fConservativeRasterCoveringMin = 4.4f;
+  constexpr float s_fConservativeRasterCoveringMax = 11.6f;
+} // namespace
 
 void ezRendererTestAdvancedFeatures::SetupSubTests()
 {
@@ -52,6 +126,13 @@ void ezRendererTestAdvancedFeatures::SetupSubTests()
   {
     AddSubTest("09 - MSAAResolve", SubTests::ST_MSAAResolve);
   }
+
+  AddSubTest("10 - ViewFormatOverride", SubTests::ST_ViewFormatOverride);
+  AddSubTest("11 - DepthBias", SubTests::ST_DepthBias);
+  if (caps.m_bSupportsConservativeRasterization)
+  {
+    AddSubTest("12 - ConservativeRasterization", SubTests::ST_ConservativeRasterization);
+  }
 }
 
 ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
@@ -90,6 +171,50 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
     m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColor.ezShader");
     m_hShader3 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColor2.ezShader");
+  }
+
+  if (iIdentifier == ST_ViewFormatOverride)
+  {
+    // Rendering through both the UNorm and the sRGB view of one image is only guaranteed for one of the two channel orders, so use whichever the device supports.
+    const ezGALDeviceCapabilities& caps = m_pDevice->GetCapabilities();
+    auto IsRenderTarget = [&](ezGALResourceFormat::Enum format)
+    { return caps.m_FormatSupport[format].IsSet(ezGALResourceFormatSupport::RenderTarget); };
+
+    ezEnum<ezGALResourceFormat> unormFormat;
+    if (IsRenderTarget(ezGALResourceFormat::BGRAUByteNormalized) && IsRenderTarget(ezGALResourceFormat::BGRAUByteNormalizedsRGB))
+    {
+      unormFormat = ezGALResourceFormat::BGRAUByteNormalized;
+      m_OverrideSrgbFormat = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+    }
+    else if (IsRenderTarget(ezGALResourceFormat::RGBAUByteNormalized) && IsRenderTarget(ezGALResourceFormat::RGBAUByteNormalizedsRGB))
+    {
+      unormFormat = ezGALResourceFormat::RGBAUByteNormalized;
+      m_OverrideSrgbFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+    }
+    else
+    {
+      EZ_TEST_FAILURE("No suitable format", "Neither the BGRA nor the RGBA UNorm/sRGB pair is supported as a render target, at least one of them has to be.");
+      return EZ_FAILURE;
+    }
+
+    // Both textures are created as UNorm, the second one is rendered into through an sRGB render target view so the hardware applies the linear -> sRGB transfer function on write and the stored bits differ. Combining both with an sRGB sampled view isolates the write-side and read-side effects of the format override against each other.
+    for (ezUInt32 i = 0; i < 2; i++)
+    {
+      ezGALTextureCreationDescription desc;
+      desc.SetAsRenderTarget(8, 8, unormFormat, ezGALMSAASampleCount::None);
+      m_hOverrideTexture2D[i] = m_pDevice->CreateTexture(desc);
+
+      ezGALRenderTargetViewCreationDescription viewDesc;
+      viewDesc.m_hTexture = m_hOverrideTexture2D[i];
+      viewDesc.m_OverrideViewFormat = i == 0 ? ezEnum<ezGALResourceFormat>(ezGALResourceFormat::Invalid) : m_OverrideSrgbFormat;
+
+      m_hOverrideRTV[i] = m_pDevice->GetRenderTargetView(viewDesc);
+      if (!EZ_TEST_BOOL(!m_hOverrideRTV[i].IsInvalidated()))
+        return EZ_FAILURE;
+    }
+
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
+    m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColor.ezShader");
   }
 
   if (iIdentifier == ST_FloatSampling)
@@ -258,13 +383,9 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     opt.m_Arguments.PushBack(sRendererName);
     opt.m_Arguments.PushBack("-outputDir");
     opt.m_Arguments.PushBack(ezTestFramework::GetInstance()->GetAbsOutputPath());
-
-
     m_pOffscreenProcess = EZ_DEFAULT_NEW(ezProcess);
-    EZ_SUCCEED_OR_RETURN(m_pOffscreenProcess->Launch(opt));
 
-    m_bExiting = false;
-    m_uiReceivedTextures = 0;
+    // Start the IPC server and wait for the "Connecting" state before starting the client process or it will fail to connect.
     m_pChannel = ezIpcChannel::CreatePipeChannel(sIPC, ezIpcChannel::Mode::Server);
     m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
     m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc, this));
@@ -273,6 +394,20 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     {
       ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
     }
+
+    EZ_SUCCEED_OR_RETURN(m_pOffscreenProcess->Launch(opt));
+
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
+    // pidfd_getfd which is used to open the shared textures on Linux Vulkan is blocked by Yama ptrace_scope. With this command we allow our child process to ptrace us.
+    if (prctl(PR_SET_PTRACER, m_pOffscreenProcess->GetProcessID()) != 0)
+    {
+      ezLog::Error("prctl command failed with: {}", ezArgErrno(errno));
+    }
+#  endif
+
+    m_bExiting = false;
+    m_uiReceivedTextures = 0;
+
     m_SharedTextureDesc.SetAsRenderTarget(8, 8, ezGALResourceFormat::BGRAUByteNormalizedsRGB);
     m_SharedTextureDesc.m_Type = ezGALTextureType::Texture2DShared;
 
@@ -381,6 +516,87 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     m_hMSAAStencilShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/StencilColor.ezShader");
   }
 
+  if (iIdentifier == ST_DepthBias)
+  {
+    // The depth bias is expressed in multiples of the smallest resolvable difference of the depth format, so only formats with a known fixed-point
+    // representation can be used here. For a floating point depth buffer that unit depends on the depth values of the primitive itself.
+    const ezGALDeviceCapabilities& caps = m_pDevice->GetCapabilities();
+    ezEnum<ezGALResourceFormat> depthFormat;
+    if (caps.m_FormatSupport[ezGALResourceFormat::D16].IsSet(ezGALResourceFormatSupport::RenderTarget))
+    {
+      depthFormat = ezGALResourceFormat::D16;
+      m_fDepthBiasUnit = 1.0f / 65535.0f;
+    }
+    else if (caps.m_FormatSupport[ezGALResourceFormat::D24S8].IsSet(ezGALResourceFormatSupport::RenderTarget))
+    {
+      depthFormat = ezGALResourceFormat::D24S8;
+      m_fDepthBiasUnit = 1.0f / 16777215.0f;
+    }
+    else
+    {
+      EZ_TEST_FAILURE("No suitable format", "Neither D16 nor D24S8 is supported as a depth target, at least one of them has to be.");
+      return EZ_FAILURE;
+    }
+
+    {
+      // Linear format so the readback values can be compared without an sRGB conversion.
+      ezGALTextureCreationDescription desc;
+      desc.SetAsRenderTarget(s_uiDepthBiasCellSize * s_uiDepthBiasCaseCount, s_uiDepthBiasCellSize, ezGALResourceFormat::BGRAUByteNormalized, ezGALMSAASampleCount::None);
+      m_hDepthBiasColor = m_pDevice->CreateTexture(desc);
+      if (!EZ_TEST_BOOL(!m_hDepthBiasColor.IsInvalidated()))
+        return EZ_FAILURE;
+    }
+    {
+      ezGALTextureCreationDescription desc;
+      desc.SetAsRenderTarget(s_uiDepthBiasCellSize * s_uiDepthBiasCaseCount, s_uiDepthBiasCellSize, depthFormat, ezGALMSAASampleCount::None);
+      m_hDepthBiasDepth = m_pDevice->CreateTexture(desc);
+      if (!EZ_TEST_BOOL(!m_hDepthBiasDepth.IsInvalidated()))
+        return EZ_FAILURE;
+    }
+
+    {
+      // A full-NDC quad. StencilColor.ezShader only reads POSITION, the depth of each quad comes entirely from its transform.
+      ezGeometry geom;
+      geom.AddRect(ezVec2(2.0f, 2.0f), 1, 1);
+
+      ezMeshBufferResourceDescriptor desc;
+      desc.AddStream(ezMeshVertexStreamType::Position);
+      desc.AddStream(ezMeshVertexStreamType::Color0);
+      desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+
+      m_hDepthBiasQuadMesh = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("DepthBiasQuad", std::move(desc), "DepthBiasQuad");
+    }
+
+    m_hDepthBiasShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/StencilColor.ezShader");
+  }
+
+  if (iIdentifier == ST_ConservativeRasterization)
+  {
+    {
+      // Linear format so the readback values can be compared without an sRGB conversion.
+      ezGALTextureCreationDescription desc;
+      desc.SetAsRenderTarget(s_uiConservativeRasterCellSize * s_uiConservativeRasterCaseCount, s_uiConservativeRasterCellSize, ezGALResourceFormat::BGRAUByteNormalized, ezGALMSAASampleCount::None);
+      m_hConservativeRasterColor = m_pDevice->CreateTexture(desc);
+      if (!EZ_TEST_BOOL(!m_hConservativeRasterColor.IsInvalidated()))
+        return EZ_FAILURE;
+    }
+
+    {
+      // A full-NDC quad. StencilColor.ezShader only reads POSITION, the position of each quad comes entirely from its transform.
+      ezGeometry geom;
+      geom.AddRect(ezVec2(2.0f, 2.0f), 1, 1);
+
+      ezMeshBufferResourceDescriptor desc;
+      desc.AddStream(ezMeshVertexStreamType::Position);
+      desc.AddStream(ezMeshVertexStreamType::Color0);
+      desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+
+      m_hConservativeRasterQuadMesh = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("ConservativeRasterQuad", std::move(desc), "ConservativeRasterQuad");
+    }
+
+    m_hConservativeRasterShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/StencilColor.ezShader");
+  }
+
   switch (iIdentifier)
   {
     case SubTests::ST_ReadRenderTarget:
@@ -410,8 +626,13 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
       m_ImgCompFrames.PushBack(ImageCaptureFrames::Material_ColorChange2);
       m_ImgCompFrames.PushBack(ImageCaptureFrames::Material_ChangeTexture);
       break;
+    case SubTests::ST_ViewFormatOverride:
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
+      break;
     case SubTests::ST_MSAAResolve:
-      // The MSAA test verifies the resolved texture by readback, no image comparison frame needed.
+    case SubTests::ST_DepthBias:
+    case SubTests::ST_ConservativeRasterization:
+      // Uses readback for verification
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -441,7 +662,6 @@ ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier
     for (ezUInt32 i = 0; i < s_SharedTextureCount; i++)
     {
       m_pDevice->DestroySharedTexture(m_hSharedTextures[i]);
-      m_hSharedTextures[i].Invalidate();
     }
     m_SharedTextureQueue.Clear();
 
@@ -458,22 +678,24 @@ ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier
 #endif
   else if (iIdentifier == ST_FloatSampling)
   {
-    if (!m_hDepthSamplerState.IsInvalidated())
-    {
-      ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hDepthSamplerState);
-      m_hDepthSamplerState.Invalidate();
-    }
+    ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hDepthSamplerState);
   }
+
   if (iIdentifier == ST_ProxyTexture)
   {
     for (ezUInt32 i = 0; i < 2; i++)
     {
-      if (!m_hProxyTexture2D[i].IsInvalidated())
-      {
-        ezGALDevice::GetDefaultDevice()->DestroyProxyTexture(m_hProxyTexture2D[i]);
-        m_hProxyTexture2D[i].Invalidate();
-      }
+      ezGALDevice::GetDefaultDevice()->DestroyProxyTexture(m_hProxyTexture2D[i]);
     }
+  }
+  if (iIdentifier == ST_ViewFormatOverride)
+  {
+    for (ezUInt32 i = 0; i < 2; i++)
+    {
+      m_hOverrideRTV[i].Invalidate();
+      m_pDevice->DestroyTexture(m_hOverrideTexture2D[i]);
+    }
+    m_OverrideSrgbFormat = ezGALResourceFormat::Invalid;
   }
   m_hShader2.Invalidate();
   m_hShader3.Invalidate();
@@ -487,33 +709,30 @@ ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier
     m_MSAAReadback.Reset();
     m_hMSAAQuadMesh.Invalidate();
     m_hMSAAStencilShader.Invalidate();
-    if (!m_hMSAAColor.IsInvalidated())
-    {
-      m_pDevice->DestroyTexture(m_hMSAAColor);
-      m_hMSAAColor.Invalidate();
-    }
-    if (!m_hMSAADepthStencil.IsInvalidated())
-    {
-      m_pDevice->DestroyTexture(m_hMSAADepthStencil);
-      m_hMSAADepthStencil.Invalidate();
-    }
-    if (!m_hMSAAResolveTarget.IsInvalidated())
-    {
-      m_pDevice->DestroyTexture(m_hMSAAResolveTarget);
-      m_hMSAAResolveTarget.Invalidate();
-    }
+    m_pDevice->DestroyTexture(m_hMSAAColor);
+    m_pDevice->DestroyTexture(m_hMSAADepthStencil);
+    m_pDevice->DestroyTexture(m_hMSAAResolveTarget);
   }
 
-  if (!m_hTexture2D.IsInvalidated())
+  m_pDevice->DestroyTexture(m_hTexture2D);
+  m_pDevice->DestroyTexture(m_hTexture2DArray);
+
+  if (iIdentifier == ST_DepthBias)
   {
-    m_pDevice->DestroyTexture(m_hTexture2D);
-    m_hTexture2D.Invalidate();
+    m_DepthBiasReadback.Reset();
+    m_hDepthBiasQuadMesh.Invalidate();
+    m_hDepthBiasShader.Invalidate();
+    m_pDevice->DestroyTexture(m_hDepthBiasColor);
+    m_pDevice->DestroyTexture(m_hDepthBiasDepth);
+    m_hDepthBiasDepth.Invalidate();
   }
 
-  if (!m_hTexture2DArray.IsInvalidated())
+  if (iIdentifier == ST_ConservativeRasterization)
   {
-    m_pDevice->DestroyTexture(m_hTexture2DArray);
-    m_hTexture2DArray.Invalidate();
+    m_ConservativeRasterReadback.Reset();
+    m_hConservativeRasterQuadMesh.Invalidate();
+    m_hConservativeRasterShader.Invalidate();
+    m_pDevice->DestroyTexture(m_hConservativeRasterColor);
   }
 
   DestroyWindow();
@@ -563,6 +782,15 @@ ezTestAppRun ezRendererTestAdvancedFeatures::RunSubTest(ezInt32 iIdentifier, ezU
       break;
     case SubTests::ST_MSAAResolve:
       MSAAResolve();
+      break;
+    case SubTests::ST_ViewFormatOverride:
+      ViewFormatOverride();
+      break;
+    case SubTests::ST_DepthBias:
+      DepthBias();
+      break;
+    case SubTests::ST_ConservativeRasterization:
+      ConservativeRasterization();
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -732,6 +960,84 @@ void ezRendererTestAdvancedFeatures::ProxyTexture()
     m_bCaptureImage = true;
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2DArray, {1, 1, 0, 1});
+  }
+  EndCommands();
+}
+
+void ezRendererTestAdvancedFeatures::ViewFormatOverride()
+{
+  // Render the same gradient into two identically created UNorm textures, the second one through an sRGB render target view.
+  BeginCommands("Offscreen");
+  for (ezUInt32 i = 0; i < 2; i++)
+  {
+    TransitionTexture(m_hOverrideTexture2D[i], ezGALResourceState::RenderTarget);
+
+    ezGALRenderingSetup renderingSetup;
+    renderingSetup.SetColorTarget(0, m_hOverrideRTV[i]);
+    renderingSetup.SetClearColor(0, ezColor::RebeccaPurple);
+
+    ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
+    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
+    SetClipSpace();
+
+    ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
+    ezRenderContext::GetDefaultInstance()->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+
+    ezRenderContext::GetDefaultInstance()->EndRendering();
+  }
+  EndCommands();
+
+  // Each column combines one of the two textures with one of the two sampled view formats, so the write-side and read-side overrides can be told apart:
+  // 0: write UNorm, read UNorm - the raw gradient.
+  // 1: write sRGB,  read UNorm - encoded bits sampled raw, brighter.
+  // 2: write UNorm, read sRGB  - raw bits decoded on read, darker.
+  // 3: write sRGB,  read sRGB  - the encode cancels the decode, so this must match column 0.
+  struct Column
+  {
+    ezUInt32 m_uiTexture;
+    ezEnum<ezGALResourceFormat> m_ReadFormat;
+  };
+  const Column columns[] = {
+    {0, ezGALResourceFormat::Invalid},
+    {1, ezGALResourceFormat::Invalid},
+    {0, m_OverrideSrgbFormat},
+    {1, m_OverrideSrgbFormat},
+  };
+
+  const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
+  const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
+  const ezUInt32 uiColumns = EZ_ARRAY_SIZE(columns);
+  const float fElementWidth = fWidth / uiColumns;
+
+  const ezMat4 mMVP = CreateSimpleMVP(fElementWidth / fHeight);
+  BeginCommands("ViewFormatOverride");
+  {
+    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+    TransitionTexture(m_hDepthStencilTexture, ezGALResourceState::DepthStencilWrite);
+    TransitionTexture(m_hOverrideTexture2D[0], ezGALResourceState::ShaderResource);
+    TransitionTexture(m_hOverrideTexture2D[1], ezGALResourceState::ShaderResource);
+
+    for (ezUInt32 i = 0; i < uiColumns; i++)
+    {
+      if (i == uiColumns - 1)
+        m_bCaptureImage = true;
+
+      ezRectFloat viewport = ezRectFloat(fElementWidth * i, 0, fElementWidth, fHeight);
+      BeginRendering(ezColor::RebeccaPurple, i == 0 ? 0xFFFFFFFF : 0, &viewport);
+      {
+        ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+        bindGroup.BindTexture("DiffuseTexture", m_hOverrideTexture2D[columns[i].m_uiTexture], {}, columns[i].m_ReadFormat);
+        RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
+      }
+      EndRendering();
+
+      if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
+      {
+        TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
+        EZ_TEST_IMAGE(m_iFrame, 100);
+      }
+    }
   }
   EndCommands();
 }
@@ -1010,6 +1316,257 @@ void ezRendererTestAdvancedFeatures::MSAAResolve()
   EZ_TEST_BOOL_MSG(cornerPixel.r > 200, "Corner pixel should be red (encoder Clear, stencil != 1)");
   EZ_TEST_INT(cornerPixel.g, 0);
   EZ_TEST_INT(cornerPixel.b, 0);
+}
+
+void ezRendererTestAdvancedFeatures::DepthBias()
+{
+  // Verifies ezGALRasterizerStateCreationDescription::m_iDepthBias, m_fSlopeScaledDepthBias and m_fDepthBiasClamp.
+  //
+  // Every case gets its own square cell of the render target. In each cell a reference quad is drawn with an unbiased rasterizer state and depth writes enabled, then the exact same quad is drawn again, moved away from the viewer by a fixed gap and rasterized with the depth bias under test. Because both quads are coplanar apart from that gap, the biased quad passes the 'Less' depth test if and only if the applied bias exceeds the gap towards the viewer. The result is therefore a binary green (biased quad won) / red (reference quad still visible) per cell, which is
+  // verified via readback instead of a reference image.
+  //
+  // All bias magnitudes are expressed in multiples of the depth format's smallest resolvable difference, which is what m_iDepthBias is counted in. The exact value is implementation defined within a factor of two, hence the generous margins between the gap and the expected biases.
+
+  const bool bSupportsClamp = m_pDevice->GetCapabilities().m_bSupportsDepthBiasClamp;
+  if (!bSupportsClamp)
+  {
+    ezLog::Info("The depth bias clamp is not supported by this device, skipping the cases that rely on it.");
+  }
+
+  ezGALDepthStencilStateCreationDescription writeDepthDesc;
+  writeDepthDesc.m_bDepthEnable = true;
+  writeDepthDesc.m_bDepthWrite = true;
+  writeDepthDesc.m_DepthTestFunc = ezGALCompareFunc::Always;
+
+  ezGALDepthStencilStateCreationDescription testDepthDesc;
+  testDepthDesc.m_bDepthEnable = true;
+  testDepthDesc.m_bDepthWrite = false;
+  testDepthDesc.m_DepthTestFunc = ezGALCompareFunc::Less;
+
+  ezGALDepthStencilStateHandle hWriteDepth = m_pDevice->CreateDepthStencilState(writeDepthDesc);
+  ezGALDepthStencilStateHandle hTestDepth = m_pDevice->CreateDepthStencilState(testDepthDesc);
+
+  ezGALRasterizerStateCreationDescription rasterDesc;
+  rasterDesc.m_CullMode = ezGALCullMode::None;
+  ezGALRasterizerStateHandle hNoBias = m_pDevice->CreateRasterizerState(rasterDesc);
+
+  ezHybridArray<ezGALRasterizerStateHandle, s_uiDepthBiasCaseCount> biasStates;
+  for (const DepthBiasCase& testCase : s_DepthBiasCases)
+  {
+    ezGALRasterizerStateCreationDescription desc;
+    desc.m_CullMode = ezGALCullMode::None;
+    desc.m_iDepthBias = testCase.m_iDepthBias;
+    desc.m_fSlopeScaledDepthBias = testCase.m_fSlopeScaledDepthBias;
+    desc.m_fDepthBiasClamp = testCase.m_fClampUnits * m_fDepthBiasUnit;
+    biasStates.PushBack(m_pDevice->CreateRasterizerState(desc));
+  }
+
+  // Maps the quad's local NDC space onto the cell of the given case and places it at s_fDepthBiasBaseDepth, optionally tilted along x.
+  auto MakeTransform = [](ezUInt32 uiCase, bool bSloped, float fDepthOffset) -> ezMat4
+  {
+    const float fScaleX = 1.0f / s_uiDepthBiasCaseCount;
+    const float fCenterX = -1.0f + (2.0f * uiCase + 1.0f) * fScaleX;
+
+    ezMat4 m = ezMat4::MakeIdentity();
+    m.SetRow(0, ezVec4(fScaleX, 0.0f, 0.0f, fCenterX));
+    m.SetRow(2, ezVec4(bSloped ? s_fDepthBiasSlope : 0.0f, 0.0f, 1.0f, s_fDepthBiasBaseDepth + fDepthOffset));
+    return m;
+  };
+
+  ezRenderContext* pRenderContext = ezRenderContext::GetDefaultInstance();
+
+  auto DrawQuad = [&](const ezMat4& mTransform, const ezColor& color, ezGALDepthStencilStateHandle hDepthStencil, ezGALRasterizerStateHandle hRasterizer)
+  {
+    pRenderContext->SetDepthStencilState(hDepthStencil);
+    pRenderContext->SetRasterizerState(hRasterizer);
+
+    ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
+    ocb->m_MVP = mTransform;
+    ocb->m_Color = color;
+    pRenderContext->GetBindGroup().BindBuffer("PerObject", m_hObjectTransformCB);
+
+    pRenderContext->BindShader(m_hDepthBiasShader, ezShaderBindFlags::NoRasterizerState | ezShaderBindFlags::NoDepthStencilState);
+    pRenderContext->BindMeshBuffer(m_hDepthBiasQuadMesh);
+    pRenderContext->DrawMeshBuffer().AssertSuccess();
+  };
+
+  BeginCommands("DepthBias");
+  {
+    TransitionTexture(m_hDepthBiasColor, ezGALResourceState::RenderTarget);
+    TransitionTexture(m_hDepthBiasDepth, ezGALResourceState::DepthStencilWrite);
+
+    ezGALRenderingSetup renderingSetup;
+    renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hDepthBiasColor));
+    renderingSetup.SetClearColor(0, ezColor::Black);
+    renderingSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthBiasDepth));
+    renderingSetup.SetClearDepth();
+
+    ezRectFloat viewport = ezRectFloat(0, 0, (float)(s_uiDepthBiasCellSize * s_uiDepthBiasCaseCount), (float)s_uiDepthBiasCellSize);
+    pRenderContext->BeginRendering(renderingSetup, viewport);
+    SetClipSpace();
+
+    for (ezUInt32 i = 0; i < s_uiDepthBiasCaseCount; ++i)
+    {
+      const DepthBiasCase& testCase = s_DepthBiasCases[i];
+      DrawQuad(MakeTransform(i, testCase.m_bSloped, 0.0f), ezColor(1.0f, 0.0f, 0.0f), hWriteDepth, hNoBias);
+      DrawQuad(MakeTransform(i, testCase.m_bSloped, s_fDepthBiasGapUnits * m_fDepthBiasUnit), ezColor(0.0f, 1.0f, 0.0f), hTestDepth, biasStates[i]);
+    }
+
+    pRenderContext->EndRendering();
+
+    TransitionTexture(m_hDepthBiasColor, ezGALResourceState::CopySource);
+    m_DepthBiasReadback.ReadbackTexture(*m_pEncoder, m_hDepthBiasColor);
+  }
+  EndCommands();
+
+  m_pDevice->DestroyDepthStencilState(hWriteDepth);
+  m_pDevice->DestroyDepthStencilState(hTestDepth);
+  m_pDevice->DestroyRasterizerState(hNoBias);
+  for (ezGALRasterizerStateHandle hState : biasStates)
+  {
+    m_pDevice->DestroyRasterizerState(hState);
+  }
+
+  ezEnum<ezGALAsyncResult> res = m_DepthBiasReadback.GetReadbackResult(ezTime::MakeFromHours(1));
+  if (!EZ_TEST_BOOL_MSG(res == ezGALAsyncResult::Ready, "Depth bias readback timed out"))
+    return;
+
+  ezGALTextureSubresource sub;
+  ezArrayPtr<ezGALTextureSubresource> subs(&sub, 1);
+  ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
+  ezReadbackTextureLock lock = m_DepthBiasReadback.LockTexture(subs, memory);
+  EZ_ASSERT_ALWAYS(lock, "Failed to lock depth bias readback texture");
+
+  // BGRAUByteNormalized, 4 bytes per pixel as B, G, R, A.
+  auto SampleBGRA = [&](ezUInt32 x, ezUInt32 y) -> ezColorLinearUB
+  {
+    const ezUInt8* pRow = static_cast<const ezUInt8*>(memory[0].m_pData.GetPtr()) + memory[0].m_uiRowPitch * y;
+    const ezUInt8* p = pRow + x * 4;
+    return ezColorLinearUB(p[2], p[1], p[0], p[3]);
+  };
+
+  for (ezUInt32 i = 0; i < s_uiDepthBiasCaseCount; ++i)
+  {
+    const DepthBiasCase& testCase = s_DepthBiasCases[i];
+    if (testCase.m_fClampUnits != 0.0f && !bSupportsClamp)
+      continue;
+
+    const ezColorLinearUB pixel = SampleBGRA(i * s_uiDepthBiasCellSize + s_uiDepthBiasCellSize / 2, s_uiDepthBiasCellSize / 2);
+    const bool bVisible = pixel.g > 200 && pixel.r < 55;
+    const bool bHidden = pixel.r > 200 && pixel.g < 55;
+
+    if (!EZ_TEST_BOOL_MSG(bVisible || bHidden, "'%s': neither quad is clearly visible, got RGB (%d, %d, %d)", testCase.m_szName, (int)pixel.r, (int)pixel.g, (int)pixel.b))
+      continue;
+
+    EZ_TEST_BOOL_MSG(bVisible == testCase.m_bExpectVisible, "'%s': the biased quad is %s but was expected to be %s", testCase.m_szName, bVisible ? "visible" : "hidden", testCase.m_bExpectVisible ? "visible" : "hidden");
+  }
+}
+
+void ezRendererTestAdvancedFeatures::ConservativeRasterization()
+{
+  // Verifies ezGALRasterizerStateCreationDescription::m_bConservativeRasterization.
+  //
+  // Every case gets its own square cell of the render target and draws a single white quad into it. Standard rasterization only produces a fragment when the pixel center lies inside the primitive, conservative (overestimated) rasterization produces one for every pixel the primitive touches at all. Feeding a quad that is smaller than a pixel and placed so that it misses that pixel's center therefore yields nothing without the feature and at least one lit pixel with it. The two remaining cells draw a quad that covers whole pixels to confirm that ordinary geometry is unaffected.
+  //
+  // The number of lit pixels per cell is verified via readback instead of a reference image.
+
+  constexpr ezUInt32 uiWidth = s_uiConservativeRasterCellSize * s_uiConservativeRasterCaseCount;
+  constexpr ezUInt32 uiHeight = s_uiConservativeRasterCellSize;
+
+  // Maps the quad's local NDC space onto the given window space rect of the render target.
+  auto MakeTransform = [](float fMinX, float fMinY, float fMaxX, float fMaxY) -> ezMat4
+  {
+    ezMat4 m = ezMat4::MakeIdentity();
+    m.SetRow(0, ezVec4((fMaxX - fMinX) / uiWidth, 0.0f, 0.0f, (fMinX + fMaxX) / uiWidth - 1.0f));
+    m.SetRow(1, ezVec4(0.0f, (fMaxY - fMinY) / uiHeight, 0.0f, (fMinY + fMaxY) / uiHeight - 1.0f));
+    return m;
+  };
+
+  ezRenderContext* pRenderContext = ezRenderContext::GetDefaultInstance();
+
+  ezHybridArray<ezGALRasterizerStateHandle, s_uiConservativeRasterCaseCount> rasterStates;
+  for (const ConservativeRasterCase& testCase : s_ConservativeRasterCases)
+  {
+    ezGALRasterizerStateCreationDescription desc;
+    desc.m_CullMode = ezGALCullMode::None;
+    desc.m_bConservativeRasterization = testCase.m_bConservative;
+    ezGALRasterizerStateHandle hState = m_pDevice->CreateRasterizerState(desc);
+    if (!EZ_TEST_BOOL_MSG(!hState.IsInvalidated(), "'%s': failed to create the rasterizer state", testCase.m_szName))
+      return;
+
+    rasterStates.PushBack(hState);
+  }
+
+  BeginCommands("ConservativeRasterization");
+  {
+    TransitionTexture(m_hConservativeRasterColor, ezGALResourceState::RenderTarget);
+
+    ezGALRenderingSetup renderingSetup;
+    renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hConservativeRasterColor));
+    renderingSetup.SetClearColor(0, ezColor::Black);
+
+    ezRectFloat viewport = ezRectFloat(0, 0, (float)uiWidth, (float)uiHeight);
+    pRenderContext->BeginRendering(renderingSetup, viewport);
+    SetClipSpace();
+
+    for (ezUInt32 i = 0; i < s_uiConservativeRasterCaseCount; ++i)
+    {
+      const ConservativeRasterCase& testCase = s_ConservativeRasterCases[i];
+      const float fCellOffset = (float)(i * s_uiConservativeRasterCellSize);
+      const float fMin = testCase.m_bSubPixel ? s_fConservativeRasterSubPixelMin : s_fConservativeRasterCoveringMin;
+      const float fMax = testCase.m_bSubPixel ? s_fConservativeRasterSubPixelMax : s_fConservativeRasterCoveringMax;
+
+      pRenderContext->SetRasterizerState(rasterStates[i]);
+
+      ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
+      ocb->m_MVP = MakeTransform(fCellOffset + fMin, fMin, fCellOffset + fMax, fMax);
+      ocb->m_Color = ezColor::White;
+      pRenderContext->GetBindGroup().BindBuffer("PerObject", m_hObjectTransformCB);
+
+      pRenderContext->BindShader(m_hConservativeRasterShader, ezShaderBindFlags::NoRasterizerState);
+      pRenderContext->BindMeshBuffer(m_hConservativeRasterQuadMesh);
+      pRenderContext->DrawMeshBuffer().AssertSuccess();
+    }
+
+    pRenderContext->EndRendering();
+    TransitionTexture(m_hConservativeRasterColor, ezGALResourceState::CopySource);
+    m_ConservativeRasterReadback.ReadbackTexture(*m_pEncoder, m_hConservativeRasterColor);
+  }
+  EndCommands();
+
+  for (ezGALRasterizerStateHandle hState : rasterStates)
+  {
+    m_pDevice->DestroyRasterizerState(hState);
+  }
+
+  ezEnum<ezGALAsyncResult> res = m_ConservativeRasterReadback.GetReadbackResult(ezTime::MakeFromHours(1));
+  if (!EZ_TEST_BOOL_MSG(res == ezGALAsyncResult::Ready, "Conservative rasterization readback timed out"))
+    return;
+
+  ezGALTextureSubresource sub;
+  ezArrayPtr<ezGALTextureSubresource> subs(&sub, 1);
+  ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
+  ezReadbackTextureLock lock = m_ConservativeRasterReadback.LockTexture(subs, memory);
+  EZ_ASSERT_ALWAYS(lock, "Failed to lock conservative rasterization readback texture");
+
+  for (ezUInt32 i = 0; i < s_uiConservativeRasterCaseCount; ++i)
+  {
+    const ConservativeRasterCase& testCase = s_ConservativeRasterCases[i];
+
+    ezUInt32 uiLitPixels = 0;
+    for (ezUInt32 y = 0; y < s_uiConservativeRasterCellSize; ++y)
+    {
+      // BGRAUByteNormalized, 4 bytes per pixel as B, G, R, A.
+      const ezUInt8* pRow = static_cast<const ezUInt8*>(memory[0].m_pData.GetPtr()) + memory[0].m_uiRowPitch * y;
+      for (ezUInt32 x = 0; x < s_uiConservativeRasterCellSize; ++x)
+      {
+        if (pRow[(i * s_uiConservativeRasterCellSize + x) * 4] > 128)
+          ++uiLitPixels;
+      }
+    }
+
+    EZ_TEST_BOOL_MSG(uiLitPixels >= testCase.m_uiMinLitPixels && uiLitPixels <= testCase.m_uiMaxLitPixels, "'%s': %d pixels are lit, expected between %d and %d", testCase.m_szName, (int)uiLitPixels, (int)testCase.m_uiMinLitPixels, (int)testCase.m_uiMaxLitPixels);
+  }
 }
 
 ezTestAppRun ezRendererTestAdvancedFeatures::Material()

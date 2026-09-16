@@ -1,5 +1,6 @@
 #include <RendererVulkan/RendererVulkanPCH.h>
 
+#include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
@@ -32,9 +33,7 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
 
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
   auto pTextureVulkan = static_cast<const ezGALTextureVulkan*>(pTexture->GetParentResource());
-  vk::Format vkViewFormat = pTextureVulkan->GetImageFormat();
-
-  const bool bIsDepthFormat = ezConversionUtilsVulkan::IsDepthFormat(vkViewFormat);
+  vk::Format vkViewFormat = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_format;
 
   if (vkViewFormat == vk::Format::eUndefined)
   {
@@ -42,14 +41,14 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
-
   vk::Image vkImage = pTextureVulkan->GetImage();
 
   vk::ImageViewCreateInfo imageViewCreationInfo;
-  if (bIsDepthFormat)
+  // The aspect has to follow the actual Vulkan format, not the GAL format: the format table can map a depth-only GAL format onto a combined depth/stencil format when the device lacks the preferred one.
+  if (ezConversionUtilsVulkan::IsDepthFormat(vkViewFormat))
   {
     imageViewCreationInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
-    if (texDesc.m_Format == ezGALResourceFormat::D24S8)
+    if (ezConversionUtilsVulkan::IsStencilFormat(vkViewFormat))
     {
       imageViewCreationInfo.subresourceRange.aspectMask |= vk::ImageAspectFlagBits::eStencil;
     }
@@ -91,6 +90,8 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
 ezResult ezGALRenderTargetViewVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  // Drop the cached framebuffers now rather than when the view is actually freed. The GAL handle of this view can be recycled into a new view before then, which would make the stale cache entry reachable again.
+  ezResourceCacheVulkan::RenderTargetViewDestroyed(m_ImageView);
   pVulkanDevice->DeleteLater(m_ImageView);
   return EZ_SUCCESS;
 }

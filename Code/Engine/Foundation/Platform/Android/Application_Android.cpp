@@ -40,7 +40,7 @@ void ezAndroidApplication::AndroidRun()
     struct android_poll_source* pSource = nullptr;
     int iIdent = 0;
     int iEvents = 0;
-    while ((iIdent = ALooper_pollAll(0, nullptr, &iEvents, (void**)&pSource)) >= 0)
+    while ((iIdent = ALooper_pollOnce(m_bStarted ? 0 : -1, nullptr, &iEvents, (void**)&pSource)) >= 0)
     {
       if (pSource != nullptr)
         pSource->process(m_pApp, pSource);

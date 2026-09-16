@@ -20,6 +20,7 @@ vk::PipelineCache ezResourceCacheVulkan::s_PipelineCache;
 
 ezHashTable<ezGALRenderPassDescriptor, vk::RenderPass, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_RenderPasses;
 ezHashTable<ezResourceCacheVulkan::FramebufferKey, vk::Framebuffer, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_FrameBuffers;
+ezUniquePtr<ezResourceCacheVulkan::FrameBufferTracker> ezResourceCacheVulkan::s_pFrameBufferTracker;
 
 // #define EZ_LOG_VULKAN_RESOURCES
 
@@ -76,6 +77,8 @@ void ezResourceCacheVulkan::Initialize(ezGALDeviceVulkan* pDevice, vk::Device de
 {
   s_pDevice = pDevice;
   s_Device = device;
+  s_pFrameBufferTracker = EZ_NEW(pDevice->GetAllocator(), FrameBufferTracker);
+  s_pFrameBufferTracker->m_ResourceInvalidatedEvent.AddEventHandler(&ezResourceCacheVulkan::OnFrameBufferInvalidated);
 
   if (LoadPipelineCache(s_PipelineCache).Failed())
   {
@@ -113,6 +116,9 @@ void ezResourceCacheVulkan::DeInitialize()
   }
   s_FrameBuffers.Clear();
   s_FrameBuffers.Compact();
+
+  s_pFrameBufferTracker->m_ResourceInvalidatedEvent.RemoveEventHandler(&ezResourceCacheVulkan::OnFrameBufferInvalidated);
+  s_pFrameBufferTracker.Clear();
 
   s_Device = nullptr;
 }
@@ -254,7 +260,32 @@ vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass vkRende
   VK_LOG_ERROR(s_Device.createFramebuffer(&framebufferInfo, nullptr, &vkFrameBuffer));
 
   s_FrameBuffers.Insert(key, vkFrameBuffer);
+
+  ezSet<vk::ImageView> dependencies(ezTempAllocatorWrapper::GetAllocator());
+  for (vk::ImageView attachment : attachments)
+  {
+    dependencies.Insert(attachment);
+  }
+  s_pFrameBufferTracker->AddResource(key, dependencies);
+
   return vkFrameBuffer;
+}
+
+void ezResourceCacheVulkan::RenderTargetViewDestroyed(vk::ImageView imageView)
+{
+  s_pFrameBufferTracker->DependencyDestroyed(imageView);
+}
+
+void ezResourceCacheVulkan::OnFrameBufferInvalidated(FramebufferKey key)
+{
+  // DependencyDestroyed only severed the link to the destroyed view, the links to the other attachments are still around.
+  s_pFrameBufferTracker->RemoveResource(key);
+
+  vk::Framebuffer frameBuffer;
+  if (s_FrameBuffers.Remove(key, &frameBuffer))
+  {
+    s_pDevice->DeleteLater(frameBuffer);
+  }
 }
 
 ezResult ezResourceCacheVulkan::SavePipelineCache()

@@ -81,7 +81,9 @@ vk::WriteDescriptorSet& ezDescriptorWritePoolVulkan::WriteBindGroupItem(vk::Desc
   write.descriptorType = ezConversionUtilsVulkan::GetDescriptorType(binding.m_ResourceType);
   write.dstBinding = binding.m_iSlot;
   write.dstSet = descriptorSet;
-  write.descriptorCount = binding.m_uiArraySize;
+  // A single ezGALBindGroupItem describes exactly one resource and the info structs below are allocated one at a time from a deque, so writing more than one element here would read out of bounds.
+  EZ_ASSERT_DEV(binding.m_uiArraySize == 1, "Descriptor arrays are not supported, binding '{}' requests {} elements.", binding.m_sName, binding.m_uiArraySize);
+  write.descriptorCount = 1;
   switch (binding.m_ResourceType)
   {
     case ezGALShaderResourceType::ConstantBuffer:
