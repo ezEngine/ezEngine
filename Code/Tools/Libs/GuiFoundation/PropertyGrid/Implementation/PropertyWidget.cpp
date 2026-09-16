@@ -1276,7 +1276,7 @@ ezQtPropertyEditorTransformWidget::ezQtPropertyEditorTransformWidget()
 
   // Position
   {
-    auto pSubLayout = new QHBoxLayout(this);
+    auto pSubLayout = new QHBoxLayout();
     pSubLayout->setSpacing(6);
     m_pLayout->addLayout(pSubLayout);
 
@@ -1288,7 +1288,7 @@ ezQtPropertyEditorTransformWidget::ezQtPropertyEditorTransformWidget()
 
   // Rotation
   {
-    auto pSubLayout = new QHBoxLayout(this);
+    auto pSubLayout = new QHBoxLayout();
     pSubLayout->setSpacing(6);
     m_pLayout->addLayout(pSubLayout);
 
@@ -1300,7 +1300,7 @@ ezQtPropertyEditorTransformWidget::ezQtPropertyEditorTransformWidget()
 
   // Scale
   {
-    auto pSubLayout = new QHBoxLayout(this);
+    auto pSubLayout = new QHBoxLayout();
     pSubLayout->setSpacing(6);
     m_pLayout->addLayout(pSubLayout);
 
