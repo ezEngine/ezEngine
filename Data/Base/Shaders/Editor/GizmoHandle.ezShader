@@ -58,15 +58,10 @@ VS_OUT main(VS_IN Input)
 	float3 centerPosition = mul(ObjectToWorldMatrix, float4(0, 0, 0, 1)).xyz;
 
 	#if GIZMO_CONSTANT_SIZE == 1
-		#if CAMERA_MODE == CAMERA_MODE_ORTHO
-			// Ortho proj _m11 = 2 / visibleWorldHeight. Scaling by the visible world height
-			// keeps the gizmo at constant pixel size regardless of ortho zoom.
-			float orthoWorldHeight = 2.0f / GetCameraToScreenMatrix()._m11;
-			float scale = orthoWorldHeight * GizmoScale;
-		#else
-			float scale = length(centerPosition - GetCameraPosition()) * GizmoScale;
-
-		#endif
+		// Ortho proj _m11 = 2 / visibleWorldHeight. Scaling by the visible world height
+		// keeps the gizmo at constant pixel size regardless of ortho zoom.
+		float orthoWorldHeight = 2.0f / GetCameraToScreenMatrix()._m11;
+		float scale = (IsOrthographicCamera ? orthoWorldHeight : length(centerPosition - GetCameraPosition())) * GizmoScale;
 	#else
 		float scale = 1.0f;
 	#endif

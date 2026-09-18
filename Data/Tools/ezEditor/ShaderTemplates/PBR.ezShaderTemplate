@@ -127,6 +127,8 @@ BOOL1(UseOrmTexture);
 #define USE_TANGENT
 #define USE_TEXCOORD0
 
+#define USE_TWO_SIDED_LIGHTING
+
 #if VERTEX_SKINNING
   #define USE_SKINNING
 #endif
@@ -187,7 +189,6 @@ VS_OUT main(VS_IN Input)
 #define USE_SIMPLE_MATERIAL_MODEL
 #define USE_MATERIAL_EMISSIVE     // remove if you don't need emissive
 #define USE_MATERIAL_OCCLUSION    // remove if you don't need occlusion
-#define USE_TWO_SIDED_LIGHTING    // only used if TWO_SIDED == TRUE
 #define USE_DECALS                // whether decals should be applied to this material
 #define USE_FOG                   // whether fog should be applied to this material
 
