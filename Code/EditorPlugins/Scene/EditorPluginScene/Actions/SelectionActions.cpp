@@ -210,7 +210,7 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
       SetIconPath(":/EditorPluginScene/Icons/CreateNode.svg");
       break;
     case ActionType::HideSelectedObjects:
-      SetIconPath(":/EditorPluginScene/Icons/HideSelected.svg");
+      // icon and name are dynamic, depending on whether the selection is currently hidden, see UpdateEnableState()
       break;
     case ActionType::HideUnselectedObjects:
       SetIconPath(":/EditorPluginScene/Icons/HideUnselected.svg");
@@ -271,12 +271,24 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
   UpdateEnableState();
 
   m_Context.m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezSelectionAction::SelectionEventHandler, this));
+
+  if (m_Type == ActionType::HideSelectedObjects)
+  {
+    m_pSceneDocument->m_DocumentObjectMetaData->m_DataModifiedEvent.AddEventHandler(
+      ezMakeDelegate(&ezSelectionAction::DocumentMetaDataEventHandler, this));
+  }
 }
 
 
 ezSelectionAction::~ezSelectionAction()
 {
   m_Context.m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSelectionAction::SelectionEventHandler, this));
+
+  if (m_Type == ActionType::HideSelectedObjects)
+  {
+    m_pSceneDocument->m_DocumentObjectMetaData->m_DataModifiedEvent.RemoveEventHandler(
+      ezMakeDelegate(&ezSelectionAction::DocumentMetaDataEventHandler, this));
+  }
 }
 
 void ezSelectionAction::Execute(const ezVariant& value)
@@ -299,9 +311,14 @@ void ezSelectionAction::Execute(const ezVariant& value)
       return;
     }
     case ActionType::HideSelectedObjects:
-      m_pSceneDocument->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Hide);
-      m_pSceneDocument->ShowDocumentStatus("Hiding selected objects");
+    {
+      // if the entire selection is already hidden, show it again, otherwise hide it
+      const bool bShowSelection = m_pSceneDocument->AreSelectedObjectsHidden();
+
+      m_pSceneDocument->ShowOrHideSelectedObjects(bShowSelection ? ezSceneDocument::ShowOrHide::Show : ezSceneDocument::ShowOrHide::Hide);
+      m_pSceneDocument->ShowDocumentStatus(bShowSelection ? "Showing selected objects" : "Hiding selected objects");
       break;
+    }
     case ActionType::HideUnselectedObjects:
       m_pSceneDocument->HideUnselectedObjects();
       m_pSceneDocument->ShowDocumentStatus("Hiding unselected objects");
@@ -510,13 +527,32 @@ void ezSelectionAction::SelectionEventHandler(const ezSelectionManagerEvent& e)
   UpdateEnableState();
 }
 
+void ezSelectionAction::DocumentMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
+{
+  if ((e.m_uiModifiedFlags & ezDocumentObjectMetaData::HiddenFlag) == 0)
+    return;
+
+  UpdateEnableState();
+}
+
 void ezSelectionAction::UpdateEnableState()
 {
   if (m_Type == ActionType::HideSelectedObjects || m_Type == ActionType::DuplicateSpecial || m_Type == ActionType::DeltaTransform ||
       m_Type == ActionType::SnapObjectToCamera || m_Type == ActionType::DetachFromParent || m_Type == ActionType::HideUnselectedObjects ||
       m_Type == ActionType::AttachToObject)
   {
-    SetEnabled(!m_Context.m_pDocument->GetSelectionManager()->IsSelectionEmpty());
+    const bool bHasSelection = !m_Context.m_pDocument->GetSelectionManager()->IsSelectionEmpty();
+
+    if (m_Type == ActionType::HideSelectedObjects)
+    {
+      // if the entire selection is hidden, the action unhides it, so display the corresponding name and icon
+      const bool bUnhide = bHasSelection && m_pSceneDocument->AreSelectedObjectsHidden();
+
+      m_sName = bUnhide ? "Selection.UnhideItems" : "Selection.HideItems";
+      SetIconPath(bUnhide ? ":/EditorPluginScene/Icons/ShowHidden.svg" : ":/EditorPluginScene/Icons/HideSelected.svg");
+    }
+
+    SetEnabled(bHasSelection);
   }
   else if (m_Type == ActionType::GroupSelectedItems)
   {

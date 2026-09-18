@@ -85,6 +85,9 @@ public:
   void ShowOrHideAllObjects(ShowOrHide action);
   void HideUnselectedObjects();
 
+  /// Returns true when all selected objects are currently hidden, i.e. a 'hide/show' toggle would make them visible again.
+  bool AreSelectedObjectsHidden() const;
+
   /// Whether this document represents a prefab or a scene
   bool IsPrefab() const { return m_DocumentType == DocumentType::Prefab; }
 

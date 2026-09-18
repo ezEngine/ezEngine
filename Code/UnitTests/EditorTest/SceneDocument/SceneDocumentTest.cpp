@@ -32,6 +32,7 @@ void ezEditorSceneDocumentTest::SetupSubTests()
   AddSubTest("Prefab Operations", SubTests::ST_PrefabOperations);
   AddSubTest("Component Operations", SubTests::ST_ComponentOperations);
   AddSubTest("Object Property Path", SubTests::ST_ObjectPropertyPath);
+  AddSubTest("Hide Show Selection", SubTests::ST_HideShowSelection);
 }
 
 ezResult ezEditorSceneDocumentTest::InitializeTest()
@@ -79,6 +80,9 @@ ezTestAppRun ezEditorSceneDocumentTest::RunSubTest(ezInt32 iIdentifier, ezUInt32
       break;
     case SubTests::ST_ObjectPropertyPath:
       ObjectPropertyPath();
+      break;
+    case SubTests::ST_HideShowSelection:
+      HideShowSelection();
       break;
   }
   return ezTestAppRun::Quit;
@@ -983,6 +987,75 @@ void ezEditorSceneDocumentTest::ObjectPropertyPath()
     ezPropertyReference propertyRef2{pComp1->GetGuid(), pComp1->GetType()->FindPropertyByName("Decals"_ezsv), 0};
     EZ_TEST_BOOL(properties[0] == propertyRef2);
     EZ_TEST_BOOL(properties[1] == propertyRef);
+  }
+
+  CloseSimpleScene();
+}
+
+void ezEditorSceneDocumentTest::HideShowSelection()
+{
+  if (CreateSimpleScene("HideShowSelection.ezScene").Failed())
+    return;
+
+  const ezDocumentObject* pObj1 = CreateGameObject(m_pDoc, nullptr, "Obj1"_ezsv);
+  const ezDocumentObject* pObj2 = CreateGameObject(m_pDoc, nullptr, "Obj2"_ezsv);
+
+  auto IsHidden = [&](const ezDocumentObject* pObject) -> bool
+  {
+    const bool bHidden = m_pDoc->m_DocumentObjectMetaData->BeginReadMetaData(pObject->GetGuid())->m_bHidden;
+    m_pDoc->m_DocumentObjectMetaData->EndReadMetaData();
+    return bHidden;
+  };
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Hide Selection")
+  {
+    m_pDoc->GetSelectionManager()->SetSelection(pObj1);
+
+    EZ_TEST_BOOL(!m_pDoc->AreSelectedObjectsHidden());
+
+    ExecuteDocumentAction("Selection.HideItems", m_pDoc);
+
+    EZ_TEST_BOOL(IsHidden(pObj1));
+    EZ_TEST_BOOL(!IsHidden(pObj2));
+    EZ_TEST_BOOL(m_pDoc->AreSelectedObjectsHidden());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Show Selection")
+  {
+    // the selection is still hidden, so executing the same action again shows it
+    ExecuteDocumentAction("Selection.HideItems", m_pDoc);
+
+    EZ_TEST_BOOL(!IsHidden(pObj1));
+    EZ_TEST_BOOL(!m_pDoc->AreSelectedObjectsHidden());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Mixed Selection")
+  {
+    m_pDoc->GetSelectionManager()->SetSelection(pObj1);
+    ExecuteDocumentAction("Selection.HideItems", m_pDoc);
+    EZ_TEST_BOOL(IsHidden(pObj1));
+    EZ_TEST_BOOL(!IsHidden(pObj2));
+
+    // one hidden and one visible object selected: hiding wins, so the visible object is hidden as well
+    ezDeque<const ezDocumentObject*> selection;
+    selection.PushBack(pObj1);
+    selection.PushBack(pObj2);
+    m_pDoc->GetSelectionManager()->SetSelection(selection);
+
+    EZ_TEST_BOOL(!m_pDoc->AreSelectedObjectsHidden());
+
+    ExecuteDocumentAction("Selection.HideItems", m_pDoc);
+
+    EZ_TEST_BOOL(IsHidden(pObj1));
+    EZ_TEST_BOOL(IsHidden(pObj2));
+
+    // now the entire selection is hidden, so the action shows it again
+    EZ_TEST_BOOL(m_pDoc->AreSelectedObjectsHidden());
+
+    ExecuteDocumentAction("Selection.HideItems", m_pDoc);
+
+    EZ_TEST_BOOL(!IsHidden(pObj1));
+    EZ_TEST_BOOL(!IsHidden(pObj2));
   }
 
   CloseSimpleScene();
