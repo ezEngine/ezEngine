@@ -187,58 +187,27 @@ void ezTerrainBrushBaseComponent::UpdateSplineCache(const ezSplineComponent& spl
   m_SplineCache.Clear();
   m_hSplineCacheSource = spline.GetHandle();
 
-  const float fTotalLength = spline.GetTotalLength();
-  if (fTotalLength <= 0.0f)
+  if (spline.GetTotalLength() <= 0.0f)
     return;
 
-  // The spline is tessellated into a polyline that the bake shaders sweep the brush cross-section along.
-  // Straight parts get few nodes, curves as many as needed to stay within fTolerance of the spline.
-  // All of this happens in spline space, so for a scaled object the distances are scaled as well.
-  constexpr float fMaxStep = 10.0f;
-  constexpr float fMinStep = 0.5f;
-  constexpr float fTolerance = 0.1f;
+  // The spline component already tessellates itself with an adaptive error bound to build its
+  // distance-to-key mapping: every entry is one point of that polyline, with the arc length as key.
+  // Reusing it means straight parts get few nodes and curves as many as they need, without evaluating
+  // the spline a second time. All of this is in spline space, so for a scaled object the distances are
+  // scaled as well.
+  const ezArrayMap<float, float>& distanceToKey = spline.GetDistanceToKeyRemapping();
 
-  auto AddNode = [&](float fDistance)
+  m_SplineCache.Reserve(distanceToKey.GetCount());
+
+  for (ezUInt32 i = 0; i < distanceToKey.GetCount(); ++i)
   {
-    const ezTransform trans = spline.GetTransformAtDistance(fDistance, ezSplineComponentSpace::Local);
+    const ezTransform trans = spline.GetTransformAtKey(distanceToKey.GetValue(i), ezSplineComponentSpace::Local);
 
     ezTerrainData_SplineNode& node = m_SplineCache.ExpandAndGetRef();
     node.m_vPosition = trans.m_vPosition;
     node.m_vUpDir = trans.m_qRotation * ezVec3::MakeAxisZ();
-    node.m_fArcLength = fDistance;
-  };
-
-  // Only adds the start of each accepted piece; the end is the start of the next one.
-  auto Subdivide = [&](auto& self, float d0, float d1) -> void
-  {
-    const float fLength = d1 - d0;
-    const float dMid = (d0 + d1) * 0.5f;
-
-    if (fLength <= fMinStep)
-    {
-      AddNode(d0);
-      return;
-    }
-
-    if (fLength <= fMaxStep)
-    {
-      const ezVec3 p0 = spline.GetPositionAtDistance(d0, ezSplineComponentSpace::Local);
-      const ezVec3 p1 = spline.GetPositionAtDistance(d1, ezSplineComponentSpace::Local);
-      const ezVec3 pMidActual = spline.GetPositionAtDistance(dMid, ezSplineComponentSpace::Local);
-
-      if ((pMidActual - (p0 + p1) * 0.5f).GetLength() <= fTolerance)
-      {
-        AddNode(d0);
-        return;
-      }
-    }
-
-    self(self, d0, dMid);
-    self(self, dMid, d1);
-  };
-
-  Subdivide(Subdivide, 0.0f, fTotalLength);
-  AddNode(fTotalLength);
+    node.m_fArcLength = distanceToKey.GetKey(i);
+  }
 }
 
 void ezTerrainBrushBaseComponent::SetHalfSizeX(float fSize)

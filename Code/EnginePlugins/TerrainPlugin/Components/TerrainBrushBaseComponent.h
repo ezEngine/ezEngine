@@ -93,13 +93,13 @@ protected:
 
   ezSmallArray<ezUInt32, 1> m_BrushIndices;
 
-  /// Tessellates the spline into m_SplineCache.
+  /// Fills m_SplineCache from the spline's own adaptive tessellation.
   void UpdateSplineCache(const ezSplineComponent& spline);
 
   /// Polyline through the spline on the same object, in the spline's local space.
   ///
-  /// Tessellating the spline is by far the most expensive part of RefreshBrushes. Transform and property
-  /// changes only transform the cached nodes, the spline is only tessellated again when it changes.
+  /// Building this polyline is by far the most expensive part of RefreshBrushes. Transform and property
+  /// changes only transform the cached nodes, the cache is only rebuilt when the spline changes.
   ezDynamicArray<ezTerrainData_SplineNode> m_SplineCache;
   ezComponentHandle m_hSplineCacheSource; ///< The spline m_SplineCache was built from. Invalid if the cache is outdated.
 
