@@ -387,10 +387,6 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
 
   ezTempHybridArray<ezString, 4> Platforms;
   pCompiler->GetSupportedPlatforms(Platforms);
-  if (m_pMaterialBufferLayout)
-  {
-    ezShaderParser::LayoutMaterialConstants(*m_pMaterialBufferLayout, pCompiler->GetMaterialBufferLayout(sPlatform));
-  }
 
   for (ezUInt32 p = 0; p < Platforms.GetCount(); ++p)
   {
@@ -402,6 +398,12 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       continue;
 
     EZ_LOG_BLOCK(pLog, "Platform", Platforms[p]);
+
+    if (m_pMaterialBufferLayout)
+    {
+      // Recomputed per platform, the layout may differ between them. sPlatform can't be used, it may be 'ALL'.
+      ezShaderParser::LayoutMaterialConstants(*m_pMaterialBufferLayout, pCompiler->GetMaterialBufferLayout(Platforms[p]));
+    }
 
     ezShaderProgramData spd;
     spd.m_sSourceFile = sFile;
@@ -528,7 +530,9 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
 
       if (spd.m_uiSourceHash[stage] != 0)
       {
-        ezShaderStageBinary* pBinary = ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum)stage, spd.m_uiSourceHash[stage], sPlatform);
+        // Must be the concrete platform, not sPlatform: that is the requested filter, which may be
+        // 'ALL'. Using it here would look the binary up in a directory that no permutation points at.
+        ezShaderStageBinary* pBinary = ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum)stage, spd.m_uiSourceHash[stage], Platforms[p]);
 
         if (pBinary)
         {
@@ -601,7 +605,9 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
         bin.m_uiSourceHash = spd.m_uiSourceHash[stage];
         bin.m_pGALByteCode = spd.m_ByteCode[stage];
 
-        if (bin.WriteStageBinary(pLog, sPlatform).Failed())
+        // Same as above: the permutation file below is written under Platforms[p], so the stage
+        // binary it references has to go there too.
+        if (bin.WriteStageBinary(pLog, Platforms[p]).Failed())
         {
           ezLog::Error(pLog, "Writing stage {0} binary failed", stage);
           return EZ_FAILURE;

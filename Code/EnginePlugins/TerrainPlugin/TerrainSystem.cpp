@@ -160,7 +160,7 @@ void ezTerrainSystem::UpdateTerrain()
 {
   FrameCleanup();
 
-  bool bAnyDirty = m_bBrushesDirty;
+  bool bAnyDirty = !m_ChangedBrushes.IsEmpty();
 
   if (!bAnyDirty)
   {
@@ -193,6 +193,12 @@ void ezTerrainSystem::UpdateTerrain()
 
   m_pRenderGraph->Reset();
 
+  UpdateBrushCaches();
+
+  // A dirty object rebakes anyway, but its contributions are rebuilt from all brushes, since the object
+  // itself may have moved. Otherwise only the brushes that changed are evaluated.
+  const bool bBrushesChanged = !m_ChangedBrushes.IsEmpty();
+
   for (ezUInt32 i = 0; i < m_Heightfields.GetCount(); ++i)
   {
     ezTerrainData_Heightfield& patch = m_Heightfields[i];
@@ -200,15 +206,13 @@ void ezTerrainSystem::UpdateTerrain()
     if (!patch.m_bInUse)
       continue;
 
+    const bool bRebuild = patch.m_bDirty || !patch.m_bBrushContributionsValid;
     bool bShouldBake = patch.m_bDirty;
 
-    if (m_bBrushesDirty)
+    if (bRebuild || bBrushesChanged)
     {
-      const ezUInt64 uiNewHash = ComputeHeightfieldBrushOverlapHash(patch);
-      if (uiNewHash != patch.m_uiBrushOverlapHash)
+      if (UpdateHeightfieldBrushContributions(patch, bRebuild))
         bShouldBake = true;
-
-      patch.m_uiBrushOverlapHash = uiNewHash;
     }
 
     if (bShouldBake)
@@ -223,26 +227,30 @@ void ezTerrainSystem::UpdateTerrain()
     if (!vol.m_bInUse)
       continue;
 
+    const bool bRebuild = vol.m_bDirty || !vol.m_bBrushContributionsValid;
     bool bShouldBake = vol.m_bDirty;
-    ezUInt64 uiNewHash = vol.m_uiBrushOverlapHash;
-    if (m_bBrushesDirty)
-    {
-      uiNewHash = ComputeVoxelBrushOverlapHash(vol);
 
-      if (uiNewHash != vol.m_uiBrushOverlapHash)
+    if (bRebuild || bBrushesChanged)
+    {
+      if (UpdateVoxelBrushContributions(vol, bRebuild))
         bShouldBake = true;
     }
 
     if (bShouldBake)
     {
-      vol.m_uiBrushOverlapHash = uiNewHash;
+      vol.m_uiBrushOverlapHash = ComputeVoxelBrushOverlapHash(vol, vol.m_BrushContributions);
       UpdateVoxels(i, *m_pRenderGraph);
     }
   }
 
   ezRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
 
-  m_bBrushesDirty = false;
+  for (ezUInt32 uiBrush : m_ChangedBrushes)
+  {
+    m_BrushCaches[uiBrush].m_bChanged = false;
+  }
+
+  m_ChangedBrushes.Clear();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -256,12 +264,17 @@ ezUInt32 ezTerrainSystem::CreateBrushData()
     if (!m_Brushes[idx].m_bInUse)
     {
       m_Brushes[idx].m_bInUse = true;
+      MarkBrushChanged(idx);
       return idx;
     }
   }
 
   m_Brushes.ExpandAndGetRef().m_bInUse = true;
-  return m_Brushes.GetCount() - 1;
+  m_BrushCaches.ExpandAndGetRef();
+
+  const ezUInt32 uiIdx = m_Brushes.GetCount() - 1;
+  MarkBrushChanged(uiIdx);
+  return uiIdx;
 }
 
 void ezTerrainSystem::RemoveBrushData(ezUInt32& ref_uiIdx)
@@ -271,7 +284,7 @@ void ezTerrainSystem::RemoveBrushData(ezUInt32& ref_uiIdx)
 
   EZ_ASSERT_DEV(ref_uiIdx < m_Brushes.GetCount(), "Invalid brush index");
 
-  m_bBrushesDirty = true;
+  MarkBrushChanged(ref_uiIdx);
   m_Brushes[ref_uiIdx].m_bInUse = false;
   ref_uiIdx = ezInvalidIndex;
 }
@@ -283,8 +296,57 @@ const ezTerrainData_Brush& ezTerrainSystem::ReadBrushData(ezUInt32 uiIdx) const
 
 ezTerrainData_Brush& ezTerrainSystem::ModifyBrushData(ezUInt32 uiIdx)
 {
-  m_bBrushesDirty = true;
+  MarkBrushChanged(uiIdx);
   return m_Brushes[uiIdx];
+}
+
+void ezTerrainSystem::MarkBrushChanged(ezUInt32 uiIdx)
+{
+  BrushCache& cache = m_BrushCaches[uiIdx];
+  cache.m_bValid = false;
+
+  if (!cache.m_bChanged)
+  {
+    cache.m_bChanged = true;
+    m_ChangedBrushes.PushBack(uiIdx);
+  }
+}
+
+void ezTerrainSystem::UpdateBrushCaches()
+{
+  for (ezUInt32 uiBrush : m_ChangedBrushes)
+  {
+    BrushCache& cache = m_BrushCaches[uiBrush];
+    if (cache.m_bValid)
+      continue;
+
+    cache.m_bValid = true;
+    cache.m_NodeBounds = ezBoundingBox::MakeInvalid();
+    cache.m_ChunkBounds.Clear();
+
+    const ezTerrainData_Brush& brush = m_Brushes[uiBrush];
+    const auto& nodes = brush.m_SplineNodes;
+
+    if (!brush.m_bInUse || nodes.GetCount() < 2)
+      continue;
+
+    const ezUInt32 uiNumSegments = nodes.GetCount() - 1;
+
+    for (ezUInt32 uiStart = 0; uiStart < uiNumSegments; uiStart += SplineChunkSegments)
+    {
+      const ezUInt32 uiEnd = ezMath::Min(uiStart + SplineChunkSegments, uiNumSegments);
+
+      ezBoundingBox& box = cache.m_ChunkBounds.ExpandAndGetRef();
+      box = ezBoundingBox::MakeInvalid();
+
+      for (ezUInt32 i = uiStart; i <= uiEnd; ++i)
+      {
+        box.ExpandToInclude(nodes[i].m_vPosition);
+      }
+
+      cache.m_NodeBounds.ExpandToInclude(box);
+    }
+  }
 }
 
 ezGALBufferHandle ezTerrainSystem::CreateBrushBuffer(ezDynamicArray<TerrainBrushData>& brushes, ezGALDevice* pDevice) const
@@ -300,6 +362,314 @@ ezGALBufferHandle ezTerrainSystem::CreateBrushBuffer(ezDynamicArray<TerrainBrush
   brushDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
 
   return pDevice->CreateBuffer(brushDesc, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(brushes.GetData()), brushes.GetCount() * sizeof(TerrainBrushData)));
+}
+
+ezGALBufferHandle ezTerrainSystem::CreateSplineNodeBuffer(ezDynamicArray<TerrainSplineNode>& nodes, ezGALDevice* pDevice) const
+{
+  // Same as for brushes: the buffer must never be empty, SplineNodeCount keeps the shader from reading the dummy.
+  if (nodes.IsEmpty())
+    nodes.ExpandAndGetRef() = {};
+
+  ezGALBufferCreationDescription nodeDesc;
+  nodeDesc.m_uiStructSize = sizeof(TerrainSplineNode);
+  nodeDesc.m_uiTotalSize = nodes.GetCount() * sizeof(TerrainSplineNode);
+  nodeDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+
+  return pDevice->CreateBuffer(nodeDesc, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(nodes.GetData()), nodes.GetCount() * sizeof(TerrainSplineNode)));
+}
+
+bool ezTerrainSystem::FindSplineNodeRange(ezUInt32 uiBrush, const CullRegion& region, bool bIgnoreZ, ezUInt32& out_uiFirstNode, ezUInt32& out_uiLastNode) const
+{
+  const ezTerrainData_Brush& brush = m_Brushes[uiBrush];
+  const BrushCache& cache = m_BrushCaches[uiBrush];
+  EZ_ASSERT_DEBUG(cache.m_bValid, "UpdateBrushCaches() has to be called before brushes are culled.");
+
+  const auto& nodes = brush.m_SplineNodes;
+  if (nodes.GetCount() < 2)
+    return false;
+
+  // How far from its center line the brush can reach, in any direction.
+  const float fReach = ezMath::Max(brush.m_vHalfExtents.y, brush.m_fHalfExtentYTop) + brush.m_fHalfExtentZ + brush.m_vHalfExtents.x + brush.m_fInnerRadius + brush.m_fOuterRadius;
+
+  ezBoundingBox bounds = region.m_LocalBounds;
+  bounds.Grow(ezVec3(fReach));
+
+  if (bIgnoreZ)
+  {
+    bounds.m_vMin.z = -ezMath::MaxValue<float>();
+    bounds.m_vMax.z = ezMath::MaxValue<float>();
+  }
+
+  // The cached boxes are in world space. Bringing their corners into terrain space gives a box that contains
+  // the terrain-space bounds of every segment inside, so rejecting it never rejects a segment the test below accepts.
+  const ezMat4 mInvTransform = region.m_InvTransform.GetAsMat4();
+  auto OverlapsInLocalSpace = [&](const ezBoundingBox& worldBox)
+  {
+    ezBoundingBox localBox = worldBox;
+    localBox.TransformFromOrigin(mInvTransform);
+    return localBox.Overlaps(bounds);
+  };
+
+  if (!OverlapsInLocalSpace(cache.m_NodeBounds))
+    return false;
+
+  out_uiFirstNode = ezInvalidIndex;
+  out_uiLastNode = ezInvalidIndex;
+
+  const ezUInt32 uiNumSegments = nodes.GetCount() - 1;
+
+  for (ezUInt32 uiChunk = 0; uiChunk < cache.m_ChunkBounds.GetCount(); ++uiChunk)
+  {
+    if (!OverlapsInLocalSpace(cache.m_ChunkBounds[uiChunk]))
+      continue;
+
+    const ezUInt32 uiStart = uiChunk * SplineChunkSegments;
+    const ezUInt32 uiEnd = ezMath::Min(uiStart + SplineChunkSegments, uiNumSegments);
+
+    ezVec3 vPrev = region.m_InvTransform * nodes[uiStart].m_vPosition;
+    for (ezUInt32 i = uiStart + 1; i <= uiEnd; ++i)
+    {
+      const ezVec3 vCur = region.m_InvTransform * nodes[i].m_vPosition;
+
+      if (ezBoundingBox::MakeFromMinMax(vPrev.CompMin(vCur), vPrev.CompMax(vCur)).Overlaps(bounds))
+      {
+        if (out_uiFirstNode == ezInvalidIndex)
+          out_uiFirstNode = i - 1;
+
+        out_uiLastNode = i;
+      }
+
+      vPrev = vCur;
+    }
+  }
+
+  return out_uiFirstNode != ezInvalidIndex;
+}
+
+bool ezTerrainSystem::FindBrushOverlap(ezUInt32 uiBrush, const CullRegion& region, bool bIgnoreZ, ezUInt32& out_uiFirstNode, ezUInt32& out_uiLastNode) const
+{
+  const ezTerrainData_Brush& brush = m_Brushes[uiBrush];
+
+  if (brush.m_SplineNodes.GetCount() >= 2)
+    return FindSplineNodeRange(uiBrush, region, bIgnoreZ, out_uiFirstNode, out_uiLastNode);
+
+  const ezVec3 vLocalCenter = region.m_InvTransform * brush.m_vPosition;
+
+  float fRadiusSqr = brush.m_vHalfExtents.x * brush.m_vHalfExtents.x + brush.m_vHalfExtents.y * brush.m_vHalfExtents.y;
+  if (region.m_bVoxel)
+    fRadiusSqr += brush.m_fHalfExtentZ * brush.m_fHalfExtentZ;
+
+  const float fConservativeRadius = ezMath::Sqrt(fRadiusSqr) + brush.m_fInnerRadius + brush.m_fOuterRadius;
+
+  const float fDx = vLocalCenter.x - ezMath::Clamp(vLocalCenter.x, 0.0f, region.m_fSize);
+  const float fDy = vLocalCenter.y - ezMath::Clamp(vLocalCenter.y, 0.0f, region.m_fSize);
+  const float fDz = bIgnoreZ ? 0.0f : (vLocalCenter.z - ezMath::Clamp(vLocalCenter.z, 0.0f, region.m_fSize));
+
+  return fDx * fDx + fDy * fDy + fDz * fDz <= fConservativeRadius * fConservativeRadius;
+}
+
+void ezTerrainSystem::SetupSplineBrush(const ezTerrainData_Brush& brush, const ezTransform& invTrans, ezUInt32 uiFirstNode, ezUInt32 uiLastNode, TerrainBrushData& bd, ezDynamicArray<TerrainSplineNode>& nodes)
+{
+  const ezUInt32 uiLastSplineNode = brush.m_SplineNodes.GetCount() - 1;
+
+  bd.FirstSplineNode = nodes.GetCount();
+  bd.SplineNodeCount = uiLastNode - uiFirstNode + 1;
+  bd.SplineLength = brush.m_fSplineLength;
+  bd.SplineFlags = 0;
+
+  // An end that was cut off because it lies too far away from the terrain object must not be rounded,
+  // the brush continues past it.
+  if (brush.m_bSplineClosed)
+  {
+    bd.SplineFlags = ezTerrainSplineFlags_Closed;
+  }
+  else
+  {
+    if (uiFirstNode == 0)
+      bd.SplineFlags |= ezTerrainSplineFlags_StartCap;
+    if (uiLastNode == uiLastSplineNode)
+      bd.SplineFlags |= ezTerrainSplineFlags_EndCap;
+  }
+
+  ezBoundingBox box = ezBoundingBox::MakeInvalid();
+
+  for (ezUInt32 i = uiFirstNode; i <= uiLastNode; ++i)
+  {
+    const ezTerrainData_SplineNode& src = brush.m_SplineNodes[i];
+
+    TerrainSplineNode& n = nodes.ExpandAndGetRef();
+    n.Position = invTrans * src.m_vPosition;
+    n.UpDir = invTrans.m_qRotation * src.m_vUpDir;
+    n.ArcLength = src.m_fArcLength;
+    n.Padding = 0.0f;
+
+    box.ExpandToInclude(n.Position);
+  }
+
+  bd.Position = box.GetCenter();
+  bd.InvRotRow0.Set(1, 0, 0);
+  bd.InvRotRow1.Set(0, 1, 0);
+  bd.InvRotRow2.Set(0, 0, 1);
+}
+
+ezTerrainSystem::CullRegion ezTerrainSystem::MakeCullRegion(const ezTerrainData_Heightfield& heightfield)
+{
+  // Spline brushes are tested against the stored grid, which includes 4 border rings.
+  const float fSize = (float)heightfield.m_uiCellsPerSide * heightfield.m_fGridSpacing;
+  const float fBorder = 4.0f * heightfield.m_fGridSpacing;
+
+  CullRegion region;
+  region.m_InvTransform = heightfield.m_GlobalTransform.GetInverse();
+  region.m_LocalBounds = ezBoundingBox::MakeFromMinMax(ezVec3(-fBorder), ezVec3(fSize + fBorder));
+  region.m_fSize = fSize;
+  region.m_bVoxel = false;
+  return region;
+}
+
+ezTerrainSystem::CullRegion ezTerrainSystem::MakeCullRegion(const ezTerrainData_Voxel& vol)
+{
+  // Spline brushes are tested against the volume including its border voxels.
+  const float fSize = (float)vol.m_uiResolution * vol.m_fVoxelSize;
+  const float fBorder = 5.0f * vol.m_fVoxelSize;
+
+  CullRegion region;
+  region.m_InvTransform = vol.m_GlobalTransform.GetInverse();
+  region.m_LocalBounds = ezBoundingBox::MakeFromMinMax(ezVec3(-fBorder), ezVec3(fSize + fBorder));
+  region.m_fSize = fSize;
+  region.m_bVoxel = true;
+  return region;
+}
+
+/// Hashes the parts of a spline brush that FindSplineNodeRange selected, in world space.
+static void HashSplineNodes(ezHashStreamWriter64& inout_writer, const ezTerrainData_Brush& brush, ezUInt32 uiFirstNode, ezUInt32 uiLastNode)
+{
+  inout_writer << uiFirstNode << uiLastNode << brush.m_fSplineLength << brush.m_bSplineClosed;
+
+  for (ezUInt32 i = uiFirstNode; i <= uiLastNode; ++i)
+  {
+    const auto& n = brush.m_SplineNodes[i];
+    inout_writer << n.m_vPosition.x << n.m_vPosition.y << n.m_vPosition.z;
+    inout_writer << n.m_vUpDir.x << n.m_vUpDir.y << n.m_vUpDir.z;
+    inout_writer << n.m_fArcLength;
+  }
+}
+
+/// Hashes all brush properties that affect a bake, except the spline nodes.
+static void HashBrushProperties(ezHashStreamWriter64& inout_writer, const ezTerrainData_Brush& brush)
+{
+  inout_writer << brush.m_vPosition.x << brush.m_vPosition.y << brush.m_vPosition.z;
+  inout_writer << brush.m_qRotation.x << brush.m_qRotation.y << brush.m_qRotation.z << brush.m_qRotation.w;
+  inout_writer << brush.m_vHalfExtents.x << brush.m_vHalfExtents.y;
+  inout_writer << brush.m_fHalfExtentZ << brush.m_fHalfExtentYTop;
+  inout_writer << brush.m_fInnerRadius << brush.m_fOuterRadius << brush.m_fFalloff;
+  inout_writer << brush.m_ModifyMode.GetValue();
+  inout_writer << brush.m_uiMaterialIndex << brush.m_fMaterialStrength;
+  inout_writer << brush.m_fNoiseStrength << brush.m_fNoiseFrequency;
+  inout_writer << brush.m_iPriority;
+  brush.m_Tags.Save(inout_writer);
+}
+
+/// Finalizes a contribution hash, making sure it can't be confused with 'does not affect'.
+static ezUInt64 FinalizeContributionHash(const ezHashStreamWriter64& writer)
+{
+  const ezUInt64 uiHash = writer.GetHashValue();
+  return uiHash != 0 ? uiHash : 1;
+}
+
+/// Shared implementation of Update[Heightfield|Voxel]BrushContributions.
+///
+/// With bAllBrushes the list is rebuilt from scratch, otherwise only the given changed brushes are re-evaluated.
+/// Returns true if any entry was added, removed or changed.
+template <typename ComputeFunc>
+static bool UpdateBrushContributions(ezDynamicArray<ezTerrainBrushContribution>& inout_contributions, bool bAllBrushes, ezUInt32 uiNumBrushes, ezArrayPtr<const ezUInt32> changedBrushes, ComputeFunc computeContribution)
+{
+  if (bAllBrushes)
+  {
+    ezHybridArray<ezTerrainBrushContribution, 16> newContributions;
+
+    for (ezUInt32 uiBrush = 0; uiBrush < uiNumBrushes; ++uiBrush)
+    {
+      const ezUInt64 uiHash = computeContribution(uiBrush);
+      if (uiHash != 0)
+      {
+        newContributions.PushBack({uiBrush, uiHash});
+      }
+    }
+
+    bool bChanged = inout_contributions.GetCount() != newContributions.GetCount();
+    for (ezUInt32 i = 0; !bChanged && i < newContributions.GetCount(); ++i)
+    {
+      bChanged = inout_contributions[i].m_uiBrushIndex != newContributions[i].m_uiBrushIndex || inout_contributions[i].m_uiHash != newContributions[i].m_uiHash;
+    }
+
+    inout_contributions = newContributions;
+    return bChanged;
+  }
+
+  bool bChanged = false;
+
+  for (ezUInt32 uiBrush : changedBrushes)
+  {
+    const ezUInt64 uiNewHash = computeContribution(uiBrush);
+
+    // Binary search for the first entry with an index >= uiBrush.
+    ezUInt32 uiPos = 0;
+    ezUInt32 uiEndPos = inout_contributions.GetCount();
+    while (uiPos < uiEndPos)
+    {
+      const ezUInt32 uiMid = (uiPos + uiEndPos) / 2;
+      if (inout_contributions[uiMid].m_uiBrushIndex < uiBrush)
+        uiPos = uiMid + 1;
+      else
+        uiEndPos = uiMid;
+    }
+
+    const bool bExists = uiPos < inout_contributions.GetCount() && inout_contributions[uiPos].m_uiBrushIndex == uiBrush;
+    const ezUInt64 uiOldHash = bExists ? inout_contributions[uiPos].m_uiHash : 0;
+
+    if (uiNewHash == uiOldHash)
+      continue;
+
+    bChanged = true;
+
+    if (uiNewHash == 0)
+      inout_contributions.RemoveAtAndCopy(uiPos);
+    else if (bExists)
+      inout_contributions[uiPos].m_uiHash = uiNewHash;
+    else
+      inout_contributions.InsertAt(uiPos, {uiBrush, uiNewHash});
+  }
+
+  return bChanged;
+}
+
+/// Hashes the contributions independent of the brush indices.
+///
+/// Brush slots are handed out in activation order, so the same set of brushes can end up in different slots.
+/// The result is stored for detecting stale baked data, where that must not count as a change.
+static void HashBrushContributions(ezHashStreamWriter64& inout_writer, const ezDynamicArray<ezTerrainBrushContribution>& contributions)
+{
+  ezHybridArray<ezUInt64, 16> hashes;
+  hashes.SetCountUninitialized(contributions.GetCount());
+
+  for (ezUInt32 i = 0; i < contributions.GetCount(); ++i)
+  {
+    hashes[i] = contributions[i].m_uiHash;
+  }
+
+  hashes.Sort();
+
+  inout_writer << hashes.GetCount();
+  for (ezUInt64 uiHash : hashes)
+  {
+    inout_writer << uiHash;
+  }
+}
+
+/// Paint-only brushes without material strength have no effect and are ignored entirely.
+static bool IsBrushWithoutEffect(const ezTerrainData_Brush& brush)
+{
+  return (brush.m_ModifyMode == ezTerrainModifyMode::OnlyPaint2D || brush.m_ModifyMode == ezTerrainModifyMode::OnlyPaint3D) && brush.m_fMaterialStrength <= 0.0f;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -332,6 +702,8 @@ ezUInt32 ezTerrainSystem::CreateHeightfieldTerrain(ezUInt32 uiCellsPerSide)
 
   patch.m_bInUse = true;
   patch.m_bDirty = true;
+  patch.m_bBrushContributionsValid = false;
+  patch.m_BrushContributions.Clear();
 
   // Stored grid = render vertices (CellsPerSide+1) plus 4 extra rings on each side.
   // Extra rings let normals CS use correct central-differences at patch edges,
@@ -469,92 +841,104 @@ ezUInt32 ezTerrainSystem::GetHeightfieldCellsPerSide(ezUInt32 uiPatchIndex) cons
   return (uiPatchIndex < m_Heightfields.GetCount()) ? m_Heightfields[uiPatchIndex].m_uiCellsPerSide : 128;
 }
 
-ezUInt64 ezTerrainSystem::GetHeightfieldBrushOverlapHash(ezUInt32 uiPatchIndex) const
+ezUInt64 ezTerrainSystem::GetHeightfieldBrushOverlapHash(ezUInt32 uiPatchIndex)
 {
   if (uiPatchIndex >= m_Heightfields.GetCount() || !m_Heightfields[uiPatchIndex].m_bInUse)
     return 0;
-  return ComputeHeightfieldBrushOverlapHash(m_Heightfields[uiPatchIndex]);
+
+  UpdateBrushCaches();
+
+  // Computed from scratch instead of returning m_uiBrushOverlapHash, which is only updated once per frame.
+  ezTerrainData_Heightfield& heightfield = m_Heightfields[uiPatchIndex];
+  const CullRegion region = MakeCullRegion(heightfield);
+
+  ezHybridArray<ezTerrainBrushContribution, 16> contributions;
+  UpdateBrushContributions(contributions, true, m_Brushes.GetCount(), {}, [&](ezUInt32 uiBrush)
+    { return ComputeHeightfieldBrushContribution(heightfield, region, uiBrush); });
+
+  return ComputeHeightfieldBrushOverlapHash(heightfield, contributions);
 }
 
-ezUInt64 ezTerrainSystem::ComputeHeightfieldBrushOverlapHash(const ezTerrainData_Heightfield& heightfield) const
+ezUInt64 ezTerrainSystem::ComputeHeightfieldBrushContribution(const ezTerrainData_Heightfield& heightfield, const CullRegion& region, ezUInt32 uiBrush) const
 {
-  const ezTransform invTrans = heightfield.m_GlobalTransform.GetInverse();
-  const float fSize = (float)heightfield.m_uiCellsPerSide * heightfield.m_fGridSpacing;
+  const ezTerrainData_Brush& brush = m_Brushes[uiBrush];
+  if (!brush.m_bInUse || !brush.m_bAffectHeightfields || IsBrushWithoutEffect(brush))
+    return 0;
+
+  if (!brush.m_Tags.IsEmpty() && !brush.m_Tags.IsAnySet(heightfield.m_Tags))
+    return 0;
+
+  ezUInt32 uiFirstNode = 0;
+  ezUInt32 uiLastNode = 0;
+  if (!FindBrushOverlap(uiBrush, region, true, uiFirstNode, uiLastNode))
+    return 0;
 
   ezHashStreamWriter64 writer;
 
-  for (ezUInt32 i = 0; i < m_Brushes.GetCount(); ++i)
+  if (brush.m_SplineNodes.GetCount() >= 2)
   {
-    const auto& brush = m_Brushes[i];
-    if (!brush.m_bInUse || !brush.m_bAffectHeightfields)
-      continue;
-
-    if (!brush.m_Tags.IsEmpty() && !brush.m_Tags.IsAnySet(heightfield.m_Tags))
-      continue;
-
-    const ezVec3 vLocalCenter = invTrans * brush.m_vPosition;
-    const float fConservativeRadius = ezMath::Sqrt(brush.m_vHalfExtents.x * brush.m_vHalfExtents.x + brush.m_vHalfExtents.y * brush.m_vHalfExtents.y) + brush.m_fInnerRadius + brush.m_fOuterRadius;
-
-    const float fClampedX = ezMath::Clamp(vLocalCenter.x, 0.0f, fSize);
-    const float fClampedY = ezMath::Clamp(vLocalCenter.y, 0.0f, fSize);
-    const float fDx = vLocalCenter.x - fClampedX;
-    const float fDy = vLocalCenter.y - fClampedY;
-
-    if (fDx * fDx + fDy * fDy > fConservativeRadius * fConservativeRadius)
-      continue;
-
-    writer << i;
-    writer << brush.m_vPosition.x << brush.m_vPosition.y << brush.m_vPosition.z;
-    writer << brush.m_qRotation.x << brush.m_qRotation.y << brush.m_qRotation.z << brush.m_qRotation.w;
-    writer << brush.m_vHalfExtents.x << brush.m_vHalfExtents.y;
-    writer << brush.m_fHalfExtentZ << brush.m_fHalfExtentYTop;
-    writer << brush.m_fInnerRadius << brush.m_fOuterRadius << brush.m_fFalloff;
-    writer << brush.m_ModifyMode.GetValue();
-    writer << brush.m_uiMaterialIndex << brush.m_fMaterialStrength;
-    writer << brush.m_fNoiseStrength;
-    writer << brush.m_fNoiseFrequency;
-    writer << brush.m_iPriority;
-    brush.m_Tags.Save(writer);
+    HashSplineNodes(writer, brush, uiFirstNode, uiLastNode);
   }
 
+  HashBrushProperties(writer, brush);
+  return FinalizeContributionHash(writer);
+}
+
+bool ezTerrainSystem::UpdateHeightfieldBrushContributions(ezTerrainData_Heightfield& heightfield, bool bAllBrushes)
+{
+  const CullRegion region = MakeCullRegion(heightfield);
+
+  const bool bChanged = UpdateBrushContributions(heightfield.m_BrushContributions, bAllBrushes, m_Brushes.GetCount(), m_ChangedBrushes, [&](ezUInt32 uiBrush)
+    { return ComputeHeightfieldBrushContribution(heightfield, region, uiBrush); });
+
+  heightfield.m_bBrushContributionsValid = true;
+  return bChanged;
+}
+
+ezUInt64 ezTerrainSystem::ComputeHeightfieldBrushOverlapHash(const ezTerrainData_Heightfield& heightfield, const ezDynamicArray<ezTerrainBrushContribution>& contributions)
+{
+  ezHashStreamWriter64 writer;
+  HashBrushContributions(writer, contributions);
   writer << heightfield.m_uiDefaultMaterialIndex;
   heightfield.m_Tags.Save(writer);
-
   return writer.GetHashValue();
 }
 
-void ezTerrainSystem::FindHeightfieldOverlappingBrushes(const ezTerrainData_Heightfield& heightfield, ezDynamicArray<TerrainBrushData>& brushes) const
+void ezTerrainSystem::FindHeightfieldOverlappingBrushes(const ezTerrainData_Heightfield& heightfield, ezDynamicArray<TerrainBrushData>& brushes, ezDynamicArray<TerrainSplineNode>& splineNodes) const
 {
-  const ezTransform invTrans = heightfield.m_GlobalTransform.GetInverse();
-  const float fSize = (float)heightfield.m_uiCellsPerSide * heightfield.m_fGridSpacing;
+  const CullRegion region = MakeCullRegion(heightfield);
+  const ezTransform& invTrans = region.m_InvTransform;
 
   brushes.Clear();
   brushes.Reserve(m_Brushes.GetCount());
+  splineNodes.Clear();
 
   const ezMat3 mInvTerrainRot = heightfield.m_GlobalTransform.m_qRotation.GetAsMat3().GetTranspose();
 
-  for (auto& brush : m_Brushes)
+  for (ezUInt32 uiBrush = 0; uiBrush < m_Brushes.GetCount(); ++uiBrush)
   {
-    if (!brush.m_bInUse || !brush.m_bAffectHeightfields)
+    const ezTerrainData_Brush& brush = m_Brushes[uiBrush];
+
+    if (!brush.m_bInUse || !brush.m_bAffectHeightfields || IsBrushWithoutEffect(brush))
       continue;
 
     if (!brush.m_Tags.IsEmpty() && !brush.m_Tags.IsAnySet(heightfield.m_Tags))
       continue;
 
-    if ((brush.m_ModifyMode == ezTerrainModifyMode::OnlyPaint2D || brush.m_ModifyMode == ezTerrainModifyMode::OnlyPaint3D) && brush.m_fMaterialStrength <= 0.0f)
+    // Skip brushes whose conservative footprint does not overlap the heightfield XY extent.
+    ezUInt32 uiFirstNode = 0;
+    ezUInt32 uiLastNode = 0;
+    if (!FindBrushOverlap(uiBrush, region, true, uiFirstNode, uiLastNode))
       continue;
 
-    // Skip brushes whose conservative footprint does not overlap the heightfield XY extent.
+    const bool bIsSpline = brush.m_SplineNodes.GetCount() >= 2;
     const ezVec3 vLocalCenter = invTrans * brush.m_vPosition;
-    const float fConservativeRadius = ezMath::Sqrt(brush.m_vHalfExtents.x * brush.m_vHalfExtents.x + brush.m_vHalfExtents.y * brush.m_vHalfExtents.y) + brush.m_fInnerRadius + brush.m_fOuterRadius;
-    const float fClampedX = ezMath::Clamp(vLocalCenter.x, 0.0f, fSize);
-    const float fClampedY = ezMath::Clamp(vLocalCenter.y, 0.0f, fSize);
-    const float fDx = vLocalCenter.x - fClampedX;
-    const float fDy = vLocalCenter.y - fClampedY;
-    if (fDx * fDx + fDy * fDy > fConservativeRadius * fConservativeRadius)
-      continue;
 
     TerrainBrushData& bd = brushes.ExpandAndGetRef();
+    bd.FirstSplineNode = 0;
+    bd.SplineNodeCount = 0;
+    bd.SplineLength = 0.0f;
+    bd.SplineFlags = 0;
     bd.Position = vLocalCenter;
     // bd.Position.z -= 0.5f; // keep the brush component slightly above the baked terrain so its icon remains visible
     bd.HalfExtentX = brush.m_vHalfExtents.x;
@@ -579,6 +963,11 @@ void ezTerrainSystem::FindHeightfieldOverlappingBrushes(const ezTerrainData_Heig
     bd.InvRotRow0 = mInvLocalBrushRot.GetRow(0);
     bd.InvRotRow1 = mInvLocalBrushRot.GetRow(1);
     bd.InvRotRow2 = mInvLocalBrushRot.GetRow(2);
+
+    if (bIsSpline)
+    {
+      SetupSplineBrush(brush, invTrans, uiFirstNode, uiLastNode, bd, splineNodes);
+    }
   }
 
   // Primary sort: priority ascending (higher priority = applied later = wins).
@@ -647,11 +1036,16 @@ void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
   auto& patch = m_Heightfields[uiIndex];
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
+  // Readbacks bake outside of UpdateTerrain.
+  UpdateBrushCaches();
+
   ezTempHybridArray<TerrainBrushData, 16> brushCPUData;
-  FindHeightfieldOverlappingBrushes(patch, brushCPUData);
+  ezTempHybridArray<TerrainSplineNode, 256> splineNodeCPUData;
+  FindHeightfieldOverlappingBrushes(patch, brushCPUData, splineNodeCPUData);
   const ezUInt32 uiNumBrushes = brushCPUData.GetCount();
 
   ezGALBufferHandle hBrushBuffer = CreateBrushBuffer(brushCPUData, pDevice);
+  ezGALBufferHandle hSplineNodeBuffer = CreateSplineNodeBuffer(splineNodeCPUData, pDevice);
 
   // Build source height data by sampling the height image (or zeros if no image is assigned).
   // Stored grid = (CellsPerSide+9)² — 4 border rings on each side beyond the render vertices.
@@ -700,6 +1094,7 @@ void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
   // Import all buffers into the graph.
   auto hGraphSrc = graph.ImportBuffer(hSourceBuffer);
   auto hGraphBrush = graph.ImportBuffer(hBrushBuffer);
+  auto hGraphSplineNodes = graph.ImportBuffer(hSplineNodeBuffer);
   auto hGraphCarve = graph.ImportBuffer(patch.m_hCarveMask);
   auto hGraphBakedH = graph.ImportBuffer(patch.m_hBakedHeights);
   auto hGraphBakedM = graph.ImportBuffer(m_hHeightfieldSharedMask);
@@ -716,10 +1111,11 @@ void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
     auto pass = graph.AddComputePass("TerrainHFBakeStep1");
     pass.ReadBuffer(hGraphSrc);
     pass.ReadBuffer(hGraphBrush);
+    pass.ReadBuffer(hGraphSplineNodes);
     pass.WriteBuffer(hGraphBakedH);
     pass.WriteBuffer(hGraphBakedM);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, c1, uiGroups, hGraphSrc, hGraphBrush, hGraphBakedH, hGraphBakedM](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, c1, uiGroups, hGraphSrc, hGraphBrush, hGraphSplineNodes, hGraphBakedH, hGraphBakedM](const ezRenderGraphContext& ctx)
       {
         auto* pRC = ctx.GetRenderContext();
         const bool bPrevAsync = pRC->GetAllowAsyncShaderLoading();
@@ -734,6 +1130,7 @@ void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
         bg.BindBuffer("BakedHeights", ctx.ResolveBuffer(hGraphBakedH));
         bg.BindBuffer("BakedMask", ctx.ResolveBuffer(hGraphBakedM));
         bg.BindBuffer("Brushes", ctx.ResolveBuffer(hGraphBrush));
+        bg.BindBuffer("SplineNodes", ctx.ResolveBuffer(hGraphSplineNodes));
         bg.BindBuffer("HeightfieldBakeConstants", m_hHeightfieldBakeConstants);
         pRC->Dispatch(uiGroups, uiGroups, 1).AssertSuccess(); });
   }
@@ -810,6 +1207,7 @@ void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
   // Deferred deletion: GAL delays destruction by several frames, so the callbacks will still see valid data.
   pDevice->DestroyBuffer(hSourceBuffer);
   pDevice->DestroyBuffer(hBrushBuffer);
+  pDevice->DestroyBuffer(hSplineNodeBuffer);
 
   patch.m_bDirty = false;
 }
@@ -972,6 +1370,8 @@ ezUInt32 ezTerrainSystem::CreateVoxelTerrain(ezUInt32 uiResolution, float fVoxel
   vol.m_bInUse = true;
   vol.m_bDirty = true;
   vol.m_uiBrushOverlapHash = 0;
+  vol.m_bBrushContributionsValid = false;
+  vol.m_BrushContributions.Clear();
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -1179,83 +1579,87 @@ ezUInt64 ezTerrainSystem::GetVoxelBrushOverlapHash(ezUInt32 uiIndex) const
   return m_VoxelVolumes[uiIndex].m_uiBrushOverlapHash;
 }
 
-ezUInt64 ezTerrainSystem::ComputeVoxelBrushOverlapHash(const ezTerrainData_Voxel& vol) const
+ezUInt64 ezTerrainSystem::ComputeVoxelBrushContribution(const ezTerrainData_Voxel& vol, const CullRegion& region, ezUInt32 uiBrush) const
 {
-  const ezTransform invTrans = vol.m_GlobalTransform.GetInverse();
-  const float fSize = (float)vol.m_uiResolution * vol.m_fVoxelSize;
+  const ezTerrainData_Brush& brush = m_Brushes[uiBrush];
+  if (!brush.m_bInUse || !brush.m_bAffectVoxels || IsBrushWithoutEffect(brush))
+    return 0;
+
+  if (!brush.m_Tags.IsEmpty() && !brush.m_Tags.IsAnySet(vol.m_Tags))
+    return 0;
+
+  // OnlyPaint2D projects from above with no Z extent — skip Z bounds check.
+  ezUInt32 uiFirstNode = 0;
+  ezUInt32 uiLastNode = 0;
+  if (!FindBrushOverlap(uiBrush, region, brush.m_ModifyMode == ezTerrainModifyMode::OnlyPaint2D, uiFirstNode, uiLastNode))
+    return 0;
 
   ezHashStreamWriter64 writer;
 
-  for (ezUInt32 i = 0; i < m_Brushes.GetCount(); ++i)
+  if (brush.m_SplineNodes.GetCount() >= 2)
   {
-    const auto& brush = m_Brushes[i];
-    if (!brush.m_bInUse || !brush.m_bAffectVoxels)
-      continue;
-
-    if (!brush.m_Tags.IsEmpty() && !brush.m_Tags.IsAnySet(vol.m_Tags))
-      continue;
-
-    const ezVec3 vLocalCenter = invTrans * brush.m_vPosition;
-    const float fConservativeRadius = ezMath::Sqrt(brush.m_vHalfExtents.x * brush.m_vHalfExtents.x + brush.m_vHalfExtents.y * brush.m_vHalfExtents.y + brush.m_fHalfExtentZ * brush.m_fHalfExtentZ) + brush.m_fInnerRadius + brush.m_fOuterRadius;
-
-    const float fDx = vLocalCenter.x - ezMath::Clamp(vLocalCenter.x, 0.0f, fSize);
-    const float fDy = vLocalCenter.y - ezMath::Clamp(vLocalCenter.y, 0.0f, fSize);
-    // OnlyPaint2D projects from above with no Z extent — skip Z bounds check.
-    const float fDz = (brush.m_ModifyMode == ezTerrainModifyMode::OnlyPaint2D) ? 0.0f : (vLocalCenter.z - ezMath::Clamp(vLocalCenter.z, 0.0f, fSize));
-    if (fDx * fDx + fDy * fDy + fDz * fDz > fConservativeRadius * fConservativeRadius)
-      continue;
-
-    writer << i;
-    writer << brush.m_vPosition.x << brush.m_vPosition.y << brush.m_vPosition.z;
-    writer << brush.m_qRotation.x << brush.m_qRotation.y << brush.m_qRotation.z << brush.m_qRotation.w;
-    writer << brush.m_vHalfExtents.x << brush.m_vHalfExtents.y;
-    writer << brush.m_fHalfExtentZ << brush.m_fHalfExtentYTop;
-    writer << brush.m_fInnerRadius << brush.m_fOuterRadius << brush.m_fFalloff;
-    writer << brush.m_ModifyMode.GetValue();
-    writer << brush.m_uiMaterialIndex << brush.m_fMaterialStrength;
-    writer << brush.m_fNoiseStrength << brush.m_fNoiseFrequency;
-    writer << brush.m_iPriority;
-    brush.m_Tags.Save(writer);
+    HashSplineNodes(writer, brush, uiFirstNode, uiLastNode);
   }
 
+  HashBrushProperties(writer, brush);
+  return FinalizeContributionHash(writer);
+}
+
+bool ezTerrainSystem::UpdateVoxelBrushContributions(ezTerrainData_Voxel& vol, bool bAllBrushes)
+{
+  const CullRegion region = MakeCullRegion(vol);
+
+  const bool bChanged = UpdateBrushContributions(vol.m_BrushContributions, bAllBrushes, m_Brushes.GetCount(), m_ChangedBrushes, [&](ezUInt32 uiBrush)
+    { return ComputeVoxelBrushContribution(vol, region, uiBrush); });
+
+  vol.m_bBrushContributionsValid = true;
+  return bChanged;
+}
+
+ezUInt64 ezTerrainSystem::ComputeVoxelBrushOverlapHash(const ezTerrainData_Voxel& vol, const ezDynamicArray<ezTerrainBrushContribution>& contributions)
+{
+  ezHashStreamWriter64 writer;
+  HashBrushContributions(writer, contributions);
   writer << vol.m_fFillHeight;
   vol.m_Tags.Save(writer);
-
   return writer.GetHashValue();
 }
 
-void ezTerrainSystem::FindVoxelOverlappingBrushes(const ezTerrainData_Voxel& vol, ezDynamicArray<TerrainBrushData>& brushes) const
+void ezTerrainSystem::FindVoxelOverlappingBrushes(const ezTerrainData_Voxel& vol, ezDynamicArray<TerrainBrushData>& brushes, ezDynamicArray<TerrainSplineNode>& splineNodes) const
 {
-  const ezTransform invTrans = vol.m_GlobalTransform.GetInverse();
-  const float fSize = (float)vol.m_uiResolution * vol.m_fVoxelSize;
+  const CullRegion region = MakeCullRegion(vol);
+  const ezTransform& invTrans = region.m_InvTransform;
 
   brushes.Clear();
   brushes.Reserve(m_Brushes.GetCount());
+  splineNodes.Clear();
 
   const ezMat3 mInvVolumeRot = vol.m_GlobalTransform.m_qRotation.GetAsMat3().GetTranspose();
 
-  for (const auto& brush : m_Brushes)
+  for (ezUInt32 uiBrush = 0; uiBrush < m_Brushes.GetCount(); ++uiBrush)
   {
-    if (!brush.m_bInUse || !brush.m_bAffectVoxels)
+    const ezTerrainData_Brush& brush = m_Brushes[uiBrush];
+
+    if (!brush.m_bInUse || !brush.m_bAffectVoxels || IsBrushWithoutEffect(brush))
       continue;
 
     if (!brush.m_Tags.IsEmpty() && !brush.m_Tags.IsAnySet(vol.m_Tags))
       continue;
 
-    if ((brush.m_ModifyMode == ezTerrainModifyMode::OnlyPaint2D || brush.m_ModifyMode == ezTerrainModifyMode::OnlyPaint3D) && brush.m_fMaterialStrength <= 0.0f)
-      continue;
-
-    const ezVec3 vLocalCenter = invTrans * brush.m_vPosition;
-    const float fConservativeRadius = ezMath::Sqrt(brush.m_vHalfExtents.x * brush.m_vHalfExtents.x + brush.m_vHalfExtents.y * brush.m_vHalfExtents.y + brush.m_fHalfExtentZ * brush.m_fHalfExtentZ) + brush.m_fInnerRadius + brush.m_fOuterRadius;
-
-    const float fDx = vLocalCenter.x - ezMath::Clamp(vLocalCenter.x, 0.0f, fSize);
-    const float fDy = vLocalCenter.y - ezMath::Clamp(vLocalCenter.y, 0.0f, fSize);
     // OnlyPaint2D projects from above with no Z extent — skip Z bounds check.
-    const float fDz = (brush.m_ModifyMode == ezTerrainModifyMode::OnlyPaint2D) ? 0.0f : (vLocalCenter.z - ezMath::Clamp(vLocalCenter.z, 0.0f, fSize));
-    if (fDx * fDx + fDy * fDy + fDz * fDz > fConservativeRadius * fConservativeRadius)
+    ezUInt32 uiFirstNode = 0;
+    ezUInt32 uiLastNode = 0;
+    if (!FindBrushOverlap(uiBrush, region, brush.m_ModifyMode == ezTerrainModifyMode::OnlyPaint2D, uiFirstNode, uiLastNode))
       continue;
+
+    const bool bIsSpline = brush.m_SplineNodes.GetCount() >= 2;
+    const ezVec3 vLocalCenter = invTrans * brush.m_vPosition;
 
     TerrainBrushData& bd = brushes.ExpandAndGetRef();
+    bd.FirstSplineNode = 0;
+    bd.SplineNodeCount = 0;
+    bd.SplineLength = 0.0f;
+    bd.SplineFlags = 0;
     bd.Position = vLocalCenter;
     bd.HalfExtentX = brush.m_vHalfExtents.x;
     bd.HalfExtentYBottom = brush.m_vHalfExtents.y;
@@ -1275,6 +1679,11 @@ void ezTerrainSystem::FindVoxelOverlappingBrushes(const ezTerrainData_Voxel& vol
     bd.InvRotRow0 = mInvLocalBrushRot.GetRow(0);
     bd.InvRotRow1 = mInvLocalBrushRot.GetRow(1);
     bd.InvRotRow2 = mInvLocalBrushRot.GetRow(2);
+
+    if (bIsSpline)
+    {
+      SetupSplineBrush(brush, invTrans, uiFirstNode, uiLastNode, bd, splineNodes);
+    }
   }
 
   // Primary sort: priority ascending (higher priority = applied later = wins).
@@ -1301,11 +1710,16 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
   auto& vol = m_VoxelVolumes[uiIndex];
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
+  // Readbacks bake outside of UpdateTerrain.
+  UpdateBrushCaches();
+
   ezTempHybridArray<TerrainBrushData, 16> brushCPUData;
-  FindVoxelOverlappingBrushes(vol, brushCPUData);
+  ezTempHybridArray<TerrainSplineNode, 256> splineNodeCPUData;
+  FindVoxelOverlappingBrushes(vol, brushCPUData, splineNodeCPUData);
 
   const ezUInt32 uiNumBrushes = brushCPUData.GetCount();
   ezGALBufferHandle hBrushBuffer = CreateBrushBuffer(brushCPUData, pDevice);
+  ezGALBufferHandle hSplineNodeBuffer = CreateSplineNodeBuffer(splineNodeCPUData, pDevice);
 
   constexpr ezUInt32 c_uiVoxelBorderVoxels = 4u;
 
@@ -1321,6 +1735,7 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
   // Import all buffers. Default states: UAV for SRV|UAV buffers, SRV for brush. Scratch is the shared set;
   // only the Final* buffers are per volume.
   auto hGraphBrush = graph.ImportBuffer(hBrushBuffer, ezGALResourceState::ShaderResource);
+  auto hGraphSplineNodes = graph.ImportBuffer(hSplineNodeBuffer, ezGALResourceState::ShaderResource);
   auto hGraphBakedVoxels = graph.ImportBuffer(m_hSharedVoxels);
   auto hGraphBakedVoxelDist = graph.ImportBuffer(m_hSharedVoxelDist);
   auto hGraphBakedVoxelDistScratch = graph.ImportBuffer(m_hSharedVoxelDistScratch);
@@ -1347,10 +1762,11 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
 
     auto pass = graph.AddComputePass("VoxelBake");
     pass.ReadBuffer(hGraphBrush);
+    pass.ReadBuffer(hGraphSplineNodes);
     pass.WriteBuffer(hGraphBakedVoxels);
     pass.WriteBuffer(hGraphBakedVoxelDist);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, c, uiGroupsX, uiGroupsYZ, hGraphBrush, hGraphBakedVoxels, hGraphBakedVoxelDist](const ezRenderGraphContext& ctx)
+    pass.SetExecuteCallback([this, c, uiGroupsX, uiGroupsYZ, hGraphBrush, hGraphSplineNodes, hGraphBakedVoxels, hGraphBakedVoxelDist](const ezRenderGraphContext& ctx)
       {
         auto* pRC = ctx.GetRenderContext();
         const bool bPrev = pRC->GetAllowAsyncShaderLoading();
@@ -1364,11 +1780,13 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
         bg.BindBuffer("BakedVoxels",    ctx.ResolveBuffer(hGraphBakedVoxels));
         bg.BindBuffer("BakedVoxelDist", ctx.ResolveBuffer(hGraphBakedVoxelDist));
         bg.BindBuffer("Brushes",        ctx.ResolveBuffer(hGraphBrush));
+        bg.BindBuffer("SplineNodes",    ctx.ResolveBuffer(hGraphSplineNodes));
         bg.BindBuffer("VoxelBakeConstants", m_hVoxelBakeConstants);
         pRC->Dispatch(uiGroupsX, uiGroupsYZ, uiGroupsYZ).AssertSuccess(); });
   }
 
   pDevice->DestroyBuffer(hBrushBuffer);
+  pDevice->DestroyBuffer(hSplineNodeBuffer);
   vol.m_bDirty = false;
 
   // SDF blur: reads BakedVoxelDist (SRV), writes BakedVoxelDistScratch (UAV), reads BakedVoxels (SRV).

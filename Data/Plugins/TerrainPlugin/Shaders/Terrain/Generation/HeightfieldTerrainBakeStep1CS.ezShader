@@ -12,6 +12,7 @@ ALL
 #include <Shaders/Terrain/Generation/HeightfieldBakeConstants.h>
 #include <Shaders/Terrain/Generation/TerrainBrushData.h>
 #include <Shaders/Terrain/Generation/TerrainUtils.h>
+#include <Shaders/Terrain/Generation/TerrainSplineBrush.h>
 
 /// Starting heights, might be initialized from image data or all zero.
 StructuredBuffer<float> SourceHeights BIND_GROUP(BG_DRAW_CALL);
@@ -152,7 +153,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
     {
       // 3D brush cases
       const float3 toVertex3D = float3(toVertex2D, vertexHeight - Brushes[brushIdx].Position.z);
-      float distanceToBrush = Brush_Sdf3D(Brushes[brushIdx], toVertex3D);
+      float distanceToBrush = Brush_EvalSdf3D(Brushes[brushIdx], toVertex3D);
 
       Brush_ApplyNoise3D(float3(localVertexPosXY + PatchOrigin, vertexHeight), NoiseStrength, NoiseFrequency, InnerRadius, distanceToBrush);
 
@@ -187,7 +188,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
       // 2D brush cases
 
       float distanceToBrushZ;
-      float distanceToBrushXY = Brush_Sdf2D(Brushes[brushIdx], toVertex2D, distanceToBrushZ);
+      float distanceToBrushXY = Brush_EvalSdf2D(Brushes[brushIdx], toVertex2D, distanceToBrushZ);
 
       const float2 worldXY = localVertexPosXY + PatchOrigin;
       const float noise = Brush_ApplyNoise2D(worldXY, NoiseStrength, NoiseFrequency, OuterRadius, OuterRadiusClamped, distanceToBrushXY);

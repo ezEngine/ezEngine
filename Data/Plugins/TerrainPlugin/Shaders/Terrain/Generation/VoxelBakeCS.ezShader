@@ -12,6 +12,7 @@ ALL
 #include <Shaders/Terrain/Generation/VoxelBakeConstants.h>
 #include <Shaders/Terrain/Generation/TerrainBrushData.h>
 #include <Shaders/Terrain/Generation/TerrainUtils.h>
+#include <Shaders/Terrain/Generation/TerrainSplineBrush.h>
 
 /// Packed voxel buffer: BakedVoxelsPitch.x * BakedVoxelsPitch.y * BakedVoxelsPitch.z uints. Each uint holds 8 4-bit voxel values along X.
 /// Bits [i*4+3 : i*4] = voxel at x=px*8+i for thread (px, y, z).
@@ -86,7 +87,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
       {
         // 3D brush cases
 
-        float distanceToBrush = Brush_Sdf3D(Brushes[brushIdx], toVoxel3D);
+        float distanceToBrush = Brush_EvalSdf3D(Brushes[brushIdx], toVoxel3D);
         Brush_ApplyNoise3D(voxelCenter + PatchOrigin, NoiseStrength, NoiseFrequency, InnerRadius, distanceToBrush);
 
         if (distanceToBrush > 0.0)
@@ -110,7 +111,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
         // 2D brush cases
 
         float distanceToBrushZ;
-        float distanceToBrushXY = Brush_Sdf2D(Brushes[brushIdx], toVoxel3D.xy, distanceToBrushZ);
+        float distanceToBrushXY = Brush_EvalSdf2D(Brushes[brushIdx], toVoxel3D.xy, distanceToBrushZ);
 
         const float noise = Brush_ApplyNoise2D(voxelCenter.xy + PatchOrigin, NoiseStrength, NoiseFrequency, OuterRadius, OuterRadiusClamped, distanceToBrushXY);
 
