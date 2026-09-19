@@ -91,7 +91,7 @@ float gradientNoise(ezVec3 x, float freq, ezUInt32 seed)
 // Fbm for Perlin noise based on iq's blog
 float perlinfbm(ezVec3 p, float freq, int octaves, ezUInt32 seed)
 {
-  float G = exp2(-.85);
+  float G = exp2f(-.85f);
   float amp = 1.;
   float noise = 0.;
   for (int i = 0; i < octaves; ++i)
@@ -156,13 +156,13 @@ ezResult ezNoiseGen::BeforeCoreSystemsStartup()
 
 void ezNoiseGen::AfterCoreSystemsStartup()
 {
-  ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
+  ezFileSystem::AddDataDirectory("", "App", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
 
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
   // Add the empty data directory to access files via absolute paths
-  ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
+  ezFileSystem::AddDataDirectory("", "App", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
 }
 
 void ezNoiseGen::BeforeCoreSystemsShutdown()
@@ -179,9 +179,12 @@ uint8_t floatToUint8(float value)
 }
 
 
-ezApplication::Execution ezNoiseGen::Run()
+void ezNoiseGen::Run()
 {
   SetReturnCode(-1);
+
+  ezImage vdbTest;
+  vdbTest.LoadFrom("C:\\Users\\Benjamin\\Downloads\\wdas_cloud\\wdas_cloud.vdb").AssertSuccess();
 
   // Generate cloud base shape noise texture
   /*{
@@ -254,14 +257,14 @@ ezApplication::Execution ezNoiseGen::Run()
 
     for (uint32_t slice = 0; slice < dim; slice++)
     {
-      float uvZ = static_cast<float>(slice) * invSize + (invSize / 2.0);
+      float uvZ = static_cast<float>(slice) * invSize + (invSize / 2.0f);
       for (uint32_t y = 0; y < dim; y++)
       {
         auto curPixel = noiseCube.GetPixelPointer<ezColorLinearUB>(0, 0, 0, 0, y, slice);
-        float uvY = 1.0f - (static_cast<float>(y) * invSize + (invSize / 2.0));
+        float uvY = 1.0f - (static_cast<float>(y) * invSize + (invSize / 2.0f));
         for (uint32_t x = 0; x < dim; x++, curPixel++)
         {
-          float uvX = static_cast<float>(x) * invSize + (invSize / 2.0);
+          float uvX = static_cast<float>(x) * invSize + (invSize / 2.0f);
 
           const ezVec3 uvw(uvX, uvY, uvZ);
 
@@ -283,7 +286,6 @@ ezApplication::Execution ezNoiseGen::Run()
   }
 
   SetReturnCode(0);
-  return ezApplication::Execution::Quit;
 }
 
 EZ_CONSOLEAPP_ENTRY_POINT(ezNoiseGen);

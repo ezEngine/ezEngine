@@ -937,7 +937,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
 
     ezHybridArray<const ezAbstractProperty*, 16> Textures2D;
     ezHybridArray<const ezAbstractProperty*, 16> TexturesCube;
-    ezHybridArray<ezAbstractProperty*, 16> Textures3D;
+    ezHybridArray<const ezAbstractProperty*, 16> Textures3D;
     ezHybridArray<const ezAbstractProperty*, 16> Permutations;
     ezHybridArray<const ezAbstractProperty*, 16> Constants;
 

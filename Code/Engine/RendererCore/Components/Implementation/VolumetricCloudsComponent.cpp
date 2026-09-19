@@ -39,7 +39,7 @@ void ezVolumetricCloudsComponent::Initialize()
   if (!hMeshBuffer.IsValid())
   {
     ezGeometry geom;
-    geom.AddRectXY(ezVec2(2.0f));
+    geom.AddRect(ezVec2(2.0f));
 
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
@@ -105,7 +105,7 @@ void ezVolumetricCloudsComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
 
   ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
   {
-    pRenderData->m_GlobalTransform = ezTransform::IdentityTransform();
+    pRenderData->m_GlobalTransform = ezTransform::MakeIdentity();
     pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
     pRenderData->m_hMesh = m_hMesh;
     pRenderData->m_hMaterial = m_hMaterial;
