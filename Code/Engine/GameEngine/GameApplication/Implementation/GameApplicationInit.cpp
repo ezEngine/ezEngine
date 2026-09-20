@@ -135,6 +135,36 @@ void ezGameApplication::Init_SetupDefaultResources()
     ezResourceManager::SetResourceTypeMissingFallback<ezTextureCubeResource>(hMissingTexture);
   }
 
+  // 3D Textures
+  {
+    // small in-memory checkerboard volume texture, used whenever a 3D texture resource is missing or still loading
+    ezUInt8 uiMissingTextureData[2 * 2 * 2 * 4] = {
+      255, 0, 255, 255, 0, 0, 0, 255, //
+      0, 0, 0, 255, 255, 0, 255, 255, //
+
+      0, 0, 0, 255, 255, 0, 255, 255, //
+      255, 0, 255, 255, 0, 0, 0, 255, //
+    };
+
+    ezGALSystemMemoryDescription memDesc;
+    memDesc.m_pData = ezMakeByteBlobPtr(uiMissingTextureData, sizeof(uiMissingTextureData));
+    memDesc.m_uiRowPitch = 2 * 4;
+    memDesc.m_uiSlicePitch = 2 * 2 * 4;
+
+    ezTexture3DResourceDescriptor desc;
+    desc.m_DescGAL.m_uiWidth = 2;
+    desc.m_DescGAL.m_uiHeight = 2;
+    desc.m_DescGAL.m_uiDepth = 2;
+    desc.m_DescGAL.m_Type = ezGALTextureType::Texture3D;
+    desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+    desc.m_InitialContent = ezMakeArrayPtr(&memDesc, 1);
+
+    ezTexture3DResourceHandle hMissingTexture = ezResourceManager::CreateResource<ezTexture3DResource>("Texture3D_Missing", std::move(desc), "Texture3D_Missing");
+
+    ezResourceManager::SetResourceTypeLoadingFallback<ezTexture3DResource>(hMissingTexture);
+    ezResourceManager::SetResourceTypeMissingFallback<ezTexture3DResource>(hMissingTexture);
+  }
+
   // Materials
   {
     ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezMaterialResource, ezMaterialResource>();

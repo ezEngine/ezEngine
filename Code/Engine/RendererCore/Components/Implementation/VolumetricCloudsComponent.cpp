@@ -5,6 +5,7 @@
 #include <Core/Graphics/Geometry.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 
 #include <RendererCore/Lights/DirectionalLightComponent.h>
@@ -42,7 +43,7 @@ void ezVolumetricCloudsComponent::Initialize()
     geom.AddRect(ezVec2(2.0f));
 
     ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+    desc.AddStream(ezMeshVertexStreamType::Position);
     desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
     hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);
@@ -95,6 +96,14 @@ ezResult ezVolumetricCloudsComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bo
   return EZ_SUCCESS;
 }
 
+void ezVolumetricCloudsComponent::OnDeactivated()
+{
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
+
+  SUPER::OnDeactivated();
+}
+
 void ezVolumetricCloudsComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract sky render data for selection or in orthographic views.
@@ -103,17 +112,12 @@ void ezVolumetricCloudsComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
 
   UpdateMaterials();
 
-  ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
-  {
-    pRenderData->m_GlobalTransform = ezTransform::MakeIdentity();
-    pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
-    pRenderData->m_hMesh = m_hMesh;
-    pRenderData->m_hMaterial = m_hMaterial;
-    pRenderData->m_uiSubMeshIndex = 0;
-    pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
+  const bool bDynamic = GetOwner()->IsDynamic();
+  const ezTransform globalTransform = ezTransform::MakeIdentity();
+  auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, globalTransform, m_InstanceDataOffset, GetUniqueIdForRendering());
 
-    pRenderData->FillBatchIdAndSortingKey();
-  }
+  ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+  pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, m_hMaterial, m_hMesh);
 
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Sky, ezRenderData::Caching::Never);
 }

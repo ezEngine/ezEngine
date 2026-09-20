@@ -1,0 +1,157 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+CAMERA_MODE = CAMERA_MODE_MONO
+
+[MATERIALPARAMETER]
+
+[RENDERSTATE]
+
+// Render only the box's back faces: with CullMode_None both the front and back faces of the
+// proxy box get rasterized and alpha-blended independently (with no guaranteed front-to-back
+// order), so some pixels get shaded/blended twice and others once, depending on submission order
+// -- visible as a seam at the box's face boundaries, especially at low opacity. Back-face-only
+// rendering guarantees exactly one shaded fragment per pixel, and works whether the camera is
+// outside or inside the box (TraceVolume already clamps tNear to 0 for the inside case).
+CullMode = CullMode_Front
+BlendingEnabled0 = true
+DestBlend0 = Blend_InvSrcAlpha
+SourceBlend0 = Blend_SrcAlpha
+
+[MATERIALCONSTANTS]
+
+FLOAT1(OpacityMultiplier);
+BOOL1(IsLinear);
+
+[VERTEXSHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+#define USE_WORLDPOS
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  return FillVertexData(Input);
+}
+
+[PIXELSHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+#define USE_WORLDPOS
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.h>
+
+Texture3D BaseTexture BIND_GROUP(BG_MATERIAL);
+SamplerState BaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
+
+float2 hash( float2 p ) // replace this by something better
+{
+	p = float2( dot(p,float2(127.1,311.7)), dot(p,float2(269.5,183.3)) );
+	return -1.0 + 2.0*frac(sin(p)*43758.5453123);
+}
+
+float noise( in float2 p )
+{
+    const float K1 = 0.366025404; // (sqrt(3)-1)/2;
+    const float K2 = 0.211324865; // (3-sqrt(3))/6;
+
+	float2  i = floor( p + (p.x+p.y)*K1 );
+    float2  a = p - i + (i.x+i.y)*K2;
+    float m = step(a.y,a.x); 
+    float2  o = float2(m,1.0-m);
+    float2  b = a - o + K2;
+	float2  c = a - 1.0 + 2.0*K2;
+    float3  h = max( 0.5-float3(dot(a,a), dot(b,b), dot(c,c) ), 0.0 );
+	float3  n = h*h*h*h*float3( dot(a,hash(i+0.0)), dot(b,hash(i+o)), dot(c,hash(i+1.0)));
+    return dot( n, (70.0).xxx );
+}
+
+// The preview box mesh is a unit cube [-0.5, 0.5]^3 at the origin with an identity object transform,
+// so world space and the box's local space are identical here.
+float4 TraceVolume(float3 vRayOriginLS, float3 vRayDirLS, float initialOffset)
+{
+  const float3 boxMin = float3(-0.5, -0.5, -0.5);
+  const float3 boxMax = float3(0.5, 0.5, 0.5);
+
+  float3 invDir = 1.0 / vRayDirLS;
+  float3 t0 = (boxMin - vRayOriginLS) * invDir;
+  float3 t1 = (boxMax - vRayOriginLS) * invDir;
+  float3 tMin3 = min(t0, t1);
+  float3 tMax3 = max(t0, t1);
+
+  float tNear = max(max(tMin3.x, tMin3.y), tMin3.z);
+  float tFar = min(min(tMax3.x, tMax3.y), tMax3.z);
+
+  tNear = max(tNear, 0.0);
+
+  float3 color = float3(0, 0, 0);
+  float transmittance = 1.0;
+
+  if (tFar > tNear)
+  {
+    // Constant step size, chosen so that the worst case ray (the box's space diagonal, sqrt(3)
+    // for a unit box) takes exactly MAX_STEPS steps. Shorter rays take proportionally fewer steps.
+    const int MAX_STEPS = 64;
+    const float stepSize = 1.7320508 / (float) MAX_STEPS; // sqrt(3) / MAX_STEPS
+    const int numSteps = min(MAX_STEPS, (int) ceil((tFar - tNear) / stepSize));
+
+    float3 curPos = vRayOriginLS + vRayDirLS * (tNear + initialOffset * stepSize);
+
+
+    for (int i = 0; i < numSteps; ++i)
+    {
+      float3 uvw = curPos + float3(0.5, 0.5, 0.5);
+      float4 texel = BaseTexture.SampleLevel(BaseTexture_AutoSampler, uvw, 0);
+
+      float density = dot(texel.rgb, float3(1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0)) * GetMaterialData(OpacityMultiplier);
+
+      if (density > 0.0)
+      {
+        float stepTransmittance = exp(-density * stepSize * 4.0);
+
+        color += transmittance * (1.0 - stepTransmittance) * texel.rgb;
+        transmittance *= stepTransmittance;
+
+        if (transmittance < 0.01)
+        {
+          transmittance = 0.0;
+          break;
+        }
+      }
+
+      curPos += vRayDirLS * stepSize;
+    }
+  }
+
+
+  return float4(color, 1.0 - transmittance);
+}
+
+float4 main(PS_IN Input) : SV_Target
+{
+  float3 cameraPosWS = mul(GetCameraToWorldMatrix(), float4(0, 0, 0, 1)).xyz;
+  float3 rayDir = normalize(Input.WorldPosition - cameraPosWS);
+
+  float initialOffset = noise(Input.Position.xy * 0.5);
+
+  float4 traced = TraceVolume(cameraPosWS, rayDir, initialOffset);
+
+  float3 background[2];
+  background[0] = float3(0.66, 0.66, 0.66);
+  background[1] = float3(0.82, 0.82, 0.82);
+
+  int bgIdx = (int) (Input.Position.x * 0.1 + Input.Position.y * 0.1) & 1;
+
+  float3 color = lerp(background[bgIdx], traced.rgb, traced.a);
+
+  if (GetMaterialData(IsLinear))
+  {
+    color = SrgbToLinear(color);
+  }
+
+  return traced;
+}

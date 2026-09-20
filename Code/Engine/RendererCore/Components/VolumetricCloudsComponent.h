@@ -19,6 +19,7 @@ public:
 protected:
   virtual void Initialize() override;
   virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -44,4 +45,6 @@ private:
 
   ezTexture3DResourceHandle m_hNoiseLut;
   ezTexture3DResourceHandle m_hDetailNoiseLut;
+
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 };

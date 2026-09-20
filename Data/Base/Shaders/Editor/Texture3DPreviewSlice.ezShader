@@ -1,0 +1,62 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+CAMERA_MODE = CAMERA_MODE_MONO
+
+[MATERIALPARAMETER]
+
+[RENDERSTATE]
+
+CullMode = CullMode_None
+
+[MATERIALCONSTANTS]
+
+FLOAT1(SliceCoordinate);
+BOOL1(IsLinear);
+
+[VERTEXSHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+#define USE_TEXCOORD0
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  return FillVertexData(Input);
+}
+
+[PIXELSHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+#define USE_WORLDPOS
+#define USE_TEXCOORD0
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.h>
+
+Texture3D BaseTexture BIND_GROUP(BG_MATERIAL);
+SamplerState BaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
+
+float4 main(PS_IN Input) : SV_Target
+{
+  float4 texel = BaseTexture.Sample(BaseTexture_AutoSampler, float3(Input.TexCoord0.xy, GetMaterialData(SliceCoordinate)));
+
+  float3 background[2];
+  background[0] = float3(0.66, 0.66, 0.66);
+  background[1] = float3(0.82, 0.82, 0.82);
+
+  int bgIdx = (int)
+  (floor(Input.TexCoord0.x * 16.0) + floor(Input.TexCoord0.y * 16.0)) & 1;
+
+  float3 color = lerp(background[bgIdx], texel.rgb, texel.a);
+
+  if (GetMaterialData(IsLinear))
+  {
+    color = SrgbToLinear(color);
+  }
+
+  return float4(color, 1);
+}

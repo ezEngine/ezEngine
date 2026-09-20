@@ -28,10 +28,9 @@ DepthWrite = false
 
 #include <Shaders/Common/GlobalConstants.h>
 
-CONSTANT_BUFFER(ezMaterialConstants, 1)
-{
-  FLOAT3(SunDir);
-};
+[MATERIALCONSTANTS]
+
+FLOAT3(SunDir);
 
 [VERTEXSHADER]
 
@@ -60,11 +59,11 @@ VS_OUT main(VS_IN Input)
 
 [PIXELSHADER]
 
-Texture3D NoiseMap;
-SamplerState NoiseMap_AutoSampler;
+Texture3D NoiseMap BIND_GROUP(BG_MATERIAL);
+SamplerState NoiseMap_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture3D DetailNoiseMap;
-SamplerState DetailNoiseMap_AutoSampler;
+Texture3D DetailNoiseMap BIND_GROUP(BG_MATERIAL);
+SamplerState DetailNoiseMap_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 #define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0; float3 CameraPos : TEXCOORD1;
 
@@ -151,11 +150,11 @@ float4 TraceClouds()
 	{	
 		float transmittance = exp(-curDensity * stepSize);
 		
-		float densityOnLightRay = LightRay(curSamplePoint, SunDir);
-		
+		float densityOnLightRay = LightRay(curSamplePoint, GetMaterialData(SunDir));
+
 		float powder_sugar_effect = 1.0 - exp(-densityOnLightRay * 2.0);
 		float beers_law = exp(-densityOnLightRay * 6.0);
-		float light_energy = 2.0 * beers_law * powder_sugar_effect * HenyeyGreenstein(SunDir, viewDir, 0.2) + 0.05;
+		float light_energy = 2.0 * beers_law * powder_sugar_effect * HenyeyGreenstein(GetMaterialData(SunDir), viewDir, 0.2) + 0.05;
 		
 		color += float3(3.0, 3.0, 3.0) * (totalTransmittance * (light_energy - light_energy * transmittance) / curDensity);
 		

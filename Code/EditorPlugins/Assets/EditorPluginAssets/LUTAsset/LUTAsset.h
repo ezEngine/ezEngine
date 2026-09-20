@@ -3,6 +3,7 @@
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/LUTAsset/LUTAssetObjects.h>
+#include <EditorPluginAssets/Texture3DAsset/Texture3DAsset.h>
 
 class ezTextureAssetProfileConfig;
 
@@ -12,6 +13,11 @@ class ezLUTAssetDocument : public ezSimpleAssetDocument<ezLUTAssetProperties>
 
 public:
   ezLUTAssetDocument(ezStringView sDocumentPath);
+
+  // for previewing purposes
+  ezEnum<ezTexture3DPreviewMode> m_PreviewMode;
+  float m_fSliceCoordinate = 0.5f;      // [0, 1], only used in Slices preview mode
+  float m_fOpacityMultiplier = 1.0f;    // only used in RayMarch preview mode
 
 protected:
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,

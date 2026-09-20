@@ -1,6 +1,7 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorPluginAssets/TextureAsset/TextureAssetUtils.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAsset.h>
 
 // clang-format off
@@ -15,11 +16,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetDocument, 3, ezRTTINoAllocator
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
-
-const char* ToFilterMode(ezTextureFilterSetting::Enum mode);
-const char* ToUsageMode(ezTexConvUsage::Enum mode);
-const char* ToCompressionMode(ezTexConvCompressionMode::Enum mode);
-const char* ToMipmapMode(ezTexConvMipmapMode::Enum mode);
 
 ezTextureCubeAssetDocument::ezTextureCubeAssetDocument(ezStringView sDocumentPath)
   : ezSimpleAssetDocument<ezTextureCubeAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple)

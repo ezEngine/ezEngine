@@ -42,6 +42,7 @@ public:
     ezDynamicArray<ezMaterialResourceDescriptor::Parameter> m_Parameters; // Builds constant buffer
     ezDynamicArray<ezMaterialResourceDescriptor::Texture2DBinding> m_Texture2DBindings;
     ezDynamicArray<ezMaterialResourceDescriptor::TextureCubeBinding> m_TextureCubeBindings;
+    ezDynamicArray<ezMaterialResourceDescriptor::Texture3DBinding> m_Texture3DBindings;
 
     struct BindGroupCache
     {
@@ -135,6 +136,7 @@ private:
     ezDynamicArray<ezMaterialResourceDescriptor::Parameter> m_Parameters;
     ezDynamicArray<ezMaterialResourceDescriptor::Texture2DBinding> m_Texture2DBindings;
     ezDynamicArray<ezMaterialResourceDescriptor::TextureCubeBinding> m_TextureCubeBindings;
+    ezDynamicArray<ezMaterialResourceDescriptor::Texture3DBinding> m_Texture3DBindings;
     ezDynamicArray<ezPermutationVar> m_PermutationVars;
   };
 

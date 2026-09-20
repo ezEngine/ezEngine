@@ -12,6 +12,11 @@ EZ_DEFINE_AS_POD_TYPE(XrSwapchainImageVulkanKHR);
 class ezOpenXR;
 
 /// Vulkan implementation of the OpenXR graphics binding.
+// ezVulkanInitInterface is a header-only interface (no dllexport) shared by every DLL that
+// implements it; each DLL gets its own copy of its vtable, which is safe here since no cross-DLL
+// pointer identity of the base sub-object is required. Silence the resulting (benign) C4275.
+#  pragma warning(push)
+#  pragma warning(disable : 4275)
 class EZ_OPENXRPLUGIN_DLL ezOpenXRGraphicsBindingVulkan final : public ezOpenXRGraphicsBinding, public ezVulkanInitInterface
 {
   EZ_DECLARE_SINGLETON_OF_INTERFACE(ezOpenXRGraphicsBindingVulkan, ezVulkanInitInterface);
@@ -70,5 +75,6 @@ private:
   ezHybridArray<XrSwapchainImageVulkanKHR, 3> m_ColorSwapchainImages;
   ezHybridArray<XrSwapchainImageVulkanKHR, 3> m_DepthSwapchainImages;
 };
+#  pragma warning(pop)
 
 #endif

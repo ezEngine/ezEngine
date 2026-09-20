@@ -14,12 +14,23 @@
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLUTAssetDocument, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ENUM_MEMBER_PROPERTY("PreviewMode", ezTexture3DPreviewMode, m_PreviewMode),
+    EZ_MEMBER_PROPERTY("SliceCoordinate", m_fSliceCoordinate),
+    EZ_MEMBER_PROPERTY("OpacityMultiplier", m_fOpacityMultiplier),
+  }
+  EZ_END_PROPERTIES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezLUTAssetDocument::ezLUTAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument<ezLUTAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::None)
+  : ezSimpleAssetDocument<ezLUTAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple)
 {
+  // LUT assets are always 2D slices of a color cube, so RayMarch preview never applies to them.
+  m_PreviewMode = ezTexture3DPreviewMode::Slices;
 }
 
 ezTransformStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)

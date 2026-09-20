@@ -19,6 +19,7 @@ public:
 protected:
   virtual void Initialize() override;
   virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -41,4 +42,6 @@ private:
 
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
+
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 };

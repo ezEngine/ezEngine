@@ -150,6 +150,11 @@ ezGALBindGroupHandle ezMaterialManager::GetMaterialBindGroup(const ezMaterialRes
     {
       bindGroupMaterial.BindTexture(binding.m_Name, binding.m_Value);
     }
+
+    for (const ezMaterialResourceDescriptor::Texture3DBinding& binding : data.m_Texture3DBindings)
+    {
+      bindGroupMaterial.BindTexture(binding.m_Name, binding.m_Value);
+    }
     bindGroupMaterial.CreateBindGroup(hBindGroupLayout, desc, metaFlags);
   }
   ezGALBindGroupHandle hBindGroup = pDevice->CreateBindGroup(desc);
@@ -323,6 +328,9 @@ void ezMaterialManager::ExtractMaterial(ezMaterialResource* pMaterial, ezMateria
       case ezMaterialResource::DirtyFlags::TextureCube:
         extractedMaterial.m_TextureCubeBindings = pMaterial->m_mDesc.m_TextureCubeBindings;
         break;
+      case ezMaterialResource::DirtyFlags::Texture3D:
+        extractedMaterial.m_Texture3DBindings = pMaterial->m_mDesc.m_Texture3DBindings;
+        break;
       case ezMaterialResource::DirtyFlags::PermutationVar:
         extractedMaterial.m_PermutationVars = pMaterial->m_mDesc.m_PermutationVars;
         break;
@@ -368,6 +376,10 @@ void ezMaterialManager::ApplyMaterialChanges()
           break;
         case ezMaterialResource::DirtyFlags::TextureCube:
           md.m_TextureCubeBindings = std::move(extractedMaterial.m_TextureCubeBindings);
+          bDeleteBindGroups = true;
+          break;
+        case ezMaterialResource::DirtyFlags::Texture3D:
+          md.m_Texture3DBindings = std::move(extractedMaterial.m_Texture3DBindings);
           bDeleteBindGroups = true;
           break;
         case ezMaterialResource::DirtyFlags::PermutationVar:
