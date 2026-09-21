@@ -47,7 +47,7 @@ private:
   void FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, const QueryCallback& callback) const override;
   void FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, const QueryCallback& callback) const override;
 
-  void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, const ezSpatialSystem::IsOccludedFunc& IsOccluded, ezVisibilityState::Enum visType) const override;
+  void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_objects, const ezSpatialSystem::IsOccludedFunc& isOccludedCallback, ezVisibilityState::Enum visType) const override;
 
   ezVisibilityState::Enum GetVisibilityState(const ezSpatialDataHandle& hData, ezUInt32 uiNumFramesBeforeInvisible) const override;
 

@@ -547,16 +547,16 @@ namespace ezInternal
 
     struct FrustumQueryData
     {
-      FrustumQueryData(ezDynamicArray<const ezGameObject*>& outObjects, const ezSpatialSystem::IsOccludedFunc& isOccludedCB)
-        : m_OutObjects(outObjects)
-        , m_IsOccludedCB(isOccludedCB)
+      FrustumQueryData(ezDynamicArray<const ezGameObject*>& out_objects, const ezSpatialSystem::IsOccludedFunc& isOccludedCallback)
+        : m_OutObjects(out_objects)
+        , m_IsOccludedCallback(isOccludedCallback)
       {
       }
 
       PlaneData m_PlaneData;
       ezDynamicArray<const ezGameObject*>& m_OutObjects;
       ezUInt64 m_uiFrameCounter;
-      const ezSpatialSystem::IsOccludedFunc& m_IsOccludedCB;
+      const ezSpatialSystem::IsOccludedFunc& m_IsOccludedCallback;
     };
 
     template <bool UseTagsFilter, bool UseOcclusionCallback>
@@ -571,7 +571,7 @@ namespace ezInternal
 
       if constexpr (UseOcclusionCallback)
       {
-        if (pQueryData->m_IsOccludedCB(cell.m_Bounds.GetBox()))
+        if (pQueryData->m_IsOccludedCallback(cell.m_Bounds.GetBox()))
         {
           return ezVisitorExecution::Continue;
         }
@@ -620,7 +620,7 @@ namespace ezInternal
             if constexpr (UseOcclusionCallback)
             {
               const ezSimdBBox bbox = ezSimdBBox::MakeFromCenterAndHalfExtents(boundingSpheres[i].GetCenter(), boundingBoxHalfExtents[i]);
-              if (pQueryData->m_IsOccludedCB(bbox))
+              if (pQueryData->m_IsOccludedCallback(bbox))
               {
                 continue;
               }
@@ -655,7 +655,7 @@ namespace ezInternal
           {
             const ezSimdBBox bbox = ezSimdBBox::MakeFromCenterAndHalfExtents(boundingSpheres[i].GetCenter(), boundingBoxHalfExtents[i]);
 
-            if (pQueryData->m_IsOccludedCB(bbox))
+            if (pQueryData->m_IsOccludedCallback(bbox))
             {
               continue;
             }
@@ -908,7 +908,7 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, con
     &queryData, ezVisibilityState::Indirect);
 }
 
-void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, const ezSpatialSystem::IsOccludedFunc& IsOccluded, ezVisibilityState::Enum visType) const
+void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_objects, const ezSpatialSystem::IsOccludedFunc& isOccludedCallback, ezVisibilityState::Enum visType) const
 {
   EZ_PROFILE_SCOPE("ezSpatialSystem_RegularGrid::FindVisibleObjects");
 
@@ -927,7 +927,7 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, c
 
   const ezSimdBBox simdBox = ezSimdBBox::MakeFromPoints(simdCornerPoints, 8);
 
-  ezInternal::QueryHelper::FrustumQueryData queryData(out_Objects, IsOccluded);
+  ezInternal::QueryHelper::FrustumQueryData queryData(out_objects, isOccludedCallback);
   {
     // Compiler is too stupid to properly unroll a constant loop so we do it by hand
     ezSimdVec4f plane0 = ezSimdConversion::ToVec4(*reinterpret_cast<const ezVec4*>(&(frustum.GetPlane(0).m_vNormal.x)));
@@ -955,7 +955,7 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, c
     queryData.m_uiFrameCounter = m_uiFrameCounter;
   }
 
-  if (IsOccluded.IsValid())
+  if (isOccludedCallback.IsValid())
   {
     ForEachCellInBoxInMatchingGrids(simdBox, queryParams,
       &ezInternal::QueryHelper::FrustumQueryCallback<false, true>,
