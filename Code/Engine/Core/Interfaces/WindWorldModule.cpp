@@ -2,6 +2,7 @@
 
 #include <Core/Interfaces/WindWorldModule.h>
 #include <Core/World/World.h>
+#include <Foundation/SimdMath/SimdMath.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWindWorldModuleInterface, 1, ezRTTINoAllocator)
@@ -89,6 +90,33 @@ ezVec3 ezWindWorldModuleInterface::ComputeWindFlutter(const ezVec3& vWind, const
   const float fFlutterOffset = (uiFlutterRandomOffset & 1023u) / 256.0f;
 
   const float fFlutter = ezMath::Sin(ezAngle::MakeFromRadian(fFlutterOffset + fFlutterSpeed * fWindStrength * GetWorld()->GetClock().GetAccumulatedTime().AsFloatInSeconds())) * fWindStrength;
+
+  return flutterDir * fFlutter;
+}
+
+ezSimdVec4f ezWindWorldModuleInterface::ComputeWindFlutterSimd(const ezSimdVec4f& vWind, const ezSimdVec4f& vObjectDir, float fFlutterSpeed, ezUInt32 uiFlutterRandomOffset) const
+{
+  if (vWind.IsZero<3>(0.001f))
+    return ezSimdVec4f::MakeZero();
+
+  ezSimdVec4f windDir = vWind;
+  const ezSimdFloat fWindStrength = windDir.GetLengthAndNormalize<3>();
+
+  if (fWindStrength <= 0.01f)
+    return ezSimdVec4f::MakeZero();
+
+  ezSimdVec4f mainDir = vObjectDir;
+  mainDir.NormalizeIfNotZero<3>(ezSimdVec4f(0, 0, 1));
+
+  ezSimdVec4f flutterDir = windDir.CrossRH(mainDir);
+  flutterDir.NormalizeIfNotZero<3>(ezSimdVec4f(0, 0, 1));
+
+  const float fFlutterOffset = (uiFlutterRandomOffset & 1023u) / 256.0f;
+
+  const float fTime = GetWorld()->GetClock().GetAccumulatedTime().AsFloatInSeconds();
+  const float fAngle = fFlutterOffset + float(fWindStrength) * fFlutterSpeed * fTime;
+
+  const float fFlutter = ezMath::Sin(ezAngle::MakeFromRadian(fAngle)) * float(fWindStrength);
 
   return flutterDir * fFlutter;
 }

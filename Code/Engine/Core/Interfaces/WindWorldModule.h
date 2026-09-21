@@ -57,4 +57,7 @@ public:
   /// \param fFlutterSpeed How fast the object shall flutter (frequency).
   /// \param uiFlutterRandomOffset A random number that adds an offset to the flutter, such that multiple objects next to each other will flutter out of phase.
   ezVec3 ComputeWindFlutter(const ezVec3& vWind, const ezVec3& vObjectDir, float fFlutterSpeed, ezUInt32 uiFlutterRandomOffset) const;
+
+  /// Simd version of ComputeWindFlutter
+  ezSimdVec4f ComputeWindFlutterSimd(const ezSimdVec4f& vWind, const ezSimdVec4f& vObjectDir, float fFlutterSpeed, ezUInt32 uiFlutterRandomOffset) const;
 };
