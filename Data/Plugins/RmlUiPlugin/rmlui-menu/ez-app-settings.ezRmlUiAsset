@@ -1,0 +1,204 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{1880761163863489595,16239349047262241859}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"RmlUi"}
+		VarArray %Dependencies
+		{
+			s{"rmlui-menu/ez-app-settings.rcss"}
+			s{"rmlui-menu/ez-app-settings.rml"}
+			s{"rmlui-default/assets.rcss"}
+			s{"rmlui-default/button.rcss"}
+			s{"rmlui-default/common.rcss"}
+			s{"rmlui-default/expand.rcss"}
+			s{"rmlui-default/input-checkbox.rcss"}
+			s{"rmlui-default/input-radio.rcss"}
+			s{"rmlui-default/input-range.rcss"}
+			s{"rmlui-default/input-submit.rcss"}
+			s{"rmlui-default/input-text.rcss"}
+			s{"rmlui-default/progress.rcss"}
+			s{"rmlui-default/scrollbar.rcss"}
+			s{"rmlui-default/select.rcss"}
+			s{"rmlui-default/table.rcss"}
+			s{"rmlui-default/tabs.rcss"}
+			s{"rmlui-default/template.rml"}
+			s{"rmlui-default/textarea.rcss"}
+			s{"rmlui-default/window.rcss"}
+		}
+		Uuid %DocumentID{u4{1880761163863489595,16239349047262241859}}
+		u4 %Hash{0}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"rmlui-menu/ez-app-settings.rcss"}
+			s{"rmlui-menu/ez-app-settings.rml"}
+			s{"rmlui-default/assets.png"}
+			s{"rmlui-default/assets.rcss"}
+			s{"rmlui-default/button.rcss"}
+			s{"rmlui-default/common.rcss"}
+			s{"rmlui-default/expand.rcss"}
+			s{"rmlui-default/input-checkbox.rcss"}
+			s{"rmlui-default/input-radio.rcss"}
+			s{"rmlui-default/input-range.rcss"}
+			s{"rmlui-default/input-submit.rcss"}
+			s{"rmlui-default/input-text.rcss"}
+			s{"rmlui-default/progress.rcss"}
+			s{"rmlui-default/scrollbar.rcss"}
+			s{"rmlui-default/select.rcss"}
+			s{"rmlui-default/table.rcss"}
+			s{"rmlui-default/tabs.rcss"}
+			s{"rmlui-default/template.rml"}
+			s{"rmlui-default/textarea.rcss"}
+			s{"rmlui-default/window.rcss"}
+		}
+		VarArray %References
+		{
+			s{"rmlui-menu/ez-app-settings.rcss"}
+			s{"rmlui-menu/ez-app-settings.rml"}
+			s{"rmlui-default/assets.png"}
+			s{"rmlui-default/assets.rcss"}
+			s{"rmlui-default/button.rcss"}
+			s{"rmlui-default/common.rcss"}
+			s{"rmlui-default/expand.rcss"}
+			s{"rmlui-default/input-checkbox.rcss"}
+			s{"rmlui-default/input-radio.rcss"}
+			s{"rmlui-default/input-range.rcss"}
+			s{"rmlui-default/input-submit.rcss"}
+			s{"rmlui-default/input-text.rcss"}
+			s{"rmlui-default/progress.rcss"}
+			s{"rmlui-default/scrollbar.rcss"}
+			s{"rmlui-default/select.rcss"}
+			s{"rmlui-default/table.rcss"}
+			s{"rmlui-default/tabs.rcss"}
+			s{"rmlui-default/template.rml"}
+			s{"rmlui-default/textarea.rcss"}
+			s{"rmlui-default/window.rcss"}
+		}
+		s %Tags{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{5437539988860609863,16631195552622292979}}
+	s %t{"ezRmlUiAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		Vec2u %ReferenceResolution{u3{1920,1080}}
+		s %RmlFile{"rmlui-menu/ez-app-settings.rml"}
+		s %ScaleMode{"ezRmlUiScaleMode::WithScreenSize"}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{5437539988860609863,16631195552622292979}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1279131488575532460,14268837862471452239}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginRmlUi"}
+		VarArray %Properties{}
+		s %TypeName{"ezRmlUiScaleMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2584129773188116390,18425100896451606385}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginRmlUi"}
+		VarArray %Properties{}
+		s %TypeName{"ezRmlUiAssetProperties"}
+		u3 %TypeVersion{1}
+	}
+}
+}

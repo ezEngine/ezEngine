@@ -1,0 +1,19 @@
+<rml>
+  <head>
+    <link type="text/template" href="rmlui-default/template.rml"/>
+    <link type="text/css" href="rmlui-menu/ez-main-menu.rcss"/>
+  </head>
+  <body class="main-menu">
+    <div class="content">
+      <!-- An SVG is rasterized at the size of the layout, so it stays sharp at any UI scale. Raster images use <img>. -->
+      <svg src="ez.svg" class="logo"/>
+
+      <button onclick="MainMenu-Resume">Resume</button>
+      <button onclick="MainMenu-Settings">Settings</button>
+      <button onclick="MainMenu-Exit" id="button-exit">Exit</button>
+    </div>
+
+    <!-- Filled in by ezRmlUiMainMenuComponent::UpdateStats() -->
+    <div class="stats" id="menu-stats"></div>
+  </body>
+</rml>

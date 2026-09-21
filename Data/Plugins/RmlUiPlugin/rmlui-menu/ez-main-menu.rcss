@@ -1,0 +1,60 @@
+/* Cover the entire screen with a semi-transparent background. */
+body.main-menu {
+  width: 100%;
+  height: 100%;
+
+  background-color: rgba(100, 100, 120, 180);
+}
+
+.main-menu .content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  height: 100vh;
+}
+
+/* A fixed size, so the layout doesn't change once the image has loaded. An SVG is rasterized at this size. */
+.main-menu .logo {
+  width: 160dp;
+  height: 160dp;
+  margin-bottom: 16dp;
+}
+
+.main-menu button {
+  width: 200dp;
+  height: 100dp;
+
+  /* needed for vertical text centering */
+  line-height: 100dp;
+
+  align-items: center;
+  text-align: center;
+
+  font-size: 18dp;
+  margin: 4dp 0;
+  padding: 10dp 10dp;
+
+  transition: transform 0.4s cubic-out;
+}
+
+.main-menu button:hover {
+  transform: scale(1.08);
+}
+
+.main-menu button:active {
+  /* no transition for immediate effect */
+  transition: none;
+}
+
+/* Absolute, so that it doesn't affect the centering of the buttons. */
+.main-menu .stats {
+  position: absolute;
+  bottom: 8dp;
+  right: 12dp;
+
+  text-align: right;
+  font-size: 12dp;
+  color: rgba(255, 255, 255, 160);
+}

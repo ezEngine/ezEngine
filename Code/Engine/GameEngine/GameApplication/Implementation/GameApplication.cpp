@@ -396,19 +396,30 @@ namespace
 {
   const char* s_szInputSet = "GameApp";
   const char* s_szCloseAppAction = "CloseApp";
-  const char* s_szShowConsole = "ShowConsole";
   const char* s_szShowFpsAction = "ShowFps";
   const char* s_szReloadResourcesAction = "ReloadResources";
   const char* s_szCaptureProfilingAction = "CaptureProfiling";
   const char* s_szCaptureFrame = "CaptureFrame";
   const char* s_szTakeScreenshot = "TakeScreenshot";
   const char* s_szOpenInspector = "OpenInspector";
+
+  // For shortcuts that must also work while another input set has exclusive input, which suppresses all input actions.
+  bool IsRawKeyPressed(const char* szInputSlot)
+  {
+    // avoids a warning about unknown input slots during the first frames
+    if (ezInputManager::GetInputDeviceOfType<ezInputDeviceMouseKeyboard>() == nullptr)
+      return false;
+
+    return ezInputManager::GetInputSlotState(szInputSlot) == ezKeyState::Pressed;
+  }
 } // namespace
 
 
 void ezGameApplication::RegisterGameApplicationInputActions(ezBitflags<ezGameApplicationInputFlags> flags)
 {
   ezInputActionConfig config;
+
+  m_InputFlags = flags;
 
   if (flags.IsSet(ezGameApplicationInputFlags::Dev_EscapeToClose))
   {
@@ -418,9 +429,7 @@ void ezGameApplication::RegisterGameApplicationInputActions(ezBitflags<ezGameApp
 
   if (flags.IsSet(ezGameApplicationInputFlags::Dev_Console))
   {
-    // the tilde has problematic behavior on keyboards where it is a hat (^)
-    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF1;
-    ezInputManager::SetInputActionConfig("Console", s_szShowConsole, config, true);
+    // the console key is checked in Run_ProcessApplicationInput()
 
     if (m_pConsole)
     {
@@ -480,16 +489,8 @@ void ezGameApplication::RegisterGameApplicationInputActions(ezBitflags<ezGameApp
 
   if (flags.IsSet(ezGameApplicationInputFlags::LoadInputConfig))
   {
-    ezStringView sConfigFile = ezGameAppInputConfig::s_sConfigFile;
-
-    ezFileReader file;
-    if (file.Open(sConfigFile).Succeeded())
-    {
-      ezTempHybridArray<ezGameAppInputConfig, 32> InputActions;
-
-      ezGameAppInputConfig::ReadFromDDL(file, InputActions);
-      ezGameAppInputConfig::ApplyAll(InputActions);
-    }
+    ezGameAppInputConfig::ApplyFile(ezGameAppInputConfig::s_sConfigFile).IgnoreResult();
+    ezGameAppInputConfig::ApplyFile(ezGameAppInputConfig::s_sUserConfigFile).IgnoreResult();
   }
 }
 
@@ -786,8 +787,9 @@ void ezGameApplication::RenderConsole()
 
 bool ezGameApplication::Run_ProcessApplicationInput()
 {
-  // the show console command must be in the "Console" input set, because we are using that for exclusive input when the console is open
-  if (ezInputManager::GetInputActionState("Console", s_szShowConsole) == ezKeyState::Pressed)
+  // a raw key, so that the console also opens while e.g. a menu has exclusive input
+  // (not tilde, because that is a dead key (^) on some keyboard layouts)
+  if (m_InputFlags.IsSet(ezGameApplicationInputFlags::Dev_Console) && IsRawKeyPressed(ezInputSlot_KeyF1))
   {
     m_bShowConsole = !m_bShowConsole;
 
@@ -821,6 +823,17 @@ bool ezGameApplication::Run_ProcessApplicationInput()
     if (m_pGameState)
     {
       m_pGameState->RequestQuit("dev-esc");
+    }
+  }
+
+  // not an input action, because the slots of an action are alternatives, not a combination
+  if (m_InputFlags.IsSet(ezGameApplicationInputFlags::Dev_QuickClose) && IsRawKeyPressed(ezInputSlot_KeyQ) &&
+      (ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) != ezKeyState::Up ||
+        ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) != ezKeyState::Up))
+  {
+    if (m_pGameState)
+    {
+      m_pGameState->RequestQuit("dev-quickclose");
     }
   }
 

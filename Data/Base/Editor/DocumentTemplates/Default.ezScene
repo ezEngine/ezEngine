@@ -11,16 +11,20 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14841776606954812814,5457590759842316574}}
-		u4 %Hash{9566690469323962692}
+		u4 %Hash{1312387504086939142}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 1c5c6a91-80d3-ccce-3c89-ac2150700d87 }"}
+			s{"{ 31a4e443-c1eb-e15d-3bfc-6e5750ce191a }"}
 		}
 		VarArray %References
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 1c5c6a91-80d3-ccce-3c89-ac2150700d87 }"}
+			s{"{ 31a4e443-c1eb-e15d-3bfc-6e5750ce191a }"}
 		}
 		s %Tags{""}
 	}
@@ -36,6 +40,21 @@ o
 	p
 	{
 		Uuid %Layer{u4{14841776606954812814,5457590759842316574}}
+	}
+}
+o
+{
+	Uuid %id{u4{6639683671933730449,4701152714361084725}}
+	s %t{"ezRmlUiMainMenuComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %InputSets{}
+		s %MenuFile{"{ 1c5c6a91-80d3-ccce-3c89-ac2150700d87 }"}
+		b %PauseWorld{1}
+		s %SettingsFile{"{ 31a4e443-c1eb-e15d-3bfc-6e5750ce191a }"}
+		VarArray %SoundGroups{}
 	}
 }
 o
@@ -78,6 +97,7 @@ o
 			Uuid{u4{3321675616207001738,5180111284974951590}}
 			Uuid{u4{11132620235227075468,4879882893570377543}}
 			Uuid{u4{2396896726356983992,4714548004823139304}}
+			Uuid{u4{12103041107372700327,5037537693223699789}}
 		}
 		VarArray %Components{}
 		s %GlobalKey{""}
@@ -194,6 +214,32 @@ o
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Geometry"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{12103041107372700327,5037537693223699789}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{6639683671933730449,4701152714361084725}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000803F,0,0x0000803F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -592,6 +638,23 @@ o
 }
 o
 {
+	Uuid %id{u4{18329615886557822518,5906794617071553329}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginRmlUi"}
+		VarArray %Properties{}
+		s %TypeName{"ezRmlUiSoundGroupSetting"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{5837165590562654431,6019321076980052009}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -723,6 +786,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{18364459167664304635,8872111205080687760}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezMainMenuComponent"}
+		s %PluginName{"ezEditorPluginRmlUi"}
+		VarArray %Properties{}
+		s %TypeName{"ezRmlUiMainMenuComponent"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1063,6 +1143,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraUsageHint"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2545573720517664342,17719255863397290561}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMainMenuComponent"}
 		u3 %TypeVersion{1}
 	}
 }

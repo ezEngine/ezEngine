@@ -1,0 +1,263 @@
+/* Cover the entire screen with a semi-transparent background. */
+body.app-settings {
+  width: 100%;
+  height: 100%;
+
+  background-color: rgba(100, 100, 120, 180);
+}
+
+.app-settings .background {
+  width: 100%;
+  height: 100%;
+}
+
+.app-settings .modal-window {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  decorator: tiled-box(window-tl, window-t, window-tr,
+      window-l, window-c, window-r,
+      window-bl, window-b, window-br);
+}
+
+/* Darkens the whole page while a key is being captured, the 'visible' class is set from code. */
+.app-settings .rebind-overlay {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  background-color: rgba(0, 0, 0, 120);
+}
+
+.app-settings .rebind-overlay.visible {
+  display: block;
+}
+
+.app-settings .rebind-window {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 24dp 40dp;
+  text-align: center;
+  white-space: nowrap;
+
+  decorator: tiled-box(window-tl, window-t, window-tr,
+      window-l, window-c, window-r,
+      window-bl, window-b, window-br);
+}
+
+/* Only the content of the selected tab scrolls, the title, the tab headers and the button row stay in place. */
+.app-settings tabset {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.app-settings tabset tabs {
+  flex: 0 0 auto;
+}
+
+.app-settings tabset panels {
+  display: block;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.app-settings .title-bar {
+  padding: 8dp 12dp 0 12dp;
+  font-size: 18dp;
+}
+
+.app-settings .title-bar .icon {
+  width: 24dp;
+  height: 24dp;
+  vertical-align: -6dp;
+  margin-right: 8dp;
+}
+
+/* The default style sheet doesn't show that a control is disabled. */
+.app-settings select:disabled,
+.app-settings input:disabled {
+  opacity: 0.4;
+}
+
+/* The default style sheet also shows hover, focus and active looks on disabled controls.
+   These rules reset every part of a control that has such a look. */
+.app-settings select:disabled selectvalue,
+.app-settings select:disabled:focus-visible selectvalue {
+  decorator: image(selectvalue);
+}
+
+.app-settings select:disabled selectarrow,
+.app-settings select:disabled:hover selectarrow,
+.app-settings select:disabled:focus-visible selectarrow,
+.app-settings select:disabled:active selectarrow {
+  decorator: image(selectarrow);
+}
+
+.app-settings input:disabled.checkbox,
+.app-settings input:disabled.checkbox:hover,
+.app-settings input:disabled.checkbox:focus-visible,
+.app-settings input:disabled.checkbox:active {
+  decorator: image(checkbox);
+}
+
+.app-settings input:disabled.checkbox:checked,
+.app-settings input:disabled.checkbox:checked:hover,
+.app-settings input:disabled.checkbox:checked:focus-visible,
+.app-settings input:disabled.checkbox:checked:active {
+  decorator: image(checkbox-checked);
+}
+
+.app-settings input:disabled.range slidertrack,
+.app-settings input:disabled.range:focus-visible slidertrack {
+  decorator: ninepatch(range-track, range-track-inner, 1.0);
+}
+
+.app-settings input:disabled.range sliderbar,
+.app-settings input:disabled.range sliderbar:hover,
+.app-settings input:disabled.range slidertrack:hover+sliderbar,
+.app-settings input:disabled.range sliderbar:active,
+.app-settings input:disabled.range slidertrack:active+sliderbar {
+  image-color: #fff;
+}
+
+.app-settings input:disabled.range sliderarrowdec,
+.app-settings input:disabled.range sliderarrowdec:hover,
+.app-settings input:disabled.range sliderarrowdec:active {
+  decorator: image(range-dec);
+}
+
+.app-settings input:disabled.range sliderarrowinc,
+.app-settings input:disabled.range sliderarrowinc:hover,
+.app-settings input:disabled.range sliderarrowinc:active {
+  decorator: image(range-inc);
+}
+
+.app-settings tab {
+  min-width: 100dp;
+  width: auto;
+}
+
+.app-settings table {
+  width: auto;
+}
+
+.app-settings tr {
+  width: auto;
+  height: auto;
+}
+
+/* The default style sheet gives every odd row a background, including the header row. That one has its own decorator,
+   and its box doesn't match the decorator's width, so the background would stick out on the sides. */
+.app-settings thead tr {
+  background-color: transparent;
+}
+
+.app-settings td {
+  width: auto;
+  height: auto;
+  vertical-align: middle;
+  padding-top: 8dp;
+  padding-bottom: 8dp;
+}
+
+.app-settings td:first-child {
+  text-align: right;
+  padding-right: 16dp;
+}
+
+.app-settings thead td:nth-child(2) {
+  text-align: center;
+}
+
+/* The widgets below start at the left edge of the column. */
+.app-settings table.settings-table thead td:nth-child(2) {
+  text-align: left;
+}
+
+.app-settings input[type="text"] {
+  width: 200dp;
+  text-align: left;
+}
+
+.app-settings input[type="radio"] {
+  margin-right: 4dp;
+  margin-left: 12dp;
+  vertical-align: -3dp;
+}
+
+.app-settings input[type="radio"]:first-child {
+  margin-left: 0;
+}
+.app-settings .back-row {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: center;
+  padding: 8dp 0;
+}
+
+.app-settings .back-row button {
+  min-width: 120dp;
+}
+
+/* The value next to a slider. */
+.app-settings span.value {
+  display: inline-block;
+  width: 48dp;
+  padding-left: 8dp;
+  vertical-align: middle;
+}
+
+/* The default style sheet only makes buttons and drop downs navigable with the keyboard. */
+.app-settings input {
+  nav: auto;
+}
+
+/* Table rows set a dark text color, which buttons inside would inherit. */
+.app-settings td button {
+  color: white;
+}
+
+/* Input slot names can be long ('Cont 1: Left Shoulder'). A fixed width keeps the columns from jumping while rebinding. */
+.app-settings td button.binding {
+  min-width: 190dp;
+}
+
+/* The default style gives every button a fixed width, so this has to set 'width' rather than 'min-width'. */
+.app-settings td button.restore,
+.app-settings td button.unbind {
+  width: 36dp;
+}
+
+/* The binding columns share the free space, their headings and buttons are centered in it. */
+.app-settings table.controls-table td {
+  text-align: center;
+}
+
+.app-settings table.controls-table td:first-child {
+  text-align: right;
+}
+
+/* The table sizes its columns from the header row. Without a width, these would get as much of the free space as the binding columns. */
+.app-settings table.controls-table thead td.button-column {
+  width: 44dp;
+}
+
+/* An empty column that keeps the buttons away from the right edge of the list. */
+.app-settings table.controls-table thead td.margin-column {
+  width: 24dp;
+}

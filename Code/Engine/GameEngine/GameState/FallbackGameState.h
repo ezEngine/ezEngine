@@ -6,6 +6,7 @@
 #include <GameEngine/Utils/SceneLoadUtil.h>
 
 class ezCameraComponent;
+class ezMainMenuComponent;
 
 /// ezFallbackGameState is an ezGameState that can handle existing worlds when no other game state is available.
 ///
@@ -25,6 +26,9 @@ public:
   virtual void ProcessInput() override;
 
   virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
+
+  /// If the world contains an ezMainMenuComponent, pressing ESC ("dev-esc" and "editor-esc") opens it instead of quitting.
+  virtual void RequestQuit(ezStringView sRequestedBy) override;
 
   /// Reports true for ezFallbackGameState only, not for derived types.
   virtual bool IsFallbackGameState() const override;
@@ -65,4 +69,15 @@ protected:
   virtual void OnBackgroundSceneLoadingFailed(ezStringView sReason) override;
 
   virtual void ConfigureMainCamera() override;
+
+  virtual void OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
+
+  //////////////////////////////////////////////////////////////////////////
+
+  /// Returns nullptr if the world has no main menu. The world must be locked by the caller.
+  ezMainMenuComponent* GetMainMenu();
+  bool IsMainMenuOpen();
+
+  ezComponentHandle m_hMainMenu;
+  bool m_bSearchedMainMenu = false;
 };

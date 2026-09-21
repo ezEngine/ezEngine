@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9942389368597704355,5056955079846159374}}
-		u4 %Hash{6042199615680581066}
+		u4 %Hash{18316305979856231299}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -23,6 +23,7 @@ o
 			s{"{ 3bf60313-2bce-45cf-8836-68e3b9ef5323 }"}
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
 			s{"{ 539b683d-a71e-40f3-8834-b4cc4a553998 }"}
+			s{"{ 5df9c839-02a4-430c-a1db-e7d4d26dde47 }"}
 			s{"{ 6082de35-c174-4c40-a5a5-17fd67b11ce5 }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 61cf41fb-176e-41e1-bcd6-fcbe5f853339 }"}
@@ -54,6 +55,7 @@ o
 			s{"{ 363d0e0f-3f2d-489c-9691-9d0df031d7a8 }"}
 			s{"{ 3bf60313-2bce-45cf-8836-68e3b9ef5323 }"}
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
+			s{"{ 5df9c839-02a4-430c-a1db-e7d4d26dde47 }"}
 			s{"{ 6082de35-c174-4c40-a5a5-17fd67b11ce5 }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
@@ -1200,6 +1202,7 @@ o
 			Uuid{u4{9510071591287362222,5264679830236612079}}
 			Uuid{u4{17864142247607210444,4589380118027462556}}
 			Uuid{u4{5439008794484590293,5469097007457260550}}
+			Uuid{u4{8138633468668156733,9740250279693590210}}
 		}
 		VarArray %Components{}
 		s %GlobalKey{""}
@@ -3763,6 +3766,32 @@ o
 }
 o
 {
+	Uuid %id{u4{8138633468668156733,9740250279693590210}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{4389019927361612839,10313608442473504099}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x0000A03F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{13314232452742263612,9753952292829650699}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -4558,6 +4587,19 @@ o
 		s %Gradient{"{ 6082de35-c174-4c40-a5a5-17fd67b11ce5 }"}
 		b %RandomStartOffset{1}
 		s %SetColorMode{"ezSetColorMode::SetRGB"}
+	}
+}
+o
+{
+	Uuid %id{u4{4389019927361612839,10313608442473504099}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ 5df9c839-02a4-430c-a1db-e7d4d26dde47 }"}
+		b %ShowShapeIcons{1}
 	}
 }
 o

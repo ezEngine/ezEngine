@@ -11,13 +11,14 @@ o
 		s %AssetType{"Layer"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4025706763557391268,5561767617844493014}}
-		u4 %Hash{2633093373466069919}
+		u4 %Hash{8885810905668537578}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
 			s{"{ 36ba6a8f-2b12-4556-9e42-632db5c5b2ca }"}
+			s{"{ 5df9c839-02a4-430c-a1db-e7d4d26dde47 }"}
 			s{"{ 7e7175b2-750f-43c2-9958-c53abc18661e }"}
 			s{"{ 8044a36f-e313-4204-973d-796231798973 }"}
 			s{"{ ab653368-c695-4085-8f58-1456e853558a }"}
@@ -28,6 +29,7 @@ o
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
 			s{"{ 36ba6a8f-2b12-4556-9e42-632db5c5b2ca }"}
+			s{"{ 5df9c839-02a4-430c-a1db-e7d4d26dde47 }"}
 			s{"{ 7e7175b2-750f-43c2-9958-c53abc18661e }"}
 			s{"{ ab653368-c695-4085-8f58-1456e853558a }"}
 			s{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
@@ -395,6 +397,7 @@ o
 			Uuid{u4{2053883447661627163,15002389872781491320}}
 			Uuid{u4{15712422190971561004,15243021815992799287}}
 			Uuid{u4{3586403232417857203,1893150813289392070}}
+			Uuid{u4{11444103835961297869,15259463490733036028}}
 		}
 		Uuid %Settings{u4{11260814291078938826,5289091215396086446}}
 	}
@@ -697,6 +700,32 @@ o
 }
 o
 {
+	Uuid %id{u4{11444103835961297869,15259463490733036028}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7694490294654753975,15832821653512949917}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x0000003F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{5585426561007826410,15309806584498090193}}
 	s %t{"ezSphereReflectionProbeComponent"}
 	u3 %v{2}
@@ -753,6 +782,19 @@ o
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 		b %ShowShapeIcons{0}
+	}
+}
+o
+{
+	Uuid %id{u4{7694490294654753975,15832821653512949917}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ 5df9c839-02a4-430c-a1db-e7d4d26dde47 }"}
+		b %ShowShapeIcons{1}
 	}
 }
 o
