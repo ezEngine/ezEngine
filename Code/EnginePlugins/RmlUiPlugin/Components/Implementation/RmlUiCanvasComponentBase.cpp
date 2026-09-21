@@ -6,6 +6,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RmlUiPlugin/Components/RmlUiCanvasComponentBase.h>
 #include <RmlUiPlugin/Implementation/BlackboardDataBinding.h>
+#include <RmlUiPlugin/Implementation/SystemInterface.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
@@ -140,6 +141,11 @@ void ezRmlUiCanvasComponentBase::SetRmlResource(const ezRmlUiResourceHandle& hRe
 
     if (m_pContext != nullptr)
     {
+      // Without any data binding the document cannot resolve the data models it declares. That is the normal
+      // state before game code adds its bindings (and permanently in the editor, which doesn't run that code),
+      // and AddDataBinding loads the document again once a binding exists, so it is not worth reporting.
+      const ezRmlUiInternal::ScopedMissingDataModelsAllowed allowMissingDataModels(HasDataBindings() == false);
+
       if (m_pContext->LoadDocumentFromResource(m_hResource).Succeeded() && IsActive())
       {
         m_pContext->ShowDocument();
@@ -233,6 +239,17 @@ ezResult ezRmlUiCanvasComponentBase::GetLocalBounds(ezBoundingBoxSphere& ref_bou
   return EZ_SUCCESS;
 }
 
+bool ezRmlUiCanvasComponentBase::HasDataBindings() const
+{
+  for (auto& pDataBinding : m_DataBindings)
+  {
+    if (pDataBinding != nullptr)
+      return true;
+  }
+
+  return false;
+}
+
 ezRmlUiContext* ezRmlUiCanvasComponentBase::GetOrCreateRmlContext()
 {
   if (m_pContext != nullptr)
@@ -263,6 +280,11 @@ ezRmlUiContext* ezRmlUiCanvasComponentBase::GetOrCreateRmlContext()
   {
     pDataBinding->Initialize(*m_pContext).IgnoreResult();
   }
+
+  // Without any data binding the document cannot resolve the data models it declares. That is the normal
+  // state before game code adds its bindings (and permanently in the editor, which doesn't run that code),
+  // and AddDataBinding loads the document again once a binding exists, so it is not worth reporting.
+  const ezRmlUiInternal::ScopedMissingDataModelsAllowed allowMissingDataModels(HasDataBindings() == false);
 
   m_pContext->LoadDocumentFromResource(m_hResource).IgnoreResult();
 
