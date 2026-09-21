@@ -39,12 +39,29 @@ ezResult ezPlayerApplication::BeforeCoreSystemsStartup()
 
   EZ_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
 
-  DetermineProjectPath();
+  if (DetermineProjectPath().Succeeded())
+  {
+    MakeApplicationNameProjectSpecific();
+  }
 
   return EZ_SUCCESS;
 }
 
-void ezPlayerApplication::DetermineProjectPath()
+void ezPlayerApplication::MakeApplicationNameProjectSpecific()
+{
+  // ":appdata" is ">user/<application name>", so without this every project that ezPlayer runs would
+  // share one folder for CVars, window configuration, log and screenshots
+  const ezStringView sProjectName = ezPathUtils::GetFileName(m_sAppProjectPath);
+
+  // ">project" (fileserve) has no project name to use
+  if (sProjectName.IsEmpty() || m_sAppProjectPath.StartsWith(">"))
+    return;
+
+  ezStringBuilder sAppName(GetApplicationName(), "/", sProjectName);
+  SetApplicationName(sAppName);
+}
+
+ezResult ezPlayerApplication::DetermineProjectPath()
 {
   ezStringBuilder sProjectPath = opt_Project.GetOptionValue(ezCommandLineOption::LogMode::FirstTime);
 
@@ -56,7 +73,7 @@ void ezPlayerApplication::DetermineProjectPath()
   if (sProjectPath.IsEmpty())
   {
     m_sAppProjectPath = ">project";
-    return;
+    return EZ_SUCCESS;
   }
 #endif
 
@@ -71,7 +88,7 @@ void ezPlayerApplication::DetermineProjectPath()
       // scene path is not absolute -> can't extract project path
       m_sAppProjectPath = ezFileSystem::GetSdkRootDirectory();
       SetReturnCode(1);
-      return;
+      return EZ_FAILURE;
     }
 
     if (ezFileSystem::FindFolderWithSubPath(sProjectPath, sScenePath, "ezProject", "ezSdkRoot.txt").Failed())
@@ -79,7 +96,7 @@ void ezPlayerApplication::DetermineProjectPath()
       // couldn't find the 'ezProject' file in any parent folder of the scene
       m_sAppProjectPath = ezFileSystem::GetSdkRootDirectory();
       SetReturnCode(1);
-      return;
+      return EZ_FAILURE;
     }
   }
   else if (!ezPathUtils::IsAbsolutePath(sProjectPath))
@@ -95,9 +112,10 @@ void ezPlayerApplication::DetermineProjectPath()
   {
     m_sAppProjectPath = ezFileSystem::GetSdkRootDirectory();
     SetReturnCode(1);
-    return;
+    return EZ_FAILURE;
   }
 
   // store it now, even if it fails, for error reporting
   m_sAppProjectPath = sProjectPath;
+  return EZ_SUCCESS;
 }

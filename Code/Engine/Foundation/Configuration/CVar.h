@@ -2,6 +2,7 @@
 
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Configuration/Plugin.h>
+#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Utilities/EnumerableClass.h>
@@ -116,7 +117,19 @@ public:
   /// so \a szFolder must not be a file name, but only a path to a folder.
   ///
   /// After setting the storage folder, one should immediately load all CVars via LoadCVars.
-  static void SetStorageFolder(ezStringView sFolder); // [tested]
+  static void SetStorageFolder(ezStringView sFolder);
+
+  /// Sets the files from which LoadCVars() reads project-provided default values.
+  ///
+  /// A value read from these replaces the CVar's ezCVarValue::Default, so the command line and the user's
+  /// persisted values still override it. Same format as the persisted files, but these are never written
+  /// by SaveCVars(), and the ezCVarFlags::Save flag is ignored while reading them.
+  ///
+  /// Earlier files win over later ones. Each CVar takes its default from these files only once, so a
+  /// plugin loaded later still gets its defaults.
+  static void SetProjectDefaultsFiles(ezArrayPtr<const ezString> files);
+
+  static ezArrayPtr<const ezString> GetProjectDefaultsFiles() { return s_ProjectDefaultsFiles; }
 
   /// Searches all CVars for one with the given name. Returns nullptr if no CVar could be found. The name is case-insensitive.
   static ezCVar* FindCVarByName(ezStringView sName); // [tested]
@@ -136,6 +149,17 @@ public:
   /// \sa LoadCVarsFromFile()
   static void SaveCVarsToFile(ezStringView sPath, bool bIgnoreSaveFlag = false);
 
+  /// Builds the text of the project defaults file with the given index (see SetProjectDefaultsFiles()),
+  /// in the format that LoadCVarsFromFile() reads.
+  ///
+  /// Writing it is up to the caller, because that file usually lives in a data directory that is mounted
+  /// read-only (e.g. use ezOSFile).
+  ///
+  /// Includes every CVar whose value differs from ezCVarValue::Default, plus every CVar that this exact
+  /// file provided the default for, so rewriting the file neither loses nor duplicates anything. A value
+  /// that a different defaults file provided is left to that file, unless it was changed since.
+  static void GetProjectDefaultsFileContent(ezStringBuilder& out_sContent, ezUInt32 uiFileIndex);
+
   /// Calls LoadCVarsFromCommandLine() and then LoadCVarsFromFile()
   static void LoadCVars(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
 
@@ -148,8 +172,8 @@ public:
   /// This function has no effect, if the storage folder has not been set via 'SetStorageFolder' yet
   /// or it has been set to be empty.
   ///
-  /// If \a bOnlyNewOnes is set, only CVars that have never been loaded from file before are loaded.
-  /// All other CVars will stay unchanged.
+  /// If \a bOnlyNewOnes is set, only CVars that no previous load actually assigned a value to are loaded.
+  /// All other CVars stay unchanged, so whichever source sets a CVar first keeps it.
   /// If \a bSetAsCurrentValue is true, variables that are flagged as 'RequiresRestart', will be set
   /// to the restart value immediately ('SetToDelayedSyncValue' is called on them).
   /// Otherwise their 'Current' value will always stay unchanged and the value from disk will only be
@@ -168,8 +192,8 @@ public:
   ///
   /// This function works without setting a storage folder.
   ///
-  /// If \a bOnlyNewOnes is set, only CVars that have never been loaded from file before are loaded.
-  /// All other CVars will stay unchanged.
+  /// If \a bOnlyNewOnes is set, only CVars that no previous load actually assigned a value to are loaded.
+  /// All other CVars stay unchanged, so whichever source sets a CVar first keeps it.
   /// If \a bSetAsCurrentValue is true, variables that are flagged as 'RequiresRestart', will be set
   /// to the restart value immediately ('SetToDelayedSyncValue' is called on them).
   /// Otherwise their 'Current' value will always stay unchanged and the value from disk will only be
@@ -210,6 +234,9 @@ public:
   /// Returns all the CVar flags.
   ezBitflags<ezCVarFlags> GetFlags() const { return m_Flags; } // [tested]
 
+  /// Whether the value that would be persisted (the 'DelayedSync' one) is still ezCVarValue::Default.
+  virtual bool IsAtDefaultValue() const = 0;
+
   using CVarEvents = ezEvent<const ezCVarEvent&, ezMutex, ezStaticsAllocatorWrapper>;
 
   /// Code that needs to be execute whenever a cvar is changed can register itself here to be notified of such events.
@@ -236,18 +263,31 @@ private:
   static void PluginEventHandler(const ezPluginEvent& EventData);
 
   /// Loads CVar values for the given vars from the given config file path. Returns the ezCVars which have actually been loaded.
-  static void LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars);
+  ///
+  /// If uiDefaultsFileIndex is not ezInvalidIndex, the path is the project defaults file with that index
+  /// (see SetProjectDefaultsFiles()): a loaded value then replaces the CVar's 'Default' value as well, and
+  /// the CVar is marked with that index, so that no further defaults file touches it.
+  static void LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bSetAsCurrentValue, ezUInt32 uiDefaultsFileIndex, ezDynamicArray<ezCVar*>* pOutCVars);
+
+  static void LoadProjectDefaults(bool bSetAsCurrentValue);
+
+  /// Undoes what a project defaults file did to the 'Default' value.
+  virtual void ResetDefaultValue() = 0;
 
   /// Stores the values of the given vars to the given config file path.
   static void SaveCVarsToFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars);
 
-  bool m_bHasNeverBeenLoaded = true; // next time 'LoadCVars' is called, its state will be changed
+  static void WriteCVarsToStringInternal(ezStringBuilder& out_sContent, const ezDynamicArray<ezCVar*>& vars);
+
+  bool m_bHasNeverBeenLoaded = true;      // next time 'LoadCVars' is called, its state will be changed
+  ezUInt8 m_uiProjectDefaultsFile = 0xFF; // index into s_ProjectDefaultsFiles of the file that provided the 'Default' value, 0xFF for none
   ezStringView m_sName;
   ezStringView m_sDescription;
   ezStringView m_sPluginName;
   ezBitflags<ezCVarFlags> m_Flags;
 
   static ezString s_sStorageFolder;
+  static ezHybridArray<ezString, 2> s_ProjectDefaultsFiles;
 };
 
 /// Each CVar stores several values internally. The 'Current' value is the most important one.
@@ -255,10 +295,11 @@ struct ezCVarValue
 {
   enum Enum
   {
-    Current,     ///< The value that should be used.
-    Default,     ///< The 'default' value of the CVar. Can be used to reset a variable to its default state.
-    Stored,      ///< The value that was read from disk (or the default). Can be used to reset a CVar to the 'saved' state, if desired.
-    DelayedSync, ///< The state that will be stored for later. This is identical to 'Current' unless the 'RequiresDelayedSync' flag is set (in which case the 'Current' value only changes when the code requests so).
+    Current,          ///< The value that should be used.
+    Default,          ///< The value the CVar is considered to be unchanged at, and that it is reset to. A project defaults file (see SetProjectDefaultsFiles()) can replace it.
+    HardcodedDefault, ///< The value the CVar was constructed with. Unlike 'Default' this is never replaced.
+    Stored,           ///< The value that was read from disk (or the default). Can be used to reset a CVar to the 'saved' state, if desired.
+    DelayedSync,      ///< The state that will be stored for later. This is identical to 'Current' unless the 'RequiresDelayedSync' flag is set (in which case the 'Current' value only changes when the code requests so).
     ENUM_COUNT
   };
 };
@@ -284,6 +325,8 @@ public:
 
   virtual ezCVarType::Enum GetType() const override;
   virtual void SetToDelayedSyncValue() override;
+  virtual void ResetDefaultValue() override { m_Values[ezCVarValue::Default] = m_Values[ezCVarValue::HardcodedDefault]; }
+  virtual bool IsAtDefaultValue() const override { return m_Values[ezCVarValue::DelayedSync] == m_Values[ezCVarValue::Default]; }
 
   /// Checks whether a new value was set and now won't be visible until SetToDelayedSyncValue() is called.
   bool HasDelayedSyncValueChanged() const
@@ -308,7 +351,5 @@ using ezCVarInt = ezTypedCVar<int, ezCVarType::Int>;
 
 /// A CVar that stores a string.
 using ezCVarString = ezTypedCVar<ezHybridString<32>, ezCVarType::String>;
-
-
 
 #include <Foundation/Configuration/Implementation/CVar_inl.h>

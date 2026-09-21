@@ -11,6 +11,7 @@
 #include <Foundation/IO/Archive/DataDirTypeArchive.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/TraceWriter.h>
@@ -289,8 +290,74 @@ void ezGameApplicationBase::Init_ConfigureTags()
 void ezGameApplicationBase::Init_ConfigureCVars()
 {
   ezCVar::SetStorageFolder(":appdata/CVars");
+
+  // project provided CVar defaults, the profile specific file wins over the general one
+  {
+    const ezStringBuilder sProfileFile(":project/RuntimeConfigs/CVars_", m_PlatformProfile.GetConfigName(), ".cfg");
+
+    ezString defaultsFiles[] = {sProfileFile, ezString(":project/RuntimeConfigs/CVars.cfg")};
+    ezCVar::SetProjectDefaultsFiles(defaultsFiles);
+  }
+
   ezCVar::LoadCVars();
 }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+
+/// Writes every CVar whose value was changed to the project's profile specific defaults file.
+///
+/// Development aid: change CVars at runtime, call this, and the project ships those values as its
+/// defaults for this platform profile from then on. Uses ezOSFile, because ":project" is mounted
+/// read-only at runtime, so this only works where the project folder exists and is writable.
+static void SaveChangedCVarsAsProjectDefaults()
+{
+  const ezArrayPtr<const ezString> defaultsFiles = ezCVar::GetProjectDefaultsFiles();
+
+  if (defaultsFiles.IsEmpty())
+  {
+    ezLog::Error("No project CVar defaults file has been configured.");
+    return;
+  }
+
+  // the first one is the profile specific file, see Init_ConfigureCVars()
+  ezStringBuilder sAbsPath;
+  if (ezFileSystem::ResolvePath(defaultsFiles[0], &sAbsPath, nullptr).Failed())
+  {
+    ezLog::Error("Can't determine where to write '{}'.", defaultsFiles[0]);
+    return;
+  }
+
+  ezStringBuilder sContent;
+  ezCVar::GetProjectDefaultsFileContent(sContent, 0);
+
+  ezStringBuilder sFolder = sAbsPath;
+  sFolder.PathParentDirectory();
+
+  if (ezOSFile::CreateDirectoryStructure(sFolder).Failed())
+  {
+    ezLog::Error("Failed to create '{}'.", sFolder);
+    return;
+  }
+
+  ezOSFile file;
+  if (file.Open(sAbsPath, ezFileOpenMode::Write).Failed())
+  {
+    ezLog::Error("Failed to write '{}'.", sAbsPath);
+    return;
+  }
+
+  if (file.Write(sContent.GetData(), sContent.GetElementCount()).Failed())
+  {
+    ezLog::Error("Failed to write '{}'.", sAbsPath);
+    return;
+  }
+
+  ezLog::Success("Wrote project CVar defaults to '{}'.", sAbsPath);
+}
+
+static ezConsoleFunction<void()> s_ConFunc_SaveProjectCVars("SaveProjectCVars", "()", SaveChangedCVarsAsProjectDefaults);
+
+#endif
 
 void ezGameApplicationBase::Init_SetupDefaultResources()
 {

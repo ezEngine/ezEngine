@@ -37,6 +37,9 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
     ezCVar::SaveCVars();
 
     ezPlugin::Events().RemoveEventHandler(ezCVar::PluginEventHandler);
+
+    ezCVar::SetStorageFolder({});
+    ezCVar::SetProjectDefaultsFiles({});
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
@@ -54,6 +57,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 
 ezString ezCVar::s_sStorageFolder;
+ezHybridArray<ezString, 2> ezCVar::s_ProjectDefaultsFiles;
 ezEvent<const ezCVarEvent&> ezCVar::s_AllCVarEvents;
 
 void ezCVar::AssignSubSystemPlugin(ezStringView sPluginName)
@@ -130,6 +134,34 @@ ezCVar* ezCVar::FindCVarByName(ezStringView sName)
 void ezCVar::SetStorageFolder(ezStringView sFolder)
 {
   s_sStorageFolder = sFolder;
+
+  if (sFolder.IsEmpty())
+  {
+    // Clear() would only set the length to zero, this gives the allocated buffer back
+    s_sStorageFolder = ezString();
+  }
+}
+
+void ezCVar::SetProjectDefaultsFiles(ezArrayPtr<const ezString> files)
+{
+  // the previously set files don't apply anymore, so undo what they did
+  for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
+  {
+    if (pCVar->m_uiProjectDefaultsFile != 0xFF)
+    {
+      pCVar->ResetDefaultValue();
+      pCVar->m_uiProjectDefaultsFile = 0xFF;
+    }
+  }
+
+  s_ProjectDefaultsFiles = files;
+
+  if (files.IsEmpty())
+  {
+    // destructs the strings, so that they give their allocations back
+    s_ProjectDefaultsFiles.Clear();
+    s_ProjectDefaultsFiles.Compact();
+  }
 }
 
 ezCommandLineOptionBool opt_NoFileCVars("cvar", "-no-file-cvars", "Disables loading CVar values from the user-specific, persisted configuration file.", false);
@@ -165,13 +197,17 @@ void ezCVar::SaveCVars()
     ezCVar* pCVar = ezCVar::GetFirstInstance();
     while (pCVar)
     {
-      // only store cvars that should be saved
       if (pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
       {
-        if (!pCVar->m_sPluginName.IsEmpty())
-          PluginCVars[pCVar->m_sPluginName].PushBack(pCVar);
-        else
-          PluginCVars["Static"].PushBack(pCVar);
+        // the file is written even when nothing ends up in it, to clear out what a previous run stored
+        auto& pluginCVars = PluginCVars[pCVar->m_sPluginName.IsEmpty() ? ezStringView("Static") : pCVar->m_sPluginName];
+
+        // storing a value that is at its default would freeze it, a later change to that default
+        // would never reach anyone who has run the application once
+        if (!pCVar->IsAtDefaultValue())
+        {
+          pluginCVars.PushBack(pCVar);
+        }
       }
 
       pCVar = pCVar->GetNextInstance();
@@ -197,56 +233,112 @@ void ezCVar::SaveCVars()
 
 void ezCVar::SaveCVarsToFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars)
 {
+  ezStringBuilder sContent;
+  WriteCVarsToStringInternal(sContent, vars);
+
   ezStringBuilder sTemp;
   ezFileWriter File;
   if (File.Open(path.GetData(sTemp)) == EZ_SUCCESS)
   {
-    // write one line for each cvar, to save its current value
-    for (ezUInt32 var = 0; var < vars.GetCount(); ++var)
-    {
-      ezCVar* pCVar = vars[var];
-
-      switch (pCVar->GetType())
-      {
-        case ezCVarType::Int:
-        {
-          ezCVarInt* pInt = (ezCVarInt*)pCVar;
-          sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pInt->GetValue(ezCVarValue::DelayedSync));
-        }
-        break;
-        case ezCVarType::Bool:
-        {
-          ezCVarBool* pBool = (ezCVarBool*)pCVar;
-          sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pBool->GetValue(ezCVarValue::DelayedSync) ? "true" : "false");
-        }
-        break;
-        case ezCVarType::Float:
-        {
-          ezCVarFloat* pFloat = (ezCVarFloat*)pCVar;
-          sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pFloat->GetValue(ezCVarValue::DelayedSync));
-        }
-        break;
-        case ezCVarType::String:
-        {
-          ezCVarString* pString = (ezCVarString*)pCVar;
-          sTemp.SetFormat("{0} = \"{1}\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::DelayedSync));
-        }
-        break;
-        default:
-          EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
-          break;
-      }
-
-      // add the one line for that cvar to the config file
-      File.WriteBytes(sTemp.GetData(), sTemp.GetElementCount()).IgnoreResult();
-    }
+    File.WriteBytes(sContent.GetData(), sContent.GetElementCount()).IgnoreResult();
   }
+}
+
+void ezCVar::WriteCVarsToStringInternal(ezStringBuilder& out_sContent, const ezDynamicArray<ezCVar*>& vars)
+{
+  out_sContent.Clear();
+
+  ezStringBuilder sTemp;
+
+  // write one line for each cvar, to save its current value
+  for (ezUInt32 var = 0; var < vars.GetCount(); ++var)
+  {
+    ezCVar* pCVar = vars[var];
+
+    switch (pCVar->GetType())
+    {
+      case ezCVarType::Int:
+      {
+        ezCVarInt* pInt = (ezCVarInt*)pCVar;
+        sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pInt->GetValue(ezCVarValue::DelayedSync));
+      }
+      break;
+      case ezCVarType::Bool:
+      {
+        ezCVarBool* pBool = (ezCVarBool*)pCVar;
+        sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pBool->GetValue(ezCVarValue::DelayedSync) ? "true" : "false");
+      }
+      break;
+      case ezCVarType::Float:
+      {
+        ezCVarFloat* pFloat = (ezCVarFloat*)pCVar;
+        sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pFloat->GetValue(ezCVarValue::DelayedSync));
+      }
+      break;
+      case ezCVarType::String:
+      {
+        ezCVarString* pString = (ezCVarString*)pCVar;
+        sTemp.SetFormat("{0} = \"{1}\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::DelayedSync));
+      }
+      break;
+      default:
+        EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
+        break;
+    }
+
+    out_sContent.Append(sTemp.GetView());
+  }
+}
+
+void ezCVar::GetProjectDefaultsFileContent(ezStringBuilder& out_sContent, ezUInt32 uiFileIndex)
+{
+  ezTempHybridArray<ezCVar*, 128> allCVars;
+
+  for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
+  {
+    // a CVar that this file gave its default to would be deleted from it, if it wasn't written out again
+    if (pCVar->IsAtDefaultValue() && pCVar->m_uiProjectDefaultsFile != uiFileIndex)
+      continue;
+
+    allCVars.PushBack(pCVar);
+  }
+
+  WriteCVarsToStringInternal(out_sContent, allCVars);
 }
 
 void ezCVar::LoadCVars(bool bOnlyNewOnes /*= true*/, bool bSetAsCurrentValue /*= true*/)
 {
+  // the project defaults go first, they establish every CVar's 'Default' value, which is what makes
+  // 'the user changed this' decidable (see SaveCVars). They don't mark a CVar as loaded, so the two
+  // sources below still see every CVar as new, and between those the first one to set a CVar keeps it.
+  LoadProjectDefaults(bSetAsCurrentValue);
+
   LoadCVarsFromCommandLine(bOnlyNewOnes, bSetAsCurrentValue);
   LoadCVarsFromFile(bOnlyNewOnes, bSetAsCurrentValue);
+}
+
+void ezCVar::LoadProjectDefaults(bool bSetAsCurrentValue)
+{
+  for (ezUInt32 uiFile = 0; uiFile < s_ProjectDefaultsFiles.GetCount(); ++uiFile)
+  {
+    const ezString& sFile = s_ProjectDefaultsFiles[uiFile];
+
+    ezTempHybridArray<ezCVar*, 128> candidates;
+
+    for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
+    {
+      // the save flag is deliberately ignored: a project may want to configure a CVar that is not persisted
+      if (pCVar->m_uiProjectDefaultsFile == 0xFF)
+      {
+        candidates.PushBack(pCVar);
+      }
+    }
+
+    if (candidates.IsEmpty())
+      return;
+
+    LoadCVarsFromFileInternal(sFile, candidates, bSetAsCurrentValue, uiFile, nullptr);
+  }
 }
 
 static ezResult ParseLine(const ezString& sLine, ezStringBuilder& out_sVarName, ezStringBuilder& out_sVarValue)
@@ -318,9 +410,6 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDyn
             PluginCVars["Static"].PushBack(pCVar);
         }
       }
-
-      // it doesn't matter whether the CVar could be loaded from file, either it works the first time, or it stays at its current value
-      pCVar->m_bHasNeverBeenLoaded = false;
     }
   }
 
@@ -334,7 +423,7 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDyn
       // create the plugin specific file
       sTemp.SetFormat("{0}/CVars_{1}.cfg", s_sStorageFolder, it.Key());
 
-      LoadCVarsFromFileInternal(sTemp.GetView(), it.Value(), bSetAsCurrentValue, pOutCVars);
+      LoadCVarsFromFileInternal(sTemp.GetView(), it.Value(), bSetAsCurrentValue, ezInvalidIndex, pOutCVars);
 
       // continue with the next plugin
       ++it;
@@ -355,16 +444,15 @@ void ezCVar::LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes, bool bSetA
         allCVars.PushBack(pCVar);
       }
     }
-
-    // it doesn't matter whether the CVar could be loaded from file, either it works the first time, or it stays at its current value
-    pCVar->m_bHasNeverBeenLoaded = false;
   }
 
-  LoadCVarsFromFileInternal(sPath, allCVars, bSetAsCurrentValue, pOutCVars);
+  LoadCVarsFromFileInternal(sPath, allCVars, bSetAsCurrentValue, ezInvalidIndex, pOutCVars);
 }
 
-void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars)
+void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bSetAsCurrentValue, ezUInt32 uiDefaultsFileIndex, ezDynamicArray<ezCVar*>* pOutCVars)
 {
+  const bool bAsDefaultValue = uiDefaultsFileIndex != ezInvalidIndex;
+
   ezFileReader File;
   ezStringBuilder sTemp;
 
@@ -395,6 +483,9 @@ void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<e
         if (!sVarName.IsEqual(pCVar->GetName()))
           continue;
 
+        // a defaults file must not overwrite what the command line or the user's settings already gave a CVar
+        const bool bAssignValue = !bAsDefaultValue || pCVar->m_bHasNeverBeenLoaded;
+
         // found the cvar, now convert the text into the proper value *sigh*
         switch (pCVar->GetType())
         {
@@ -404,8 +495,13 @@ void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<e
             if (ezConversionUtils::StringToInt(sVarValue, Value).Succeeded())
             {
               ezCVarInt* pTyped = (ezCVarInt*)pCVar;
-              pTyped->m_Values[ezCVarValue::Stored] = Value;
-              *pTyped = Value;
+              if (bAsDefaultValue)
+                pTyped->m_Values[ezCVarValue::Default] = Value;
+              if (bAssignValue)
+              {
+                pTyped->m_Values[ezCVarValue::Stored] = Value;
+                *pTyped = Value;
+              }
             }
           }
           break;
@@ -414,8 +510,13 @@ void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<e
             bool Value = sVarValue.IsEqual_NoCase("true");
 
             ezCVarBool* pTyped = (ezCVarBool*)pCVar;
-            pTyped->m_Values[ezCVarValue::Stored] = Value;
-            *pTyped = Value;
+            if (bAsDefaultValue)
+              pTyped->m_Values[ezCVarValue::Default] = Value;
+            if (bAssignValue)
+            {
+              pTyped->m_Values[ezCVarValue::Stored] = Value;
+              *pTyped = Value;
+            }
           }
           break;
           case ezCVarType::Float:
@@ -424,8 +525,13 @@ void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<e
             if (ezConversionUtils::StringToFloat(sVarValue, Value).Succeeded())
             {
               ezCVarFloat* pTyped = (ezCVarFloat*)pCVar;
-              pTyped->m_Values[ezCVarValue::Stored] = static_cast<float>(Value);
-              *pTyped = static_cast<float>(Value);
+              if (bAsDefaultValue)
+                pTyped->m_Values[ezCVarValue::Default] = static_cast<float>(Value);
+              if (bAssignValue)
+              {
+                pTyped->m_Values[ezCVarValue::Stored] = static_cast<float>(Value);
+                *pTyped = static_cast<float>(Value);
+              }
             }
           }
           break;
@@ -434,8 +540,13 @@ void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<e
             const char* Value = sVarValue.GetData();
 
             ezCVarString* pTyped = (ezCVarString*)pCVar;
-            pTyped->m_Values[ezCVarValue::Stored] = Value;
-            *pTyped = Value;
+            if (bAsDefaultValue)
+              pTyped->m_Values[ezCVarValue::Default] = Value;
+            if (bAssignValue)
+            {
+              pTyped->m_Values[ezCVarValue::Stored] = Value;
+              *pTyped = Value;
+            }
           }
           break;
           default:
@@ -448,7 +559,18 @@ void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<e
           pOutCVars->PushBack(pCVar);
         }
 
-        if (bSetAsCurrentValue)
+        if (bAsDefaultValue)
+        {
+          pCVar->m_uiProjectDefaultsFile = static_cast<ezUInt8>(uiDefaultsFileIndex);
+        }
+        else
+        {
+          // only a CVar that a file actually contained counts as loaded, otherwise the next source in
+          // LoadCVars() would skip it
+          pCVar->m_bHasNeverBeenLoaded = false;
+        }
+
+        if (bSetAsCurrentValue && bAssignValue)
           pCVar->SetToDelayedSyncValue();
       }
     }
