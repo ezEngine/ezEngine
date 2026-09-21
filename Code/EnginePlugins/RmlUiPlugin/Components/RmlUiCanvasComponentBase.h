@@ -73,9 +73,6 @@ protected:
   void UpdateAutobinding();
   void UpdateEventHandler();
 
-  /// Whether any data binding is currently registered, ie. whether the document can resolve data models.
-  bool HasDataBindings() const;
-
   void EventHandler(const ezHashedString& sIdentifier, Rml::Event& event);
 
   ezRmlUiResourceHandle m_hResource;

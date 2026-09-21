@@ -52,28 +52,7 @@ namespace ezRmlUiInternal
     Rml::SystemInterface::JoinPath(out_sTranslatedPath, sDocumentPath, sPath);
   }
 
-  namespace
-  {
-    bool g_bMissingDataModelsAllowed = false;
-
-    constexpr ezStringView s_sMissingDataModelMessage = "Could not locate data model"_ezsv;
-  } // namespace
-
-  ScopedMissingDataModelsAllowed::ScopedMissingDataModelsAllowed(bool bAllowed)
-  {
-    m_bPreviousValue = g_bMissingDataModelsAllowed;
-    g_bMissingDataModelsAllowed = g_bMissingDataModelsAllowed || bAllowed;
-  }
-
-  ScopedMissingDataModelsAllowed::~ScopedMissingDataModelsAllowed()
-  {
-    g_bMissingDataModelsAllowed = m_bPreviousValue;
-  }
-
-  bool ScopedMissingDataModelsAllowed::IsActive()
-  {
-    return g_bMissingDataModelsAllowed;
-  }
+  bool SystemInterface::s_bAllowMissingDataModels = false;
 
   bool SystemInterface::LogMessage(Rml::Log::Type type, const Rml::String& sMessage)
   {
@@ -83,7 +62,7 @@ namespace ezRmlUiInternal
       {
         const ezStringView sText = ezRmlUiConversionUtils::ToStringView(sMessage);
 
-        if (ScopedMissingDataModelsAllowed::IsActive() && sText.StartsWith(s_sMissingDataModelMessage))
+        if (s_bAllowMissingDataModels && sText.StartsWith("Could not locate data model"))
         {
           ezLog::Debug("{}", sText);
         }
