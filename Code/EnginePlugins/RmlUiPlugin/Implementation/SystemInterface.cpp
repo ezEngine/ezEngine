@@ -52,13 +52,26 @@ namespace ezRmlUiInternal
     Rml::SystemInterface::JoinPath(out_sTranslatedPath, sDocumentPath, sPath);
   }
 
+  bool SystemInterface::s_bAllowMissingDataModels = false;
+
   bool SystemInterface::LogMessage(Rml::Log::Type type, const Rml::String& sMessage)
   {
     switch (type)
     {
       case Rml::Log::LT_ERROR:
-        ezLog::Error("{}", ezRmlUiConversionUtils::ToStringView(sMessage));
+      {
+        const ezStringView sText = ezRmlUiConversionUtils::ToStringView(sMessage);
+
+        if (s_bAllowMissingDataModels && sText.StartsWith("Could not locate data model"))
+        {
+          ezLog::Debug("{}", sText);
+        }
+        else
+        {
+          ezLog::Error("{}", sText);
+        }
         break;
+      }
 
       case Rml::Log::LT_ASSERT:
         ezLog::Error("{}", ezRmlUiConversionUtils::ToStringView(sMessage));
