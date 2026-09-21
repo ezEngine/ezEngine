@@ -18,8 +18,16 @@ namespace ezRmlUiInternal
   {
     ezStringView sTrimmedInput = ezRmlUiConversionUtils::ToStringView(sInput);
     sTrimmedInput.Trim(" \t\r\n");
-    if (sTrimmedInput.IsEmpty() == false)
+
+    // Never translate data bindings
+    if (sTrimmedInput.IsEmpty() == false && sTrimmedInput.StartsWith("{{") == false)
     {
+      // Silence the translator log missing messages for this, as RmlUi will call this function for basically all strings
+      // and we don't want to spam the log with missing translations.
+      const bool bTemp = ezTranslatorLogMissing::s_bActive;
+      ezTranslatorLogMissing::s_bActive = false;
+      EZ_SCOPE_EXIT(ezTranslatorLogMissing::s_bActive = bTemp;);
+
       ezStringView sTranslated = ezTranslate(sTrimmedInput);
       if (sTranslated != sTrimmedInput)
       {

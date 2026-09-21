@@ -241,7 +241,7 @@ ezStringView ezTranslatorLogMissing::Translate(ezStringView sString, ezUInt64 ui
 
   if (sResult.IsEmpty())
   {
-    ezLog::Warning("Missing translation: {0};", sString);
+    ezLog::Warning("Missing translation: {0}", sString);
 
     StoreTranslation(sString, uiStringHash, usage);
   }
