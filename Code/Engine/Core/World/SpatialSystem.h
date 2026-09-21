@@ -37,7 +37,7 @@ public:
   /// \name Simple Queries
   ///@{
 
-  using QueryCallback = ezDelegate<ezVisitorExecution::Enum(ezGameObject*)>;
+  using QueryCallback = ezDelegate<ezVisitorExecution::Enum(ezGameObject*), 48, ezTempAllocatorWrapper>;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   struct QueryStats
@@ -61,18 +61,18 @@ public:
   };
 
   virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, ezDynamicArray<ezGameObject*>& out_objects) const;
-  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, QueryCallback callback) const = 0;
+  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, const QueryCallback& callback) const = 0;
 
   virtual void FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, ezDynamicArray<ezGameObject*>& out_objects) const;
-  virtual void FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, QueryCallback callback) const = 0;
+  virtual void FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, const QueryCallback& callback) const = 0;
 
   ///@}
   /// \name Visibility Queries
   ///@{
 
-  using IsOccludedFunc = ezDelegate<bool(const ezSimdBBox&)>;
+  using IsOccludedFunc = ezDelegate<bool(const ezSimdBBox&), 48, ezTempAllocatorWrapper>;
 
-  virtual void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_objects, IsOccludedFunc isOccluded, ezVisibilityState::Enum visType) const = 0;
+  virtual void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_objects, const IsOccludedFunc& isOccluded, ezVisibilityState::Enum visType) const = 0;
 
   /// Retrieves a state describing how visible the object is.
   ///

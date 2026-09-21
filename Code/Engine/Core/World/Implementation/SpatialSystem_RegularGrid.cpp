@@ -500,7 +500,7 @@ namespace ezInternal
     struct ShapeQueryData
     {
       T m_Shape;
-      ezSpatialSystem::QueryCallback m_Callback;
+      const ezSpatialSystem::QueryCallback& m_Callback;
     };
 
     template <typename T, bool UseTagsFilter>
@@ -547,10 +547,16 @@ namespace ezInternal
 
     struct FrustumQueryData
     {
+      FrustumQueryData(ezDynamicArray<const ezGameObject*>& outObjects, const ezSpatialSystem::IsOccludedFunc& isOccludedCB)
+        : m_OutObjects(outObjects)
+        , m_IsOccludedCB(isOccludedCB)
+      {
+      }
+
       PlaneData m_PlaneData;
-      ezDynamicArray<const ezGameObject*>* m_pOutObjects;
+      ezDynamicArray<const ezGameObject*>& m_OutObjects;
       ezUInt64 m_uiFrameCounter;
-      ezSpatialSystem::IsOccludedFunc m_IsOccludedCB;
+      const ezSpatialSystem::IsOccludedFunc& m_IsOccludedCB;
     };
 
     template <bool UseTagsFilter, bool UseOcclusionCallback>
@@ -621,7 +627,7 @@ namespace ezInternal
             }
 
             lastVisibleFrameIdxAndVisType[i].Max(uiFrameIdxAndType);
-            pQueryData->m_pOutObjects->PushBack(objectPointers[i]);
+            pQueryData->m_OutObjects.PushBack(objectPointers[i]);
 
             ref_stats.m_uiNumObjectsPassed++;
           }
@@ -656,7 +662,7 @@ namespace ezInternal
           }
 
           lastVisibleFrameIdxAndVisType[i].Max(uiFrameIdxAndType);
-          pQueryData->m_pOutObjects->PushBack(objectPointers[i]);
+          pQueryData->m_OutObjects.PushBack(objectPointers[i]);
 
           ref_stats.m_uiNumObjectsPassed++;
         }
@@ -876,7 +882,7 @@ void ezSpatialSystem_RegularGrid::UpdateSpatialDataObject(const ezSpatialDataHan
     });
 }
 
-void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, QueryCallback callback) const
+void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, const QueryCallback& callback) const
 {
   ezSimdBSphere simdSphere(ezSimdConversion::ToVec3(sphere.m_vCenter), sphere.m_fRadius);
 
@@ -890,7 +896,7 @@ void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sp
     &queryData, ezVisibilityState::Indirect);
 }
 
-void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, QueryCallback callback) const
+void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, const QueryCallback& callback) const
 {
   ezSimdBBox simdBox(ezSimdConversion::ToVec3(box.m_vMin), ezSimdConversion::ToVec3(box.m_vMax));
 
@@ -902,7 +908,7 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, con
     &queryData, ezVisibilityState::Indirect);
 }
 
-void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, ezSpatialSystem::IsOccludedFunc IsOccluded, ezVisibilityState::Enum visType) const
+void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, const ezSpatialSystem::IsOccludedFunc& IsOccluded, ezVisibilityState::Enum visType) const
 {
   EZ_PROFILE_SCOPE("ezSpatialSystem_RegularGrid::FindVisibleObjects");
 
@@ -921,7 +927,7 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, c
 
   const ezSimdBBox simdBox = ezSimdBBox::MakeFromPoints(simdCornerPoints, 8);
 
-  ezInternal::QueryHelper::FrustumQueryData queryData;
+  ezInternal::QueryHelper::FrustumQueryData queryData(out_Objects, IsOccluded);
   {
     // Compiler is too stupid to properly unroll a constant loop so we do it by hand
     ezSimdVec4f plane0 = ezSimdConversion::ToVec4(*reinterpret_cast<const ezVec4*>(&(frustum.GetPlane(0).m_vNormal.x)));
@@ -946,10 +952,7 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, c
     queryData.m_PlaneData.m_z4z5z4z5 = helperMat.m_col2;
     queryData.m_PlaneData.m_w4w5w4w5 = helperMat.m_col3;
 
-    queryData.m_pOutObjects = &out_Objects;
     queryData.m_uiFrameCounter = m_uiFrameCounter;
-
-    queryData.m_IsOccludedCB = IsOccluded;
   }
 
   if (IsOccluded.IsValid())
