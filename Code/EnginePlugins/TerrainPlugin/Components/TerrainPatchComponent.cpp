@@ -28,7 +28,7 @@
 
 ezCVarBool cvar_TerrainVisOccluder("Terrain.VisOccluder", false, ezCVarFlags::Default, "Draws the occlusion culling geometry of all terrain patches. The occluder is baked when the simulation starts, so it only exists in a simulating or exported scene.");
 
-ezCVarFloat cvar_TerrainLodQuality("Terrain.LodQuality", 1.0f, ezCVarFlags::Default, "Global multiplier for every terrain patch's LodCellPixelSize. > 1 keeps more detail (patches switch LOD later), < 1 coarsens sooner.");
+ezCVarFloat cvar_TerrainLodQuality("Terrain.LodQuality", 1.0f, ezCVarFlags::Save, "Global multiplier for every terrain patch's LodCellPixelSize. > 1 keeps more detail (patches switch LOD later), < 1 coarsens sooner.");
 
 /// View height that LodCellPixelSize is measured against. Fixed rather than the actual viewport, so
 /// that a patch picks the same LOD (and therefore the same triangle count) on any display resolution.

@@ -6,6 +6,7 @@
 #include <Mcp/McpToolRegistry.h>
 
 #include <Foundation/Application/Application.h>
+#include <Foundation/System/EnvironmentVariableUtils.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
 /// The port to serve MCP on.
@@ -82,6 +83,11 @@ void ezMcpEngineHost::Startup()
   }
 
   pApp->m_ExecutionEvents.AddEventHandler(&ezMcpEngineHost::ExecutionEventHandler);
+
+  if (!ezEnvironmentVariableUtils::IsVariableSet("EZ_SILENT_ASSERTS"))
+  {
+    ezEnvironmentVariableUtils::SetValueString("EZ_SILENT_ASSERTS", "1").IgnoreResult();
+  }
 
   // The editor's engine process sleeps in its IPC wait until the editor sends it something, and an
   // arriving MCP request is not something the editor knows about. Without this, a call to an idle

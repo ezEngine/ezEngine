@@ -1,5 +1,7 @@
 #include <GameEngineTest/GameEngineTestPCH.h>
 
+#include <Foundation/Configuration/CVar.h>
+
 #include "TestClass.h"
 #include <Core/World/World.h>
 #include <Core/World/WorldDesc.h>
@@ -196,6 +198,12 @@ void ezGameEngineTestApplication::StoreScreenshot(ezImage&& image, ezStringView 
   m_LastScreenshot.ResetAndMove(std::move(image));
 }
 
+
+void ezGameEngineTestApplication::Init_ConfigureCVars()
+{
+  // The tests have to produce the same results on every machine.
+  // Not setting a storage folder disables reading and writing the CVar files.
+}
 
 void ezGameEngineTestApplication::Init_FileSystem_ConfigureDataDirs()
 {

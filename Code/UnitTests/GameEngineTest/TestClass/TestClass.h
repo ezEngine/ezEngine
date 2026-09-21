@@ -36,6 +36,7 @@ protected:
   virtual void BeforeHighLevelSystemsShutdown() override;
   virtual void StoreScreenshot(ezImage&& image, ezStringView sContext) override;
   virtual void Init_FileSystem_ConfigureDataDirs() override;
+  virtual void Init_ConfigureCVars() override;
   virtual ezUniquePtr<ezGameStateBase> CreateGameState() override;
 
   ezString m_sProjectDirName;

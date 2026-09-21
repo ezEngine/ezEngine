@@ -22,7 +22,6 @@
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Utils/CoreRenderProfile.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
 

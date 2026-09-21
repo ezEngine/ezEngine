@@ -42,7 +42,6 @@
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
-#include <RendererCore/Utils/CoreRenderProfile.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 

@@ -832,6 +832,8 @@ void ezImGuiConsole::RenderCVarValue(ezCVar* pCVar)
   if (!pCVar)
     return;
 
+  const ImGuiInputTextFlags inputFlags = ImGuiInputTextFlags_EnterReturnsTrue;
+
   // Render different input widgets based on CVar type
   switch (pCVar->GetType())
   {
@@ -853,7 +855,7 @@ void ezImGuiConsole::RenderCVarValue(ezCVar* pCVar)
       int value = pIntVar->GetValue();
       ezStringBuilder sId, sNameTemp;
       sId.SetFormat("##int_{}", pCVar->GetName().GetData(sNameTemp));
-      if (ImGui::InputInt(sId.GetData(), &value))
+      if (ImGui::InputInt(sId.GetData(), &value, 1, 100, inputFlags))
       {
         *pIntVar = value;
       }
@@ -865,7 +867,7 @@ void ezImGuiConsole::RenderCVarValue(ezCVar* pCVar)
       float value = pFloatVar->GetValue();
       ezStringBuilder sId, sNameTemp;
       sId.SetFormat("##float_{}", pCVar->GetName().GetData(sNameTemp));
-      if (ImGui::InputFloat(sId.GetData(), &value))
+      if (ImGui::InputFloat(sId.GetData(), &value, 0.0f, 0.0f, "%.3f", inputFlags))
       {
         *pFloatVar = value;
       }
@@ -879,7 +881,7 @@ void ezImGuiConsole::RenderCVarValue(ezCVar* pCVar)
       ezStringUtils::Copy(buffer, sizeof(buffer), value.GetData());
       ezStringBuilder sId, sNameTemp;
       sId.SetFormat("##string_{}", pCVar->GetName().GetData(sNameTemp));
-      if (ImGui::InputText(sId.GetData(), buffer, sizeof(buffer)))
+      if (ImGui::InputText(sId.GetData(), buffer, sizeof(buffer), inputFlags))
       {
         *pStringVar = buffer;
       }
