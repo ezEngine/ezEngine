@@ -418,9 +418,20 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
 
       const auto& dict = value.Get<ezVariantDictionary>();
 
+      // the iteration order of a hash table is not deterministic (it depends on the insertion history and capacity),
+      // so sort the keys to always produce the exact same output for the same content
+      ezTempHybridArray<ezStringView, 32> keys;
+      keys.Reserve(dict.GetCount());
       for (auto& kv : dict)
       {
-        AddVariableVariant(kv.Key(), kv.Value());
+        keys.PushBack(kv.Key());
+      }
+
+      keys.Sort();
+
+      for (ezStringView sKey : keys)
+      {
+        AddVariableVariant(sKey, *dict.GetValue(sKey));
       }
       EndObject();
     }
