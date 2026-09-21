@@ -18,6 +18,22 @@
 
 static ezTextureResourceLoader s_TextureResourceLoader;
 
+/// Reloads all textures, so that a changed quality setting applies to those that are already in memory.
+///
+/// The limits are evaluated while a texture is uploaded, so without this only textures that are loaded
+/// afterwards would use the new values. The reload is forced because the files on disk did not change and
+/// the resources would otherwise be considered up to date. It reads every texture from disk again, so this
+/// is only meant for a deliberate, rare change such as an options menu.
+static void OnTextureQualityCVarChanged(const ezCVarEvent& e)
+{
+  if (e.m_EventType != ezCVarEvent::ValueChanged)
+    return;
+
+  ezResourceManager::ReloadResourcesOfType<ezTexture2DResource>(true);
+  ezResourceManager::ReloadResourcesOfType<ezTextureCubeResource>(true);
+  ezResourceManager::ReloadResourcesOfType<ezTexture3DResource>(true);
+}
+
 ezCVarFloat cvar_StreamingTextureLoadDelay("Streaming.TextureLoadDelay", 0.0f, ezCVarFlags::Save, "Artificial texture loading slowdown");
 
 // clang-format off
@@ -46,10 +62,16 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, TextureResource)
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
+    cvar_RenderingTexturesDropMips.m_CVarEvents.AddEventHandler(OnTextureQualityCVarChanged);
+    cvar_RenderingTexturesMinResolution.m_CVarEvents.AddEventHandler(OnTextureQualityCVarChanged);
+    cvar_RenderingTexturesMaxResolution.m_CVarEvents.AddEventHandler(OnTextureQualityCVarChanged);
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
+    cvar_RenderingTexturesDropMips.m_CVarEvents.RemoveEventHandler(OnTextureQualityCVarChanged);
+    cvar_RenderingTexturesMinResolution.m_CVarEvents.RemoveEventHandler(OnTextureQualityCVarChanged);
+    cvar_RenderingTexturesMaxResolution.m_CVarEvents.RemoveEventHandler(OnTextureQualityCVarChanged);
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;

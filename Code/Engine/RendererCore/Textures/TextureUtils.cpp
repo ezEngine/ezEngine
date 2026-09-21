@@ -5,10 +5,37 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/TextureUtils.h>
 
+ezCVarInt cvar_RenderingTexturesDropMips("Rendering.Textures.DropMips", 0, ezCVarFlags::Save, "How many of the highest mipmaps to skip when uploading a texture. Applied before the resolution limits. Changing this reloads all textures.");
+ezCVarInt cvar_RenderingTexturesMinResolution("Rendering.Textures.MinResolution", 64, ezCVarFlags::Save, "Textures are never reduced below this resolution. Changing this reloads all textures.");
+ezCVarInt cvar_RenderingTexturesMaxResolution("Rendering.Textures.MaxResolution", 16384, ezCVarFlags::Save, "The maximum resolution textures are uploaded at. 16384 is effectively unlimited. Changing this reloads all textures.");
+
 bool ezTextureUtils::s_bForceFullQualityAlways = false;
 
 namespace
 {
+  /// Returns the largest number of mip levels whose top mip does not exceed the given resolution.
+  ///
+  /// Returns the image's full mip count if it is smaller than the resolution anyway, and never less than 1.
+  ezUInt32 MipLevelsForResolution(const ezImage* pImage, ezUInt32 uiResolution)
+  {
+    const ezUInt32 uiAvailableMipLevels = pImage->GetNumMipLevels();
+
+    ezUInt32 uiNumMipLevels = uiAvailableMipLevels;
+
+    while (uiNumMipLevels > 1)
+    {
+      const ezUInt32 uiLargestMip = uiAvailableMipLevels - uiNumMipLevels;
+      const ezUInt32 uiSize = ezMath::Max(pImage->GetWidth(uiLargestMip), pImage->GetHeight(uiLargestMip), pImage->GetDepth(uiLargestMip));
+
+      if (uiSize <= uiResolution)
+        break;
+
+      --uiNumMipLevels;
+    }
+
+    return uiNumMipLevels;
+  }
+
   ezUInt32 GetMipSize(ezUInt32 uiSize, ezUInt32 uiMipLevel)
   {
     for (ezUInt32 i = 0; i < uiMipLevel; i++)
@@ -18,6 +45,21 @@ namespace
     return ezMath::Max(1u, uiSize);
   }
 } // namespace
+
+ezUInt32 ezTextureUtils::GetMaxMipLevelsToUpload(const ezImage* pImage)
+{
+  const ezInt32 iAvailableMipLevels = (ezInt32)pImage->GetNumMipLevels();
+
+  const ezInt32 iUpperBound = (ezInt32)MipLevelsForResolution(pImage, ezMath::Max(1, (ezInt32)cvar_RenderingTexturesMaxResolution));
+  ezInt32 iLowerBound = (ezInt32)MipLevelsForResolution(pImage, ezMath::Max(1, (ezInt32)cvar_RenderingTexturesMinResolution));
+
+  // the maximum resolution is a hard cap, so it wins if the two limits contradict each other
+  iLowerBound = ezMath::Min(iLowerBound, iUpperBound);
+
+  const ezInt32 iDropped = iAvailableMipLevels - ezMath::Max(0, (ezInt32)cvar_RenderingTexturesDropMips);
+
+  return (ezUInt32)ezMath::Max(1, ezMath::Clamp(iDropped, iLowerBound, iUpperBound));
+}
 
 ezGALResourceFormat::Enum ezTextureUtils::ImageFormatToGalFormat(ezImageFormat::Enum format, bool bSRGB)
 {

@@ -76,9 +76,11 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
   ezTexFormat texFormat;
   texFormat.ReadHeader(*Stream);
 
-  const ezUInt32 uiNumMipmapsLowRes = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : 6;
+  // the quality CVars may forbid the highest mipmaps, so this is the most that will ever be uploaded
+  const ezUInt32 uiMaxMipLevels = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : ezTextureUtils::GetMaxMipLevelsToUpload(pImage);
+  const ezUInt32 uiNumMipmapsLowRes = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : ezMath::Min(uiMaxMipLevels, 6U);
 
-  const ezUInt32 uiNumMipLevels = ezMath::Min(m_uiLoadedTextures == 0 ? uiNumMipmapsLowRes : pImage->GetNumMipLevels(), pImage->GetNumMipLevels());
+  const ezUInt32 uiNumMipLevels = ezMath::Min(m_uiLoadedTextures == 0 ? uiNumMipmapsLowRes : uiMaxMipLevels, uiMaxMipLevels);
   const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
 
   if (pImage->GetWidth(uiHighestMipLevel) != pImage->GetHeight(uiHighestMipLevel))
@@ -181,10 +183,10 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
     ezResourceLoadDesc res;
     res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
 
-    if (uiHighestMipLevel == 0)
-      res.m_uiQualityLevelsLoadable = 0;
-    else
-      res.m_uiQualityLevelsLoadable = 1;
+    // this must be based on the number of mip levels that may be uploaded, not on reaching the image's
+    // own mip 0: a texture that the quality CVars limit never reaches it, and the resource would then be
+    // asked to load another quality level forever, writing past the end of m_hGALTexture
+    res.m_uiQualityLevelsLoadable = (uiNumMipLevels < uiMaxMipLevels) ? 1 : 0;
 
     res.m_State = ezResourceState::Loaded;
 
