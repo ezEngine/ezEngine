@@ -5,7 +5,6 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
-#  include <shellscalingapi.h>
 #endif
 
 namespace
@@ -50,9 +49,8 @@ public:
   ezEditorApplication()
     : ezApplication("ezEditor")
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-    SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
-#endif
+    // DPI awareness is declared by the application entry point, see ezScreen::MakeProcessDpiAware()
+
     EnableMemoryLeakReporting(true);
 
     m_pEditorApp = new ezQtEditorApp;

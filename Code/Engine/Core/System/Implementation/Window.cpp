@@ -8,6 +8,14 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/System/Screen.h>
 
+ezResult ezWindowPlatformShared::Reconfigure(const ezWindowCreationDesc& desc)
+{
+  EZ_IGNORE_UNUSED(desc);
+
+  // not implemented on this platform, the caller has to recreate the window
+  return EZ_FAILURE;
+}
+
 ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
 {
   ezTempHybridArray<ezScreenInfo, 2> screens;
@@ -217,6 +225,17 @@ void ezWindowPlatformShared::OnWindowMove(const ezInt32 iNewPosX, const ezInt32 
   e.m_pWindow = this;
   e.m_iPayload1 = iNewPosX;
   e.m_iPayload2 = iNewPosY;
+
+  m_WindowEvents.Broadcast(e);
+}
+
+void ezWindowPlatformShared::OnContentScaleChanged(float fNewContentScale)
+{
+  m_fContentScaleFactor = fNewContentScale;
+
+  ezWindowEvent e;
+  e.m_Type = ezWindowEvent::Type::ContentScaleChanged;
+  e.m_pWindow = this;
 
   m_WindowEvents.Broadcast(e);
 }

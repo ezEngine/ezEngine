@@ -119,6 +119,18 @@ public:
 
   static bool IsRenderingThread();
 
+  /// Sets by how much content has to be scaled to compensate for the scaling of the display that is rendered to.
+  ///
+  /// Typically ezWindowBase::GetContentScaleFactor() of the window that is rendered into. Everything with a fixed
+  /// pixel size (debug text, GUI paddings) has to be multiplied with this, 3D rendering is unaffected.
+  ///
+  /// This is a single value for the whole process, so with several windows on differently scaled displays only
+  /// one of them can be correct.
+  EZ_ALWAYS_INLINE static void SetDisplayScale(float fScale) { s_fDisplayScale = fScale; }
+
+  /// \see SetDisplayScale()
+  EZ_ALWAYS_INLINE static float GetDisplayScale() { return s_fDisplayScale; }
+
   /// \name Render To Texture
   /// @{
 public:
@@ -159,4 +171,5 @@ private:
   static ezEvent<const ezRenderWorldExtractionEvent&, ezMutex> s_ExtractionEvent;
   static ezEvent<const ezRenderWorldRenderEvent&, ezMutex> s_RenderEvent;
   static ezUInt64 s_uiFrameCounter;
+  static float s_fDisplayScale;
 };

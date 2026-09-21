@@ -11,6 +11,7 @@
 #  include <GameEngine/DearImgui/DearImgui.h>
 #  include <GameEngine/GameApplication/GameApplication.h>
 #  include <Imgui/imgui_internal.h>
+#  include <RendererCore/Debug/DebugRenderer.h>
 #  include <RendererCore/Pipeline/View.h>
 #  include <RendererCore/RenderWorld/RenderWorld.h>
 #  include <RendererCore/Textures/Texture2DResource.h>
@@ -78,7 +79,7 @@ void ezImgui::SetCurrentContextForView(const ezViewHandle& hView)
   Context& context = m_ViewToContextTable[hView];
   if (context.m_pImGuiContext == nullptr)
   {
-    context.m_pImGuiContext = CreateContext();
+    context.m_pImGuiContext = CreateContext(context.m_UnscaledStyle);
   }
 
   ImGui::SetCurrentContext(context.m_pImGuiContext);
@@ -90,6 +91,18 @@ void ezImgui::SetCurrentContextForView(const ezViewHandle& hView)
     if (context.m_uiFrameRenderCounter != context.m_uiFrameBeginCounter)
     {
       ImGui::EndFrame();
+    }
+
+    // ImGui specifies every size in pixels, so paddings, scroll bars and rounding have to follow the display
+    // scaling as well, not just the font. Changing the style is only allowed outside of a frame.
+    const float fStyleScale = ezDebugRenderer::GetTextScale();
+
+    if (context.m_fAppliedStyleScale != fStyleScale)
+    {
+      context.m_fAppliedStyleScale = fStyleScale;
+
+      ImGui::GetStyle() = context.m_UnscaledStyle;
+      ImGui::GetStyle().ScaleAllSizes(fStyleScale);
     }
 
     BeginFrame(hView);
@@ -328,15 +341,14 @@ void ezImgui::Shutdown()
   m_ViewToContextTable.Clear();
 }
 
-ImGuiContext* ezImgui::CreateContext()
+ImGuiContext* ezImgui::CreateContext(ImGuiStyle& out_unscaledStyle)
 {
   // imgui reads the global context pointer WHILE creating a new context
   // so if we don't reset it to null here, it will try to access it, and crash
   // if imgui was active on the same thread before
   ImGui::SetCurrentContext(nullptr);
   ImGuiContext* context = ImGui::CreateContext(m_pSharedFontAtlas.Borrow());
-
-  m_pTextScaleCVar = (ezCVarFloat*)ezCVar::FindCVarByName("App.TextScale");
+  ImGui::SetCurrentContext(context);
 
   ImGuiIO& cfg = ImGui::GetIO();
 
@@ -349,7 +361,9 @@ ImGuiContext* ezImgui::CreateContext()
     m_ConfigStyleCallback(ImGui::GetStyle());
   }
 
-  ImGui::SetCurrentContext(context);
+  // the DPI scaling is applied on top of this, see SetCurrentContextForView()
+  out_unscaledStyle = ImGui::GetStyle();
+
   return context;
 }
 
@@ -366,10 +380,8 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
 
   ImGuiIO& cfg = ImGui::GetIO();
 
-  if (m_pTextScaleCVar)
-  {
-    cfg.FontGlobalScale = *m_pTextScaleCVar;
-  }
+  // the 'App.TextScale' CVar multiplied with the display scaling
+  cfg.FontGlobalScale = ezDebugRenderer::GetTextScale();
 
   cfg.DisplaySize.x = viewport.width;
   cfg.DisplaySize.y = viewport.height;

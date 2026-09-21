@@ -477,6 +477,9 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
 
   pWindow->WindowEvents().AddEventHandler(ezMakeDelegate(&ezGameState::OnWindowEvent, this));
 
+  // debug text is specified in pixels, so it has to follow the scaling of the display
+  ezRenderWorld::SetDisplayScale(pWindow->GetContentScaleFactor());
+
   if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard*>(pWindow->GetInputDevice()))
   {
     pInput->SetMouseSpeed(ezVec2(0.02f));
@@ -625,5 +628,9 @@ void ezGameState::OnWindowEvent(const ezWindowEvent& e)
   {
     // forward the close button click to the game state
     RequestQuit("window");
+  }
+  else if (e.m_Type == ezWindowEvent::Type::ContentScaleChanged)
+  {
+    ezRenderWorld::SetDisplayScale(e.m_pWindow->GetContentScaleFactor());
   }
 }

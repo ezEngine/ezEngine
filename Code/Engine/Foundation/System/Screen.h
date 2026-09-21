@@ -42,6 +42,14 @@ struct EZ_FOUNDATION_DLL ezScreenInfo
   bool m_bIsPrimary;       ///< Whether this is the primary/main screen.
 
   ezDynamicArray<ezScreenResolution> m_SupportedResolutions;
+
+  /// By which factor content on this screen has to be scaled up to appear at a consistent physical size.
+  ///
+  /// 1.0 is the reference density (96 DPI on Windows). Does not affect the resolution above, which is in pixels.
+  ///
+  /// Stays at 1.0 where the value is not available, and on Windows also as long as the process didn't call
+  /// ezScreen::MakeProcessDpiAware(), because such a process is told that every screen has the reference density.
+  float m_fContentScale = 1.0f;
 };
 
 /// Provides functionality to detect available monitors
@@ -53,4 +61,19 @@ public:
 
   /// Prints the available screen information to the provided log.
   static void PrintScreenInfo(const ezArrayPtr<ezScreenInfo>& screens, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem());
+
+  /// Tells the operating system that this process handles high DPI screens by itself.
+  ///
+  /// Only Windows needs this. A process that doesn't declare it is told scaled down screen and window sizes,
+  /// renders at that lower resolution and gets bitmap stretched up to the physical pixels, which looks blurry.
+  /// Once declared, every size the OS reports is in physical pixels and the application has to scale its own UI,
+  /// see ezScreenInfo::m_fContentScale and ezWindowBase::GetContentScaleFactor().
+  ///
+  /// Must be called before the first window is created or the first screen is enumerated. The
+  /// EZ_APPLICATION_ENTRY_POINT macros already do this, so only applications with their own entry point have to
+  /// call it. Later calls have no effect, the awareness can only be set once per process, alternatively through
+  /// the application manifest.
+  ///
+  /// Does nothing on the other platforms, where the application is always told the true pixel sizes.
+  static void MakeProcessDpiAware();
 };

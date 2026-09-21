@@ -121,7 +121,7 @@ private:
   void Startup(ezImguiConfigFontCallback configFontCallback);
   void Shutdown();
 
-  ImGuiContext* CreateContext();
+  ImGuiContext* CreateContext(ImGuiStyle& out_unscaledStyle);
   void BeginFrame(const ezViewHandle& hView);
   void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
 
@@ -141,12 +141,16 @@ private:
     ImGuiContext* m_pImGuiContext = nullptr;
     ezUInt64 m_uiFrameBeginCounter = -1;
     ezUInt64 m_uiFrameRenderCounter = -1;
+
+    // the style as configured when the context was created, before any DPI scaling. ImGuiStyle::ScaleAllSizes()
+    // multiplies the current values, so it always has to be applied to this, not to the style already in use.
+    ImGuiStyle m_UnscaledStyle;
+    float m_fAppliedStyleScale = 1.0f;
   };
 
   ezMutex m_ViewToContextTableMutex;
   ezHashTable<ezViewHandle, Context> m_ViewToContextTable;
   ezHashTable<ezTempHashedString, Image> m_Images;
-  ezCVarFloat* m_pTextScaleCVar = nullptr;
 };
 
 #endif

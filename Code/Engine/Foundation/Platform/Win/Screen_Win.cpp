@@ -5,6 +5,9 @@
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <Foundation/System/Screen.h>
 
+/// The display density that a content scale of 1.0 corresponds to.
+constexpr ezUInt32 uiReferenceDpi = 96;
+
 EZ_DEFINE_AS_POD_TYPE(DISPLAYCONFIG_PATH_INFO);
 EZ_DEFINE_AS_POD_TYPE(DISPLAYCONFIG_MODE_INFO);
 
@@ -83,6 +86,29 @@ static void EnumerateDisplayModes(ezStringView sDeviceName, ezDynamicArray<ezScr
   inout_modes.Sort();
 }
 
+/// Returns the DPI of the given display, or uiReferenceDpi when it can't be determined.
+///
+/// Resolved dynamically, because the function doesn't exist before Windows 8.1 and because linking against it
+/// would add an import library dependency to everything that uses Foundation.
+static UINT ezGetDpiForMonitor(HMONITOR hMonitor)
+{
+  using PFN_GetDpiForMonitor = HRESULT(WINAPI*)(HMONITOR, int, UINT*, UINT*);
+  static auto pGetDpiForMonitor = []() -> PFN_GetDpiForMonitor
+  {
+    HMODULE hShcore = LoadLibraryW(L"shcore.dll");
+    return hShcore != nullptr ? reinterpret_cast<PFN_GetDpiForMonitor>(GetProcAddress(hShcore, "GetDpiForMonitor")) : nullptr;
+  }();
+
+  if (pGetDpiForMonitor != nullptr)
+  {
+    UINT uiDpiX = 0, uiDpiY = 0;
+    if (SUCCEEDED(pGetDpiForMonitor(hMonitor, 0 /* MDT_EFFECTIVE_DPI */, &uiDpiX, &uiDpiY)) && uiDpiX != 0)
+      return uiDpiX;
+  }
+
+  return uiReferenceDpi;
+}
+
 static BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPRECT pLprcMonitor, LPARAM data)
 {
   EZ_IGNORE_UNUSED(pHdcMonitor);
@@ -107,6 +133,7 @@ static BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPREC
   mon.m_sDisplayID = info.szDevice;
   mon.m_sDisplayName = info.szDevice;
   mon.m_bIsPrimary = (info.dwFlags & MONITORINFOF_PRIMARY) != 0;
+  mon.m_fContentScale = (float)ezGetDpiForMonitor(pMonitor) / (float)uiReferenceDpi;
 
   DISPLAY_DEVICEW ddev;
   ddev.cb = sizeof(ddev);
@@ -132,6 +159,53 @@ static BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPREC
   }
 
   return TRUE;
+}
+
+void ezScreen::MakeProcessDpiAware()
+{
+  // The functions are resolved dynamically, so that no import library is needed and so that Windows versions
+  // without the newer variants still start up. The DLLs are deliberately not freed, they stay loaded anyway.
+  HMODULE hUser32 = GetModuleHandleW(L"user32.dll");
+
+  if (hUser32 == nullptr)
+    return;
+
+  // 'per monitor v2' (Windows 10 1703 and later). In contrast to the older 'per monitor' mode this also scales
+  // the non-client area (title bar, menus, scroll bars) and child dialogs automatically.
+  using PFN_SetProcessDpiAwarenessContext = BOOL(WINAPI*)(HANDLE);
+
+  if (auto pSetContext = reinterpret_cast<PFN_SetProcessDpiAwarenessContext>(GetProcAddress(hUser32, "SetProcessDpiAwarenessContext")))
+  {
+    // DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 / _PER_MONITOR_AWARE, spelled out to not depend on the SDK version.
+    // Both fail with ERROR_ACCESS_DENIED when the awareness was already set (manifest, earlier call), which is fine.
+    if (pSetContext(reinterpret_cast<HANDLE>(-4)) == FALSE)
+    {
+      pSetContext(reinterpret_cast<HANDLE>(-3));
+    }
+
+    return;
+  }
+
+  // Windows 8.1 and later
+  if (HMODULE hShcore = LoadLibraryW(L"shcore.dll"))
+  {
+    using PFN_SetProcessDpiAwareness = HRESULT(WINAPI*)(int);
+
+    if (auto pSetAwareness = reinterpret_cast<PFN_SetProcessDpiAwareness>(GetProcAddress(hShcore, "SetProcessDpiAwareness")))
+    {
+      if (SUCCEEDED(pSetAwareness(2 /* PROCESS_PER_MONITOR_DPI_AWARE */)))
+        return;
+    }
+  }
+
+  // last resort: system wide DPI awareness, the process gets the scaling of the primary screen at startup
+  // and is virtualized on every screen that differs from it
+  using PFN_SetProcessDPIAware = BOOL(WINAPI*)();
+
+  if (auto pSetDpiAware = reinterpret_cast<PFN_SetProcessDPIAware>(GetProcAddress(hUser32, "SetProcessDPIAware")))
+  {
+    pSetDpiAware();
+  }
 }
 
 ezResult ezScreen::EnumerateScreens(ezDynamicArray<ezScreenInfo>& out_screens)

@@ -20,10 +20,6 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#  include <shellscalingapi.h>
-#endif
-
 ezCommandLineOptionPath opt_OutputDir("_EditorEngineProcess", "-outputDir", "Output directory", "");
 ezCommandLineOptionString opt_LogName("_EditorEngineProcess", "-logName", "Log File Prefix", "LogEngine");
 
@@ -42,9 +38,7 @@ static ezAssertHandler g_PreviousAssertHandler = nullptr;
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
   : ezGameApplication("ezEditorEngineProcess", nullptr)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
-#endif
+  // DPI awareness is declared by the application entry point, see ezScreen::MakeProcessDpiAware()
 
   m_LongOpWorkerManager.Startup(&m_IPC);
 }
@@ -418,7 +412,8 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
       ezStartup::StartupHighLevelSystems();
 
       ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(true);
-      ezDebugRenderer::SetTextScale(pMsg->m_fDevicePixelRatio);
+      // what Qt reports for the display that the editor window is on, in place of the window content scale
+      ezRenderWorld::SetDisplayScale(pMsg->m_fDevicePixelRatio);
     }
 
     // after the ezSetupProjectMsgToEngine was processed, all dynamic plugins should be loaded and we can finally send the reflection

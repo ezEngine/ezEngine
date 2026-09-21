@@ -5,6 +5,7 @@
 #include <TestFramework/Utilities/HTMLOutput.h>
 
 #include <Foundation/System/CrashHandler.h>
+#include <Foundation/System/Screen.h>
 #include <Foundation/System/SystemInformation.h>
 
 #ifdef EZ_USE_QT
@@ -21,6 +22,9 @@ void OutputToConsole(ezTestOutput::Enum type, const char* szMsg);
 
 ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const char* szNiceTestName, int iArgc, const char** pArgv)
 {
+  // the test applications don't go through the ezApplication entry points, so this has to be done here
+  ezScreen::MakeProcessDpiAware();
+
   s_iArgc = iArgc;
   s_pArgv = pArgv;
 
