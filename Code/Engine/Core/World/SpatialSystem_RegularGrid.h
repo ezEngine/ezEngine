@@ -44,10 +44,10 @@ private:
   void UpdateSpatialDataBounds(const ezSpatialDataHandle& hData, const ezSimdBBoxSphere& bounds) override;
   void UpdateSpatialDataObject(const ezSpatialDataHandle& hData, ezGameObject* pObject) override;
 
-  void FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, QueryCallback callback) const override;
-  void FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, QueryCallback callback) const override;
+  void FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, const QueryCallback& callback) const override;
+  void FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, const QueryCallback& callback) const override;
 
-  void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, ezSpatialSystem::IsOccludedFunc IsOccluded, ezVisibilityState::Enum visType) const override;
+  void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_objects, const ezSpatialSystem::IsOccludedFunc& isOccludedCallback, ezVisibilityState::Enum visType) const override;
 
   ezVisibilityState::Enum GetVisibilityState(const ezSpatialDataHandle& hData, ezUInt32 uiNumFramesBeforeInvisible) const override;
 
