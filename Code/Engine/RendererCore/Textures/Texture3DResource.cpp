@@ -150,8 +150,9 @@ ezResourceLoadDesc ezTexture3DResource::UpdateContent(ezStreamReader* Stream)
 
   {
 
-    const ezUInt32 uiNumMipmapsLowRes =
-      ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : ezMath::Min(pImage->GetNumMipLevels(), 6U);
+    // the quality CVars may forbid the highest mipmaps, so this is the most that will ever be uploaded
+    const ezUInt32 uiMaxMipLevels = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : ezTextureUtils::GetMaxMipLevelsToUpload(pImage);
+    const ezUInt32 uiNumMipmapsLowRes = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : ezMath::Min(uiMaxMipLevels, 6U);
     ezUInt32 uiUploadNumMipLevels = 0;
     bool bCouldLoadMore = false;
 
@@ -179,12 +180,12 @@ ezResourceLoadDesc ezTexture3DResource::UpdateContent(ezStreamReader* Stream)
     {
       if (m_uiLoadedTextures == 0)
       {
-        bCouldLoadMore = uiNumMipmapsLowRes < pImage->GetNumMipLevels();
+        bCouldLoadMore = uiNumMipmapsLowRes < uiMaxMipLevels;
         uiUploadNumMipLevels = uiNumMipmapsLowRes;
       }
       else if (m_uiLoadedTextures == 1)
       {
-        uiUploadNumMipLevels = pImage->GetNumMipLevels();
+        uiUploadNumMipLevels = uiMaxMipLevels;
       }
       else
       {
