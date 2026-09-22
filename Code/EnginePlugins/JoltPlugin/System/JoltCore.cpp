@@ -138,7 +138,10 @@ void* ezJoltCore::JoltAlignedMalloc(size_t inSize, size_t inAlignment)
 
 void ezJoltCore::JoltAlignedFree(void* inBlock)
 {
-  ezJoltCore::s_pAllocatorAligned->Deallocate(inBlock);
+  if (inBlock)
+  {
+    ezJoltCore::s_pAllocatorAligned->Deallocate(inBlock);
+  }
 }
 
 const ezCollisionFilterConfig& ezJoltCore::GetCollisionFilterConfig()
