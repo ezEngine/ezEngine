@@ -146,11 +146,11 @@ struct ezWindowEvent
 {
   enum Type : ezUInt32
   {
-    WindowDestruction, ///< Sent shortly before the window gets destroyed
-    VisibilityChanged, ///< visibility state is in m_iPayload1 (0 or 1)
-    FocusChanged,      ///< focus state is in m_iPayload1 (0 or 1)
-    SizeChanged,       ///< new size width/height in m_iPayload1/m_iPayload2
-    PositionChanged,   ///< new position x/y in m_iPayload1/m_iPayload2
+    WindowDestruction,   ///< Sent shortly before the window gets destroyed
+    VisibilityChanged,   ///< visibility state is in m_iPayload1 (0 or 1)
+    FocusChanged,        ///< focus state is in m_iPayload1 (0 or 1)
+    SizeChanged,         ///< new size width/height in m_iPayload1/m_iPayload2
+    PositionChanged,     ///< new position x/y in m_iPayload1/m_iPayload2
     CloseButtonClicked,
     ContentScaleChanged, ///< the DPI scaling of the display changed, read the new value with ezWindowBase::GetContentScaleFactor()
 
