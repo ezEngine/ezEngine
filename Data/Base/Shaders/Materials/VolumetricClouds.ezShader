@@ -9,14 +9,19 @@ TWO_SIDED = TRUE
 SHADING_MODE = SHADING_MODE_FULLBRIGHT
 CAMERA_MODE
 SHADING_QUALITY
+CLOUDS_SOURCE
 
 [MATERIALPARAMETER]
 
 Permutation BLEND_MODE;
+Permutation CLOUDS_SOURCE;
 
 float3 SunDir @Default(float3(1.0f, 0.0f, 0.0f));
 
 Texture3D NoiseMap;
+Texture3D DetailNoiseMap;
+Texture3D VolumeMap;
+Texture2D BlueNoiseMap;
 
 [RENDERSTATE]
 
@@ -65,6 +70,13 @@ SamplerState NoiseMap_AutoSampler BIND_GROUP(BG_MATERIAL);
 Texture3D DetailNoiseMap BIND_GROUP(BG_MATERIAL);
 SamplerState DetailNoiseMap_AutoSampler BIND_GROUP(BG_MATERIAL);
 
+#if CLOUDS_SOURCE == CLOUDS_SOURCE_TEXTURE
+Texture3D VolumeMap BIND_GROUP(BG_MATERIAL);
+SamplerState VolumeMap_AutoSampler BIND_GROUP(BG_MATERIAL);
+#endif
+
+Texture2D BlueNoiseMap BIND_GROUP(BG_MATERIAL);
+
 #define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0; float3 CameraPos : TEXCOORD1;
 
 #include <Shaders/Materials/MaterialPixelShader.h>
@@ -72,7 +84,7 @@ SamplerState DetailNoiseMap_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 float LightRay(float3 start, float3 dir)
 {
-  float stepL = 0.2f;
+  const float stepL = 0.2f;
   float initialOffset = stepL * noise1D(dot(start, float3(12.256, 2.646, 6.356)));
   float density = 0.0;
   
@@ -108,6 +120,23 @@ float noise( in float2 p )
     return dot( n, (70.0).xxx );
 }
 
+// Returns one component of 'value', switching to the next component
+// every 'switchInterval' seconds, cycling 0->1->2->3->0->...
+float GetComponentRoundRobin(float4 value, float time, float switchInterval = 1.0)
+{
+    // Which "slot" we're in, wrapped to [0, 4)
+    int index = (int)fmod(floor(time / switchInterval), 4.0);
+    if (index < 0)
+        index += 4; // guard against negative time
+
+    // Avoid dynamic vector indexing (not reliably supported on all
+    // hardware/shader models) by selecting explicitly instead.
+    float result = value.x;
+    result = (index == 1) ? value.y : result;
+    result = (index == 2) ? value.z : result;
+    result = (index == 3) ? value.w : result;
+    return result;
+}
 
 float4 TraceClouds()
 {
@@ -127,8 +156,8 @@ float4 TraceClouds()
   float2 cloudStartDistance = ray_sphere_intersect(camera_position, viewDir, PLANET_RADIUS + CLOUD_START);
   
 #ifdef SINGLE_CLOUD
-  float3 curSamplePoint = G.Input.CameraPos + viewDir * 2.0f;
-  float stepSize = 0.15f;
+  float3 curSamplePoint = G.Input.CameraPos + viewDir * 6.0f;
+  float stepSize = 0.07f;
 #else
   float3 curSamplePoint = offset_over_sealevel + viewDir * cloudStartDistance.y;
   float stepSize = 2.0f;
@@ -137,13 +166,19 @@ float4 TraceClouds()
   float totalTransmittance = 1.0;
   
   float3 color = float3(0.0f, 0.0f, 0.0f);
-  
-  curSamplePoint += viewDir * stepSize * noise(viewDir.xy * 512.0);
-  
-  for(int i=0; i < 128; i++)
+
+  //float offsetNoise = noise(G.Input.Position.xy * ViewportSize.zw * 512.0 + float2(GlobalTime, GlobalTime));
+  float offsetNoise = GetComponentRoundRobin(BlueNoiseMap.Load(int3(int2((G.Input.Position.xy * ViewportSize.xy + float2(GlobalTime, GlobalTime) * 1024.0) / float2(256.0, 256.0)) % int2(256, 256), 0)), GlobalTime, 0.0166);
+  //return float4(offsetNoise, offsetNoise, offsetNoise, 1.0);
+
+  offsetNoise = clamp(offsetNoise, 0.01, 1);
+  curSamplePoint += viewDir * stepSize * offsetNoise;
+
+  [loop]
+  for(int i=0; i < 256; i++)
   {
     float weatherData = GetWeatherData(curSamplePoint.xy);
-    float curDensity = SampleCloudDensity(curSamplePoint, weatherData) * 3.0;
+    float curDensity = SampleCloudDensity(curSamplePoint, weatherData);
     curSamplePoint += viewDir * stepSize;
 	
 	if(curDensity > 0.0f && totalTransmittance > 0.0f)

@@ -105,6 +105,8 @@ void ezAtmosphericScatteringComponent::OnMsgExtractRenderData(ezMsgExtractRender
   ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
   pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, m_hMaterial, m_hMesh);
 
+  pRenderData->m_uiSortingKey = 0;
+
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Sky, ezRenderData::Caching::Never);
 }
 

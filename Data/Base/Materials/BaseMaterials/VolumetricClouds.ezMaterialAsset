@@ -14,10 +14,21 @@ o
 			s{"Shaders/Materials/VolumetricClouds.ezShader"}
 		}
 		Uuid %DocumentID{u4{2488574320626999175,5462427166387230701}}
-		u4 %Hash{373968939576908612}
+		u4 %Hash{4501865489608030368}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References{}
+		VarArray %PackageDeps
+		{
+			s{"{ 5d599b5e-8604-425e-a2c8-259587aa0df5 }"}
+			s{"{ ac614d7c-2b31-4a7b-aa0c-c5d8200b7b89 }"}
+		}
+		VarArray %References
+		{
+			s{"Shaders/Materials/VolumetricClouds.ezShader"}
+			s{"{ 5d599b5e-8604-425e-a2c8-259587aa0df5 }"}
+			s{"{ ac614d7c-2b31-4a7b-aa0c-c5d8200b7b89 }"}
+		}
+		s %Tags{""}
 	}
 }
 }
@@ -31,8 +42,12 @@ o
 	p
 	{
 		s %BLEND_MODE{"BLEND_MODE::BLEND_MODE_TRANSPARENT"}
+		s %BlueNoiseMap{"{ ac614d7c-2b31-4a7b-aa0c-c5d8200b7b89 }"}
+		s %CLOUDS_SOURCE{"CLOUDS_SOURCE::CLOUDS_SOURCE_TEXTURE"}
+		s %DetailNoiseMap{""}
 		s %NoiseMap{""}
 		Vec3 %SunDir{f{0x0000803F,0,0}}
+		s %VolumeMap{"{ 5d599b5e-8604-425e-a2c8-259587aa0df5 }"}
 	}
 }
 o
@@ -42,6 +57,7 @@ o
 	u3 %v{4}
 	p
 	{
+		s %AssetFilterTags{""}
 		s %BaseMaterial{""}
 		s %Shader{"Shaders/Materials/VolumetricClouds.ezShader"}
 		s %ShaderMode{"ezMaterialShaderMode::File"}
@@ -74,7 +90,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::IsEnum"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezEnumBase"}
 		s %PluginName{"ShaderTypes"}
@@ -86,9 +102,29 @@ o
 			Uuid{u4{16393153594407016602,3744118329769567614}}
 			Uuid{u4{7757084663128585029,8011669779036733373}}
 			Uuid{u4{5650026407490086663,5768478847879086899}}
+			Uuid{u4{3687164412847300807,16605290275319987562}}
 		}
 		s %TypeName{"BLEND_MODE"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1068642046638947467,2481996028261479220}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{538352408361711506,15147333137697624302}}
+			Uuid{u4{15822470425530582929,14328023956676241782}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"NoiseMap"}
+		s %Type{"ezString"}
 	}
 }
 o
@@ -102,7 +138,7 @@ o
 		s %Category{"ezPropertyCategory::Constant"}
 		i3 %ConstantValue{2}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"BLEND_MODE::BLEND_MODE_TRANSPARENT"}
+		s %Name{"BLEND_MODE::BLEND_MODE_DITHERED"}
 		s %Type{"ezInt32"}
 	}
 }
@@ -132,18 +168,8 @@ o
 		s %Category{"ezPropertyCategory::Constant"}
 		i3 %ConstantValue{4}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"BLEND_MODE::BLEND_MODE_MODULATE"}
+		s %Name{"BLEND_MODE::BLEND_MODE_ADDITIVE"}
 		s %Type{"ezInt32"}
-	}
-}
-o
-{
-	Uuid %id{u4{7218664027981120167,6961280038548739349}}
-	s %t{"ezDefaultValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		Vec3 %Value{f{0x0000803F,0,0}}
 	}
 }
 o
@@ -157,7 +183,7 @@ o
 		s %Category{"ezPropertyCategory::Constant"}
 		i3 %ConstantValue{3}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"BLEND_MODE::BLEND_MODE_ADDITIVE"}
+		s %Name{"BLEND_MODE::BLEND_MODE_TRANSPARENT"}
 		s %Type{"ezInt32"}
 	}
 }
@@ -173,6 +199,21 @@ o
 		i3 %ConstantValue{0}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_OPAQUE"}
+		s %Type{"ezInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{6849386240790741739,8390669330849070549}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		i3 %ConstantValue{1}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"CLOUDS_SOURCE::CLOUDS_SOURCE_TEXTURE"}
 		s %Type{"ezInt32"}
 	}
 }
@@ -201,7 +242,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezReflectedClass"}
 		s %PluginName{"ShaderTypes"}
@@ -218,7 +259,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezShaderTypeBase"}
 		s %PluginName{"ShaderTypes"}
@@ -227,6 +268,10 @@ o
 			Uuid{u4{5510832255302711063,17507208148756757833}}
 			Uuid{u4{9993927920492497106,16961864007753525476}}
 			Uuid{u4{10104965417738641261,10886789543987320205}}
+			Uuid{u4{1068642046638947467,2481996028261479220}}
+			Uuid{u4{1357021490692323557,18231728103306593551}}
+			Uuid{u4{10936723066463168259,11891449073157941338}}
+			Uuid{u4{5488202227767645016,15959902549612553307}}
 		}
 		s %TypeName{"Shaders/Materials/VolumetricClouds.ezShader"}
 		u3 %TypeVersion{2}
@@ -255,19 +300,120 @@ o
 			Uuid{u4{11316745703687198569,12603286873723587813}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"NoiseMap"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"SunDir"}
+		s %Type{"ezVec3"}
+	}
+}
+o
+{
+	Uuid %id{u4{416255988176073388,11075941813416664590}}
+	s %t{"ezAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
+		s %Filter{";CompatibleAsset_Texture_3D;"}
+		s %RequiredTag{""}
+	}
+}
+o
+{
+	Uuid %id{u4{11031950588481541243,11368053952715014043}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Texture 2D"}
+	}
+}
+o
+{
+	Uuid %id{u4{10936723066463168259,11891449073157941338}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{2506362821949340901,12527045313662949088}}
+			Uuid{u4{16046272796558578805,14285387954601937077}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"VolumeMap"}
 		s %Type{"ezString"}
 	}
 }
 o
 {
+	Uuid %id{u4{2506362821949340901,12527045313662949088}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Texture 3D"}
+	}
+}
+o
+{
+	Uuid %id{u4{12417739832838275239,12544446338571849922}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"CLOUDS_SOURCE::Default"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
 	Uuid %id{u4{11316745703687198569,12603286873723587813}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Vec3 %Value{f{0x0000803F,0,0}}
+	}
+}
+o
+{
+	Uuid %id{u4{2492215221723284728,13301437442068134013}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Texture 3D"}
+	}
+}
+o
+{
+	Uuid %id{u4{16046272796558578805,14285387954601937077}}
 	s %t{"ezAssetBrowserAttribute"}
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Texture_3D;"}
+		s %RequiredTag{""}
+	}
+}
+o
+{
+	Uuid %id{u4{15822470425530582929,14328023956676241782}}
+	s %t{"ezAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
+		s %Filter{";CompatibleAsset_Texture_3D;"}
+		s %RequiredTag{""}
 	}
 }
 o
@@ -277,7 +423,19 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Constant"}
+		s %Category{"Permutation"}
+	}
+}
+o
+{
+	Uuid %id{u4{11250320427385032235,14783134254668637983}}
+	s %t{"ezAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
+		s %Filter{";CompatibleAsset_Texture_2D;"}
+		s %RequiredTag{""}
 	}
 }
 o
@@ -287,7 +445,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Texture 3D"}
+		s %Category{"Constant"}
 	}
 }
 o
@@ -309,6 +467,35 @@ o
 }
 o
 {
+	Uuid %id{u4{538352408361711506,15147333137697624302}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Texture 3D"}
+	}
+}
+o
+{
+	Uuid %id{u4{5488202227767645016,15959902549612553307}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{11031950588481541243,11368053952715014043}}
+			Uuid{u4{11250320427385032235,14783134254668637983}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"BlueNoiseMap"}
+		s %Type{"ezString"}
+	}
+}
+o
+{
 	Uuid %id{u4{773668148553828920,15966949596821666881}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -324,6 +511,21 @@ o
 }
 o
 {
+	Uuid %id{u4{3687164412847300807,16605290275319987562}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		i3 %ConstantValue{5}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"BLEND_MODE::BLEND_MODE_MODULATE"}
+		s %Type{"ezInt32"}
+	}
+}
+o
+{
 	Uuid %id{u4{9993927920492497106,16961864007753525476}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -332,12 +534,34 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{5652750197221142835,14489503122854259585}}
-			Uuid{u4{7218664027981120167,6961280038548739349}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"SunDir"}
-		s %Type{"ezVec3"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::IsEnum"}
+		s %Name{"CLOUDS_SOURCE"}
+		s %Type{"CLOUDS_SOURCE"}
+	}
+}
+o
+{
+	Uuid %id{u4{14504371645840044504,17427400933117958621}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{12417739832838275239,12544446338571849922}}
+			Uuid{u4{7580581660534499623,17536981067744825551}}
+			Uuid{u4{6849386240790741739,8390669330849070549}}
+		}
+		s %TypeName{"CLOUDS_SOURCE"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -352,9 +576,25 @@ o
 			Uuid{u4{14258426821434895047,9890339436534370690}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::IsEnum"}
 		s %Name{"BLEND_MODE"}
 		s %Type{"BLEND_MODE"}
+	}
+}
+o
+{
+	Uuid %id{u4{7580581660534499623,17536981067744825551}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		i3 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"CLOUDS_SOURCE::CLOUDS_SOURCE_NOISE"}
+		s %Type{"ezInt32"}
 	}
 }
 o
@@ -389,6 +629,25 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1357021490692323557,18231728103306593551}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{2492215221723284728,13301437442068134013}}
+			Uuid{u4{416255988176073388,11075941813416664590}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"DetailNoiseMap"}
+		s %Type{"ezString"}
 	}
 }
 o

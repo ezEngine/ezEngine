@@ -46,7 +46,7 @@ ezTransformStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTarge
   ezFileReader cubeFile;
   if (!bStat || cubeFile.Open(inputPath).Failed())
   {
-    return ezStatus(ezFmt("Couldn't open CUBE file '{0}'.", inputPath));
+    return ezStatus(ezFmt("Couldn't open CUBE/DDS file '{0}'.", inputPath));
   }
 
   ezImage img;

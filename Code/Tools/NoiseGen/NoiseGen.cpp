@@ -183,11 +183,8 @@ void ezNoiseGen::Run()
 {
   SetReturnCode(-1);
 
-  ezImage vdbTest;
-  vdbTest.LoadFrom("C:\\Users\\Benjamin\\Downloads\\wdas_cloud\\wdas_cloud.vdb").AssertSuccess();
-
   // Generate cloud base shape noise texture
-  /*{
+  {
     ezImageHeader header;
     header.SetWidth(128);
     header.SetHeight(128);
@@ -205,14 +202,14 @@ void ezNoiseGen::Run()
 
     for (uint32_t slice = 0; slice < 128; slice++)
     {
-      float uvZ = static_cast<float>(slice) * invSize + (invSize / 2.0);
+      float uvZ = static_cast<float>(slice) * invSize + (invSize / 2.0f);
       for (uint32_t y = 0; y < 128; y++)
       {
         auto curPixel = noiseCube.GetPixelPointer<ezColorLinearUB>(0, 0, 0, 0, y, slice);
-        float uvY = 1.0f - (static_cast<float>(y) * invSize + (invSize / 2.0));
+        float uvY = 1.0f - (static_cast<float>(y) * invSize + (invSize / 2.0f));
         for (uint32_t x = 0; x < 128; x++, curPixel++)
         {
-          float uvX = static_cast<float>(x) * invSize + (invSize / 2.0);
+          float uvX = static_cast<float>(x) * invSize + (invSize / 2.0f);
 
           const ezVec3 uvw(uvX, uvY, uvZ);
 
@@ -235,7 +232,7 @@ void ezNoiseGen::Run()
     {
       ezLog::Error("Failed to write result to CloudNoise.dds");
     }
-  }*/
+  }
 
   {
     ezUInt32 dim = 32;

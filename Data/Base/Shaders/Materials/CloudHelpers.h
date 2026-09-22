@@ -11,8 +11,8 @@
 #define PLANET_RADIUS 6371e3 /* radius of the planet */
 
 #ifdef SINGLE_CLOUD,
-#define CLOUD_START 0
-#define CLOUD_END 30
+#define CLOUD_START 10
+#define CLOUD_END 20
 #else
 #define CLOUD_START 600
 #define CLOUD_END 800
@@ -38,7 +38,14 @@ float noise1D( float n )
 
 float GetWeatherData(float2 xy)
 {
-    #ifdef SINGLE_CLOUD
+    #if CLOUDS_SOURCE == CLOUDS_SOURCE_TEXTURE
+    /*if(xy.x < 0.0f || xy.x > 1.0f)
+        return 0.0f;
+    if(xy.y < 0.0f || xy.y > 1.0f)
+        return 0.0f;*/
+    return 1;
+
+    #elif defined(SINGLE_CLOUD)
     float grad = length(xy);
     grad = 1.0f - saturate(grad / 10.0f);
     grad = saturate(grad * 1.5f);
@@ -70,7 +77,12 @@ float HeightProfile(float3 p, float start_height, float end_height, float hardne
 }
 
 float SampleCloudDensity(float3 p, float weatherData)
-{    
+{   
+    #if CLOUDS_SOURCE == CLOUDS_SOURCE_TEXTURE
+    return VolumeMap.Sample(VolumeMap_AutoSampler, (p.xyz)*float3(0.05, 0.05, -0.05) ).r * HeightProfile(p, CLOUD_START, CLOUD_END, 10.f);    
+    //return 1.0f;
+    #else
+    
     //return HeightProfile(p, CLOUD_START, CLOUD_END, 8.0f);
 
     float4 noise = NoiseMap.Sample(NoiseMap_AutoSampler, p * 0.09);
@@ -98,6 +110,7 @@ float SampleCloudDensity(float3 p, float weatherData)
     
     //return p.z > CLOUD_START ? 1.0f : 0.0f;
     //return p.z > 1500.0f ? 1.0f : 0.0f;
+    #endif
 }
 
 float2 ray_sphere_intersect(

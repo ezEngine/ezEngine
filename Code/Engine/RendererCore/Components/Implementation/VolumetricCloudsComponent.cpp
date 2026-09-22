@@ -75,13 +75,13 @@ void ezVolumetricCloudsComponent::Initialize()
 
   //m_hNoiseLut = ezResourceManager::LoadResource<ezTexture3DResource>("{ faa1b9db-72ec-4c99-af9a-82bcb18fbcf3 }"); // CloudNoise.ezLUTAsset (home-work)
   //m_hNoiseLut = ezResourceManager::LoadResource<ezTexture3DResource>("{ 68eb18b0-726b-4836-947c-209261299239 }"); // CloudNoise.ezLUTAsset (work)
-  m_hNoiseLut = ezResourceManager::LoadResource<ezTexture3DResource>("{ f9eb17ec-7a4c-4b74-b51a-4bf2656e4b10 }"); // CloudNoise.ezLUTAsset (home-home)
+  m_hNoiseLut = ezResourceManager::LoadResource<ezTexture3DResource>("{ e5473257-1444-47df-a1d9-700e1680f372 }"); // CloudNoise.ezLUTAsset (home-home)
   if(!m_hNoiseLut.IsValid())
   {
-    ezLog::Error("Failed to find resource CloudNoise.ezLUTAsset (faa1b9db-72ec-4c99-af9a-82bcb18fbcf3)");
+    ezLog::Error("Failed to find resource CloudNoise.ezLUTAsset (e5473257-1444-47df-a1d9-700e1680f372)");
   }
 
-  m_hDetailNoiseLut = ezResourceManager::LoadResource<ezTexture3DResource>("{ b2910f4f-396c-48ed-bd06-f50b11416163 }"); // CloudDetailNoise.ezLUTAsset home-home
+  m_hDetailNoiseLut = ezResourceManager::LoadResource<ezTexture3DResource>("{ 22f5b87a-dfa9-45b9-b29c-53f6dcaffd9d }"); // CloudDetailNoise.ezLUTAsset home-home
   if(!m_hDetailNoiseLut.IsValid())
   {
     ezLog::Error("Failed to find resource CloudDetailNoise.ezLUTAsset");
@@ -118,6 +118,8 @@ void ezVolumetricCloudsComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
 
   ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
   pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, m_hMaterial, m_hMesh);
+
+  pRenderData->m_uiSortingKey = 0xFFFFFFFF;
 
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Sky, ezRenderData::Caching::Never);
 }
