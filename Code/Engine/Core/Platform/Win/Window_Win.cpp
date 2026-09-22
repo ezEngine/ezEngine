@@ -72,49 +72,49 @@ namespace
   ///
   /// The plain AdjustWindowRectEx() always uses the DPI of the primary display, which gives a window on a
   /// differently scaled display a client area that is off by the difference between the two.
-  void AdjustWindowRectForDpi(RECT& ref_rect, DWORD dwWindowStyle, DWORD dwExStyle, UINT uiDpi)
+  void AdjustWindowRectForDpi(RECT& ref_rect, DWORD uiWindowStyle, DWORD uiExStyle, UINT dpi)
   {
     using PFN_AdjustWindowRectExForDpi = BOOL(WINAPI*)(LPRECT, DWORD, BOOL, DWORD, UINT);
     static auto pAdjustForDpi = reinterpret_cast<PFN_AdjustWindowRectExForDpi>(GetProcAddress(GetModuleHandleW(L"user32.dll"), "AdjustWindowRectExForDpi"));
 
-    if (pAdjustForDpi != nullptr && pAdjustForDpi(&ref_rect, dwWindowStyle, FALSE, dwExStyle, uiDpi) != FALSE)
+    if (pAdjustForDpi != nullptr && pAdjustForDpi(&ref_rect, uiWindowStyle, FALSE, uiExStyle, dpi) != FALSE)
       return;
 
-    AdjustWindowRectEx(&ref_rect, dwWindowStyle, FALSE, dwExStyle);
+    AdjustWindowRectEx(&ref_rect, uiWindowStyle, FALSE, uiExStyle);
   }
 
   /// Computes the Windows styles that correspond to the given window description.
   ///
   /// bAllowForeground is false when the window already exists, because WS_EX_TOPMOST is only meant to
   /// force a fresh window to the front and is removed again afterwards.
-  void WindowStylesFromDescription(const ezWindowCreationDesc& desc, bool bAllowForeground, DWORD& out_dwWindowStyle, DWORD& out_dwExStyle)
+  void WindowStylesFromDescription(const ezWindowCreationDesc& desc, bool bAllowForeground, DWORD& out_uiWindowStyle, DWORD& out_uiExStyle)
   {
-    out_dwExStyle = WS_EX_APPWINDOW;
-    out_dwWindowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+    out_uiExStyle = WS_EX_APPWINDOW;
+    out_uiWindowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 
     if (bAllowForeground && desc.m_bSetForegroundOnInit && !ezSystemInformation::IsDebuggerAttached())
     {
       // use WS_EX_TOPMOST to force that the window shows up on top
       // this is the only thing that seems to be working reliably
       // but to prevent the window from staying on top, we need to remove this flag later again (see SetWindowPos)
-      out_dwExStyle |= WS_EX_TOPMOST;
+      out_uiExStyle |= WS_EX_TOPMOST;
     }
 
     if (desc.m_WindowMode == ezWindowMode::WindowFixedResolution || desc.m_WindowMode == ezWindowMode::WindowResizable)
     {
       ezLog::Dev("Window is not fullscreen.");
-      out_dwWindowStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
+      out_uiWindowStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
     }
     else
     {
       ezLog::Dev("Window is fullscreen.");
-      out_dwWindowStyle |= WS_POPUP;
+      out_uiWindowStyle |= WS_POPUP;
     }
 
     if (desc.m_WindowMode == ezWindowMode::WindowResizable)
     {
       ezLog::Dev("Window is resizable.");
-      out_dwWindowStyle |= WS_MAXIMIZEBOX | WS_THICKFRAME;
+      out_uiWindowStyle |= WS_MAXIMIZEBOX | WS_THICKFRAME;
     }
   }
 } // namespace

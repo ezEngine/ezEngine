@@ -90,7 +90,7 @@ static void EnumerateDisplayModes(ezStringView sDeviceName, ezDynamicArray<ezScr
 ///
 /// Resolved dynamically, because the function doesn't exist before Windows 8.1 and because linking against it
 /// would add an import library dependency to everything that uses Foundation.
-static UINT ezGetDpiForMonitor(HMONITOR hMonitor)
+static UINT ezGetDpiForMonitor(HMONITOR pMonitor)
 {
   using PFN_GetDpiForMonitor = HRESULT(WINAPI*)(HMONITOR, int, UINT*, UINT*);
   static auto pGetDpiForMonitor = []() -> PFN_GetDpiForMonitor
@@ -102,7 +102,7 @@ static UINT ezGetDpiForMonitor(HMONITOR hMonitor)
   if (pGetDpiForMonitor != nullptr)
   {
     UINT uiDpiX = 0, uiDpiY = 0;
-    if (SUCCEEDED(pGetDpiForMonitor(hMonitor, 0 /* MDT_EFFECTIVE_DPI */, &uiDpiX, &uiDpiY)) && uiDpiX != 0)
+    if (SUCCEEDED(pGetDpiForMonitor(pMonitor, 0 /* MDT_EFFECTIVE_DPI */, &uiDpiX, &uiDpiY)) && uiDpiX != 0)
       return uiDpiX;
   }
 
