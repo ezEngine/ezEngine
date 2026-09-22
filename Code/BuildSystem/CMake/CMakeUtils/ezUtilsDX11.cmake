@@ -8,7 +8,7 @@ set(EZ_BUILD_EXPERIMENTAL_DXVK OFF CACHE BOOL "Whether to emulate DX11 on Linux 
 # ## D3D11 Support
 # #####################################
 
-set(EZ_BUILD_D3D11 ON CACHE BOOL "Whether to build D3D11 renderer support. D3D11 is nearing end of life and may be removed in a future release.")
+set(EZ_BUILD_D3D11 OFF CACHE BOOL "Whether to build D3D11 renderer support. D3D11 is nearing end of life and may be removed in a future release.")
 
 # #####################################
 # ## ez_link_target_dx11(<target>)

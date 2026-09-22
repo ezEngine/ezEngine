@@ -872,7 +872,11 @@ ezTransformStatus ezMaterialAssetDocument::InternalTransformAsset(const char* sz
           arguments << QString::fromUtf8(sAutoGenShader.GetData());
 
           arguments << "-platform";
+#if defined(BUILDSYSTEM_ENABLE_VULKAN_SUPPORT)
+          arguments << "VULKAN"; /// \todo Rendering platform is currently hardcoded
+#else
           arguments << "DX11_SM50"; /// \todo Rendering platform is currently hardcoded
+#endif
 
           // determine the permutation variables that should get fixed values
           {

@@ -181,7 +181,8 @@ $runRemoteSamples = if ($anySelected) { $EditorSamplesRemote.IsPresent } else { 
 $runStandaloneSamples = if ($anySelected) { $StandaloneSamples.IsPresent } else { $true }
 $runSamples = $runLocalSamples -or $runRemoteSamples -or $runStandaloneSamples
 
-$rendererList = if ($Renderer -contains "All") { @("DX11", "Vulkan") } else { $Renderer }
+# 'All' means every renderer that is part of the tested binaries, D3D11 is not built by default
+$rendererList = if ($Renderer -contains "All") { @("DX11", "Vulkan") | Where-Object { Test-Path (Join-Path $resolvedBinDir "Renderer$_.dll") } } else { $Renderer }
 
 $groups = @()
 if ($runTools) { $groups += "Tools" }
