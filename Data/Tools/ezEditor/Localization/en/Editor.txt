@@ -203,7 +203,6 @@ Selection.UndoSelection;Undo Selection Change;Reverts the last change to the obj
 
 ezRenderPipelineProfileConfig;Render Pipelines
 ezTextureAssetProfileConfig;Texture Assets
-ezCoreRenderProfileConfig;Rendering Options
 
 # Gizmo
 

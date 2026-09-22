@@ -6,19 +6,6 @@ AssetProfiles
 		{
 			o
 			{
-				Uuid %id{uint64{10386675348308922682,207938457348376428}}
-				string %t{"ezCoreRenderProfileConfig"}
-				uint32 %v{1}
-				p
-				{
-					uint32 %MaxShadowMapSize{1024}
-					uint32 %MinShadowMapSize{64}
-					uint32 %RuntimeDecalAtlasTextureSize{3072}
-					uint32 %ShadowAtlasTextureSize{4096}
-				}
-			}
-			o
-			{
 				Uuid %id{uint64{385040311378845408,1178138948935131612}}
 				string %t{"ezRenderPipelineProfileConfig"}
 				uint32 %v{1}
@@ -59,7 +46,6 @@ AssetProfiles
 				{
 					VarArray %Configs
 					{
-						Uuid{uint64{10386675348308922682,207938457348376428}}
 						Uuid{uint64{385040311378845408,1178138948935131612}}
 						Uuid{uint64{6024007684197752254,9388485812360408817}}
 						Uuid{uint64{3821783988184046669,15370839493438779908}}

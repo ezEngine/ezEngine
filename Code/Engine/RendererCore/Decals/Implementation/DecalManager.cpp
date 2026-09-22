@@ -1,6 +1,5 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Core/GameApplication/GameApplicationBase.h>
 #include <Core/Graphics/Geometry.h>
 #include <Core/World/World.h>
 #include <Foundation/Configuration/CVar.h>
@@ -15,7 +14,6 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/DynamicTextureAtlas.h>
 #include <RendererCore/Textures/Texture2DResource.h>
-#include <RendererCore/Utils/CoreRenderProfile.h>
 #include <RendererFoundation/Resources/DynamicBuffer.h>
 #include <Shaders/Common/LightData.h>
 
@@ -43,13 +41,25 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezCVarBool cvar_RenderingDecalsShowAtlasTexture("Rendering.Decals.ShowAtlasTexture", false, ezCVarFlags::Default, "Display the dynamic decal atlas texture");
 #endif
 
-/// NOTE: The default values for these are defined in ezCoreRenderProfileConfig
-///       but they can also be overwritten in custom game states at startup.
-EZ_RENDERERCORE_DLL ezCVarInt cvar_RenderingDecalsDynamicAtlasSize("Rendering.Decals.DynamicAtlasSize", 3072, ezCVarFlags::RequiresDelayedSync, "The size of the dynamic decal atlas texture.");
+/// The atlas is recreated when this changes, at the start of the next extraction, so it can be set at any time.
+EZ_RENDERERCORE_DLL ezCVarInt cvar_RenderingDecalsDynamicAtlasSize("Rendering.Decals.DynamicAtlasSize", 3072, ezCVarFlags::Save | ezCVarFlags::RequiresDelayedSync, "The size of the dynamic decal atlas texture.");
 
 constexpr ezUInt32 s_uiMaxDecalSize = 1024;
 
-static ezUInt32 s_uiLastConfigModification = 0;
+// the CVar value, clamped to what the atlas can use. The CVar is left alone, writing the clamped
+// value back would look like the user changed it and persist it into their settings file.
+static ezUInt32 s_uiDecalAtlasSize = 0;
+
+static void UpdateClampedAtlasSize()
+{
+  // RequiresDelayedSync: a value that was set since the last atlas creation is in the delayed sync value
+  const ezUInt32 uiAtlasSize = cvar_RenderingDecalsDynamicAtlasSize.GetValue(ezCVarValue::DelayedSync);
+
+  s_uiDecalAtlasSize = ezMath::Clamp(static_cast<ezUInt32>(ezMath::RoundToMultiple(uiAtlasSize, 512.0)), 512u, 8192u);
+
+  // the value is in effect now, so that the next frame doesn't see it as changed again
+  cvar_RenderingDecalsDynamicAtlasSize.SetToDelayedSyncValue();
+}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -246,32 +256,10 @@ struct ezDecalManager::Data
     if (m_RuntimeAtlas.IsInitialized())
       return;
 
-    // use the current CVar values to initialize the values
-    ezUInt32 uiAtlasSize = cvar_RenderingDecalsDynamicAtlasSize;
-
-    // if the platform profile has changed, use it to reset the defaults
-    const auto& platformProfile = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile();
-    if (s_uiLastConfigModification != platformProfile.GetLastModificationCounter())
-    {
-      s_uiLastConfigModification = platformProfile.GetLastModificationCounter();
-
-      const auto* pConfig = platformProfile.GetTypeConfig<ezCoreRenderProfileConfig>();
-      uiAtlasSize = pConfig->m_uiRuntimeDecalAtlasTextureSize;
-    }
-
-    // if the CVars were modified recently (e.g. during game startup), use those values to override the default
-    if (cvar_RenderingDecalsDynamicAtlasSize.HasDelayedSyncValueChanged())
-      uiAtlasSize = cvar_RenderingDecalsDynamicAtlasSize.GetValue(ezCVarValue::DelayedSync);
-
-    // make sure the values are valid
-    uiAtlasSize = ezMath::Clamp(static_cast<ezUInt32>(ezMath::RoundToMultiple(uiAtlasSize, 512.0)), 512u, 8192u);
-
-    // write back the clamped values, so that everyone sees the valid values
-    cvar_RenderingDecalsDynamicAtlasSize = uiAtlasSize;
-    cvar_RenderingDecalsDynamicAtlasSize.SetToDelayedSyncValue();
+    UpdateClampedAtlasSize();
 
     ezGALTextureCreationDescription desc;
-    desc.SetAsRenderTarget(uiAtlasSize, uiAtlasSize, ezGALResourceFormat::RGBAUByteNormalized);
+    desc.SetAsRenderTarget(s_uiDecalAtlasSize, s_uiDecalAtlasSize, ezGALResourceFormat::RGBAUByteNormalized);
 
     m_RuntimeAtlas.Initialize(desc).AssertSuccess("Failed to initialize runtime decal atlas");
 
@@ -477,6 +465,9 @@ ezGALBufferHandle ezDecalManager::GetDecalAtlasDataBufferForRendering()
 // static
 void ezDecalManager::OnEngineStartup()
 {
+  // the size is used before the atlas is created on demand
+  UpdateClampedAtlasSize();
+
   s_pData = EZ_DEFAULT_NEW(ezDecalManager::Data);
 
   ezRenderWorld::GetExtractionEvent().AddEventHandler(OnExtractionEvent);
@@ -497,9 +488,7 @@ void ezDecalManager::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 {
   if (e.m_Type == ezRenderWorldExtractionEvent::Type::BeginExtraction)
   {
-    if (s_pData->m_RuntimeAtlas.IsInitialized() &&
-        (cvar_RenderingDecalsDynamicAtlasSize.HasDelayedSyncValueChanged() ||
-          s_uiLastConfigModification != ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetLastModificationCounter()))
+    if (s_pData->m_RuntimeAtlas.IsInitialized() && cvar_RenderingDecalsDynamicAtlasSize.HasDelayedSyncValueChanged())
     {
       EZ_LOCK(s_pData->m_Mutex);
 
@@ -574,7 +563,7 @@ void ezDecalManager::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 
   s_pData->m_SortedDecals.Sort();
 
-  const ezVec2 vAtlasSize = ezVec2(float(cvar_RenderingDecalsDynamicAtlasSize));
+  const ezVec2 vAtlasSize = ezVec2(float(s_uiDecalAtlasSize));
   auto& decalsToUpdate = s_pData->m_DecalsToUpdate[ezRenderWorld::GetDataIndexForExtraction()];
 
   for (auto& decalToUpdate : s_pData->m_SortedDecals)
