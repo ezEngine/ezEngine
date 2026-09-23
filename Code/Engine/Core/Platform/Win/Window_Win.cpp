@@ -6,118 +6,43 @@
 #  include <Foundation/Basics.h>
 #  include <Foundation/Logging/Log.h>
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/WinDpiUtils.h>
 #  include <Foundation/System/SystemInformation.h>
 
-namespace
+/// Computes the Windows styles that correspond to the given window description.
+///
+/// bAllowForeground is false when the window already exists, because WS_EX_TOPMOST is only meant to
+/// force a fresh window to the front and is removed again afterwards.
+static void WindowStylesFromDescription(const ezWindowCreationDesc& desc, bool bAllowForeground, DWORD& out_uiWindowStyle, DWORD& out_uiExStyle)
 {
-  /// The display density that a content scale of 1.0 corresponds to.
-  constexpr ezUInt32 uiReferenceDpi = 96;
+  out_uiExStyle = WS_EX_APPWINDOW;
+  out_uiWindowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 
-  EZ_ALWAYS_INLINE float DpiToContentScale(ezUInt32 uiDpi)
+  if (bAllowForeground && desc.m_bSetForegroundOnInit && !ezSystemInformation::IsDebuggerAttached())
   {
-    return (float)uiDpi / (float)uiReferenceDpi;
+    // use WS_EX_TOPMOST to force that the window shows up on top
+    // this is the only thing that seems to be working reliably
+    // but to prevent the window from staying on top, we need to remove this flag later again (see SetWindowPos)
+    out_uiExStyle |= WS_EX_TOPMOST;
   }
 
-  using PFN_GetDpiForMonitor = HRESULT(WINAPI*)(HMONITOR, int, UINT*, UINT*);
-
-  PFN_GetDpiForMonitor GetDpiForMonitorFunc()
+  if (desc.m_WindowMode == ezWindowMode::WindowFixedResolution || desc.m_WindowMode == ezWindowMode::WindowResizable)
   {
-    // shcore.dll is loaded on demand and deliberately never freed, GetDpiForMonitor() doesn't exist before Windows 8.1
-    static PFN_GetDpiForMonitor pFunc = []() -> PFN_GetDpiForMonitor
-    {
-      HMODULE hShcore = LoadLibraryW(L"shcore.dll");
-      return hShcore != nullptr ? reinterpret_cast<PFN_GetDpiForMonitor>(GetProcAddress(hShcore, "GetDpiForMonitor")) : nullptr;
-    }();
-
-    return pFunc;
+    ezLog::Dev("Window is not fullscreen.");
+    out_uiWindowStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
+  }
+  else
+  {
+    ezLog::Dev("Window is fullscreen.");
+    out_uiWindowStyle |= WS_POPUP;
   }
 
-  /// Returns the DPI of the display that the given window is on.
-  ///
-  /// Returns uiReferenceDpi (ie. "no scaling") for a process that is not DPI aware, because such a process is
-  /// told that everything is 96 DPI.
-  UINT GetWindowDpi(HWND hWnd)
+  if (desc.m_WindowMode == ezWindowMode::WindowResizable)
   {
-    using PFN_GetDpiForWindow = UINT(WINAPI*)(HWND);
-    static auto pGetDpiForWindow = reinterpret_cast<PFN_GetDpiForWindow>(GetProcAddress(GetModuleHandleW(L"user32.dll"), "GetDpiForWindow"));
-
-    if (pGetDpiForWindow != nullptr)
-    {
-      if (const UINT uiDpi = pGetDpiForWindow(hWnd); uiDpi != 0)
-        return uiDpi;
-    }
-
-    return uiReferenceDpi;
+    ezLog::Dev("Window is resizable.");
+    out_uiWindowStyle |= WS_MAXIMIZEBOX | WS_THICKFRAME;
   }
-
-  /// Returns the DPI of the display that contains the given position on the virtual desktop.
-  ///
-  /// Needed to size a window before it exists. Positions that are not on any display fall back to the primary one.
-  UINT GetDpiAtPosition(ezInt32 iPosX, ezInt32 iPosY)
-  {
-    if (auto pGetDpiForMonitor = GetDpiForMonitorFunc())
-    {
-      const POINT pt = {iPosX, iPosY};
-      const HMONITOR hMonitor = MonitorFromPoint(pt, MONITOR_DEFAULTTOPRIMARY);
-
-      UINT uiDpiX = 0, uiDpiY = 0;
-      if (hMonitor != nullptr && SUCCEEDED(pGetDpiForMonitor(hMonitor, 0 /* MDT_EFFECTIVE_DPI */, &uiDpiX, &uiDpiY)) && uiDpiX != 0)
-        return uiDpiX;
-    }
-
-    return uiReferenceDpi;
-  }
-
-  /// Grows the given client area rectangle by the size of the window decorations at the given DPI.
-  ///
-  /// The plain AdjustWindowRectEx() always uses the DPI of the primary display, which gives a window on a
-  /// differently scaled display a client area that is off by the difference between the two.
-  void AdjustWindowRectForDpi(RECT& ref_rect, DWORD uiWindowStyle, DWORD uiExStyle, UINT dpi)
-  {
-    using PFN_AdjustWindowRectExForDpi = BOOL(WINAPI*)(LPRECT, DWORD, BOOL, DWORD, UINT);
-    static auto pAdjustForDpi = reinterpret_cast<PFN_AdjustWindowRectExForDpi>(GetProcAddress(GetModuleHandleW(L"user32.dll"), "AdjustWindowRectExForDpi"));
-
-    if (pAdjustForDpi != nullptr && pAdjustForDpi(&ref_rect, uiWindowStyle, FALSE, uiExStyle, dpi) != FALSE)
-      return;
-
-    AdjustWindowRectEx(&ref_rect, uiWindowStyle, FALSE, uiExStyle);
-  }
-
-  /// Computes the Windows styles that correspond to the given window description.
-  ///
-  /// bAllowForeground is false when the window already exists, because WS_EX_TOPMOST is only meant to
-  /// force a fresh window to the front and is removed again afterwards.
-  void WindowStylesFromDescription(const ezWindowCreationDesc& desc, bool bAllowForeground, DWORD& out_uiWindowStyle, DWORD& out_uiExStyle)
-  {
-    out_uiExStyle = WS_EX_APPWINDOW;
-    out_uiWindowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
-
-    if (bAllowForeground && desc.m_bSetForegroundOnInit && !ezSystemInformation::IsDebuggerAttached())
-    {
-      // use WS_EX_TOPMOST to force that the window shows up on top
-      // this is the only thing that seems to be working reliably
-      // but to prevent the window from staying on top, we need to remove this flag later again (see SetWindowPos)
-      out_uiExStyle |= WS_EX_TOPMOST;
-    }
-
-    if (desc.m_WindowMode == ezWindowMode::WindowFixedResolution || desc.m_WindowMode == ezWindowMode::WindowResizable)
-    {
-      ezLog::Dev("Window is not fullscreen.");
-      out_uiWindowStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
-    }
-    else
-    {
-      ezLog::Dev("Window is fullscreen.");
-      out_uiWindowStyle |= WS_POPUP;
-    }
-
-    if (desc.m_WindowMode == ezWindowMode::WindowResizable)
-    {
-      ezLog::Dev("Window is resizable.");
-      out_uiWindowStyle |= WS_MAXIMIZEBOX | WS_THICKFRAME;
-    }
-  }
-} // namespace
+}
 
 static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
@@ -185,15 +110,13 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT msg, WPAR
         {
           // the requested client area resolution is kept, only the decorations change size
           const ezSizeU32 res = pWindow->GetClientAreaSize();
-          RECT rect = {0, 0, (LONG)res.width, (LONG)res.height};
-          AdjustWindowRectForDpi(rect, (DWORD)GetWindowLongPtrW(hWnd, GWL_STYLE), (DWORD)GetWindowLongPtrW(hWnd, GWL_EXSTYLE), uiNewDpi);
+          const ezSizeU32 size = ezWindowsDpiUtils::ComputeWindowSizeForDpi(res, (DWORD)GetWindowLongPtrW(hWnd, GWL_STYLE), (DWORD)GetWindowLongPtrW(hWnd, GWL_EXSTYLE), uiNewDpi);
 
-          ::SetWindowPos(hWnd, nullptr, pSuggestedRect->left, pSuggestedRect->top, rect.right - rect.left, rect.bottom - rect.top,
-            SWP_NOZORDER | SWP_NOACTIVATE);
+          ::SetWindowPos(hWnd, nullptr, pSuggestedRect->left, pSuggestedRect->top, size.width, size.height, SWP_NOZORDER | SWP_NOACTIVATE);
         }
         // fullscreen modes cover an entire display, their size doesn't depend on its scaling
 
-        pWindow->OnContentScaleChanged(DpiToContentScale(uiNewDpi));
+        pWindow->OnContentScaleChanged(ezWindowsDpiUtils::DpiToContentScale(uiNewDpi));
         return 0;
       }
     }
@@ -271,40 +194,32 @@ ezResult ezWindowWin::InitializeWindow()
 
 
   // Create rectangle for window
-  RECT Rect = {0, 0, (LONG)m_CreationDescription.m_Resolution.width, (LONG)m_CreationDescription.m_Resolution.height};
+  ezRectI32 Rect(m_CreationDescription.m_Resolution.width, m_CreationDescription.m_Resolution.height);
 
   // The size of the decorations depends on the scaling of the display that the window ends up on, which isn't
   // known before it exists, so it is guessed from the requested position and corrected after creation (see below).
-  const UINT uiCreationDpi = GetDpiAtPosition(m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y);
+  const UINT uiCreationDpi = ezWindowsDpiUtils::GetDpiAtPosition(m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y);
 
   // Account for left or top placed task bars
   if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowFixedResolution || m_CreationDescription.m_WindowMode == ezWindowMode::WindowResizable)
   {
     // Adjust for borders and bars etc.
-    AdjustWindowRectForDpi(Rect, dwWindowStyle, dwExStyle, uiCreationDpi);
+    ezWindowsDpiUtils::AdjustWindowRectForDpi(Rect, dwWindowStyle, dwExStyle, uiCreationDpi);
 
-    // top left position now may be negative (due to AdjustWindowRectEx)
-    // move
-    Rect.right -= Rect.left;
-    Rect.bottom -= Rect.top;
     // apply user translation
-    Rect.left = m_CreationDescription.m_Position.x;
-    Rect.top = m_CreationDescription.m_Position.y;
-    Rect.right += m_CreationDescription.m_Position.x;
-    Rect.bottom += m_CreationDescription.m_Position.y;
+    Rect.x = m_CreationDescription.m_Position.x;
+    Rect.y = m_CreationDescription.m_Position.y;
 
     // move into work area
     RECT RectWorkArea = {0};
     SystemParametersInfoW(SPI_GETWORKAREA, 0, &RectWorkArea, 0);
 
-    Rect.left += RectWorkArea.left;
-    Rect.right += RectWorkArea.left;
-    Rect.top += RectWorkArea.top;
-    Rect.bottom += RectWorkArea.top;
+    Rect.x += RectWorkArea.left;
+    Rect.y += RectWorkArea.top;
   }
 
-  const int iWidth = Rect.right - Rect.left;
-  const int iHeight = Rect.bottom - Rect.top;
+  const int iWidth = Rect.width;
+  const int iHeight = Rect.height;
 
   ezLog::Info("Window Dimensions: {0}*{1} at left/top origin ({2}, {3}).", iWidth, iHeight, m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y);
 
@@ -343,17 +258,15 @@ ezResult ezWindowWin::InitializeWindow()
       (m_CreationDescription.m_Resolution.width != ezUInt32(r.right - r.left) ||
         m_CreationDescription.m_Resolution.height != ezUInt32(r.bottom - r.top)))
   {
-    RECT fixedRect = {0, 0, (LONG)m_CreationDescription.m_Resolution.width, (LONG)m_CreationDescription.m_Resolution.height};
-    AdjustWindowRectForDpi(fixedRect, dwWindowStyle, dwExStyle, GetWindowDpi(windowHandle));
+    const ezSizeU32 size = ezWindowsDpiUtils::ComputeWindowSizeForDpi(m_CreationDescription.m_Resolution, dwWindowStyle, dwExStyle, ezWindowsDpiUtils::GetWindowDpi(m_hWindowHandle));
 
-    ::SetWindowPos(windowHandle, HWND_NOTOPMOST, 0, 0, fixedRect.right - fixedRect.left, fixedRect.bottom - fixedRect.top,
-      SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
+    ::SetWindowPos(windowHandle, HWND_NOTOPMOST, 0, 0, size.width, size.height, SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
     GetClientRect(windowHandle, &r);
   }
 
   m_CreationDescription.m_Resolution.width = r.right - r.left;
   m_CreationDescription.m_Resolution.height = r.bottom - r.top;
-  m_fContentScaleFactor = DpiToContentScale(GetWindowDpi(windowHandle));
+  m_fContentScaleFactor = ezWindowsDpiUtils::DpiToContentScale(ezWindowsDpiUtils::GetWindowDpi(m_hWindowHandle));
 
 
 
@@ -420,7 +333,7 @@ ezResult ezWindowWin::Resize(const ezSizeU32& newWindowSize)
 
   auto windowHandle = ezMinWindows::ToNative(m_hWindowHandle);
 
-  RECT rect = {0, 0, (LONG)newWindowSize.width, (LONG)newWindowSize.height};
+  ezSizeU32 size = newWindowSize;
 
   // SetWindowPos wants the size of the entire window, so the decorations have to be added to the client size
   if (!ezWindowMode::IsFullscreen(m_CreationDescription.m_WindowMode))
@@ -428,10 +341,10 @@ ezResult ezWindowWin::Resize(const ezSizeU32& newWindowSize)
     const DWORD dwWindowStyle = (DWORD)GetWindowLongPtrW(windowHandle, GWL_STYLE);
     const DWORD dwExStyle = (DWORD)GetWindowLongPtrW(windowHandle, GWL_EXSTYLE);
 
-    AdjustWindowRectForDpi(rect, dwWindowStyle, dwExStyle, GetWindowDpi(windowHandle));
+    size = ezWindowsDpiUtils::ComputeWindowSizeForDpi(newWindowSize, dwWindowStyle, dwExStyle, ezWindowsDpiUtils::GetWindowDpi(m_hWindowHandle));
   }
 
-  BOOL res = ::SetWindowPos(windowHandle, HWND_NOTOPMOST, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
+  BOOL res = ::SetWindowPos(windowHandle, HWND_NOTOPMOST, 0, 0, size.width, size.height, SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
   return res != FALSE ? EZ_SUCCESS : EZ_FAILURE;
 }
 
@@ -464,13 +377,13 @@ ezResult ezWindowWin::Reconfigure(const ezWindowCreationDesc& desc)
   // the window: it would keep displaying its last frame, but stop receiving input.
   dwWindowStyle |= (DWORD)GetWindowLongPtrW(windowHandle, GWL_STYLE) & (WS_VISIBLE | WS_MINIMIZE | WS_MAXIMIZE | WS_DISABLED);
 
-  RECT rect = {0, 0, (LONG)newDesc.m_Resolution.width, (LONG)newDesc.m_Resolution.height};
+  ezSizeU32 size = newDesc.m_Resolution;
 
   // the window may be moving to a display with a different scaling, so the decorations are sized for the
   // display at the target position, not for the one the window is currently on
   if (!ezWindowMode::IsFullscreen(newDesc.m_WindowMode))
   {
-    AdjustWindowRectForDpi(rect, dwWindowStyle, dwExStyle, GetDpiAtPosition(newDesc.m_Position.x, newDesc.m_Position.y));
+    size = ezWindowsDpiUtils::ComputeWindowSizeForDpi(newDesc.m_Resolution, dwWindowStyle, dwExStyle, ezWindowsDpiUtils::GetDpiAtPosition(newDesc.m_Position.x, newDesc.m_Position.y));
   }
 
   // the description has to be up to date before the window messages arrive, because the handlers read from it
@@ -480,7 +393,7 @@ ezResult ezWindowWin::Reconfigure(const ezWindowCreationDesc& desc)
   SetWindowLongPtrW(windowHandle, GWL_EXSTYLE, (LONG_PTR)dwExStyle);
 
   // SWP_FRAMECHANGED is what makes the changed styles take effect
-  if (::SetWindowPos(windowHandle, HWND_NOTOPMOST, newDesc.m_Position.x, newDesc.m_Position.y, rect.right - rect.left, rect.bottom - rect.top,
+  if (::SetWindowPos(windowHandle, HWND_NOTOPMOST, newDesc.m_Position.x, newDesc.m_Position.y, size.width, size.height,
         SWP_FRAMECHANGED | SWP_NOOWNERZORDER | SWP_NOZORDER) == FALSE)
   {
     // the styles were already changed, so the window is left in a mixed state

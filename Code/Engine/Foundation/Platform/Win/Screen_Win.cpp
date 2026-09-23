@@ -3,6 +3,7 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/WinDpiUtils.h>
 #  include <Foundation/System/Screen.h>
 
 /// The display density that a content scale of 1.0 corresponds to.
@@ -86,29 +87,6 @@ static void EnumerateDisplayModes(ezStringView sDeviceName, ezDynamicArray<ezScr
   inout_modes.Sort();
 }
 
-/// Returns the DPI of the given display, or uiReferenceDpi when it can't be determined.
-///
-/// Resolved dynamically, because the function doesn't exist before Windows 8.1 and because linking against it
-/// would add an import library dependency to everything that uses Foundation.
-static UINT ezGetDpiForMonitor(HMONITOR pMonitor)
-{
-  using PFN_GetDpiForMonitor = HRESULT(WINAPI*)(HMONITOR, int, UINT*, UINT*);
-  static auto pGetDpiForMonitor = []() -> PFN_GetDpiForMonitor
-  {
-    HMODULE hShcore = LoadLibraryW(L"shcore.dll");
-    return hShcore != nullptr ? reinterpret_cast<PFN_GetDpiForMonitor>(GetProcAddress(hShcore, "GetDpiForMonitor")) : nullptr;
-  }();
-
-  if (pGetDpiForMonitor != nullptr)
-  {
-    UINT uiDpiX = 0, uiDpiY = 0;
-    if (SUCCEEDED(pGetDpiForMonitor(pMonitor, 0 /* MDT_EFFECTIVE_DPI */, &uiDpiX, &uiDpiY)) && uiDpiX != 0)
-      return uiDpiX;
-  }
-
-  return uiReferenceDpi;
-}
-
 static BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPRECT pLprcMonitor, LPARAM data)
 {
   EZ_IGNORE_UNUSED(pHdcMonitor);
@@ -133,7 +111,7 @@ static BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPREC
   mon.m_sDisplayID = info.szDevice;
   mon.m_sDisplayName = info.szDevice;
   mon.m_bIsPrimary = (info.dwFlags & MONITORINFOF_PRIMARY) != 0;
-  mon.m_fContentScale = (float)ezGetDpiForMonitor(pMonitor) / (float)uiReferenceDpi;
+  mon.m_fContentScale = (float)ezWindowsDpiUtils::GetDpiForMonitor(ezMinWindows::FromNative(pMonitor)) / (float)uiReferenceDpi;
 
   DISPLAY_DEVICEW ddev;
   ddev.cb = sizeof(ddev);
