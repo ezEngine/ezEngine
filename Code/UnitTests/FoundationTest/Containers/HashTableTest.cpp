@@ -519,6 +519,131 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     }
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAllKeys")
+  {
+    ezHashTable<ezInt32, ezInt32> map;
+    ezDynamicArray<const ezInt32*> keys;
+
+    // empty table
+    keys.PushBack(nullptr); // must be cleared by the function
+    map.GetAllKeys(keys);
+    EZ_TEST_BOOL(keys.IsEmpty());
+
+    for (ezInt32 i = 0; i < 100; ++i)
+    {
+      map[i * 3] = i;
+    }
+
+    map.GetAllKeys(keys);
+    EZ_TEST_INT(keys.GetCount(), map.GetCount());
+
+    // order is undefined, so verify via a sorted copy that every key is present exactly once
+    ezDynamicArray<ezInt32> sorted;
+    for (const ezInt32* pKey : keys)
+    {
+      EZ_TEST_BOOL(pKey != nullptr);
+      sorted.PushBack(*pKey);
+    }
+    sorted.Sort();
+
+    for (ezInt32 i = 0; i < 100; ++i)
+    {
+      EZ_TEST_INT(sorted[i], i * 3);
+    }
+
+    // keys must point into the hash table itself
+    for (const ezInt32* pKey : keys)
+    {
+      EZ_TEST_BOOL(map.Contains(*pKey));
+    }
+
+    // removing elements is reflected
+    map.Remove(0);
+    map.GetAllKeys(keys);
+    EZ_TEST_INT(keys.GetCount(), 99);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAllKeysSorted")
+  {
+    ezHashTable<ezInt32, ezInt32> map;
+    ezDynamicArray<const ezInt32*> keys;
+
+    map.GetAllKeysSorted(keys);
+    EZ_TEST_BOOL(keys.IsEmpty());
+
+    // insert in a scrambled order
+    for (ezInt32 i = 0; i < 100; ++i)
+    {
+      map[(i * 37) % 100] = i;
+    }
+
+    map.GetAllKeysSorted(keys);
+    EZ_TEST_INT(keys.GetCount(), 100);
+
+    for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
+    {
+      EZ_TEST_INT(*keys[i], (ezInt32)i);
+    }
+
+    // also works with a non-trivial key type
+    ezStringBuilder tmp;
+    ezHashTable<ezString, ezInt32> strMap;
+    for (ezUInt32 i = 0; i < 100; ++i)
+    {
+      tmp.SetFormat("stuff{}bla", i);
+      strMap[tmp] = i;
+    }
+
+    ezDynamicArray<const ezString*> strKeys;
+    strMap.GetAllKeysSorted(strKeys);
+    EZ_TEST_INT(strKeys.GetCount(), 100);
+
+    for (ezUInt32 i = 1; i < strKeys.GetCount(); ++i)
+    {
+      EZ_TEST_BOOL(*strKeys[i - 1] < *strKeys[i]);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAllValues")
+  {
+    ezHashTable<ezInt32, ezInt32> map;
+    ezDynamicArray<const ezInt32*> values;
+
+    values.PushBack(nullptr); // must be cleared by the function
+    map.GetAllValues(values);
+    EZ_TEST_BOOL(values.IsEmpty());
+
+    for (ezInt32 i = 0; i < 100; ++i)
+    {
+      map[i] = i * 3;
+    }
+
+    map.GetAllValues(values);
+    EZ_TEST_INT(values.GetCount(), map.GetCount());
+
+    ezDynamicArray<ezInt32> sorted;
+    for (const ezInt32* pValue : values)
+    {
+      EZ_TEST_BOOL(pValue != nullptr);
+      sorted.PushBack(*pValue);
+    }
+    sorted.Sort();
+
+    for (ezInt32 i = 0; i < 100; ++i)
+    {
+      EZ_TEST_INT(sorted[i], i * 3);
+    }
+
+    // values point into the table itself
+    ezDynamicArray<const ezInt32*> keys;
+    map.GetAllKeys(keys);
+    EZ_TEST_INT(keys.GetCount(), values.GetCount());
+
+    map.Remove(0);
+    map.GetAllValues(values);
+    EZ_TEST_INT(values.GetCount(), 99);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "foreach")
   {
     ezStringBuilder tmp;
