@@ -602,6 +602,25 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     {
       EZ_TEST_BOOL(*strKeys[i - 1] < *strKeys[i]);
     }
+
+    // check that the new functions don't imply that every key must have a < operator now
+    {
+      HashTableTestDetail::Collision a(1, 0);
+      HashTableTestDetail::Collision b(1, 1);
+      // does not compile since the < operator is not defined for Collision
+      // const bool cmp = a < b;
+
+      ezHashTable<HashTableTestDetail::Collision, ezInt32> map2;
+      map2.Insert(a, 0);
+      map2.Insert(b, 1);
+
+      EZ_TEST_INT(*map2.GetValue(a), 0);
+      EZ_TEST_INT(*map2.GetValue(b), 1);
+
+      // does not compile since the < operator is not defined for Collision
+      // ezDynamicArray<const HashTableTestDetail::Collision*> keys2;
+      // map2.GetAllKeysSorted(keys2);
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAllValues")
