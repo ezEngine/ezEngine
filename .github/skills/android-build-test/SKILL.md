@@ -172,7 +172,7 @@ pwsh ./Utilities/Android/AndroidTest.ps1 \
   -arguments "-run -noGui -filter Frustum"
 ```
 
-Note: `-all` and `-filter` are mutually exclusive. Use `-filter <regex>` to run a subset of tests.
+Note: `-all` and `-filter` are mutually exclusive. Use `-filter <pattern>` to run a subset of tests. `-filter` is not a regex, it does a case insensitive *contains* check against both test and sub-test names, with `*` and `?` available as shell style wildcards for a full match pattern.
 
 The arguments are delivered to the native code via an Android Intent string extra (`args`), retrieved via JNI in `AndroidTestApplication.cpp`, parsed into argc/argv, and forwarded to `InitTestFramework`.
 

@@ -62,8 +62,10 @@ Workspace/copilot-output/Bin/WinVs2022Debug64/FoundationTest.exe -run -noGui -al
 - `-noGui` - Headless execution (no window)
 - `-all` - Enable all tests
 - `-list` - List available tests that can be used with `-filter`
-- `-filter <regex>` - Run only tests matching the pattern
+- `-filter <pattern>` - Run only tests matching the pattern (see below)
 - `-help` - Show all arguments
+
+`-filter` is **not** a regex. It does a case insensitive *contains* check against both test and sub-test names, so `-filter JSON` runs everything with `JSON` in the name. Adding the shell style wildcards `*` or `?` switches it to a full match pattern, for example `-filter "IO*"` or `-filter "IOStream?"`. Alternation like `-filter "IO|Serialization"` does not work, run the groups one after another instead. A filter that matches nothing is reported as a test failure, not as a pass, so check the output says what you expect.
 
 ## Code Style
 
