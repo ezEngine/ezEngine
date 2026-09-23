@@ -5,6 +5,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Memory/MemoryTracker.h>
 #include <Foundation/Platform/Win/Utils/MinWindows.h>
+#include <Foundation/Platform/Win/Utils/WinDpiUtils.h>
 #include <Foundation/System/Screen.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
@@ -18,7 +19,7 @@ namespace ezApplicationDetails
   int ConsoleEntry(int iArgc, const char** pArgv, Args&&... arguments)
   {
     // has to happen before anything creates a window or queries a screen size
-    ezScreen::MakeProcessDpiAware();
+    ezWindowsDpiUtils::MakeProcessDpiAware();
 
 #if EZ_ENABLED(EZ_COMPILER_MSVC)             // Internal compiler error in MSVC. Can not align buffer otherwise the compiler will crash.
     static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.
@@ -72,7 +73,7 @@ namespace ezApplicationDetails
   int ApplicationEntry(Args&&... arguments)
   {
     // has to happen before anything creates a window or queries a screen size
-    ezScreen::MakeProcessDpiAware();
+    ezWindowsDpiUtils::MakeProcessDpiAware();
 
 #if EZ_ENABLED(EZ_COMPILER_MSVC)             // Internal compiler error in MSVC. Can not align buffer otherwise the compiler will crash.
     static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.

@@ -56,9 +56,6 @@ public:
   ///
   /// Changes while the window lives, for instance when it is dragged to another monitor, which is broadcast as
   /// ezWindowEvent::ContentScaleChanged.
-  ///
-  /// Stays at 1.0 where the value isn't available, and on Windows also as long as the process didn't call
-  /// ezScreen::MakeProcessDpiAware().
   virtual float GetContentScaleFactor() const { return 1.0f; }
 };
 

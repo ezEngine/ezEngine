@@ -13,12 +13,3 @@ void ezScreen::PrintScreenInfo(const ezArrayPtr<ezScreenInfo>& screens, ezLogInt
     ezLog::Dev(pLog, "'{0}': Offset = ({1}, {2}), Resolution = ({3}, {4}), Scale = {5}{6}", screen.m_sDisplayName, screen.m_iOffsetX, screen.m_iOffsetY, screen.m_iResolutionX, screen.m_iResolutionY, ezArgF(screen.m_fContentScale, 2), screen.m_bIsPrimary ? " (primary)" : "");
   }
 }
-
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-
-void ezScreen::MakeProcessDpiAware()
-{
-  // nothing to declare, these platforms always report physical pixels
-}
-
-#endif

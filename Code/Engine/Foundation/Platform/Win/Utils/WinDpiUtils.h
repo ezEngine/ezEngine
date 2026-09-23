@@ -6,7 +6,7 @@
 
 #  include <Foundation/Math/Rect.h>
 #  include <Foundation/Math/Size.h>
-#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/MinWindows.h>
 
 struct EZ_FOUNDATION_DLL ezWindowsDpiUtils
 {
@@ -25,7 +25,7 @@ struct EZ_FOUNDATION_DLL ezWindowsDpiUtils
   static ezUInt32 GetWindowDpi(ezMinWindows::HWND hWnd);
 
   /// Returns the DPI of the given display, or ReferenceDpi when it can't be determined.
-  static ezUInt32 GetDpiForMonitor(ezMinWindows::HMONITOR hMonitor);
+  static ezUInt32 GetDpiForMonitor(ezMinWindows::HMONITOR pMonitor);
 
   /// Returns the DPI of the display that contains the given position on the virtual desktop.
   ///
@@ -39,7 +39,19 @@ struct EZ_FOUNDATION_DLL ezWindowsDpiUtils
   static void AdjustWindowRectForDpi(ezRectI32& ref_rect, ezUInt32 uiWindowStyle, ezUInt32 uiExStyle, ezUInt32 uiDpi);
 
   /// Computes the outer window size (including decorations) for a given client area size, at a given DPI.
-  static ezSizeU32 ComputeWindowSizeForDpi(const ezSizeU32& clientSize, ezUInt32 uiWindowStyle, ezUInt32 uiExStyle, ezUInt32 dpi);
+  static ezSizeU32 ComputeWindowSizeForDpi(const ezSizeU32& clientSize, ezUInt32 uiWindowStyle, ezUInt32 uiExStyle, ezUInt32 uiDpi);
+
+  /// Tells the operating system that this process handles high DPI screens by itself.
+  ///
+  /// A process that doesn't declare it is told scaled down screen and window sizes,
+  /// renders at that lower resolution and gets bitmap stretched up to the physical pixels, which looks blurry.
+  /// Once declared, every size the OS reports is in physical pixels and the application has to scale its own UI,
+  /// see ezScreenInfo::m_fContentScale and ezWindowBase::GetContentScaleFactor().
+  ///
+  /// Must be called before the first window is created or the first screen is enumerated. The
+  /// EZ_APPLICATION_ENTRY_POINT macros already do this, so only applications with their own entry point have to
+  /// call it.
+  static void MakeProcessDpiAware();
 };
 
 #endif

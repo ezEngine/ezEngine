@@ -4,6 +4,7 @@
 
 #include <TestFramework/Utilities/HTMLOutput.h>
 
+#include <Foundation/Platform/Win/Utils/WinDpiUtils.h>
 #include <Foundation/System/CrashHandler.h>
 #include <Foundation/System/Screen.h>
 #include <Foundation/System/SystemInformation.h>
@@ -22,8 +23,10 @@ void OutputToConsole(ezTestOutput::Enum type, const char* szMsg);
 
 ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const char* szNiceTestName, int iArgc, const char** pArgv)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   // the test applications don't go through the ezApplication entry points, so this has to be done here
-  ezScreen::MakeProcessDpiAware();
+  ezWindowsDpiUtils::MakeProcessDpiAware();
+#endif
 
   s_iArgc = iArgc;
   s_pArgv = pArgv;

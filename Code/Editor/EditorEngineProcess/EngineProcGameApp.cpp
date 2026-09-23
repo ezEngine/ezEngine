@@ -38,8 +38,6 @@ static ezAssertHandler g_PreviousAssertHandler = nullptr;
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
   : ezGameApplication("ezEditorEngineProcess", nullptr)
 {
-  // DPI awareness is declared by the application entry point, see ezScreen::MakeProcessDpiAware()
-
   m_LongOpWorkerManager.Startup(&m_IPC);
 }
 

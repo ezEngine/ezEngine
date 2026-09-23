@@ -49,8 +49,6 @@ public:
   ezEditorApplication()
     : ezApplication("ezEditor")
   {
-    // DPI awareness is declared by the application entry point, see ezScreen::MakeProcessDpiAware()
-
     EnableMemoryLeakReporting(true);
 
     m_pEditorApp = new ezQtEditorApp;
