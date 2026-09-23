@@ -665,6 +665,53 @@ ezUInt64 ezHashTableBase<K, V, H>::GetHeapMemoryUsage() const
   return ((ezUInt64)m_uiCapacity * sizeof(Entry)) + (sizeof(ezUInt32) * (ezUInt64)GetFlagsCapacity());
 }
 
+template <typename K, typename V, typename H>
+void ezHashTableBase<K, V, H>::Swap(ezHashTableBase<K, V, H>& other)
+{
+  ezMath::Swap(this->m_pEntries, other.m_pEntries);
+  ezMath::Swap(this->m_pEntryFlags, other.m_pEntryFlags);
+  ezMath::Swap(this->m_uiCount, other.m_uiCount);
+  ezMath::Swap(this->m_uiCapacity, other.m_uiCapacity);
+  ezMath::Swap(this->m_pAllocator, other.m_pAllocator);
+}
+
+template <typename K, typename V, typename H>
+void ezHashTableBase<K, V, H>::GetAllKeys(ezDynamicArray<const K*>& out_keys) const
+{
+  out_keys.Clear();
+  out_keys.Reserve(m_uiCount);
+  for (ezUInt32 i = 0; i < m_uiCapacity; ++i)
+  {
+    if (IsValidEntry(i))
+    {
+      out_keys.PushBack(&m_pEntries[i].key);
+    }
+  }
+}
+
+template <typename K, typename V, typename H>
+EZ_FORCE_INLINE void ezHashTableBase<K, V, H>::GetAllKeysSorted(ezDynamicArray<const K*>& out_keys) const
+{
+  GetAllKeys(out_keys);
+
+  out_keys.Sort([](const K* a, const K* b)
+    { return *a < *b; });
+}
+
+template <typename K, typename V, typename H>
+void ezHashTableBase<K, V, H>::GetAllValues(ezDynamicArray<const V*>& out_values) const
+{
+  out_values.Clear();
+  out_values.Reserve(m_uiCount);
+  for (ezUInt32 i = 0; i < m_uiCapacity; ++i)
+  {
+    if (IsValidEntry(i))
+    {
+      out_values.PushBack(&m_pEntries[i].value);
+    }
+  }
+}
+
 // private methods
 template <typename K, typename V, typename H>
 void ezHashTableBase<K, V, H>::SetCapacity(ezUInt32 uiCapacity)
@@ -802,6 +849,7 @@ EZ_FORCE_INLINE void ezHashTableBase<K, V, H>::MarkEntryAsDeleted(ezUInt32 uiEnt
   SetFlags(uiEntryIndex, DELETED_ENTRY);
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename K, typename V, typename H, typename A>
 ezHashTable<K, V, H, A>::ezHashTable()
@@ -861,14 +909,4 @@ template <typename K, typename V, typename H, typename A>
 void ezHashTable<K, V, H, A>::operator=(ezHashTableBase<K, V, H>&& rhs)
 {
   ezHashTableBase<K, V, H>::operator=(std::move(rhs));
-}
-
-template <typename KeyType, typename ValueType, typename Hasher>
-void ezHashTableBase<KeyType, ValueType, Hasher>::Swap(ezHashTableBase<KeyType, ValueType, Hasher>& other)
-{
-  ezMath::Swap(this->m_pEntries, other.m_pEntries);
-  ezMath::Swap(this->m_pEntryFlags, other.m_pEntryFlags);
-  ezMath::Swap(this->m_uiCount, other.m_uiCount);
-  ezMath::Swap(this->m_uiCapacity, other.m_uiCapacity);
-  ezMath::Swap(this->m_pAllocator, other.m_pAllocator);
 }

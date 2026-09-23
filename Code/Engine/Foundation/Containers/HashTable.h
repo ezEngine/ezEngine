@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Algorithm/HashingUtils.h>
-#include <Foundation/Math/Math.h>
+#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
 
 template <typename KeyType, typename ValueType, typename Hasher>
@@ -295,6 +295,15 @@ public:
 
   /// Swaps this map with the other one.
   void Swap(ezHashTableBase<KeyType, ValueType, Hasher>& other); // [tested]
+
+  /// Retrieves all keys in the hash table and stores them in the given array. The order of the keys is undefined.
+  void GetAllKeys(ezDynamicArray<const KeyType*>& out_keys) const; // [tested]
+
+  /// Retrieves all keys in the hash table and stores them in the given array. The keys are sorted.
+  void GetAllKeysSorted(ezDynamicArray<const KeyType*>& out_keys) const; // [tested]
+
+  /// Retrieves all values in the hash table and stores them in the given array. The order of the values is undefined.
+  void GetAllValues(ezDynamicArray<const ValueType*>& out_values) const; // [tested]
 
 private:
   friend struct ezHashTableBaseConstIterator<KeyType, ValueType, Hasher>;
