@@ -17,6 +17,8 @@ namespace Rml {
 static constexpr int SortOffset_DataValue = 100;
 //  'data-checked' may need a value attribute already set.
 static constexpr int SortOffset_DataChecked = 110;
+//  'data-for' must add or remove its generated elements before the views on those elements update, since they are siblings at the same depth.
+static constexpr int SortOffset_DataFor = -100;
 
 DataViewCommon::DataViewCommon(Element* element, String override_modifier, int sort_offset) :
 	DataView(element, sort_offset), modifier(std::move(override_modifier))
@@ -424,7 +426,7 @@ String DataViewText::BuildText() const
 	return result;
 }
 
-DataViewFor::DataViewFor(Element* element) : DataView(element, 0) {}
+DataViewFor::DataViewFor(Element* element) : DataView(element, SortOffset_DataFor) {}
 
 bool DataViewFor::Initialize(DataModel& model, Element* element, const String& in_expression, const String& /*modifier*/)
 {
