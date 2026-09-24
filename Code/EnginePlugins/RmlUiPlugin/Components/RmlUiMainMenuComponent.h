@@ -12,7 +12,7 @@ namespace Rml
   class Element;
   class ElementDocument;
   class Event;
-}
+} // namespace Rml
 
 /// One volume slider on the 'Audio' tab of ezRmlUiMainMenuComponent.
 ///
@@ -64,15 +64,15 @@ public:
   virtual bool IsMenuOpen() const override { return m_Page != Page::Closed; }
 
   EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(MenuFile, m_hMenuResource, SetMenuResource);
-  void SetMenuResource(const ezRmlUiResourceHandle& hResource);                  // [ property ]
-  const ezRmlUiResourceHandle& GetMenuResource() const { return m_hMenuResource; } // [ property ]
+  void SetMenuResource(const ezRmlUiResourceHandle& hResource);                            // [ property ]
+  const ezRmlUiResourceHandle& GetMenuResource() const { return m_hMenuResource; }         // [ property ]
 
   EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(SettingsFile, m_hSettingsResource, SetSettingsResource);
-  void SetSettingsResource(const ezRmlUiResourceHandle& hResource);                      // [ property ]
+  void SetSettingsResource(const ezRmlUiResourceHandle& hResource);                        // [ property ]
   const ezRmlUiResourceHandle& GetSettingsResource() const { return m_hSettingsResource; } // [ property ]
 
   /// Whether the world's clock is paused while the menu is open. A world that was already paused stays paused.
-  void SetPauseWorld(bool bPause);                  // [ property ]
+  void SetPauseWorld(bool bPause);                     // [ property ]
   bool GetPauseWorld() const { return m_bPauseWorld; } // [ property ]
 
   /// One volume slider is shown on the 'Audio' tab for each entry, below the master volume.
