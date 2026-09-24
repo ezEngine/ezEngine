@@ -13,6 +13,7 @@ public:
   virtual ezResult InitializeWindow() override;
   virtual void DestroyWindow() override;
   virtual ezResult Resize(const ezSizeU32& newWindowSize) override;
+  virtual ezResult Reconfigure(const ezWindowCreationDesc& desc) override;
   virtual void ProcessWindowMessages() override;
   virtual ezWindowHandle GetNativeWindowHandle() const override;
 

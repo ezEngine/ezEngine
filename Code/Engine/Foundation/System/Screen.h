@@ -42,6 +42,10 @@ struct EZ_FOUNDATION_DLL ezScreenInfo
   bool m_bIsPrimary;       ///< Whether this is the primary/main screen.
 
   ezDynamicArray<ezScreenResolution> m_SupportedResolutions;
+
+  /// By which factor content on this screen has to be scaled up to appear at a consistent physical size.
+  /// 1.0 is the reference density (96 DPI on Windows). Does not affect the resolution above, which is in pixels.
+  float m_fContentScale = 1.0f;
 };
 
 /// Provides functionality to detect available monitors

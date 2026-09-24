@@ -3,6 +3,7 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/WinDpiUtils.h>
 #  include <Foundation/System/Screen.h>
 
 EZ_DEFINE_AS_POD_TYPE(DISPLAYCONFIG_PATH_INFO);
@@ -107,6 +108,7 @@ static BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPREC
   mon.m_sDisplayID = info.szDevice;
   mon.m_sDisplayName = info.szDevice;
   mon.m_bIsPrimary = (info.dwFlags & MONITORINFOF_PRIMARY) != 0;
+  mon.m_fContentScale = (float)ezWindowsDpiUtils::GetDpiForMonitor(ezMinWindows::FromNative(pMonitor)) / (float)ezWindowsDpiUtils::ReferenceDpi;
 
   DISPLAY_DEVICEW ddev;
   ddev.cb = sizeof(ddev);

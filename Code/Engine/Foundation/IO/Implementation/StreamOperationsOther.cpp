@@ -112,10 +112,16 @@ EZ_FORCE_INLINE void WriteValueFunc::operator()<ezVariantDictionary>()
   const ezVariantDictionary& values = m_pValue->Get<ezVariantDictionary>();
   const ezUInt32 iCount = values.GetCount();
   (*m_pStream) << iCount;
-  for (auto it = values.GetIterator(); it.IsValid(); ++it)
+
+  // the iteration order of a hash table is not deterministic (it depends on the insertion history and capacity),
+  // so sort the keys to always write the exact same data for the same content
+  ezTempHybridArray<const ezString*, 32> keys;
+  values.GetAllKeysSorted(keys);
+
+  for (const ezString* pKey : keys)
   {
-    (*m_pStream) << it.Key();
-    (*m_pStream) << it.Value();
+    (*m_pStream) << *pKey;
+    (*m_pStream) << *values.GetValue(*pKey);
   }
 }
 

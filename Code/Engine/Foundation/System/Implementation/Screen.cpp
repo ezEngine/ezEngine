@@ -10,6 +10,6 @@ void ezScreen::PrintScreenInfo(const ezArrayPtr<ezScreenInfo>& screens, ezLogInt
 
   for (const auto& screen : screens)
   {
-    ezLog::Dev(pLog, "'{0}': Offset = ({1}, {2}), Resolution = ({3}, {4}){5}", screen.m_sDisplayName, screen.m_iOffsetX, screen.m_iOffsetY, screen.m_iResolutionX, screen.m_iResolutionY, screen.m_bIsPrimary ? " (primary)" : "");
+    ezLog::Dev(pLog, "'{0}': Offset = ({1}, {2}), Resolution = ({3}, {4}), Scale = {5}{6}", screen.m_sDisplayName, screen.m_iOffsetX, screen.m_iOffsetY, screen.m_iResolutionX, screen.m_iResolutionY, ezArgF(screen.m_fContentScale, 2), screen.m_bIsPrimary ? " (primary)" : "");
   }
 }

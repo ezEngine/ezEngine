@@ -171,6 +171,10 @@ protected:
   // Stats window size tracking for overlay/full mode switching
   ezVec2 m_vStatsWindowSavedSize = ezVec2(0, 0);
   bool m_bStatsWasInFullMode = true;
+
+  // the display size and scale that the current window layout was computed for, see RenderConsole()
+  ezVec2 m_vLayoutDisplaySize = ezVec2(0, 0);
+  float m_fLayoutScale = 0.0f;
 };
 
 #endif // BUILDSYSTEM_ENABLE_IMGUI_SUPPORT

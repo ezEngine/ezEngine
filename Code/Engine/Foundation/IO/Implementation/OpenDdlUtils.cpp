@@ -1476,9 +1476,15 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& ref_writer, const ezVariant& 
       ref_writer.BeginObject("VarDict", sName, bGlobalName);
 
       const ezVariantDictionary& dict = value.Get<ezVariantDictionary>();
-      for (auto it = dict.GetIterator(); it.IsValid(); ++it)
+
+      // the iteration order of a hash table is not deterministic (it depends on insertion order and capacity),
+      // so sort the keys to always get the same output for the same content
+      ezTempHybridArray<const ezString*, 32> keys;
+      dict.GetAllKeysSorted(keys);
+
+      for (const ezString* pKey : keys)
       {
-        ezOpenDdlUtils::StoreVariant(ref_writer, it.Value(), it.Key(), false);
+        ezOpenDdlUtils::StoreVariant(ref_writer, *dict.GetValue(*pKey), *pKey, false);
       }
 
       ref_writer.EndObject();

@@ -186,7 +186,10 @@ ezResult ezWindowGLFW::InitializeWindow()
 
   glfwSetWindowUserPointer(pWindow, this);
   glfwSetWindowIconifyCallback(pWindow, &ezWindowGLFW::IconifyCallback);
-  glfwSetWindowSizeCallback(pWindow, &ezWindowGLFW::SizeCallback);
+  // the framebuffer size is used instead of the window size, because GLFW measures windows in screen
+  // coordinates, which are not pixels on a scaled desktop
+  glfwSetFramebufferSizeCallback(pWindow, &ezWindowGLFW::FramebufferSizeCallback);
+  glfwSetWindowContentScaleCallback(pWindow, &ezWindowGLFW::ContentScaleCallback);
   glfwSetWindowPosCallback(pWindow, &ezWindowGLFW::PositionCallback);
   glfwSetWindowCloseCallback(pWindow, &ezWindowGLFW::CloseCallback);
   glfwSetWindowFocusCallback(pWindow, &ezWindowGLFW::FocusCallback);
@@ -208,6 +211,19 @@ ezResult ezWindowGLFW::InitializeWindow()
   pInput->SetShowMouseCursor(m_CreationDescription.m_bShowMouseCursor);
 
   m_pInputDevice = std::move(pInput);
+
+  // the window was created in screen coordinates, the resolution rendered at is its framebuffer size
+  int iFramebufferWidth = 0, iFramebufferHeight = 0;
+  glfwGetFramebufferSize(pWindow, &iFramebufferWidth, &iFramebufferHeight);
+  if (iFramebufferWidth > 0 && iFramebufferHeight > 0)
+  {
+    m_CreationDescription.m_Resolution.width = static_cast<ezUInt32>(iFramebufferWidth);
+    m_CreationDescription.m_Resolution.height = static_cast<ezUInt32>(iFramebufferHeight);
+  }
+
+  float fContentScaleX = 1.0f, fContentScaleY = 1.0f;
+  glfwGetWindowContentScale(pWindow, &fContentScaleX, &fContentScaleY);
+  m_fContentScaleFactor = fContentScaleX;
 
   m_bInitialized = true;
   ezLog::Success("Created glfw window successfully. Resolution is {0}*{1}", GetClientAreaSize().width, GetClientAreaSize().height);
@@ -240,11 +256,16 @@ ezResult ezWindowGLFW::Resize(const ezSizeU32& newWindowSize)
   if (!m_bInitialized)
     return EZ_FAILURE;
 
+  // newWindowSize is in pixels, but GLFW wants screen coordinates. The size that the window ends up
+  // with arrives through FramebufferSizeCallback.
+  const float fScale = ezMath::Max(m_fContentScaleFactor, 0.01f);
+  const ezSizeU32 screenSize((ezUInt32)(newWindowSize.width / fScale), (ezUInt32)(newWindowSize.height / fScale));
+
 #  if EZ_ENABLED(EZ_PLATFORM_LINUX)
   EZ_ASSERT_DEV(m_hWindowHandle.type == ezWindowHandle::Type::GLFW, "Expected GLFW handle");
-  glfwSetWindowSize(m_hWindowHandle.glfwWindow, newWindowSize.width, newWindowSize.height);
+  glfwSetWindowSize(m_hWindowHandle.glfwWindow, screenSize.width, screenSize.height);
 #  else
-  glfwSetWindowSize(m_hWindowHandle, newWindowSize.width, newWindowSize.height);
+  glfwSetWindowSize(m_hWindowHandle, screenSize.width, screenSize.height);
 #  endif
   EZ_GLFW_RETURN_FAILURE_ON_ERROR();
 
@@ -283,12 +304,23 @@ void ezWindowGLFW::IconifyCallback(GLFWwindow* window, int iconified)
     self->OnVisibleChange(!iconified);
 }
 
-void ezWindowGLFW::SizeCallback(GLFWwindow* window, int width, int height)
+void ezWindowGLFW::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
   auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self && width > 0 && height > 0)
   {
     self->OnResize(ezSizeU32(static_cast<ezUInt32>(width), static_cast<ezUInt32>(height)));
+  }
+}
+
+void ezWindowGLFW::ContentScaleCallback(GLFWwindow* window, float xscale, float yscale)
+{
+  EZ_IGNORE_UNUSED(yscale);
+
+  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
+  if (self)
+  {
+    self->OnContentScaleChanged(xscale);
   }
 }
 

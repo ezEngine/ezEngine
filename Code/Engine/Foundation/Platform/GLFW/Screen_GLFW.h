@@ -64,6 +64,11 @@ ezResult ezScreen::EnumerateScreens(ezDynamicArray<ezScreenInfo>& out_Screens)
     EZ_GLFW_RETURN_FAILURE_ON_ERROR();
 
     screen.m_bIsPrimary = pMonitors[i] == pPrimaryMonitor;
+
+    float fContentScaleX = 1.0f, fContentScaleY = 1.0f;
+    glfwGetMonitorContentScale(pMonitors[i], &fContentScaleX, &fContentScaleY);
+    EZ_GLFW_RETURN_FAILURE_ON_ERROR();
+    screen.m_fContentScale = fContentScaleX;
   }
 
   return EZ_SUCCESS;
