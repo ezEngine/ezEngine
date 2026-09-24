@@ -25,8 +25,8 @@
 #include <RmlUi/Core/Event.h>
 
 // defined in ShadowPool.cpp, which has no public header for them
-extern EZ_RENDERERCORE_DLL ezCVarInt cvar_RenderingShadowsAtlasSize;
-extern EZ_RENDERERCORE_DLL ezCVarInt cvar_RenderingShadowsMaxShadowMapSize;
+EZ_RENDERERCORE_DLL extern ezCVarInt cvar_RenderingShadowsAtlasSize;
+EZ_RENDERERCORE_DLL extern ezCVarInt cvar_RenderingShadowsMaxShadowMapSize;
 
 // The user's choices, saved across runs. These are separate from the engine's CVars, because a single choice
 // (e.g. 'Medium') maps to several engine values, see ezRmlUiMainMenuComponent::ApplySettings().

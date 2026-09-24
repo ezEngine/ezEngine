@@ -1,5 +1,6 @@
 #include <GameEngine/GameEnginePCH.h>
 
+#include <Core/Input/DeviceTypes/MouseKeyboard.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/System/WindowManager.h>
