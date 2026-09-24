@@ -47,6 +47,16 @@ public:
 
   virtual void AddReference() = 0;
   virtual void RemoveReference() = 0;
+
+  /// Returns by which factor UI elements have to be scaled up to appear at a consistent physical size.
+  ///
+  /// 1.0 is the reference density (96 DPI on Windows). Everything with a fixed pixel size (text, icons, gizmo
+  /// handles) has to be multiplied with this. GetClientAreaSize() is always in physical pixels and unaffected,
+  /// so 3D rendering can ignore this.
+  ///
+  /// Changes while the window lives, for instance when it is dragged to another monitor, which is broadcast as
+  /// ezWindowEvent::ContentScaleChanged.
+  virtual float GetContentScaleFactor() const { return 1.0f; }
 };
 
 /// Determines how the position and resolution for a window are picked
@@ -133,12 +143,13 @@ struct ezWindowEvent
 {
   enum Type : ezUInt32
   {
-    WindowDestruction, ///< Sent shortly before the window gets destroyed
-    VisibilityChanged, ///< visibility state is in m_iPayload1 (0 or 1)
-    FocusChanged,      ///< focus state is in m_iPayload1 (0 or 1)
-    SizeChanged,       ///< new size width/height in m_iPayload1/m_iPayload2
-    PositionChanged,   ///< new position x/y in m_iPayload1/m_iPayload2
+    WindowDestruction,   ///< Sent shortly before the window gets destroyed
+    VisibilityChanged,   ///< visibility state is in m_iPayload1 (0 or 1)
+    FocusChanged,        ///< focus state is in m_iPayload1 (0 or 1)
+    SizeChanged,         ///< new size width/height in m_iPayload1/m_iPayload2
+    PositionChanged,     ///< new position x/y in m_iPayload1/m_iPayload2
     CloseButtonClicked,
+    ContentScaleChanged, ///< the DPI scaling of the display changed, read the new value with ezWindowBase::GetContentScaleFactor()
 
     UserEvent = 0xFF,
   };
@@ -173,6 +184,8 @@ public:
 
   /// Returns the size of the client area / ie. the window resolution.
   virtual ezSizeU32 GetClientAreaSize() const override { return m_CreationDescription.m_Resolution; }
+
+  virtual float GetContentScaleFactor() const override { return m_fContentScaleFactor; }
 
   /// Returns whether the window covers an entire monitor.
   ///
@@ -221,8 +234,21 @@ public:
 
   /// Tries to resize the window.
   ///
+  /// The given size is the desired size of the client area, ie. the resolution that is rendered at.
   /// Override OnResize to get the actual new window size.
   virtual ezResult Resize(const ezSizeU32& newWindowSize) = 0;
+
+  /// Changes the window mode, the monitor and the resolution of an already created window.
+  ///
+  /// In contrast to Initialize() the window is not destroyed and created again, so its native handle stays valid
+  /// and swapchains that reference it keep working. Everything that doesn't describe the window's placement
+  /// (the mouse cursor options, for instance) is ignored.
+  ///
+  /// Returns EZ_FAILURE if the configuration can't be applied to a live window, in which case the window has to
+  /// be created again. That is the case for ezWindowMode::FullscreenFixedResolution, which changes the display
+  /// resolution, and on platforms where this isn't implemented. Those cases leave the window untouched, only a
+  /// failing platform call can leave it partially reconfigured, which is logged.
+  virtual ezResult Reconfigure(const ezWindowCreationDesc& desc);
 
   /// Called when a window got resized.
   ///
@@ -249,6 +275,12 @@ public:
   ///
   /// The function also broadcasts ezWindowEvent::Type::CloseButtonClicked.
   virtual void OnClickClose();
+
+  /// Called when the DPI scaling of the display that the window is on changed.
+  ///
+  /// The new factor is also stored for GetContentScaleFactor().
+  /// The function also broadcasts ezWindowEvent::Type::ContentScaleChanged.
+  virtual void OnContentScaleChanged(float fNewContentScale);
 
   /// Returns the input device that is attached to this window and typically provides mouse / keyboard input.
   ezInputDevice* GetInputDevice() const { return m_pInputDevice.Borrow(); }
@@ -277,6 +309,8 @@ protected:
   mutable ezWindowInternalHandle m_hWindowHandle = ezWindowInternalHandle();
 
   ezAtomicInteger32 m_iReferenceCount = 0;
+
+  float m_fContentScaleFactor = 1.0f;
 };
 
 // include the platform specific implementation

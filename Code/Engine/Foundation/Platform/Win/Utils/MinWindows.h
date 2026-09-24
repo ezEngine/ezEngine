@@ -11,6 +11,8 @@ namespace ezMinWindows
   using HMODULE = HINSTANCE;
   struct ezHWND;
   using HWND = ezHWND*;
+  struct ezHMONITOR;
+  using HMONITOR = ezHMONITOR*;
   using HRESULT = long;
   using HANDLE = void*;
 

@@ -18,11 +18,4 @@ target_link_libraries(${PROJECT_NAME}
   EditorEngineProcessFramework
 )
 
-# For SetProcessDpiAwareness
-if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
-  target_link_libraries(${PROJECT_NAME}
-    PRIVATE
-    Shcore.lib
-  )
-endif()
 

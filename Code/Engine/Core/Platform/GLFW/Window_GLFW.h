@@ -12,7 +12,8 @@ public:
 
 private:
   static void IconifyCallback(GLFWwindow* window, int iconified);
-  static void SizeCallback(GLFWwindow* window, int width, int height);
+  static void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
+  static void ContentScaleCallback(GLFWwindow* window, float xscale, float yscale);
   static void PositionCallback(GLFWwindow* window, int xpos, int ypos);
   static void CloseCallback(GLFWwindow* window);
   static void FocusCallback(GLFWwindow* window, int focused);

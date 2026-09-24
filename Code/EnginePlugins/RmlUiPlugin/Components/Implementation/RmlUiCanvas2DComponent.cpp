@@ -199,7 +199,10 @@ bool ezRmlUiCanvas2DComponent::UpdateSizeOffsetAndTexture(ezVec2& out_viewSize)
     out_viewSize.y = pView->GetViewport().height;
   }
 
-  float fScale = 1.0f;
+  // ezRmlUiScaleMode::WithScreenSize scales relative to the resolution that the UI was authored for. Since the
+  // viewport is in physical pixels, that already compensates for the scaling of the display. ezRmlUiScaleMode::Fixed
+  // keeps its pixel sizes, so there the display scaling has to be applied explicitly.
+  float fScale = ezRenderWorld::GetDisplayScale();
   if (m_vReferenceResolution.x > 0 && m_vReferenceResolution.y > 0)
   {
     fScale = out_viewSize.y / m_vReferenceResolution.y;

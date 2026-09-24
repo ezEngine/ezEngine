@@ -268,11 +268,11 @@ public:
   /// Returns the line height in pixels for the given text size
   static float GetTextLineHeight(ezUInt32 uiSizeInPixel = 16);
 
-  /// Returns the global debug text scale
+  /// Returns the factor that all debug text is scaled by.
+  ///
+  /// This is the user preference from the CVar 'App.TextScale' multiplied with ezRenderWorld::GetDisplayScale().
+  /// All the debug text sizes that are given in pixels are multiplied with this.
   static float GetTextScale();
-
-  /// Sets the global debug text scale
-  static void SetTextScale(float fScale);
 
 private:
   friend class ezSimpleRenderPass;
