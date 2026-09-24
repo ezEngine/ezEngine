@@ -18,6 +18,18 @@ Permutation CLOUDS_SOURCE;
 
 float3 SunDir @Default(float3(1.0f, 0.0f, 0.0f));
 
+// Scales the raw [0, 1] density read from the volume/noise textures into a per-world-unit
+// extinction coefficient. The textures only store a normalized density fraction, not a value
+// calibrated for how large the cloud is in world units, so this needs to be tuned per asset/scale
+// to make the cloud interior properly opaque instead of looking translucent and grey.
+float DensityMultiplier @Default(6.0f) @Clamp(0.0f, 100.0f);
+
+// Isotropic sky/ground light entering the cloud outside of direct sunlight, blended by height:
+// BaseAmbientColor at the bottom of the cloud layer (occluded by the cloud mass above), fading to
+// TopAmbientColor at the top (facing the open sky).
+Color BaseAmbientColor @Default(Color(0.1f, 0.1f, 0.13f));
+Color TopAmbientColor @Default(Color(0.4f, 0.55f, 0.8f));
+
 Texture3D NoiseMap;
 Texture3D DetailNoiseMap;
 Texture3D VolumeMap;
@@ -36,6 +48,9 @@ DepthWrite = false
 [MATERIALCONSTANTS]
 
 FLOAT3(SunDir);
+FLOAT1(DensityMultiplier);
+COLOR4F(BaseAmbientColor);
+COLOR4F(TopAmbientColor);
 
 [VERTEXSHADER]
 
@@ -82,18 +97,45 @@ Texture2D BlueNoiseMap BIND_GROUP(BG_MATERIAL);
 #include <Shaders/Materials/MaterialPixelShader.h>
 #include <Shaders/Materials/CloudHelpers.h>
 
+// Fixed, precomputed offsets scattered roughly evenly over the unit sphere. Used to displace each
+// step of LightRay sideways from the straight line to the sun, so the six samples together sweep
+// out a cone instead of a single line.
+static const float3 g_ConeSampleOffsets[6] =
+{
+	float3( 0.38051305f,  0.92453449f, -0.02111345f),
+	float3(-0.50625799f, -0.03590792f, -0.86163418f),
+	float3(-0.32509218f, -0.94557439f,  0.01428793f),
+	float3( 0.09026238f, -0.27376545f,  0.95755165f),
+	float3( 0.28128598f,  0.42443639f, -0.86065785f),
+	float3(-0.16852403f,  0.14748697f,  0.97460106f),
+};
+
+// Andrew Schneider's cone-sampled light ray ("The Real-Time Volumetric Cloudscapes of Horizon:
+// Zero Dawn"): a single straight march towards the sun only ever sees the density lying exactly on
+// that one line, so a thin gap directly in the light's path lets it through even if the point is
+// actually deep inside a much larger, denser cloud structure just off to the side. Nudging each
+// step sideways by an offset that grows with distance sweeps the samples out into a cone around
+// the light direction instead, picking up that surrounding density - and lets the whole ray get
+// away with 6 samples instead of the previous 20.
 float LightRay(float3 start, float3 dir)
 {
-  const float stepL = 0.2f;
+  // Six steps covering roughly the same total distance the old straight 20-step march did.
+  const float stepL = 4.0f / 6.0f;
+  const float coneSpread = 0.5f;
+
   float initialOffset = stepL * noise1D(dot(start, float3(12.256, 2.646, 6.356)));
   float density = 0.0;
-  
+
   start += initialOffset * dir;
-  for(int i=0; i < 20; i++)
+
+  [unroll]
+  for(int i=0; i < 6; i++)
   {
     start += dir * stepL;
-    float weatherData = GetWeatherData(start.xy);
-    density += SampleCloudDensity(start, weatherData);    
+    float3 samplePos = start + g_ConeSampleOffsets[i] * (stepL * float(i + 1) * coneSpread);
+
+    float weatherData = GetWeatherData(samplePos.xy);
+    density += SampleCloudDensity(samplePos, weatherData) * stepL;
   }
   return density;
 }
@@ -143,9 +185,11 @@ float4 TraceClouds()
   float3 offset_over_sealevel = float3(0.0, 0.0, 300.0);
 
   float3 camera_position = float3(0.0, 0.0, PLANET_RADIUS) + offset_over_sealevel;
-  
+
   float3 viewDir = normalize(G.Input.ViewDirection);
-  
+  float3 sunDir = normalize(GetMaterialData(SunDir));
+  float cosAngle = dot(viewDir, sunDir);
+
 #ifndef SINGLE_CLOUD
   if(viewDir.z < 0.1f)
   {
@@ -174,36 +218,36 @@ float4 TraceClouds()
   offsetNoise = clamp(offsetNoise, 0.01, 1);
   curSamplePoint += viewDir * stepSize * offsetNoise;
 
+  const float3 sunColor = float3(3.0, 2.9, 2.7);
+
   [loop]
   for(int i=0; i < 256; i++)
   {
     float weatherData = GetWeatherData(curSamplePoint.xy);
     float curDensity = SampleCloudDensity(curSamplePoint, weatherData);
     curSamplePoint += viewDir * stepSize;
-	
-	if(curDensity > 0.0f && totalTransmittance > 0.0f)
-	{	
-		float transmittance = exp(-curDensity * stepSize);
-		
-		float densityOnLightRay = LightRay(curSamplePoint, GetMaterialData(SunDir));
 
-		float powder_sugar_effect = 1.0 - exp(-densityOnLightRay * 2.0);
-		float beers_law = exp(-densityOnLightRay * 6.0);
-		float light_energy = 2.0 * beers_law * powder_sugar_effect * HenyeyGreenstein(GetMaterialData(SunDir), viewDir, 0.2) + 0.05;
-		
-		color += float3(3.0, 3.0, 3.0) * (totalTransmittance * (light_energy - light_energy * transmittance) / curDensity);
-		
+	if(curDensity > 0.0f && totalTransmittance > 0.0f)
+	{
+		float transmittance = exp(-curDensity * stepSize);
+
+		float densityOnLightRay = LightRay(curSamplePoint, sunDir);
+		float heightFraction = GetHeightFraction(curSamplePoint);
+
+		float3 light_energy = sunColor * GetLightEnergy(densityOnLightRay, cosAngle, heightFraction)
+			+ GetAmbientLight(heightFraction);
+
+		color += totalTransmittance * (light_energy - light_energy * transmittance) / curDensity;
+
 		totalTransmittance *= transmittance;
-		
+
 		if(totalTransmittance <= 0.001)
 		{
 			totalTransmittance = 0.0;
 		}
 	}
   }
-  
-  color += float3(0.08, 0.1, 0.15) * 2.0; // ambient
-  
+
   return float4(color, saturate(1.0 - totalTransmittance));
 }
 

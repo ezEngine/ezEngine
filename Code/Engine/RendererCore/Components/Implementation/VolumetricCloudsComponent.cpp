@@ -11,9 +11,15 @@
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezVolumetricCloudsComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezVolumetricCloudsComponent, 3, ezComponentMode::Static)
 {
-
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("DensityMultiplier", GetDensityMultiplier, SetDensityMultiplier)->AddAttributes(new ezClampValueAttribute(0.0f, 100.0f), new ezDefaultValueAttribute(6.0f)),
+    EZ_ACCESSOR_PROPERTY("BaseAmbientColor", GetBaseAmbientColor, SetBaseAmbientColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(ezColor(0.1f, 0.1f, 0.13f)))),
+    EZ_ACCESSOR_PROPERTY("TopAmbientColor", GetTopAmbientColor, SetTopAmbientColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(ezColor(0.4f, 0.55f, 0.8f)))),
+  }
+  EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering"),
@@ -128,6 +134,10 @@ void ezVolumetricCloudsComponent::SerializeComponent(ezWorldWriter& inout_stream
 {
   SUPER::SerializeComponent(inout_stream);
   ezStreamWriter& s = inout_stream.GetStream();
+
+  s << m_fDensityMultiplier;
+  s << m_BaseAmbientColor;
+  s << m_TopAmbientColor;
 }
 
 void ezVolumetricCloudsComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -136,6 +146,17 @@ void ezVolumetricCloudsComponent::DeserializeComponent(ezWorldReader& inout_stre
   const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   ezStreamReader& s = inout_stream.GetStream();
+
+  if (uiVersion >= 2)
+  {
+    s >> m_fDensityMultiplier;
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_BaseAmbientColor;
+    s >> m_TopAmbientColor;
+  }
 }
 
 void ezVolumetricCloudsComponent::OnActivated()
@@ -143,6 +164,36 @@ void ezVolumetricCloudsComponent::OnActivated()
   SUPER::OnActivated();
 
   UpdateMaterials();
+}
+
+void ezVolumetricCloudsComponent::SetDensityMultiplier(float fDensityMultiplier)
+{
+  m_fDensityMultiplier = ezMath::Clamp(fDensityMultiplier, 0.0f, 100.0f);
+
+  if (IsActiveAndInitialized())
+  {
+    InvalidateCachedRenderData();
+  }
+}
+
+void ezVolumetricCloudsComponent::SetBaseAmbientColor(ezColor color)
+{
+  m_BaseAmbientColor = color;
+
+  if (IsActiveAndInitialized())
+  {
+    InvalidateCachedRenderData();
+  }
+}
+
+void ezVolumetricCloudsComponent::SetTopAmbientColor(ezColor color)
+{
+  m_TopAmbientColor = color;
+
+  if (IsActiveAndInitialized())
+  {
+    InvalidateCachedRenderData();
+  }
 }
 
 void ezVolumetricCloudsComponent::UpdateMaterials() const
@@ -153,6 +204,9 @@ void ezVolumetricCloudsComponent::UpdateMaterials() const
 
     ezVec3 sunDirection = GetOwner()->GetGlobalTransform().m_qRotation * ezVec3(-1, 0, 0);
     pMaterial->SetParameter("SunDir", sunDirection);
+    pMaterial->SetParameter("DensityMultiplier", m_fDensityMultiplier);
+    pMaterial->SetParameter("BaseAmbientColor", m_BaseAmbientColor);
+    pMaterial->SetParameter("TopAmbientColor", m_TopAmbientColor);
     pMaterial->SetTexture3DBinding("NoiseMap", m_hNoiseLut);
     pMaterial->SetTexture3DBinding("DetailNoiseMap", m_hDetailNoiseLut);
 
