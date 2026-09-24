@@ -11,7 +11,7 @@
       <div class="modal-window">
 
         <div class="title-bar">
-          <img src="ez.png" class="icon"/>
+          <svg src="ez.svg" class="icon"/>
           Settings
         </div>
 
