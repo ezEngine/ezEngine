@@ -415,6 +415,18 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
     swapChainCreateInfo.pNext = &scalingInfo;
   }
 
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+  // Without this, the driver may decide to switch a window that covers the entire monitor (borderless fullscreen) into exclusive fullscreen mode, which causes a display mode change (screen goes black for a moment) when the swapchain is created and destroyed.
+  // ezEngine does not use exclusive fullscreen through Vulkan, so always disallow it.
+  vk::SurfaceFullScreenExclusiveInfoEXT fullScreenExclusiveInfo;
+  if (extensions.m_bFullScreenExclusive)
+  {
+    fullScreenExclusiveInfo.fullScreenExclusive = vk::FullScreenExclusiveEXT::eDisallowed;
+    fullScreenExclusiveInfo.pNext = const_cast<void*>(swapChainCreateInfo.pNext);
+    swapChainCreateInfo.pNext = &fullScreenExclusiveInfo;
+  }
+#endif
+
   // We must pass in the old swap chain or NVidia will crash.
   swapChainCreateInfo.oldSwapchain = m_VulkanSwapChain;
   DestroySwapChainInternal(m_pVulkanDevice);

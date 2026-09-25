@@ -374,6 +374,12 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME, m_Extensions.m_bExternalMemoryWin32);
   AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME, m_Extensions.m_bExternalSemaphoreWin32);
+
+  // Requires VK_KHR_get_surface_capabilities2 on the instance.
+  if (m_Extensions.m_bSurfaceCapabilities2)
+  {
+    AddExtIfSupported(VK_EXT_FULL_SCREEN_EXCLUSIVE_EXTENSION_NAME, m_Extensions.m_bFullScreenExclusive);
+  }
 #endif
 
   // Allow OpenXR to extend device extensions (for vulkan_enable v1)

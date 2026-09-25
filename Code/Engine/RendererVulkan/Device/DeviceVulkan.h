@@ -154,6 +154,8 @@ public:
     bool m_bSurfaceMaintenance1 = false;
     vk::PhysicalDeviceSwapchainMaintenance1FeaturesKHR m_swapchainMaintenance1Features;
     bool m_bSwapchainMaintenance1 = false;
+
+    bool m_bFullScreenExclusive = false;
   };
 
   struct Queue
