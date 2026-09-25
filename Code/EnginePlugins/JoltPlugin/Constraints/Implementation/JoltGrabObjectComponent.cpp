@@ -464,8 +464,9 @@ void ezJoltGrabObjectComponent::CreateJoint(ezJoltDynamicActorComponent* pParent
   JPH::SixDOFConstraintSettings opt;
 
   {
-    const auto diff0 = pBody0->GetPosition() - pBody0->GetCenterOfMassPosition();
-    const auto diff1 = pBody1->GetPosition() - pBody1->GetCenterOfMassPosition();
+    // offsets from the center of mass to the body origin, in body local space (as required by LocalToBodyCOM)
+    const JPH::Vec3 diff0 = -pBody0->GetShape()->GetCenterOfMass();
+    const JPH::Vec3 diff1 = -pBody1->GetShape()->GetCenterOfMass();
 
     const JPH::Quat childRot = ezJoltConversionUtils::ToQuat(m_ChildAnchorLocal.m_qRotation);
 
