@@ -11,6 +11,7 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/FallbackGameState.h>
 #include <GameEngine/Gameplay/PlayerStartPointComponent.h>
+#include <GameEngine/UI/MainMenuComponent.h>
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
@@ -207,6 +208,59 @@ const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
   return nullptr;
 }
 
+ezMainMenuComponent* ezFallbackGameState::GetMainMenu()
+{
+  if (m_pMainWorld == nullptr || IsInLoadingScreen())
+    return nullptr;
+
+  if (!m_bSearchedMainMenu)
+  {
+    m_bSearchedMainMenu = true;
+    m_hMainMenu = ezMainMenuComponent::FindInWorld(*m_pMainWorld);
+  }
+
+  ezMainMenuComponent* pMenu = nullptr;
+  if (!m_pMainWorld->TryGetComponent(m_hMainMenu, pMenu))
+    return nullptr;
+
+  return pMenu;
+}
+
+bool ezFallbackGameState::IsMainMenuOpen()
+{
+  if (m_State != State::Ok || m_pMainWorld == nullptr)
+    return false;
+
+  EZ_LOCK(m_pMainWorld->GetWriteMarker());
+
+  ezMainMenuComponent* pMenu = GetMainMenu();
+  return pMenu != nullptr && pMenu->IsMenuOpen();
+}
+
+void ezFallbackGameState::RequestQuit(ezStringView sRequestedBy)
+{
+  if (m_pMainWorld != nullptr && (sRequestedBy == "dev-esc" || sRequestedBy == "editor-esc"))
+  {
+    EZ_LOCK(m_pMainWorld->GetWriteMarker());
+
+    if (ezMainMenuComponent* pMenu = GetMainMenu())
+    {
+      pMenu->OpenMenu();
+      return;
+    }
+  }
+
+  SUPER::RequestQuit(sRequestedBy);
+}
+
+void ezFallbackGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
+{
+  m_hMainMenu.Invalidate();
+  m_bSearchedMainMenu = false;
+
+  SUPER::OnChangedMainWorld(pPrevWorld, pNewWorld, sStartPosition, startPositionOffset);
+}
+
 void ezFallbackGameState::ProcessInput()
 {
   SUPER::ProcessInput();
@@ -232,6 +286,20 @@ void ezFallbackGameState::ProcessInput()
         // allows the active scene to retrieve input again
         ezInputManager::SetExclusiveInputSet("");
       }
+    }
+  }
+
+  if (!m_bShowMenu && (ezInputManager::GetExclusiveInputSet().IsEmpty() || ezInputManager::GetExclusiveInputSet() == "ezMainMenu"))
+  {
+    if (IsMainMenuOpen())
+    {
+      // keeps the scene and the fallback camera from getting any input
+      ezInputManager::SetExclusiveInputSet("ezMainMenu");
+      return;
+    }
+    else if (ezInputManager::GetExclusiveInputSet() == "ezMainMenu")
+    {
+      ezInputManager::SetExclusiveInputSet("");
     }
   }
 

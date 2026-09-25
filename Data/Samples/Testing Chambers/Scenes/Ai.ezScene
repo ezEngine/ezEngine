@@ -14,7 +14,7 @@ o
 			s{"{ 93c2e641-1f6a-43c8-bad0-7b7e9762daae }"}
 		}
 		Uuid %DocumentID{u4{14156501856797205539,10398819186738443508}}
-		u4 %Hash{12286216403703173723}
+		u4 %Hash{15711590856743090731}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -24,6 +24,7 @@ o
 			s{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
 			s{"{ 4795f5c4-4a78-4c13-937e-cf3e6bdecb7c }"}
 			s{"{ 4ec4625e-1f10-465b-b1a1-ee7d66bd8da3 }"}
+			s{"{ 5df9c839-02a4-430c-a1db-e7d4d26dde47 }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ c8e411f9-28c6-4b02-bb27-0149bfb225bb }"}
 			s{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
@@ -35,6 +36,7 @@ o
 			s{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
 			s{"{ 4795f5c4-4a78-4c13-937e-cf3e6bdecb7c }"}
 			s{"{ 4ec4625e-1f10-465b-b1a1-ee7d66bd8da3 }"}
+			s{"{ 5df9c839-02a4-430c-a1db-e7d4d26dde47 }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 93c2e641-1f6a-43c8-bad0-7b7e9762daae }"}
 			s{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
@@ -680,6 +682,7 @@ o
 		VarArray %Children
 		{
 			Uuid{u4{14943042534284909337,9745496007376604205}}
+			Uuid{u4{7609716467821785908,10233731994594145081}}
 			Uuid{u4{6832853365114696238,10832434348266048375}}
 			Uuid{u4{12080561045322199503,16074010465159490847}}
 			Uuid{u4{1749070173317430948,5119025889071623207}}
@@ -1210,6 +1213,32 @@ o
 }
 o
 {
+	Uuid %id{u4{7609716467821785908,10233731994594145081}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{3860102926515242014,10807090157374058970}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x0000803E}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{11852625257037960270,10748944010538937068}}
 	s %t{"ezBoxReflectionProbeComponent"}
 	u3 %v{2}
@@ -1233,6 +1262,19 @@ o
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
 		b %ShowMipMaps{0}
+	}
+}
+o
+{
+	Uuid %id{u4{3860102926515242014,10807090157374058970}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ 5df9c839-02a4-430c-a1db-e7d4d26dde47 }"}
+		b %ShowShapeIcons{1}
 	}
 }
 o

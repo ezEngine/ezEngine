@@ -23,7 +23,7 @@ body.app-settings {
   height: 80vh;
   display: flex;
   flex-direction: column;
-  overflow: auto;
+  overflow: hidden;
 
   /* Use tiled images to decorate the window. */
   decorator: tiled-box(window-tl, window-t, window-tr,
@@ -31,10 +31,23 @@ body.app-settings {
       window-bl, window-b, window-br);
 }
 
-.app-settings tabs {
+/* Only the content of the selected tab scrolls, the tab headers stay in place. */
+.app-settings tabset {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+}
 
-  /* move tabs up so that they appear at the top of the content div */
-  top: -37dp;
+.app-settings tabset tabs {
+  flex: 0 0 auto;
+}
+
+.app-settings tabset panels {
+  display: block;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 /* Make tabs scale to content with a minimum width */
@@ -46,13 +59,18 @@ body.app-settings {
 /* Auto-scale tables to content */
 .app-settings table {
   width: auto;
-  table-layout: auto;
 }
 
 /* Ensure table rows and cells scale to content size */
 .app-settings tr {
   width: auto;
   height: auto;
+}
+
+/* The default style sheet gives every odd row a background, including the header row. That one has its own decorator,
+   and its box doesn't match the decorator's width, so the background would stick out on the sides. */
+.app-settings thead tr {
+  background-color: transparent;
 }
 
 .app-settings td {
@@ -74,7 +92,23 @@ body.app-settings {
   text-align: center;
 }
 
-/* Left-align text in input fields */
+/* Left-align text in input fields, and keep them from filling the whole column. */
 .app-settings input[type="text"] {
+  width: 200dp;
   text-align: left;
+}
+
+.app-settings input[type="radio"] {
+  margin-right: 4dp;
+  margin-left: 12dp;
+  vertical-align: -3dp;
+}
+
+.app-settings input[type="radio"]:first-child {
+  margin-left: 0;
+}
+
+/* Table rows set a dark text color, which buttons inside would inherit. */
+.app-settings td button {
+  color: white;
 }

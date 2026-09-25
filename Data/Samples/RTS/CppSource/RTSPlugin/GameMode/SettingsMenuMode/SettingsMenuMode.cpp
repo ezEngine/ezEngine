@@ -40,15 +40,8 @@ void RtsSettingsMenuMode::OnActivateMode()
 
       pRmlContext->RegisterEventHandler("ui-scale-change", [this](Rml::Event& e)
         {
-          if (auto pRangeControl = static_cast<Rml::ElementFormControlInput*>(e.GetCurrentElement()))
-          {
-            if (Rml::Variant* valueVariant = pRangeControl->GetAttribute("value"))
-            {
-              // Convert to integer
-              int value = valueVariant->Get<int>();
-              m_pGameState->m_fUiScale = value / 100.0f;
-            }
-          }
+          // RmlUi sends 'change' before it writes the new value to the element, so it has to be read from the event
+          m_pGameState->m_fUiScale = e.GetParameter("value", 100.0f) / 100.0f;
           //
         });
 

@@ -706,17 +706,21 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
     sUserData = opt_OutputDir.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
   }
 
+  // project specific, so that saved settings don't leak into other projects, same as MakeApplicationNameProjectSpecific() in ezPlayer
+  ezStringBuilder sAppData = sUserData;
+  sAppData.AppendPath(ezPathUtils::GetFileName(m_sProjectDirectory));
 
   // make sure these directories exist
   ezFileSystem::CreateDirectoryStructure(sAppDir).AssertSuccess();
   ezFileSystem::CreateDirectoryStructure(sUserData).AssertSuccess();
+  ezFileSystem::CreateDirectoryStructure(sAppData).AssertSuccess();
   ezFileSystem::CreateDirectoryStructure(">sdk/Output/").AssertSuccess();
 
   ezFileSystem::AddDataDirectory("", "EngineProcess", ":", ezDataDirUsage::AllowWrites).AssertSuccess();                       // for absolute paths
   ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "bin", ezDataDirUsage::ReadOnly).AssertSuccess();                // writing to the binary directory
   ezFileSystem::AddDataDirectory(">sdk/Output/", "EngineProcess", "shadercache", ezDataDirUsage::AllowWrites).AssertSuccess(); // for shader files
   ezFileSystem::AddDataDirectory(sAppDir.GetData(), "EngineProcess", "app").AssertSuccess();                                   // app specific data
-  ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezDataDirUsage::AllowWrites).AssertSuccess();          // for writing app user data
+  ezFileSystem::AddDataDirectory(sAppData, "EngineProcess", "appdata", ezDataDirUsage::AllowWrites).AssertSuccess();           // for writing app user data
 
   m_CustomFileSystemConfig.Apply();
 
@@ -728,8 +732,13 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
       sLogName = opt_LogName.GetOptionValue(ezCommandLineOption::LogMode::Never);
     }
     ezOsProcessID uiProcessID = ezProcess::GetCurrentProcessID();
+
+    // not ':appdata', which is project specific
+    ezStringBuilder sLogDir;
+    ezFileSystem::ResolveSpecialDirectory(sUserData, sLogDir).IgnoreResult();
+
     ezStringBuilder sLogFile;
-    sLogFile.SetFormat(":appdata/Logs/{0}_{1}.htm", sLogName, uiProcessID);
+    sLogFile.SetFormat("{0}/Logs/{1}_{2}.htm", sLogDir, sLogName, uiProcessID);
     m_LogHTML.BeginLog(sLogFile, "EditorEngineProcess");
   }
 }

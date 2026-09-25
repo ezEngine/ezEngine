@@ -4,6 +4,8 @@
   </qresource>
   <qresource prefix="TypeIcons">
     <file>ezRmlUiCanvas2DComponent.svg</file>
+    <file>ezRmlUiCanvas3DComponent.svg</file>
+    <file>ezRmlUiMainMenuComponent.svg</file>
   </qresource>
 </RCC>
 

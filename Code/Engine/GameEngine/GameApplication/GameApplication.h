@@ -31,6 +31,7 @@ struct ezGameApplicationInputFlags
     Dev_CaptureFrame = EZ_BIT(13),         ///< Register the F11 key to make a render frame capture (if capture plugin is available)
     Dev_Screenshot = EZ_BIT(14),           ///< Register the F12 key to save a screenshot to disk
     Dev_OpenInspector = EZ_BIT(15),        ///< Register the F10 key to open the ezInspector application
+    Dev_QuickClose = EZ_BIT(16),           ///< Register Ctrl+Q to close the application. Unlike ESC, a game state doesn't turn this into opening a menu.
 
     Dev_All = 0xFFFFFF00,
     Regular = ~Dev_All,
@@ -51,6 +52,7 @@ struct ezGameApplicationInputFlags
     StorageType Dev_CaptureFrame : 1;
     StorageType Dev_Screenshot : 1;
     StorageType Dev_OpenInspector : 1;
+    StorageType Dev_QuickClose : 1;
   };
 };
 
@@ -171,6 +173,7 @@ protected:
   static ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> s_DefaultDeviceCreator;
 
   bool m_bShowConsole = false;
+  ezBitflags<ezGameApplicationInputFlags> m_InputFlags;
   ezUniquePtr<ezConsole> m_pConsole;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)

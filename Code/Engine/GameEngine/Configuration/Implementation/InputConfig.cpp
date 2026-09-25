@@ -1,6 +1,7 @@
 #include <GameEngine/GameEnginePCH.h>
 
 #include <Core/Input/InputManager.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlWriter.h>
@@ -53,17 +54,24 @@ void ezGameAppInputConfig::WriteToDDL(ezOpenDdlWriter& ref_writer) const
     ezOpenDdlUtils::StoreString(ref_writer, m_sInputAction, "Action");
     ezOpenDdlUtils::StoreBool(ref_writer, m_bApplyTimeScaling, "TimeScale");
 
-    for (int i = 0; i < 3; ++i)
+    // ReadFromDDL() assigns the slots in order, so empty slots before a used one are written as well to keep its position
+    ezUInt32 uiNumSlots = 0;
+    for (ezUInt32 i = 0; i < MaxInputSlotAlternatives; ++i)
     {
       if (!m_sInputSlotTrigger[i].IsEmpty())
       {
-        ref_writer.BeginObject("Slot");
-        {
-          ezOpenDdlUtils::StoreString(ref_writer, m_sInputSlotTrigger[i], "Key");
-          ezOpenDdlUtils::StoreFloat(ref_writer, m_fInputSlotScale[i], "Scale");
-        }
-        ref_writer.EndObject();
+        uiNumSlots = i + 1;
       }
+    }
+
+    for (ezUInt32 i = 0; i < uiNumSlots; ++i)
+    {
+      ref_writer.BeginObject("Slot");
+      {
+        ezOpenDdlUtils::StoreString(ref_writer, m_sInputSlotTrigger[i], "Key");
+        ezOpenDdlUtils::StoreFloat(ref_writer, m_fInputSlotScale[i], "Scale");
+      }
+      ref_writer.EndObject();
     }
   }
   ref_writer.EndObject();
@@ -133,4 +141,17 @@ void ezGameAppInputConfig::ApplyAll(const ezArrayPtr<ezGameAppInputConfig>& acti
   {
     config.Apply();
   }
+}
+
+ezResult ezGameAppInputConfig::ApplyFile(ezStringView sFile)
+{
+  ezFileReader file;
+  if (file.Open(sFile).Failed())
+    return EZ_FAILURE;
+
+  ezTempHybridArray<ezGameAppInputConfig, 32> actions;
+  ReadFromDDL(file, actions);
+  ApplyAll(actions);
+
+  return EZ_SUCCESS;
 }

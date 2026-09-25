@@ -394,7 +394,16 @@ void ezSceneContext::HandleSimulationSettingsMsg(const ezSimulationSettingsMsgTo
   const bool bSimulate = pMsg->m_bSimulateWorld;
   ezGameStateBase* pState = GetGameState();
   m_pWorld->GetClock().SetSpeed(pMsg->m_fSimulationSpeed);
-  m_pWorld->GetClock().SetPaused(pMsg->m_fSimulationSpeed == 0.0f);
+
+  // The editor sends this with every redraw. While a game state runs, the pause state is only applied when the editor's choice changes,
+  // otherwise it would resume a world that the game paused itself (e.g. ezRmlUiMainMenuComponent), as soon as the editor window is active.
+  const bool bPause = pMsg->m_fSimulationSpeed == 0.0f;
+  if (pState == nullptr || bPause != m_bEditorPausedSimulation)
+  {
+    m_pWorld->GetClock().SetPaused(bPause);
+  }
+
+  m_bEditorPausedSimulation = bPause;
 
   if (pState == nullptr && bSimulate != m_pWorld->GetWorldSimulationEnabled())
   {

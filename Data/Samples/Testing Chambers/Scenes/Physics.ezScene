@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16033299415433335720,5748835052109362040}}
-		u4 %Hash{7224620473103021883}
+		u4 %Hash{1536509422591058146}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -31,6 +31,7 @@ o
 			s{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
 			s{"{ 53e78181-d290-4ac1-a612-5fa087475ebb }"}
 			s{"{ 580aefec-1a70-4442-9c88-d213519f8b8f }"}
+			s{"{ 5df9c839-02a4-430c-a1db-e7d4d26dde47 }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 674588c4-12b6-49c1-b18a-805c23a417a3 }"}
 			s{"{ 69ce5162-8938-4fcf-af58-4b590317f807 }"}
@@ -73,6 +74,7 @@ o
 			s{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
 			s{"{ 53e78181-d290-4ac1-a612-5fa087475ebb }"}
 			s{"{ 580aefec-1a70-4442-9c88-d213519f8b8f }"}
+			s{"{ 5df9c839-02a4-430c-a1db-e7d4d26dde47 }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 674588c4-12b6-49c1-b18a-805c23a417a3 }"}
 			s{"{ 69ce5162-8938-4fcf-af58-4b590317f807 }"}
@@ -14868,6 +14870,7 @@ o
 			Uuid{u4{8331898585429185975,2769867575100824059}}
 			Uuid{u4{7884655620014944151,5531048661047948808}}
 			Uuid{u4{10450095319986765476,4721381220556787711}}
+			Uuid{u4{9559796796845280263,7112897695179514745}}
 		}
 		Uuid %Settings{u4{17165472681167466672,5590908592681332920}}
 	}
@@ -15479,6 +15482,32 @@ o
 }
 o
 {
+	Uuid %id{u4{9559796796845280263,7112897695179514745}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5810183255538736369,7686255857959428634}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x0000E03F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{3324025154626424376,7139206815005684954}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -15835,6 +15864,19 @@ o
 		{
 			s{"CastShadow"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{5810183255538736369,7686255857959428634}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ 5df9c839-02a4-430c-a1db-e7d4d26dde47 }"}
+		b %ShowShapeIcons{1}
 	}
 }
 o

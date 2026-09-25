@@ -1,0 +1,218 @@
+<rml>
+
+  <head>
+    <link type="text/template" href="rmlui-default/template.rml" />
+    <link type="text/css" href="rmlui-menu/ez-app-settings.rcss" />
+  </head>
+
+  <body class="app-settings" id="doc-app-settings">
+    <div class="background">
+
+      <div class="modal-window">
+
+        <div class="title-bar">
+          <svg src="ez.svg" class="icon"/>
+          Settings
+        </div>
+
+        <tabset>
+          <tab>General</tab>
+          <panel>
+
+            <table class="settings-table" style="width: 100%">
+              <thead>
+                <tr>
+                  <td>Setting</td>
+                  <td>Value</td>
+                  <td class="value"></td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Player Name</td>
+                  <td>
+                    <input type="text" id="player-name" maxlength="24" onchange="player-name-change"/>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Show FPS</td>
+                  <td>
+                    <input type="checkbox" id="check-fps" onchange="toggle-fps" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>UI Scale</td>
+                  <td>
+                    <input type="range" min="50" max="200" value="100" id="ui-scale" onchange="ui-scale-change" />
+                  </td>
+                  <td class="value" id="ui-scale-value"></td>
+                </tr>
+              </tbody>
+            </table>
+          </panel>
+
+          <tab>Graphics</tab>
+          <panel>
+
+            <table class="settings-table" style="width: 100%">
+              <thead>
+                <tr>
+                  <td>Setting</td>
+                  <td>Value</td>
+                  <td class="value"></td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Window Mode</td>
+                  <td>
+                    <!-- The 'value' is the index into s_WindowModes in RmlUiMainMenuComponent.cpp -->
+                    <input type="radio" name="window-mode" value="0" id="window-mode-0" onchange="window-mode-change"/>Windowed
+                    <input type="radio" name="window-mode" value="1" id="window-mode-1" onchange="window-mode-change"/>Fullscreen
+                  </td>
+                </tr>
+                <tr>
+                  <td>Monitor</td>
+                  <td>
+                    <select id="select-monitor" onchange="monitor-change"></select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Resolution</td>
+                  <td>
+                    <select id="select-resolution" onchange="resolution-change"></select>
+                  </td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>
+                    <!-- Unlike all other settings, the display settings only take effect when this is pressed -->
+                    <button onclick="display-apply">Apply</button>
+                  </td>
+                  <td id="display-status"></td>
+                </tr>
+                <tr>
+                  <td>V-Sync</td>
+                  <td>
+                    <input type="checkbox" id="check-vsync" onchange="toggle-vsync" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Texture Filtering</td>
+                  <td>
+                    <!-- The order of these options matches the values of the 'Rendering.TextureQuality' CVar -->
+                    <select id="select-texture-filtering" onchange="texture-filtering-change">
+                      <option>Nearest</option>
+                      <option>Bilinear</option>
+                      <option>Trilinear</option>
+                      <option>Anisotropic 2x</option>
+                      <option>Anisotropic 4x</option>
+                      <option>Anisotropic 8x</option>
+                      <option>Anisotropic 16x</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Texture Quality</td>
+                  <td>
+                    <!-- The order of these options matches s_TextureQualityPresets in RmlUiMainMenuComponent.cpp -->
+                    <select id="select-texture-quality" onchange="texture-quality-change">
+                      <option>Very Low</option>
+                      <option>Low</option>
+                      <option>Medium</option>
+                      <option>High</option>
+                      <option>Very High</option>
+                      <option>Ultra</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Shadow Quality</td>
+                  <td>
+                    <select id="select-shadow-quality" onchange="shadow-quality-change">
+                      <option>Low</option>
+                      <option>Medium</option>
+                      <option>High</option>
+                      <option>Ultra</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </panel>
+
+          <tab>Audio</tab>
+          <panel>
+
+            <table class="settings-table" style="width: 100%">
+              <thead>
+                <tr>
+                  <td>Setting</td>
+                  <td>Value</td>
+                  <td class="value"></td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Master Volume</td>
+                  <td>
+                    <input type="range" min="0" max="100" value="100" id="master-volume" onchange="master-volume-change" />
+                  </td>
+                  <td class="value" id="master-volume-value"></td>
+                </tr>
+              </tbody>
+
+              <!-- Filled in by ezRmlUiMainMenuComponent::RebuildSoundGroupRows() -->
+              <tbody id="sound-group-rows"></tbody>
+
+              <tbody>
+                <tr>
+                  <td class="value"></td>
+                  <td id="audio-status"></td>
+                </tr>
+              </tbody>
+            </table>
+          </panel>
+
+          <tab>Controls</tab>
+          <panel>
+
+            <table class="controls-table" style="width: 100%">
+              <thead>
+                <tr>
+                  <!-- One column per slot (ezInputRebinding::MaxSlots), then 'restore default', 'clear' and an empty one as a margin.
+                       Rows only get as many cells as the header has. -->
+                  <td>Action</td>
+                  <td>Primary</td>
+                  <td>Secondary</td>
+                  <td>Tertiary</td>
+                  <td class="button-column"></td>
+                  <td class="button-column"></td>
+                  <td class="margin-column"></td>
+                </tr>
+              </thead>
+
+              <!-- Filled in by ezRmlUiMainMenuComponent::RebuildInputBindingRows() -->
+              <tbody id="input-binding-rows"></tbody>
+            </table>
+          </panel>
+
+        </tabset>
+
+        <div class="back-row">
+          <button onclick="settings-defaults">Restore Defaults</button>
+          <button onclick="MainMenu-Back">Back</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Shown by ezRmlUiMainMenuComponent while a key is being captured for the 'Controls' tab. -->
+    <div class="rebind-overlay" id="rebind-overlay">
+      <div class="rebind-window">
+        Press a key or button to bind.<br/>
+        Press ESC to cancel.
+      </div>
+    </div>
+  </body>
+</rml>

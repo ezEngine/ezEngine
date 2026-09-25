@@ -50,8 +50,25 @@ protected:
 public:
   virtual ~ezGameState();
 
+  /// The window configuration that the project ships with.
+  static constexpr const ezStringView s_sWindowConfigFile = ":project/RuntimeConfigs/Window.ddl"_ezsv;
+
+  /// The window configuration that the user chose at runtime, e.g. through ezRmlUiMainMenuComponent.
+  ///
+  /// When it exists, CreateMainWindow() uses it instead of s_sWindowConfigFile. The '-wnd' command line option overrides both.
+  static constexpr const ezStringView s_sUserWindowConfigFile = ":appdata/RuntimeConfigs/Window.ddl"_ezsv;
+
   /// Returns the active ezGameState. Only one ezGameState is allowed to exist.
   static ezGameState* GetActiveGameState();
+
+  /// Returns the desktop window that the game renders into, or nullptr if there is none.
+  ///
+  /// With XR this is the companion window, which only exists if the XR interface supports one.
+  /// Also nullptr if a derived game state overrides CreateWindows() without calling the base implementation,
+  /// and once the window was closed.
+  ///
+  /// The window may only be modified (e.g. through Reconfigure()) from the main thread.
+  ezWindow* GetMainWindow() const;
 
   /// Returns the ezWorld that is currently the active one.
   ezWorld* GetMainWorld() { return m_pMainWorld; }
@@ -218,6 +235,10 @@ protected:
   static ezGameState* s_pActiveGameState;
 
   ezViewHandle m_hMainView;
+
+  /// The registered window that owns m_pMainWindow. With XR, that is the XR window.
+  ezRegisteredWndHandle m_hMainWindow;
+  ezWindow* m_pMainWindow = nullptr;
 
   ezWorld* m_pMainWorld = nullptr;
 

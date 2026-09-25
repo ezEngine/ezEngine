@@ -111,6 +111,10 @@ private:
   void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
 
   bool m_bUpdateAllLocalBounds = false;
+
+  /// The pause state that the editor requested last, see HandleSimulationSettingsMsg().
+  bool m_bEditorPausedSimulation = false;
+
   bool m_bRenderSelectionOverlay;
   bool m_bRenderShapeIcons;
   bool m_bRenderSelectionBoxes;

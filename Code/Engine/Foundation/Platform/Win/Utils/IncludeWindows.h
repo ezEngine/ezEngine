@@ -51,7 +51,7 @@ namespace ezMinWindows
   struct ToNativeImpl<HMONITOR>
   {
     using type = ::HMONITOR;
-    static EZ_ALWAYS_INLINE ::HMONITOR ToNative(HMONITOR hMonitor) { return reinterpret_cast<::HMONITOR>(hMonitor); }
+    static EZ_ALWAYS_INLINE ::HMONITOR ToNative(HMONITOR pMonitor) { return reinterpret_cast<::HMONITOR>(pMonitor); }
   };
 
   template <>
@@ -72,7 +72,7 @@ namespace ezMinWindows
   struct FromNativeImpl<::HMONITOR>
   {
     using type = HMONITOR;
-    static EZ_ALWAYS_INLINE HMONITOR FromNative(::HMONITOR hMonitor) { return reinterpret_cast<HMONITOR>(hMonitor); }
+    static EZ_ALWAYS_INLINE HMONITOR FromNative(::HMONITOR pMonitor) { return reinterpret_cast<HMONITOR>(pMonitor); }
   };
 } // namespace ezMinWindows
 #endif

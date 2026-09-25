@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5610093527764820148,5219027326469845793}}
-		u4 %Hash{11037182972112869375}
+		u4 %Hash{9690317405260190784}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -21,6 +21,7 @@ o
 			s{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
 			s{"{ 3ebb6609-8d64-436d-a723-446175509e0d }"}
 			s{"{ 491578b5-9856-4b38-aca7-1b8c709bd1d4 }"}
+			s{"{ 5df9c839-02a4-430c-a1db-e7d4d26dde47 }"}
 			s{"{ 6f17c604-4d55-401f-9d18-55acceff3215 }"}
 			s{"{ 7dd16d0c-a7cf-47d4-8356-0ad854b37c24 }"}
 			s{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
@@ -32,6 +33,7 @@ o
 		{
 			s{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
 			s{"{ 3ebb6609-8d64-436d-a723-446175509e0d }"}
+			s{"{ 5df9c839-02a4-430c-a1db-e7d4d26dde47 }"}
 			s{"{ 6f17c604-4d55-401f-9d18-55acceff3215 }"}
 			s{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
 			s{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
@@ -73,7 +75,7 @@ o
 {
 	Uuid %id{u4{7700804308116829100,2601260444340485067}}
 	s %t{"ezTerrainPatchComponent"}
-	u3 %v{2}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -83,8 +85,9 @@ o
 		Vec2 %HeightImageOffset{f{0,0x0000003F}}
 		f %HeightImageScale{0x00000042}
 		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
-		f %LodDistanceScale{0x0000803F}
+		f %LodCellPixelSize{0x00008041}
 		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
+		f %OcclusionCellSize{0x00000040}
 		s %Resolution{"ezTerrainResolution::Res256"}
 		f %Size{0x00004843}
 		VarArray %Surfaces
@@ -273,6 +276,7 @@ o
 			Uuid{u4{16411978070787757745,15870614965152261274}}
 			Uuid{u4{13531846406774326237,4751452364651148975}}
 			Uuid{u4{1106712953651706086,5631169254080946969}}
+			Uuid{u4{2514316758718886414,7698613977301492924}}
 		}
 		VarArray %Components
 		{
@@ -422,7 +426,7 @@ o
 {
 	Uuid %id{u4{11541954861188027540,5615350731574297343}}
 	s %t{"ezTerrainPatchComponent"}
-	u3 %v{2}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -432,8 +436,9 @@ o
 		Vec2 %HeightImageOffset{f{0,0}}
 		f %HeightImageScale{0x00000042}
 		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
-		f %LodDistanceScale{0x0000803F}
+		f %LodCellPixelSize{0x00008041}
 		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
+		f %OcclusionCellSize{0x00000040}
 		s %Resolution{"ezTerrainResolution::Res256"}
 		f %Size{0x00004843}
 		VarArray %Surfaces
@@ -500,6 +505,45 @@ o
 			Uuid{u4{15822197538874569712,4959048816156858600}}
 		}
 		Uuid %Settings{u4{8186563928453390810,4874470961855122515}}
+	}
+}
+o
+{
+	Uuid %id{u4{2514316758718886414,7698613977301492924}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{17211447291121894136,8271972140081406813}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{17211447291121894136,8271972140081406813}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ 5df9c839-02a4-430c-a1db-e7d4d26dde47 }"}
+		b %ShowShapeIcons{1}
 	}
 }
 o
@@ -573,7 +617,7 @@ o
 {
 	Uuid %id{u4{13599989202278948688,10604270275996112374}}
 	s %t{"ezTerrainPatchComponent"}
-	u3 %v{2}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -583,8 +627,9 @@ o
 		Vec2 %HeightImageOffset{f{0x0000003F,0}}
 		f %HeightImageScale{0x00000042}
 		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
-		f %LodDistanceScale{0x0000803F}
+		f %LodCellPixelSize{0x00008041}
 		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
+		f %OcclusionCellSize{0x00000040}
 		s %Resolution{"ezTerrainResolution::Res256"}
 		f %Size{0x00004843}
 		VarArray %Surfaces
@@ -654,7 +699,7 @@ o
 {
 	Uuid %id{u4{6527565531093704200,15528429879928004522}}
 	s %t{"ezTerrainPatchComponent"}
-	u3 %v{2}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -664,8 +709,9 @@ o
 		Vec2 %HeightImageOffset{f{0x0000003F,0x0000003F}}
 		f %HeightImageScale{0x00000042}
 		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
-		f %LodDistanceScale{0x0000803F}
+		f %LodCellPixelSize{0x00008041}
 		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
+		f %OcclusionCellSize{0x00000040}
 		s %Resolution{"ezTerrainResolution::Res256"}
 		f %Size{0x00004843}
 		VarArray %Surfaces
@@ -1264,7 +1310,7 @@ o
 		s %PluginName{"ezEditorPluginTerrain"}
 		VarArray %Properties{}
 		s %TypeName{"ezTerrainPatchComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{4}
 	}
 }
 o

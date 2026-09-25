@@ -50,8 +50,17 @@ public:
   void SetSendEventMessage(bool bSendEventMessage);                // [ property ]
   bool GetSendEventMessage() const { return m_bSendEventMessage; } // [ property ]
 
+  /// With on-demand updates, the RmlUi context is only updated when it received input or RmlUi requests it (e.g. for animations).
+  ///
+  /// Changes to the document from code aren't noticed that way, so they aren't laid out and rendered until something else
+  /// triggers an update. Call RequestUpdate() after such changes.
   void SetOnDemandUpdate(bool bOnDemandUpdate);                    // [ property ]
   bool GetOnDemandUpdate() const { return m_bOnDemandUpdate; }     // [ property ]
+
+  /// Makes the next Update() update the RmlUi context, see SetOnDemandUpdate().
+  ///
+  /// Has to be called before this component's update in the frame, otherwise the change shows up one frame later.
+  void RequestUpdate() { m_bNeedsUpdate = true; }
 
   ezUInt32 AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& pDataBinding);
   void RemoveDataBinding(ezUInt32 uiDataBindingIndex);

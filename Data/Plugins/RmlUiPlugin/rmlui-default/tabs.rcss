@@ -26,9 +26,14 @@ tab {
 
 	decorator: tiled-horizontal(tableheader-l, tableheader-c, tableheader-r);
 	image-color: #cffc;
+
+	/* Makes tabs reachable with the keyboard. Enter or space on a focused tab clicks it, which selects it. */
+	nav: auto;
+	tab-index: auto;
 }
 
-tab:hover {
+tab:hover,
+tab:focus-visible {
 	image-color: #fffe;
 	color: #fff;
 }
