@@ -142,38 +142,41 @@ namespace ezModelImporter2
     }
   }
 
-  ezResult ImporterAssimp::ProcessAiMesh(aiMesh* pMesh, const ezMat4& transform)
+  ezResult ImporterAssimp::ProcessAiMesh(aiMesh* pMesh, const ezMat4& transform, ezStringView sNodeName)
   {
     if ((pMesh->mPrimitiveTypes & aiPrimitiveType::aiPrimitiveType_TRIANGLE) == 0) // no triangles in there ?
       return EZ_SUCCESS;
 
-    m_OutputMeshNames.PushBack(pMesh->mName.C_Str());
+    const ezStringView sMeshName(pMesh->mName.C_Str());
+    const ezStringBuilder sFullName(sNodeName, "::", sMeshName);
+
+    m_OutputMeshNames.PushBack(sFullName);
 
     if (!m_Options.m_MeshIncludeTags.IsEmpty() || !m_Options.m_MeshExcludeTags.IsEmpty())
     {
-      ezLog::Dev("Found mesh with name: '{}'", pMesh->mName.C_Str());
+      ezLog::Dev("Found mesh with name: '{}'", sFullName);
     }
 
     if (!m_Options.m_MeshIncludeTags.IsEmpty())
     {
       for (const auto& str : m_Options.m_MeshIncludeTags)
       {
-        if (ezStringUtils::StartsWith_NoCase(pMesh->mName.C_Str(), str) || ezStringUtils::EndsWith_NoCase(pMesh->mName.C_Str(), str))
+        if (sNodeName.StartsWith_NoCase(str) || sNodeName.EndsWith_NoCase(str) || sMeshName.StartsWith_NoCase(str) || sMeshName.EndsWith_NoCase(str))
         {
-          ezLog::Dev("Including mesh '{}' because of include-tag '{}'", pMesh->mName.C_Str(), str);
+          ezLog::Dev("Including mesh '{}' because of include-tag '{}'", sFullName, str);
           goto do_import;
         }
       }
 
-      ezLog::Dev("Skipping mesh '{}', because it doesn't match any include-tag.", pMesh->mName.C_Str());
+      ezLog::Dev("Skipping mesh '{}', because it doesn't match any include-tag.", sFullName);
       return EZ_SUCCESS; // not a failure case
     }
 
     for (const auto& str : m_Options.m_MeshExcludeTags)
     {
-      if (ezStringUtils::StartsWith_NoCase(pMesh->mName.C_Str(), str) || ezStringUtils::EndsWith_NoCase(pMesh->mName.C_Str(), str))
+      if (sNodeName.StartsWith_NoCase(str) || sNodeName.EndsWith_NoCase(str) || sMeshName.StartsWith_NoCase(str) || sMeshName.EndsWith_NoCase(str))
       {
-        ezLog::Dev("Skipping mesh '{}' because of exclude-tag '{}'", pMesh->mName.C_Str(), str);
+        ezLog::Dev("Skipping mesh '{}' because of exclude-tag '{}'", sFullName, str);
         return EZ_SUCCESS; // not a failure case
       }
     }
@@ -183,7 +186,7 @@ namespace ezModelImporter2
 
     if (m_Options.m_bImportSkinningData && !pMesh->HasBones())
     {
-      ezLog::Warning("Mesh contains an unskinned part ('{}' - {} triangles)", pMesh->mName.C_Str(), pMesh->mNumFaces);
+      ezLog::Warning("Mesh contains an unskinned part ('{}' - {} triangles)", sFullName, pMesh->mNumFaces);
       return EZ_SUCCESS;
     }
 
