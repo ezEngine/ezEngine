@@ -17,10 +17,11 @@ struct EZ_RMLUIPLUGIN_DLL ezRmlUiConfiguration
 {
   ezDynamicArray<ezString> m_Fonts;
 
-  static constexpr const ezStringView s_sConfigFile = ":project/RuntimeConfigs/RmlUiConfig.ddl"_ezsv;
+  static constexpr const ezStringView s_sConfigFileSave = ":project/RuntimeConfigs/RmlUiConfig.ddl"_ezsv;
+  static constexpr const ezStringView s_sConfigFileLoad = "RuntimeConfigs/RmlUiConfig.ddl"_ezsv;
 
-  ezResult Save(ezStringView sFile = s_sConfigFile) const;
-  ezResult Load(ezStringView sFile = s_sConfigFile);
+  ezResult Save(ezStringView sFile = s_sConfigFileSave) const;
+  ezResult Load(ezStringView sFile = s_sConfigFileLoad);
 
   bool operator==(const ezRmlUiConfiguration& rhs) const;
   bool operator!=(const ezRmlUiConfiguration& rhs) const { return !operator==(rhs); }

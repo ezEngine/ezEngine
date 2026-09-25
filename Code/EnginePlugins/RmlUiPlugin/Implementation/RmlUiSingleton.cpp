@@ -163,7 +163,7 @@ ezRmlUi::ezRmlUi()
 
   if (m_pData->m_Config.Load().Failed())
   {
-    ezLog::Warning("No valid RmlUi configuration file available in '{}'.", ezRmlUiConfiguration::s_sConfigFile);
+    ezLog::Warning("No valid RmlUi configuration file available in '{}'.", ezRmlUiConfiguration::s_sConfigFileLoad);
     return;
   }
 
