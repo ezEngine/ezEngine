@@ -8,16 +8,13 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-#include <RendererCore/Debug/DebugRenderer.h>
-
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, 1, ezRTTIDefaultAllocator<ezSimpleRenderPass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, 2, ezRTTIDefaultAllocator<ezSimpleRenderPass>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Color", m_PinColor),
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
-    EZ_MEMBER_PROPERTY("Message", m_sMessage),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -70,6 +67,21 @@ ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const e
   }
   outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
 
+  // A depth buffer of a different size can't be bound together with the color target, e.g. when this pass is placed after an ezUpscalePass.
+  if (!hColor.IsInvalidated() && !hDepthStencil.IsInvalidated())
+  {
+    const ezGALTextureCreationDescription& colorDesc = ref_graph.GetTextureDesc(hColor);
+    const ezGALTextureCreationDescription& depthDesc = ref_graph.GetTextureDesc(hDepthStencil);
+    if (colorDesc.m_uiWidth != depthDesc.m_uiWidth || colorDesc.m_uiHeight != depthDesc.m_uiHeight)
+    {
+      hDepthStencil.Invalidate();
+    }
+    else if (colorDesc.m_SampleCount != depthDesc.m_SampleCount)
+    {
+      return ezStatus(ezFmt("DepthStencil: MSAA mode ({}) doesn't match the one of Color ({}). Connect a depth buffer with the same MSAA mode, e.g. the output of an ezMsaaResolvePass.", ezArgEnum(depthDesc.m_SampleCount), ezArgEnum(colorDesc.m_SampleCount)));
+    }
+  }
+
   auto pass = ref_graph.AddGraphicsPass(GetName());
   if (!hColor.IsInvalidated())
     pass.AddColorTarget(hColor);
@@ -80,7 +92,6 @@ ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const e
   DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::SimpleOpaque, ref_graph, pass);
   DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::SimpleTransparent, ref_graph, pass);
   DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::SimpleForeground, ref_graph, pass);
-  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::GUI, ref_graph, pass);
 
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
@@ -97,22 +108,11 @@ ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const e
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleTransparent);
 
-    if (!m_sMessage.IsEmpty())
-    {
-      ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, m_sMessage.GetData(), ezVec2I32(20, 20), ezColor::OrangeRed);
-    }
-
-    ezDebugRenderer::RenderWorldSpace(renderViewContext);
-
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
 
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
-
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::GUI);
-
-    ezDebugRenderer::RenderScreenSpace(renderViewContext); });
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground); });
 
   return EZ_SUCCESS;
 }
@@ -120,7 +120,6 @@ ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const e
 ezResult ezSimpleRenderPass::Serialize(ezStreamWriter& inout_stream) const
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
-  inout_stream << m_sMessage;
   return EZ_SUCCESS;
 }
 
@@ -128,15 +127,34 @@ ezResult ezSimpleRenderPass::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
   const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
-  inout_stream >> m_sMessage;
+  if (uiVersion < 2)
+  {
+    // The message moved to ezDebugRenderPass.
+    ezString sMessage;
+    inout_stream >> sMessage;
+  }
   return EZ_SUCCESS;
 }
 
-void ezSimpleRenderPass::SetMessage(const char* szMessage)
+
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezSimpleRenderPassPatch_1_2 : public ezGraphPatch
 {
-  m_sMessage = szMessage;
-}
+public:
+  ezSimpleRenderPassPatch_1_2()
+    : ezGraphPatch("ezSimpleRenderPass", 2)
+  {
+  }
+
+  // The message moved to ezDebugRenderPass.
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override { pNode->RemoveProperty("Message"); }
+};
+
+ezSimpleRenderPassPatch_1_2 g_ezSimpleRenderPassPatch_1_2;
 
 
 

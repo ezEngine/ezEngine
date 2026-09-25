@@ -23,6 +23,7 @@
 #include <GameEngine/Console/QuakeConsole.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
+#include <GameEngine/GameState/GameState.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -45,6 +46,7 @@ ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> ezGameApplicatio
 ezCVarBool ezGameApplication::cvar_AppVSync("App.VSync", true, ezCVarFlags::Save, "Enables V-Sync");
 ezCVarBool ezGameApplication::cvar_AppShowFPS("App.ShowFPS", false, ezCVarFlags::Save, "Show frames per second counter");
 ezCVarBool ezGameApplication::cvar_WorldShowObjectOrigins("World.ShowObjectOrigins", false, ezCVarFlags::Default, "Render debug geometry at every game object position");
+ezCVarFloat ezGameApplication::cvar_AppRenderScale("App.RenderScale", 1.0f, ezCVarFlags::Save, "Resolution at which the scene is rendered, relative to the window size (0.25 - 1). UI stays at full resolution. Requires a render pipeline that supports it.");
 
 ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjectPath /*= nullptr*/)
   : ezGameApplicationBase(szAppName)
@@ -707,6 +709,18 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
 
   // do this now, in parallel to the view extraction
   Run_UpdatePlugins();
+
+  if (ezGameState* pGameState = ezGameState::GetActiveGameState())
+  {
+    if (ezView* pMainView = pGameState->GetMainView())
+    {
+      const float fRenderScale = ezMath::Clamp<float>(cvar_AppRenderScale, 0.25f, 1.0f);
+      if (pMainView->GetRenderScale() != fRenderScale)
+      {
+        pMainView->SetRenderScale(fRenderScale);
+      }
+    }
+  }
 
   ezRenderWorld::ExtractMainViews();
 }

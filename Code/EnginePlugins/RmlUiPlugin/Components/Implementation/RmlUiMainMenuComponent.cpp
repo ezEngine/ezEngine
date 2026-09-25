@@ -498,6 +498,13 @@ void ezRmlUiMainMenuComponent::RegisterSettingsEventHandlers(ezRmlUiContext* pCo
       //
     });
 
+  pContext->RegisterEventHandler("render-scale-change", [this](Rml::Event& e)
+    {
+      ezGameApplication::cvar_AppRenderScale = ezRmlUiUtils::GetChangedValue(e) / 100.0f;
+      m_bUpdateValueLabels = true;
+      //
+    });
+
   pContext->RegisterEventHandler("toggle-fps", [](Rml::Event& e)
     {
       ezGameApplication::cvar_AppShowFPS = e.GetParameter("checked", false);
@@ -895,6 +902,12 @@ void ezRmlUiMainMenuComponent::InitializeWidgetsFromSettings(Rml::ElementDocumen
     }
   }
 
+  if (auto pInput = ezRmlUiUtils::GetInputElement(pDocument, "render-scale"))
+  {
+    sValue.SetFormat("{}", (ezInt32)ezMath::Round((float)ezGameApplication::cvar_AppRenderScale * 100.0f));
+    pInput->SetValue(sValue.GetData());
+  }
+
   if (auto pInput = ezRmlUiUtils::GetInputElement(pDocument, "ui-scale"))
   {
     sValue.SetFormat("{}", (ezInt32)((float)cvar_OptionsUiScale * 100.0f));
@@ -1027,6 +1040,9 @@ void ezRmlUiMainMenuComponent::UpdateValueLabels(Rml::ElementDocument* pDocument
   sValue.SetFormat("{}%%", (ezInt32)((float)cvar_OptionsUiScale * 100.0f));
   SetLabel("ui-scale-value", sValue.GetData());
 
+  sValue.SetFormat("{}%%", (ezInt32)ezMath::Round((float)ezGameApplication::cvar_AppRenderScale * 100.0f));
+  SetLabel("render-scale-value", sValue.GetData());
+
   for (ezUInt32 i = 0; i < m_GroupVolumes.GetCount(); ++i)
   {
     sId.SetFormat("sound-group-{}-value", i);
@@ -1153,6 +1169,11 @@ void ezRmlUiMainMenuComponent::RestoreDefaultSettings(Rml::ElementDocument* pDoc
   if (IsShown("check-vsync"))
   {
     ezGameApplication::cvar_AppVSync = ezGameApplication::cvar_AppVSync.GetValue(ezCVarValue::Default);
+  }
+
+  if (IsShown("render-scale"))
+  {
+    ezGameApplication::cvar_AppRenderScale = ezGameApplication::cvar_AppRenderScale.GetValue(ezCVarValue::Default);
   }
 
   if (IsShown("select-texture-filtering"))

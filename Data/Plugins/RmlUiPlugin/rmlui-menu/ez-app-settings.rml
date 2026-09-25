@@ -98,6 +98,14 @@
                   </td>
                 </tr>
                 <tr>
+                  <td>Render Resolution</td>
+                  <td>
+                    <!-- Only affects render pipelines that render the scene at a reduced resolution and upscale it -->
+                    <input type="range" min="25" max="100" step="5" value="100" id="render-scale" onchange="render-scale-change" />
+                  </td>
+                  <td class="value" id="render-scale-value"></td>
+                </tr>
+                <tr>
                   <td>Texture Filtering</td>
                   <td>
                     <!-- The order of these options matches the values of the 'Rendering.TextureQuality' CVar -->

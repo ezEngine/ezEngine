@@ -57,12 +57,19 @@ ezStatus ezSelectionHighlightPass::AddRenderPasses(const ezViewData& viewData, c
 
   outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
 
+  // Without a scene depth buffer of matching size (e.g. when placed after an ezUpscalePass), the color is passed through unchanged.
   ezRenderGraphTextureHandle hDepth = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
   if (hDepth.IsInvalidated())
-    return ezStatus(ezFmt("DepthStencil: Not connected"));
+    return EZ_SUCCESS;
+
+  const ezGALTextureCreationDescription colorDesc = ref_graph.GetTextureDesc(hColor);
+  const ezGALTextureCreationDescription& sceneDepthDesc = ref_graph.GetTextureDesc(hDepth);
+  if (sceneDepthDesc.m_uiWidth != colorDesc.m_uiWidth || sceneDepthDesc.m_uiHeight != colorDesc.m_uiHeight)
+    return EZ_SUCCESS;
+  if (sceneDepthDesc.m_SampleCount != colorDesc.m_SampleCount)
+    return ezStatus(ezFmt("DepthStencil: MSAA mode ({}) doesn't match the one of Color ({}). Connect a depth buffer with the same MSAA mode, e.g. the output of an ezMsaaResolvePass.", ezArgEnum(sceneDepthDesc.m_SampleCount), ezArgEnum(colorDesc.m_SampleCount)));
 
   // Create temp depth texture for selection rendering
-  const ezGALTextureCreationDescription colorDesc = ref_graph.GetTextureDesc(hColor);
   ezGALTextureCreationDescription depthDesc;
   depthDesc.SetAsRenderTarget(colorDesc.m_uiWidth, colorDesc.m_uiHeight, colorDesc.m_uiArraySize, ezGALResourceFormat::D24S8, colorDesc.m_SampleCount);
   ezRenderGraphTextureHandle hSelectionDepth = ref_graph.CreateTexture(depthDesc);

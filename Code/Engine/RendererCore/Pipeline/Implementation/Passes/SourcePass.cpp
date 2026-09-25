@@ -8,7 +8,7 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 4, ezRTTIDefaultAllocator<ezSourcePass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 5, ezRTTIDefaultAllocator<ezSourcePass>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -21,6 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 4, ezRTTIDefaultAllocator<ezSource
     EZ_MEMBER_PROPERTY("ClearColor", m_ClearColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_MEMBER_PROPERTY("ClearDepth", m_fClearDepth)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("Clear", m_bClear),
+    EZ_MEMBER_PROPERTY("ApplyRenderScale", m_bApplyRenderScale),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -289,7 +290,7 @@ ezEnum<ezGALResourceFormat> ezSourcePass::FindFormat(ezEnum<ezRequiredTextureTyp
   return ezGALResourceFormat::Invalid;
 }
 
-ezStatus ezSourcePass::GetOutputDescription(const ezViewData& viewData, const ezCamera& camera, ezEnum<ezRequiredTextureType> type, ezEnum<ezRequiredTexturePrecision> minPrecision, ezEnum<ezRequiredTextureChannels> minChannels, ezEnum<ezGALMSAASampleCount> msaaMode, bool bUAV, ezGALTextureCreationDescription& out_desc)
+ezStatus ezSourcePass::GetOutputDescription(const ezViewData& viewData, const ezCamera& camera, ezEnum<ezRequiredTextureType> type, ezEnum<ezRequiredTexturePrecision> minPrecision, ezEnum<ezRequiredTextureChannels> minChannels, ezEnum<ezGALMSAASampleCount> msaaMode, bool bUAV, bool bApplyRenderScale, ezGALTextureCreationDescription& out_desc)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   const ezBitflags<ezGALResourceFormatSupport> requiredSupport = GetRequiredFormatSupport(msaaMode, bUAV);
@@ -317,7 +318,8 @@ ezStatus ezSourcePass::GetOutputDescription(const ezViewData& viewData, const ez
     }
   }
 
-  out_desc.SetAsRenderTarget(static_cast<ezUInt32>(viewData.m_ViewPortRect.width), static_cast<ezUInt32>(viewData.m_ViewPortRect.height), camera.IsStereoscopic() ? 2 : 1, format, msaaMode);
+  const ezSizeU32 size = bApplyRenderScale ? viewData.GetScaledViewportSize() : ezSizeU32(static_cast<ezUInt32>(viewData.m_ViewPortRect.width), static_cast<ezUInt32>(viewData.m_ViewPortRect.height));
+  out_desc.SetAsRenderTarget(size.width, size.height, camera.IsStereoscopic() ? 2 : 1, format, msaaMode);
   out_desc.m_Type = ezGALTextureType::Texture2DArray;
   if (bUAV)
     out_desc.m_TextureFlags.Add(ezGALTextureUsageFlags::UnorderedAccess);
@@ -328,7 +330,7 @@ ezStatus ezSourcePass::GetOutputDescription(const ezViewData& viewData, const ez
 ezStatus ezSourcePass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezGALTextureCreationDescription desc;
-  EZ_SUCCEED_OR_RETURN(GetOutputDescription(viewData, camera, m_Type, m_MinPrecision, m_MinChannels, m_MsaaMode, m_bUAV, desc));
+  EZ_SUCCEED_OR_RETURN(GetOutputDescription(viewData, camera, m_Type, m_MinPrecision, m_MinChannels, m_MsaaMode, m_bUAV, m_bApplyRenderScale, desc));
   ezRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(desc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
@@ -363,6 +365,7 @@ ezResult ezSourcePass::Serialize(ezStreamWriter& inout_stream) const
   inout_stream << m_fClearDepth;
   inout_stream << m_bClear;
   inout_stream << m_bUAV;
+  inout_stream << m_bApplyRenderScale;
   return EZ_SUCCESS;
 }
 
@@ -380,6 +383,11 @@ ezResult ezSourcePass::Deserialize(ezStreamReader& inout_stream)
     inout_stream >> m_fClearDepth;
     inout_stream >> m_bClear;
     inout_stream >> m_bUAV;
+
+    if (uiVersion >= 5)
+    {
+      inout_stream >> m_bApplyRenderScale;
+    }
   }
   else
   {

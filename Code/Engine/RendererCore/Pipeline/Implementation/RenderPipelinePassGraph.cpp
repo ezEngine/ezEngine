@@ -509,7 +509,7 @@ ezStatus ezRenderPipelinePassGraph::AddRenderPasses(const ezViewData& viewData, 
     const ezStatus result = pPass->m_bActive ? pPass->AddRenderPasses(viewData, camera, ref_graph, inputs, outputs) : pPass->AddRenderPassesInactive(viewData, camera, ref_graph, inputs, outputs);
     ref_graph.PopMarker();
     if (result.Failed())
-      return result;
+      return ezStatus(ezFmt("Pass '{}' ({}): {}", pPass->GetName(), pPass->GetDynamicRTTI()->GetTypeName(), result.GetMessageString()));
 
     for (ezUInt32 i = 0; i < passInfo.m_uiOutputConnections.GetCount(); ++i)
     {

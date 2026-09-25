@@ -51,6 +51,7 @@ class EZ_RENDERERCORE_DLL ezRenderViewContext : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderViewContext, ezReflectedClass);
   // Updates global constants and encoder with the viewport information of the view data.
+  // If the currently bound render targets are smaller than the view's viewport (e.g. due to a render scale), the viewport covers the entire targets instead.
   void UpdateViewport() const;
 
   const ezRenderPipeline* m_pPipeline = nullptr;

@@ -233,28 +233,31 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
   }
 
 #if TRACY_ENABLE
+  // Tracy asserts on messages of 64 KB or more, so longer ones are cut off.
+  const size_t uiTracyMsgLength = ezMath::Min<size_t>(sString.GetElementCount(), 0xFFFE);
+
   switch (type)
   {
     case ezLogMsgType::ErrorMsg:
-      TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::Red);
+      TracyMessageC(sString.GetStartPointer(), uiTracyMsgLength, tracy::Color::Red);
       break;
     case ezLogMsgType::SeriousWarningMsg:
-      TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::Orange);
+      TracyMessageC(sString.GetStartPointer(), uiTracyMsgLength, tracy::Color::Orange);
       break;
     case ezLogMsgType::WarningMsg:
-      TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::Yellow);
+      TracyMessageC(sString.GetStartPointer(), uiTracyMsgLength, tracy::Color::Yellow);
       break;
     case ezLogMsgType::SuccessMsg:
-      TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::Green);
+      TracyMessageC(sString.GetStartPointer(), uiTracyMsgLength, tracy::Color::Green);
       break;
     case ezLogMsgType::InfoMsg:
-      TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::White);
+      TracyMessageC(sString.GetStartPointer(), uiTracyMsgLength, tracy::Color::White);
       break;
     case ezLogMsgType::DevMsg:
-      TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::Grey);
+      TracyMessageC(sString.GetStartPointer(), uiTracyMsgLength, tracy::Color::Grey);
       break;
     case ezLogMsgType::DebugMsg:
-      TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::CornflowerBlue);
+      TracyMessageC(sString.GetStartPointer(), uiTracyMsgLength, tracy::Color::CornflowerBlue);
       break;
 
     default:

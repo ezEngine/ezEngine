@@ -93,8 +93,9 @@ public:
 
   /// Builds a render target description that matches the given requirements, the view's viewport size and the camera's stereo mode.
   ///
+  /// If bApplyRenderScale is set, the size is the viewport size scaled by ezViewData::m_fRenderScale.
   /// Fails if the device supports no format for the requested combination.
-  static ezStatus GetOutputDescription(const ezViewData& viewData, const ezCamera& camera, ezEnum<ezRequiredTextureType> type, ezEnum<ezRequiredTexturePrecision> minPrecision, ezEnum<ezRequiredTextureChannels> minChannels, ezEnum<ezGALMSAASampleCount> msaaMode, bool bUAV, ezGALTextureCreationDescription& out_desc);
+  static ezStatus GetOutputDescription(const ezViewData& viewData, const ezCamera& camera, ezEnum<ezRequiredTextureType> type, ezEnum<ezRequiredTexturePrecision> minPrecision, ezEnum<ezRequiredTextureChannels> minChannels, ezEnum<ezGALMSAASampleCount> msaaMode, bool bUAV, bool bApplyRenderScale, ezGALTextureCreationDescription& out_desc);
 
   virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
@@ -111,4 +112,5 @@ protected:
   float m_fClearDepth = 1.0f;                                                              ///< Clear depth if clearing is enabled and the format is a depth format.
   bool m_bClear = false;                                                                   ///< Whether to clear the render target on each execution.
   bool m_bUAV = false;                                                                     ///< Whether the texture also has to be writable from compute shaders.
+  bool m_bApplyRenderScale = false;                                                        ///< Whether the texture size is scaled by the view's render scale. Requires an ezUpscalePass before the output.
 };

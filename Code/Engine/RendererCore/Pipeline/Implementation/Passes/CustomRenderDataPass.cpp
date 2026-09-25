@@ -44,6 +44,14 @@ ezStatus ezCustomRenderDataPass::AddRenderPasses(const ezViewData& viewData, con
   if (!hDepthStencil.IsInvalidated())
     outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
 
+  if (!hColor.IsInvalidated() && !hDepthStencil.IsInvalidated())
+  {
+    const ezGALTextureCreationDescription& colorDesc = ref_graph.GetTextureDesc(hColor);
+    const ezGALTextureCreationDescription& depthDesc = ref_graph.GetTextureDesc(hDepthStencil);
+    if (colorDesc.m_SampleCount != depthDesc.m_SampleCount)
+      return ezStatus(ezFmt("DepthStencil: MSAA mode ({}) doesn't match the one of Color ({}). Connect a depth buffer with the same MSAA mode, e.g. the output of an ezMsaaResolvePass.", ezArgEnum(depthDesc.m_SampleCount), ezArgEnum(colorDesc.m_SampleCount)));
+  }
+
   auto pass = ref_graph.AddGraphicsPass(GetName());
   if (!hColor.IsInvalidated())
     pass.AddColorTarget(hColor);

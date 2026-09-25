@@ -9,7 +9,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezRenderViewContext::UpdateViewport() const
 {
-  ezRectFloat viewport = m_pViewData->m_ViewPortRect;
+  const ezRectFloat viewport = m_pViewData->GetViewportForTargetSize(m_pRenderContext->GetRenderTargetSize());
   auto& gc = m_pRenderContext->WriteGlobalConstants();
   gc.ViewportSize = ezVec4(viewport.width, viewport.height, 1.0f / viewport.width, 1.0f / viewport.height);
   m_pRenderContext->GetCommandEncoder()->SetViewport(viewport);

@@ -79,6 +79,13 @@ public:
   void SetViewport(const ezRectFloat& viewport);
   const ezRectFloat& GetViewport() const;
 
+  /// Sets the factor for the resolution at which the scene is rendered, relative to the viewport. See ezViewData::m_fRenderScale.
+  ///
+  /// Affects source passes with 'ApplyRenderScale' enabled, and the size of the shadow maps that are rendered for this view.
+  /// The value is clamped to [0.01; 1]. Changes take effect with the next rendered frame.
+  void SetRenderScale(float fScale);
+  float GetRenderScale() const;
+
   /// Forces the render pipeline to be rebuilt.
   void ForceUpdate();
 

@@ -41,7 +41,9 @@ ezPerClusterData GetClusterData(float3 screenPosition)
   // clustered data lookup
   float linearDepth = screenPosition.z;
   uint depthSlice = uint(clamp(log2(linearDepth) * DepthSliceScale + DepthSliceBias, 0, NUM_CLUSTERS_Z - 1));
-  uint3 clusterCoord = uint3(screenPosition.xy * InvTileSize, depthSlice);
+  // ViewportSize matches the render target that is currently rendered to, which is smaller than the view when a render scale is used.
+  float2 invTileSize = float2(NUM_CLUSTERS_X, NUM_CLUSTERS_Y) * ViewportSize.zw;
+  uint3 clusterCoord = uint3(screenPosition.xy * invTileSize, depthSlice);
   uint clusterIndex = clusterCoord.z * NUM_CLUSTERS_XY + clusterCoord.y * NUM_CLUSTERS_X + clusterCoord.x;
 
   return perClusterDataBuffer[clusterIndex];
