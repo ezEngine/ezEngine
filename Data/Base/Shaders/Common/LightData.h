@@ -194,7 +194,7 @@ struct ezPerDecalAtlasData
   {
     FLOAT1(DepthSliceScale);
     FLOAT1(DepthSliceBias);
-    FLOAT2(InvTileSize);
+    FLOAT2(ClusteredDataPadding0);
 
     UINT1(NumLights);
     UINT1(NumDecals);

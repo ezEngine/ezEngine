@@ -175,6 +175,7 @@ void ezRenderContext::BeginRendering(const ezGALRenderingSetup& renderingSetup, 
 {
   EZ_ASSERT_DEBUG(m_bRendering == false && m_bCompute == false, "Already in a scope");
   m_bRendering = true;
+  m_RenderTargetSize = renderingSetup.GetFrameBuffer().m_Size;
   m_GraphicsPipeline.m_RenderPass = renderingSetup.GetRenderPass();
   m_StateFlags.Add(ezRenderContextFlags::PipelineChanged);
   const ezGALMSAASampleCount::Enum msaaSampleCount = renderingSetup.GetRenderPass().m_Msaa;
@@ -204,6 +205,7 @@ void ezRenderContext::EndRendering()
 
   m_bStereoRendering = false;
   m_bRendering = false;
+  m_RenderTargetSize = {0, 0};
 }
 
 void ezRenderContext::BeginCompute(const char* szName /*= ""*/)

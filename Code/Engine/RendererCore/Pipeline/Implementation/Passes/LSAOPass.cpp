@@ -134,6 +134,12 @@ ezStatus ezLSAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera&
         m_bConstantsDirty = false;
       }
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+
+      // Compute passes have no viewport, the shader reads the depth buffer size from the global constants.
+      const float fWidth = static_cast<float>(depthDesc.m_uiWidth);
+      const float fHeight = static_cast<float>(depthDesc.m_uiHeight);
+      renderViewContext.m_pRenderContext->WriteGlobalConstants().ViewportSize = ezVec4(fWidth, fHeight, 1.0f / fWidth, 1.0f / fHeight);
+
       ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
       bindGroup.BindBuffer("ezLSAOConstants", m_hLineSweepCB);
       bindGroup.BindTexture("DepthBuffer", ctx.ResolveTexture(hDepthInput));

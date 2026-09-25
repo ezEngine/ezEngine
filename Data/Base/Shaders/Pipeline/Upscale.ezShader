@@ -1,0 +1,63 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+CAMERA_MODE
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
+#include "UpscaleConstants.h"
+
+Texture2DArray ColorTexture;
+
+float3 SampleInput(float2 uv)
+{
+  return ColorTexture.SampleLevel(LinearClampSampler, float3(uv, s_ActiveCameraEyeIndex), 0.0).rgb;
+}
+
+float4 main(PS_IN Input) : SV_Target
+{
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+#endif
+
+  float2 uv = Input.TexCoord0.xy;
+  float4 center = ColorTexture.SampleLevel(LinearClampSampler, float3(uv, s_ActiveCameraEyeIndex), 0.0);
+
+  [branch] if (Sharpness <= 0.0)
+    return center;
+
+  // Contrast adaptive sharpening, following the idea of AMD's CAS: the neighbors one input texel away are subtracted from the center,
+  // with less weight where the local contrast is already high. That keeps edges from ringing and noise from being amplified.
+  // Meant for values in [0; 1], i.e. the result of tonemapping. Neighborhoods with brighter values get no sharpening.
+  float3 n = SampleInput(uv + float2(0.0, -InputTexelSize.y));
+  float3 s = SampleInput(uv + float2(0.0, InputTexelSize.y));
+  float3 w = SampleInput(uv + float2(-InputTexelSize.x, 0.0));
+  float3 e = SampleInput(uv + float2(InputTexelSize.x, 0.0));
+
+  float3 minColor = min(center.rgb, min(min(n, s), min(w, e)));
+  float3 maxColor = max(center.rgb, max(max(n, s), max(w, e)));
+
+  // How far the neighborhood is from both ends of the value range, relative to its brightest value.
+  float3 amount = sqrt(saturate(min(minColor, 1.0 - maxColor) / max(maxColor, 0.0001)));
+
+  // A weight of -1/5 would be the strongest sharpening that still keeps the filter stable, -1/8 the weakest.
+  float3 weight = amount * (-1.0 / lerp(8.0, 5.0, saturate(Sharpness)));
+
+  float3 result = (center.rgb + (n + s + w + e) * weight) / (1.0 + 4.0 * weight);
+  return float4(result, center.a);
+}

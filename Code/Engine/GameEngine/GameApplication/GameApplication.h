@@ -84,6 +84,11 @@ public:
   static ezCVarBool cvar_AppShowFPS;
   static ezCVarBool cvar_WorldShowObjectOrigins;
 
+  /// Resolution of the game's main view relative to the window, see ezView::SetRenderScale().
+  ///
+  /// Only has an effect if the main render pipeline uses source passes with 'ApplyRenderScale' and an ezUpscalePass.
+  static ezCVarFloat cvar_AppRenderScale;
+
 public:
   using SUPER = ezGameApplicationBase;
 

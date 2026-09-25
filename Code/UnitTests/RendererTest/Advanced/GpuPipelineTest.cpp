@@ -5,9 +5,13 @@
 #include <Core/Utils/Blackboard.h>
 #include <Core/World/World.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelinePassGraph.h>
+#include <RendererCore/Pipeline/Passes/DebugRenderPass.h>
+#include <RendererCore/Pipeline/Passes/SourcePass.h>
 #include <RendererCore/Pipeline/Passes/SwitchPass.h>
+#include <RendererCore/Pipeline/Passes/UpscalePass.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Pipeline/ViewData.h>
@@ -24,6 +28,8 @@ namespace
   {
     Connectivity m_Connectivity = Connectivity::None;
     ezUInt32 m_uiHandleId = 0;
+    ezUInt32 m_uiWidth = 0; ///< Only recorded for textures, by passes that pass the render graph to RecordPass().
+    ezUInt32 m_uiHeight = 0;
   };
 
   struct RecordedPass
@@ -35,30 +41,38 @@ namespace
 
   ezDynamicArray<RecordedPass>* s_pExecutionOrder = nullptr;
 
-  RecordedPin MakeRecordedPin(const ezRenderPipelinePinConnection& connection)
+  RecordedPin MakeRecordedPin(const ezRenderPipelinePinConnection& connection, const ezRenderGraph* pGraph)
   {
     RecordedPin pin;
     pin.m_Connectivity = connection.m_Connectivity;
     if (connection.m_Connectivity == Connectivity::Texture)
+    {
       pin.m_uiHandleId = connection.m_TextureHandle.GetInternalID().m_Data;
+      if (pGraph != nullptr && !connection.m_TextureHandle.IsInvalidated())
+      {
+        const ezGALTextureCreationDescription& desc = pGraph->GetTextureDesc(connection.m_TextureHandle);
+        pin.m_uiWidth = desc.m_uiWidth;
+        pin.m_uiHeight = desc.m_uiHeight;
+      }
+    }
     else if (connection.m_Connectivity == Connectivity::Buffer)
       pin.m_uiHandleId = connection.m_BufferHandle.GetInternalID().m_Data;
 
     return pin;
   }
 
-  void RecordPass(ezStringView sName, ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<const ezRenderPipelinePinConnection> outputs)
+  void RecordPass(ezStringView sName, ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<const ezRenderPipelinePinConnection> outputs, const ezRenderGraph* pGraph = nullptr)
   {
     RecordedPass& recorded = s_pExecutionOrder->ExpandAndGetRef();
     recorded.m_sName = sName;
 
     for (const ezRenderPipelinePinConnection& connection : inputs)
     {
-      recorded.m_Inputs.PushBack(MakeRecordedPin(connection));
+      recorded.m_Inputs.PushBack(MakeRecordedPin(connection, pGraph));
     }
     for (const ezRenderPipelinePinConnection& connection : outputs)
     {
-      recorded.m_Outputs.PushBack(MakeRecordedPin(connection));
+      recorded.m_Outputs.PushBack(MakeRecordedPin(connection, pGraph));
     }
   }
 
@@ -131,9 +145,9 @@ namespace
     {
     }
 
-    virtual ezStatus AddRenderPasses(const ezViewData&, const ezCamera&, ezRenderGraph&, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override
+    virtual ezStatus AddRenderPasses(const ezViewData&, const ezCamera&, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override
     {
-      RecordPass(GetName(), inputs, outputs);
+      RecordPass(GetName(), inputs, outputs, &ref_graph);
       return EZ_SUCCESS;
     }
 
@@ -430,6 +444,7 @@ void ezGpuPipelineTest::SetupSubTests()
   AddSubTest("SubGraphBufferInlining", SubTests::ST_SubGraphBufferInlining);
   AddSubTest("IncompatiblePinConnection", SubTests::ST_IncompatiblePinConnection);
   AddSubTest("SharedSourceSwitch", SubTests::ST_SharedSourceSwitch);
+  AddSubTest("RenderScale", SubTests::ST_RenderScale);
 }
 
 ezResult ezGpuPipelineTest::InitializeSubTest(ezInt32 iIdentifier)
@@ -493,6 +508,9 @@ ezTestAppRun ezGpuPipelineTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoc
       break;
     case SubTests::ST_SharedSourceSwitch:
       SharedSourceSwitch();
+      break;
+    case SubTests::ST_RenderScale:
+      RenderScale();
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -664,6 +682,162 @@ void ezGpuPipelineTest::SharedSourceSwitch()
   CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
   const char* expectedOrder[] = {"Source", "Sink"};
   TestExecutionOrder(executionOrder, expectedOrder);
+}
+
+namespace
+{
+  void SetPassProperty(ezRenderPipelinePass* pPass, ezStringView sProperty, const ezVariant& value)
+  {
+    const ezAbstractProperty* pProp = pPass->GetDynamicRTTI()->FindPropertyByName(sProperty);
+    if (EZ_TEST_BOOL(pProp != nullptr && pProp->GetCategory() == ezPropertyCategory::Member))
+    {
+      ezReflectionUtils::SetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), pPass, value);
+    }
+  }
+
+  ezUInt32 AddSourcePass(ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>& ref_passes, const char* szName, bool bDepth, bool bApplyRenderScale, ezGALMSAASampleCount::Enum msaa = ezGALMSAASampleCount::None)
+  {
+    const ezUInt32 uiIndex = AddPass<ezSourcePass>(ref_passes, szName);
+    ezRenderPipelinePass* pPass = ref_passes[uiIndex].Borrow();
+    if (bDepth)
+    {
+      SetPassProperty(pPass, "Type", (ezInt64)ezRequiredTextureType::Depth);
+      SetPassProperty(pPass, "Precision", (ezInt64)ezRequiredTexturePrecision::Bits_24);
+      SetPassProperty(pPass, "Channels", (ezInt64)ezRequiredTextureChannels::Channels_2);
+    }
+    SetPassProperty(pPass, "MSAA_Mode", (ezInt64)msaa);
+    SetPassProperty(pPass, "ApplyRenderScale", bApplyRenderScale);
+    return uiIndex;
+  }
+
+  ezStatus AddRenderPassesWithScale(ezRenderPipelinePassGraph& ref_pipeline, ezRenderGraph& ref_graph, float fRenderScale, ezDynamicArray<RecordedPass>& ref_executionOrder)
+  {
+    ref_graph.Reset();
+    ref_executionOrder.Clear();
+    s_pExecutionOrder = &ref_executionOrder;
+
+    ezViewData viewData;
+    viewData.m_ViewPortRect = ezRectFloat(0.0f, 0.0f, 800.0f, 600.0f);
+    viewData.m_fRenderScale = fRenderScale;
+    ezCamera camera;
+    const ezStatus res = ref_pipeline.AddRenderPasses(viewData, camera, ref_graph);
+
+    s_pExecutionOrder = nullptr;
+    return res;
+  }
+} // namespace
+
+void ezGpuPipelineTest::RenderScale()
+{
+  // Size and viewport computations of the view data.
+  {
+    ezViewData viewData;
+    viewData.m_ViewPortRect = ezRectFloat(0.0f, 0.0f, 1000.0f, 500.0f);
+    viewData.m_fRenderScale = 0.25f;
+    EZ_TEST_BOOL(viewData.GetScaledViewportSize() == ezSizeU32(250, 125));
+
+    // Values below 1% are clamped.
+    viewData.m_fRenderScale = 0.001f;
+    EZ_TEST_BOOL(viewData.GetScaledViewportSize() == ezSizeU32(10, 5));
+
+    // Never smaller than one pixel.
+    viewData.m_ViewPortRect = ezRectFloat(0.0f, 0.0f, 10.0f, 10.0f);
+    viewData.m_fRenderScale = 0.01f;
+    EZ_TEST_BOOL(viewData.GetScaledViewportSize() == ezSizeU32(1, 1));
+
+    // The view's viewport, including its offset, is used as long as it fits into the targets.
+    viewData.m_ViewPortRect = ezRectFloat(100.0f, 50.0f, 800.0f, 600.0f);
+    EZ_TEST_BOOL(viewData.GetViewportForTargetSize(ezSizeU32(1920, 1080)) == viewData.m_ViewPortRect);
+    EZ_TEST_BOOL(viewData.GetViewportForTargetSize(ezSizeU32(0, 0)) == viewData.m_ViewPortRect);
+    EZ_TEST_BOOL(viewData.GetViewportForTargetSize(ezSizeU32(800, 600)) == ezRectFloat(0.0f, 0.0f, 800.0f, 600.0f));
+    EZ_TEST_BOOL(viewData.GetViewportForTargetSize(ezSizeU32(400, 300)) == ezRectFloat(0.0f, 0.0f, 400.0f, 300.0f));
+  }
+
+  // Scaled sources, the upscale pass, and a world debug pass whose depth input doesn't match the upscaled color.
+  {
+    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
+    const ezUInt32 uiColor = AddSourcePass(passes, "Color", false, true);
+    const ezUInt32 uiDepth = AddSourcePass(passes, "Depth", true, true);
+    const ezUInt32 uiUnscaled = AddSourcePass(passes, "Unscaled", false, false);
+    const ezUInt32 uiUpscale = AddPass<ezUpscalePass>(passes, "Upscale");
+    const ezUInt32 uiDebugWorld = AddPass<ezDebugWorldRenderPass>(passes, "DebugWorld");
+    const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+    const ezUInt32 uiUnscaledSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "UnscaledSink");
+
+    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    Connect(connections, uiColor, "Output", uiUpscale, "Input");
+    Connect(connections, uiUpscale, "Output", uiDebugWorld, "Color");
+    Connect(connections, uiDepth, "Output", uiDebugWorld, "DepthStencil");
+    Connect(connections, uiColor, "Output", uiSink, "InputA");
+    Connect(connections, uiDebugWorld, "Color", uiSink, "InputB");
+    Connect(connections, uiUnscaled, "Output", uiUnscaledSink, "InputA");
+
+    ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+    EZ_TEST_RESULT(pPipeline->CullDeadPasses());
+    EZ_TEST_RESULT(pPipeline->SortPasses());
+
+    ezDynamicArray<RecordedPass> executionOrder;
+
+    // Half resolution: the scaled source is smaller, the upscale pass brings it back to the viewport size.
+    // The depth buffer no longer matches the upscaled color, the debug pass ignores it instead of failing.
+    {
+      EZ_TEST_BOOL(AddRenderPassesWithScale(*pPipeline, *m_pRenderGraph, 0.5f, executionOrder).Succeeded());
+
+      const RecordedPin scaled = GetInput(executionOrder, "Sink", 0);
+      const RecordedPin upscaled = GetInput(executionOrder, "Sink", 1);
+      const RecordedPin unscaled = GetInput(executionOrder, "UnscaledSink", 0);
+
+      EZ_TEST_INT(scaled.m_uiWidth, 400);
+      EZ_TEST_INT(scaled.m_uiHeight, 300);
+      EZ_TEST_INT(upscaled.m_uiWidth, 800);
+      EZ_TEST_INT(upscaled.m_uiHeight, 600);
+      EZ_TEST_BOOL(upscaled.m_uiHandleId != scaled.m_uiHandleId);
+      EZ_TEST_INT(unscaled.m_uiWidth, 800);
+      EZ_TEST_INT(unscaled.m_uiHeight, 600);
+    }
+
+    // Full resolution: the upscale pass forwards its input.
+    {
+      EZ_TEST_BOOL(AddRenderPassesWithScale(*pPipeline, *m_pRenderGraph, 1.0f, executionOrder).Succeeded());
+
+      const RecordedPin scaled = GetInput(executionOrder, "Sink", 0);
+      const RecordedPin upscaled = GetInput(executionOrder, "Sink", 1);
+
+      EZ_TEST_INT(scaled.m_uiWidth, 800);
+      EZ_TEST_INT(scaled.m_uiHeight, 600);
+      EZ_TEST_INT(upscaled.m_uiHandleId, scaled.m_uiHandleId);
+    }
+
+    m_pRenderGraph->Reset();
+  }
+
+  // A depth buffer with a different MSAA mode than the color target is reported as an error, instead of reaching the render graph.
+  const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
+  if (caps.m_FormatSupport[ezGALResourceFormat::D24S8].IsSet(ezGALResourceFormatSupport::MSAA4x))
+  {
+    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
+    const ezUInt32 uiColor = AddSourcePass(passes, "Color", false, false);
+    const ezUInt32 uiDepth = AddSourcePass(passes, "Depth", true, false, ezGALMSAASampleCount::FourSamples);
+    const ezUInt32 uiDebugWorld = AddPass<ezDebugWorldRenderPass>(passes, "DebugWorld");
+    const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+
+    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    Connect(connections, uiColor, "Output", uiDebugWorld, "Color");
+    Connect(connections, uiDepth, "Output", uiDebugWorld, "DepthStencil");
+    Connect(connections, uiDebugWorld, "Color", uiSink, "InputA");
+
+    ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+    EZ_TEST_RESULT(pPipeline->CullDeadPasses());
+    EZ_TEST_RESULT(pPipeline->SortPasses());
+
+    ezDynamicArray<RecordedPass> executionOrder;
+    const ezStatus res = AddRenderPassesWithScale(*pPipeline, *m_pRenderGraph, 1.0f, executionOrder);
+    EZ_TEST_BOOL(res.Failed());
+    EZ_TEST_BOOL(res.GetMessageString().FindSubString("DebugWorld") != nullptr);
+    EZ_TEST_BOOL(res.GetMessageString().FindSubString("MSAA") != nullptr);
+
+    m_pRenderGraph->Reset();
+  }
 }
 
 void ezGpuPipelineTest::SubGraphInlining()
