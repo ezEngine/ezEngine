@@ -137,7 +137,7 @@ uint CalculateCoverage()
 
   return coverage;
 #else
-  return GetOpacity() > 0.0;
+  return GetOpacity() > 0.0 ? 0xFFFFFFFFu : 0u;
 #endif
 }
 
