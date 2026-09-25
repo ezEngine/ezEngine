@@ -146,6 +146,13 @@ void ezView::SetViewport(const ezRectFloat& viewport)
   UpdateViewData(ezRenderWorld::GetDataIndexForExtraction());
 }
 
+void ezView::SetRenderScale(float fScale)
+{
+  m_Data.m_fRenderScale = ezMath::Clamp(fScale, 0.01f, 1.0f);
+
+  UpdateViewData(ezRenderWorld::GetDataIndexForExtraction());
+}
+
 void ezView::ForceUpdate()
 {
   if (m_pRenderPipeline)

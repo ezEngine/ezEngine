@@ -393,10 +393,12 @@ namespace
     return lines.GetCount();
   }
 
-  static void AppendGlyphs(ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper>& ref_glyphs, const TextLineData2D& textLine)
+  /// fScale scales the glyph size and spacing, but not m_topLeftCorner.
+  static void AppendGlyphs(ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper>& ref_glyphs, const TextLineData2D& textLine, float fScale = 1.0f)
   {
     ezVec2 currentPos = textLine.m_topLeftCorner;
-    const float fGlyphWidth = ezDebugRenderer::GetTextGlyphWidth(textLine.m_uiSizeInPixel);
+    const float fGlyphWidth = ezDebugRenderer::GetTextGlyphWidth(textLine.m_uiSizeInPixel) * fScale;
+    const ezUInt16 uiGlyphSize = (ezUInt16)ezMath::Max(1.0f, ezMath::Ceil(textLine.m_uiSizeInPixel * ezDebugRenderer::GetTextScale() * fScale));
 
     for (ezUInt32 uiCharacter : textLine.m_text)
     {
@@ -404,7 +406,7 @@ namespace
       glyphData.m_topLeftCorner = currentPos;
       glyphData.m_color = textLine.m_color;
       glyphData.m_glyphIndex = uiCharacter < 128 ? static_cast<ezUInt16>(uiCharacter) : 0;
-      glyphData.m_sizeInPixel = (ezUInt16)ezMath::Ceil(textLine.m_uiSizeInPixel * ezDebugRenderer::GetTextScale());
+      glyphData.m_sizeInPixel = uiGlyphSize;
 
       currentPos.x += fGlyphWidth;
     }
@@ -1799,17 +1801,22 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
   {
     pData->m_glyphs.Clear();
 
+    // With a render scale the target is smaller than the viewport the text is laid out for.
+    const ezViewData& viewData = *renderViewContext.m_pViewData;
+    const ezRectFloat targetViewport = viewData.GetViewportForTargetSize(renderViewContext.m_pRenderContext->GetRenderTargetSize());
+    const float fTextScale = viewData.m_ViewPortRect.width > 0.0f ? targetViewport.width / viewData.m_ViewPortRect.width : 1.0f;
+
     for (auto& textLine : pData->m_textLines3D)
     {
       ezVec3 screenPos;
-      if (renderViewContext.m_pViewData->ComputeScreenSpacePos(textLine.m_position, screenPos).Succeeded() && screenPos.z > 0.0f)
+      if (viewData.ComputeScreenSpacePos(textLine.m_position, screenPos).Succeeded() && screenPos.z > 0.0f)
       {
-        renderViewContext.m_pViewData->ConvertScreenNormalizedPosToPixelPos(screenPos);
+        ezGraphicsUtils::ConvertScreenNormalizedPosToPixelPos((ezUInt32)targetViewport.x, (ezUInt32)targetViewport.y, (ezUInt32)targetViewport.width, (ezUInt32)targetViewport.height, screenPos);
 
-        textLine.m_topLeftCorner.x += ezMath::Round(screenPos.x);
-        textLine.m_topLeftCorner.y += ezMath::Round(screenPos.y);
+        textLine.m_topLeftCorner.x = ezMath::Round(screenPos.x + textLine.m_topLeftCorner.x * fTextScale);
+        textLine.m_topLeftCorner.y = ezMath::Round(screenPos.y + textLine.m_topLeftCorner.y * fTextScale);
 
-        AppendGlyphs(pData->m_glyphs, textLine);
+        AppendGlyphs(pData->m_glyphs, textLine, fTextScale);
       }
     }
 

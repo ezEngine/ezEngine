@@ -64,6 +64,9 @@ public:
   void BeginRendering(const ezGALRenderingSetup& renderingSetup, const ezRectFloat& viewport, const char* szName = "", bool bStereoRendering = false);
   void EndRendering();
 
+  /// Size of the frame buffer that was passed to BeginRendering. Zero outside of a rendering scope.
+  ezSizeU32 GetRenderTargetSize() const { return m_RenderTargetSize; }
+
   void BeginCompute(const char* szName = "");
   void EndCompute();
 
@@ -108,7 +111,7 @@ public:
   using RenderingScope = CommandEncoderScope<0>;
   EZ_ALWAYS_INLINE static RenderingScope BeginRenderingScope(const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName = "", bool bStereoRendering = false)
   {
-    viewContext.m_pRenderContext->BeginRendering(renderingSetup, viewContext.m_pViewData->m_ViewPortRect, szName, bStereoRendering);
+    viewContext.m_pRenderContext->BeginRendering(renderingSetup, viewContext.m_pViewData->GetViewportForTargetSize(renderingSetup.GetFrameBuffer().m_Size), szName, bStereoRendering);
     return RenderingScope(*viewContext.m_pRenderContext, nullptr);
   }
 
@@ -345,6 +348,7 @@ private: // Per Renderer States
   ezEventSubscriptionID m_GALdeviceEventsId = 0;
   bool m_bRendering = false;
   bool m_bCompute = false;
+  ezSizeU32 m_RenderTargetSize = {0, 0};
 
   // Member Functions
   void UploadConstants();

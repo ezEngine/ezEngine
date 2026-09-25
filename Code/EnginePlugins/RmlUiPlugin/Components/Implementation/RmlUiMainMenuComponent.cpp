@@ -13,6 +13,7 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameState.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RmlUiPlugin/Components/RmlUiMainMenuComponent.h>
 #include <RmlUiPlugin/RmlUiContext.h>
@@ -95,6 +96,12 @@ namespace
   {
     ezGameState* pGameState = ezGameState::GetActiveGameState();
     return pGameState != nullptr ? pGameState->GetMainWindow() : nullptr;
+  }
+
+  ezView* GetMainView()
+  {
+    ezGameState* pGameState = ezGameState::GetActiveGameState();
+    return pGameState != nullptr ? pGameState->GetMainView() : nullptr;
   }
 } // namespace
 
@@ -498,6 +505,28 @@ void ezRmlUiMainMenuComponent::RegisterSettingsEventHandlers(ezRmlUiContext* pCo
       //
     });
 
+  pContext->RegisterEventHandler("toggle-render-scale-auto", [](Rml::Event& e)
+    {
+      if (e.GetParameter("checked", false))
+      {
+        ezGameApplication::cvar_AppRenderScale = 0.0f;
+      }
+      else if (ezGameApplication::cvar_AppRenderScale <= 0.0f)
+      {
+        // keep the scale that was used automatically, so that the image doesn't change
+        ezGameApplication::cvar_AppRenderScale = ezRenderWorld::GetEffectiveRenderScale(GetMainView(), ezGameApplication::cvar_AppRenderScale);
+      }
+    });
+
+  pContext->RegisterEventHandler("render-scale-change", [](Rml::Event& e)
+    {
+      // In auto mode the slider only displays the scale in use, and setting its value from code also sends this event.
+      if (ezGameApplication::cvar_AppRenderScale <= 0.0f)
+        return;
+
+      ezGameApplication::cvar_AppRenderScale = ezRmlUiUtils::GetChangedValue(e) / 100.0f;
+    });
+
   pContext->RegisterEventHandler("toggle-fps", [](Rml::Event& e)
     {
       ezGameApplication::cvar_AppShowFPS = e.GetParameter("checked", false);
@@ -744,7 +773,7 @@ void ezRmlUiMainMenuComponent::Update()
   ezRmlUiUtils::SetChecked(pDocument->GetElementById("check-fps"), ezGameApplication::cvar_AppShowFPS);
 
   // The canvas only updates its document when it gets input. While a key is captured it gets none, so the changes from here have to be announced.
-  bool bDocumentChanged = false;
+  bool bDocumentChanged = UpdateRenderScaleWidgets(pDocument);
 
   if (!m_bWidgetsInitialized)
   {
@@ -1155,6 +1184,11 @@ void ezRmlUiMainMenuComponent::RestoreDefaultSettings(Rml::ElementDocument* pDoc
     ezGameApplication::cvar_AppVSync = ezGameApplication::cvar_AppVSync.GetValue(ezCVarValue::Default);
   }
 
+  if (IsShown("render-scale"))
+  {
+    ezGameApplication::cvar_AppRenderScale = ezGameApplication::cvar_AppRenderScale.GetValue(ezCVarValue::Default);
+  }
+
   if (IsShown("select-texture-filtering"))
   {
     cvar_OptionsTextureFiltering = cvar_OptionsTextureFiltering.GetValue(ezCVarValue::Default);
@@ -1351,6 +1385,40 @@ void ezRmlUiMainMenuComponent::UpdateResolutionEnabledState(Rml::ElementDocument
   {
     ezRmlUiUtils::SetDisabled(pSelect, ezWindowMode::IsFullscreen(m_PendingWindowDesc.m_WindowMode));
   }
+}
+
+bool ezRmlUiMainMenuComponent::UpdateRenderScaleWidgets(Rml::ElementDocument* pDocument)
+{
+  const bool bAuto = ezGameApplication::cvar_AppRenderScale <= 0.0f;
+  const ezInt32 iPercent = (ezInt32)ezMath::Round(ezRenderWorld::GetEffectiveRenderScale(GetMainView(), ezGameApplication::cvar_AppRenderScale) * 100.0f);
+
+  ezRmlUiUtils::SetChecked(pDocument->GetElementById("check-render-scale-auto"), bAuto);
+
+  bool bChanged = false;
+  ezStringBuilder sValue;
+
+  if (auto pInput = ezRmlUiUtils::GetInputElement(pDocument, "render-scale"))
+  {
+    ezRmlUiUtils::SetDisabled(pInput, bAuto);
+
+    // Only written when it differs, because setting the value sends a change event.
+    double fShown = 0.0;
+    if (ezConversionUtils::StringToFloat(pInput->GetValue().c_str(), fShown).Failed() || (ezInt32)ezMath::Round(fShown) != iPercent)
+    {
+      sValue.SetFormat("{}", iPercent);
+      pInput->SetValue(sValue.GetData());
+      bChanged = true;
+    }
+  }
+
+  sValue.SetFormat("{}%%", iPercent);
+  if (auto pLabel = pDocument->GetElementById("render-scale-value"); pLabel != nullptr && pLabel->GetInnerRML() != sValue.GetData())
+  {
+    pLabel->SetInnerRML(sValue.GetData());
+    bChanged = true;
+  }
+
+  return bChanged;
 }
 
 void ezRmlUiMainMenuComponent::ApplyDisplaySettings()

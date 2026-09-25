@@ -10,6 +10,7 @@
 #include <Foundation/Types/UniquePtr.h>
 
 class ezConsole;
+class ezView;
 
 /// Which input actions the ezGameApplication may register and execute (see ezGameApplication::RegisterGameApplicationInputActions())
 struct ezGameApplicationInputFlags
@@ -83,6 +84,9 @@ public:
   static ezCVarBool cvar_AppVSync;
   static ezCVarBool cvar_AppShowFPS;
   static ezCVarBool cvar_WorldShowObjectOrigins;
+
+  /// Render scale of the main view, see ezView::SetRenderScale(). 0 selects it automatically, see ezRenderWorld::GetEffectiveRenderScale().
+  static ezCVarFloat cvar_AppRenderScale;
 
 public:
   using SUPER = ezGameApplicationBase;

@@ -44,6 +44,8 @@ ezStatus ezCustomRenderDataPass::AddRenderPasses(const ezViewData& viewData, con
   if (!hDepthStencil.IsInvalidated())
     outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
 
+  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hDepthStencil, "DepthStencil", true, true));
+
   auto pass = ref_graph.AddGraphicsPass(GetName());
   if (!hColor.IsInvalidated())
     pass.AddColorTarget(hColor);

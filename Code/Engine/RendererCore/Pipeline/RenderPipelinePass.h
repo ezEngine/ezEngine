@@ -111,6 +111,12 @@ public:
 protected:
   void SetReadBackProperty(ezView* pView, ezStringView sPropertyName, const ezVariant& value);
 
+  /// Checks that hTexture has the same size as hReference, typically the color target of the pass.
+  ///
+  /// bMatchMsaa additionally requires the same MSAA mode, which is needed for textures bound as render targets together with hReference.
+  /// An invalid hTexture is an error unless bOptional is set. An invalid hReference always succeeds.
+  static ezStatus ValidateMatchingTexture(const ezRenderGraph& graph, ezRenderGraphTextureHandle hReference, ezStringView sReferencePinName, ezRenderGraphTextureHandle hTexture, ezStringView sPinName, bool bOptional, bool bMatchMsaa);
+
 private:
   friend class ezRenderPipeline;
   friend class ezRenderPipelinePassGraph;

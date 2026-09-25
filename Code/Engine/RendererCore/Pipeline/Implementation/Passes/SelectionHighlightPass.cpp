@@ -58,11 +58,11 @@ ezStatus ezSelectionHighlightPass::AddRenderPasses(const ezViewData& viewData, c
   outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
 
   ezRenderGraphTextureHandle hDepth = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
-  if (hDepth.IsInvalidated())
-    return ezStatus(ezFmt("DepthStencil: Not connected"));
+  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hDepth, "DepthStencil", false, true));
+
+  const ezGALTextureCreationDescription colorDesc = ref_graph.GetTextureDesc(hColor);
 
   // Create temp depth texture for selection rendering
-  const ezGALTextureCreationDescription colorDesc = ref_graph.GetTextureDesc(hColor);
   ezGALTextureCreationDescription depthDesc;
   depthDesc.SetAsRenderTarget(colorDesc.m_uiWidth, colorDesc.m_uiHeight, colorDesc.m_uiArraySize, ezGALResourceFormat::D24S8, colorDesc.m_SampleCount);
   ezRenderGraphTextureHandle hSelectionDepth = ref_graph.CreateTexture(depthDesc);

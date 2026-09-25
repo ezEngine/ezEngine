@@ -97,6 +97,10 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
 
   // Find temp targets
   {
+    // The depth input size can change between frames, e.g. through a render scale.
+    m_HzbSizes.Clear();
+    m_HzbResourceViews.Clear();
+
     {
       ezGALTextureCreationDescription desc;
       desc.m_uiWidth = uiHzbWidth / 2;

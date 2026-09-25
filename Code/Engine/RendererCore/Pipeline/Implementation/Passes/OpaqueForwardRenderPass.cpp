@@ -38,8 +38,7 @@ ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, 
     return ezStatus(ezFmt("Color: Not connected"));
 
   ezRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
-  if (hDepthStencil.IsInvalidated())
-    return ezStatus(ezFmt("DepthStencil: Not connected"));
+  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hDepthStencil, "DepthStencil", false, true));
 
   outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
   outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
@@ -47,30 +46,12 @@ ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, 
   ezRenderGraphTextureHandle hSSAO = inputs[m_PinSSAO.m_uiInputIndex].m_TextureHandle;
   ezRenderGraphTextureHandle hShadowMask = inputs[m_PinShadowMasks.m_uiInputIndex].m_TextureHandle;
 
-  // Validate SSAO dimensions if connected
-  if (!hSSAO.IsInvalidated())
-  {
-    const auto& ssaoDesc = ref_graph.GetTextureDesc(hSSAO);
-    const auto& colorDesc = ref_graph.GetTextureDesc(hColor);
-    if (ssaoDesc.m_uiWidth != colorDesc.m_uiWidth || ssaoDesc.m_uiHeight != colorDesc.m_uiHeight)
-    {
-      ezLog::Warning("Expected same resolution for SSAO and color input to pass '{0}'!", GetName());
-    }
-    if (m_ShadingQuality == ezForwardRenderShadingQuality::Simplified)
-    {
-      ezLog::Warning("SSAO input will be ignored for pass '{0}' since simplified shading is activated.", GetName());
-    }
-  }
+  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hSSAO, "SSAO", true, false));
+  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hShadowMask, "ShadowMasks", true, false));
 
-  if (!hShadowMask.IsInvalidated())
+  if (!hSSAO.IsInvalidated() && m_ShadingQuality == ezForwardRenderShadingQuality::Simplified)
   {
-    const auto& shadowMaskDesc = ref_graph.GetTextureDesc(hShadowMask);
-    const auto& colorDesc = ref_graph.GetTextureDesc(hColor);
-    if (shadowMaskDesc.m_uiWidth != colorDesc.m_uiWidth ||
-        shadowMaskDesc.m_uiHeight != colorDesc.m_uiHeight)
-    {
-      ezLog::Warning("Expected same resolution for shadow mask and color input to pass '{0}'!", GetName());
-    }
+    ezLog::Warning("SSAO input will be ignored for pass '{0}' since simplified shading is activated.", GetName());
   }
 
   auto pass = ref_graph.AddGraphicsPass(GetName());

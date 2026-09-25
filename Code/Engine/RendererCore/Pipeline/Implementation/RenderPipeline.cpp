@@ -17,6 +17,7 @@
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/FrameDataProvider.h>
+#include <RendererCore/Pipeline/Passes/DebugRenderPass.h>
 #include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
@@ -143,6 +144,27 @@ bool ezRenderPipeline::RebuildInternal(const ezView& view)
   UpdateViewData(view, ezRenderWorld::GetDataIndexForRendering());
   if (m_PassGraph.CullDeadPasses().Failed() || m_PassGraph.SortPasses().Failed())
     return false;
+
+  // Without these passes debug output silently doesn't show up.
+  if (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView)
+  {
+    bool bHasWorld = false;
+    bool bHasScreen = false;
+
+    ezDynamicArray<const ezRenderPipelinePass*> passes;
+    GetPasses(passes);
+    for (const ezRenderPipelinePass* pPass : passes)
+    {
+      bHasWorld |= pPass->IsInstanceOf<ezDebugWorldRenderPass>();
+      bHasScreen |= pPass->IsInstanceOf<ezDebugScreenRenderPass>();
+    }
+
+    if (!bHasWorld)
+      ezLog::Warning("Render pipeline of view '{}' has no ezDebugWorldRenderPass. World space debug output won't be visible.", view.GetName());
+    if (!bHasScreen)
+      ezLog::Warning("Render pipeline of view '{}' has no ezDebugScreenRenderPass. Screen space debug output won't be visible.", view.GetName());
+  }
+
   m_PipelineState = PipelineState::Initialized;
   return true;
 }

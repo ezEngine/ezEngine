@@ -275,7 +275,8 @@ public:
   static float GetTextScale();
 
 private:
-  friend class ezSimpleRenderPass;
+  friend class ezDebugWorldRenderPass;
+  friend class ezDebugScreenRenderPass;
 
   static void RenderScreenSpace(const ezRenderViewContext& renderViewContext);
   static void RenderInternalScreenSpace(const ezDebugRendererContext& context, const ezRenderViewContext& renderViewContext);
