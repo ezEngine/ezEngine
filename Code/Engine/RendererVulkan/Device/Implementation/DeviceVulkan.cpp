@@ -374,6 +374,12 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME, m_Extensions.m_bExternalMemoryWin32);
   AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME, m_Extensions.m_bExternalSemaphoreWin32);
+
+  // Requires VK_KHR_get_surface_capabilities2 on the instance.
+  if (m_Extensions.m_bSurfaceCapabilities2)
+  {
+    AddExtIfSupported(VK_EXT_FULL_SCREEN_EXCLUSIVE_EXTENSION_NAME, m_Extensions.m_bFullScreenExclusive);
+  }
 #endif
 
   // Allow OpenXR to extend device extensions (for vulkan_enable v1)
@@ -452,8 +458,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
         instanceCreateInfo.pNext = &debugCreateInfo;
       }
 
-      // Comment out if to force enable synchronization validation on any platform.
-      if (false)
+      // Force enable synchronization validation on any platform.
       {
         const char* layer_name = "VK_LAYER_KHRONOS_validation";
 
@@ -461,19 +466,18 @@ ezResult ezGALDeviceVulkan::InitPlatform()
         const VkBool32 setting_validate_sync = VK_TRUE;
         const VkBool32 setting_thread_safety = VK_TRUE;
         const char* setting_debug_action[] = {"VK_DBG_LAYER_ACTION_LOG_MSG"};
-        const char* setting_report_flags[] = {"info", "warn", "perf", "error", "debug"};
+        const char* setting_report_flags[] = {"info", "warn", "perf", "error"};
         const VkBool32 setting_enable_message_limit = VK_TRUE;
-        const int32_t setting_duplicate_message_limit = 3;
+        const ezUInt32 setting_duplicate_message_limit = 3;
 
         const VkLayerSettingEXT settings[] = {
-          {layer_name, "sync_queue_submit", VK_LAYER_SETTING_TYPE_BOOL32_EXT, 1, &setting_validate_sync},
           {layer_name, "validate_core", VK_LAYER_SETTING_TYPE_BOOL32_EXT, 1, &setting_validate_core},
           {layer_name, "validate_sync", VK_LAYER_SETTING_TYPE_BOOL32_EXT, 1, &setting_validate_sync},
           {layer_name, "thread_safety", VK_LAYER_SETTING_TYPE_BOOL32_EXT, 1, &setting_thread_safety},
           {layer_name, "debug_action", VK_LAYER_SETTING_TYPE_STRING_EXT, 1, setting_debug_action},
           {layer_name, "report_flags", VK_LAYER_SETTING_TYPE_STRING_EXT, EZ_ARRAY_SIZE(setting_report_flags), setting_report_flags},
           {layer_name, "enable_message_limit", VK_LAYER_SETTING_TYPE_BOOL32_EXT, 1, &setting_enable_message_limit},
-          {layer_name, "duplicate_message_limit", VK_LAYER_SETTING_TYPE_INT32_EXT, 1, &setting_duplicate_message_limit}};
+          {layer_name, "duplicate_message_limit", VK_LAYER_SETTING_TYPE_UINT32_EXT, 1, &setting_duplicate_message_limit}};
 
         VkLayerSettingsCreateInfoEXT layer_settings_create_info = {
           VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT, nullptr, EZ_ARRAY_SIZE(settings), settings};

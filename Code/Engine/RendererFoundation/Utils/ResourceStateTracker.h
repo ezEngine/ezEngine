@@ -45,7 +45,7 @@ struct ezHashHelper<ezGALBufferHandle>
 ///
 /// For resources that are first seen without an explicit initial state, the tracker starts from the resource default state (ezGAL*CreationDescription::GetDefaultState) with stage Auto.
 ///
-/// Barrier emission is callback-based: callbacks are only invoked when a barrier is needed. A barrier is required when the state changes, or when the previous state contains ezGALResourceState::UnorderedAccess (UAV write-after-write).
+/// Barrier emission is callback-based: callbacks are only invoked when a barrier is needed. Texture write-after-write transitions require a barrier. Buffer write-after-write tracking is limited to unordered access.
 /// States cannot be tracked across frames and before the frame end all resources must be reverted to their default state via RevertTextureState / RevertBufferState.
 class EZ_RENDERERFOUNDATION_DLL ezGALResourceStateTracker
 {
@@ -122,8 +122,15 @@ public:
 
   const SubResourceState* GetBufferState(ezGALBufferHandle hBuffer) const;
   const TextureState* GetTextureState(ezGALTextureHandle hTexture) const;
-  static bool IsTextureBarrierNeeded(const SubResourceState& oldState, const SubResourceState& newState, bool bForceUAVBarrier = true);
-  static bool IsBufferBarrierNeeded(const SubResourceState& oldState, const SubResourceState& newState, bool bForceUAVBarrier = true);
+
+  /// Returns whether the current texture state exactly matches the required state and covers its shader stages.
+  static bool IsTextureStateCompatible(const SubResourceState& currentState, const SubResourceState& requiredState);
+
+  /// Returns whether the current buffer state contains all required state bits and covers the required shader stages.
+  static bool IsBufferStateCompatible(const SubResourceState& currentState, const SubResourceState& requiredState);
+
+  static bool IsTextureBarrierNeeded(const SubResourceState& oldState, const SubResourceState& newState);
+  static bool IsBufferBarrierNeeded(const SubResourceState& oldState, const SubResourceState& newState);
   static bool AreStagesCovered(ezBitflags<ezGALShaderStageFlags> coveredStages, ezBitflags<ezGALShaderStageFlags> requiredStages);
 
   ///@}

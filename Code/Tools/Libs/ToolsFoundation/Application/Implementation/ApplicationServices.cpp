@@ -106,10 +106,15 @@ ezString ezApplicationServices::GetPrecompiledToolsFolder(bool bUsePrecompiledTo
 ezString ezApplicationServices::GetSampleProjectsFolder() const
 {
   ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();
+  ezStringBuilder sSamples;
 
-  sPath.AppendPath("../../../Data/Samples");
+  do
+  {
+    sPath.PathParentDirectory();
+    sSamples = sPath;
+    sSamples.AppendPath("Data/Samples");
+    sSamples.MakeCleanPath();
+  } while (!ezOSFile::ExistsDirectory(sSamples) && !sSamples.IsEmpty());
 
-  sPath.MakeCleanPath();
-
-  return sPath;
+  return sSamples;
 }

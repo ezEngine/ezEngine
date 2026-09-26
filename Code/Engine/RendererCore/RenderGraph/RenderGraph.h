@@ -337,6 +337,9 @@ private:
   /// and depth-stencil targets.
   void BuildRenderingSetups();
 
+  /// Checks whether these reads / writes overlap with the imported texture / buffer states. If they do, a separate barrier needs to be added as they can't be merged with these barriers.
+  bool DoImportsOverlap(ezArrayPtr<const TextureInfo> textureReads, ezArrayPtr<const TextureInfo> textureWrites, ezArrayPtr<const BufferInfo> bufferReads, ezArrayPtr<const BufferInfo> bufferWrites) const;
+
 private:
   ezGALDevice* m_pDevice = nullptr;
   ezUniquePtr<ezRenderGraphResourceAllocator> m_pAllocator;
@@ -425,6 +428,8 @@ private:
   // ComputeBarriers
   ezDynamicArray<ezGALTextureBarrier> m_CompiledTextureBarriers;
   ezDynamicArray<ezGALBufferBarrier> m_CompiledBufferBarriers;
+  ezUInt16 m_uiImportTextureBarrierCount = 0;
+  ezUInt16 m_uiImportBufferBarrierCount = 0;
 
   ///@}
 };

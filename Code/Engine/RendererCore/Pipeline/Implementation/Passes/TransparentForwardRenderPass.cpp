@@ -111,15 +111,24 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
 
   // Copy current color to scene color texture
   {
+    const bool bResolve = colorDesc.m_SampleCount != ezGALMSAASampleCount::None;
     auto transferPass = ref_graph.AddTransferPass("CopySceneColor");
-    transferPass.ReadTexture(hColor, {}, ezGALResourceState::ResolveSource);
-    transferPass.WriteTexture(hSceneColor, {}, ezGALResourceState::ResolveDestination);
+    transferPass.ReadTexture(hColor, {}, bResolve ? ezGALResourceState::ResolveSource : ezGALResourceState::CopySource);
+    transferPass.WriteTexture(hSceneColor, {}, bResolve ? ezGALResourceState::ResolveDestination : ezGALResourceState::CopyDestination);
     transferPass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
       {
-      ezGALTextureSubresource subresource;
-      subresource.m_uiMipLevel = 0;
-      subresource.m_uiArraySlice = 0;
-      ctx.GetCommandEncoder()->ResolveTexture(ctx.ResolveTexture(hSceneColor), subresource, ctx.ResolveTexture(hColor), subresource); });
+      if (bResolve)
+      {
+        ezGALTextureSubresource subresource;
+        ctx.GetCommandEncoder()->ResolveTexture(ctx.ResolveTexture(hSceneColor), subresource, ctx.ResolveTexture(hColor), subresource);
+      }
+      else
+      {
+        ezGALTextureSubresource subresource;
+        ezBoundingBoxu32 sourceBox;
+        sourceBox.m_vMax = ezVec3U32(colorDesc.m_uiWidth, colorDesc.m_uiHeight, colorDesc.m_uiDepth);
+        ctx.GetCommandEncoder()->CopyTextureRegion(ctx.ResolveTexture(hSceneColor), subresource, ezVec3U32::MakeZero(), ctx.ResolveTexture(hColor), subresource, sourceBox);
+      } });
   }
 
   // Transparent pass 2

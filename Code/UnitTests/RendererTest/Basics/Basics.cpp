@@ -2,10 +2,16 @@
 
 #include "Basics.h"
 #include <Core/Graphics/Camera.h>
+#include <Foundation/Configuration/Startup.h>
 
 ezResult ezRendererTestBasics::InitializeSubTest(ezInt32 iIdentifier)
 {
   m_iFrame = -1;
+
+  ezStartup::StartupCoreSystems();
+
+  if (SetupRenderer().Failed())
+    return EZ_FAILURE;
 
   if (ezGraphicsTest::InitializeSubTest(iIdentifier).Failed())
     return EZ_FAILURE;
@@ -43,6 +49,10 @@ ezResult ezRendererTestBasics::DeInitializeSubTest(ezInt32 iIdentifier)
 
   if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
     return EZ_FAILURE;
+
+  ShutdownRenderer();
+  ezStartup::ShutdownCoreSystems();
+  ezMemoryTracker::DumpMemoryLeaks();
 
   return EZ_SUCCESS;
 }
