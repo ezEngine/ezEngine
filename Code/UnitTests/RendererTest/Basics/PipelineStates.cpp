@@ -813,7 +813,13 @@ void ezRendererTestPipelineStates::StructuredBufferTest(ezGALShaderResourceType:
       pContext->BindShader(m_hInstancingShader);
       pContext->BindMeshBuffer(m_hTriangleMesh);
       ezBindGroupBuilder& bindGroupTest = pContext->GetBindGroup();
-      if (m_iFrame <= ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame)
+      if (m_iFrame == 1 && bufferType == ezGALShaderResourceType::TexelBuffer)
+      {
+        // Exercise the fallback resource for an unbound typed texel buffer.
+        bindGroupTest.BindBuffer("instancingData", ezGALBufferHandle());
+        pContext->DrawMeshBuffer(1, 0, 1).AssertSuccess();
+      }
+      else if (m_iFrame <= ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame)
       {
         bindGroupTest.BindBuffer("instancingData", m_hInstancingData);
         pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();

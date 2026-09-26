@@ -125,8 +125,7 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
       else
       {
         ezGALTextureSubresource subresource;
-        ezBoundingBoxu32 sourceBox;
-        sourceBox.m_vMax = ezVec3U32(colorDesc.m_uiWidth, colorDesc.m_uiHeight, colorDesc.m_uiDepth);
+        ezBoundingBoxu32 sourceBox(ezVec3U32::MakeZero(),ezVec3U32(colorDesc.m_uiWidth, colorDesc.m_uiHeight, colorDesc.m_uiDepth));
         ctx.GetCommandEncoder()->CopyTextureRegion(ctx.ResolveTexture(hSceneColor), subresource, ezVec3U32::MakeZero(), ctx.ResolveTexture(hColor), subresource, sourceBox);
       } });
   }

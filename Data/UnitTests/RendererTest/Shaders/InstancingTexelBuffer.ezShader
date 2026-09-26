@@ -19,6 +19,8 @@ struct EZ_SHADER_STRUCT ezTestShaderData
   TRANSFORM(InstanceTransform);
 };
 
+// It is important to tag texel buffers with the format of the buffer that is to be bound to prevent validation issues.
+[[vk::image_format("rgba32f")]]
 Buffer<float4> instancingData;
 
 struct VS_IN
