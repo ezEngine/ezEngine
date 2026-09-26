@@ -7,6 +7,7 @@
 
 #if EZ_ENABLED(PLATFORM_SHADER)
 #  if EZ_ENABLED(SUPPORTS_TEXEL_BUFFER)
+[[vk::image_format("rgba8")]]
 Buffer<float4> perInstanceDataCustom BIND_GROUP(BG_DRAW_CALL);
 #  else
 StructuredBuffer<uint> perInstanceDataCustom BIND_GROUP(BG_DRAW_CALL);

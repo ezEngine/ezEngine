@@ -114,7 +114,7 @@ ezString ezApplicationServices::GetSampleProjectsFolder() const
     sSamples = sPath;
     sSamples.AppendPath("Data/Samples");
     sSamples.MakeCleanPath();
-  } while (!ezOSFile::ExistsDirectory(sSamples) && !sSamples.IsEmpty());
+  } while (!sPath.IsEmpty() && !ezOSFile::ExistsDirectory(sSamples) && !sSamples.IsEmpty());
 
-  return sSamples;
+  return sPath.IsEmpty() ? "" : sSamples.GetView();
 }
