@@ -3,6 +3,10 @@
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
 
 #  include <GuiFoundation/UIServices/UIServices.moc.h>
+#  include <ToolsFoundation/Application/ApplicationServices.h>
+#  include <ToolsFoundation/Project/ToolsProject.h>
+
+#  include <Foundation/IO/OSFile.h>
 
 void ezQtUiServices::OpenInExplorer(ezStringView sPath, bool bIsFile)
 {
@@ -26,13 +30,33 @@ void ezQtUiServices::OpenWith(ezStringView sPath0)
   sPath.MakeCleanPath();
   sPath.MakePathSeparatorsNative();
 
-  ezLog::Error("ezQtUiServices::OpenWith() not implemented on Linux");
+  QProcess::startDetached("xdg-open", {ezMakeQString(sPath)});
 }
 
 ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)
 {
-  ezLog::Error("ezQtUiServices::OpenInVsCode() not implemented on Linux");
-  return ezStatus(EZ_FAILURE);
+  {
+    ezStringBuilder sDstDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    sDstDir.AppendPath(".vscode");
+
+    ezStringBuilder sSrcDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+    sSrcDir.AppendPath("VSC");
+    ezOSFile::CopyFolder(sSrcDir, sDstDir).IgnoreResult();
+  }
+
+  const QString sVsCodeExe = QStandardPaths::findExecutable("code");
+  if (sVsCodeExe.isEmpty())
+  {
+    return ezStatus("Installation of Visual Studio Code could not be located.\n"
+                    "Please visit 'https://code.visualstudio.com/download' to download Visual Studio Code.");
+  }
+
+  if (!QProcess::startDetached(sVsCodeExe, arguments))
+  {
+    return ezStatus("Failed to launch Visual Studio Code.");
+  }
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 #endif

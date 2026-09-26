@@ -326,42 +326,38 @@ void ezGALResourceStateTracker::ExpandTextureState(TextureState& state)
   }
 }
 
-bool ezGALResourceStateTracker::IsTextureBarrierNeeded(const SubResourceState& oldState, const SubResourceState& newState, bool bForceUAVBarrier)
+bool ezGALResourceStateTracker::IsTextureStateCompatible(const SubResourceState& currentState, const SubResourceState& requiredState)
 {
-  // State changes always require a barrier.
-  if (oldState.m_State != newState.m_State)
-    return true;
+  if (currentState.m_State != requiredState.m_State)
+    return false;
 
-  // UAV write-after-write needs synchronization even when state bits match.
-  if (bForceUAVBarrier && oldState.m_State.IsAnySet(ezGALResourceState::UnorderedAccess))
-    return true;
-
-  // Check whether the new stages are already covered by the old barrier's
-  // destination scope. If not, we need an execution dependency to make the
-  // resource visible at the new stage(s).
-  if (!AreStagesCovered(oldState.m_Stages, newState.m_Stages))
-    return true;
-
-  return false;
+  return AreStagesCovered(currentState.m_Stages, requiredState.m_Stages);
 }
 
-bool ezGALResourceStateTracker::IsBufferBarrierNeeded(const SubResourceState& oldState, const SubResourceState& newState, bool bForceUAVBarrier)
+bool ezGALResourceStateTracker::IsBufferStateCompatible(const SubResourceState& currentState, const SubResourceState& requiredState)
 {
-  // New state must be a sub-set of the current state.
-  if (!oldState.m_State.AreAllSet(newState.m_State))
+  if (!currentState.m_State.AreAllSet(requiredState.m_State))
+    return false;
+
+  return AreStagesCovered(currentState.m_Stages, requiredState.m_Stages);
+}
+
+bool ezGALResourceStateTracker::IsTextureBarrierNeeded(const SubResourceState& oldState, const SubResourceState& newState)
+{
+  if (!IsTextureStateCompatible(oldState, newState))
+    return true;
+
+  // Write-after-write needs synchronization even when state bits match.
+  return oldState.m_State.IsAnySet(ezGALResourceState::AllWriteStates);
+}
+
+bool ezGALResourceStateTracker::IsBufferBarrierNeeded(const SubResourceState& oldState, const SubResourceState& newState)
+{
+  if (!IsBufferStateCompatible(oldState, newState))
     return true;
 
   // UAV write-after-write needs synchronization even when state bits match.
-  if (bForceUAVBarrier && oldState.m_State.IsAnySet(ezGALResourceState::UnorderedAccess))
-    return true;
-
-  // Check whether the new stages are already covered by the old barrier's
-  // destination scope. If not, we need an execution dependency to make the
-  // resource visible at the new stage(s).
-  if (!AreStagesCovered(oldState.m_Stages, newState.m_Stages))
-    return true;
-
-  return false;
+  return oldState.m_State.IsAnySet(ezGALResourceState::UnorderedAccess);
 }
 
 bool ezGALResourceStateTracker::AreStagesCovered(ezBitflags<ezGALShaderStageFlags> coveredStages, ezBitflags<ezGALShaderStageFlags> requiredStages)

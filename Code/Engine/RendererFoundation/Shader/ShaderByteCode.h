@@ -86,6 +86,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezShaderResourceBinding
   ezInt16 m_iBindGroup = -1;                           //< The bind group to which this resource belongs.
   ezInt16 m_iSlot = -1;                                //< The slot under which the resource needs to be bound in the bind group.
   ezUInt32 m_uiArraySize = 1;                          //< Number of array elements. Only 1 is currently supported. 0 if bindless.
+  ezEnum<ezGALResourceFormat> m_Format;                //< Resource format. Only used for texel buffers for now.
   ezHashedString m_sName;                              //< Name under which a resource must be bound to fulfill this resource binding.
   ezSharedPtr<ezShaderConstantBufferLayout> m_pLayout; //< Only valid if ezGALShaderResourceType is ConstantBuffer, PushConstants, StructuredBuffer, StructuredBufferRW.
 

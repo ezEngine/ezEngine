@@ -74,7 +74,7 @@ namespace
   {
     auto checkSubResource = [&](const ezGALResourceStateTracker::SubResourceState& sr, const ezGALTextureSubresource& subResource) -> ezResult
     {
-      if (ezGALResourceStateTracker::IsTextureBarrierNeeded(sr, {ref_error.m_expectedState, ref_error.m_expectedStages}, false))
+      if (!ezGALResourceStateTracker::IsTextureStateCompatible(sr, {ref_error.m_expectedState, ref_error.m_expectedStages}))
       {
         ref_error.m_failedSubResource = subResource;
         ref_error.m_actualState = sr.m_State;
@@ -425,6 +425,7 @@ void ezGALCommandEncoder::ResolveTexture(ezGALTextureHandle hDest, const ezGALTe
   if (pDest != nullptr && pSource != nullptr)
   {
     EZ_ASSERT_DEBUG(!pDest->GetDescription().m_ResourceAccess.m_bImmutable, "Can't update immutable textures");
+    EZ_ASSERT_DEBUG(pSource->GetDescription().m_SampleCount != ezGALMSAASampleCount::None, "ResolveTexture source must be multisampled");
 #if EZ_ENABLED(EZ_BARRIER_VALIDATION)
     ValidateTextureState(hDest, MakeSingleSubresourceRange(destinationSubResource), ezGALResourceState::ResolveDestination, ezGALShaderStageFlags::Auto).IgnoreResult();
     ValidateTextureState(hSource, MakeSingleSubresourceRange(sourceSubResource), ezGALResourceState::ResolveSource, ezGALShaderStageFlags::Auto).IgnoreResult();
@@ -1141,7 +1142,7 @@ ezResult ezGALCommandEncoder::ValidateBufferState(ezGALBufferHandle hBuffer, ezB
     pState = &dummy;
   }
 
-  if (ezGALResourceStateTracker::IsBufferBarrierNeeded(*pState, {expectedState, expectedStages}, false))
+  if (!ezGALResourceStateTracker::IsBufferStateCompatible(*pState, {expectedState, expectedStages}))
   {
     ezBufferValidationError error;
     error.m_uiBindGroup = uiBindGroup;

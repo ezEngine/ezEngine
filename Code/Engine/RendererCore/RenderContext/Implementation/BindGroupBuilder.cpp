@@ -239,7 +239,8 @@ void ezBindGroupBuilder::CreateBindGroup(ezGALBindGroupLayoutHandle hBindGroupLa
           item.m_Flags = ezGALBindGroupItemFlags::Buffer | ezGALBindGroupItemFlags::EmptyBinding;
           item.m_Buffer.m_hBuffer = hBuffer;
           item.m_Buffer.m_BufferRange = pBuffer->ClampRange({});
-          item.m_Buffer.m_OverrideTexelBufferFormat = {};
+          // Only valid for texel buffers. For non texel buffers this is always invalid so it's fine to copy unconditionally.
+          item.m_Buffer.m_OverrideTexelBufferFormat = binding.m_Format;
         }
       }
       break;

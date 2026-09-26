@@ -195,7 +195,7 @@ ezStatus ezRenderGraph::ReplaceImportedTexture(ezRenderGraphTextureHandle hGraph
   if (!it.IsValid())
   {
     oldDesc = newDesc;
-    m_HandleToImportTexture.Insert(hGraphTexture, ImportedTexture{hNewTexture, newDesc.GetDefaultState(), ezGALShaderStageFlags::Auto});
+    m_HandleToImportTexture.Insert(hGraphTexture, ImportedTexture{hNewTexture, ezGALResourceState::Unknown, ezGALShaderStageFlags::Auto});
     m_ImportTextureToHandle.Insert(hNewTexture, hGraphTexture);
     return EZ_SUCCESS;
   }
@@ -426,6 +426,17 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx, ezArrayPtr<ezRenderGr
   ezUInt32 uiNextMarker = 0;
   const ezUInt32 uiMarkerCount = m_MarkerEvents.GetCount();
   const ezUInt32 uiPasses = m_CompiledPasses.GetCount();
+
+  // Issue import barriers if they couldn't be merged with the first pass barriers.
+  if (m_uiImportTextureBarrierCount != 0)
+  {
+    ref_ctx.m_pCommandEncoder->TextureBarrier(ezMakeArrayPtr(m_CompiledTextureBarriers.GetData(), m_uiImportTextureBarrierCount));
+  }
+  if (m_uiImportBufferBarrierCount != 0)
+  {
+    ref_ctx.m_pCommandEncoder->BufferBarrier(ezMakeArrayPtr(m_CompiledBufferBarriers.GetData(), m_uiImportBufferBarrierCount));
+  }
+
   for (ezUInt32 i = 0; i < uiPasses; ++i)
   {
     ezRenderGraphManager::s_uiCurrentPassIndex = i;
@@ -604,6 +615,8 @@ void ezRenderGraph::ResetInternal(RenderGraphState renderGraphState)
     // Reset barriers
     m_CompiledTextureBarriers.Clear();
     m_CompiledBufferBarriers.Clear();
+    m_uiImportTextureBarrierCount = 0;
+    m_uiImportBufferBarrierCount = 0;
     if (renderGraphState == RenderGraphState::Compiled)
     {
       for (CompiledPass& pass : m_CompiledPasses)
@@ -1245,6 +1258,36 @@ void ezRenderGraph::BuildRenderingSetups()
   }
 }
 
+bool ezRenderGraph::DoImportsOverlap(ezArrayPtr<const TextureInfo> textureReads, ezArrayPtr<const TextureInfo> textureWrites, ezArrayPtr<const BufferInfo> bufferReads, ezArrayPtr<const BufferInfo> bufferWrites) const
+{
+  for (const TextureInfo& info : textureReads)
+  {
+    auto it = m_HandleToImportTexture.Find(info.m_hTexture);
+    if (it.IsValid() && it.Value().m_access != ezGALResourceState::Unknown && it.Value().m_access != info.m_access)
+      return true;
+  }
+  for (const TextureInfo& info : textureWrites)
+  {
+    auto it = m_HandleToImportTexture.Find(info.m_hTexture);
+    if (it.IsValid() && it.Value().m_access != ezGALResourceState::Unknown && it.Value().m_access != info.m_access)
+      return true;
+  }
+  for (const BufferInfo& info : bufferReads)
+  {
+    auto it = m_HandleToImportBuffer.Find(info.m_hBuffer);
+    if (it.IsValid() && it.Value().m_access != ezGALResourceState::Unknown && it.Value().m_access != info.m_access)
+      return true;
+  }
+  for (const BufferInfo& info : bufferWrites)
+  {
+    auto it = m_HandleToImportBuffer.Find(info.m_hBuffer);
+    if (it.IsValid() && it.Value().m_access != ezGALResourceState::Unknown && it.Value().m_access != info.m_access)
+      return true;
+  }
+
+  return false;
+}
+
 void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezArrayPtr<ezRenderGraphPassObserver*> observers)
 {
   EZ_PROFILE_SCOPE("ComputeBarriers");
@@ -1258,9 +1301,15 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezAr
 
     compiled.m_uiTextureBarrierIndex = m_CompiledTextureBarriers.GetCount();
     compiled.m_uiBufferBarrierIndex = m_CompiledBufferBarriers.GetCount();
+
+    auto readTextures = pass.GetReadTextures(this);
+    auto writeTextures = pass.GetWriteTextures(this);
+    auto readBuffers = pass.GetReadBuffers(this);
+    auto writeBuffers = pass.GetWriteBuffers(this);
     if (sortedIdx == 0)
     {
-      // Add barriers for imported resources that have explicitly set a resource state.
+      EZ_ASSERT_DEBUG(compiled.m_uiTextureBarrierIndex == 0 && compiled.m_uiBufferBarrierIndex == 0, "No barriers should exist before the first pass is processed");
+      // Imported resource transitions happen at graph entry. Keep them in a separate barrier batch because barriers in one batch are not ordered relative to each other.
       for (auto it : m_HandleToImportTexture)
       {
         if (it.Value().m_access != ezGALResourceState::Unknown)
@@ -1281,9 +1330,18 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezAr
             });
         }
       }
+
+      // If there is an overlap between the imports and the first pass, we can't combine them in a single barrier and need to create two separate barriers. While merging the barriers is possible, it is also very time intensive and error-prone so in the rare case that somebody messes up the imports we just create two barriers to be compliant. The additional import barrier is stored in m_uiImportTextureBarrierCount / m_uiImportBufferBarrierCount.
+      if (DoImportsOverlap(readTextures, writeTextures, readBuffers, writeBuffers))
+      {
+        m_uiImportTextureBarrierCount = m_CompiledTextureBarriers.GetCount();
+        m_uiImportBufferBarrierCount = m_CompiledBufferBarriers.GetCount();
+
+        compiled.m_uiTextureBarrierIndex = m_CompiledTextureBarriers.GetCount();
+        compiled.m_uiBufferBarrierIndex = m_CompiledBufferBarriers.GetCount();
+      }
     }
 
-    auto readTextures = pass.GetReadTextures(this);
     for (const TextureInfo& info : readTextures)
     {
       const ezUInt16 uiResolvedTextureIndex = m_TextureToResolvedTexture[info.m_hTexture.m_InternalId.m_InstanceIndex];
@@ -1293,7 +1351,6 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezAr
           m_CompiledTextureBarriers.PushBack(barrier); //
         });
     }
-    auto writeTextures = pass.GetWriteTextures(this);
     for (const TextureInfo& info : writeTextures)
     {
       const ezUInt16 uiResolvedTextureIndex = m_TextureToResolvedTexture[info.m_hTexture.m_InternalId.m_InstanceIndex];
@@ -1304,8 +1361,6 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezAr
         });
     }
     compiled.m_uiTextureBarrierCount = m_CompiledTextureBarriers.GetCount() - compiled.m_uiTextureBarrierIndex;
-
-    auto readBuffers = pass.GetReadBuffers(this);
     for (const BufferInfo& info : readBuffers)
     {
       const ezUInt16 uiResolvedBufferIndex = m_BufferToResolvedBuffer[info.m_hBuffer.m_InternalId.m_InstanceIndex];
@@ -1315,7 +1370,6 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezAr
           m_CompiledBufferBarriers.PushBack(barrier); //
         });
     }
-    auto writeBuffers = pass.GetWriteBuffers(this);
     for (const BufferInfo& info : writeBuffers)
     {
       const ezUInt16 uiResolvedBufferIndex = m_BufferToResolvedBuffer[info.m_hBuffer.m_InternalId.m_InstanceIndex];
