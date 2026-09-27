@@ -133,6 +133,9 @@ private:
   const ezDocumentObject* GetRoot() const;
   bool IsUnderRoot(const ezDocumentObject* pObject) const;
 
+  /// Whether children of pParent in property sProperty are part of this model.
+  bool IsDisplayedChildProperty(const ezDocumentObject* pParent, ezStringView sProperty) const;
+
   const ezQtDocumentTreeModelAdapter* GetAdapter(const ezRTTI* pType) const;
 
 protected:
@@ -141,4 +144,9 @@ protected:
   ezHashTable<const ezRTTI*, ezQtDocumentTreeModelAdapter*> m_Adapters;
   bool m_bAllowDragDrop = false;
   ezString m_sTargetContext = "scenetree";
+
+private:
+  /// The object between the 'Before' and 'After' structure event, i.e. while Qt is in the middle of a structural change.
+  const ezDocumentObject* m_pObjectInStructureChange = nullptr;
+  bool m_bMoveRejected = false;
 };

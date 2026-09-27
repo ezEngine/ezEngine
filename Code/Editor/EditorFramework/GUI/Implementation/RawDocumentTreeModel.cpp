@@ -180,6 +180,9 @@ void ezQtDocumentTreeModel::AddAdapter(ezQtDocumentTreeModelAdapter* pAdapter)
     {
     if (!pObject)
       return;
+    // Qt does not allow dataChanged between the begin and end of a structural change
+    EZ_ASSERT_DEBUG(m_pObjectInStructureChange == nullptr, "Tree model: data of object '{}' changed during a structural change of object '{}'.", pObject->GetGuid(), m_pObjectInStructureChange->GetGuid());
+
     auto index = ComputeModelIndex(pObject);
     if (!index.isValid())
       return;
@@ -204,12 +207,26 @@ const ezQtDocumentTreeModelAdapter* ezQtDocumentTreeModel::GetAdapter(const ezRT
   return nullptr;
 }
 
+bool ezQtDocumentTreeModel::IsDisplayedChildProperty(const ezDocumentObject* pParent, ezStringView sProperty) const
+{
+  if (pParent == nullptr || !IsUnderRoot(pParent))
+    return false;
+
+  const ezQtDocumentTreeModelAdapter* pAdapter = GetAdapter(pParent->GetTypeAccessor().GetType());
+  return pAdapter != nullptr && pAdapter->GetChildProperty() == sProperty;
+}
+
 void ezQtDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEvent& e)
 {
+  // The asserts in here check the assumptions that Qt makes about how a model reports changes.
+  // If any of them is violated, the views and proxy models get out of sync with the data, which typically shows up as empty or missing
+  // rows until the document is reopened.
+
   const ezDocumentObject* pParent = nullptr;
   switch (e.m_EventType)
   {
     case ezDocumentObjectStructureEvent::Type::BeforeReset:
+      EZ_ASSERT_DEBUG(m_pObjectInStructureChange == nullptr, "Tree model: reset during a structural change of object '{}'.", m_pObjectInStructureChange->GetGuid());
       beginResetModel();
       return;
     case ezDocumentObjectStructureEvent::Type::AfterReset:
@@ -219,24 +236,27 @@ void ezQtDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEven
     case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
       pParent = e.m_pPreviousParent;
       break;
+    case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
+    {
+      // the move is only reported to Qt if the new parent is displayed, so the old one has to be displayed as well
+      const bool bOldDisplayed = IsDisplayedChildProperty(e.m_pPreviousParent, e.m_pObject->GetParentProperty());
+      const bool bNewDisplayed = IsDisplayedChildProperty(e.m_pNewParent, e.m_sParentProperty);
+      EZ_ASSERT_DEBUG(bOldDisplayed == bNewDisplayed, "Tree model: object '{}' is moved {} the displayed tree, which the model does not support.", e.m_pObject->GetGuid(), bOldDisplayed ? "out of" : "into");
+      pParent = e.m_pNewParent;
+      break;
+    }
     case ezDocumentObjectStructureEvent::Type::BeforeObjectAdded:
     case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
-    case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
     case ezDocumentObjectStructureEvent::Type::AfterObjectMoved:
     case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
       pParent = e.m_pNewParent;
       break;
   }
   EZ_ASSERT_DEV(pParent != nullptr, "Each structure event should have a parent set.");
-  if (!IsUnderRoot(pParent))
-    return;
-  auto pType = pParent->GetTypeAccessor().GetType();
-  auto pAdapter = GetAdapter(pType);
-  if (!pAdapter)
+  if (!IsDisplayedChildProperty(pParent, e.m_sParentProperty))
     return;
 
-  if (pAdapter->GetChildProperty() != e.m_sParentProperty)
-    return;
+  const ezQtDocumentTreeModelAdapter* pAdapter = GetAdapter(pParent->GetTypeAccessor().GetType());
 
   // TODO: BLA root object could have other objects instead of m_pBaseClass, in which case indices are broken on root.
 
@@ -244,7 +264,14 @@ void ezQtDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEven
   {
     case ezDocumentObjectStructureEvent::Type::BeforeObjectAdded:
     {
+      EZ_ASSERT_DEBUG(m_pObjectInStructureChange == nullptr, "Tree model: object '{}' is added during a structural change of object '{}'.", e.m_pObject->GetGuid(), m_pObjectInStructureChange->GetGuid());
+      EZ_ASSERT_DEBUG(e.m_NewPropertyIndex.CanConvertTo<ezInt32>(), "Tree model: insert index of object '{}' is not an integer.", e.m_pObject->GetGuid());
+      m_pObjectInStructureChange = e.m_pObject;
+
       ezInt32 iIndex = (ezInt32)e.m_NewPropertyIndex.ConvertTo<ezInt32>();
+      const ezInt32 iCount = pParent->GetTypeAccessor().GetCount(pAdapter->GetChildProperty());
+      EZ_ASSERT_DEBUG(iIndex >= 0 && iIndex <= iCount, "Tree model: insert index {} of object '{}' is out of range, the parent has {} children.", iIndex, e.m_pObject->GetGuid(), iCount);
+
       if (e.m_pNewParent == GetRoot())
         beginInsertRows(QModelIndex(), iIndex, iIndex);
       else
@@ -253,31 +280,65 @@ void ezQtDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEven
     break;
     case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
     {
+      EZ_ASSERT_DEBUG(m_pObjectInStructureChange == e.m_pObject, "Tree model: AfterObjectAdded for object '{}' without a matching BeforeObjectAdded.", e.m_pObject->GetGuid());
+      EZ_ASSERT_DEBUG(ComputeIndex(e.m_pObject) == e.m_NewPropertyIndex.ConvertTo<ezInt32>(), "Tree model: object '{}' was reported to be inserted at index {}, but ended up at index {}.", e.m_pObject->GetGuid(), e.m_NewPropertyIndex.ConvertTo<ezInt32>(), ComputeIndex(e.m_pObject));
+      m_pObjectInStructureChange = nullptr;
+
       endInsertRows();
     }
     break;
     case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
     {
+      EZ_ASSERT_DEBUG(m_pObjectInStructureChange == nullptr, "Tree model: object '{}' is removed during a structural change of object '{}'.", e.m_pObject->GetGuid(), m_pObjectInStructureChange->GetGuid());
+      m_pObjectInStructureChange = e.m_pObject;
+
       ezInt32 iIndex = ComputeIndex(e.m_pObject);
+      const ezInt32 iCount = pParent->GetTypeAccessor().GetCount(pAdapter->GetChildProperty());
+      EZ_ASSERT_DEBUG(iIndex >= 0 && iIndex < iCount, "Tree model: index {} of removed object '{}' is out of range, the parent has {} children.", iIndex, e.m_pObject->GetGuid(), iCount);
 
       beginRemoveRows(ComputeParent(e.m_pObject), iIndex, iIndex);
     }
     break;
     case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
     {
+      EZ_ASSERT_DEBUG(m_pObjectInStructureChange == e.m_pObject, "Tree model: AfterObjectRemoved for object '{}' without a matching BeforeObjectRemoved.", e.m_pObject->GetGuid());
+      m_pObjectInStructureChange = nullptr;
+
       endRemoveRows();
     }
     break;
     case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
     {
+      EZ_ASSERT_DEBUG(m_pObjectInStructureChange == nullptr, "Tree model: object '{}' is moved during a structural change of object '{}'.", e.m_pObject->GetGuid(), m_pObjectInStructureChange->GetGuid());
+      EZ_ASSERT_DEBUG(e.m_NewPropertyIndex.CanConvertTo<ezInt32>(), "Tree model: move index of object '{}' is not an integer.", e.m_pObject->GetGuid());
+      m_pObjectInStructureChange = e.m_pObject;
+
       ezInt32 iNewIndex = (ezInt32)e.m_NewPropertyIndex.ConvertTo<ezInt32>();
       ezInt32 iIndex = ComputeIndex(e.m_pObject);
-      beginMoveRows(ComputeModelIndex(e.m_pPreviousParent), iIndex, iIndex, ComputeModelIndex(e.m_pNewParent), iNewIndex);
+      const ezInt32 iNewCount = pParent->GetTypeAccessor().GetCount(pAdapter->GetChildProperty());
+      EZ_ASSERT_DEBUG(iNewIndex >= 0 && iNewIndex <= iNewCount, "Tree model: move index {} of object '{}' is out of range, the new parent has {} children.", iNewIndex, e.m_pObject->GetGuid(), iNewCount);
+
+      // Qt rejects moves that wouldn't change anything. The data is going to change afterwards nonetheless, so in that case the model is reset instead.
+      m_bMoveRejected = !beginMoveRows(ComputeModelIndex(e.m_pPreviousParent), iIndex, iIndex, ComputeModelIndex(e.m_pNewParent), iNewIndex);
+      EZ_ASSERT_DEBUG(!m_bMoveRejected, "Tree model: Qt rejected moving object '{}' from index {} to index {}.", e.m_pObject->GetGuid(), iIndex, iNewIndex);
     }
     break;
     case ezDocumentObjectStructureEvent::Type::AfterObjectMoved:
     {
-      endMoveRows();
+      EZ_ASSERT_DEBUG(m_pObjectInStructureChange == e.m_pObject, "Tree model: AfterObjectMoved for object '{}' without a matching BeforeObjectMoved.", e.m_pObject->GetGuid());
+      EZ_ASSERT_DEBUG(ComputeIndex(e.m_pObject) == e.getInsertIndex().ConvertTo<ezInt32>(), "Tree model: object '{}' was reported to be moved to index {}, but ended up at index {}.", e.m_pObject->GetGuid(), e.getInsertIndex().ConvertTo<ezInt32>(), ComputeIndex(e.m_pObject));
+      m_pObjectInStructureChange = nullptr;
+
+      if (m_bMoveRejected)
+      {
+        m_bMoveRejected = false;
+        beginResetModel();
+        endResetModel();
+      }
+      else
+      {
+        endMoveRows();
+      }
     }
     break;
     default:
