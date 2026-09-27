@@ -5,6 +5,12 @@
 
 struct EZ_EDITORFRAMEWORK_DLL ezEngineViewPreferences
 {
+  /// Replaces invalid values (NaN, infinity, out of range) with usable defaults.
+  ///
+  /// The preferences are read from a file on disk, which may contain garbage (e.g. a NaN camera position),
+  /// which would otherwise result in an invalid camera and frustum. Call this before using loaded values.
+  void Sanitize();
+
   ezVec3 m_vCamPos = ezVec3::MakeZero();
   ezVec3 m_vCamDir = ezVec3::MakeAxisX();
   ezVec3 m_vCamUp = ezVec3::MakeAxisZ();

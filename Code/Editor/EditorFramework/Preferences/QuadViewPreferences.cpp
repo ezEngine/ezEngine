@@ -20,6 +20,35 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezEngineViewPreferences, ezNoBase, 2, ezRTTIDefau
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
+void ezEngineViewPreferences::Sanitize()
+{
+  // at very large coordinates, adding the (unit length) direction to the position doesn't change it anymore,
+  // which results in an invalid camera, so limit the position to a reasonable range
+  constexpr float fMaxCoordinate = 1000000.0f;
+
+  if (!m_vCamPos.IsValid())
+  {
+    m_vCamPos.SetZero();
+  }
+
+  m_vCamPos = m_vCamPos.CompClamp(ezVec3(-fMaxCoordinate), ezVec3(fMaxCoordinate));
+
+  if (!m_vCamDir.IsValid())
+  {
+    m_vCamDir = ezVec3::MakeAxisX();
+  }
+
+  if (!m_vCamUp.IsValid())
+  {
+    m_vCamUp = ezVec3::MakeAxisZ();
+  }
+
+  if (!ezMath::IsFinite(m_fFov) || m_fFov <= 0.0f)
+  {
+    m_fFov = 70.0f;
+  }
+}
+
 namespace
 {
   /// Patch class
