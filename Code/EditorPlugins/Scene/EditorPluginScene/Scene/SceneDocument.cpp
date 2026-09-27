@@ -1401,6 +1401,8 @@ void ezSceneDocument::RestoreFavoriteCamera(ezUInt8 uiSlot)
   if (pView == nullptr)
     return;
 
+  cam.Sanitize();
+
   ezVec3 vCamPos = cam.m_vCamPos;
   ezVec3 vCamDir = cam.m_vCamDir;
   ezVec3 vCamUp = cam.m_vCamUp;

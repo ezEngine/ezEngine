@@ -44,6 +44,8 @@ void ezQtQuadViewWidget::SaveViewConfig(const ezEngineViewConfig& cfg, ezEngineV
 
 void ezQtQuadViewWidget::LoadViewConfig(ezEngineViewConfig& cfg, ezEngineViewPreferences& pref)
 {
+  pref.Sanitize();
+
   cfg.m_Perspective = (ezSceneViewPerspective::Enum)pref.m_PerspectiveMode;
   cfg.m_RenderMode = (ezViewRenderMode::Enum)pref.m_RenderMode;
   cfg.m_Camera.LookAt(ezVec3(0), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
