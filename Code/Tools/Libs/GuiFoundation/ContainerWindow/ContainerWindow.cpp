@@ -4,7 +4,9 @@
 #include <Foundation/Types/ScopeExit.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
+#include <QApplication>
 #include <QCloseEvent>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QStatusBar>
 #include <QTabBar>
@@ -62,11 +64,16 @@ ezQtContainerWindow::ezQtContainerWindow()
   m_pDockManager = new ads::CDockManager(this);
 
   connect(m_pDockManager, &ads::CDockManager::floatingWidgetCreated, this, &ezQtContainerWindow::SlotFloatingWidgetOpened);
+
+  // needed for Ctrl+Tab handling, which has to work no matter which widget has the focus
+  qApp->installEventFilter(this);
 }
 
 ezQtContainerWindow::~ezQtContainerWindow()
 {
   s_pContainerWindow = nullptr;
+
+  qApp->removeEventFilter(this);
 
   ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::DocumentWindowEventHandler, this));
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::ProjectEventHandler, this));
@@ -141,6 +148,145 @@ void ezQtContainerWindow::SlotDockWidgetFloatingChanged(bool bFloating)
   }
 }
 
+void ezQtContainerWindow::SlotDockWidgetVisibilityChanged(bool bVisible)
+{
+  // while cycling, every tab that is passed gets shown, but only the final one counts as 'used'
+  if (!bVisible || !m_TabCycleDocks.IsEmpty())
+    return;
+
+  auto pDock = qobject_cast<ads::CDockWidget*>(sender());
+  if (m_DocumentDocksMRU.RemoveAndCopy(pDock))
+  {
+    m_DocumentDocksMRU.InsertAt(0, pDock);
+  }
+}
+
+bool ezQtContainerWindow::HandleDocumentTabCycling(QEvent* e)
+{
+  switch (e->type())
+  {
+    case QEvent::ShortcutOverride:
+    case QEvent::KeyPress:
+    {
+      QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(e);
+
+      if (!pKeyEvent->modifiers().testFlag(Qt::ControlModifier))
+      {
+        // the Ctrl release may have been missed, e.g. because it happened in another application
+        FinishDocumentTabCycling();
+        return false;
+      }
+
+      if ((pKeyEvent->key() != Qt::Key_Tab && pKeyEvent->key() != Qt::Key_Backtab) || (pKeyEvent->modifiers() & (Qt::AltModifier | Qt::MetaModifier)))
+        return false;
+
+      // don't switch documents behind a modal dialog or while some other top-level window is active
+      if (QApplication::activeModalWidget() != nullptr || QApplication::activePopupWidget() != nullptr)
+        return false;
+
+      QWidget* pActiveWindow = QApplication::activeWindow();
+      if (pActiveWindow != this && qobject_cast<ads::CFloatingDockContainer*>(pActiveWindow) == nullptr)
+        return false;
+
+      if (e->type() == QEvent::ShortcutOverride)
+      {
+        // accepting the override makes Qt skip the regular shortcut handling and deliver a KeyPress instead
+        e->accept();
+        return true;
+      }
+
+      const bool bBackwards = pKeyEvent->key() == Qt::Key_Backtab || pKeyEvent->modifiers().testFlag(Qt::ShiftModifier);
+      CycleDocumentTab(bBackwards);
+      return true;
+    }
+
+    case QEvent::KeyRelease:
+      if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Control)
+      {
+        FinishDocumentTabCycling();
+      }
+      return false;
+
+    case QEvent::ApplicationDeactivate:
+      FinishDocumentTabCycling();
+      return false;
+
+    default:
+      return false;
+  }
+}
+
+void ezQtContainerWindow::CycleDocumentTab(bool bBackwards)
+{
+  if (m_TabCycleDocks.IsEmpty())
+  {
+    ads::CDockAreaWidget* pArea = FindActiveDocumentArea();
+    if (pArea == nullptr)
+      return;
+
+    for (ads::CDockWidget* pDock : m_DocumentDocksMRU)
+    {
+      if (pDock->dockAreaWidget() == pArea && !pDock->isClosed() && !pDock->features().testFlag(ads::CDockWidget::NoTab))
+      {
+        m_TabCycleDocks.PushBack(pDock);
+      }
+    }
+
+    if (m_TabCycleDocks.GetCount() < 2)
+    {
+      m_TabCycleDocks.Clear();
+      return;
+    }
+
+    // the first entry is the currently active tab
+    m_uiTabCycleIndex = 0;
+  }
+
+  const ezUInt32 uiCount = m_TabCycleDocks.GetCount();
+  m_uiTabCycleIndex = bBackwards ? (m_uiTabCycleIndex + uiCount - 1) % uiCount : (m_uiTabCycleIndex + 1) % uiCount;
+
+  m_TabCycleDocks[m_uiTabCycleIndex]->setAsCurrentTab();
+}
+
+void ezQtContainerWindow::FinishDocumentTabCycling()
+{
+  if (m_TabCycleDocks.IsEmpty())
+    return;
+
+  ads::CDockWidget* pSelected = m_TabCycleDocks[m_uiTabCycleIndex];
+  m_TabCycleDocks.Clear();
+
+  if (m_DocumentDocksMRU.RemoveAndCopy(pSelected))
+  {
+    m_DocumentDocksMRU.InsertAt(0, pSelected);
+  }
+}
+
+ads::CDockAreaWidget* ezQtContainerWindow::FindActiveDocumentArea() const
+{
+  // prefer the dock area that contains the focused document
+  for (QWidget* pWidget = QApplication::focusWidget(); pWidget != nullptr; pWidget = pWidget->parentWidget())
+  {
+    if (auto pDock = qobject_cast<ads::CDockWidget*>(pWidget))
+    {
+      if (m_DocumentDocks.Contains(pDock))
+        return pDock->dockAreaWidget();
+
+      // focus is in an application panel
+      break;
+    }
+  }
+
+  // otherwise use the area of the document that was shown most recently
+  for (ads::CDockWidget* pDock : m_DocumentDocksMRU)
+  {
+    if (!pDock->isClosed() && pDock->isVisible())
+      return pDock->dockAreaWidget();
+  }
+
+  return nullptr;
+}
+
 void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
 {
   const ezUInt32 uiListIndex = m_DocumentWindows.IndexOf(pDocWindow);
@@ -179,6 +325,13 @@ void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)
 
   m_DocumentWindows.RemoveAtAndSwap(uiListIndex);
   m_DocumentDocks.RemoveAtAndSwap(uiListIndex);
+  m_DocumentDocksMRU.RemoveAndCopy(dock);
+
+  if (m_TabCycleDocks.Contains(dock))
+  {
+    m_TabCycleDocks.Clear();
+  }
+
   EZ_ASSERT_DEV(m_DockNames.contains(dock->objectName()), "Object name must not change during lifetime.");
   m_DockNames.remove(dock->objectName());
   dock->hide();
@@ -266,7 +419,9 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
     m_pDockManager->addDockWidgetTab(ads::CenterDockWidgetArea, dock);
   }
   m_DocumentDocks.PushBack(dock);
+  m_DocumentDocksMRU.PushBack(dock); // moved to the front once it gets shown
   connect(dock, &ads::CDockWidget::closeRequested, this, &ezQtContainerWindow::SlotDocumentTabCloseRequested);
+  connect(dock, &ads::CDockWidget::visibilityChanged, this, &ezQtContainerWindow::SlotDockWidgetVisibilityChanged);
   connect(dock->tabWidget(), &QWidget::customContextMenuRequested, this, &ezQtContainerWindow::SlotTabsContextMenuRequested);
   connect(dock, &ads::CDockWidget::topLevelChanged, this, &ezQtContainerWindow::SlotDockWidgetFloatingChanged);
 
@@ -428,6 +583,9 @@ void ezQtContainerWindow::GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 
 
 bool ezQtContainerWindow::eventFilter(QObject* obj, QEvent* e)
 {
+  if (HandleDocumentTabCycling(e))
+    return true;
+
   if (e->type() == QEvent::Type::Close)
   {
     if (auto* pFloatingWidget = qobject_cast<ads::CFloatingDockContainer*>(obj))

@@ -18,6 +18,7 @@ class QLabel;
 
 namespace ads
 {
+  class CDockAreaWidget;
   class CDockManager;
   class CFloatingDockContainer;
   class CDockWidget;
@@ -75,6 +76,7 @@ private Q_SLOTS:
   void SlotUpdateWindowDecoration(void* pDocWindow);
   void SlotFloatingWidgetOpened(ads::CFloatingDockContainer* FloatingWidget);
   void SlotDockWidgetFloatingChanged(bool bFloating);
+  void SlotDockWidgetVisibilityChanged(bool bVisible);
 
 private:
   void UpdateWindowTitle();
@@ -90,11 +92,25 @@ private:
 
   virtual void closeEvent(QCloseEvent* e) override;
 
+  /// Implements Ctrl+Tab / Ctrl+Shift+Tab switching between the document tabs of one dock area, in most-recently-used order.
+  ///
+  /// Called for every event of the application. Returns true, if the event was consumed.
+  bool HandleDocumentTabCycling(QEvent* e);
+  void CycleDocumentTab(bool bBackwards);
+  void FinishDocumentTabCycling();
+  ads::CDockAreaWidget* FindActiveDocumentArea() const;
+
 private:
   ads::CDockManager* m_pDockManager = nullptr;
   QLabel* m_pStatusBarLabel;
   ezDynamicArray<ezQtDocumentWindow*> m_DocumentWindows;
   ezDynamicArray<ads::CDockWidget*> m_DocumentDocks;
+
+  /// All document docks, the one that was shown most recently comes first.
+  ezDynamicArray<ads::CDockWidget*> m_DocumentDocksMRU;
+  /// While Ctrl+Tab cycling is in progress: the docks that are cycled through, in MRU order at the start of cycling.
+  ezDynamicArray<ads::CDockWidget*> m_TabCycleDocks;
+  ezUInt32 m_uiTabCycleIndex = 0;
 
   ezDynamicArray<ezQtApplicationPanel*> m_ApplicationPanels;
   QSet<QString> m_DockNames;
