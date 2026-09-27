@@ -37,7 +37,6 @@
 			"stdarg.h",
 			"time.h",
 			"unistd.h",
-			"jni.h",
 			"float.h",
 			"arm_neon.h",
 			"signal.h",
@@ -54,7 +53,8 @@
 			"core.h",
 			"WinRTUtils.h",
 			"Profiling_Tracy.h",
-			"Tracing_Platform.h"
+			"Tracing_Platform.h",
+			"AndroidJni.h"
 		]
 	}
 }
