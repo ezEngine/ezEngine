@@ -205,23 +205,41 @@ void ezQtDocumentTreeView::on_selectionChanged_triggered(const QItemSelection& s
   if (m_bBlockSelectionSignal)
     return;
 
-  QModelIndexList selection = selectionModel()->selectedIndexes();
-
   ezDeque<const ezDocumentObject*> sel;
+  GetViewSelection(sel);
 
-  foreach (QModelIndex index, selection)
+  ((ezSelectionManager*)m_pSelectionManager)->SetSelection(sel);
+}
+
+void ezQtDocumentTreeView::GetViewSelection(ezDeque<const ezDocumentObject*>& out_selection) const
+{
+  out_selection.Clear();
+
+  const QModelIndex current = selectionModel()->currentIndex();
+  const ezDocumentObject* pCurrentObject = nullptr;
+
+  for (QModelIndex index : selectionModel()->selectedIndexes())
   {
-    if (index.isValid() && index.column() == 0)
-    {
-      index = m_pFilterModel->mapToSource(index);
+    if (!index.isValid() || index.column() != 0)
+      continue;
 
-      if (index.isValid())
-        sel.PushBack((const ezDocumentObject*)index.internalPointer());
-    }
+    const bool bIsCurrent = (index.row() == current.row() && index.parent() == current.parent());
+
+    index = m_pFilterModel->mapToSource(index);
+    if (!index.isValid())
+      continue;
+
+    const ezDocumentObject* pObject = (const ezDocumentObject*)index.internalPointer();
+
+    if (bIsCurrent)
+      pCurrentObject = pObject;
+    else
+      out_selection.PushBack(pObject);
   }
 
-  // TODO const cast
-  ((ezSelectionManager*)m_pSelectionManager)->SetSelection(sel);
+  // the object with the keyboard focus goes last, so that it is treated as the most recently selected one
+  if (pCurrentObject != nullptr)
+    out_selection.PushBack(pCurrentObject);
 }
 
 void ezQtDocumentTreeView::SelectionEventHandler(const ezSelectionManagerEvent& e)
@@ -241,24 +259,60 @@ void ezQtDocumentTreeView::SelectionEventHandler(const ezSelectionManagerEvent& 
     case ezSelectionManagerEvent::Type::ObjectAdded:
     case ezSelectionManagerEvent::Type::ObjectRemoved:
     {
+      const auto& managerSelection = m_pSelectionManager->GetSelection();
+
+      {
+        // This event is usually the echo of a selection change that the view itself just did (and is still in the middle of).
+        // If the view already shows exactly this selection, don't touch it. Re-applying it would move the current index
+        // and reset Qt's in-progress 'current selection', which breaks extending the selection with shift+arrow keys.
+        ezDeque<const ezDocumentObject*> viewSelection;
+        GetViewSelection(viewSelection);
+
+        if (viewSelection.GetCount() == managerSelection.GetCount())
+        {
+          bool bSame = true;
+          for (const ezDocumentObject* pObject : viewSelection)
+          {
+            if (!m_pSelectionManager->IsSelected(pObject))
+            {
+              bSame = false;
+              break;
+            }
+          }
+
+          if (bSame)
+            return;
+        }
+      }
+
       // Can't block signals on selection model or view won't update.
       m_bBlockSelectionSignal = true;
       QItemSelection selection;
-      QModelIndex currentIndex;
-      for (const ezDocumentObject* pObject : m_pSelectionManager->GetSelection())
-      {
-        currentIndex = m_pModel->ComputeModelIndex(pObject);
-        currentIndex = m_pFilterModel->mapFromSource(currentIndex);
+      QModelIndex lastIndex;
+      bool bCurrentIsSelected = false;
+      const QModelIndex current = selectionModel()->currentIndex();
 
-        if (currentIndex.isValid())
-          selection.select(currentIndex, currentIndex);
+      for (const ezDocumentObject* pObject : managerSelection)
+      {
+        QModelIndex index = m_pModel->ComputeModelIndex(pObject);
+        index = m_pFilterModel->mapFromSource(index);
+
+        if (index.isValid())
+        {
+          selection.select(index, index);
+          lastIndex = index;
+
+          if (index.row() == current.row() && index.parent() == current.parent())
+            bCurrentIsSelected = true;
+        }
       }
-      if (currentIndex.isValid())
+
+      if (lastIndex.isValid() && !bCurrentIsSelected)
       {
         // We need to change the current index as well because the current index can trigger side effects. E.g. deleting the current index row triggers a selection change event.
-        selectionModel()->setCurrentIndex(currentIndex, QItemSelectionModel::SelectCurrent);
+        selectionModel()->setCurrentIndex(lastIndex, QItemSelectionModel::NoUpdate);
       }
-      selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows | QItemSelectionModel::NoUpdate);
+      selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
       m_bBlockSelectionSignal = false;
     }
     break;

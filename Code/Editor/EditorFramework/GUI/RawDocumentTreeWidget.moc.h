@@ -40,6 +40,9 @@ private Q_SLOTS:
 private:
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
 
+  /// Returns the objects that are currently selected in the view, with the object at the current index (if selected) at the end.
+  void GetViewSelection(ezDeque<const ezDocumentObject*>& out_selection) const;
+
 private:
   std::unique_ptr<ezQtDocumentTreeModel> m_pModel;
   std::unique_ptr<ezQtTreeSearchFilterModel> m_pFilterModel;
