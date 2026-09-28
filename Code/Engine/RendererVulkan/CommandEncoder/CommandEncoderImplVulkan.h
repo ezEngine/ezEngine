@@ -150,6 +150,13 @@ private:
   static ezUInt64 HashBindGroup(const ezGALBindGroupCreationDescription& desc, const DynamicOffsets& offsets);
   vk::DescriptorSet CreateDescriptorSet(const ezGALBindGroupCreationDescription& desc, const DynamicOffsets& offsets);
   void EnsureBindGroupTextureLayout(const ezGALBindGroupCreationDescription& desc);
+  const ezGALShaderVulkan* GetPipelineShader(const ezGALGraphicsPipelineVulkan* pPipeline) const;
+  const ezGALShaderVulkan* GetPipelineShader(const ezGALComputePipelineVulkan* pPipeline) const;
+  /// Sets m_pShader and marks all bind groups dirty if the pipeline layout changes.
+  void SetActiveShader(const ezGALShaderVulkan* pShader);
+  void MarkBindGroupsDirty();
+  /// Logs an error describing which bindings the current shader expects in the given bind group and which bindings the bound bind group layout provides.
+  void LogBindGroupLayoutMismatch(ezUInt32 uiBindGroup, ezGALBindGroupLayoutHandle hBoundLayout) const;
 
   enum class DynamicUniformBufferChanges
   {

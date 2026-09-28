@@ -12,6 +12,8 @@ class EZ_RENDERERVULKAN_DLL ezGALShaderVulkan : public ezGALShader
 {
 public:
   virtual void SetDebugName(ezStringView sName) const override;
+  /// Returns the name passed to SetDebugName, used for error messages. Empty if SetDebugName was never called.
+  ezStringView GetDebugName() const { return m_sDebugName; }
 
   EZ_ALWAYS_INLINE vk::ShaderModule GetShader(ezGALShaderStage::Enum stage) const;
   vk::PipelineLayout GetVkPipelineLayout() const;
@@ -30,6 +32,7 @@ protected:
 
 private:
   vk::ShaderModule m_Shaders[ezGALShaderStage::ENUM_COUNT];
+  mutable ezString m_sDebugName;
 };
 
 #include <RendererVulkan/Shader/Implementation/ShaderVulkan_inl.h>
