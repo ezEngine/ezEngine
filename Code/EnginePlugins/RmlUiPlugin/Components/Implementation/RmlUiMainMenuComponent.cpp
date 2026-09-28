@@ -515,8 +515,7 @@ void ezRmlUiMainMenuComponent::RegisterSettingsEventHandlers(ezRmlUiContext* pCo
       {
         // keep the scale that was used automatically, so that the image doesn't change
         ezGameApplication::cvar_AppRenderScale = ezRenderWorld::GetEffectiveRenderScale(GetMainView(), ezGameApplication::cvar_AppRenderScale);
-      }
-    });
+      } });
 
   pContext->RegisterEventHandler("render-scale-change", [](Rml::Event& e)
     {
@@ -524,8 +523,7 @@ void ezRmlUiMainMenuComponent::RegisterSettingsEventHandlers(ezRmlUiContext* pCo
       if (ezGameApplication::cvar_AppRenderScale <= 0.0f)
         return;
 
-      ezGameApplication::cvar_AppRenderScale = ezRmlUiUtils::GetChangedValue(e) / 100.0f;
-    });
+      ezGameApplication::cvar_AppRenderScale = ezRmlUiUtils::GetChangedValue(e) / 100.0f; });
 
   pContext->RegisterEventHandler("toggle-fps", [](Rml::Event& e)
     {
