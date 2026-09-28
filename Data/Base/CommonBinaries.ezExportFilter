@@ -22,8 +22,13 @@
 /ezGameEngine.dll
 /ezRendererCore.dll
 /ezRendererDX11.dll
+/ezRendererVulkan.dll
 /ezRendererFoundation.dll
 /ezShaderCompilerHLSL.dll
+/ezShaderCompilerVulkan.dll
+/ezShaderCompilerDXC.dll
+/dxcompiler.dll
+/dxil.dll
 /ezTexture.dll
 /ezUtilities.dll
 /Imgui.dll
