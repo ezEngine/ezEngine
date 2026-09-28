@@ -526,6 +526,10 @@ void ezGALCommandEncoderImplVulkan::BeginRenderingPlatform(const ezGALRenderingS
   m_bViewportDirty = true;
   m_bScissorDirty = true;
 
+  // See BeginComputePlatform.
+  SetActiveShader(GetPipelineShader(m_pGraphicsPipeline));
+  MarkBindGroupsDirty();
+
   m_pCommandBuffer->beginRenderPass(m_RenderPass, vk::SubpassContents::eInline);
 }
 
@@ -662,29 +666,50 @@ void ezGALCommandEncoderImplVulkan::SetVertexBufferPlatform(ezUInt32 uiSlot, con
   }
 }
 
+const ezGALShaderVulkan* ezGALCommandEncoderImplVulkan::GetPipelineShader(const ezGALGraphicsPipelineVulkan* pPipeline) const
+{
+  return pPipeline ? static_cast<const ezGALShaderVulkan*>(m_GALDeviceVulkan.GetShader(pPipeline->GetDescription().m_hShader)) : nullptr;
+}
+
+const ezGALShaderVulkan* ezGALCommandEncoderImplVulkan::GetPipelineShader(const ezGALComputePipelineVulkan* pPipeline) const
+{
+  return pPipeline ? static_cast<const ezGALShaderVulkan*>(m_GALDeviceVulkan.GetShader(pPipeline->GetDescription().m_hShader)) : nullptr;
+}
+
+void ezGALCommandEncoderImplVulkan::SetActiveShader(const ezGALShaderVulkan* pShader)
+{
+  const vk::PipelineLayout oldLayout = m_pShader ? m_pShader->GetVkPipelineLayout() : vk::PipelineLayout{};
+  const vk::PipelineLayout newLayout = pShader ? pShader->GetVkPipelineLayout() : vk::PipelineLayout{};
+  m_pShader = pShader;
+
+  // When the pipeline layout changes, previously bound descriptor sets are invalidated by Vulkan
+  // (see Vulkan spec 14.2.2 "compatibility for set N"). Force a full rebind.
+  if (newLayout != oldLayout)
+  {
+    MarkBindGroupsDirty();
+  }
+}
+
+void ezGALCommandEncoderImplVulkan::MarkBindGroupsDirty()
+{
+  for (ezUInt32 i = 0; i < EZ_GAL_MAX_BIND_GROUPS; i++)
+  {
+    m_BindGroupDirty[i] = true;
+  }
+  // Push constants are bound per pipeline layout as well.
+  m_bPushConstantsDirty = m_bPushConstantsDirty || !m_PushConstants.IsEmpty();
+}
+
 void ezGALCommandEncoderImplVulkan::SetGraphicsPipelinePlatform(const ezGALGraphicsPipeline* pGraphicsPipeline)
 {
   if (m_pGraphicsPipeline != pGraphicsPipeline)
   {
-    const vk::PipelineLayout oldLayout = m_pShader ? m_pShader->GetVkPipelineLayout() : vk::PipelineLayout{};
     m_pGraphicsPipeline = static_cast<const ezGALGraphicsPipelineVulkan*>(pGraphicsPipeline);
+    SetActiveShader(GetPipelineShader(m_pGraphicsPipeline));
     bool bScissorEnabled = false;
     if (m_pGraphicsPipeline)
     {
-      m_pShader = static_cast<const ezGALShaderVulkan*>(m_GALDeviceVulkan.GetShader(m_pGraphicsPipeline->GetDescription().m_hShader));
       bScissorEnabled = m_GALDeviceVulkan.GetRasterizerState(m_pGraphicsPipeline->GetDescription().m_hRasterizerState)->GetDescription().m_bScissorTest;
-    }
-    // When the pipeline layout changes, previously bound descriptor sets are invalidated by Vulkan
-    // (see Vulkan spec 14.2.2 "compatibility for set N"). Force a full rebind.
-    const vk::PipelineLayout newLayout = m_pShader ? m_pShader->GetVkPipelineLayout() : vk::PipelineLayout{};
-    if (newLayout != oldLayout)
-    {
-      for (ezUInt32 i = 0; i < EZ_GAL_MAX_BIND_GROUPS; i++)
-      {
-        m_BindGroupDirty[i] = true;
-      }
-      // An incompatible layout also invalidates push constants.
-      m_bPushConstantsDirty = m_bPushConstantsDirty || !m_PushConstants.IsEmpty();
     }
     if (bScissorEnabled != m_bScissorEnabled)
     {
@@ -700,22 +725,8 @@ void ezGALCommandEncoderImplVulkan::SetComputePipelinePlatform(const ezGALComput
 {
   if (m_pComputePipeline != pComputePipeline)
   {
-    const vk::PipelineLayout oldLayout = m_pShader ? m_pShader->GetVkPipelineLayout() : vk::PipelineLayout{};
     m_pComputePipeline = static_cast<const ezGALComputePipelineVulkan*>(pComputePipeline);
-    if (m_pComputePipeline)
-    {
-      m_pShader = static_cast<const ezGALShaderVulkan*>(m_GALDeviceVulkan.GetShader(m_pComputePipeline->GetDescription().m_hShader));
-    }
-    const vk::PipelineLayout newLayout = m_pShader ? m_pShader->GetVkPipelineLayout() : vk::PipelineLayout{};
-    if (newLayout != oldLayout)
-    {
-      for (ezUInt32 i = 0; i < EZ_GAL_MAX_BIND_GROUPS; i++)
-      {
-        m_BindGroupDirty[i] = true;
-      }
-      // An incompatible layout also invalidates push constants.
-      m_bPushConstantsDirty = m_bPushConstantsDirty || !m_PushConstants.IsEmpty();
-    }
+    SetActiveShader(GetPipelineShader(m_pComputePipeline));
     m_bPipelineStateDirty = true;
   }
 }
@@ -767,6 +778,11 @@ void ezGALCommandEncoderImplVulkan::BeginComputePlatform()
   m_bInsideCompute = true;
   m_bPipelineStateDirty = true;
   m_bDynamicOffsetsDirty = true;
+
+  // m_pShader may still refer to the shader of the last graphics pipeline. SetComputePipelinePlatform does nothing if the compute pipeline did not change since the last compute scope, so the shader has to be restored here.
+  // Descriptor sets are bound per pipeline bind point, so the ones bound for graphics are not visible to compute.
+  SetActiveShader(GetPipelineShader(m_pComputePipeline));
+  MarkBindGroupsDirty();
 }
 
 void ezGALCommandEncoderImplVulkan::EndComputePlatform()
@@ -786,6 +802,35 @@ ezResult ezGALCommandEncoderImplVulkan::DispatchIndirectPlatform(const ezGALBuff
   EZ_SUCCEED_OR_RETURN(FlushDeferredStateChanges());
   m_pCommandBuffer->dispatchIndirect(static_cast<const ezGALBufferVulkan*>(pIndirectArgumentBuffer)->GetVkBuffer(), uiArgumentOffsetInBytes);
   return EZ_SUCCESS;
+}
+
+void ezGALCommandEncoderImplVulkan::LogBindGroupLayoutMismatch(ezUInt32 uiBindGroup, ezGALBindGroupLayoutHandle hBoundLayout) const
+{
+  auto AppendBindings = [&](ezStringBuilder& ref_sOut, ezGALBindGroupLayoutHandle hLayout)
+  {
+    const ezGALBindGroupLayout* pLayout = m_GALDeviceVulkan.GetBindGroupLayout(hLayout);
+    if (pLayout == nullptr)
+    {
+      ref_sOut.Append("<nothing bound>");
+      return;
+    }
+
+    ref_sOut.Append("[");
+    bool bFirst = true;
+    for (const ezShaderResourceBinding& binding : pLayout->GetDescription().m_ResourceBindings)
+    {
+      ref_sOut.AppendFormat("{}{}:{}", bFirst ? "" : ", ", binding.m_iSlot, binding.m_sName);
+      bFirst = false;
+    }
+    ref_sOut.Append("]");
+  };
+
+  ezStringBuilder sExpected, sBound;
+  AppendBindings(sExpected, m_pShader->GetBindGroupLayout(uiBindGroup));
+  AppendBindings(sBound, hBoundLayout);
+
+  ezStringView sShaderName = m_pShader->GetDebugName();
+  ezLog::Error("Bind group {} layout mismatch for {} shader '{}'. Shader expects {}, bound: {}. The bind group was likely created for a different shader or not updated after a shader change.", uiBindGroup, m_bInsideCompute ? "compute" : "graphics", sShaderName.IsEmpty() ? ezStringView("<unnamed>") : sShaderName, sExpected, sBound);
 }
 
 ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
@@ -873,7 +918,7 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
       {
         if (m_pShader->GetBindGroupLayout(uiBindGroup) != m_pBindGroups[uiBindGroup]->GetDescription().m_hBindGroupLayout)
         {
-          ezLog::Error("Bind group resource layout missmatch");
+          LogBindGroupLayoutMismatch(uiBindGroup, m_pBindGroups[uiBindGroup]->GetDescription().m_hBindGroupLayout);
           return EZ_FAILURE;
         }
         if (m_BindGroupDirty[uiBindGroup])
@@ -889,7 +934,7 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
 
       if (m_pShader->GetBindGroupLayout(uiBindGroup) != m_BindGroups[uiBindGroup].m_hBindGroupLayout)
       {
-        ezLog::Error("Bind group layout missmatch");
+        LogBindGroupLayoutMismatch(uiBindGroup, m_BindGroups[uiBindGroup].m_hBindGroupLayout);
         return EZ_FAILURE;
       }
 
