@@ -673,7 +673,8 @@ ezStatus ezMoveObjectCommand::UndoInternal(bool bFireEvents)
     ezInt32 iNew = m_Index.ConvertTo<ezInt32>();
     ezInt32 iOld = m_OldIndex.ConvertTo<ezInt32>();
 
-    if (iNew < iOld)
+    // -1 means the object was appended, i.e. moved downwards
+    if (iNew != -1 && iNew < iOld)
     {
       FinalOldPosition = iOld + 1;
     }
@@ -964,7 +965,8 @@ ezStatus ezMoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
     ezInt32 iNew = m_NewIndex.ConvertTo<ezInt32>();
     ezInt32 iOld = m_OldIndex.ConvertTo<ezInt32>();
 
-    if (iNew < iOld)
+    // -1 means the object was appended, i.e. moved downwards
+    if (iNew != -1 && iNew < iOld)
     {
       FinalOldPosition = iOld + 1;
     }

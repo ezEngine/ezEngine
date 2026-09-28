@@ -41,7 +41,7 @@ public:
 };
 
 /// Used by ezDocumentObjectManager::m_StructureEvents.
-struct ezDocumentObjectStructureEvent
+struct EZ_TOOLSFOUNDATION_DLL ezDocumentObjectStructureEvent
 {
   ezDocumentObjectStructureEvent() = default;
 

@@ -457,7 +457,7 @@ ezStatus ezDocumentObjectManager::CanMove(
   if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {
     ezInt32 iChildIndex = index.ConvertTo<ezInt32>();
-    if (iChildIndex == -1)
+    if (!index.IsValid() || iChildIndex == -1)
     {
       iChildIndex = pNewParent->GetTypeAccessor().GetCount(sParentProperty);
     }
@@ -561,6 +561,26 @@ ezSharedPtr<ezDocumentObjectManager::Storage> ezDocumentObjectManager::SwapStora
 // ezDocumentObjectManager Private Functions
 ////////////////////////////////////////////////////////////////////////
 
+namespace
+{
+  /// For array and set properties, both -1 and an invalid index mean 'append'. Structure event listeners (e.g. Qt tree models)
+  /// need the actual insert position, so this resolves such an index to the current element count of the property.
+  ezVariant ResolveAppendIndex(ezDocumentObject* pParent, ezStringView sParentProperty, const ezVariant& index)
+  {
+    if (index.CanConvertTo<ezInt32>() && index.ConvertTo<ezInt32>() == -1)
+      return pParent->GetTypeAccessor().GetCount(sParentProperty);
+
+    if (!index.IsValid())
+    {
+      const ezAbstractProperty* pProp = pParent->GetTypeAccessor().GetType()->FindPropertyByName(sParentProperty);
+      if (pProp != nullptr && (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set))
+        return pParent->GetTypeAccessor().GetCount(sParentProperty);
+    }
+
+    return index;
+  }
+} // namespace
+
 void ezDocumentObjectManager::InternalAddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, ezStringView sParentProperty, ezVariant index)
 {
   ezDocumentObjectStructureEvent e;
@@ -570,13 +590,7 @@ void ezDocumentObjectManager::InternalAddObject(ezDocumentObject* pObject, ezDoc
   e.m_pPreviousParent = nullptr;
   e.m_pNewParent = pParent;
   e.m_sParentProperty = sParentProperty;
-  e.m_NewPropertyIndex = index;
-
-  if (e.m_NewPropertyIndex.CanConvertTo<ezInt32>() && e.m_NewPropertyIndex.ConvertTo<ezInt32>() == -1)
-  {
-    ezIReflectedTypeAccessor& accessor = pParent->GetTypeAccessor();
-    e.m_NewPropertyIndex = accessor.GetCount(sParentProperty);
-  }
+  e.m_NewPropertyIndex = ResolveAppendIndex(pParent, sParentProperty, index);
   m_pObjectStorage->m_StructureEvents.Broadcast(e);
 
   pParent->InsertSubObject(pObject, sParentProperty, e.m_NewPropertyIndex);
@@ -619,12 +633,7 @@ void ezDocumentObjectManager::InternalMoveObject(
   e.m_pNewParent = pNewParent;
   e.m_sParentProperty = sParentProperty;
   e.m_OldPropertyIndex = pObject->GetPropertyIndex();
-  e.m_NewPropertyIndex = index;
-  if (e.m_NewPropertyIndex.CanConvertTo<ezInt32>() && e.m_NewPropertyIndex.ConvertTo<ezInt32>() == -1)
-  {
-    ezIReflectedTypeAccessor& accessor = pNewParent->GetTypeAccessor();
-    e.m_NewPropertyIndex = accessor.GetCount(sParentProperty);
-  }
+  e.m_NewPropertyIndex = ResolveAppendIndex(pNewParent, sParentProperty, index);
 
   m_pObjectStorage->m_StructureEvents.Broadcast(e);
 
