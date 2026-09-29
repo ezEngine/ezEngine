@@ -254,7 +254,7 @@ void ezCamera::LookAt(const ezVec3& vCameraPos0, const ezVec3& vTargetPos0, cons
 
   if (m_Mode == ezCameraMode::Stereo)
   {
-    EZ_REPORT_FAILURE("ezCamera::LookAt is not possible for stereo cameras.");
+    ezLog::Warning("ezCamera::LookAt is not possible for stereo cameras.");
     return;
   }
 
