@@ -175,7 +175,6 @@ void ezRenderContext::BeginRendering(const ezGALRenderingSetup& renderingSetup, 
 {
   EZ_ASSERT_DEBUG(m_bRendering == false && m_bCompute == false, "Already in a scope");
   m_bRendering = true;
-  m_RenderTargetSize = renderingSetup.GetFrameBuffer().m_Size;
   m_GraphicsPipeline.m_RenderPass = renderingSetup.GetRenderPass();
   m_StateFlags.Add(ezRenderContextFlags::PipelineChanged);
   const ezGALMSAASampleCount::Enum msaaSampleCount = renderingSetup.GetRenderPass().m_Msaa;
@@ -205,7 +204,6 @@ void ezRenderContext::EndRendering()
 
   m_bStereoRendering = false;
   m_bRendering = false;
-  m_RenderTargetSize = {0, 0};
 }
 
 void ezRenderContext::BeginCompute(const char* szName /*= ""*/)
@@ -295,6 +293,16 @@ void ezRenderContext::SetPushConstants(ezTempHashedString sSlotName, ezArrayPtr<
     EZ_ASSERT_DEBUG(data.GetCount() <= ezGALDevice::GetDefaultDevice()->GetCapabilities().m_uiMaxPushConstantsSize, "Push constants are not allowed to be bigger than {} bytes.", ezGALDevice::GetDefaultDevice()->GetCapabilities().m_uiMaxPushConstantsSize);
     m_pGALCommandEncoder->SetPushConstants(data);
   }
+}
+
+void ezRenderContext::SetViewport(const ezRectFloat& viewport)
+{
+  EZ_ASSERT_DEBUG(m_bRendering, "Must be either in a rendering scope");
+
+  auto& gc = WriteGlobalConstants();
+  gc.ViewportSize = ezVec4(viewport.width, viewport.height, 1.0f / viewport.width, 1.0f / viewport.height);
+
+  m_pGALCommandEncoder->SetViewport(viewport);
 }
 
 void ezRenderContext::BindShader(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags)

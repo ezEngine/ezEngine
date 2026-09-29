@@ -58,7 +58,7 @@ ezStatus ezSelectionHighlightPass::AddRenderPasses(const ezViewData& viewData, c
   outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
 
   ezRenderGraphTextureHandle hDepth = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
-  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hDepth, "DepthStencil", false, true));
+  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hDepth, "DepthStencil", ezTextureValidationFlags::CheckMsaa));
 
   const ezGALTextureCreationDescription colorDesc = ref_graph.GetTextureDesc(hColor);
 
@@ -78,8 +78,7 @@ ezStatus ezSelectionHighlightPass::AddRenderPasses(const ezViewData& viewData, c
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
       {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-      renderViewContext.UpdateViewport();
-
+      
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_DEPTH_ONLY");
       RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection); });
   }
@@ -94,8 +93,7 @@ ezStatus ezSelectionHighlightPass::AddRenderPasses(const ezViewData& viewData, c
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
       {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-      renderViewContext.UpdateViewport();
-
+      
       auto constants = ezRenderContext::GetConstantBufferData<ezSelectionHighlightConstants>(m_hConstantBuffer);
       constants->HighlightColor = m_HighlightColor;
       constants->OverlayOpacity = m_fOverlayOpacity;

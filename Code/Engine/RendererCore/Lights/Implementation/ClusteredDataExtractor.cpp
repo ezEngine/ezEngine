@@ -822,9 +822,12 @@ void ezClusteredDataExtractor::UpdateGpuData(const ezView& view, const ezCluster
 
   pDevice->UpdateBufferForNextFrame(m_DataGPU.m_hClusterDataBuffer, pData->m_ClusterData.ToByteArray(), 0);
 
+  const ezSizeFloat scaledViewportSize = view.GetScaledViewportSize();
+
   ezClusteredDataConstants constants = {};
   constants.DepthSliceScale = s_fDepthSliceScale;
   constants.DepthSliceBias = s_fDepthSliceBias;
+  constants.InvTileSize = ezVec2(NUM_CLUSTERS_X / scaledViewportSize.width, NUM_CLUSTERS_Y / scaledViewportSize.height);
   constants.NumLights = pData->m_LightData.GetCount();
   constants.NumDecals = pData->m_DecalData.GetCount();
 

@@ -115,11 +115,11 @@ void ezRenderPipelinePass::SetReadBackProperty(ezView* pView, ezStringView sProp
   pView->GetBlackboard()->SetEntryValue(sb, value);
 }
 
-ezStatus ezRenderPipelinePass::ValidateMatchingTexture(const ezRenderGraph& graph, ezRenderGraphTextureHandle hReference, ezStringView sReferencePinName, ezRenderGraphTextureHandle hTexture, ezStringView sPinName, bool bOptional, bool bMatchMsaa)
+ezStatus ezRenderPipelinePass::ValidateMatchingTexture(const ezRenderGraph& graph, ezRenderGraphTextureHandle hReference, ezStringView sReferencePinName, ezRenderGraphTextureHandle hTexture, ezStringView sPinName, ezBitflags<ezTextureValidationFlags> flags)
 {
   if (hTexture.IsInvalidated())
   {
-    if (bOptional)
+    if (flags.IsSet(ezTextureValidationFlags::Optional))
       return EZ_SUCCESS;
 
     return ezStatus(ezFmt("{}: Not connected", sPinName));
@@ -135,7 +135,7 @@ ezStatus ezRenderPipelinePass::ValidateMatchingTexture(const ezRenderGraph& grap
   if (textureDesc.m_uiWidth != referenceDesc.m_uiWidth || textureDesc.m_uiHeight != referenceDesc.m_uiHeight)
     return ezStatus(ezFmt("{}: Size ({}x{}) doesn't match the one of {} ({}x{}). Both have to be connected on the same side of an ezUpscalePass.", sPinName, textureDesc.m_uiWidth, textureDesc.m_uiHeight, sReferencePinName, referenceDesc.m_uiWidth, referenceDesc.m_uiHeight));
 
-  if (bMatchMsaa && textureDesc.m_SampleCount != referenceDesc.m_SampleCount)
+  if (flags.IsSet(ezTextureValidationFlags::CheckMsaa) && textureDesc.m_SampleCount != referenceDesc.m_SampleCount)
     return ezStatus(ezFmt("{}: MSAA mode ({}) doesn't match the one of {} ({}). Connect a texture with the same MSAA mode, e.g. the output of an ezMsaaResolvePass.", sPinName, ezArgEnum(textureDesc.m_SampleCount), sReferencePinName, ezArgEnum(referenceDesc.m_SampleCount)));
 
   return EZ_SUCCESS;

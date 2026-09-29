@@ -135,15 +135,10 @@ struct SortedShadowData
 
 static ezDynamicArray<SortedShadowData> s_SortedShadowData;
 
-static float GetRenderScale(const ezView* pReferenceView)
+static float ShadowMapScaleFromScreenSpaceSize(float fScreenSpaceSize)
 {
-  return pReferenceView != nullptr ? pReferenceView->GetRenderScale() : 1.0f;
-}
-
-static float ShadowMapScaleFromScreenSpaceSize(float fScreenSpaceSize, const ezView* pReferenceView)
-{
-  const float fShadowMapScale = ezMath::Pow(fScreenSpaceSize * 0.5f, cvar_RenderingShadowsScaleMappingExponent) * GetRenderScale(pReferenceView);
-  return ezMath::Clamp(fShadowMapScale, s_fMinRelativeShadowMapSize, 1.0f);
+  const float fClampedShadowMapScale = ezMath::Clamp(ezMath::Pow(fScreenSpaceSize * 0.5f, cvar_RenderingShadowsScaleMappingExponent), s_fMinRelativeShadowMapSize, 1.0f);
+  return fClampedShadowMapScale;
 }
 
 static float AddSafeBorder(ezAngle fov, float fPenumbraSize)
@@ -363,8 +358,9 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
     return ezInvalidIndex;
   }
 
-  float fMaxReferenceSize = ezMath::Max(pReferenceView->GetViewport().width, pReferenceView->GetViewport().height) * GetRenderScale(pReferenceView);
-  float fShadowMapScale = ezMath::Clamp(fMaxReferenceSize / s_uiMaxShadowMapSize, s_fMinRelativeShadowMapSize, 10.0f);
+  const ezSizeFloat scaledViewportSize = pReferenceView->GetScaledViewportSize();
+  const float fMaxReferenceSize = ezMath::Max(scaledViewportSize.width, scaledViewportSize.height);
+  const float fShadowMapScale = ezMath::Clamp(fMaxReferenceSize / s_uiMaxShadowMapSize, s_fMinRelativeShadowMapSize, 10.0f);
 
   ShadowData* pData = nullptr;
   if (s_pData->GetDataForExtraction(pDirLight, pReferenceView, fShadowMapScale, sizeof(ezDirShadowData), pData))
@@ -520,7 +516,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
   EZ_ASSERT_DEBUG(pPointLight->GetCastShadows(), "Implementation error");
 
   // point lights use a lot of atlas space thus we half the scale
-  const float fShadowMapScale = ShadowMapScaleFromScreenSpaceSize(fScreenSpaceSize, pReferenceView) * 0.5f;
+  const float fShadowMapScale = ShadowMapScaleFromScreenSpaceSize(fScreenSpaceSize) * 0.5f;
   ShadowData* pData = nullptr;
   if (s_pData->GetDataForExtraction(pPointLight, nullptr, fShadowMapScale, sizeof(ezPointShadowData), pData))
   {
@@ -607,7 +603,7 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
 {
   EZ_ASSERT_DEBUG(pSpotLight->GetCastShadows(), "Implementation error");
 
-  const float fShadowMapScale = ShadowMapScaleFromScreenSpaceSize(fScreenSpaceSize, pReferenceView);
+  const float fShadowMapScale = ShadowMapScaleFromScreenSpaceSize(fScreenSpaceSize);
   ShadowData* pData = nullptr;
   if (s_pData->GetDataForExtraction(pSpotLight, nullptr, fShadowMapScale, sizeof(ezSpotShadowData), pData))
   {

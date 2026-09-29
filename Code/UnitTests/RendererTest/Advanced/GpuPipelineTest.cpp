@@ -734,30 +734,19 @@ void ezGpuPipelineTest::RenderScale()
     ezViewData viewData;
     viewData.m_ViewPortRect = ezRectFloat(0.0f, 0.0f, 1000.0f, 500.0f);
     viewData.m_fRenderScale = 0.25f;
-    EZ_TEST_BOOL(viewData.GetScaledViewportSize() == ezSizeU32(250, 125));
-
-    // Values below 1% are clamped.
-    viewData.m_fRenderScale = 0.001f;
-    EZ_TEST_BOOL(viewData.GetScaledViewportSize() == ezSizeU32(10, 5));
+    EZ_TEST_BOOL(viewData.GetScaledViewportSize() == ezSizeFloat(250, 125));
 
     // Never smaller than one pixel.
     viewData.m_ViewPortRect = ezRectFloat(0.0f, 0.0f, 10.0f, 10.0f);
     viewData.m_fRenderScale = 0.01f;
-    EZ_TEST_BOOL(viewData.GetScaledViewportSize() == ezSizeU32(1, 1));
-
-    // The view's viewport, including its offset, is used as long as it fits into the targets.
-    viewData.m_ViewPortRect = ezRectFloat(100.0f, 50.0f, 800.0f, 600.0f);
-    EZ_TEST_BOOL(viewData.GetViewportForTargetSize(ezSizeU32(1920, 1080)) == viewData.m_ViewPortRect);
-    EZ_TEST_BOOL(viewData.GetViewportForTargetSize(ezSizeU32(0, 0)) == viewData.m_ViewPortRect);
-    EZ_TEST_BOOL(viewData.GetViewportForTargetSize(ezSizeU32(800, 600)) == ezRectFloat(0.0f, 0.0f, 800.0f, 600.0f));
-    EZ_TEST_BOOL(viewData.GetViewportForTargetSize(ezSizeU32(400, 300)) == ezRectFloat(0.0f, 0.0f, 400.0f, 300.0f));
+    EZ_TEST_BOOL(viewData.GetScaledViewportSize() == ezSizeFloat(1, 1));
   }
 
-  // Scaled sources, the upscale pass, and a world debug pass whose depth input doesn't match the upscaled color.
+  // Scaled sources, the upscale pass, and a world debug pass whose depth input matches the upscaled color.
   {
     ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
     const ezUInt32 uiColor = AddSourcePass(passes, "Color", false, true);
-    const ezUInt32 uiDepth = AddSourcePass(passes, "Depth", true, true);
+    const ezUInt32 uiDepth = AddSourcePass(passes, "Depth", true, false);
     const ezUInt32 uiUnscaled = AddSourcePass(passes, "Unscaled", false, false);
     const ezUInt32 uiUpscale = AddPass<ezUpscalePass>(passes, "Upscale");
     const ezUInt32 uiDebugWorld = AddPass<ezDebugWorldRenderPass>(passes, "DebugWorld");
@@ -779,7 +768,6 @@ void ezGpuPipelineTest::RenderScale()
     ezDynamicArray<RecordedPass> executionOrder;
 
     // Half resolution: the scaled source is smaller, the upscale pass brings it back to the viewport size.
-    // The depth buffer no longer matches the upscaled color, the debug pass ignores it instead of failing.
     {
       EZ_TEST_BOOL(AddRenderPassesWithScale(*pPipeline, *m_pRenderGraph, 0.5f, executionOrder).Succeeded());
 
@@ -807,6 +795,34 @@ void ezGpuPipelineTest::RenderScale()
       EZ_TEST_INT(scaled.m_uiHeight, 600);
       EZ_TEST_INT(upscaled.m_uiHandleId, scaled.m_uiHandleId);
     }
+
+    m_pRenderGraph->Reset();
+  }
+
+  // A depth buffer from before an ezUpscalePass doesn't match the upscaled color target and is reported as an error.
+  {
+    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
+    const ezUInt32 uiColor = AddSourcePass(passes, "Color", false, true);
+    const ezUInt32 uiDepth = AddSourcePass(passes, "Depth", true, true);
+    const ezUInt32 uiUpscale = AddPass<ezUpscalePass>(passes, "Upscale");
+    const ezUInt32 uiDebugWorld = AddPass<ezDebugWorldRenderPass>(passes, "DebugWorld");
+    const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+
+    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    Connect(connections, uiColor, "Output", uiUpscale, "Input");
+    Connect(connections, uiUpscale, "Output", uiDebugWorld, "Color");
+    Connect(connections, uiDepth, "Output", uiDebugWorld, "DepthStencil");
+    Connect(connections, uiDebugWorld, "Color", uiSink, "InputA");
+
+    ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+    EZ_TEST_RESULT(pPipeline->CullDeadPasses());
+    EZ_TEST_RESULT(pPipeline->SortPasses());
+
+    ezDynamicArray<RecordedPass> executionOrder;
+    const ezStatus res = AddRenderPassesWithScale(*pPipeline, *m_pRenderGraph, 0.5f, executionOrder);
+    EZ_TEST_BOOL(res.Failed());
+    EZ_TEST_BOOL(res.GetMessageString().FindSubString("DebugWorld") != nullptr);
+    EZ_TEST_BOOL(res.GetMessageString().FindSubString("DepthStencil") != nullptr);
 
     m_pRenderGraph->Reset();
   }

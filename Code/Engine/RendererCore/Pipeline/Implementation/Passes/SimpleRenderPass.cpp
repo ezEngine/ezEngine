@@ -67,21 +67,8 @@ ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const e
   }
   outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
 
-  // A depth buffer of a different size (e.g. from before an ezUpscalePass) can't be bound together with the color target.
-  if (!hColor.IsInvalidated() && !hDepthStencil.IsInvalidated())
-  {
-    const ezGALTextureCreationDescription& colorDesc = ref_graph.GetTextureDesc(hColor);
-    const ezGALTextureCreationDescription& depthDesc = ref_graph.GetTextureDesc(hDepthStencil);
-    if (colorDesc.m_uiWidth != depthDesc.m_uiWidth || colorDesc.m_uiHeight != depthDesc.m_uiHeight)
-    {
-      hDepthStencil.Invalidate();
-    }
-    else
-    {
-      EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hDepthStencil, "DepthStencil", true, true));
-    }
-  }
-
+  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hDepthStencil, "DepthStencil", ezTextureValidationFlags::Optional | ezTextureValidationFlags::CheckMsaa));
+  
   auto pass = ref_graph.AddGraphicsPass(GetName());
   if (!hColor.IsInvalidated())
     pass.AddColorTarget(hColor);
@@ -96,7 +83,7 @@ ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const e
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-    renderViewContext.UpdateViewport();
+    renderViewContext.SetScaledViewport();
 
     ezTempHashedString sRenderPass("RENDER_PASS_FORWARD");
     if (renderViewContext.m_pViewData->m_ViewRenderMode != ezViewRenderMode::None)
@@ -135,26 +122,3 @@ ezResult ezSimpleRenderPass::Deserialize(ezStreamReader& inout_stream)
   }
   return EZ_SUCCESS;
 }
-
-
-//////////////////////////////////////////////////////////////////////////
-
-#include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <Foundation/Serialization/GraphPatch.h>
-
-class ezSimpleRenderPassPatch_1_2 : public ezGraphPatch
-{
-public:
-  ezSimpleRenderPassPatch_1_2()
-    : ezGraphPatch("ezSimpleRenderPass", 2)
-  {
-  }
-
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override { pNode->RemoveProperty("Message"); }
-};
-
-ezSimpleRenderPassPatch_1_2 g_ezSimpleRenderPassPatch_1_2;
-
-
-
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SimpleRenderPass);

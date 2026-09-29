@@ -46,7 +46,7 @@ ezStatus ezForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const 
     return ezStatus(ezFmt("Color: Not connected"));
 
   ezRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
-  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hDepthStencil, "DepthStencil", false, true));
+  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hDepthStencil, "DepthStencil", ezTextureValidationFlags::CheckMsaa));
 
   outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
   outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
@@ -59,7 +59,7 @@ ezStatus ezForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const 
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-    renderViewContext.UpdateViewport();
+    renderViewContext.SetScaledViewport();
     SetupPermutationVars(renderViewContext);
     RenderObjects(renderViewContext); });
 

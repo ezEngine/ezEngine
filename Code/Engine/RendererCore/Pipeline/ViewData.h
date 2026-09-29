@@ -33,7 +33,7 @@ struct EZ_RENDERERCORE_DLL ezViewData
   ezGALSwapChainHandle m_hSwapChain;
   ezRectFloat m_ViewPortRect;
 
-  /// Factor applied to the viewport size for source passes that have 'ApplyRenderScale' enabled.
+  /// Factor applied to the viewport for source passes that have 'ApplyRenderScale' enabled.
   ///
   /// The pipeline needs an ezUpscalePass to bring the result back to the viewport size.
   float m_fRenderScale = 1.0f;
@@ -87,38 +87,44 @@ struct EZ_RENDERERCORE_DLL ezViewData
     ezGraphicsUtils::ConvertScreenPixelPosToNormalizedPos(x, y, w, h, inout_vPixelPos);
   }
 
-  /// Each dimension is at least one pixel.
-  ezSizeU32 GetScaledViewportSize() const
+  /// Converts a screen-space position from normalized coordinates to pixel coordinates.
+  EZ_ALWAYS_INLINE void ConvertScreenNormalizedPosToPixelPos(ezVec3& inout_vNormalizedPos) const
   {
-    const float fScale = ezMath::Clamp(m_fRenderScale, 0.01f, 1.0f);
-    const ezUInt32 uiWidth = ezMath::Max(1u, static_cast<ezUInt32>(ezMath::Round(m_ViewPortRect.width * fScale)));
-    const ezUInt32 uiHeight = ezMath::Max(1u, static_cast<ezUInt32>(ezMath::Round(m_ViewPortRect.height * fScale)));
-    return ezSizeU32(uiWidth, uiHeight);
+    ezUInt32 x = (ezUInt32)m_ViewPortRect.x;
+    ezUInt32 y = (ezUInt32)m_ViewPortRect.y;
+    ezUInt32 w = (ezUInt32)m_ViewPortRect.width;
+    ezUInt32 h = (ezUInt32)m_ViewPortRect.height;
+    ezGraphicsUtils::ConvertScreenNormalizedPosToPixelPos(x, y, w, h, inout_vNormalizedPos);
   }
 
-  /// Returns m_ViewPortRect if it fits into targets of the given size, otherwise a viewport that covers the entire target.
-  ///
-  /// The latter is the case for targets created with a render scale.
-  ezRectFloat GetViewportForTargetSize(ezSizeU32 targetSize) const
+  /// Converts a screen-space position from normalized coordinates to pixel coordinates.
+  EZ_ALWAYS_INLINE void ConvertScreenNormalizedPosToScaledPixelPos(ezVec3& inout_vNormalizedPos) const
   {
-    if (!targetSize.HasNonZeroArea() || (m_ViewPortRect.Right() <= static_cast<float>(targetSize.width) && m_ViewPortRect.Bottom() <= static_cast<float>(targetSize.height)))
-      return m_ViewPortRect;
+    const ezRectFloat scaledViewport = GetScaledViewport();
+    ezUInt32 x = (ezUInt32)scaledViewport.x;
+    ezUInt32 y = (ezUInt32)scaledViewport.y;
+    ezUInt32 w = (ezUInt32)scaledViewport.width;
+    ezUInt32 h = (ezUInt32)scaledViewport.height;
+    ezGraphicsUtils::ConvertScreenNormalizedPosToPixelPos(x, y, w, h, inout_vNormalizedPos);
+  }
 
-    return ezRectFloat(0.0f, 0.0f, static_cast<float>(targetSize.width), static_cast<float>(targetSize.height));
+  EZ_ALWAYS_INLINE ezRectFloat GetScaledViewport() const
+  {
+    ezRectFloat viewport;
+    viewport.x = ezMath::Round(m_ViewPortRect.x * m_fRenderScale);
+    viewport.y = ezMath::Round(m_ViewPortRect.y * m_fRenderScale);
+    viewport.width = ezMath::Max(1.0f, ezMath::Round(m_ViewPortRect.width * m_fRenderScale));
+    viewport.height = ezMath::Max(1.0f, ezMath::Round(m_ViewPortRect.height * m_fRenderScale));
+    return viewport;
+  }
+
+  /// Each dimension is at least one pixel.
+  EZ_ALWAYS_INLINE ezSizeFloat GetScaledViewportSize() const
+  {
+    const ezRectFloat scaledViewport = GetScaledViewport();
+    return ezSizeFloat(scaledViewport.width, scaledViewport.height);
   }
 
   /// Returns the active render targets. If a swap chain is set, its render targets are returned, otherwise m_RenderTargets.
   const ezGALRenderTargets& GetActiveRenderTargets() const;
-
-  /// Converts a screen-space position from normalized coordinates to pixel coordinates.
-  EZ_ALWAYS_INLINE void ConvertScreenNormalizedPosToPixelPos(ezVec3& inout_vNormalizedPos) const
-  {
-    {
-      ezUInt32 x = (ezUInt32)m_ViewPortRect.x;
-      ezUInt32 y = (ezUInt32)m_ViewPortRect.y;
-      ezUInt32 w = (ezUInt32)m_ViewPortRect.width;
-      ezUInt32 h = (ezUInt32)m_ViewPortRect.height;
-      ezGraphicsUtils::ConvertScreenNormalizedPosToPixelPos(x, y, w, h, inout_vNormalizedPos);
-    }
-  }
 };

@@ -23,7 +23,6 @@
 #include <GameEngine/Console/QuakeConsole.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
-#include <GameEngine/GameState/GameState.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -707,20 +706,9 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
   RenderFps();
   RenderConsole();
 
-  // do this now, in parallel to the view extraction
   Run_UpdatePlugins();
 
-  if (ezGameState* pGameState = ezGameState::GetActiveGameState())
-  {
-    if (ezView* pMainView = pGameState->GetMainView())
-    {
-      const float fRenderScale = ezRenderWorld::GetEffectiveRenderScale(pMainView, cvar_AppRenderScale);
-      if (pMainView->GetRenderScale() != fRenderScale)
-      {
-        pMainView->SetRenderScale(fRenderScale);
-      }
-    }
-  }
+  UpdateRenderScale();
 
   ezRenderWorld::ExtractMainViews();
 }
@@ -798,6 +786,18 @@ void ezGameApplication::RenderConsole()
   EZ_PROFILE_SCOPE("RenderConsole");
 
   m_pConsole->RenderConsole(m_bShowConsole);
+}
+
+void ezGameApplication::UpdateRenderScale()
+{
+  if (ezView* pMainView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView))
+  {
+    const float fRenderScale = ezRenderWorld::GetEffectiveRenderScale(pMainView, cvar_AppRenderScale);
+    if (pMainView->GetRenderScale() != fRenderScale)
+    {
+      pMainView->SetRenderScale(fRenderScale);
+    }
+  }
 }
 
 bool ezGameApplication::Run_ProcessApplicationInput()

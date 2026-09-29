@@ -59,7 +59,7 @@ ezStatus ezLightShaftsPass::AddRenderPasses(const ezViewData& viewData, const ez
     return ezStatus(ezFmt("Color: Not connected"));
 
   ezRenderGraphTextureHandle hDepthInput = inputs[m_PinDepthInput.m_uiInputIndex].m_TextureHandle;
-  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColorInput, "Color", hDepthInput, "DepthInput", false, false));
+  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColorInput, "Color", hDepthInput, "DepthInput"));
 
   const ezGALTextureCreationDescription depthDesc = ref_graph.GetTextureDesc(hDepthInput);
   if (depthDesc.m_SampleCount != ezGALMSAASampleCount::None)

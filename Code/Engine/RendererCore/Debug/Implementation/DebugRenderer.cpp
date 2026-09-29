@@ -1801,22 +1801,19 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
   {
     pData->m_glyphs.Clear();
 
-    // With a render scale the target is smaller than the viewport the text is laid out for.
-    const ezViewData& viewData = *renderViewContext.m_pViewData;
-    const ezRectFloat targetViewport = viewData.GetViewportForTargetSize(renderViewContext.m_pRenderContext->GetRenderTargetSize());
-    const float fTextScale = viewData.m_ViewPortRect.width > 0.0f ? targetViewport.width / viewData.m_ViewPortRect.width : 1.0f;
+    const float fRenderScale = renderViewContext.m_pViewData->m_fRenderScale;
 
     for (auto& textLine : pData->m_textLines3D)
     {
       ezVec3 screenPos;
-      if (viewData.ComputeScreenSpacePos(textLine.m_position, screenPos).Succeeded() && screenPos.z > 0.0f)
+      if (renderViewContext.m_pViewData->ComputeScreenSpacePos(textLine.m_position, screenPos).Succeeded() && screenPos.z > 0.0f)
       {
-        ezGraphicsUtils::ConvertScreenNormalizedPosToPixelPos((ezUInt32)targetViewport.x, (ezUInt32)targetViewport.y, (ezUInt32)targetViewport.width, (ezUInt32)targetViewport.height, screenPos);
+        renderViewContext.m_pViewData->ConvertScreenNormalizedPosToScaledPixelPos(screenPos);
 
-        textLine.m_topLeftCorner.x = ezMath::Round(screenPos.x + textLine.m_topLeftCorner.x * fTextScale);
-        textLine.m_topLeftCorner.y = ezMath::Round(screenPos.y + textLine.m_topLeftCorner.y * fTextScale);
+        textLine.m_topLeftCorner.x = ezMath::Round(screenPos.x + textLine.m_topLeftCorner.x * fRenderScale);
+        textLine.m_topLeftCorner.y = ezMath::Round(screenPos.y + textLine.m_topLeftCorner.y * fRenderScale);
 
-        AppendGlyphs(pData->m_glyphs, textLine, fTextScale);
+        AppendGlyphs(pData->m_glyphs, textLine, fRenderScale);
       }
     }
 

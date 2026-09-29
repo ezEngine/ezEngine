@@ -38,7 +38,7 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
     return ezStatus(ezFmt("Color: Not connected"));
 
   ezRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
-  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hDepthStencil, "DepthStencil", false, true));
+  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hDepthStencil, "DepthStencil", ezTextureValidationFlags::CheckMsaa));
 
   outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
   outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
@@ -46,9 +46,9 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
   ezRenderGraphTextureHandle hResolvedDepth = inputs[m_PinResolvedDepth.m_uiInputIndex].m_TextureHandle;
   ezRenderGraphTextureHandle hSSAO = inputs[m_PinSSAO.m_uiInputIndex].m_TextureHandle;
   ezRenderGraphTextureHandle hShadowMask = inputs[m_PinShadowMasks.m_uiInputIndex].m_TextureHandle;
-  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hResolvedDepth, "ResolvedDepth", true, false));
-  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hSSAO, "SSAO", true, false));
-  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hShadowMask, "ShadowMasks", true, false));
+  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hResolvedDepth, "ResolvedDepth", ezTextureValidationFlags::Optional));
+  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hSSAO, "SSAO", ezTextureValidationFlags::Optional));
+  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hShadowMask, "ShadowMasks", ezTextureValidationFlags::Optional));
 
   // Create temp scene color texture
   const ezGALTextureCreationDescription colorDesc = ref_graph.GetTextureDesc(hColor);
@@ -79,7 +79,7 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
       {
         const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-        renderViewContext.UpdateViewport();
+        renderViewContext.SetScaledViewport();
         ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
         if (!hResolvedDepth.IsInvalidated())
         {
@@ -137,7 +137,7 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
       {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-      renderViewContext.UpdateViewport();
+      renderViewContext.SetScaledViewport();
       SetupPermutationVars(renderViewContext);
 
       ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);

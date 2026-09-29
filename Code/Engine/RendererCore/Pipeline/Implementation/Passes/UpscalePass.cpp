@@ -67,7 +67,6 @@ ezStatus ezUpscalePass::AddRenderPasses(const ezViewData& viewData, const ezCame
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-    renderViewContext.UpdateViewport();
 
     ezUpscaleConstants constants = {};
     constants.InputTexelSize = ezVec2(1.0f / inputDesc.m_uiWidth, 1.0f / inputDesc.m_uiHeight);

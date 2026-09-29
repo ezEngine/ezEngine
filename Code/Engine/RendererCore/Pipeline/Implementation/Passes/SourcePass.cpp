@@ -318,8 +318,8 @@ ezStatus ezSourcePass::GetOutputDescription(const ezViewData& viewData, const ez
     }
   }
 
-  const ezSizeU32 size = bApplyRenderScale ? viewData.GetScaledViewportSize() : ezSizeU32(static_cast<ezUInt32>(viewData.m_ViewPortRect.width), static_cast<ezUInt32>(viewData.m_ViewPortRect.height));
-  out_desc.SetAsRenderTarget(size.width, size.height, camera.IsStereoscopic() ? 2 : 1, format, msaaMode);
+  const ezSizeFloat size = bApplyRenderScale ? viewData.GetScaledViewportSize() : ezSizeFloat(viewData.m_ViewPortRect.width, viewData.m_ViewPortRect.height);
+  out_desc.SetAsRenderTarget(static_cast<ezUInt32>(size.width), static_cast<ezUInt32>(size.height), camera.IsStereoscopic() ? 2 : 1, format, msaaMode);
   out_desc.m_Type = ezGALTextureType::Texture2DArray;
   if (bUAV)
     out_desc.m_TextureFlags.Add(ezGALTextureUsageFlags::UnorderedAccess);

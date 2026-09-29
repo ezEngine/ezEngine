@@ -64,63 +64,8 @@ public:
   void BeginRendering(const ezGALRenderingSetup& renderingSetup, const ezRectFloat& viewport, const char* szName = "", bool bStereoRendering = false);
   void EndRendering();
 
-  /// Size of the frame buffer that was passed to BeginRendering. Zero outside of a rendering scope.
-  ezSizeU32 GetRenderTargetSize() const { return m_RenderTargetSize; }
-
   void BeginCompute(const char* szName = "");
   void EndCompute();
-
-  // Helper class to automatically end rendering or compute on scope exit
-  template <int ScopeType>
-  class CommandEncoderScope
-  {
-    EZ_DISALLOW_COPY_AND_ASSIGN(CommandEncoderScope);
-
-  public:
-    EZ_ALWAYS_INLINE ~CommandEncoderScope()
-    {
-      if constexpr (ScopeType == 0)
-        m_RenderContext.EndRendering();
-      else
-        m_RenderContext.EndCompute();
-
-      if (m_pCommandsScope != nullptr)
-      {
-        ezGALDevice::GetDefaultDevice()->EndCommands(m_pCommandsScope);
-      }
-    }
-
-    EZ_ALWAYS_INLINE ezGALCommandEncoder* operator->() { return m_pGALCommandEncoder; }
-    EZ_ALWAYS_INLINE operator const ezGALCommandEncoder*() { return m_pGALCommandEncoder; }
-
-  private:
-    friend class ezRenderContext;
-
-    EZ_ALWAYS_INLINE CommandEncoderScope(ezRenderContext& renderContext, ezGALCommandEncoder* pCommandsScope)
-      : m_RenderContext(renderContext)
-      , m_pCommandsScope(pCommandsScope)
-    {
-      m_pGALCommandEncoder = renderContext.GetCommandEncoder();
-    }
-
-    ezRenderContext& m_RenderContext;
-    ezGALCommandEncoder* m_pCommandsScope;
-    ezGALCommandEncoder* m_pGALCommandEncoder;
-  };
-
-  using RenderingScope = CommandEncoderScope<0>;
-  EZ_ALWAYS_INLINE static RenderingScope BeginRenderingScope(const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName = "", bool bStereoRendering = false)
-  {
-    viewContext.m_pRenderContext->BeginRendering(renderingSetup, viewContext.m_pViewData->GetViewportForTargetSize(renderingSetup.GetFrameBuffer().m_Size), szName, bStereoRendering);
-    return RenderingScope(*viewContext.m_pRenderContext, nullptr);
-  }
-
-  using ComputeScope = CommandEncoderScope<1>;
-  EZ_ALWAYS_INLINE static ComputeScope BeginComputeScope(const ezRenderViewContext& viewContext, const char* szName = "")
-  {
-    viewContext.m_pRenderContext->BeginCompute(szName);
-    return ComputeScope(*viewContext.m_pRenderContext, nullptr);
-  }
 
   EZ_ALWAYS_INLINE ezGALCommandEncoder* GetCommandEncoder()
   {
@@ -153,6 +98,9 @@ public:
   {
     SetPushConstants(sSlotName, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(&constants), sizeof(T)));
   }
+
+  /// Sets the viewport on the underlying command encoder and updates the global constants.
+  void SetViewport(const ezRectFloat& viewport);
 
   /// Sets the currently active shader on the given render context.
   ///
@@ -348,7 +296,6 @@ private: // Per Renderer States
   ezEventSubscriptionID m_GALdeviceEventsId = 0;
   bool m_bRendering = false;
   bool m_bCompute = false;
-  ezSizeU32 m_RenderTargetSize = {0, 0};
 
   // Member Functions
   void UploadConstants();

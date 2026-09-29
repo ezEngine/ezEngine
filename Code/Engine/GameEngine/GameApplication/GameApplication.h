@@ -10,7 +10,6 @@
 #include <Foundation/Types/UniquePtr.h>
 
 class ezConsole;
-class ezView;
 
 /// Which input actions the ezGameApplication may register and execute (see ezGameApplication::RegisterGameApplicationInputActions())
 struct ezGameApplicationInputFlags
@@ -169,6 +168,7 @@ protected:
   void RenderWorldDebugInfos(const ezWorld& world);
   void RenderFps();
   void RenderConsole();
+  void UpdateRenderScale();
   void OpenInspector();
 
   void UpdateWorldsAndExtractViews();

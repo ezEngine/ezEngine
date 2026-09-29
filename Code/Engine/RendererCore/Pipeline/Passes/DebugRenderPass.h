@@ -17,9 +17,7 @@ public:
 
 protected:
   ezRenderPipelineNodePassThroughPin m_PinColor;
-  ezRenderPipelineNodePassThroughPin m_PinDepthStencil; ///< Ignored with a warning if its size doesn't match the color target.
-
-  bool m_bDepthSizeMismatch = false;                    ///< Only warn when the mismatch starts, the graph is rebuilt every frame.
+  ezRenderPipelineNodePassThroughPin m_PinDepthStencil; ///< Has to match the size and MSAA mode of the color target, otherwise adding the pass fails.
 };
 
 /// Renders the screen space output of ezDebugRenderer (2D text, info text, 2D lines and rectangles).

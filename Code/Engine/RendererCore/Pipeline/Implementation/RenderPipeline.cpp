@@ -2,7 +2,6 @@
 
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
-#include <Foundation/Application/Application.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Color8UNorm.h>
@@ -12,13 +11,11 @@
 #include <Foundation/SimdMath/SimdBBox.h>
 #include <Foundation/Time/Clock.h>
 #include <Foundation/Utilities/DGMLWriter.h>
-#include <RendererCore/Components/AlwaysVisibleComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/FrameDataProvider.h>
 #include <RendererCore/Pipeline/Passes/DebugRenderPass.h>
-#include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Rasterizer/RasterizerView.h>
@@ -151,7 +148,7 @@ bool ezRenderPipeline::RebuildInternal(const ezView& view)
     bool bHasWorld = false;
     bool bHasScreen = false;
 
-    ezDynamicArray<const ezRenderPipelinePass*> passes;
+    ezTempHybridArray<const ezRenderPipelinePass*, 16> passes;
     GetPasses(passes);
     for (const ezRenderPipelinePass* pPass : passes)
     {

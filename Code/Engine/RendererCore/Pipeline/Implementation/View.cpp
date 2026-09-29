@@ -94,15 +94,6 @@ void ezView::SetRenderTargets(const ezGALRenderTargets& renderTargets)
   }
 }
 
-const ezGALRenderTargets& ezViewData::GetActiveRenderTargets() const
-{
-  if (const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hSwapChain))
-  {
-    return pSwapChain->GetRenderTargets();
-  }
-  return m_RenderTargets;
-}
-
 const ezGALRenderTargets& ezView::GetActiveRenderTargets() const
 {
   return m_Data.GetActiveRenderTargets();
@@ -149,8 +140,6 @@ void ezView::SetViewport(const ezRectFloat& viewport)
 void ezView::SetRenderScale(float fScale)
 {
   m_Data.m_fRenderScale = ezMath::Clamp(fScale, 0.01f, 1.0f);
-
-  UpdateViewData(ezRenderWorld::GetDataIndexForExtraction());
 }
 
 void ezView::ForceUpdate()
@@ -534,6 +523,17 @@ void ezView::UpdatePropertyMappings(const bool* pBlackboardValuesChanged)
     mapping.m_uiEntryChangeCounter = mapping.m_pEntry->m_uiChangeCounter;
     ezReflectionUtils::SetMemberPropertyValue(mapping.m_pProperty, mapping.m_pObject, mapping.m_pEntry->m_Value);
   }
+}
+
+////////////////////////////////////////////////////////////////////
+
+const ezGALRenderTargets& ezViewData::GetActiveRenderTargets() const
+{
+  if (const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hSwapChain))
+  {
+    return pSwapChain->GetRenderTargets();
+  }
+  return m_RenderTargets;
 }
 
 

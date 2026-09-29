@@ -79,9 +79,11 @@ public:
   void SetViewport(const ezRectFloat& viewport);
   const ezRectFloat& GetViewport() const;
 
-  /// See ezViewData::m_fRenderScale. Also reduces the shadow map sizes for this view. Clamped to [0.01; 1].
+  ezSizeFloat GetScaledViewportSize() const;
+
+  /// See ezViewData::m_fRenderScale. Clamped to [0.01; 1].
   void SetRenderScale(float fScale);
-  float GetRenderScale() const;
+  float GetRenderScale() const; 
 
   /// Forces the render pipeline to be rebuilt.
   void ForceUpdate();

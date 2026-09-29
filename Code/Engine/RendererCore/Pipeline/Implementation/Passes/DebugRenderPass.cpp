@@ -58,29 +58,7 @@ ezStatus ezDebugWorldRenderPass::AddRenderPasses(const ezViewData& viewData, con
   outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
   outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
 
-  // A depth buffer of a different size (e.g. from before an ezUpscalePass) can't be bound together with the color target.
-  bool bDepthSizeMismatch = false;
-  if (!hDepthStencil.IsInvalidated())
-  {
-    const ezGALTextureCreationDescription& colorDesc = ref_graph.GetTextureDesc(hColor);
-    const ezGALTextureCreationDescription& depthDesc = ref_graph.GetTextureDesc(hDepthStencil);
-    if (colorDesc.m_uiWidth != depthDesc.m_uiWidth || colorDesc.m_uiHeight != depthDesc.m_uiHeight)
-    {
-      bDepthSizeMismatch = true;
-
-      if (!m_bDepthSizeMismatch)
-      {
-        ezLog::Warning("{} in view '{}': DepthStencil size ({}x{}) doesn't match the Color size ({}x{}). Debug geometry is rendered without depth test. Connect Color and DepthStencil on the same side of an ezUpscalePass.", GetName(), viewData.m_sName, depthDesc.m_uiWidth, depthDesc.m_uiHeight, colorDesc.m_uiWidth, colorDesc.m_uiHeight);
-      }
-
-      hDepthStencil.Invalidate();
-    }
-    else
-    {
-      EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hDepthStencil, "DepthStencil", true, true));
-    }
-  }
-  m_bDepthSizeMismatch = bDepthSizeMismatch;
+  EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hDepthStencil, "DepthStencil", ezTextureValidationFlags::Optional | ezTextureValidationFlags::CheckMsaa));
 
   auto pass = ref_graph.AddGraphicsPass(GetName());
   pass.AddColorTarget(hColor);
@@ -91,7 +69,7 @@ ezStatus ezDebugWorldRenderPass::AddRenderPasses(const ezViewData& viewData, con
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-    renderViewContext.UpdateViewport();
+    renderViewContext.SetScaledViewport();
 
     ezDebugRenderer::RenderWorldSpace(renderViewContext); });
 
@@ -122,7 +100,7 @@ ezStatus ezDebugScreenRenderPass::AddRenderPasses(const ezViewData& viewData, co
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-    renderViewContext.UpdateViewport();
+    renderViewContext.SetUnscaledViewport();
 
     if (!m_sMessage.IsEmpty())
     {

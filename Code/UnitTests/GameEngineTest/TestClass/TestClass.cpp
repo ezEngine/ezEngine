@@ -10,6 +10,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <RendererCore/Components/CameraComponent.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 
 ezGameEngineTest::ezGameEngineTest() = default;
@@ -183,6 +184,9 @@ void ezGameEngineTestApplication::AfterCoreSystemsStartup()
   ezGameApplication::cvar_AppVSync = false;
 
   ActivateGameState(m_pWorld.Borrow(), {}, ezTransform::MakeIdentity());
+
+  // Reset display scaling to 1.0 to make sure that the tests are not affected by the user's display scaling settings.
+  ezRenderWorld::SetDisplayScale(1.0f);
 }
 
 void ezGameEngineTestApplication::BeforeHighLevelSystemsShutdown()

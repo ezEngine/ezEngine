@@ -45,12 +45,6 @@ ezRenderPipelineResourceHandle ezRenderPipelineResource::CreateMissingPipeline()
   }
 
   {
-    ezUniquePtr<ezDebugWorldRenderPass> pPass = EZ_DEFAULT_NEW(ezDebugWorldRenderPass);
-    passPointers.PushBack(pPass.Borrow());
-    passes.PushBack(std::move(pPass));
-  }
-
-  {
     ezUniquePtr<ezDebugScreenRenderPass> pPass = EZ_DEFAULT_NEW(ezDebugScreenRenderPass);
     pPass->SetMessage("Render pipeline resource is missing. Ensure that the corresponding asset has been transformed.");
     passPointers.PushBack(pPass.Borrow());
@@ -64,8 +58,7 @@ ezRenderPipelineResourceHandle ezRenderPipelineResource::CreateMissingPipeline()
   }
 
   connections.PushBack({0, 1, "Output", "Color"});
-  connections.PushBack({1, 2, "Color", "Color"});
-  connections.PushBack({2, 3, "Color", "Color0"});
+  connections.PushBack({1, 2, "Color", "Color0"});
 
   ezRenderPipelineResourceDescriptor desc;
   ezMemoryStreamContainerWrapperStorage<ezDynamicArray<ezUInt8>> storage(&desc.m_SerializedPipeline);
