@@ -59,7 +59,7 @@ ezStatus ezForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const 
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-    renderViewContext.SetScaledViewport();
+    renderViewContext.SetViewportIfSupported();
     SetupPermutationVars(renderViewContext);
     RenderObjects(renderViewContext); });
 

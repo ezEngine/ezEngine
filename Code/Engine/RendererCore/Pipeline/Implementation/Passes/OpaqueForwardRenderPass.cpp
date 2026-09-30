@@ -66,7 +66,7 @@ ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, 
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-      renderViewContext.SetScaledViewport();
+      renderViewContext.SetViewportIfSupported();
       SetupPermutationVars(renderViewContext);
 
       // Bind SSAO texture

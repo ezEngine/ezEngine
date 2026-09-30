@@ -79,7 +79,7 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
       {
         const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-        renderViewContext.SetScaledViewport();
+        renderViewContext.SetViewportIfSupported();
         ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
         if (!hResolvedDepth.IsInvalidated())
         {
@@ -137,7 +137,7 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
       {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-      renderViewContext.SetScaledViewport();
+      renderViewContext.SetViewportIfSupported();
       SetupPermutationVars(renderViewContext);
 
       ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);

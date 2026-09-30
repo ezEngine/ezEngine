@@ -138,7 +138,46 @@ ezRenderPipeline::PipelineState ezRenderPipeline::Rebuild(const ezView& view)
 
 bool ezRenderPipeline::RebuildInternal(const ezView& view)
 {
+  if (!view.IsValid())
+    return false;
+
+  // Validate view data
+  {
+    const auto& rts = view.GetActiveRenderTargets();
+    ezUInt32 uiRTWidth = 0;
+    ezUInt32 uiRTHeight = 0;
+
+    if (const ezGALTexture* pColorTexture = ezGALDevice::GetDefaultDevice()->GetTexture(rts.m_hRTs[0]))
+    {
+      uiRTWidth = pColorTexture->GetDescription().m_uiWidth;
+      uiRTHeight = pColorTexture->GetDescription().m_uiHeight;
+    }
+    else
+    {
+      const ezGALTexture* pDepthTexture = ezGALDevice::GetDefaultDevice()->GetTexture(rts.m_hDSTarget);
+      if (pDepthTexture == nullptr)
+      {
+        ezLog::Error("View '{}' has no valid render target or depth stencil texture.", view.GetName());
+        return false;
+      }
+
+      uiRTWidth = pDepthTexture->GetDescription().m_uiWidth;
+      uiRTHeight = pDepthTexture->GetDescription().m_uiHeight;
+    }
+
+    const ezRectFloat& viewport = view.GetViewport();
+    const bool bUsesSubRect = viewport.x != 0.0f || viewport.y != 0.0f || viewport.width != uiRTWidth || viewport.height != uiRTHeight;
+    const bool bUsesRenderScale = view.GetRenderScale() != 1.0f;
+
+    if (bUsesSubRect && bUsesRenderScale)
+    {
+      ezLog::Error("View '{}' uses a sub-rectangle of the render target AND render scale. This is currently not supported.", view.GetName());
+      return false;
+    }
+  }
+
   UpdateViewData(view, ezRenderWorld::GetDataIndexForRendering());
+
   if (m_PassGraph.CullDeadPasses().Failed() || m_PassGraph.SortPasses().Failed())
     return false;
 

@@ -65,7 +65,7 @@ ezStatus ezDepthOnlyPass::AddRenderPasses(const ezViewData& viewData, const ezCa
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-    renderViewContext.SetScaledViewport();
+    renderViewContext.SetViewportIfSupported();
 
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_DEPTH_ONLY");
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SHADING_QUALITY", "SHADING_QUALITY_NORMAL");

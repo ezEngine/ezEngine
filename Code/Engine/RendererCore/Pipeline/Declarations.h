@@ -51,11 +51,9 @@ class EZ_RENDERERCORE_DLL ezRenderViewContext : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderViewContext, ezReflectedClass);
 
-  /// Sets the unscaled viewport for rendering. Typically used for passes that render 2d content or overlays after an upscale pass.
-  void SetUnscaledViewport() const;
-
-  /// Sets the viewport scaled by the render scale. Typically used for passes that render 3d content before an upscale pass.
-  void SetScaledViewport() const;
+  // Sets the render viewport to the viewport specified in the view data if the render scale is 1.0.
+  // This is only relevant if we want to render to a sub region. In most cases the viewport matches the render target size, which is the default viewport anyways. 
+  void SetViewportIfSupported() const;
 
   const ezRenderPipeline* m_pPipeline = nullptr;
   const ezCamera* m_pCamera = nullptr;

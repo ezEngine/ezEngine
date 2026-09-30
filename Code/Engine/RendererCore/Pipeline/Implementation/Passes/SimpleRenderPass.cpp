@@ -83,7 +83,7 @@ ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const e
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-    renderViewContext.SetScaledViewport();
+    renderViewContext.SetViewportIfSupported();
 
     ezTempHashedString sRenderPass("RENDER_PASS_FORWARD");
     if (renderViewContext.m_pViewData->m_ViewRenderMode != ezViewRenderMode::None)

@@ -63,6 +63,8 @@ void ezView::SetWorld(ezWorld* pWorld)
     m_pWorldBlackboard = pWorld != nullptr ? pWorld->GetBlackboard() : nullptr;
     m_BlackboardChangeCounter[SourceBlackboard::World] = {};
     m_bBlackboardMappingsDirty = true;
+
+    ForceUpdate();
   }
 }
 
@@ -73,10 +75,7 @@ void ezView::SetSwapChain(ezGALSwapChainHandle hSwapChain)
     // Swap chain and render target setup are mutually exclusive.
     m_Data.m_hSwapChain = hSwapChain;
     m_Data.m_RenderTargets = ezGALRenderTargets();
-    if (m_pRenderPipeline)
-    {
-      ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
-    }
+    ForceUpdate();
   }
 }
 
@@ -87,10 +86,7 @@ void ezView::SetRenderTargets(const ezGALRenderTargets& renderTargets)
     // Swap chain and render target setup are mutually exclusive.
     m_Data.m_hSwapChain = ezGALSwapChainHandle();
     m_Data.m_RenderTargets = renderTargets;
-    if (m_pRenderPipeline)
-    {
-      ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
-    }
+    ForceUpdate();
   }
 }
 
@@ -132,19 +128,28 @@ void ezView::SetViewRenderMode(ezEnum<ezViewRenderMode> value)
 
 void ezView::SetViewport(const ezRectFloat& viewport)
 {
+  if (m_Data.m_ViewPortRect == viewport)
+    return;
+
   m_Data.m_ViewPortRect = viewport;
 
-  UpdateViewData(ezRenderWorld::GetDataIndexForExtraction());
+  ForceUpdate();
 }
 
 void ezView::SetRenderScale(float fScale)
 {
-  m_Data.m_fRenderScale = ezMath::Clamp(fScale, 0.01f, 1.0f);
+  fScale = ezMath::Clamp(fScale, 0.01f, 1.0f);
+  if (m_Data.m_fRenderScale == fScale)
+    return;
+
+  m_Data.m_fRenderScale = fScale;
+
+  ForceUpdate();
 }
 
 void ezView::ForceUpdate()
 {
-  if (m_pRenderPipeline)
+  if (IsValid())
   {
     ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
   }
@@ -276,10 +281,7 @@ void ezView::EnsureUpToDate()
       m_uiRenderPipelineResourceDescriptionCounter = uiCounter;
 
       m_pRenderPipeline = pPipeline->CreateRenderPipeline();
-      if (m_pRenderPipeline != nullptr)
-      {
-        ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
-      }
+      ForceUpdate();
 
       m_bPermutationVarsDirty = true;
 
@@ -370,7 +372,7 @@ void ezView::ApplyPropertiesFromBlackboard()
 
   if (bSwitchChanged)
   {
-    ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
+    ForceUpdate();
   }
 }
 

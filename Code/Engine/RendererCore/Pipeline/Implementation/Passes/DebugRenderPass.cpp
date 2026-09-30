@@ -69,7 +69,7 @@ ezStatus ezDebugWorldRenderPass::AddRenderPasses(const ezViewData& viewData, con
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-    renderViewContext.SetScaledViewport();
+    renderViewContext.SetViewportIfSupported();
 
     ezDebugRenderer::RenderWorldSpace(renderViewContext); });
 
@@ -100,7 +100,7 @@ ezStatus ezDebugScreenRenderPass::AddRenderPasses(const ezViewData& viewData, co
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-    renderViewContext.SetUnscaledViewport();
+    renderViewContext.SetViewportIfSupported();
 
     if (!m_sMessage.IsEmpty())
     {
