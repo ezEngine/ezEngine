@@ -79,7 +79,6 @@ ezStatus ezAntialiasingPass::AddRenderPasses(const ezViewData& viewData, const e
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-    renderViewContext.UpdateViewport();
 
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("MSAA_SAMPLES", m_sMsaaSampleCount);
     renderViewContext.m_pRenderContext->BindShader(m_hShader);

@@ -84,6 +84,9 @@ public:
   static ezCVarBool cvar_AppShowFPS;
   static ezCVarBool cvar_WorldShowObjectOrigins;
 
+  /// Render scale of the main view, see ezView::SetRenderScale(). 0 selects it automatically, see ezRenderWorld::GetEffectiveRenderScale().
+  static ezCVarFloat cvar_AppRenderScale;
+
 public:
   using SUPER = ezGameApplicationBase;
 
@@ -165,6 +168,7 @@ protected:
   void RenderWorldDebugInfos(const ezWorld& world);
   void RenderFps();
   void RenderConsole();
+  void UpdateRenderScale();
   void OpenInspector();
 
   void UpdateWorldsAndExtractViews();

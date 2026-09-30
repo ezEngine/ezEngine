@@ -131,6 +131,20 @@ public:
   /// \see SetDisplayScale()
   EZ_ALWAYS_INLINE static float GetDisplayScale() { return s_fDisplayScale; }
 
+  /// Returns the render scale to use for the given view, see ezView::SetRenderScale().
+  ///
+  /// A fRequestedScale larger than 0 is only clamped to [0.1; 1].
+  /// Otherwise the scale is selected such that the view is rendered with about GetAutoRenderScaleMaxPixels() pixels, but never above 1.
+  /// The automatic scale snaps to 1/1, 1/2, 1/3 or 1/4 when within 90% - 115% of it, other values are rounded to steps of 5%.
+  /// It depends on the viewport size, so it changes when the window is resized. For a nullptr view, it is 1.
+  static float GetEffectiveRenderScale(const ezView* pView, float fRequestedScale);
+
+  /// Sets how many pixels GetEffectiveRenderScale() targets when it selects the render scale automatically. Defaults to 1920 * 1080.
+  static void SetAutoRenderScaleMaxPixels(ezUInt32 uiMaxPixels);
+
+  /// \see SetAutoRenderScaleMaxPixels()
+  EZ_ALWAYS_INLINE static ezUInt32 GetAutoRenderScaleMaxPixels() { return s_uiAutoRenderScaleMaxPixels; }
+
   /// \name Render To Texture
   /// @{
 public:
@@ -172,4 +186,5 @@ private:
   static ezEvent<const ezRenderWorldRenderEvent&, ezMutex> s_RenderEvent;
   static ezUInt64 s_uiFrameCounter;
   static float s_fDisplayScale;
+  static ezUInt32 s_uiAutoRenderScaleMaxPixels;
 };

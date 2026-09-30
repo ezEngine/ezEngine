@@ -78,8 +78,9 @@ ezStatus ezHistorySourcePass::AddRenderPasses(const ezViewData& viewData, const 
 {
   auto pData = GetPipeline()->GetFrameDataProvider<ezHistorySourcePassTextureDataProvider>();
   pData->ResetTexture(GetName());
+  constexpr bool bApplyRenderScale = false;
   ezGALTextureCreationDescription desc;
-  EZ_SUCCEED_OR_RETURN(ezSourcePass::GetOutputDescription(viewData, camera, m_Type, m_MinPrecision, m_MinChannels, m_MsaaMode, m_bUAV, desc));
+  EZ_SUCCEED_OR_RETURN(ezSourcePass::GetOutputDescription(viewData, camera, m_Type, m_MinPrecision, m_MinChannels, m_MsaaMode, m_bUAV, bApplyRenderScale, desc));
   ezGALTextureHandle hTexture = QueryTextureProvider(&m_PinOutput, desc);
   ezRenderGraphTextureHandle hGraphTexture = ref_graph.ImportTexture(hTexture);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hGraphTexture;

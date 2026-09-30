@@ -107,7 +107,6 @@ ezStatus ezPickingRenderPass::AddRenderPasses(const ezViewData& viewData, const 
     pass.SetExecuteCallback([this](const ezRenderGraphContext& ctx)
       {
         const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-        renderViewContext.UpdateViewport();
 
         ezViewRenderMode::Enum viewRenderMode = renderViewContext.m_pViewData->m_ViewRenderMode;
         if (viewRenderMode == ezViewRenderMode::WireframeColor || viewRenderMode == ezViewRenderMode::WireframeMonochrome)

@@ -56,6 +56,8 @@ struct ezForwardRenderShadingQuality
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezForwardRenderShadingQuality);
 
+EZ_DECLARE_FLAGS(ezUInt32, ezTextureValidationFlags, CheckMsaa, Optional);
+
 class EZ_RENDERERCORE_DLL ezRenderPipelinePass : public ezRenderPipelineNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelinePass, ezRenderPipelineNode);
@@ -110,6 +112,12 @@ public:
 
 protected:
   void SetReadBackProperty(ezView* pView, ezStringView sPropertyName, const ezVariant& value);
+
+  /// Checks that hTexture has the same size as hReference, typically the color target of the pass.
+  ///
+  /// flags can be used to optionally require the same MSAA mode, which is needed for textures bound as render targets together with hReference.
+  /// An invalid hTexture is an error unless ezTextureValidationFlags::Optional is set. An invalid hReference always succeeds.
+  static ezStatus ValidateMatchingTexture(const ezRenderGraph& graph, ezRenderGraphTextureHandle hReference, ezStringView sReferencePinName, ezRenderGraphTextureHandle hTexture, ezStringView sPinName, ezBitflags<ezTextureValidationFlags> flags = ezTextureValidationFlags::Default);
 
 private:
   friend class ezRenderPipeline;

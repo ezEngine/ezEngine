@@ -70,7 +70,6 @@ ezStatus ezMsaaResolvePass::AddRenderPasses(const ezViewData& viewData, const ez
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
       {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-      renderViewContext.UpdateViewport();
 
       auto& globals = renderViewContext.m_pRenderContext->WriteGlobalConstants();
       globals.NumMsaaSamples = m_MsaaSampleCount;

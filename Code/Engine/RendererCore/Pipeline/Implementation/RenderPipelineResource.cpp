@@ -2,7 +2,7 @@
 
 #include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
-#include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
+#include <RendererCore/Pipeline/Passes/DebugRenderPass.h>
 #include <RendererCore/Pipeline/Passes/SourcePass.h>
 #include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
@@ -45,7 +45,7 @@ ezRenderPipelineResourceHandle ezRenderPipelineResource::CreateMissingPipeline()
   }
 
   {
-    ezUniquePtr<ezSimpleRenderPass> pPass = EZ_DEFAULT_NEW(ezSimpleRenderPass);
+    ezUniquePtr<ezDebugScreenRenderPass> pPass = EZ_DEFAULT_NEW(ezDebugScreenRenderPass);
     pPass->SetMessage("Render pipeline resource is missing. Ensure that the corresponding asset has been transformed.");
     passPointers.PushBack(pPass.Borrow());
     passes.PushBack(std::move(pPass));

@@ -295,6 +295,16 @@ void ezRenderContext::SetPushConstants(ezTempHashedString sSlotName, ezArrayPtr<
   }
 }
 
+void ezRenderContext::SetViewport(const ezRectFloat& viewport)
+{
+  EZ_ASSERT_DEBUG(m_bRendering, "Must be either in a rendering scope");
+
+  auto& gc = WriteGlobalConstants();
+  gc.ViewportSize = ezVec4(viewport.width, viewport.height, 1.0f / viewport.width, 1.0f / viewport.height);
+
+  m_pGALCommandEncoder->SetViewport(viewport);
+}
+
 void ezRenderContext::BindShader(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags)
 {
   m_hMaterial.Invalidate();

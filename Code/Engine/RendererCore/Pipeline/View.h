@@ -79,6 +79,12 @@ public:
   void SetViewport(const ezRectFloat& viewport);
   const ezRectFloat& GetViewport() const;
 
+  ezSizeFloat GetScaledViewportSize() const;
+
+  /// See ezViewData::m_fRenderScale. Clamped to [0.01; 1].
+  void SetRenderScale(float fScale);
+  float GetRenderScale() const;
+
   /// Forces the render pipeline to be rebuilt.
   void ForceUpdate();
 

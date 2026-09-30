@@ -50,8 +50,10 @@ namespace ezInternal
 class EZ_RENDERERCORE_DLL ezRenderViewContext : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderViewContext, ezReflectedClass);
-  // Updates global constants and encoder with the viewport information of the view data.
-  void UpdateViewport() const;
+
+  // Sets the render viewport to the viewport specified in the view data if the render scale is 1.0.
+  // This is only relevant if we want to render to a sub region. In most cases the viewport matches the render target size, which is the default viewport anyways.
+  void SetViewportIfSupported() const;
 
   const ezRenderPipeline* m_pPipeline = nullptr;
   const ezCamera* m_pCamera = nullptr;

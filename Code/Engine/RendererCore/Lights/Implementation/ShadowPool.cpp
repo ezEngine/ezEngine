@@ -358,8 +358,9 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
     return ezInvalidIndex;
   }
 
-  float fMaxReferenceSize = ezMath::Max(pReferenceView->GetViewport().width, pReferenceView->GetViewport().height);
-  float fShadowMapScale = ezMath::Clamp(fMaxReferenceSize / s_uiMaxShadowMapSize, s_fMinRelativeShadowMapSize, 10.0f);
+  const ezSizeFloat scaledViewportSize = pReferenceView->GetScaledViewportSize();
+  const float fMaxReferenceSize = ezMath::Max(scaledViewportSize.width, scaledViewportSize.height);
+  const float fShadowMapScale = ezMath::Clamp(fMaxReferenceSize / s_uiMaxShadowMapSize, s_fMinRelativeShadowMapSize, 10.0f);
 
   ShadowData* pData = nullptr;
   if (s_pData->GetDataForExtraction(pDirLight, pReferenceView, fShadowMapScale, sizeof(ezDirShadowData), pData))

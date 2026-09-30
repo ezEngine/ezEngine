@@ -7,12 +7,12 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderViewContext, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezRenderViewContext::UpdateViewport() const
+void ezRenderViewContext::SetViewportIfSupported() const
 {
-  ezRectFloat viewport = m_pViewData->m_ViewPortRect;
-  auto& gc = m_pRenderContext->WriteGlobalConstants();
-  gc.ViewportSize = ezVec4(viewport.width, viewport.height, 1.0f / viewport.width, 1.0f / viewport.height);
-  m_pRenderContext->GetCommandEncoder()->SetViewport(viewport);
+  if (m_pViewData->m_fRenderScale == 1.0f)
+  {
+    m_pRenderContext->SetViewport(m_pViewData->m_ViewPortRect);
+  }
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Declarations);

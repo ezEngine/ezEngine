@@ -134,6 +134,9 @@ protected:
   void RebuildResolutionList(Rml::ElementDocument* pDocument);
   void UpdateResolutionEnabledState(Rml::ElementDocument* pDocument);
 
+  /// Returns whether anything in the document changed.
+  bool UpdateRenderScaleWidgets(Rml::ElementDocument* pDocument);
+
   /// Must be called from the main thread, resizing the window from a worker thread deadlocks.
   void ApplyDisplaySettings();
 

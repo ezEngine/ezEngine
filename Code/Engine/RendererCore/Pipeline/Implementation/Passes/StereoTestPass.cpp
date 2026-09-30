@@ -58,7 +58,6 @@ ezStatus ezStereoTestPass::AddRenderPasses(const ezViewData& viewData, const ezC
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-    renderViewContext.UpdateViewport();
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
     renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);

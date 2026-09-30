@@ -100,7 +100,6 @@ ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCame
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-    renderViewContext.UpdateViewport();
 
     // Determine how many LUTs are active
     ezUInt32 numLUTs = 0;

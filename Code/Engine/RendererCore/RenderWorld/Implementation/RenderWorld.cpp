@@ -29,6 +29,7 @@ ezEvent<const ezRenderWorldExtractionEvent&, ezMutex> ezRenderWorld::s_Extractio
 ezEvent<const ezRenderWorldRenderEvent&, ezMutex> ezRenderWorld::s_RenderEvent;
 ezUInt64 ezRenderWorld::s_uiFrameCounter;
 float ezRenderWorld::s_fDisplayScale = 1.0f;
+ezUInt32 ezRenderWorld::s_uiAutoRenderScaleMaxPixels = 1920 * 1080;
 
 namespace
 {
@@ -718,6 +719,41 @@ bool ezRenderWorld::GetUseMultithreadedRendering()
 bool ezRenderWorld::IsRenderingThread()
 {
   return s_RenderingThreadID == ezThreadUtils::GetCurrentThreadID();
+}
+
+float ezRenderWorld::GetEffectiveRenderScale(const ezView* pView, float fRequestedScale)
+{
+  if (fRequestedScale > 0.0f)
+  {
+    return ezMath::Clamp<float>(fRequestedScale, 0.1f, 1.0f);
+  }
+
+  if (pView == nullptr)
+    return 1.0f;
+
+  const ezRectFloat& viewport = pView->GetViewport();
+  const float fPixels = viewport.width * viewport.height;
+  if (fPixels <= 0.0f)
+    return 1.0f;
+
+  const float fScale = ezMath::Sqrt(static_cast<float>(s_uiAutoRenderScaleMaxPixels) / fPixels);
+
+  // With 1/n every rendered pixel covers the same number of screen pixels, other scales blur some rows and columns more than others.
+  for (ezUInt32 n = 1; n <= 4; ++n)
+  {
+    const float fIntegerScale = 1.0f / n;
+    if (fScale >= fIntegerScale * 0.9f && (n == 1 || fScale <= fIntegerScale * 1.15f))
+      return fIntegerScale;
+  }
+
+  // Steps of 5% match the slider in the settings menu.
+  return ezMath::Clamp(ezMath::RoundToMultiple(fScale, 0.05f), 0.25f, 1.0f);
+}
+
+void ezRenderWorld::SetAutoRenderScaleMaxPixels(ezUInt32 uiMaxPixels)
+{
+  EZ_ASSERT_DEV(uiMaxPixels > 0, "The pixel count must not be zero.");
+  s_uiAutoRenderScaleMaxPixels = uiMaxPixels;
 }
 
 void ezRenderWorld::DeleteCachedRenderDataInternal(const ezGameObjectHandle& hOwnerObject)

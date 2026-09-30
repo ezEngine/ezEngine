@@ -57,7 +57,6 @@ ezStatus ezBlendPass::AddRenderPasses(const ezViewData& viewData, const ezCamera
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-    renderViewContext.UpdateViewport();
 
     ezBlendConstants cb = {};
     cb.BlendFactor = m_fBlendFactor;

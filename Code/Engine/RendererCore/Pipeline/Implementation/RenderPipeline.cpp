@@ -2,7 +2,6 @@
 
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
-#include <Foundation/Application/Application.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Color8UNorm.h>
@@ -12,12 +11,11 @@
 #include <Foundation/SimdMath/SimdBBox.h>
 #include <Foundation/Time/Clock.h>
 #include <Foundation/Utilities/DGMLWriter.h>
-#include <RendererCore/Components/AlwaysVisibleComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/FrameDataProvider.h>
-#include <RendererCore/Pipeline/Passes/TargetPass.h>
+#include <RendererCore/Pipeline/Passes/DebugRenderPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Rasterizer/RasterizerView.h>
@@ -140,9 +138,69 @@ ezRenderPipeline::PipelineState ezRenderPipeline::Rebuild(const ezView& view)
 
 bool ezRenderPipeline::RebuildInternal(const ezView& view)
 {
+  if (!view.IsValid())
+    return false;
+
+  // Validate view data
+  {
+    const auto& rts = view.GetActiveRenderTargets();
+    ezUInt32 uiRTWidth = 0;
+    ezUInt32 uiRTHeight = 0;
+
+    if (const ezGALTexture* pColorTexture = ezGALDevice::GetDefaultDevice()->GetTexture(rts.m_hRTs[0]))
+    {
+      uiRTWidth = pColorTexture->GetDescription().m_uiWidth;
+      uiRTHeight = pColorTexture->GetDescription().m_uiHeight;
+    }
+    else
+    {
+      const ezGALTexture* pDepthTexture = ezGALDevice::GetDefaultDevice()->GetTexture(rts.m_hDSTarget);
+      if (pDepthTexture == nullptr)
+      {
+        ezLog::Error("View '{}' has no valid render target or depth stencil texture.", view.GetName());
+        return false;
+      }
+
+      uiRTWidth = pDepthTexture->GetDescription().m_uiWidth;
+      uiRTHeight = pDepthTexture->GetDescription().m_uiHeight;
+    }
+
+    const ezRectFloat& viewport = view.GetViewport();
+    const bool bUsesSubRect = viewport.x != 0.0f || viewport.y != 0.0f || viewport.width != uiRTWidth || viewport.height != uiRTHeight;
+    const bool bUsesRenderScale = view.GetRenderScale() != 1.0f;
+
+    if (bUsesSubRect && bUsesRenderScale)
+    {
+      ezLog::Error("View '{}' uses a sub-rectangle of the render target AND render scale. This is currently not supported.", view.GetName());
+      return false;
+    }
+  }
+
   UpdateViewData(view, ezRenderWorld::GetDataIndexForRendering());
+
   if (m_PassGraph.CullDeadPasses().Failed() || m_PassGraph.SortPasses().Failed())
     return false;
+
+  // Without these passes debug output silently doesn't show up.
+  if (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView)
+  {
+    bool bHasWorld = false;
+    bool bHasScreen = false;
+
+    ezTempHybridArray<const ezRenderPipelinePass*, 16> passes;
+    GetPasses(passes);
+    for (const ezRenderPipelinePass* pPass : passes)
+    {
+      bHasWorld |= pPass->IsInstanceOf<ezDebugWorldRenderPass>();
+      bHasScreen |= pPass->IsInstanceOf<ezDebugScreenRenderPass>();
+    }
+
+    if (!bHasWorld)
+      ezLog::Warning("Render pipeline of view '{}' has no ezDebugWorldRenderPass. World space debug output won't be visible.", view.GetName());
+    if (!bHasScreen)
+      ezLog::Warning("Render pipeline of view '{}' has no ezDebugScreenRenderPass. Screen space debug output won't be visible.", view.GetName());
+  }
+
   m_PipelineState = PipelineState::Initialized;
   return true;
 }
