@@ -111,4 +111,4 @@ ezSubGraphNode::ezSubGraphNode()
 {
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineSubgraph);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_SubGraphNode);

@@ -455,3 +455,6 @@ void ezReflectionPool::Data::CreateSkyIrradianceTexture()
     pDevice->GetTexture(m_hSkyIrradianceTexture)->SetDebugName("Sky Irradiance Texture");
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ReflectionPoolData);

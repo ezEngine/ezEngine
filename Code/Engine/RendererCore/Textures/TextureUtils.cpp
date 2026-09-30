@@ -516,3 +516,6 @@ void ezTextureUtils::CopySubResourceToMemory(const ezGALTextureCreationDescripti
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureUtils);

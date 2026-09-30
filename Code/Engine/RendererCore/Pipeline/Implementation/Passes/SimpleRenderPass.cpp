@@ -122,3 +122,6 @@ ezResult ezSimpleRenderPass::Deserialize(ezStreamReader& inout_stream)
   }
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SimpleRenderPass);
