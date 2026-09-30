@@ -68,7 +68,7 @@ ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const e
   outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
 
   EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hDepthStencil, "DepthStencil", ezTextureValidationFlags::Optional | ezTextureValidationFlags::CheckMsaa));
-  
+
   auto pass = ref_graph.AddGraphicsPass(GetName());
   if (!hColor.IsInvalidated())
     pass.AddColorTarget(hColor);
