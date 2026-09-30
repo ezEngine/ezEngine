@@ -1003,7 +1003,6 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Clamp;
     nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromAllInputPins;
 
-    AddInputDataPin<bool>(typeDesc, nodeDesc, "Condition");
     AddInputDataPin_Any(typeDesc, nodeDesc, "X", false, true);
     AddInputDataPin_Any(typeDesc, nodeDesc, "Min", false, true);
     AddInputDataPin_Any(typeDesc, nodeDesc, "Max", false, true);
