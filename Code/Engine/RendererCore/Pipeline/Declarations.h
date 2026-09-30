@@ -52,7 +52,7 @@ class EZ_RENDERERCORE_DLL ezRenderViewContext : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderViewContext, ezReflectedClass);
 
   // Sets the render viewport to the viewport specified in the view data if the render scale is 1.0.
-  // This is only relevant if we want to render to a sub region. In most cases the viewport matches the render target size, which is the default viewport anyways. 
+  // This is only relevant if we want to render to a sub region. In most cases the viewport matches the render target size, which is the default viewport anyways.
   void SetViewportIfSupported() const;
 
   const ezRenderPipeline* m_pPipeline = nullptr;
