@@ -3,6 +3,7 @@
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorPluginSubstance/Assets/SubstancePackageAssetWindow.moc.h>
+#include <EditorPluginSubstance/Preferences/SubstancePreferences.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/EditActions.h>
@@ -12,6 +13,9 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
 void OnLoadPlugin()
 {
+  // Make sure the preferences exist, so that they show up in the preferences dialog
+  ezPreferences::QueryPreferences<ezSubstancePreferences>();
+
   ezSubstancePackageAssetActions::RegisterActions();
 
   // Asset
