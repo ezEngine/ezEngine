@@ -148,3 +148,13 @@ struct ezSamplerBinding
   ezTempHashedString m_sSlotName;
   ezSamplerBindGroupItem m_Sampler;
 };
+
+/// Marks a render pipeline pass or extractor type as only being available in the editor.
+///
+/// The flag is stored for every pass and extractor when a pipeline gets exported. If such a type isn't registered when the pipeline is loaded, for example in a game where the editor plugins are not loaded, the pass or extractor is skipped and all connections to it are dropped. Unknown types without this attribute make loading the pipeline fail.
+///
+/// A skipped pass leaves its consumers with unconnected inputs, so it should only be placed in a branch of the pipeline that is disabled outside of the editor, e.g. through a switch pass.
+class EZ_RENDERERCORE_DLL ezRenderPipelineEditorOnlyAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelineEditorOnlyAttribute, ezPropertyAttribute);
+};

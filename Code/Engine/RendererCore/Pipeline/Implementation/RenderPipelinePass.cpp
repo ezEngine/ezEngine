@@ -10,11 +10,10 @@
 #include <RendererFoundation/Profiling/Profiling.h>
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, 1)
+EZ_BEGIN_ABSTRACT_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Active", m_bActive)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
   }
   EZ_END_PROPERTIES;
@@ -57,7 +56,6 @@ void ezRenderPipelinePass::ReadBackProperties(ezView* pView) {}
 
 ezResult ezRenderPipelinePass::Serialize(ezStreamWriter& inout_stream) const
 {
-  inout_stream << m_bActive;
   inout_stream << m_sName;
   return EZ_SUCCESS;
 }
@@ -65,9 +63,15 @@ ezResult ezRenderPipelinePass::Serialize(ezStreamWriter& inout_stream) const
 ezResult ezRenderPipelinePass::Deserialize(ezStreamReader& inout_stream)
 {
   const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_ASSERT_DEBUG(uiVersion == 1, "Unknown version encountered");
+  EZ_ASSERT_DEBUG(uiVersion >= 1 && uiVersion <= 2, "Unknown version encountered");
 
-  inout_stream >> m_bActive;
+  if (uiVersion < 2)
+  {
+    // The 'Active' flag was removed, passes are disabled through switch passes instead.
+    bool bActive = true;
+    inout_stream >> bActive;
+  }
+
   inout_stream >> m_sName;
   return EZ_SUCCESS;
 }

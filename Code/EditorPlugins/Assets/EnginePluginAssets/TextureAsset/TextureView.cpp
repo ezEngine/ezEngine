@@ -19,8 +19,8 @@ ezViewHandle ezTextureViewContext::CreateView()
 {
   ezView* pView = CreateDefaultView("Texture Editor - View");
   pView->SetRenderPipelineResource(CreateDebugRenderPipeline());
-  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("DepthPrePass.Active"), false);
-  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("AOPass.Active"), false);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Renderer-DepthPrePass"), false);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Renderer-SSAO"), false);
 
   return pView->GetHandle();
 }

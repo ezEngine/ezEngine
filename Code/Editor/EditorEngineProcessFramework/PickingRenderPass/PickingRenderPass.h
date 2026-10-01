@@ -20,6 +20,12 @@ public:
 
   virtual void ReadBackProperties(ezView* pView) override;
 
+  /// Not used by the pass, it only forwards Input to Output.
+  ///
+  /// The pass renders into its own targets. The pins exist to place the pass in the pipeline graph, so that it gets culled together with the branch it is connected to (e.g. when a switch pass disables picking), instead of always being alive as a pass without outputs.
+  ezRenderPipelineNodeInputPin m_PinInput;
+  ezRenderPipelineNodeOutputPin m_PinOutput;
+
   bool m_bPickSelected = true;
   bool m_bPickTransparent = true;
 

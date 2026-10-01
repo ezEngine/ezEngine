@@ -110,6 +110,11 @@ ezRenderPipelinePass* ezRenderPipeline::GetPassByName(const ezStringView& sPassN
   return m_PassGraph.GetPassByName(sPassName);
 }
 
+bool ezRenderPipeline::IsPassAlive(const ezRenderPipelinePass* pPass) const
+{
+  return m_PassGraph.IsPassAlive(pPass);
+}
+
 ezHashedString ezRenderPipeline::GetViewName() const
 {
   return m_sName;

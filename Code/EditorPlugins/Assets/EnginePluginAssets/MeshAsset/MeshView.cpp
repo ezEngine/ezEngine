@@ -100,7 +100,7 @@ void ezMeshViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
     ezView* pView = nullptr;
     if (ezRenderWorld::TryGetView(m_hView, pView))
     {
-      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.Active"), pMsg2->m_bUpdatePickingData);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Editor-UpdatePicking"), pMsg2->m_bUpdatePickingData);
       pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickSelected"), pMsg2->m_bEnablePickingSelected);
       pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickTransparent"), pMsg2->m_bEnablePickTransparent);
     }

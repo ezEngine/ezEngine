@@ -17,6 +17,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorGridExtractor, 1, ezRTTIDefaultAllocator
     EZ_ACCESSOR_PROPERTY("SceneContext", GetSceneContext, SetSceneContext),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezRenderPipelineEditorOnlyAttribute(),
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 

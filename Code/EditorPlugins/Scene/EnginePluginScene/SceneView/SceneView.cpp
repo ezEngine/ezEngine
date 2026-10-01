@@ -35,7 +35,7 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
     ezView* pView = nullptr;
     if (ezRenderWorld::TryGetView(m_hView, pView))
     {
-      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.Active"), pMsg2->m_bUpdatePickingData);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Editor-UpdatePicking"), pMsg2->m_bUpdatePickingData);
       pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickSelected"), pMsg2->m_bEnablePickingSelected);
       pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickTransparent"), pMsg2->m_bEnablePickTransparent);
     }
@@ -86,7 +86,7 @@ bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds
   if (ezRenderWorld::TryGetView(m_hView, pView))
   {
     pView->SetViewRenderMode(ezViewRenderMode::Default);
-    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorSelectionPass.Active"), false);
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Editor-ShowSelection"), false);
     pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorShapeIconsExtractor.Active"), false);
     pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorGridExtractor.Active"), false);
     pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickSelected"), true);
@@ -206,7 +206,7 @@ void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
 void ezSceneViewContext::SetViewProperties(ezView* pView)
 {
-  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorSelectionPass.Active"), m_pSceneContext->GetRenderSelectionOverlay());
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Editor-ShowSelection"), m_pSceneContext->GetRenderSelectionOverlay());
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorShapeIconsExtractor.Active"), m_pSceneContext->GetRenderShapeIcons());
 }
 

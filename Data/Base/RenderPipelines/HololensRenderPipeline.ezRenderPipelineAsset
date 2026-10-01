@@ -22,7 +22,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2725015508337577781,9195918795680669165}}
-		u4 %Hash{5913133728326092249}
+		u4 %Hash{1170069100210797797}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4668679422243847583,6059840845420242036}}
@@ -105,7 +105,6 @@ o
 	u3 %v{1}
 	p
 	{
-		b %Active{1}
 		Uuid %Color{u4{6973644229874082244,17658108208097511837}}
 		Uuid %DepthStencil{u4{17615821605538098513,16270904257732734576}}
 		s %Name{""}
@@ -158,7 +157,6 @@ o
 	u3 %v{1}
 	p
 	{
-		b %Active{1}
 		Uuid %Color0{u4{16459423193822199732,3247375400523461065}}
 		Uuid %Color1{u4{2725560692618687699,9529164957605534258}}
 		Uuid %Color2{u4{3508954014848652468,935613500971266449}}
@@ -191,7 +189,6 @@ o
 	u3 %v{5}
 	p
 	{
-		b %Active{1}
 		b %ApplyRenderScale{0}
 		s %Channels{"ezRequiredTextureChannels::Channels_2"}
 		b %Clear{1}
@@ -226,7 +223,6 @@ o
 	u3 %v{1}
 	p
 	{
-		b %Active{1}
 		Uuid %Color{u4{14282393167202529858,7464273541253981483}}
 		Uuid %DepthStencil{u4{1098247820759959335,10175976730578120097}}
 		s %Name{""}
@@ -269,7 +265,6 @@ o
 	u3 %v{1}
 	p
 	{
-		b %Active{1}
 		Uuid %Color{u4{13062681876410412959,8846063634366728110}}
 		s %Name{""}
 		Vec2 %Node::Pos{f{0xA9F32BC3,0xA886A7C3}}
@@ -314,7 +309,6 @@ o
 	u3 %v{1}
 	p
 	{
-		b %Active{1}
 		Uuid %Color{u4{8176470888492187454,16871958825404129907}}
 		Uuid %DepthStencil{u4{6992213900229058551,4414397420737327975}}
 		s %Name{""}
@@ -358,7 +352,6 @@ o
 	u3 %v{5}
 	p
 	{
-		b %Active{1}
 		b %ApplyRenderScale{0}
 		s %Channels{"ezRequiredTextureChannels::Channels_4"}
 		b %Clear{1}
@@ -504,7 +497,6 @@ o
 	u3 %v{2}
 	p
 	{
-		b %Active{1}
 		Uuid %Color{u4{13371334179912167793,4188854620501822339}}
 		Uuid %DepthStencil{u4{17376913910501255926,621987784387625351}}
 		s %Name{"SimplePass"}
@@ -1111,7 +1103,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelinePass"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 }

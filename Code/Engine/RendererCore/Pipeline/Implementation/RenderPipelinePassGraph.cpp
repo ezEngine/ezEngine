@@ -271,6 +271,16 @@ ezExtractor* ezRenderPipelinePassGraph::GetExtractorByName(ezStringView sName) c
   return nullptr;
 }
 
+bool ezRenderPipelinePassGraph::IsPassAlive(const ezRenderPipelinePass* pPass) const
+{
+  for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
+  {
+    if (m_Passes[i].Borrow() == pPass)
+      return i < m_AlivePasses.GetCount() && m_AlivePasses.IsBitSet(i);
+  }
+  return false;
+}
+
 bool ezRenderPipelinePassGraph::SetSwitchValue(ezUInt32 uiSwitchIndex, ezInt32 iValue)
 {
   EZ_ASSERT_DEV(uiSwitchIndex < m_Switches.GetCount(), "Invalid GPU pipeline switch index");

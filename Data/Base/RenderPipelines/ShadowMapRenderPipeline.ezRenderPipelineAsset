@@ -11,12 +11,26 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17711001407536439736,5505436445966180118}}
-		u4 %Hash{6658390939884301640}
-		VarArray %MetaInfo{}
+		u4 %Hash{18278280271503963520}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{13750071203228954191,16328300030595314538}}
+		}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
 		VarArray %References{}
 		s %Tags{""}
+	}
+}
+o
+{
+	Uuid %id{u4{13750071203228954191,16328300030595314538}}
+	s %t{"ezRenderPipelineAssetMetaData"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Inputs{}
+		VarArray %Outputs{}
 	}
 }
 }
@@ -57,7 +71,6 @@ o
 	u3 %v{3}
 	p
 	{
-		b %Active{1}
 		Uuid %DepthStencil{u4{12374590631366029646,4661154216989813148}}
 		s %Name{"ShadowDepth"}
 		Vec2 %Node::Pos{f{0xC8069C43,0xE821AC43}}
@@ -73,7 +86,6 @@ o
 	u3 %v{1}
 	p
 	{
-		b %Active{1}
 		Uuid %Color0{u4{2712921980875168634,17496691580667078361}}
 		Uuid %Color1{u4{9867747481777779147,6779791070913574270}}
 		Uuid %Color2{u4{7926243970625979145,3146349379463961205}}
@@ -116,17 +128,21 @@ o
 {
 	Uuid %id{u4{3012569870458697352,5386212663437548644}}
 	s %t{"ezSourcePass"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
-		b %Active{1}
+		b %ApplyRenderScale{0}
+		s %Channels{"ezRequiredTextureChannels::Channels_1"}
 		b %Clear{0}
 		Color %ClearColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		s %Format{"ezSourceFormat::Depth16Bit"}
+		f %ClearDepth{0x0000803F}
 		s %MSAA_Mode{"ezGALMSAASampleCount::None"}
 		s %Name{""}
 		Vec2 %Node::Pos{f{0x7F93EF42,0xC72DB343}}
 		Uuid %Output{u4{18145787413205851195,10498656058703515073}}
+		s %Precision{"ezRequiredTexturePrecision::Bits_16"}
+		s %Type{"ezRequiredTextureType::Depth"}
+		b %UAV{0}
 	}
 }
 o
@@ -215,6 +231,23 @@ Types
 {
 o
 {
+	Uuid %id{u4{6001080073301486506,926131182680211027}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRequiredTextureChannels"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{17523044089822028024,3521005166208929094}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -244,23 +277,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNodeInputPin"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{1171764224113832221,8086341435307155030}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSourceFormat"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -317,6 +333,23 @@ o
 }
 o
 {
+	Uuid %id{u4{12256906717337816578,9930229617014171307}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRequiredTexturePrecision"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{5054405531023925278,10259889057768368274}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -346,7 +379,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSourcePass"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -408,7 +441,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezReflectedClass"}
 		s %PluginName{"Static"}
@@ -482,6 +515,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNodeOutputPin"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14049521990001838561,15853095686987843026}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRequiredTextureType"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -578,13 +628,13 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezRenderPipelineNode"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelinePass"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 }

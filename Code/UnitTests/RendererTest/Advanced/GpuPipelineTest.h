@@ -27,6 +27,8 @@ private:
     ST_IncompatiblePinConnection,
     ST_SharedSourceSwitch,
     ST_RenderScale,
+    ST_EditorOnlyTypes,
+    ST_SwitchPassThrough,
   };
 
   virtual void SetupSubTests() override;
@@ -50,6 +52,8 @@ private:
   void IncompatiblePinConnection();
   void SharedSourceSwitch();
   void RenderScale();
+  void EditorOnlyTypes();
+  void SwitchPassThrough();
 
   ezSharedPtr<ezRenderGraph> m_pRenderGraph;
 };

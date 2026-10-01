@@ -40,7 +40,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineNodeGraphPin, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 6, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 7, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -412,7 +412,8 @@ ezStatus ezRenderPipelineAssetDocument::Validate() const
         const ezVisualGraphPin& targetPin = pConnection->GetTargetPin();
         const ezRTTI* pTargetType = targetPin.GetParent()->GetType();
 
-        bool bIsPassThrough = pTargetType->IsDerivedFrom<ezSwitchBasePass>();
+        // Inputs of switches are not counted: a switch only forwards the resource of one input and only one branch is alive at a time. Conflicts through switches are detected when the pipeline is sorted at runtime.
+        bool bIsPassThrough = false;
         if (const ezAbstractProperty* pProperty = pTargetType->FindPropertyByName(targetPin.GetName()))
         {
           const ezRTTI* pPinType = pProperty->GetSpecificType();

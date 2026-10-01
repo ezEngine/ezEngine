@@ -4,8 +4,13 @@
 
 #include <RendererCore/RenderContext/RenderContext.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderViewContext, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineEditorOnlyAttribute, 1, ezRTTIDefaultAllocator<ezRenderPipelineEditorOnlyAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 void ezRenderViewContext::SetViewportIfSupported() const
 {

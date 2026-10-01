@@ -90,7 +90,8 @@ ezTypeVersionReadContext::ezTypeVersionReadContext(ezStreamReader& inout_stream)
     }
     else
     {
-      ezLog::Warning("Ignoring unknown type '{}'", sTypeName);
+      // Not an error by itself, the data that uses the type may be skipped (e.g. editor-only data). Code that actually requires the type reports its absence.
+      ezLog::Dev("Ignoring unknown type '{}'", sTypeName);
     }
   }
 }

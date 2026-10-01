@@ -98,6 +98,18 @@
                   </td>
                 </tr>
                 <tr>
+                  <td>SSAO</td>
+                  <td>
+                    <input type="checkbox" id="check-ssao" onchange="toggle-ssao" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Screen Space Shadows</td>
+                  <td>
+                    <input type="checkbox" id="check-sss" onchange="toggle-sss" />
+                  </td>
+                </tr>
+                <tr>
                   <td>Auto Render Resolution</td>
                   <td>
                     <input type="checkbox" id="check-render-scale-auto" onchange="toggle-render-scale-auto" />

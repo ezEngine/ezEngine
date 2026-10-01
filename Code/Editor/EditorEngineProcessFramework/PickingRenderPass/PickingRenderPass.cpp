@@ -12,6 +12,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTIDefaultAllocator<e
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_MEMBER_PROPERTY("Input", m_PinInput),
+    EZ_MEMBER_PROPERTY("Output", m_PinOutput),
     EZ_MEMBER_PROPERTY("PickSelected", m_bPickSelected),
     EZ_MEMBER_PROPERTY("PickTransparent", m_bPickTransparent),
     EZ_MEMBER_PROPERTY("PickingPosition", m_PickingPosition),
@@ -22,7 +24,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTIDefaultAllocator<e
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering")
+    new ezCategoryAttribute("Rendering"),
+    new ezRenderPipelineEditorOnlyAttribute(),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -60,9 +63,16 @@ ezGALTextureHandle ezPickingRenderPass::GetPickingDepthRT() const
 
 ezStatus ezPickingRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
+  outputs[m_PinOutput.m_uiOutputIndex] = inputs[m_PinInput.m_uiInputIndex];
+
   m_TargetRect = viewData.m_ViewPortRect;
-  DestroyTarget();
-  CreateTarget();
+
+  // The targets are kept alive across frames and only recreated when the viewport size changes.
+  if (m_hPickingIdRT.IsInvalidated() || m_uiWindowWidth != (ezUInt32)m_TargetRect.width || m_uiWindowHeight != (ezUInt32)m_TargetRect.height)
+  {
+    DestroyTarget();
+    CreateTarget();
+  }
 
   if (m_uiProcessorId == ezInvalidIndex)
   {
@@ -265,6 +275,8 @@ void ezPickingRenderPass::DestroyTarget()
 
   pDevice->DestroyTexture(m_hPickingIdRT);
   pDevice->DestroyTexture(m_hPickingDepthRT);
+  m_hPickingIdRT.Invalidate();
+  m_hPickingDepthRT.Invalidate();
 }
 
 void ezPickingRenderPass::ReadBackPropertiesSinglePick(ezView* pView)
@@ -414,6 +426,10 @@ void ezPickingRenderPass::ReadBackPropertiesMarqueePick(ezView* pView)
 
 void ezPickingRenderPass::ProcessPickingRenderData(ezExtractedRenderData& extractedRenderData)
 {
+  // The processor stays registered when picking is switched off, the filtered categories are only needed while the pass renders.
+  if (!GetPipeline()->IsPassAlive(this))
+    return;
+
   // copy selection to set for faster checks
   m_SelectionSet.Clear();
   {
