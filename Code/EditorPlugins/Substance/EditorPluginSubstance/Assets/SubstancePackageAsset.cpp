@@ -4,6 +4,7 @@
 #include <EditorPluginAssets/TextureAsset/TextureAssetManager.h>
 #include <EditorPluginSubstance/Assets/SubstancePackageAsset.h>
 #include <EditorPluginSubstance/Assets/SubstancePackageAssetManager.h>
+#include <EditorPluginSubstance/Preferences/SubstancePreferences.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
@@ -405,59 +406,12 @@ namespace
     return EZ_SUCCESS;
   }
 
-  ezResult GetInstallationPath(ezStringBuilder& out_sPath)
-  {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-    static ezUntrackedString s_CachedPath;
-    if (s_CachedPath.IsEmpty() == false)
-    {
-      out_sPath = s_CachedPath;
-      return EZ_SUCCESS;
-    }
-
-    auto CheckPath = [&](ezStringView sPath)
-    {
-      if (sPath.IsEmpty())
-        return false;
-
-      ezStringBuilder path = sPath;
-      path.AppendPath("sbscooker.exe");
-
-      if (path.IsAbsolutePath() && ezOSFile::ExistsFile(path))
-      {
-        s_CachedPath = sPath;
-        out_sPath = sPath;
-        return true;
-      }
-
-      return false;
-    };
-
-    ezStringBuilder sPath = "C:/Program Files/Allegorithmic/Substance Designer";
-    if (CheckPath(sPath))
-    {
-      return EZ_SUCCESS;
-    }
-
-    QSettings settings("\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{e9e3d6d9-3023-41c7-b223-11d8fdd691b9}_is1", QSettings::NativeFormat);
-    sPath = ezStringView(settings.value("InstallLocation").toString().toUtf8());
-
-    if (CheckPath(sPath))
-    {
-      return EZ_SUCCESS;
-    }
-
-    ezLog::Error("Installation of Substance Designer could not be located.");
-    return EZ_FAILURE;
-#endif
-
-    return EZ_FAILURE;
-  }
-
   ezStatus RunSbsCooker(const char* szSbsFile, const char* szOutputPath)
   {
+    const ezSubstancePreferences* pPreferences = ezPreferences::QueryPreferences<ezSubstancePreferences>();
+
     ezStringBuilder sToolPath;
-    EZ_SUCCEED_OR_RETURN(GetInstallationPath(sToolPath));
+    EZ_SUCCEED_OR_RETURN(pPreferences->GetInstallationPath(sToolPath));
     sToolPath.AppendPath("sbscooker");
 
     QStringList arguments;
@@ -470,15 +424,17 @@ namespace
 
     arguments << "--no-optimization";
 
-    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool(sToolPath, arguments, 600, ezLog::GetThreadLocalLogSystem(), ezLogMsgType::InfoMsg));
+    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool(sToolPath, arguments, pPreferences->GetToolTimeout(), ezLog::GetThreadLocalLogSystem(), ezLogMsgType::InfoMsg));
 
     return ezStatus(EZ_SUCCESS);
   }
 
   ezStatus RunSbsRender(const char* szSbsarFile, const char* szGraph, const char* szGraphOutput, const char* szOutputName, const char* szOutputPath, ezUInt8 uiOutputWidth, ezUInt8 uiOutputHeight)
   {
+    const ezSubstancePreferences* pPreferences = ezPreferences::QueryPreferences<ezSubstancePreferences>();
+
     ezStringBuilder sToolPath;
-    EZ_SUCCEED_OR_RETURN(GetInstallationPath(sToolPath));
+    EZ_SUCCEED_OR_RETURN(pPreferences->GetInstallationPath(sToolPath));
     sToolPath.AppendPath("sbsrender");
 
     ezStringBuilder sTmp;
@@ -514,7 +470,7 @@ namespace
     arguments << "--set-value";
     arguments << sTmp.GetData();
 
-    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool(sToolPath, arguments, 600, ezLog::GetThreadLocalLogSystem()));
+    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool(sToolPath, arguments, pPreferences->GetToolTimeout(), ezLog::GetThreadLocalLogSystem()));
 
     return ezStatus(EZ_SUCCESS);
   }
