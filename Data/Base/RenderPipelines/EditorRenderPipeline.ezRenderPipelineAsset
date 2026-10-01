@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{8414544494516949708}
+		u4 %Hash{7960142240277082652}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{15791873920256194352,9025262766844682366}}
@@ -159,7 +159,7 @@ o
 		b %Active{1}
 		Uuid %Input{u4{5247130707124281641,10723726265055527918}}
 		s %Name{""}
-		Vec2 %Node::Pos{f{0x84260E45,0x6B5178C3}}
+		Vec2 %Node::Pos{f{0xF2381945,0xE65973C3}}
 		Uuid %Output{u4{15341964073063616914,9254663857890687679}}
 	}
 }
@@ -219,19 +219,6 @@ o
 		s %SourcePin{"DepthStencil"}
 		Uuid %Target{u4{11986415349014930117,1347370768122765998}}
 		s %TargetPin{"DepthStencil"}
-	}
-}
-o
-{
-	Uuid %id{u4{1262707669115925399,4764386149638957306}}
-	s %t{"ezDocumentObject_ConnectionBase"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Source{u4{5337417953507971717,4998845232377556947}}
-		s %SourcePin{"Color"}
-		Uuid %Target{u4{7889677971132568122,10207408602515198881}}
-		s %TargetPin{"Color"}
 	}
 }
 o
@@ -361,6 +348,13 @@ o
 }
 o
 {
+	Uuid %id{u4{17668112521383283839,4848930913688179800}}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{4475863323844749257,4875231482568476569}}
 	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
@@ -461,7 +455,7 @@ o
 		Uuid %DepthStencil{u4{16636081782414471294,6584189353919992959}}
 		Color %HighlightColor{f{0xB933793F,0xA2500D3F,0xC0451F3C,0x0000803F}}
 		s %Name{"EditorSelectionPass"}
-		Vec2 %Node::Pos{f{0x1E6DE344,0x354779C3}}
+		Vec2 %Node::Pos{f{0xC9CDDC44,0x609F77C3}}
 		f %OverlayOpacity{0}
 	}
 }
@@ -511,7 +505,7 @@ o
 		Uuid %Color7{u4{9031175148332770523,6595992340210126230}}
 		Uuid %DepthStencil{u4{15193297583014511214,14441702725461986901}}
 		s %Name{""}
-		Vec2 %Node::Pos{f{0xB4AD1745,0x24E867C3}}
+		Vec2 %Node::Pos{f{0x22C02245,0x9FF062C3}}
 	}
 }
 o
@@ -577,6 +571,19 @@ o
 		Uuid %Source{u4{13164278803748674448,4934764724206459044}}
 		s %SourcePin{"Color"}
 		Uuid %Target{u4{12780971381776783775,4821308573694777768}}
+		s %TargetPin{"Color"}
+	}
+}
+o
+{
+	Uuid %id{u4{12812001636179645094,5159706426486719741}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{10440069492310878753,11360386991602494688}}
+		s %SourcePin{"Color"}
+		Uuid %Target{u4{7889677971132568122,10207408602515198881}}
 		s %TargetPin{"Color"}
 	}
 }
@@ -772,6 +779,19 @@ o
 		s %SourcePin{"DepthStencil"}
 		Uuid %Target{u4{13169010509727833502,5468617623813894633}}
 		s %TargetPin{"DepthStencil"}
+	}
+}
+o
+{
+	Uuid %id{u4{5789626314118494390,5307218501972782886}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{5337417953507971717,4998845232377556947}}
+		s %SourcePin{"Color"}
+		Uuid %Target{u4{10440069492310878753,11360386991602494688}}
+		s %TargetPin{"Color"}
 	}
 }
 o
@@ -1178,8 +1198,10 @@ o
 			Uuid{u4{13732355273887263628,4618586072472927054}}
 			Uuid{u4{9748164215448206465,4775006895046608093}}
 			Uuid{u4{7889677971132568122,10207408602515198881}}
-			Uuid{u4{1262707669115925399,4764386149638957306}}
 			Uuid{u4{17348554910621298319,5150037359425648301}}
+			Uuid{u4{10440069492310878753,11360386991602494688}}
+			Uuid{u4{5789626314118494390,5307218501972782886}}
+			Uuid{u4{12812001636179645094,5159706426486719741}}
 		}
 	}
 }
@@ -1215,6 +1237,13 @@ o
 {
 	Uuid %id{u4{10261658672040982017,7057844770348847793}}
 	s %t{"ezRenderPipelineNodeInputProviderPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{5650858689468074178,7066161631698875530}}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
@@ -1328,7 +1357,7 @@ o
 		b %Active{1}
 		Uuid %Color{u4{11345753812698947797,10573837075999356159}}
 		s %Name{""}
-		Vec2 %Node::Pos{f{0x07C3FE44,0x91D078C3}}
+		Vec2 %Node::Pos{f{0xF1730A45,0x0CD973C3}}
 	}
 }
 o
@@ -1388,6 +1417,22 @@ o
 	s %t{"ezRenderPipelineNodeOutputPin"}
 	u3 %v{1}
 	p{}
+}
+o
+{
+	Uuid %id{u4{10440069492310878753,11360386991602494688}}
+	s %t{"ezCustomRenderDataPass"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Uuid %Color{u4{17668112521383283839,4848930913688179800}}
+		Uuid %DepthStencil{u4{5650858689468074178,7066161631698875530}}
+		s %Name{"GUI"}
+		Vec2 %Node::Pos{f{0x171AF744,0x4B0875C3}}
+		s %RenderDataCategory{"GUI"}
+		s %SortingFunction{"ezRenderSortingFunctions::BySortingKeyOnly"}
+	}
 }
 o
 {
