@@ -8,7 +8,10 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelinePassGraph.h>
+#include <RendererCore/Pipeline/Passes/AntialiasingPass.h>
 #include <RendererCore/Pipeline/Passes/DebugRenderPass.h>
+#include <RendererCore/Pipeline/Passes/MsaaResolvePass.h>
+#include <RendererCore/Pipeline/Passes/MsaaUpscalePass.h>
 #include <RendererCore/Pipeline/Passes/SourcePass.h>
 #include <RendererCore/Pipeline/Passes/SwitchPass.h>
 #include <RendererCore/Pipeline/Passes/UpscalePass.h>
@@ -30,6 +33,7 @@ namespace
     ezUInt32 m_uiHandleId = 0;
     ezUInt32 m_uiWidth = 0; ///< Only recorded for textures, by passes that pass the render graph to RecordPass().
     ezUInt32 m_uiHeight = 0;
+    ezGALMSAASampleCount::Enum m_SampleCount = ezGALMSAASampleCount::None;
   };
 
   struct RecordedPass
@@ -53,6 +57,7 @@ namespace
         const ezGALTextureCreationDescription& desc = pGraph->GetTextureDesc(connection.m_TextureHandle);
         pin.m_uiWidth = desc.m_uiWidth;
         pin.m_uiHeight = desc.m_uiHeight;
+        pin.m_SampleCount = desc.m_SampleCount;
       }
     }
     else if (connection.m_Connectivity == Connectivity::Buffer)
@@ -548,6 +553,7 @@ void ezGpuPipelineTest::SetupSubTests()
   AddSubTest("RenderScale", SubTests::ST_RenderScale);
   AddSubTest("EditorOnlyTypes", SubTests::ST_EditorOnlyTypes);
   AddSubTest("SwitchPassThrough", SubTests::ST_SwitchPassThrough);
+  AddSubTest("MsaaForwarding", SubTests::ST_MsaaForwarding);
 }
 
 ezResult ezGpuPipelineTest::InitializeSubTest(ezInt32 iIdentifier)
@@ -620,6 +626,9 @@ ezTestAppRun ezGpuPipelineTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoc
       break;
     case SubTests::ST_SwitchPassThrough:
       SwitchPassThrough();
+      break;
+    case SubTests::ST_MsaaForwarding:
+      MsaaForwarding();
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -962,6 +971,95 @@ void ezGpuPipelineTest::RenderScale()
     EZ_TEST_BOOL(res.GetMessageString().FindSubString("MSAA") != nullptr);
 
     m_pRenderGraph->Reset();
+  }
+}
+
+void ezGpuPipelineTest::MsaaForwarding()
+{
+  // Builds Source -> Pass -> Sink and returns the texture the source produced and the one the sink received.
+  auto Run = [&](ezGALMSAASampleCount::Enum sourceMsaa, auto addPass, RecordedPin& out_source, RecordedPin& out_result) -> ezStatus
+  {
+    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
+    const ezUInt32 uiColor = AddSourcePass(passes, "Color", false, false, sourceMsaa);
+    const ezUInt32 uiPass = addPass(passes);
+    const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+
+    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    Connect(connections, uiColor, "Output", uiPass, "Input");
+    Connect(connections, uiColor, "Output", uiSink, "InputA");
+    Connect(connections, uiPass, "Output", uiSink, "InputB");
+
+    ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+    EZ_TEST_RESULT(pPipeline->CullDeadPasses());
+    EZ_TEST_RESULT(pPipeline->SortPasses());
+
+    ezDynamicArray<RecordedPass> executionOrder;
+    const ezStatus res = AddRenderPassesWithScale(*pPipeline, *m_pRenderGraph, 1.0f, executionOrder);
+    if (res.Succeeded())
+    {
+      out_source = GetInput(executionOrder, "Sink", 0);
+      out_result = GetInput(executionOrder, "Sink", 1);
+    }
+    m_pRenderGraph->Reset();
+    return res;
+  };
+
+  auto AddResolve = [](ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>& ref_passes)
+  { return AddPass<ezMsaaResolvePass>(ref_passes, "Resolve"); };
+
+  auto AddAntialiasing = [](ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>& ref_passes)
+  { return AddPass<ezAntialiasingPass>(ref_passes, "Antialiasing"); };
+
+  auto AddUpscale = [](ezGALMSAASampleCount::Enum msaa)
+  {
+    return [msaa](ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>& ref_passes)
+    {
+      const ezUInt32 uiIndex = AddPass<ezMsaaUpscalePass>(ref_passes, "Upscale");
+      SetPassProperty(ref_passes[uiIndex].Borrow(), "MSAA_Mode", (ezInt64)msaa);
+      return uiIndex;
+    };
+  };
+
+  RecordedPin source;
+  RecordedPin result;
+
+  // Without MSAA, the resolving passes forward their input.
+  EZ_TEST_BOOL(Run(ezGALMSAASampleCount::None, AddResolve, source, result).Succeeded());
+  EZ_TEST_INT(result.m_uiHandleId, source.m_uiHandleId);
+
+  EZ_TEST_BOOL(Run(ezGALMSAASampleCount::None, AddAntialiasing, source, result).Succeeded());
+  EZ_TEST_INT(result.m_uiHandleId, source.m_uiHandleId);
+
+  // An upscale to no MSAA forwards its input.
+  EZ_TEST_BOOL(Run(ezGALMSAASampleCount::None, AddUpscale(ezGALMSAASampleCount::None), source, result).Succeeded());
+  EZ_TEST_INT(result.m_uiHandleId, source.m_uiHandleId);
+
+  const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
+  if (caps.m_FormatSupport[ezGALResourceFormat::RGBAUByteNormalizedsRGB].IsSet(ezGALResourceFormatSupport::MSAA4x) && caps.m_FormatSupport[ezGALResourceFormat::RGBAUByteNormalizedsRGB].IsSet(ezGALResourceFormatSupport::MSAA2x))
+  {
+    // With MSAA, the resolving passes create a new, non-MSAA texture.
+    EZ_TEST_BOOL(Run(ezGALMSAASampleCount::FourSamples, AddResolve, source, result).Succeeded());
+    EZ_TEST_BOOL(result.m_uiHandleId != source.m_uiHandleId);
+    EZ_TEST_INT(source.m_SampleCount, ezGALMSAASampleCount::FourSamples);
+    EZ_TEST_INT(result.m_SampleCount, ezGALMSAASampleCount::None);
+
+    EZ_TEST_BOOL(Run(ezGALMSAASampleCount::FourSamples, AddAntialiasing, source, result).Succeeded());
+    EZ_TEST_BOOL(result.m_uiHandleId != source.m_uiHandleId);
+    EZ_TEST_INT(result.m_SampleCount, ezGALMSAASampleCount::None);
+
+    // Upscaling a non-MSAA input creates a new MSAA texture.
+    EZ_TEST_BOOL(Run(ezGALMSAASampleCount::None, AddUpscale(ezGALMSAASampleCount::FourSamples), source, result).Succeeded());
+    EZ_TEST_BOOL(result.m_uiHandleId != source.m_uiHandleId);
+    EZ_TEST_INT(result.m_SampleCount, ezGALMSAASampleCount::FourSamples);
+
+    // Upscaling to the MSAA mode the input already has forwards it.
+    EZ_TEST_BOOL(Run(ezGALMSAASampleCount::FourSamples, AddUpscale(ezGALMSAASampleCount::FourSamples), source, result).Succeeded());
+    EZ_TEST_INT(result.m_uiHandleId, source.m_uiHandleId);
+
+    // Upscaling to the input's MSAA mode is not possible from a different, non-zero sample count.
+    ezStatus res = Run(ezGALMSAASampleCount::TwoSamples, AddUpscale(ezGALMSAASampleCount::FourSamples), source, result);
+    EZ_TEST_BOOL(res.Failed());
+    EZ_TEST_BOOL(res.GetMessageString().FindSubString("MSAA") != nullptr);
   }
 }
 

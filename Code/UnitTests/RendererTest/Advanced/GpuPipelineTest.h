@@ -29,6 +29,7 @@ private:
     ST_RenderScale,
     ST_EditorOnlyTypes,
     ST_SwitchPassThrough,
+    ST_MsaaForwarding,
   };
 
   virtual void SetupSubTests() override;
@@ -54,6 +55,7 @@ private:
   void RenderScale();
   void EditorOnlyTypes();
   void SwitchPassThrough();
+  void MsaaForwarding();
 
   ezSharedPtr<ezRenderGraph> m_pRenderGraph;
 };

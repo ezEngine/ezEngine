@@ -46,7 +46,10 @@ ezStatus ezMsaaResolvePass::AddRenderPasses(const ezViewData& viewData, const ez
 
   const ezGALTextureCreationDescription inputDesc = ref_graph.GetTextureDesc(hInput);
   if (inputDesc.m_SampleCount == ezGALMSAASampleCount::None)
-    return ezStatus(ezFmt("Input is not a valid msaa target"));
+  {
+    outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hInput;
+    return EZ_SUCCESS;
+  }
 
   m_bIsDepth = ezGALResourceFormat::IsDepthFormat(inputDesc.m_Format);
   m_MsaaSampleCount = inputDesc.m_SampleCount;

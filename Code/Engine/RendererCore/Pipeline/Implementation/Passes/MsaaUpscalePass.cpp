@@ -47,8 +47,14 @@ ezStatus ezMsaaUpscalePass::AddRenderPasses(const ezViewData& viewData, const ez
     return ezStatus(ezFmt("Input: Not connected"));
 
   const ezGALTextureCreationDescription inputDesc = ref_graph.GetTextureDesc(hInput);
+  if (m_MsaaMode == ezGALMSAASampleCount::None || inputDesc.m_SampleCount == m_MsaaMode)
+  {
+    outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hInput;
+    return EZ_SUCCESS;
+  }
+
   if (inputDesc.m_SampleCount != ezGALMSAASampleCount::None)
-    return ezStatus(ezFmt("Input must not be a msaa target"));
+    return ezStatus(ezFmt("Input: MSAA mode ({}) doesn't match MSAA_Mode ({}). The input must either be non-MSAA or already have the target MSAA mode.", ezArgEnum(inputDesc.m_SampleCount), ezArgEnum(m_MsaaMode)));
 
   ezGALTextureCreationDescription outputDesc = inputDesc;
   outputDesc.m_SampleCount = m_MsaaMode;

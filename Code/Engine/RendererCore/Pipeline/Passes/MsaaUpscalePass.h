@@ -7,6 +7,9 @@
 ///
 /// Converts a regular texture to an MSAA texture by replicating samples. Used when
 /// transitioning from non-MSAA to MSAA rendering in the pipeline.
+///
+/// If MSAA_Mode is None, or the input already has that sample count, the input is forwarded unchanged.
+/// An input with a different, non-zero sample count is reported as an error.
 class EZ_RENDERERCORE_DLL ezMsaaUpscalePass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMsaaUpscalePass, ezRenderPipelinePass);

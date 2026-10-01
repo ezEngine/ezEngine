@@ -46,7 +46,12 @@ ezStatus ezAntialiasingPass::AddRenderPasses(const ezViewData& viewData, const e
     return ezStatus(ezFmt("Input: Not connected "));
   const ezGALTextureCreationDescription inputDesc = ref_graph.GetTextureDesc(hInput);
 
-  if (inputDesc.m_SampleCount == ezGALMSAASampleCount::TwoSamples)
+  if (inputDesc.m_SampleCount == ezGALMSAASampleCount::None)
+  {
+    outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hInput;
+    return EZ_SUCCESS;
+  }
+  else if (inputDesc.m_SampleCount == ezGALMSAASampleCount::TwoSamples)
   {
     m_sMsaaSampleCount.Assign("MSAA_SAMPLES_TWO");
   }
