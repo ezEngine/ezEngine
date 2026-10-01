@@ -229,6 +229,57 @@ namespace
   EZ_END_DYNAMIC_REFLECTED_TYPE;
   // clang-format on
 
+  // The following types get renamed in exported data, to simulate types that are not available when loading the pipeline.
+
+  class ezGpuPipelineTestEditorOnlyPass : public ezGpuPipelineTestPass
+  {
+    EZ_ADD_DYNAMIC_REFLECTION(ezGpuPipelineTestEditorOnlyPass, ezGpuPipelineTestPass);
+  };
+
+  class ezGpuPipelineTestMissingPass : public ezGpuPipelineTestPass
+  {
+    EZ_ADD_DYNAMIC_REFLECTION(ezGpuPipelineTestMissingPass, ezGpuPipelineTestPass);
+  };
+
+  class ezGpuPipelineTestEditorOnlyExtractor : public ezExtractor
+  {
+    EZ_ADD_DYNAMIC_REFLECTION(ezGpuPipelineTestEditorOnlyExtractor, ezExtractor);
+
+  public:
+    ezGpuPipelineTestEditorOnlyExtractor()
+      : ezExtractor("EditorOnlyExtractor")
+    {
+    }
+
+    virtual void Extract(const ezView&, const ezDynamicArray<const ezGameObject*>&, ezExtractedRenderData&) override {}
+    virtual void PostSortAndBatch(const ezView&, const ezDynamicArray<const ezGameObject*>&, ezExtractedRenderData&) override {}
+  };
+
+  // clang-format off
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGpuPipelineTestEditorOnlyPass, 1, ezRTTIDefaultAllocator<ezGpuPipelineTestEditorOnlyPass>)
+  {
+    EZ_BEGIN_ATTRIBUTES
+    {
+      new ezRenderPipelineEditorOnlyAttribute(),
+    }
+    EZ_END_ATTRIBUTES;
+  }
+  EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGpuPipelineTestMissingPass, 1, ezRTTIDefaultAllocator<ezGpuPipelineTestMissingPass>)
+  EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGpuPipelineTestEditorOnlyExtractor, 1, ezRTTIDefaultAllocator<ezGpuPipelineTestEditorOnlyExtractor>)
+  {
+    EZ_BEGIN_ATTRIBUTES
+    {
+      new ezRenderPipelineEditorOnlyAttribute(),
+    }
+    EZ_END_ATTRIBUTES;
+  }
+  EZ_END_DYNAMIC_REFLECTED_TYPE;
+  // clang-format on
+
   template <typename PassType>
   ezUInt32 AddPass(ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>& ref_passes, const char* szName)
   {
@@ -417,6 +468,56 @@ namespace
     }
   };
 
+  /// Exports Source -> Middle -> Sink plus a direct Source -> Sink connection, with a regular and an editor-only extractor.
+  template <typename MiddlePassType>
+  void ExportTestPipeline(ezDynamicArray<ezUInt8>& out_data)
+  {
+    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
+    const ezUInt32 uiSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "Source");
+    const ezUInt32 uiMiddle = AddPass<MiddlePassType>(passes, "Middle");
+    const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+
+    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    Connect(connections, uiSource, "Output", uiMiddle, "Input");
+    Connect(connections, uiMiddle, "Output", uiSink, "InputA");
+    Connect(connections, uiSource, "Output", uiSink, "InputB");
+
+    ezVisibleObjectsExtractor visibleObjectsExtractor;
+    ezGpuPipelineTestEditorOnlyExtractor editorOnlyExtractor;
+
+    ezHybridArray<const ezRenderPipelinePass*, 3> passPtrs;
+    for (const ezUniquePtr<ezRenderPipelinePass>& pPass : passes)
+    {
+      passPtrs.PushBack(pPass.Borrow());
+    }
+
+    const ezExtractor* extractorPtrs[] = {&visibleObjectsExtractor, &editorOnlyExtractor};
+
+    out_data.Clear();
+    ezMemoryStreamContainerWrapperStorage<ezDynamicArray<ezUInt8>> storage(&out_data);
+    ezMemoryStreamWriter writer(&storage);
+    EZ_TEST_RESULT(ezRenderPipelineResourceLoader::ExportPipeline(passPtrs, ezMakeArrayPtr(extractorPtrs), connections, writer));
+  }
+
+  /// Changes every occurrence of the type name in the exported data, so that the type isn't found on import.
+  void RenameType(ezDynamicArray<ezUInt8>& ref_data, const ezRTTI* pType)
+  {
+    const ezStringView sName = pType->GetTypeName();
+    const ezUInt32 uiLength = sName.GetElementCount();
+
+    ezUInt32 uiOccurrences = 0;
+    for (ezUInt32 i = 0; i + uiLength <= ref_data.GetCount(); ++i)
+    {
+      if (ezMemoryUtils::IsEqual(ref_data.GetData() + i, reinterpret_cast<const ezUInt8*>(sName.GetStartPointer()), uiLength))
+      {
+        ref_data[i + uiLength - 1] = '_';
+        ++uiOccurrences;
+      }
+    }
+
+    EZ_TEST_BOOL(uiOccurrences > 0);
+  }
+
   ezUniquePtr<ezSubGraphNode> CreateSubGraph(const char* szPipeline)
   {
     ezUniquePtr<ezSubGraphNode> pSubGraph = EZ_DEFAULT_NEW(ezSubGraphNode);
@@ -445,6 +546,8 @@ void ezGpuPipelineTest::SetupSubTests()
   AddSubTest("IncompatiblePinConnection", SubTests::ST_IncompatiblePinConnection);
   AddSubTest("SharedSourceSwitch", SubTests::ST_SharedSourceSwitch);
   AddSubTest("RenderScale", SubTests::ST_RenderScale);
+  AddSubTest("EditorOnlyTypes", SubTests::ST_EditorOnlyTypes);
+  AddSubTest("SwitchPassThrough", SubTests::ST_SwitchPassThrough);
 }
 
 ezResult ezGpuPipelineTest::InitializeSubTest(ezInt32 iIdentifier)
@@ -511,6 +614,12 @@ ezTestAppRun ezGpuPipelineTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoc
       break;
     case SubTests::ST_RenderScale:
       RenderScale();
+      break;
+    case SubTests::ST_EditorOnlyTypes:
+      EditorOnlyTypes();
+      break;
+    case SubTests::ST_SwitchPassThrough:
+      SwitchPassThrough();
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -1436,4 +1545,171 @@ void ezGpuPipelineTest::IncompatiblePinConnection()
   EZ_TEST_BOOL(GetInput(executionOrder, "Sink", 0).m_Connectivity == Connectivity::None);
   EZ_TEST_BOOL(GetInput(executionOrder, "Sink", 2).m_Connectivity == Connectivity::None);
   TestPinsEqual(GetOutput(executionOrder, "Source", 0), GetInput(executionOrder, "Sink", 1), Connectivity::Texture);
+}
+
+void ezGpuPipelineTest::EditorOnlyTypes()
+{
+  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
+  ezDynamicArray<ezUniquePtr<ezExtractor>> extractors;
+  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+  ezDynamicArray<ezUInt8> data;
+
+  auto Import = [&]()
+  {
+    ezRawMemoryStreamReader reader(data);
+    return ezRenderPipelineResourceLoader::ImportPipeline(reader, passes, extractors, connections);
+  };
+
+  // All types are available, nothing is skipped.
+  {
+    ExportTestPipeline<ezGpuPipelineTestEditorOnlyPass>(data);
+
+    EZ_TEST_BOOL(Import().Succeeded());
+    EZ_TEST_INT(passes.GetCount(), 3);
+    EZ_TEST_INT(extractors.GetCount(), 2);
+    EZ_TEST_INT(connections.GetCount(), 3);
+  }
+
+  // Missing editor-only types are skipped, connections to the skipped pass are dropped and the remaining ones are remapped.
+  {
+    ExportTestPipeline<ezGpuPipelineTestEditorOnlyPass>(data);
+    RenameType(data, ezGetStaticRTTI<ezGpuPipelineTestEditorOnlyPass>());
+    RenameType(data, ezGetStaticRTTI<ezGpuPipelineTestEditorOnlyExtractor>());
+
+    EZ_TEST_BOOL(Import().Succeeded());
+    EZ_TEST_INT(passes.GetCount(), 2);
+    EZ_TEST_INT(extractors.GetCount(), 1);
+    EZ_TEST_INT(connections.GetCount(), 1);
+
+    if (passes.GetCount() == 2 && extractors.GetCount() == 1 && connections.GetCount() == 1)
+    {
+      EZ_TEST_STRING(passes[0]->GetName(), "Source");
+      EZ_TEST_STRING(passes[1]->GetName(), "Sink");
+      EZ_TEST_BOOL(extractors[0]->IsInstanceOf<ezVisibleObjectsExtractor>());
+
+      EZ_TEST_INT(connections[0].m_uiSource, 0);
+      EZ_TEST_INT(connections[0].m_uiTarget, 1);
+      EZ_TEST_STRING(connections[0].m_sSourcePin, "Output");
+      EZ_TEST_STRING(connections[0].m_sTargetPin, "InputB");
+
+      ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = EZ_DEFAULT_NEW(ezRenderPipelinePassGraph, std::move(passes), std::move(extractors), connections);
+
+      ezDynamicArray<RecordedPass> executionOrder;
+      CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
+
+      const char* expectedOrder[] = {"Source", "Sink"};
+      TestExecutionOrder(executionOrder, expectedOrder);
+
+      EZ_TEST_BOOL(GetInput(executionOrder, "Sink", 0).m_Connectivity == Connectivity::None);
+      TestPinsEqual(GetOutput(executionOrder, "Source", 0), GetInput(executionOrder, "Sink", 1), Connectivity::Texture);
+    }
+  }
+
+  // A missing type without ezRenderPipelineEditorOnlyAttribute is an error.
+  {
+    ExportTestPipeline<ezGpuPipelineTestMissingPass>(data);
+    RenameType(data, ezGetStaticRTTI<ezGpuPipelineTestMissingPass>());
+
+    EZ_TEST_BOOL(Import().Failed());
+  }
+}
+
+void ezGpuPipelineTest::SwitchPassThrough()
+{
+  auto AddSwitch = [](ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>& ref_passes)
+  {
+    ezUniquePtr<ezTextureSwitchPass> pSwitch = EZ_DEFAULT_NEW(ezTextureSwitchPass);
+    pSwitch->SetName("Switch");
+    pSwitch->m_sBlackboardProperty = "Optional";
+    pSwitch->m_Values.PushBack(0);
+    pSwitch->m_Values.PushBack(1);
+    const ezUInt32 uiIndex = ref_passes.GetCount();
+    ref_passes.PushBack(std::move(pSwitch));
+    return uiIndex;
+  };
+
+  // An optional in-place pass: Source -> Switch[0: Source, 1: Source -> Optional] -> Final -> Sink.
+  // Optional and Final both modify the same resource in place, but never at the same time, so both selections are valid.
+  {
+    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
+    const ezUInt32 uiSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "Source");
+    const ezUInt32 uiOptional = AddPass<ezGpuPipelineTestPassThroughPass>(passes, "Optional");
+    const ezUInt32 uiSwitch = AddSwitch(passes);
+    const ezUInt32 uiFinal = AddPass<ezGpuPipelineTestPassThroughPass>(passes, "Final");
+    const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+
+    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    Connect(connections, uiSource, "Output", uiSwitch, "0");
+    Connect(connections, uiSource, "Output", uiOptional, "Pin");
+    Connect(connections, uiOptional, "Pin", uiSwitch, "1");
+    Connect(connections, uiSwitch, "Output", uiFinal, "Pin");
+    Connect(connections, uiFinal, "Pin", uiSink, "InputA");
+
+    ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+
+    {
+      ezDynamicArray<RecordedPass> executionOrder;
+      CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
+      const char* expectedOrder[] = {"Source", "Final", "Sink"};
+      TestExecutionOrder(executionOrder, expectedOrder);
+    }
+
+    EZ_TEST_BOOL(pPipeline->SetSwitchValue(0, 1));
+
+    {
+      ezDynamicArray<RecordedPass> executionOrder;
+      CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
+      const char* expectedOrder[] = {"Source", "Optional", "Final", "Sink"};
+      TestExecutionOrder(executionOrder, expectedOrder);
+    }
+  }
+
+  // A reader of the source has to run before an in-place pass behind the switch: Source -> Switch[0] -> Writer -> Sink.InputA, Source -> Reader -> Sink.InputB.
+  {
+    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
+    const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+    const ezUInt32 uiWriter = AddPass<ezGpuPipelineTestPassThroughPass>(passes, "Writer");
+    const ezUInt32 uiSwitch = AddSwitch(passes);
+    const ezUInt32 uiReader = AddPass<ezGpuPipelineTestPass>(passes, "Reader");
+    const ezUInt32 uiSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "Source");
+
+    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    Connect(connections, uiSource, "Output", uiSwitch, "0");
+    Connect(connections, uiSource, "Output", uiReader, "Input");
+    Connect(connections, uiSwitch, "Output", uiWriter, "Pin");
+    Connect(connections, uiWriter, "Pin", uiSink, "InputA");
+    Connect(connections, uiReader, "Output", uiSink, "InputB");
+
+    ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+
+    ezDynamicArray<RecordedPass> executionOrder;
+    CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
+    const char* expectedOrder[] = {"Source", "Reader", "Writer", "Sink"};
+    TestExecutionOrder(executionOrder, expectedOrder);
+  }
+
+  // Two in-place passes on the same resource that are alive at the same time: Source -> Switch[0] -> WriterA -> Sink.InputA, Source -> WriterB -> Sink.InputB.
+  {
+    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
+    const ezUInt32 uiSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "Source");
+    const ezUInt32 uiSwitch = AddSwitch(passes);
+    const ezUInt32 uiWriterA = AddPass<ezGpuPipelineTestPassThroughPass>(passes, "WriterA");
+    const ezUInt32 uiWriterB = AddPass<ezGpuPipelineTestPassThroughPass>(passes, "WriterB");
+    const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+
+    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    Connect(connections, uiSource, "Output", uiSwitch, "0");
+    Connect(connections, uiSource, "Output", uiWriterB, "Pin");
+    Connect(connections, uiSwitch, "Output", uiWriterA, "Pin");
+    Connect(connections, uiWriterA, "Pin", uiSink, "InputA");
+    Connect(connections, uiWriterB, "Pin", uiSink, "InputB");
+
+    ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+    EZ_TEST_RESULT(pPipeline->CullDeadPasses());
+
+    ezTestLogInterface log;
+    ezTestLogSystemScope logSystemScope(&log, true);
+    log.ExpectMessage("both modify the same resource in place", ezLogMsgType::ErrorMsg);
+    EZ_TEST_BOOL(pPipeline->SortPasses().Failed());
+  }
 }

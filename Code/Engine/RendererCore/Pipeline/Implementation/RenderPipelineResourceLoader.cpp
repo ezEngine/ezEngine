@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/SerializationContext.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/IO/TypeVersionContext.h>
@@ -27,6 +28,65 @@ namespace
   bool IsBoundaryNode(const ezRTTI* pType)
   {
     return IsInputBoundaryNode(pType) || IsOutputBoundaryNode(pType);
+  }
+
+  /// Reads one pass or extractor. out_pObject stays null when an editor-only type is not available and was skipped.
+  template <typename T>
+  ezStatus ImportObject(ezStreamReader& inout_stream, ezTypeVersion uiVersion, ezUniquePtr<T>& out_pObject)
+  {
+    ezStringBuilder sTypeName;
+    bool bEditorOnly = false;
+    ezUInt32 uiByteSize = 0;
+
+    inout_stream >> sTypeName;
+    if (uiVersion >= 2)
+    {
+      inout_stream >> bEditorOnly;
+      inout_stream >> uiByteSize;
+    }
+
+    const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName);
+    if (pType == nullptr)
+    {
+      if (!bEditorOnly)
+        return ezStatus(ezFmt("Render pipeline type '{}' is unknown.", sTypeName));
+
+      if (inout_stream.SkipBytes(uiByteSize) != uiByteSize)
+        return ezStatus(ezFmt("Failed to skip editor-only render pipeline type '{}'.", sTypeName));
+
+      ezLog::Dev("Skipped editor-only render pipeline type '{}'.", sTypeName);
+      return ezStatus(EZ_SUCCESS);
+    }
+
+    if (!pType->IsDerivedFrom<T>())
+      return ezStatus(ezFmt("Render pipeline type '{}' is not derived from {}.", sTypeName, ezGetStaticRTTI<T>()->GetTypeName()));
+    if (pType->GetAllocator() == nullptr || !pType->GetAllocator()->CanAllocate())
+      return ezStatus(ezFmt("Render pipeline type '{}' cannot be allocated.", sTypeName));
+
+    out_pObject = pType->GetAllocator()->Allocate<T>();
+    if (out_pObject->Deserialize(inout_stream).Failed())
+      return ezStatus(ezFmt("Failed to deserialize render pipeline object of type '{}'.", sTypeName));
+
+    return ezStatus(EZ_SUCCESS);
+  }
+
+  template <typename T>
+  ezResult ExportObject(const T* pObject, ezTypeVersionWriteContext& ref_typeVersionContext, ezStreamWriter& inout_stream)
+  {
+    const ezRTTI* pType = pObject->GetDynamicRTTI();
+    ref_typeVersionContext.AddType(pType);
+
+    // The object is written to a temporary storage first, so that loaders that don't know the type can skip it.
+    ezDefaultMemoryStreamStorage storage;
+    ezMemoryStreamWriter writer(&storage);
+    EZ_SUCCEED_OR_RETURN(pObject->Serialize(writer));
+
+    const bool bEditorOnly = pType->GetAttributeByType<ezRenderPipelineEditorOnlyAttribute>() != nullptr;
+
+    inout_stream << pType->GetTypeName();
+    inout_stream << bEditorOnly;
+    inout_stream << storage.GetStorageSize32();
+    return storage.CopyToStream(inout_stream);
   }
 } // namespace
 
@@ -63,7 +123,8 @@ ezResult ezRenderPipelineResourceLoaderConnection::Deserialize(ezStreamReader& i
   return EZ_SUCCESS;
 }
 
-constexpr ezTypeVersion s_RenderPipelineDescriptorVersion = 1;
+// Version 2: Every pass and extractor stores an editor-only flag and its byte size, so that unknown editor-only types can be skipped.
+constexpr ezTypeVersion s_RenderPipelineDescriptorVersion = 2;
 
 // static
 ezStatus ezRenderPipelineResourceLoader::ImportPipeline(ezStreamReader& ref_streamReader, ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>& out_passes, ezDynamicArray<ezUniquePtr<ezExtractor>>& out_extractors, ezDynamicArray<ezRenderPipelineResourceLoaderConnection>& out_connections)
@@ -72,36 +133,31 @@ ezStatus ezRenderPipelineResourceLoader::ImportPipeline(ezStreamReader& ref_stre
   out_extractors.Clear();
   out_connections.Clear();
 
-  const auto uiVersion = ref_streamReader.ReadVersion(s_RenderPipelineDescriptorVersion);
-  EZ_IGNORE_UNUSED(uiVersion);
+  const ezTypeVersion uiVersion = ref_streamReader.ReadVersion(s_RenderPipelineDescriptorVersion);
 
   ezStringDeduplicationReadContext stringDeduplicationReadContext(ref_streamReader);
   ezTypeVersionReadContext typeVersionReadContext(ref_streamReader);
 
-  ezStringBuilder sTypeName;
+  // Maps the pass indices in the stream to the indices in out_passes. Skipped passes map to ezInvalidIndex.
+  ezDynamicArray<ezUInt32> passRemap;
 
   // Passes
   {
     ezUInt32 uiNumPasses = 0;
     ref_streamReader >> uiNumPasses;
     out_passes.Reserve(uiNumPasses);
+    passRemap.SetCount(uiNumPasses, ezInvalidIndex);
 
     for (ezUInt32 i = 0; i < uiNumPasses; ++i)
     {
-      ref_streamReader >> sTypeName;
-      const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName);
-      if (pType == nullptr)
-        return ezStatus(ezFmt("Render pipeline pass type '{}' is unknown.", sTypeName));
-      if (!pType->IsDerivedFrom<ezRenderPipelinePass>())
-        return ezStatus(ezFmt("Render pipeline pass type '{}' is not derived from ezRenderPipelinePass.", sTypeName));
-      if (pType->GetAllocator() == nullptr || !pType->GetAllocator()->CanAllocate())
-        return ezStatus(ezFmt("Render pipeline pass type '{}' cannot be allocated.", sTypeName));
+      ezUniquePtr<ezRenderPipelinePass> pPass;
+      EZ_SUCCEED_OR_RETURN(ImportObject(ref_streamReader, uiVersion, pPass));
 
-      ezUniquePtr<ezRenderPipelinePass> pPass = pType->GetAllocator()->Allocate<ezRenderPipelinePass>();
-      if (pPass->Deserialize(ref_streamReader).Failed())
-        return ezStatus(ezFmt("Failed to deserialize render pipeline pass of type '{}'.", sTypeName));
-
-      out_passes.PushBack(std::move(pPass));
+      if (pPass != nullptr)
+      {
+        passRemap[i] = out_passes.GetCount();
+        out_passes.PushBack(std::move(pPass));
+      }
     }
   }
 
@@ -113,20 +169,13 @@ ezStatus ezRenderPipelineResourceLoader::ImportPipeline(ezStreamReader& ref_stre
 
     for (ezUInt32 i = 0; i < uiNumExtractors; ++i)
     {
-      ref_streamReader >> sTypeName;
-      const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName);
-      if (pType == nullptr)
-        return ezStatus(ezFmt("Render pipeline extractor type '{}' is unknown.", sTypeName));
-      if (!pType->IsDerivedFrom<ezExtractor>())
-        return ezStatus(ezFmt("Render pipeline extractor type '{}' is not derived from ezExtractor.", sTypeName));
-      if (pType->GetAllocator() == nullptr || !pType->GetAllocator()->CanAllocate())
-        return ezStatus(ezFmt("Render pipeline extractor type '{}' cannot be allocated.", sTypeName));
+      ezUniquePtr<ezExtractor> pExtractor;
+      EZ_SUCCEED_OR_RETURN(ImportObject(ref_streamReader, uiVersion, pExtractor));
 
-      ezUniquePtr<ezExtractor> pExtractor = pType->GetAllocator()->Allocate<ezExtractor>();
-      if (pExtractor->Deserialize(ref_streamReader).Failed())
-        return ezStatus(ezFmt("Failed to deserialize render pipeline extractor of type '{}'.", sTypeName));
-
-      out_extractors.PushBack(std::move(pExtractor));
+      if (pExtractor != nullptr)
+      {
+        out_extractors.PushBack(std::move(pExtractor));
+      }
     }
   }
 
@@ -134,15 +183,25 @@ ezStatus ezRenderPipelineResourceLoader::ImportPipeline(ezStreamReader& ref_stre
   {
     ezUInt32 uiNumConnections = 0;
     ref_streamReader >> uiNumConnections;
-    out_connections.SetCount(uiNumConnections);
+    out_connections.Reserve(uiNumConnections);
 
+    ezRenderPipelineResourceLoaderConnection connection;
     for (ezUInt32 i = 0; i < uiNumConnections; ++i)
     {
-      if (out_connections[i].Deserialize(ref_streamReader).Failed())
+      if (connection.Deserialize(ref_streamReader).Failed())
         return ezStatus(ezFmt("Failed to deserialize render pipeline connection {}.", i));
 
-      if (out_connections[i].m_uiSource >= out_passes.GetCount() || out_connections[i].m_uiTarget >= out_passes.GetCount())
-        return ezStatus(ezFmt("Render pipeline connection {} references a pass index outside of the {} passes in the pipeline.", i, out_passes.GetCount()));
+      if (connection.m_uiSource >= passRemap.GetCount() || connection.m_uiTarget >= passRemap.GetCount())
+        return ezStatus(ezFmt("Render pipeline connection {} references a pass index outside of the {} passes in the pipeline.", i, passRemap.GetCount()));
+
+      connection.m_uiSource = passRemap[connection.m_uiSource];
+      connection.m_uiTarget = passRemap[connection.m_uiTarget];
+
+      // Drop connections to skipped editor-only passes.
+      if (connection.m_uiSource == ezInvalidIndex || connection.m_uiTarget == ezInvalidIndex)
+        continue;
+
+      out_connections.PushBack(connection);
     }
   }
 
@@ -407,11 +466,7 @@ ezResult ezRenderPipelineResourceLoader::ExportPipeline(ezArrayPtr<const ezRende
 
     for (auto& pass : passes)
     {
-      auto pPassType = pass->GetDynamicRTTI();
-      typeVersionWriteContext.AddType(pPassType);
-
-      stream << pPassType->GetTypeName();
-      EZ_SUCCEED_OR_RETURN(pass->Serialize(stream));
+      EZ_SUCCEED_OR_RETURN(ExportObject(pass, typeVersionWriteContext, stream));
     }
   }
 
@@ -422,11 +477,7 @@ ezResult ezRenderPipelineResourceLoader::ExportPipeline(ezArrayPtr<const ezRende
 
     for (auto& extractor : extractors)
     {
-      auto pExtractorType = extractor->GetDynamicRTTI();
-      typeVersionWriteContext.AddType(pExtractorType);
-
-      stream << pExtractorType->GetTypeName();
-      EZ_SUCCEED_OR_RETURN(extractor->Serialize(stream));
+      EZ_SUCCEED_OR_RETURN(ExportObject(extractor, typeVersionWriteContext, stream));
     }
   }
 

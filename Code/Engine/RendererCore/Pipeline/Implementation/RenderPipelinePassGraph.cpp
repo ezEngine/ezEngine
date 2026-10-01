@@ -376,15 +376,62 @@ ezResult ezRenderPipelinePassGraph::SortPasses()
   }
   m_SortedPasses.Reserve(uiAlivePassCount);
 
-  // Count source dependencies and the additional sibling-consumer dependencies required by
-  // pass-through inputs.
-  for (ezUInt32 uiConnection = 0; uiConnection < m_Connections.GetCount(); ++uiConnection)
+  // A switch forwards the resource of its selected input, so the consumers of a switch output access the same resource as the consumers of that input.
+  // For ordering pass-through (in-place) consumers, every connection is therefore mapped to the connection that actually produces its resource.
+  // Switches themselves never access the resource and are not treated as consumers.
+  ezTempArray<const ezSwitchBasePass*> passSwitches;
+  passSwitches.SetCount(m_Passes.GetCount());
+  for (ezUInt32 uiPass = 0; uiPass < m_Passes.GetCount(); ++uiPass)
+  {
+    passSwitches[uiPass] = ezDynamicCast<const ezSwitchBasePass*>(m_Passes[uiPass].Borrow());
+  }
+
+  ezTempArray<ezUInt16> resourceConnections;
+  resourceConnections.SetCount(m_Connections.GetCount());
+  for (ezUInt16 uiConnection = 0; uiConnection < m_Connections.GetCount(); ++uiConnection)
+  {
+    ezUInt16 uiResource = uiConnection;
+
+    // Bounded, so that a cycle of switches can't loop forever. Cycles are reported by the sorting below.
+    for (ezUInt32 uiDepth = 0; uiDepth < m_Connections.GetCount(); ++uiDepth)
+    {
+      const ezUInt16 uiSourcePass = m_Pins[m_Connections[uiResource].m_uiOutputPin].m_uiPassIndex;
+      const ezSwitchBasePass* pSwitch = passSwitches[uiSourcePass];
+      const ezArrayPtr<ezUInt16> switchInputs = m_PassInfos[uiSourcePass].m_uiInputConnections;
+      if (pSwitch == nullptr || pSwitch->m_uiSelectedValueIndex >= switchInputs.GetCount() || switchInputs[pSwitch->m_uiSelectedValueIndex] == s_uiInvalidIndex)
+        break;
+
+      uiResource = switchInputs[pSwitch->m_uiSelectedValueIndex];
+    }
+
+    resourceConnections[uiConnection] = uiResource;
+  }
+
+  // The input pins of alive passes, other than switches, indexed by the connection that produces the resource they access.
+  ezDynamicArray<ezHybridArray<ezUInt16, 4>> resourceConsumers;
+  resourceConsumers.SetCount(m_Connections.GetCount());
+  for (ezUInt16 uiConnection = 0; uiConnection < m_Connections.GetCount(); ++uiConnection)
   {
     if (!m_AliveConnections.IsBitSet(uiConnection))
       continue;
 
-    const ConnectionInfo& connection = m_Connections[uiConnection];
-    for (ezUInt16 uiInputPin : connection.m_uiInputPins)
+    for (ezUInt16 uiInputPin : m_Connections[uiConnection].m_uiInputPins)
+    {
+      const ezUInt16 uiPass = m_Pins[uiInputPin].m_uiPassIndex;
+      if (m_AlivePasses.IsBitSet(uiPass) && passSwitches[uiPass] == nullptr)
+        resourceConsumers[resourceConnections[uiConnection]].PushBack(uiInputPin);
+    }
+  }
+
+  bool bConflictingPassThrough = false;
+
+  // Count source dependencies and the additional dependencies of pass-through inputs on all other consumers of the same resource.
+  for (ezUInt16 uiConnection = 0; uiConnection < m_Connections.GetCount(); ++uiConnection)
+  {
+    if (!m_AliveConnections.IsBitSet(uiConnection))
+      continue;
+
+    for (ezUInt16 uiInputPin : m_Connections[uiConnection].m_uiInputPins)
     {
       const ezUInt16 uiTargetPass = m_Pins[uiInputPin].m_uiPassIndex;
       if (!m_AlivePasses.IsBitSet(uiTargetPass))
@@ -392,18 +439,30 @@ ezResult ezRenderPipelinePassGraph::SortPasses()
 
       ++totalDependencies[uiTargetPass];
 
-      if (m_Pins[uiInputPin].m_Flags.IsSet(ezRenderPipelineNodePin::Type::PassThrough))
+      if (m_Pins[uiInputPin].m_Flags.IsSet(ezRenderPipelineNodePin::Type::PassThrough) && passSwitches[uiTargetPass] == nullptr)
       {
-        // A pass-through pass may modify the resource in place. Make it depend on every other alive consumer of the same connection so all readers of the original resource execute first. This trick cheaply allows to model this dependency without the need to iterate the connections every time to check for completion.
-        for (ezUInt16 uiConsumerPin : connection.m_uiInputPins)
+        // A pass-through pass may modify the resource in place. Make it depend on every other alive consumer of the same resource so all readers of the original resource execute first.
+        for (ezUInt16 uiConsumerPin : resourceConsumers[resourceConnections[uiConnection]])
         {
           const ezUInt16 uiConsumerPass = m_Pins[uiConsumerPin].m_uiPassIndex;
-          if (uiConsumerPass != uiTargetPass && m_AlivePasses.IsBitSet(uiConsumerPass))
-            ++totalDependencies[uiTargetPass];
+          if (uiConsumerPass == uiTargetPass)
+            continue;
+
+          ++totalDependencies[uiTargetPass];
+
+          // Each conflicting pair is seen from both sides, only report it once.
+          if (m_Pins[uiConsumerPin].m_Flags.IsSet(ezRenderPipelineNodePin::Type::PassThrough) && uiConsumerPin > uiInputPin)
+          {
+            ezLog::Error("Passes '{}' and '{}' both modify the same resource in place.", m_Passes[uiTargetPass]->GetName(), m_Passes[uiConsumerPass]->GetName());
+            bConflictingPassThrough = true;
+          }
         }
       }
     }
   }
+
+  if (bConflictingPassThrough)
+    return EZ_FAILURE;
 
   TempBitfield done;
   done.SetCount(m_Passes.GetCount(), false);
@@ -446,17 +505,20 @@ ezResult ezRenderPipelinePassGraph::SortPasses()
       }
     }
 
-    // Completing a consumer fulfills the additional ordering dependency of pass-through consumers that share the same input connection. Once all normal consumers have been fulfilled, the passthrough pin will have all its dependencies fulfilled as well and can be run. This works because there can only ever be one passthrough pin in a single connection.
-    for (ezUInt16 uiConnection : m_PassInfos[uiPass].m_uiInputConnections)
+    // Completing a consumer fulfills the additional ordering dependency of the pass-through consumer of the same resource. Once all other consumers are done, the pass-through pin has all its dependencies fulfilled and can run. This works because there can only ever be one pass-through consumer per resource, which is checked above.
+    if (passSwitches[uiPass] == nullptr)
     {
-      if (uiConnection == s_uiInvalidIndex || !m_AliveConnections.IsBitSet(uiConnection))
-        continue;
-
-      for (ezUInt16 uiInputPin : m_Connections[uiConnection].m_uiInputPins)
+      for (ezUInt16 uiConnection : m_PassInfos[uiPass].m_uiInputConnections)
       {
-        const ezUInt16 uiTargetPass = m_Pins[uiInputPin].m_uiPassIndex;
-        if (uiTargetPass != uiPass && m_AlivePasses.IsBitSet(uiTargetPass) && m_Pins[uiInputPin].m_Flags.IsSet(ezRenderPipelineNodePin::Type::PassThrough))
-          DependencyFulfilled(uiTargetPass);
+        if (uiConnection == s_uiInvalidIndex || !m_AliveConnections.IsBitSet(uiConnection))
+          continue;
+
+        for (ezUInt16 uiConsumerPin : resourceConsumers[resourceConnections[uiConnection]])
+        {
+          const ezUInt16 uiConsumerPass = m_Pins[uiConsumerPin].m_uiPassIndex;
+          if (uiConsumerPass != uiPass && m_Pins[uiConsumerPin].m_Flags.IsSet(ezRenderPipelineNodePin::Type::PassThrough))
+            DependencyFulfilled(uiConsumerPass);
+        }
       }
     }
   }
@@ -516,7 +578,7 @@ ezStatus ezRenderPipelinePassGraph::AddRenderPasses(const ezViewData& viewData, 
     }
 
     ref_graph.PushMarker(pPass->GetName());
-    const ezStatus result = pPass->m_bActive ? pPass->AddRenderPasses(viewData, camera, ref_graph, inputs, outputs) : pPass->AddRenderPassesInactive(viewData, camera, ref_graph, inputs, outputs);
+    const ezStatus result = pPass->AddRenderPasses(viewData, camera, ref_graph, inputs, outputs);
     ref_graph.PopMarker();
     if (result.Failed())
       return ezStatus(ezFmt("Pass '{}' ({}): {}", pPass->GetName(), pPass->GetDynamicRTTI()->GetTypeName(), result.GetMessageString()));
