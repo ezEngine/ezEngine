@@ -18,7 +18,7 @@ o
 			s{"{ f7f80013-ad18-4c63-862a-feba0326834d }"}
 		}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{11164888983836617753}
+		u4 %Hash{13308211659531807284}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{15791873920256194352,9025262766844682366}}
@@ -432,9 +432,10 @@ o
 {
 	Uuid %id{u4{4729510599533800952,15310271536570312137}}
 	s %t{"ezMsaaResolvePass"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		b %GuaranteeCopy{0}
 		Uuid %Input{u4{11471671040218194156,17286802533662487417}}
 		s %Name{""}
 		Vec2 %Node::Pos{f{0x3F692244,0x7FC729C3}}
@@ -758,9 +759,10 @@ o
 {
 	Uuid %id{u4{7466692225291319331,16338836103912453161}}
 	s %t{"ezMsaaResolvePass"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		b %GuaranteeCopy{1}
 		Uuid %Input{u4{7499302151179023405,18365050562912961953}}
 		s %Name{""}
 		Vec2 %Node::Pos{f{0xBDEFA4C4,0x88DF74C2}}
@@ -1017,7 +1019,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMsaaResolvePass"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

@@ -12,6 +12,7 @@
 #include <Foundation/Threading/ThreadUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameState.h>
+#include <RendererCore/Pipeline/Passes/SourcePass.h>
 #include <RendererCore/Pipeline/RenderPipelineCVars.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -92,6 +93,50 @@ namespace
     ezSizeU32(2560, 1440),
     ezSizeU32(3840, 2160),
   };
+
+  constexpr ezGALMSAASampleCount::Enum s_MsaaModes[] = {
+    ezGALMSAASampleCount::None,
+    ezGALMSAASampleCount::TwoSamples,
+    ezGALMSAASampleCount::FourSamples,
+    ezGALMSAASampleCount::EightSamples,
+  };
+
+  ezGALMSAASampleCount::Enum ToMsaaMode(ezInt32 iSampleCount)
+  {
+    for (auto mode : s_MsaaModes)
+    {
+      if (mode == iSampleCount)
+        return mode;
+    }
+
+    return ezGALMSAASampleCount::None;
+  }
+
+  bool IsMsaaModeSupported(ezGALMSAASampleCount::Enum mode)
+  {
+    ezBitflags<ezGALResourceFormatSupport> support = ezGALResourceFormatSupport::RenderTarget | ezGALResourceFormatSupport::Texture;
+
+    switch (mode)
+    {
+      case ezGALMSAASampleCount::None:
+        return true;
+      case ezGALMSAASampleCount::TwoSamples:
+        support.Add(ezGALResourceFormatSupport::MSAA2x);
+        break;
+      case ezGALMSAASampleCount::FourSamples:
+        support.Add(ezGALResourceFormatSupport::MSAA4x);
+        break;
+      case ezGALMSAASampleCount::EightSamples:
+        support.Add(ezGALResourceFormatSupport::MSAA8x);
+        break;
+      default:
+        return false;
+    }
+
+    // the color and depth targets of the default render pipeline
+    return ezSourcePass::FindFormat(ezRequiredTextureType::Float, ezRequiredTexturePrecision::Bits_16, ezRequiredTextureChannels::Channels_4, support) != ezGALResourceFormat::Invalid &&
+           ezSourcePass::FindFormat(ezRequiredTextureType::Depth, ezRequiredTexturePrecision::Bits_24, ezRequiredTextureChannels::Channels_2, support) != ezGALResourceFormat::Invalid;
+  }
 
   ezWindow* GetMainWindow()
   {
@@ -716,6 +761,17 @@ void ezRmlUiMainMenuComponent::RegisterSettingsEventHandlers(ezRmlUiContext* pCo
       //
     });
 
+  pContext->RegisterEventHandler("msaa-change", [this](Rml::Event& e)
+    {
+      const ezInt32 iSelection = static_cast<Rml::ElementFormControlSelect*>(e.GetCurrentElement())->GetSelection();
+
+      if (iSelection >= 0 && iSelection < (ezInt32)m_MsaaModes.GetCount())
+      {
+        m_PendingMsaaMode = m_MsaaModes[iSelection];
+      }
+      //
+    });
+
   pContext->RegisterEventHandler("display-apply", [this](Rml::Event& e)
     {
       // applied in TickMainThread(), resizing the window from a worker thread deadlocks
@@ -799,8 +855,11 @@ void ezRmlUiMainMenuComponent::Update()
       m_PendingWindowDesc = pWindow->GetCreationDescription();
     }
 
+    m_PendingMsaaMode = ToMsaaMode(cvar_RenderingPipelineMSAA);
+
     RebuildMonitorList(pDocument);
     RebuildResolutionList(pDocument);
+    RebuildMsaaList(pDocument);
     RebuildSoundGroupRows(pDocument);
     RebuildInputBindingRows(pDocument);
     InitializeWidgetsFromSettings(pDocument);
@@ -1411,6 +1470,52 @@ void ezRmlUiMainMenuComponent::UpdateResolutionEnabledState(Rml::ElementDocument
   }
 }
 
+void ezRmlUiMainMenuComponent::RebuildMsaaList(Rml::ElementDocument* pDocument)
+{
+  m_MsaaModes.Clear();
+
+  for (auto mode : s_MsaaModes)
+  {
+    if (IsMsaaModeSupported(mode))
+    {
+      m_MsaaModes.PushBack(mode);
+    }
+  }
+
+  auto pSelect = ezRmlUiUtils::GetSelectElement(pDocument, "select-msaa");
+
+  if (pSelect == nullptr)
+    return;
+
+  pSelect->RemoveAll();
+
+  // an unsupported setting, e.g. from a config made on another GPU, shows up as the closest lower mode
+  ezInt32 iCurrent = 0;
+  ezStringBuilder sLabel;
+
+  for (ezUInt32 i = 0; i < m_MsaaModes.GetCount(); ++i)
+  {
+    if (m_MsaaModes[i] == ezGALMSAASampleCount::None)
+    {
+      sLabel = "Off";
+    }
+    else
+    {
+      sLabel.SetFormat("{}x", (ezInt32)m_MsaaModes[i]);
+    }
+
+    ezRmlUiUtils::AddIndexedOption(pSelect, sLabel.GetData(), i);
+
+    if (m_MsaaModes[i] <= m_PendingMsaaMode)
+    {
+      iCurrent = i;
+    }
+  }
+
+  m_PendingMsaaMode = m_MsaaModes[iCurrent];
+  pSelect->SetSelection(iCurrent);
+}
+
 bool ezRmlUiMainMenuComponent::UpdateRenderScaleWidgets(Rml::ElementDocument* pDocument)
 {
   const bool bAuto = ezGameApplication::cvar_AppRenderScale <= 0.0f;
@@ -1447,6 +1552,9 @@ bool ezRmlUiMainMenuComponent::UpdateRenderScaleWidgets(Rml::ElementDocument* pD
 
 void ezRmlUiMainMenuComponent::ApplyDisplaySettings()
 {
+  // the render pipeline picks this up through its blackboard, no restart needed
+  cvar_RenderingPipelineMSAA = (ezInt32)m_PendingMsaaMode;
+
   auto pWindow = GetMainWindow();
 
   if (pWindow == nullptr)

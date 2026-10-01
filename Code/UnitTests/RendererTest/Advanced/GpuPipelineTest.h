@@ -28,6 +28,7 @@ private:
     ST_SharedSourceSwitch,
     ST_RenderScale,
     ST_SwitchPassThrough,
+    ST_MsaaForwarding,
   };
 
   virtual void SetupSubTests() override;
@@ -52,6 +53,7 @@ private:
   void SharedSourceSwitch();
   void RenderScale();
   void SwitchPassThrough();
+  void MsaaForwarding();
 
   ezSharedPtr<ezRenderGraph> m_pRenderGraph;
 };

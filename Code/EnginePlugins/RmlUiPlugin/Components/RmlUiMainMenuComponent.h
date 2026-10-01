@@ -134,10 +134,13 @@ protected:
   void RebuildResolutionList(Rml::ElementDocument* pDocument);
   void UpdateResolutionEnabledState(Rml::ElementDocument* pDocument);
 
+  /// Only lists the sample counts that the formats of the default render pipeline support on the current GPU.
+  void RebuildMsaaList(Rml::ElementDocument* pDocument);
+
   /// Returns whether anything in the document changed.
   bool UpdateRenderScaleWidgets(Rml::ElementDocument* pDocument);
 
-  /// Must be called from the main thread, resizing the window from a worker thread deadlocks.
+  /// Applies the window and MSAA settings. Must be called from the main thread, resizing the window from a worker thread deadlocks.
   void ApplyDisplaySettings();
 
   void RequestApplySettings() { m_bApplySettings = true; }
@@ -182,4 +185,8 @@ protected:
   /// The display settings as edited in the UI, only saved and applied when 'Apply' is pressed.
   ezWindowCreationDesc m_PendingWindowDesc;
   ezString m_sDisplayStatus;
+
+  /// The MSAA sample counts in the dropdown, and the one selected in the UI, which is only applied when 'Apply' is pressed.
+  ezHybridArray<ezEnum<ezGALMSAASampleCount>, 4> m_MsaaModes;
+  ezGALMSAASampleCount::Enum m_PendingMsaaMode = ezGALMSAASampleCount::None;
 };

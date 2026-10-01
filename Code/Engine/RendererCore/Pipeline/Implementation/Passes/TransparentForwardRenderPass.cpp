@@ -50,6 +50,21 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
   EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hSSAO, "SSAO", ezTextureValidationFlags::Optional));
   EZ_SUCCEED_OR_RETURN(ValidateMatchingTexture(ref_graph, hColor, "Color", hShadowMask, "ShadowMasks", ezTextureValidationFlags::Optional));
 
+  if (!hResolvedDepth.IsInvalidated() && hResolvedDepth == hDepthStencil)
+  {
+    // Without MSAA, an ezMsaaResolvePass forwards the depth buffer, so the resolved depth is the depth target itself.
+    // It can't be read and written in the same pass, so the shaders read a copy instead.
+    ezRenderGraphTextureHandle hDepthCopy = ref_graph.CreateTexture(ref_graph.GetTextureDesc(hDepthStencil));
+
+    auto transferPass = ref_graph.AddTransferPass("CopyResolvedDepth");
+    transferPass.ReadTexture(hDepthStencil, {}, ezGALResourceState::CopySource);
+    transferPass.WriteTexture(hDepthCopy, {}, ezGALResourceState::CopyDestination);
+    transferPass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+      { ctx.GetCommandEncoder()->CopyTexture(ctx.ResolveTexture(hDepthCopy), ctx.ResolveTexture(hDepthStencil)); });
+
+    hResolvedDepth = hDepthCopy;
+  }
+
   // Create temp scene color texture
   const ezGALTextureCreationDescription colorDesc = ref_graph.GetTextureDesc(hColor);
   ezGALTextureCreationDescription sceneColorDesc;

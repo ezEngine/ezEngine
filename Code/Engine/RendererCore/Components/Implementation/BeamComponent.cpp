@@ -233,16 +233,16 @@ void ezBeamComponent::CreateMeshes()
   //
   //  4        2
   ezVec3 crossVector1 = (0.5f * ezVec3::MakeAxisY() + 0.5f * ezVec3::MakeAxisZ());
-  crossVector1.SetLength(m_fWidth * 0.5f).IgnoreResult();
+  crossVector1.SetLength(m_fWidth * 0.5f).AssertSuccess();
 
   ezVec3 crossVector2 = (0.5f * ezVec3::MakeAxisY() - 0.5f * ezVec3::MakeAxisZ());
-  crossVector2.SetLength(m_fWidth * 0.5f).IgnoreResult();
+  crossVector2.SetLength(m_fWidth * 0.5f).AssertSuccess();
 
   ezVec3 crossVector3 = (-0.5f * ezVec3::MakeAxisY() + 0.5f * ezVec3::MakeAxisZ());
-  crossVector3.SetLength(m_fWidth * 0.5f).IgnoreResult();
+  crossVector3.SetLength(m_fWidth * 0.5f).AssertSuccess();
 
   ezVec3 crossVector4 = (-0.5f * ezVec3::MakeAxisY() - 0.5f * ezVec3::MakeAxisZ());
-  crossVector4.SetLength(m_fWidth * 0.5f).IgnoreResult();
+  crossVector4.SetLength(m_fWidth * 0.5f).AssertSuccess();
 
   const float fDistance = (m_vLastOwnerPosition - m_vLastTargetPosition).GetLength();
 
@@ -253,29 +253,44 @@ void ezBeamComponent::CreateMeshes()
   {
     ezGeometry g;
 
-    // Quad 1
+    const float fMaxU = fDistance * m_fUVUnitsPerWorldUnit;
+
+    // Each quad is double sided. The back side needs its own vertices with a flipped normal,
+    // otherwise the normal can't be perpendicular to the surface on both sides.
+    // The normal must never lie in the quad's plane (e.g. +X for a beam along X), because then the tangent
+    // (which follows the U direction along the beam) ends up parallel to the normal, the bitangent becomes zero
+    // and normalizing it in the vertex shader produces NaNs.
+    auto AddQuad = [&](const ezVec3& vCornerA, const ezVec3& vCornerB)
     {
-      ezUInt32 index0 = g.AddVertex(ezVec3::MakeZero() + crossVector1, ezVec3::MakeAxisX(), ezVec2(0, 0), ezColor::White);
-      ezUInt32 index1 = g.AddVertex(ezVec3::MakeZero() + crossVector4, ezVec3::MakeAxisX(), ezVec2(0, 1), ezColor::White);
-      ezUInt32 index2 = g.AddVertex(targetPositionInOwnerSpace + crossVector1, ezVec3::MakeAxisX(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 0), ezColor::White);
-      ezUInt32 index3 = g.AddVertex(targetPositionInOwnerSpace + crossVector4, ezVec3::MakeAxisX(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 1), ezColor::White);
+      const ezVec3 p0 = vCornerA;
+      const ezVec3 p1 = vCornerB;
+      const ezVec3 p2 = targetPositionInOwnerSpace + vCornerA;
+      const ezVec3 p3 = targetPositionInOwnerSpace + vCornerB;
 
-      ezUInt32 indices[] = {index0, index2, index3, index1};
-      g.AddPolygon(ezArrayPtr(indices), false);
-      g.AddPolygon(ezArrayPtr(indices), true);
-    }
+      ezVec3 vNormal;
+      if (vNormal.CalculateNormal(p0, p2, p3).Failed())
+      {
+        // degenerate quad (target lies along the quad's width axis), any normal perpendicular to it is fine
+        vNormal = (vCornerB - vCornerA).GetOrthogonalVector().GetNormalized();
+      }
 
-    // Quad 2
-    {
-      ezUInt32 index0 = g.AddVertex(ezVec3::MakeZero() + crossVector2, ezVec3::MakeAxisX(), ezVec2(0, 0), ezColor::White);
-      ezUInt32 index1 = g.AddVertex(ezVec3::MakeZero() + crossVector3, ezVec3::MakeAxisX(), ezVec2(0, 1), ezColor::White);
-      ezUInt32 index2 = g.AddVertex(targetPositionInOwnerSpace + crossVector2, ezVec3::MakeAxisX(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 0), ezColor::White);
-      ezUInt32 index3 = g.AddVertex(targetPositionInOwnerSpace + crossVector3, ezVec3::MakeAxisX(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 1), ezColor::White);
+      for (ezUInt32 uiSide = 0; uiSide < 2; ++uiSide)
+      {
+        const bool bBackSide = uiSide == 1;
+        const ezVec3 vSideNormal = bBackSide ? -vNormal : vNormal;
 
-      ezUInt32 indices[] = {index0, index2, index3, index1};
-      g.AddPolygon(ezArrayPtr(indices), false);
-      g.AddPolygon(ezArrayPtr(indices), true);
-    }
+        ezUInt32 index0 = g.AddVertex(p0, vSideNormal, ezVec2(0, 0), ezColor::White);
+        ezUInt32 index1 = g.AddVertex(p1, vSideNormal, ezVec2(0, 1), ezColor::White);
+        ezUInt32 index2 = g.AddVertex(p2, vSideNormal, ezVec2(fMaxU, 0), ezColor::White);
+        ezUInt32 index3 = g.AddVertex(p3, vSideNormal, ezVec2(fMaxU, 1), ezColor::White);
+
+        ezUInt32 indices[] = {index0, index2, index3, index1};
+        g.AddPolygon(ezArrayPtr(indices), bBackSide);
+      }
+    };
+
+    AddQuad(crossVector1, crossVector4);
+    AddQuad(crossVector2, crossVector3);
 
     g.ComputeTangents();
 
