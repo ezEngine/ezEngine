@@ -146,3 +146,8 @@ constexpr EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::CombineHashValues32(ezUInt32
   // See boost::hash_combine
   return ui0 ^ (ui1 + 0x9e3779b9 + (ui0 << 6) + (ui1 >> 2));
 }
+
+EZ_ALWAYS_INLINE ezUInt64 ezHashingUtils::CombineHashValues64(ezUInt64 ui0, ezUInt64 ui1)
+{
+  return xxHash64(&ui1, sizeof(ui1), ui0);
+}

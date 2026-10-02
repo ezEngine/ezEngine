@@ -475,63 +475,43 @@ namespace
     return ezStatus(EZ_SUCCESS);
   }
 
-  ezStatus WriteOutputSize(ezStringView sFilePath, ezUInt8 uiOutputWidth, ezUInt8 uiOutputHeight)
+  ezUInt64 GetFileContentHash(ezStringView sFilePath)
+  {
+    ezStringBuilder sAbsolutePath = sFilePath;
+    if (!sAbsolutePath.IsAbsolutePath() && !ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsolutePath))
+      return 0;
+
+    sAbsolutePath.MakeCleanPath();
+    if (!ezOSFile::ExistsFile(sAbsolutePath))
+      return 0;
+
+    ezFileStatus status;
+    if (ezFileSystemModel::GetSingleton()->HashFile(sAbsolutePath, status).Failed())
+      return 0;
+
+    return status.m_uiHash;
+  }
+
+  ezStatus WriteHashFile(ezStringView sFilePath, ezUInt64 uiHash)
   {
     ezFileWriter writer;
     EZ_SUCCEED_OR_RETURN(writer.Open(sFilePath));
 
-    ezStringBuilder tmp;
-    tmp.SetFormat("{}x{}", uiOutputWidth, uiOutputHeight);
-
-    EZ_SUCCEED_OR_RETURN(writer.WriteBytes(tmp.GetData(), tmp.GetElementCount()));
+    writer << uiHash;
 
     return ezStatus(EZ_SUCCESS);
   }
 
-  bool HasOutputSizeChanged(ezStringView sFilePath, ezUInt8 uiOutputWidth, ezUInt8 uiOutputHeight)
+  bool IsHashFileUpToDate(ezStringView sFilePath, ezUInt64 uiExpectedHash)
   {
     ezFileReader reader;
     if (reader.Open(sFilePath).Failed())
-      return true;
+      return false;
 
-    ezStringBuilder tmp;
-    tmp.ReadAll(reader);
+    ezUInt64 uiHash = 0;
+    reader >> uiHash;
 
-    ezTempHybridArray<ezStringView, 2> sizes;
-    tmp.Split(false, sizes, "x");
-
-    if (sizes.GetCount() != 2)
-      return true;
-
-    ezUInt32 uiSize = 0;
-    if (ezConversionUtils::StringToUInt(sizes[0], uiSize).Failed() || uiSize != uiOutputWidth)
-      return true;
-
-    if (ezConversionUtils::StringToUInt(sizes[1], uiSize).Failed() || uiSize != uiOutputHeight)
-      return true;
-
-    return false;
-  }
-
-  ezTimestamp GetModifiedTimestamp(ezStringView sFilePath)
-  {
-    ezFileStatus status;
-    if (ezFileSystemModel::GetSingleton()->FindFile(sFilePath, status).Succeeded())
-    {
-      return status.m_LastModified;
-    }
-
-    ezFileStats stats;
-    if (sFilePath.IsAbsolutePath() && ezOSFile::GetFileStats(sFilePath, stats).Succeeded())
-    {
-      return stats.m_LastModificationTime;
-    }
-    else if (ezFileSystem::GetFileStats(sFilePath, stats).Succeeded())
-    {
-      return stats.m_LastModificationTime;
-    }
-
-    return ezTimestamp();
+    return uiHash == uiExpectedHash;
   }
 
 } // namespace
@@ -690,14 +670,12 @@ ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const 
   EZ_SUCCEED_OR_RETURN(GetTempDir(sTempDir));
   EZ_SUCCEED_OR_RETURN(ezOSFile::CreateDirectoryStructure(sTempDir));
 
-  ezTimestamp latestDependencyTimestamp;
+  // Hash the content of all inputs
+  ezUInt64 uiDependenciesHash = 1;
   for (auto& sDependency : GetAssetDocumentInfo()->m_TransformDependencies)
   {
-    ezTimestamp dependencyTimestamp = GetModifiedTimestamp(sDependency);
-    if (dependencyTimestamp.Compare(latestDependencyTimestamp, ezTimestamp::CompareMode::Newer))
-    {
-      latestDependencyTimestamp = dependencyTimestamp;
-    }
+    uiDependenciesHash = ezHashingUtils::CombineHashValues64(uiDependenciesHash, ezHashingUtils::StringHash(sDependency));
+    uiDependenciesHash = ezHashingUtils::CombineHashValues64(uiDependenciesHash, GetFileContentHash(sDependency));
   }
 
   ezStringView sPackageName = sAbsolutePackagePath.GetFileName();
@@ -706,17 +684,24 @@ ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const 
   sSbsarPath.AppendPath(sPackageName);
   sSbsarPath.Append(".sbsar");
 
-  ezTimestamp sbsarTimestamp = GetModifiedTimestamp(sSbsarPath);
+  ezStringBuilder sSbsarHashFilePath = sSbsarPath;
+  sSbsarHashFilePath.Append(".hash");
 
   if (transformFlags.IsSet(ezTransformFlags::ForceTransform) ||
-      latestDependencyTimestamp.Compare(sbsarTimestamp, ezTimestamp::CompareMode::Newer))
+      ezOSFile::ExistsFile(sSbsarPath) == false ||
+      IsHashFileUpToDate(sSbsarHashFilePath, uiDependenciesHash) == false)
   {
     EZ_SUCCEED_OR_RETURN(RunSbsCooker(sAbsolutePackagePath, sTempDir));
-
-    sbsarTimestamp = ezTimestamp::CurrentTimestamp();
+    EZ_SUCCEED_OR_RETURN(WriteHashFile(sSbsarHashFilePath, uiDependenciesHash));
   }
 
-  ezStringBuilder sOutputName, sPngPath, sTargetFile, sOutputSizeFilePath;
+  const ezUInt64 uiSbsarHash = GetFileContentHash(sSbsarPath);
+  if (uiSbsarHash == 0)
+  {
+    return ezStatus(ezFmt("Failed to read cooked substance archive '{}'", sSbsarPath));
+  }
+
+  ezStringBuilder sOutputName, sPngPath, sTargetFile, sRenderHashFilePath;
   auto& textureTypeDesc = static_cast<const ezSubstancePackageAssetDocumentManager*>(GetDocumentManager())->GetTextureTypeDesc();
   const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
   auto pAssetConfig = pAssetProfile->GetTypeConfig<ezTextureAssetProfileConfig>();
@@ -741,29 +726,47 @@ ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const 
       pngPaths.PushBack(sPngPath);
     }
 
-    sOutputSizeFilePath = sSbsarPath.GetFileDirectory();
-    sOutputSizeFilePath.AppendPath(sPackageName);
-    sOutputSizeFilePath.Append("_", graph.m_sName, "_OutputSize.txt");
+    sRenderHashFilePath = sSbsarPath.GetFileDirectory();
+    sRenderHashFilePath.AppendPath(sPackageName);
+    sRenderHashFilePath.Append("_", graph.m_sName, "_Render.hash");
 
-    ezTimestamp outputSizeTimestamp = GetModifiedTimestamp(sOutputSizeFilePath);
+    ezUInt64 uiRenderHash = ezHashingUtils::CombineHashValues64(uiSbsarHash, ezHashingUtils::StringHash(graph.m_sName));
+    uiRenderHash = ezHashingUtils::CombineHashValues64(uiRenderHash, graph.m_uiOutputWidth);
+    uiRenderHash = ezHashingUtils::CombineHashValues64(uiRenderHash, graph.m_uiOutputHeight);
+
+    bool bOutputsMissing = false;
+    for (auto& png : pngPaths)
+    {
+      if (ezOSFile::ExistsFile(png) == false)
+      {
+        bOutputsMissing = true;
+        break;
+      }
+    }
 
     if (transformFlags.IsSet(ezTransformFlags::ForceTransform) ||
-        sbsarTimestamp.Compare(outputSizeTimestamp, ezTimestamp::CompareMode::Newer) ||
-        HasOutputSizeChanged(sOutputSizeFilePath, graph.m_uiOutputWidth, graph.m_uiOutputHeight))
+        bOutputsMissing ||
+        IsHashFileUpToDate(sRenderHashFilePath, uiRenderHash) == false)
     {
+      // Remove stale outputs so we can detect below whether sbsrender actually wrote new ones.
+      ezOSFile::DeleteFile(sRenderHashFilePath).IgnoreResult();
+      for (auto& png : pngPaths)
+      {
+        ezOSFile::DeleteFile(png).IgnoreResult();
+      }
+
       ezStatus sbsRenderStatus = RunSbsRender(sSbsarPath, graph.m_sName, nullptr, nullptr, sTempDir, graph.m_uiOutputWidth, graph.m_uiOutputHeight);
       if (sbsRenderStatus.Failed())
       {
         // sbsrender.exe sometimes crashes on exit but has written all the outputs anyways so check here whether this was the case
         for (auto& png : pngPaths)
         {
-          ezTimestamp pngTimestamp = GetModifiedTimestamp(png);
-          if (sbsarTimestamp.Compare(pngTimestamp, ezTimestamp::CompareMode::Newer))
+          if (ezOSFile::ExistsFile(png) == false)
             return sbsRenderStatus;
         }
       }
 
-      EZ_SUCCEED_OR_RETURN(WriteOutputSize(sOutputSizeFilePath, graph.m_uiOutputWidth, graph.m_uiOutputHeight));
+      EZ_SUCCEED_OR_RETURN(WriteHashFile(sRenderHashFilePath, uiRenderHash));
     }
 
     ezUInt32 uiOutputIndex = 0;

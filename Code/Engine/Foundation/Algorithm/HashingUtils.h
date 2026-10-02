@@ -65,6 +65,9 @@ public:
 
   /// Combines two 32 bit hash values into one.
   constexpr static ezUInt32 CombineHashValues32(ezUInt32 ui0, ezUInt32 ui1);
+
+  /// Combines two 64 bit hash values into one.
+  static ezUInt64 CombineHashValues64(ezUInt64 ui0, ezUInt64 ui1);
 };
 
 /// Helper struct to calculate the Hash of different types.
