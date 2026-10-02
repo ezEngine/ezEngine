@@ -12,6 +12,11 @@ EZ_BEGIN_ABSTRACT_DYNAMIC_REFLECTED_TYPE(ezSwitchBasePass, 1)
     EZ_ARRAY_MEMBER_PROPERTY("Values", m_Values)->AddAttributes(new ezMaxArraySizeAttribute(ezSwitchBasePass::s_uiMaxInputs), new ezNoTemporaryTransactionsAttribute()),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Logic")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_ABSTRACT_DYNAMIC_REFLECTED_TYPE;
 

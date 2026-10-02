@@ -870,15 +870,16 @@ void ezQtVisualGraphScene::OpenSearchMenu(QPoint screenPos)
   // add the recently used ones at the top
   {
     ezInt32 iToAdd = 8;
+    const auto& lru = ezQtSearchableMenuRecentList::GetList(m_sRecentListName);
 
-    for (const ezString& sRecent : ezQtSearchableMenuRecentList::GetList(m_sRecentListName))
+    for (const ezString& sRecent : lru)
     {
       const ezUInt32 uiIndex = m_NodeCreationTemplatePaths.IndexOf(sRecent);
 
       if (uiIndex == ezInvalidIndex)
         continue;
 
-      sFullPath.Set(" *** RECENT ***/", m_NodeCreationTemplatePaths[uiIndex].GetView());
+      sFullPath.Set(" *** RECENT ***/", m_NodeCreationTemplatePaths[uiIndex].GetFileName());
 
       pSearchMenu->AddItem(templateNames[uiIndex], sFullPath, QVariant::fromValue(uiIndex));
 

@@ -91,7 +91,7 @@ void ezQtVisualGraphCommentNode::UpdateState()
 
 void ezQtVisualGraphCommentNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-  if (GetFlags().IsSet(ezQtVisualGraphNodeFlags::UpdateTitle))
+  if (m_DirtyFlags.IsSet(ezQtVisualGraphNodeFlags::UpdateTitle))
   {
     UpdateState();
     // Only rebuild geometry from document if we're not actively resizing
@@ -99,6 +99,8 @@ void ezQtVisualGraphCommentNode::paint(QPainter* painter, const QStyleOptionGrap
     {
       UpdateGeometry();
     }
+
+    m_DirtyFlags.Remove(ezQtVisualGraphNodeFlags::UpdateTitle);
   }
 
   auto palette = QApplication::palette();

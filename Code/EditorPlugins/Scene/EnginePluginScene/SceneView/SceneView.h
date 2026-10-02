@@ -8,7 +8,6 @@ class ezView;
 class ezViewRedrawMsgToEngine;
 class ezEngineProcessDocumentContext;
 class ezEditorEngineDocumentMsg;
-class ezEditorRenderPass;
 class ezSelectedObjectsExtractorBase;
 class ezSceneContext;
 using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;

@@ -103,11 +103,11 @@ protected:
   QGraphicsTextItem* m_pTitleLabel = nullptr;
   QGraphicsTextItem* m_pSubtitleLabel = nullptr;
   QGraphicsPixmapItem* m_pIcon = nullptr;
+  ezBitflags<ezQtVisualGraphNodeFlags> m_DirtyFlags;
 
 private:
   const ezVisualGraphObjectManager* m_pManager = nullptr;
   const ezDocumentObject* m_pObject = nullptr;
-  ezBitflags<ezQtVisualGraphNodeFlags> m_DirtyFlags;
 
   bool m_bIsActive = true;
 
