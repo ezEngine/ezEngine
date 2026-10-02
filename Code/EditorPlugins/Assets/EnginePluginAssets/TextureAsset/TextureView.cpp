@@ -18,16 +18,17 @@ ezTextureViewContext::~ezTextureViewContext() = default;
 ezViewHandle ezTextureViewContext::CreateView()
 {
   ezView* pView = CreateDefaultView("Texture Editor - View");
-  pView->SetRenderPipelineResource(CreateDebugRenderPipeline());
-  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("DepthPrePass.Active"), false);
-  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("AOPass.Active"), false);
+  pView->SetRenderPipelineResource(CreateDefaultEditorRenderPipeline());
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Editor-PostProcessing"), false);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Renderer-SSAO"), false);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Renderer-SSS"), false);
 
   return pView->GetHandle();
 }
 
 void ezTextureViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
-  // Do not apply render mode here otherwise we would switch to a different pipeline.
+  // Not calling the base class, it would apply the render mode and re-enable post processing.
   // Also use hard-coded clipping planes so the quad is not culled too early.
 
   ezCameraMode::Enum cameraMode = (ezCameraMode::Enum)pMsg->m_iCameraMode;

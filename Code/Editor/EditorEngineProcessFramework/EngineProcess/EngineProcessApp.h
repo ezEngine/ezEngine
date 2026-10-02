@@ -32,8 +32,7 @@ public:
   virtual ezViewHandle CreateRemoteWindowAndView(ezCamera* pCamera);
   void DestroyRemoteWindow();
 
-  virtual ezRenderPipelineResourceHandle CreateDefaultMainRenderPipeline();
-  virtual ezRenderPipelineResourceHandle CreateDefaultDebugRenderPipeline();
+  virtual ezRenderPipelineResourceHandle CreateDefaultEditorRenderPipeline();
 
 protected:
   virtual void CreateRemoteWindow();

@@ -445,6 +445,7 @@ void ezGpuPipelineTest::SetupSubTests()
   AddSubTest("IncompatiblePinConnection", SubTests::ST_IncompatiblePinConnection);
   AddSubTest("SharedSourceSwitch", SubTests::ST_SharedSourceSwitch);
   AddSubTest("RenderScale", SubTests::ST_RenderScale);
+  AddSubTest("SwitchPassThrough", SubTests::ST_SwitchPassThrough);
 }
 
 ezResult ezGpuPipelineTest::InitializeSubTest(ezInt32 iIdentifier)
@@ -511,6 +512,9 @@ ezTestAppRun ezGpuPipelineTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoc
       break;
     case SubTests::ST_RenderScale:
       RenderScale();
+      break;
+    case SubTests::ST_SwitchPassThrough:
+      SwitchPassThrough();
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -1436,4 +1440,104 @@ void ezGpuPipelineTest::IncompatiblePinConnection()
   EZ_TEST_BOOL(GetInput(executionOrder, "Sink", 0).m_Connectivity == Connectivity::None);
   EZ_TEST_BOOL(GetInput(executionOrder, "Sink", 2).m_Connectivity == Connectivity::None);
   TestPinsEqual(GetOutput(executionOrder, "Source", 0), GetInput(executionOrder, "Sink", 1), Connectivity::Texture);
+}
+
+void ezGpuPipelineTest::SwitchPassThrough()
+{
+  auto AddSwitch = [](ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>>& ref_passes)
+  {
+    ezUniquePtr<ezTextureSwitchPass> pSwitch = EZ_DEFAULT_NEW(ezTextureSwitchPass);
+    pSwitch->SetName("Switch");
+    pSwitch->m_sBlackboardProperty = "Optional";
+    pSwitch->m_Values.PushBack(0);
+    pSwitch->m_Values.PushBack(1);
+    const ezUInt32 uiIndex = ref_passes.GetCount();
+    ref_passes.PushBack(std::move(pSwitch));
+    return uiIndex;
+  };
+
+  // An optional in-place pass: Source -> Switch[0: Source, 1: Source -> Optional] -> Final -> Sink.
+  // Optional and Final both modify the same resource in place, but never at the same time, so both selections are valid.
+  {
+    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
+    const ezUInt32 uiSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "Source");
+    const ezUInt32 uiOptional = AddPass<ezGpuPipelineTestPassThroughPass>(passes, "Optional");
+    const ezUInt32 uiSwitch = AddSwitch(passes);
+    const ezUInt32 uiFinal = AddPass<ezGpuPipelineTestPassThroughPass>(passes, "Final");
+    const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+
+    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    Connect(connections, uiSource, "Output", uiSwitch, "0");
+    Connect(connections, uiSource, "Output", uiOptional, "Pin");
+    Connect(connections, uiOptional, "Pin", uiSwitch, "1");
+    Connect(connections, uiSwitch, "Output", uiFinal, "Pin");
+    Connect(connections, uiFinal, "Pin", uiSink, "InputA");
+
+    ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+
+    {
+      ezDynamicArray<RecordedPass> executionOrder;
+      CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
+      const char* expectedOrder[] = {"Source", "Final", "Sink"};
+      TestExecutionOrder(executionOrder, expectedOrder);
+    }
+
+    EZ_TEST_BOOL(pPipeline->SetSwitchValue(0, 1));
+
+    {
+      ezDynamicArray<RecordedPass> executionOrder;
+      CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
+      const char* expectedOrder[] = {"Source", "Optional", "Final", "Sink"};
+      TestExecutionOrder(executionOrder, expectedOrder);
+    }
+  }
+
+  // A reader of the source has to run before an in-place pass behind the switch: Source -> Switch[0] -> Writer -> Sink.InputA, Source -> Reader -> Sink.InputB.
+  {
+    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
+    const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+    const ezUInt32 uiWriter = AddPass<ezGpuPipelineTestPassThroughPass>(passes, "Writer");
+    const ezUInt32 uiSwitch = AddSwitch(passes);
+    const ezUInt32 uiReader = AddPass<ezGpuPipelineTestPass>(passes, "Reader");
+    const ezUInt32 uiSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "Source");
+
+    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    Connect(connections, uiSource, "Output", uiSwitch, "0");
+    Connect(connections, uiSource, "Output", uiReader, "Input");
+    Connect(connections, uiSwitch, "Output", uiWriter, "Pin");
+    Connect(connections, uiWriter, "Pin", uiSink, "InputA");
+    Connect(connections, uiReader, "Output", uiSink, "InputB");
+
+    ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+
+    ezDynamicArray<RecordedPass> executionOrder;
+    CompileAndExecute(*pPipeline, *m_pRenderGraph, executionOrder);
+    const char* expectedOrder[] = {"Source", "Reader", "Writer", "Sink"};
+    TestExecutionOrder(executionOrder, expectedOrder);
+  }
+
+  // Two in-place passes on the same resource that are alive at the same time: Source -> Switch[0] -> WriterA -> Sink.InputA, Source -> WriterB -> Sink.InputB.
+  {
+    ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> passes;
+    const ezUInt32 uiSource = AddPass<ezGpuPipelineTestSourcePass>(passes, "Source");
+    const ezUInt32 uiSwitch = AddSwitch(passes);
+    const ezUInt32 uiWriterA = AddPass<ezGpuPipelineTestPassThroughPass>(passes, "WriterA");
+    const ezUInt32 uiWriterB = AddPass<ezGpuPipelineTestPassThroughPass>(passes, "WriterB");
+    const ezUInt32 uiSink = AddPass<ezGpuPipelineTestSinkPass>(passes, "Sink");
+
+    ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+    Connect(connections, uiSource, "Output", uiSwitch, "0");
+    Connect(connections, uiSource, "Output", uiWriterB, "Pin");
+    Connect(connections, uiSwitch, "Output", uiWriterA, "Pin");
+    Connect(connections, uiWriterA, "Pin", uiSink, "InputA");
+    Connect(connections, uiWriterB, "Pin", uiSink, "InputB");
+
+    ezUniquePtr<ezRenderPipelinePassGraph> pPipeline = CreatePipeline(std::move(passes), connections);
+    EZ_TEST_RESULT(pPipeline->CullDeadPasses());
+
+    ezTestLogInterface log;
+    ezTestLogSystemScope logSystemScope(&log, true);
+    log.ExpectMessage("both modify the same resource in place", ezLogMsgType::ErrorMsg);
+    EZ_TEST_BOOL(pPipeline->SortPasses().Failed());
+  }
 }

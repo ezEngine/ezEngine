@@ -31,7 +31,9 @@ public:
 
   /// Brings the alive passes into an execution order. Requires CullDeadPasses to have run.
   ///
-  /// Fails if the alive part of the graph contains a cycle. Two pass-through consumers on the same output are also a cycle, because each of them has to run after the other.
+  /// A pass-through input runs after all other consumers of the same resource, also those behind switches.
+  ///
+  /// Fails if the alive part of the graph contains a cycle, or if two alive pass-through inputs modify the same resource.
   ezResult SortPasses();
 
   ezArrayPtr<ezUniquePtr<ezRenderPipelinePass>> GetPasses() { return m_Passes; }
@@ -41,6 +43,9 @@ public:
   ezRenderPipelinePass* GetPassByName(ezStringView sName) const;
   ezExtractor* GetExtractorByName(ezStringView sName) const;
   ezArrayPtr<const SwitchInfo> GetSwitches() const { return m_Switches; }
+
+  /// Returns false for unknown passes and before the first CullDeadPasses.
+  bool IsPassAlive(const ezRenderPipelinePass* pPass) const;
 
   /// \return Whether the selection changed, in which case CullDeadPasses and SortPasses have to run again.
   bool SetSwitchValue(ezUInt32 uiSwitchIndex, ezInt32 iValue);

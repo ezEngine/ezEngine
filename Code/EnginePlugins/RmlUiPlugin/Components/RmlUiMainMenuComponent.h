@@ -124,6 +124,9 @@ protected:
 
   void LoadSoundGroupVolumes();
 
+  /// Writes the renderer options into the world blackboard, for the render pipeline switches.
+  void SyncRendererSettings();
+
   /// m_SoundGroups is a property and may change while the component is active, e.g. when it is edited during play-the-game.
   void SyncSoundGroupVolumes();
   void SaveSoundGroupVolumes() const;

@@ -79,11 +79,8 @@ public:
   /// \name New Render Graph Interface
   ///@{
 
-  /// Called by the render pipeline when this pass is active. The pass declares its render-graph passes and writes the resulting transient handles into the `outputs` array.
+  /// Called by the render pipeline for every pass that is not culled. The pass declares its render-graph passes and writes the resulting transient handles into the `outputs` array.
   virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) { return EZ_SUCCESS; }
-
-  /// Called by the render pipeline when this pass is inactive instead of AddRenderPasses. The default implementation does nothing; passes that produce outputs must override this and at minimum write the same output handles they would in AddRenderPasses (typically by adding a clear pass) so downstream passes still see a valid resource.
-  virtual ezStatus AddRenderPassesInactive(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) { return EZ_SUCCESS; }
 
   /// Returns the current texture this node provides at the given *ProviderPin.
   /// This function is called every frame if this node holds a ezRenderPipelineNodeInputProviderPin or ezRenderPipelineNodeOutputProviderPin pin. The node can return a valid texture handle, or an invalid handle, in which case the missing texture will be created from the texture pool.
@@ -122,8 +119,6 @@ protected:
 private:
   friend class ezRenderPipeline;
   friend class ezRenderPipelinePassGraph;
-
-  bool m_bActive = true;
 
   const bool m_bIsStereoAware;
   ezHashedString m_sName;
