@@ -346,9 +346,24 @@ void ezGreyBoxComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& 
   props["Thickness"].m_Visibility = ezPropertyUiState::Invisible;
   props["SlopedTop"].m_Visibility = ezPropertyUiState::Invisible;
   props["SlopedBottom"].m_Visibility = ezPropertyUiState::Invisible;
+  props["BaseRadiusScale"].m_Visibility = ezPropertyUiState::Invisible;
+  props["TopRadiusScale"].m_Visibility = ezPropertyUiState::Invisible;
+  props["Sides"].m_Visibility = ezPropertyUiState::Invisible;
+  props["HeightSegments"].m_Visibility = ezPropertyUiState::Invisible;
+  props["ProfileCurve"].m_Visibility = ezPropertyUiState::Invisible;
+  props["SmoothShading"].m_Visibility = ezPropertyUiState::Invisible;
+
 
   switch (iShapeType)
   {
+    case ezGreyBoxShape::Cone:
+      props["BaseRadiusScale"].m_Visibility = ezPropertyUiState::Default;
+      props["TopRadiusScale"].m_Visibility = ezPropertyUiState::Default;
+      props["Sides"].m_Visibility = ezPropertyUiState::Default;
+      props["HeightSegments"].m_Visibility = ezPropertyUiState::Default;
+      props["ProfileCurve"].m_Visibility = ezPropertyUiState::Default;
+      props["SmoothShading"].m_Visibility = ezPropertyUiState::Default;
+      break;
     case ezGreyBoxShape::Box:
       break;
     case ezGreyBoxShape::RampPosX:
