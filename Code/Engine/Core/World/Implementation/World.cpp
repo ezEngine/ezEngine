@@ -1360,7 +1360,24 @@ void ezWorld::ProcessUpdateFunctionsToRegister()
       }
     }
 
-    EZ_ASSERT_DEV(m_Data.m_UpdateFunctionsToRegister.GetCount() < uiNumFunctionsToRegister, "No functions have been registered because the dependencies could not be found.");
+    if (m_Data.m_UpdateFunctionsToRegister.GetCount() == uiNumFunctionsToRegister)
+    {
+      ezStringBuilder sFunctions;
+      for (const auto& desc : m_Data.m_UpdateFunctionsToRegister)
+      {
+        sFunctions.AppendFormat("  {} (Phase: {}, Depends on: ", desc.m_sFunctionName, desc.m_Phase);
+
+        for (const auto& sDependency : desc.m_DependsOn)
+        {
+          sFunctions.Append(sDependency, ", ");
+        }
+
+        sFunctions.Append(")\n");
+      }
+
+      ezLog::Error("Could not register the following functions because the dependencies could not be found:\n{}", sFunctions);
+      return;
+    }
   }
 }
 
