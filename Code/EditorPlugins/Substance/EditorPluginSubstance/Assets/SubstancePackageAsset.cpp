@@ -475,15 +475,6 @@ namespace
     return ezStatus(EZ_SUCCESS);
   }
 
-  /// Increase when the content of the hash file changes in an incompatible way.
-  constexpr ezUInt64 s_uiHashFileVersion = 1;
-
-  ezUInt64 CombineHash(ezUInt64 uiHash, ezUInt64 uiValue)
-  {
-    return ezHashingUtils::xxHash64(&uiValue, sizeof(uiValue), uiHash);
-  }
-
-  /// Returns a hash of the file content, or 0 if the file doesn't exist or can't be read.
   ezUInt64 GetFileContentHash(ezStringView sFilePath)
   {
     ezStringBuilder sAbsolutePath = sFilePath;
@@ -680,11 +671,11 @@ ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const 
   EZ_SUCCEED_OR_RETURN(ezOSFile::CreateDirectoryStructure(sTempDir));
 
   // Hash the content of all inputs
-  ezUInt64 uiDependenciesHash = s_uiHashFileVersion;
+  ezUInt64 uiDependenciesHash = 1;
   for (auto& sDependency : GetAssetDocumentInfo()->m_TransformDependencies)
   {
-    uiDependenciesHash = CombineHash(uiDependenciesHash, ezHashingUtils::xxHash64String(sDependency));
-    uiDependenciesHash = CombineHash(uiDependenciesHash, GetFileContentHash(sDependency));
+    uiDependenciesHash = ezHashingUtils::CombineHashValues64(uiDependenciesHash, ezHashingUtils::StringHash(sDependency));
+    uiDependenciesHash = ezHashingUtils::CombineHashValues64(uiDependenciesHash, GetFileContentHash(sDependency));
   }
 
   ezStringView sPackageName = sAbsolutePackagePath.GetFileName();
@@ -739,9 +730,9 @@ ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const 
     sRenderHashFilePath.AppendPath(sPackageName);
     sRenderHashFilePath.Append("_", graph.m_sName, "_Render.hash");
 
-    ezUInt64 uiRenderHash = CombineHash(uiSbsarHash, ezHashingUtils::xxHash64String(graph.m_sName));
-    uiRenderHash = CombineHash(uiRenderHash, graph.m_uiOutputWidth);
-    uiRenderHash = CombineHash(uiRenderHash, graph.m_uiOutputHeight);
+    ezUInt64 uiRenderHash = ezHashingUtils::CombineHashValues64(uiSbsarHash, ezHashingUtils::StringHash(graph.m_sName));
+    uiRenderHash = ezHashingUtils::CombineHashValues64(uiRenderHash, graph.m_uiOutputWidth);
+    uiRenderHash = ezHashingUtils::CombineHashValues64(uiRenderHash, graph.m_uiOutputHeight);
 
     bool bOutputsMissing = false;
     for (auto& png : pngPaths)
