@@ -248,24 +248,6 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
   return EZ_SUCCESS;
 }
 
-ezStatus ezAOPass::AddRenderPassesInactive(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
-{
-  ezRenderGraphTextureHandle hDepthInput = inputs[m_PinDepthInput.m_uiInputIndex].m_TextureHandle;
-  if (hDepthInput.IsInvalidated())
-    return ezStatus(ezFmt("DepthInput pin: Not connected "));
-
-  ezGALTextureCreationDescription outputDesc = ref_graph.GetTextureDesc(hDepthInput);
-  outputDesc.m_Format = ezGALResourceFormat::RGHalf;
-
-  ezRenderGraphTextureHandle hSSAOOutput = ref_graph.CreateTexture(outputDesc);
-  outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hSSAOOutput;
-
-  auto pass = ref_graph.AddGraphicsPass("InactiveSSAO");
-  pass.AddColorTarget(hSSAOOutput, {}, ezGALRenderTargetLoadOp::Clear);
-  pass.SetClearColor(0, ezColor::White);
-  return EZ_SUCCESS;
-}
-
 ezResult ezAOPass::Serialize(ezStreamWriter& inout_stream) const
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));

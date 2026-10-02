@@ -40,6 +40,10 @@ public:
   void GetPasses(ezDynamicArray<const ezRenderPipelinePass*>& ref_passes) const;
   void GetPasses(ezDynamicArray<ezRenderPipelinePass*>& ref_passes);
   ezRenderPipelinePass* GetPassByName(const ezStringView& sPassName);
+
+  /// Whether the pass wasn't culled by the current switch values.
+  bool IsPassAlive(const ezRenderPipelinePass* pPass) const;
+
   ezHashedString GetViewName() const;
 
   void GetExtractors(ezDynamicArray<const ezExtractor*>& ref_extractors) const;

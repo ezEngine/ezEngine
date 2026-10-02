@@ -270,14 +270,8 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   ezView* pView = nullptr;
   if (ezRenderWorld::TryGetView(m_hView, pView) && pView->GetWorld() != nullptr)
   {
-    if (renderMode == ezViewRenderMode::None)
-    {
-      pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
-    }
-    else
-    {
-      pView->SetRenderPipelineResource(CreateDebugRenderPipeline());
-    }
+    pView->SetRenderPipelineResource(CreateDefaultEditorRenderPipeline());
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Editor-PostProcessing"), renderMode == ezViewRenderMode::None);
   }
 
   if (m_Camera.GetCameraMode() != ezCameraMode::Stereo)
@@ -313,8 +307,8 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     pView->SetViewRenderMode(renderMode);
 
     bool bUseDepthPrePass = renderMode != ezViewRenderMode::WireframeColor && renderMode != ezViewRenderMode::WireframeMonochrome;
-    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("DepthPrePass.Active"), bUseDepthPrePass);
-    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("AOPass.Active"), bUseDepthPrePass); // Also disable SSAO to save some performance
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Renderer-DepthPrePass"), bUseDepthPrePass);
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Renderer-SSAO"), bUseDepthPrePass); // Also disable SSAO to save some performance
 
     SetViewProperties(pView);
   }
@@ -324,18 +318,13 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 void ezEngineProcessViewContext::SetViewProperties(ezView* pView)
 {
   // by default this stuff is disabled, derived classes can enable it
-  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorSelectionPass.Active"), false);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Renderer-ShowSelection1"), false);
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorShapeIconsExtractor.Active"), false);
 }
 
-ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultRenderPipeline()
+ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultEditorRenderPipeline()
 {
-  return ezEditorEngineProcessApp::GetSingleton()->CreateDefaultMainRenderPipeline();
-}
-
-ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDebugRenderPipeline()
-{
-  return ezEditorEngineProcessApp::GetSingleton()->CreateDefaultDebugRenderPipeline();
+  return ezEditorEngineProcessApp::GetSingleton()->CreateDefaultEditorRenderPipeline();
 }
 
 ezView* ezEngineProcessViewContext::CreateDefaultView(ezStringView sName)
@@ -346,7 +335,7 @@ ezView* ezEngineProcessViewContext::CreateDefaultView(ezStringView sName)
 
   pView->SetBlackboard(ezBlackboard::Create(sName));
 
-  pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
+  pView->SetRenderPipelineResource(CreateDefaultEditorRenderPipeline());
 
   ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());

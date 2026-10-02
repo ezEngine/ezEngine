@@ -228,26 +228,6 @@ ezStatus ezBloomPass::AddRenderPasses(const ezViewData& viewData, const ezCamera
   return EZ_SUCCESS;
 }
 
-ezStatus ezBloomPass::AddRenderPassesInactive(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
-{
-  ezRenderGraphTextureHandle hColorInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
-  if (hColorInput.IsInvalidated())
-    return ezStatus(ezFmt("Input: Not connected"));
-
-  ezGALTextureCreationDescription outputDesc = ref_graph.GetTextureDesc(hColorInput);
-  outputDesc.m_uiWidth = outputDesc.m_uiWidth / 2;
-  outputDesc.m_uiHeight = outputDesc.m_uiHeight / 2;
-  outputDesc.m_Format = m_TextureFormat;
-
-  ezRenderGraphTextureHandle hColorOutput = ref_graph.CreateTexture(outputDesc);
-  outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hColorOutput;
-
-  auto pass = ref_graph.AddGraphicsPass("InactiveBloom");
-  pass.AddColorTarget(hColorOutput, {}, ezGALRenderTargetLoadOp::Clear);
-  pass.SetClearColor(0, ezColor::Black);
-  return EZ_SUCCESS;
-}
-
 ezResult ezBloomPass::Serialize(ezStreamWriter& inout_stream) const
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));

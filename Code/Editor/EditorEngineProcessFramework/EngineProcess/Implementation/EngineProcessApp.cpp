@@ -64,16 +64,10 @@ void ezEditorEngineProcessApp::DestroyRemoteWindow()
   m_hWindow.Invalidate();
 }
 
-ezRenderPipelineResourceHandle ezEditorEngineProcessApp::CreateDefaultMainRenderPipeline()
+ezRenderPipelineResourceHandle ezEditorEngineProcessApp::CreateDefaultEditorRenderPipeline()
 {
   // EditorRenderPipeline.ezRenderPipelineAsset
   return ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }");
-}
-
-ezRenderPipelineResourceHandle ezEditorEngineProcessApp::CreateDefaultDebugRenderPipeline()
-{
-  // DebugRenderPipeline.ezRenderPipelineAsset
-  return ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }");
 }
 
 ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCamera)

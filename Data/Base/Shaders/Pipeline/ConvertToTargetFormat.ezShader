@@ -1,0 +1,62 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+MSAA
+CAMERA_MODE
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
+#endif
+#if MSAA
+  // forces per-sample execution
+  uint SampleIndex : SV_SampleIndex;
+#endif
+};
+
+#if MSAA
+#  if EZ_ENABLED(SUPPORTS_MSAA_ARRAYS)
+Texture2DMSArray<float4> ColorTexture;
+#  else
+Texture2DMS<float4> ColorTexture;
+#  endif
+#else
+Texture2DArray ColorTexture;
+#endif
+
+float4 main(PS_IN Input) : SV_Target
+{
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+#endif
+
+#if MSAA
+#  if EZ_ENABLED(SUPPORTS_MSAA_ARRAYS)
+  return ColorTexture.Load(int3(Input.Position.xy, s_ActiveCameraEyeIndex), Input.SampleIndex);
+#  else
+  return ColorTexture.Load(int2(Input.Position.xy), Input.SampleIndex);
+#  endif
+#else
+  return ColorTexture.Load(int4(Input.Position.xy, s_ActiveCameraEyeIndex, 0));
+#endif
+}

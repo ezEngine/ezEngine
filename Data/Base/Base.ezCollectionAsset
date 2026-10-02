@@ -11,12 +11,11 @@ o
 		s %AssetType{"Collection"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2066776411180025002,5593963395639352612}}
-		u4 %Hash{5449322969311165397}
+		u4 %Hash{8266936950475262131}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
-			s{"{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }"}
 			s{"{ 05af8d07-0b38-44a6-8d50-49731ae2625d }"}
 			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 			s{"{ 3437db17-ddf1-4b67-b80f-9999d6b0c352 }"}
@@ -121,17 +120,6 @@ o
 }
 o
 {
-	Uuid %id{u4{15841434643504600453,5189127710015216666}}
-	s %t{"ezCollectionAssetEntry"}
-	u3 %v{1}
-	p
-	{
-		s %Asset{"{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }"}
-		s %Name{"DebugRenderPipeline"}
-	}
-}
-o
-{
 	Uuid %id{u4{9843875232151439547,5260300864113669357}}
 	s %t{"ezCollectionAssetEntry"}
 	u3 %v{1}
@@ -206,7 +194,6 @@ o
 		VarArray %Entries
 		{
 			Uuid{u4{18328151106742326184,5119346906323837388}}
-			Uuid{u4{15841434643504600453,5189127710015216666}}
 			Uuid{u4{12483491837972323769,4829791277533903051}}
 			Uuid{u4{14044756380909787563,5615951884312709094}}
 			Uuid{u4{5254467759299213759,5174205520157032136}}
