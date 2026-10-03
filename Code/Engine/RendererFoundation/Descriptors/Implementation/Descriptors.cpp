@@ -168,6 +168,7 @@ ezUInt32 ezGALBindGroupLayoutCreationDescription::CalculateHash() const
     writer << binding.m_iBindGroup;
     writer << binding.m_iSlot;
     writer << binding.m_uiArraySize;
+    writer << binding.m_Format.GetValue();
     writer << binding.m_sName;
     if (binding.m_pLayout != nullptr)
     {

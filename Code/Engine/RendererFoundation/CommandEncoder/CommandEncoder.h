@@ -138,6 +138,8 @@ public:
   /// Updates a texture region. Similar to UpdateBuffer with AheadOfTime. No state prerequisites are required.
   void UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox, const ezGALSystemMemoryDescription& sourceData);
 
+  /// Resolves a multisampled source subresource into a destination subresource.
+  ///
   /// destinationSubResource of hDest must be in ezGALResourceState::ResolveDestination. sourceSubResource of hSource must be in ezGALResourceState::ResolveSource.
   void ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& destinationSubResource, ezGALTextureHandle hSource, const ezGALTextureSubresource& sourceSubResource);
 

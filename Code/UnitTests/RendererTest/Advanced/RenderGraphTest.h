@@ -18,6 +18,7 @@ private:
     ST_EmptyGraph,
     ST_StressTest,
     ST_MsaaResolve,
+    ST_CrossGraphImportedTransitions,
   };
 
   virtual void SetupSubTests() override;
@@ -32,6 +33,7 @@ private:
   void ExecuteCallbacks();
   void EmptyGraph();
   void MsaaResolve();
+  void CrossGraphImportedTransitions();
   ezTestAppRun StressTestRenderGraph(ezUInt32 uiNumPasses);
 
 private:

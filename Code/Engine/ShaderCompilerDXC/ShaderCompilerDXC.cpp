@@ -13,52 +13,148 @@
 
 #include <dxcapi.h>
 
-template <typename T>
-struct ezComPtr
+namespace
 {
-public:
-  ezComPtr() = default;
-  ~ezComPtr()
+  template <typename T>
+  struct ezComPtr
   {
-    if (m_pPtr != nullptr)
+  public:
+    ezComPtr() = default;
+    ~ezComPtr()
     {
-      m_pPtr->Release();
-      m_pPtr = nullptr;
+      if (m_pPtr != nullptr)
+      {
+        m_pPtr->Release();
+        m_pPtr = nullptr;
+      }
     }
-  }
 
-  ezComPtr(const ezComPtr& other)
-    : m_pPtr(other.m_pPtr)
-  {
-    if (m_pPtr)
+    ezComPtr(const ezComPtr& other)
+      : m_pPtr(other.m_pPtr)
     {
-      m_pPtr->AddRef();
+      if (m_pPtr)
+      {
+        m_pPtr->AddRef();
+      }
     }
-  }
 
-  T* operator->() { return m_pPtr; }
-  T* const operator->() const { return m_pPtr; }
+    T* operator->() { return m_pPtr; }
+    T* const operator->() const { return m_pPtr; }
 
-  T** put()
+    T** put()
+    {
+      EZ_ASSERT_DEV(m_pPtr == nullptr, "Can only put into an empty ezComPtr");
+      return &m_pPtr;
+    }
+
+    bool operator==(nullptr_t)
+    {
+      return m_pPtr == nullptr;
+    }
+
+    bool operator!=(nullptr_t)
+    {
+      return m_pPtr != nullptr;
+    }
+
+  private:
+    T* m_pPtr = nullptr;
+  };
+
+
+  ezEnum<ezGALResourceFormat> ConvertImageFormat(SpvImageFormat image_format)
   {
-    EZ_ASSERT_DEV(m_pPtr == nullptr, "Can only put into an empty ezComPtr");
-    return &m_pPtr;
+    switch (image_format)
+    {
+      case SpvImageFormatRgba32f:
+        return ezGALResourceFormat::RGBAFloat;
+      case SpvImageFormatRgba16f:
+        return ezGALResourceFormat::RGBAHalf;
+      case SpvImageFormatR32f:
+        return ezGALResourceFormat::RFloat;
+      case SpvImageFormatRgba8:
+        return ezGALResourceFormat::RGBAUByteNormalized;
+      case SpvImageFormatRgba8Snorm:
+        return ezGALResourceFormat::RGBAByteNormalized;
+      case SpvImageFormatRg32f:
+        return ezGALResourceFormat::RGFloat;
+      case SpvImageFormatRg16f:
+        return ezGALResourceFormat::RGHalf;
+      case SpvImageFormatR11fG11fB10f:
+        return ezGALResourceFormat::RG11B10Float;
+      case SpvImageFormatR16f:
+        return ezGALResourceFormat::RHalf;
+      case SpvImageFormatRgba16:
+        return ezGALResourceFormat::RGBAUShortNormalized;
+      case SpvImageFormatRgb10A2:
+        return ezGALResourceFormat::RGB10A2UIntNormalized;
+      case SpvImageFormatRg16:
+        return ezGALResourceFormat::RGUShortNormalized;
+      case SpvImageFormatRg8:
+        return ezGALResourceFormat::RGUByteNormalized;
+      case SpvImageFormatR16:
+        return ezGALResourceFormat::RUShortNormalized;
+      case SpvImageFormatR8:
+        return ezGALResourceFormat::RUByteNormalized;
+      case SpvImageFormatRgba16Snorm:
+        return ezGALResourceFormat::RGBAShortNormalized;
+      case SpvImageFormatRg16Snorm:
+        return ezGALResourceFormat::RGShortNormalized;
+      case SpvImageFormatRg8Snorm:
+        return ezGALResourceFormat::RGByteNormalized;
+      case SpvImageFormatR16Snorm:
+        return ezGALResourceFormat::RShortNormalized;
+      case SpvImageFormatR8Snorm:
+        return ezGALResourceFormat::RByteNormalized;
+      case SpvImageFormatRgba32i:
+        return ezGALResourceFormat::RGBAInt;
+      case SpvImageFormatRgba16i:
+        return ezGALResourceFormat::RGBAShort;
+      case SpvImageFormatRgba8i:
+        return ezGALResourceFormat::RGBAByte;
+      case SpvImageFormatR32i:
+        return ezGALResourceFormat::RInt;
+      case SpvImageFormatRg32i:
+        return ezGALResourceFormat::RGInt;
+      case SpvImageFormatRg16i:
+        return ezGALResourceFormat::RGShort;
+      case SpvImageFormatRg8i:
+        return ezGALResourceFormat::RGByte;
+      case SpvImageFormatR16i:
+        return ezGALResourceFormat::RShort;
+      case SpvImageFormatR8i:
+        return ezGALResourceFormat::RByte;
+      case SpvImageFormatRgba32ui:
+        return ezGALResourceFormat::RGBAUInt;
+      case SpvImageFormatRgba16ui:
+        return ezGALResourceFormat::RGBAUShort;
+      case SpvImageFormatRgba8ui:
+        return ezGALResourceFormat::RGBAUByte;
+      case SpvImageFormatR32ui:
+        return ezGALResourceFormat::RUInt;
+      case SpvImageFormatRgb10a2ui:
+        return ezGALResourceFormat::RGB10A2UInt;
+      case SpvImageFormatRg32ui:
+        return ezGALResourceFormat::RGUInt;
+      case SpvImageFormatRg16ui:
+        return ezGALResourceFormat::RGUShort;
+      case SpvImageFormatRg8ui:
+        return ezGALResourceFormat::RGUByte;
+      case SpvImageFormatR16ui:
+        return ezGALResourceFormat::RUShort;
+      case SpvImageFormatR8ui:
+        return ezGALResourceFormat::RUByte;
+      case SpvImageFormatUnknown:
+      case SpvImageFormatR64ui:
+      case SpvImageFormatR64i:
+      case SpvImageFormatMax:
+        return ezGALResourceFormat::Invalid;
+    }
+
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    return ezGALResourceFormat::Invalid;
   }
-
-  bool operator==(nullptr_t)
-  {
-    return m_pPtr == nullptr;
-  }
-
-  bool operator!=(nullptr_t)
-  {
-    return m_pPtr != nullptr;
-  }
-
-private:
-  T* m_pPtr = nullptr;
-};
-
+} // namespace
 ezComPtr<IDxcUtils> s_pDxcUtils;
 ezComPtr<IDxcCompiler3> s_pDxcCompiler;
 
@@ -632,6 +728,7 @@ ezResult ezShaderCompilerDXC::FillSRVResourceBinding(ezShaderResourceBinding& bi
     if (info.image.dim == SpvDim::SpvDimBuffer)
     {
       binding.m_ResourceType = ezGALShaderResourceType::TexelBuffer;
+      binding.m_Format = ConvertImageFormat(info.image.image_format);
       return EZ_SUCCESS;
     }
 
@@ -657,6 +754,7 @@ ezResult ezShaderCompilerDXC::FillUAVResourceBinding(ezShaderResourceBinding& bi
     if (info.image.dim == SpvDim::SpvDimBuffer)
     {
       binding.m_ResourceType = ezGALShaderResourceType::TexelBufferRW;
+      binding.m_Format = ConvertImageFormat(info.image.image_format);
       return EZ_SUCCESS;
     }
 

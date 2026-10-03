@@ -152,7 +152,7 @@ vk::RenderPass ezResourceCacheVulkan::RequestRenderPass(const ezGALRenderPassDes
     vkAttachment.storeOp = ezConversionUtilsVulkan::GetAttachmentStoreOp(renderPass.m_DepthStoreOp);
     vkAttachment.stencilLoadOp = ezConversionUtilsVulkan::GetAttachmentLoadOp(renderPass.m_StencilLoadOp);
     vkAttachment.stencilStoreOp = ezConversionUtilsVulkan::GetAttachmentStoreOp(renderPass.m_StencilStoreOp);
-    vkAttachment.initialLayout = vkAttachment.loadOp == vk::AttachmentLoadOp::eLoad || vkAttachment.stencilLoadOp == vk::AttachmentLoadOp::eLoad ? vk::ImageLayout::eDepthStencilAttachmentOptimal : vk::ImageLayout::eUndefined;
+    vkAttachment.initialLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
     vkAttachment.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
 
     vk::AttachmentReference& depthAttachment = depthAttachmentRefs.ExpandAndGetRef();
@@ -172,7 +172,7 @@ vk::RenderPass ezResourceCacheVulkan::RequestRenderPass(const ezGALRenderPassDes
     vkAttachment.storeOp = ezConversionUtilsVulkan::GetAttachmentStoreOp(renderPass.m_ColorStoreOp[i]);
     vkAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     vkAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-    vkAttachment.initialLayout = vkAttachment.loadOp == vk::AttachmentLoadOp::eLoad ? vk::ImageLayout::eColorAttachmentOptimal : vk::ImageLayout::eUndefined;
+    vkAttachment.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
     vkAttachment.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
 
     vk::AttachmentReference& colorAttachment = colorAttachmentRefs.ExpandAndGetRef();
@@ -188,28 +188,13 @@ vk::RenderPass ezResourceCacheVulkan::RequestRenderPass(const ezGALRenderPassDes
   subpass.pColorAttachments = bHasColor ? colorAttachmentRefs.GetData() : nullptr;
   subpass.pDepthStencilAttachment = bHasDepth ? depthAttachmentRefs.GetData() : nullptr;
 
-  vk::SubpassDependency dependency;
-  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-  dependency.dstSubpass = 0;
-  dependency.dependencyFlags = vk::DependencyFlagBits::eByRegion; // VK_DEPENDENCY_BY_REGION_BIT;
-
-  dependency.srcAccessMask = {};
-  if (bHasColor)
-    dependency.dstAccessMask |= vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead;
-
-  if (bHasDepth)
-    dependency.dstAccessMask |= vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead;
-
-  dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-  dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-
   vk::RenderPassCreateInfo renderPassCreateInfo;
   renderPassCreateInfo.attachmentCount = attachments.GetCount();
   renderPassCreateInfo.pAttachments = attachments.GetData();
   renderPassCreateInfo.subpassCount = 1;
   renderPassCreateInfo.pSubpasses = &subpass;
-  renderPassCreateInfo.dependencyCount = 1;
-  renderPassCreateInfo.pDependencies = &dependency;
+  renderPassCreateInfo.dependencyCount = 0;
+  renderPassCreateInfo.pDependencies = nullptr;
 
   vk::RenderPass vkRenderPass;
   VK_LOG_ERROR(s_Device.createRenderPass(&renderPassCreateInfo, nullptr, &vkRenderPass));
@@ -419,4 +404,3 @@ bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const FramebufferKey& a, co
 {
   return a.m_renderPass == b.m_renderPass && a.m_frameBuffer == b.m_frameBuffer;
 }
-

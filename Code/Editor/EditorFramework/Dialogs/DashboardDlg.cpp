@@ -103,6 +103,9 @@ void ezQtDashboardDlg::FillSampleProjectsList()
   ezStringBuilder tmp, iconPath;
 
   ezStringBuilder samplesIcon = ezApplicationServices::GetSingleton()->GetSampleProjectsFolder();
+  if (samplesIcon.IsEmpty())
+    return;
+
   samplesIcon.AppendPath("Thumbnail.jpg");
 
   QIcon fallbackIcon;
@@ -147,6 +150,8 @@ void ezQtDashboardDlg::FindSampleProjects(ezDynamicArray<ezString>& out_Projects
   out_Projects.Clear();
 
   const ezString& sSampleProjects = ezApplicationServices::GetSingleton()->GetSampleProjectsFolder();
+  if (sSampleProjects.IsEmpty())
+    return;
 
   ezFileSystemIterator fsIt;
   fsIt.StartSearch(sSampleProjects, ezFileSystemIteratorFlags::ReportFoldersRecursive);

@@ -27,11 +27,21 @@ ezGraphicsTest::ezGraphicsTest() = default;
 
 ezResult ezGraphicsTest::InitializeTest()
 {
+  ezStartup::StartupCoreSystems();
+
+  if (SetupRenderer().Failed())
+    return EZ_FAILURE;
+
   return EZ_SUCCESS;
 }
 
 ezResult ezGraphicsTest::DeInitializeTest()
 {
+  m_Readback.Reset();
+  ShutdownRenderer();
+  ezStartup::ShutdownCoreSystems();
+  ezMemoryTracker::DumpMemoryLeaks();
+
   return EZ_SUCCESS;
 }
 
@@ -41,21 +51,14 @@ ezResult ezGraphicsTest::InitializeSubTest(ezInt32 iIdentifier)
   m_bCaptureImage = false;
   m_ImgCompFrames.Clear();
 
-  // initialize everything up to 'core'
-  ezStartup::StartupCoreSystems();
-
-  if (SetupRenderer().Failed())
-    return EZ_FAILURE;
   return EZ_SUCCESS;
 }
 
 ezResult ezGraphicsTest::DeInitializeSubTest(ezInt32 iIdentifier)
 {
   m_Readback.Reset();
-  ShutdownRenderer();
-  // shut down completely
-  ezStartup::ShutdownCoreSystems();
-  ezMemoryTracker::DumpMemoryLeaks();
+  m_pDevice->WaitIdle();
+  ezResourceManager::FreeAllUnusedResources();
   return EZ_SUCCESS;
 }
 

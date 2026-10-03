@@ -10,6 +10,36 @@
 EZ_CREATE_SIMPLE_RENDERER_TEST_GROUP(ResourceStateTracker)
 
 // ============================================================
+// IsTextureStateCompatible (static, no device needed)
+// ============================================================
+
+EZ_CREATE_SIMPLE_RENDERER_TEST(ResourceStateTracker, IsTextureStateCompatible)
+{
+  using SRS = ezGALResourceStateTracker::SubResourceState;
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Matching state and stages")
+  {
+    SRS currentState = {ezGALResourceState::RenderTarget, ezGALShaderStageFlags::Auto};
+    SRS requiredState = {ezGALResourceState::RenderTarget, ezGALShaderStageFlags::Auto};
+    EZ_TEST_BOOL(ezGALResourceStateTracker::IsTextureStateCompatible(currentState, requiredState));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Different state")
+  {
+    SRS currentState = {ezGALResourceState::RenderTarget, ezGALShaderStageFlags::Auto};
+    SRS requiredState = {ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader};
+    EZ_TEST_BOOL(!ezGALResourceStateTracker::IsTextureStateCompatible(currentState, requiredState));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Uncovered stage")
+  {
+    SRS currentState = {ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader};
+    SRS requiredState = {ezGALResourceState::ShaderResource, ezGALShaderStageFlags::VertexShader};
+    EZ_TEST_BOOL(!ezGALResourceStateTracker::IsTextureStateCompatible(currentState, requiredState));
+  }
+}
+
+// ============================================================
 // IsTextureBarrierNeeded (static, no device needed)
 // ============================================================
 
@@ -49,14 +79,14 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(ResourceStateTracker, IsTextureBarrierNeeded)
   {
     SRS oldState = {ezGALResourceState::UnorderedAccess, ezGALShaderStageFlags::ComputeShader};
     SRS newState = {ezGALResourceState::UnorderedAccess, ezGALShaderStageFlags::ComputeShader};
-    EZ_TEST_BOOL(ezGALResourceStateTracker::IsTextureBarrierNeeded(oldState, newState, true));
+    EZ_TEST_BOOL(ezGALResourceStateTracker::IsTextureBarrierNeeded(oldState, newState));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "UAV write-after-write without force - no barrier")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Same-state write-after-write - barrier needed")
   {
-    SRS oldState = {ezGALResourceState::UnorderedAccess, ezGALShaderStageFlags::ComputeShader};
-    SRS newState = {ezGALResourceState::UnorderedAccess, ezGALShaderStageFlags::ComputeShader};
-    EZ_TEST_BOOL(!ezGALResourceStateTracker::IsTextureBarrierNeeded(oldState, newState, false));
+    SRS oldState = {ezGALResourceState::RenderTarget, ezGALShaderStageFlags::Auto};
+    SRS newState = {ezGALResourceState::RenderTarget, ezGALShaderStageFlags::Auto};
+    EZ_TEST_BOOL(ezGALResourceStateTracker::IsTextureBarrierNeeded(oldState, newState));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Same read state but uncovered stage - barrier needed")
@@ -95,6 +125,36 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(ResourceStateTracker, IsTextureBarrierNeeded)
     SRS oldState = {ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader};
     SRS newState = {ezGALResourceState::CopySource, ezGALShaderStageFlags::Auto};
     EZ_TEST_BOOL(ezGALResourceStateTracker::IsTextureBarrierNeeded(oldState, newState));
+  }
+}
+
+// ============================================================
+// IsBufferStateCompatible (static, no device needed)
+// ============================================================
+
+EZ_CREATE_SIMPLE_RENDERER_TEST(ResourceStateTracker, IsBufferStateCompatible)
+{
+  using SRS = ezGALResourceStateTracker::SubResourceState;
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Required state is a covered subset")
+  {
+    SRS currentState = {ezGALResourceState::ShaderResource | ezGALResourceState::ConstantBuffer, ezGALShaderStageFlags::Auto};
+    SRS requiredState = {ezGALResourceState::ConstantBuffer, ezGALShaderStageFlags::VertexShader};
+    EZ_TEST_BOOL(ezGALResourceStateTracker::IsBufferStateCompatible(currentState, requiredState));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Required state is not a subset")
+  {
+    SRS currentState = {ezGALResourceState::ConstantBuffer, ezGALShaderStageFlags::Auto};
+    SRS requiredState = {ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader};
+    EZ_TEST_BOOL(!ezGALResourceStateTracker::IsBufferStateCompatible(currentState, requiredState));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Uncovered stage")
+  {
+    SRS currentState = {ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader};
+    SRS requiredState = {ezGALResourceState::ShaderResource, ezGALShaderStageFlags::VertexShader};
+    EZ_TEST_BOOL(!ezGALResourceStateTracker::IsBufferStateCompatible(currentState, requiredState));
   }
 }
 
@@ -152,14 +212,7 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(ResourceStateTracker, IsBufferBarrierNeeded)
   {
     SRS oldState = {ezGALResourceState::UnorderedAccess, ezGALShaderStageFlags::ComputeShader};
     SRS newState = {ezGALResourceState::UnorderedAccess, ezGALShaderStageFlags::ComputeShader};
-    EZ_TEST_BOOL(ezGALResourceStateTracker::IsBufferBarrierNeeded(oldState, newState, true));
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "UAV write-after-write without force - no barrier")
-  {
-    SRS oldState = {ezGALResourceState::UnorderedAccess, ezGALShaderStageFlags::ComputeShader};
-    SRS newState = {ezGALResourceState::UnorderedAccess, ezGALShaderStageFlags::ComputeShader};
-    EZ_TEST_BOOL(!ezGALResourceStateTracker::IsBufferBarrierNeeded(oldState, newState, false));
+    EZ_TEST_BOOL(ezGALResourceStateTracker::IsBufferBarrierNeeded(oldState, newState));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "New state not subset of old - barrier needed")
@@ -454,14 +507,24 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(ResourceStateTracker, TextureStateTracking)
     EZ_TEST_INT(pState->m_SubResourceStates.GetCount(), 1);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Same full-range write - barrier (WAW)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Same-state write barrier")
   {
-    // RenderTarget -> RenderTarget is a write-after-write on the same state, but write states always need barriers.
     uiBarrierCount = 0;
     tracker.ChangeState(hTexture, {}, ezGALResourceState::RenderTarget, ezGALShaderStageFlags::Auto, textureCallback);
-    // State doesn't change but RenderTarget is a write state, not tracked via UAV WAW. No barrier expected.
-    // Actually the tracker only forces WAV barrier for UAV. For same non-UAV write state, the state bits match so no barrier.
-    // We just verify no crash and then transition to ShaderResource.
+    EZ_TEST_INT(uiBarrierCount, 1);
+    EZ_TEST_BOOL(lastBarrier.m_bAllSubresources);
+    EZ_TEST_BOOL(lastBarrier.m_StateBefore.IsSet(ezGALResourceState::RenderTarget));
+    EZ_TEST_BOOL(lastBarrier.m_StateAfter.IsSet(ezGALResourceState::RenderTarget));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Discarded same-state write emits discard barrier")
+  {
+    uiBarrierCount = 0;
+    tracker.ChangeState(hTexture, {}, ezGALResourceState::RenderTarget | ezGALResourceState::Discard, ezGALShaderStageFlags::Auto, textureCallback);
+    EZ_TEST_INT(uiBarrierCount, 1);
+    EZ_TEST_BOOL(lastBarrier.m_bDiscard);
+    EZ_TEST_BOOL(lastBarrier.m_StateBefore.IsSet(ezGALResourceState::RenderTarget));
+    EZ_TEST_BOOL(lastBarrier.m_StateAfter.IsSet(ezGALResourceState::RenderTarget));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Write to read emits barrier")

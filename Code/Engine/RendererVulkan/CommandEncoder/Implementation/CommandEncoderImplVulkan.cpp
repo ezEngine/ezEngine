@@ -327,40 +327,23 @@ void ezGALCommandEncoderImplVulkan::ResolveTexturePlatform(const ezGALTexture* p
 
   EZ_ASSERT_DEBUG(ezGALResourceFormat::IsDepthFormat(destDesc.m_Format) == ezGALResourceFormat::IsDepthFormat(srcDesc.m_Format), "");
 
-  // TODO need to determine size of the subresource
+  const vk::Extent3D sourceExtent = pVulkanSource->GetMipLevelSize(sourceSubResource.m_uiMipLevel);
+  const vk::Extent3D destinationExtent = pVulkanDestination->GetMipLevelSize(destinationSubResource.m_uiMipLevel);
+
   vk::ImageResolve resolveRegion = {};
   resolveRegion.dstSubresource.aspectMask = pVulkanDestination->GetFullRange().aspectMask;
   resolveRegion.dstSubresource.baseArrayLayer = destinationSubResource.m_uiArraySlice;
   resolveRegion.dstSubresource.layerCount = 1;
   resolveRegion.dstSubresource.mipLevel = destinationSubResource.m_uiMipLevel;
-  resolveRegion.extent.width = ezMath::Min(destDesc.m_uiWidth, srcDesc.m_uiWidth);
-  resolveRegion.extent.height = ezMath::Min(destDesc.m_uiHeight, srcDesc.m_uiHeight);
-  resolveRegion.extent.depth = ezMath::Min(destDesc.m_uiDepth, srcDesc.m_uiDepth);
+  resolveRegion.extent.width = ezMath::Min(destinationExtent.width, sourceExtent.width);
+  resolveRegion.extent.height = ezMath::Min(destinationExtent.height, sourceExtent.height);
+  resolveRegion.extent.depth = ezMath::Min(destinationExtent.depth, sourceExtent.depth);
   resolveRegion.srcSubresource.aspectMask = pVulkanSource->GetFullRange().aspectMask;
   resolveRegion.srcSubresource.baseArrayLayer = sourceSubResource.m_uiArraySlice;
   resolveRegion.srcSubresource.layerCount = 1;
   resolveRegion.srcSubresource.mipLevel = sourceSubResource.m_uiMipLevel;
 
-  if (srcDesc.m_SampleCount != ezGALMSAASampleCount::None)
-  {
-    m_pCommandBuffer->resolveImage(pVulkanSource->GetImage(), vk::ImageLayout::eTransferSrcOptimal, pVulkanDestination->GetImage(), vk::ImageLayout::eTransferDstOptimal, 1, &resolveRegion);
-  }
-  else
-  {
-    // DX11 allows calling resolve on a non-msaa source. For now, allow this as well in Vulkan.
-    vk::Extent3D sourceMipLevelSize = pVulkanSource->GetMipLevelSize(sourceSubResource.m_uiMipLevel);
-    vk::Offset3D sourceMipLevelEndOffset = {(ezInt32)sourceMipLevelSize.width, (ezInt32)sourceMipLevelSize.height, (ezInt32)sourceMipLevelSize.depth};
-    vk::Extent3D dstMipLevelSize = pVulkanDestination->GetMipLevelSize(destinationSubResource.m_uiMipLevel);
-    vk::Offset3D dstMipLevelEndOffset = {(ezInt32)dstMipLevelSize.width, (ezInt32)dstMipLevelSize.height, (ezInt32)dstMipLevelSize.depth};
-
-    vk::ImageBlit imageBlitRegion;
-    imageBlitRegion.srcSubresource = resolveRegion.srcSubresource;
-    imageBlitRegion.srcOffsets[1] = sourceMipLevelEndOffset;
-    imageBlitRegion.dstSubresource = resolveRegion.dstSubresource;
-    imageBlitRegion.dstOffsets[1] = dstMipLevelEndOffset;
-
-    m_pCommandBuffer->blitImage(pVulkanSource->GetImage(), vk::ImageLayout::eTransferSrcOptimal, pVulkanDestination->GetImage(), vk::ImageLayout::eTransferDstOptimal, 1, &imageBlitRegion, vk::Filter::eNearest);
-  }
+  m_pCommandBuffer->resolveImage(pVulkanSource->GetImage(), vk::ImageLayout::eTransferSrcOptimal, pVulkanDestination->GetImage(), vk::ImageLayout::eTransferDstOptimal, 1, &resolveRegion);
 }
 
 void ezGALCommandEncoderImplVulkan::CopyImageToBuffer(const ezGALTextureVulkan* pSource, const ezGALBufferVulkan* pDestination)

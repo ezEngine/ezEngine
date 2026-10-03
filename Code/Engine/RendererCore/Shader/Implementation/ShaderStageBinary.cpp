@@ -49,6 +49,7 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& inout_stream) const
     inout_stream << r.m_iBindGroup;
     inout_stream << r.m_iSlot;
     inout_stream << r.m_uiArraySize;
+    inout_stream << r.m_Format;
     inout_stream << r.m_sName.GetData();
     const bool bHasLayout = r.m_pLayout != nullptr;
     inout_stream << bHasLayout;
@@ -144,6 +145,10 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& inout_stream)
       inout_stream >> r.m_iBindGroup;
       inout_stream >> r.m_iSlot;
       inout_stream >> r.m_uiArraySize;
+      if (uiVersion >= ezShaderStageBinary::Version::Version8)
+      {
+        inout_stream >> r.m_Format;
+      }
       inout_stream >> sTemp;
       r.m_sName.Assign(sTemp.GetData());
 

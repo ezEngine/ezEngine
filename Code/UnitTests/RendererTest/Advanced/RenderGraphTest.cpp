@@ -21,6 +21,7 @@ void ezRenderGraphTest::SetupSubTests()
   AddSubTest("EmptyGraph", SubTests::ST_EmptyGraph);
   AddSubTest("StressTest", SubTests::ST_StressTest);
   AddSubTest("MsaaResolve", SubTests::ST_MsaaResolve);
+  AddSubTest("CrossGraphImportedTransitions", SubTests::ST_CrossGraphImportedTransitions);
 }
 
 ezResult ezRenderGraphTest::InitializeSubTest(ezInt32 iIdentifier)
@@ -69,6 +70,9 @@ ezTestAppRun ezRenderGraphTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoc
       return StressTestRenderGraph(256);
     case SubTests::ST_MsaaResolve:
       MsaaResolve();
+      return ezTestAppRun::Quit;
+    case SubTests::ST_CrossGraphImportedTransitions:
+      CrossGraphImportedTransitions();
       return ezTestAppRun::Quit;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -173,9 +177,8 @@ void ezRenderGraphTest::DeadPassCulling()
       { bChainBExecuted = true; });
   }
   {
-    auto passC = graph.AddGraphicsPass("ChainC");
+    auto passC = graph.AddComputePass("ChainC");
     passC.ReadTexture(hChainTex2, {}, ezGALResourceState::ShaderResource);
-    passC.AddColorTarget(hChainTex2, {}, ezGALRenderTargetLoadOp::Clear);
     passC.HasSideEffects();
     passC.SetExecuteCallback([&](const ezRenderGraphContext&)
       { bChainCExecuted = true; });
@@ -356,6 +359,49 @@ void ezRenderGraphTest::ImportReplace()
 }
 
 // ============================================================
+// Test: Imported transitions across graphs
+// ============================================================
+
+void ezRenderGraphTest::CrossGraphImportedTransitions()
+{
+  BeginFrame();
+
+  ezGALTextureCreationDescription desc;
+  desc.SetAsRenderTarget(64, 64, ezGALResourceFormat::D16);
+  ezGALTextureHandle hDepthTexture = m_pDevice->CreateTexture(desc);
+  EZ_SCOPE_EXIT(m_pDevice->DestroyTexture(hDepthTexture));
+
+  auto pSecondGraph = ezRenderGraphManager::CreateRenderGraph("RendererTestSecondGraph");
+  bool bFirstPassExecuted = false;
+  bool bSecondPassExecuted = false;
+
+  auto AddDepthPass = [&](ezRenderGraph& ref_graph, const char* szPassName, ezEnum<ezGALRenderTargetLoadOp> loadOp, bool& ref_bExecuted)
+  {
+    // We import as DepthStencilRead, conflicting with the immediate use as a render target, i.e. DepthStencilWrite. This should trigger `ezRenderGraph::DoImportsOverlap` check and create a workaround via a separate barrier.
+    auto hDepth = ref_graph.ImportTexture(hDepthTexture, ezGALResourceState::DepthStencilRead);
+    auto pass = ref_graph.AddGraphicsPass(szPassName);
+    pass.AddDepthStencilTarget(hDepth, {}, loadOp);
+    pass.HasSideEffects();
+    pass.SetExecuteCallback([&ref_bExecuted](const ezRenderGraphContext&)
+      { ref_bExecuted = true; });
+  };
+
+  m_pRenderGraph->Reset();
+  AddDepthPass(*m_pRenderGraph, "FirstDepthWrite", ezGALRenderTargetLoadOp::Clear, bFirstPassExecuted);
+
+  pSecondGraph->Reset();
+  AddDepthPass(*pSecondGraph, "SecondDepthWrite", ezGALRenderTargetLoadOp::Load, bSecondPassExecuted);
+
+  ezRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
+  ezRenderGraphManager::EnqueueRenderGraph(pSecondGraph);
+  ezRenderGraphManager::ExecuteRenderGraphs(m_pDevice);
+  EndFrame();
+
+  EZ_TEST_BOOL(bFirstPassExecuted);
+  EZ_TEST_BOOL(bSecondPassExecuted);
+}
+
+// ============================================================
 // Test: Execute Callbacks
 // ============================================================
 
@@ -481,7 +527,8 @@ void ezRenderGraphTest::MsaaResolve()
 
   // Import persistent non-MSAA resolve target
   ezGALTextureCreationDescription descResolved;
-  descResolved.SetAsRenderTarget(64, 64, ezGALResourceFormat::RGBAHalf);
+  descResolved.SetAsRenderTarget(128, 128, ezGALResourceFormat::RGBAHalf);
+  descResolved.m_uiMipLevelCount = 2;
   ezGALTextureHandle hResolvedGAL = m_pDevice->CreateTexture(descResolved);
   ezRenderGraphTextureHandle hResolved = graph.ImportTexture(hResolvedGAL);
   // END-DOCS-CODE-SNIPPET
@@ -510,16 +557,16 @@ void ezRenderGraphTest::MsaaResolve()
     // BEGIN-DOCS-CODE-SNIPPET: rendergraph-msaa-barriers
     auto pass = graph.AddTransferPass("MsaaColorResolve");
     pass.ReadTexture(hMsaaColor, {}, ezGALResourceState::ResolveSource);
-    pass.WriteTexture(hResolved, {}, ezGALResourceState::ResolveDestination);
+    pass.WriteTexture(hResolved, ezGALTextureRange{0, 1, 1, 1}, ezGALResourceState::ResolveDestination);
     // END-DOCS-CODE-SNIPPET
 
     // BEGIN-DOCS-CODE-SNIPPET: rendergraph-msaa-execute-callback
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
       {
-      ezGALTextureSubresource subresource;
-      subresource.m_uiMipLevel = 0;
-      subresource.m_uiArraySlice = 0;
-      ctx.GetCommandEncoder()->ResolveTexture(ctx.ResolveTexture(hResolved), subresource, ctx.ResolveTexture(hMsaaColor), subresource); });
+      ezGALTextureSubresource destinationSubresource;
+      destinationSubresource.m_uiMipLevel = 1;
+      ezGALTextureSubresource sourceSubresource;
+      ctx.GetCommandEncoder()->ResolveTexture(ctx.ResolveTexture(hResolved), destinationSubresource, ctx.ResolveTexture(hMsaaColor), sourceSubresource); });
     // END-DOCS-CODE-SNIPPET
   }
 

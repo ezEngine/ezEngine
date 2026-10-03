@@ -72,7 +72,7 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
   // Check if the surface extent has changed before acquiring. If it has, recreate the swapchain first.
   // This avoids a Vulkan spec violation: when minImageCount equals the total swapchain image count,
   // forward progress can't be guaranteed, and using UINT64_MAX as timeout is not allowed.
-  // I *think* that this is no longer needed now that we don't SPAM the resize in the editor to the engine.
+  // NOTE: The reason this was previously added was because of bugs further up in the pipeline. E.g. in case GLFW was used incorrectly, this code would 'fix' the wrongly reported render target size. Enabling this without a code reason may fix some things but unlikely this is correct as it removes the control of the user when to actually resize a swap-chain. E.g. Resizing a window could trigger many resizes unintentionally. In short: before enabling this, look at the high level code for bugs as control of the swap-chain resize should be left to the high level code.
   /*
   {
     const vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_VulkanSurface);
@@ -414,6 +414,18 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
     scalingInfo.pNext = swapChainCreateInfo.pNext;
     swapChainCreateInfo.pNext = &scalingInfo;
   }
+
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+  // Without this, the driver may decide to switch a window that covers the entire monitor (borderless fullscreen) into exclusive fullscreen mode, which causes a display mode change (screen goes black for a moment) when the swapchain is created and destroyed.
+  // ezEngine does not use exclusive fullscreen through Vulkan, so always disallow it.
+  vk::SurfaceFullScreenExclusiveInfoEXT fullScreenExclusiveInfo;
+  if (extensions.m_bFullScreenExclusive)
+  {
+    fullScreenExclusiveInfo.fullScreenExclusive = vk::FullScreenExclusiveEXT::eDisallowed;
+    fullScreenExclusiveInfo.pNext = const_cast<void*>(swapChainCreateInfo.pNext);
+    swapChainCreateInfo.pNext = &fullScreenExclusiveInfo;
+  }
+#endif
 
   // We must pass in the old swap chain or NVidia will crash.
   swapChainCreateInfo.oldSwapchain = m_VulkanSwapChain;

@@ -31,6 +31,8 @@ private:
     AddSubTest("Line Rendering", SubTests::ST_LineRendering);
   }
 
+  virtual ezResult InitializeTest() override { return EZ_SUCCESS; }
+  virtual ezResult DeInitializeTest() override { return EZ_SUCCESS; }
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
 

@@ -30,6 +30,7 @@ public:
     Version5, ///< Debug flag
     Version6, ///< Rewrite, no backwards compatibility. Moves all data into ezGALShaderByteCode.
     Version7, ///< Added tessellation support (m_uiTessellationPatchControlPoints)
+    Version8, ///< Added m_Format to ezShaderResourceBinding to reflect texel buffer format (and for future use)
 
     ENUM_COUNT,
     VersionCurrent = ENUM_COUNT - 1
