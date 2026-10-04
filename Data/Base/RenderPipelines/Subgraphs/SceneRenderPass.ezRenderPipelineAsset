@@ -22,7 +22,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{729934336076794806,5656887279375715443}}
-		u4 %Hash{484114957439906114}
+		u4 %Hash{18081353143407047218}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3849613638099527408,9463778702059027310}}
@@ -620,7 +620,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %BlackboardProperty{"Renderer-SSS"}
+		s %BlackboardProperty{"Rendering.Pipeline.SSS"}
 		Uuid %Input0{u4{1226275069435281926,7254092455949990901}}
 		Uuid %Input1{u4{9083445438654706220,9046171502023571860}}
 		Uuid %Input2{u4{17075076744205873947,13281553919413690670}}
@@ -687,7 +687,7 @@ o
 		f %Intensity{0x3333333F}
 		f %MaxScreenSpaceRadius{0x0000803F}
 		f %MipLevelScale{0x00002041}
-		s %Name{"AOPass"}
+		s %Name{"Rendering.Pipeline.SSAO"}
 		Vec2 %Node::Pos{f{0x5BF5FCC4,0x876A89C4}}
 		Uuid %Output{u4{4008798747253919712,5074969461733097493}}
 		f %PositionBias{0x0000A040}
@@ -742,7 +742,7 @@ o
 	p
 	{
 		Uuid %DepthInput{u4{3190748183973636827,17477241483004987681}}
-		s %Name{""}
+		s %Name{"Rendering.Pipeline.SSS"}
 		Vec2 %Node::Pos{f{0x67D5FDC4,0xBE057CC4}}
 		Uuid %Output{u4{12779467952728694260,15038072594233734935}}
 		f %ShadowContrast{0x00008040}
@@ -831,7 +831,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %BlackboardProperty{"Renderer-SSAO"}
+		s %BlackboardProperty{"Rendering.Pipeline.SSAO"}
 		Uuid %Input0{u4{1664609561200890370,14465667259145613676}}
 		Uuid %Input1{u4{9812503983908186140,1128497882661039003}}
 		Uuid %Input2{u4{5811408101611303940,11855457505970595671}}
@@ -841,7 +841,7 @@ o
 		Uuid %Input6{u4{5418009385436054058,3477395855936105522}}
 		Uuid %Input7{u4{12307139094499300940,2492610987917332237}}
 		s %Name{"SSAO"}
-		Vec2 %Node::Pos{f{0xB18DE0C4,0x56C98BC4}}
+		Vec2 %Node::Pos{f{0x9E3CE0C4,0xF2428CC4}}
 		Uuid %Output{u4{949715502516726940,11100291498621495636}}
 		VarArray %Values
 		{

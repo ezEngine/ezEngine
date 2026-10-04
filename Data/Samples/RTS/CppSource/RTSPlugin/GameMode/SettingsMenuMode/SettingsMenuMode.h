@@ -1,7 +1,7 @@
 #pragma once
 
 #include <RTSPlugin/GameMode/GameMode.h>
-#include <RmlUiPlugin\Components\RmlUiCanvas2DComponent.h>
+#include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
 
 class RtsSettingsMenuMode : public RtsGameMode
 {

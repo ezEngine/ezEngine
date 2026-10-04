@@ -20,6 +20,7 @@
 #include <GameEngine/XR/DummyXR.h>
 #include <GameEngine/XR/XRInterface.h>
 #include <RendererCore/Components/CameraComponent.h>
+#include <RendererCore/Pipeline/PipelineCVarRegistry.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -58,6 +59,8 @@ void ezGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, con
   CreateWindows();
   ConfigureInputActions();
 
+  m_PipelineCVarRegistry = ezPipelineCVarRegistry::s_CVarChangedEvent.AddEventHandler(ezMakeDelegate(&ezGameState::OnPipelineCVarChangedEvent, this));
+
   if (pWorld)
   {
     ChangeMainWorld(pWorld, sStartPosition, startPositionOffset);
@@ -78,7 +81,7 @@ void ezGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, con
 void ezGameState::OnDeactivation()
 {
   CancelBackgroundSceneLoading();
-
+  ezPipelineCVarRegistry::s_CVarChangedEvent.RemoveEventHandler(m_PipelineCVarRegistry);
   if (m_bXREnabled)
   {
     m_bXREnabled = false;
@@ -414,6 +417,10 @@ void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld, ezStringView sStartPos
     pView->SetWorld(m_pMainWorld);
   }
 
+  if (pNewMainWorld)
+  {
+    ezPipelineCVarRegistry::ApplyCVarsToBlackboard(pNewMainWorld->GetBlackboard().Borrow());
+  }
   OnChangedMainWorld(pPrevWorld, pNewMainWorld, sStartPosition, startPositionOffset);
 
   // make sure the camera gets re-initialized for the new world
@@ -665,5 +672,13 @@ void ezGameState::OnWindowEvent(const ezWindowEvent& e)
   else if (e.m_Type == ezWindowEvent::Type::ContentScaleChanged)
   {
     ezRenderWorld::SetDisplayScale(e.m_pWindow->GetContentScaleFactor());
+  }
+}
+
+void ezGameState::OnPipelineCVarChangedEvent(const ezCVarEvent& e)
+{
+  if (m_pMainWorld)
+  {
+    ezPipelineCVarRegistry::ApplyCVarToBlackboard(m_pMainWorld->GetBlackboard().Borrow(), e.m_pCVar);
   }
 }

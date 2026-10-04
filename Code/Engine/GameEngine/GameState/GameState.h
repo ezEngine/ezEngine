@@ -18,6 +18,7 @@ class ezView;
 class ezWindowOutputTargetGAL;
 class ezDummyXR;
 struct ezWindowEvent;
+struct ezCVarEvent;
 
 using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 
@@ -232,12 +233,15 @@ protected:
 
   virtual void OnWindowEvent(const ezWindowEvent& e);
 
+  void OnPipelineCVarChangedEvent(const ezCVarEvent& e);
+
   static ezGameState* s_pActiveGameState;
 
   ezViewHandle m_hMainView;
 
   /// The registered window that owns m_pMainWindow. With XR, that is the XR window.
   ezRegisteredWndHandle m_hMainWindow;
+  ezEventSubscriptionID m_PipelineCVarRegistry = {};
   ezWindow* m_pMainWindow = nullptr;
 
   ezWorld* m_pMainWorld = nullptr;

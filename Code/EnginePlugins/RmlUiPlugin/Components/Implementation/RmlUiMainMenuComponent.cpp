@@ -434,8 +434,9 @@ void ezRmlUiMainMenuComponent::ApplySettings()
     pCanvas->SetCustomScale(fUiScale);
   }
 
-  ezRenderContext::GetDefaultInstance()->SetDefaultTextureQuality(
-    static_cast<ezGALTextureQuality::Enum>(ezMath::Clamp<ezInt32>(cvar_OptionsTextureFiltering, 0, ezGALTextureQuality::Anisotropic16x)));
+  cvar_RenderingTextureQuality = cvar_OptionsTextureFiltering.GetValue();
+  cvar_RenderingPipelineSSS = cvar_OptionsSSAO.GetValue();
+  cvar_RenderingPipelineSSS = cvar_OptionsSSS.GetValue();
 
   {
     const auto& preset = s_TextureQualityPresets[ezMath::Clamp<ezInt32>(cvar_OptionsTextureQuality, 0, EZ_ARRAY_SIZE(s_TextureQualityPresets) - 1)];
@@ -729,7 +730,6 @@ void ezRmlUiMainMenuComponent::RegisterSettingsEventHandlers(ezRmlUiContext* pCo
 void ezRmlUiMainMenuComponent::Update()
 {
   SyncSoundGroupVolumes();
-  SyncRendererSettings();
 
   ezRmlUiCanvas2DComponent* pMenuCanvas = GetCanvas(m_hMenuCanvas);
 
@@ -1005,16 +1005,6 @@ void ezRmlUiMainMenuComponent::LoadSoundGroupVolumes()
         break;
       }
     }
-  }
-}
-
-void ezRmlUiMainMenuComponent::SyncRendererSettings()
-{
-  // every frame, to also pick up changes from the console
-  if (const ezSharedPtr<ezBlackboard>& pBlackboard = GetWorld()->GetBlackboard())
-  {
-    pBlackboard->SetEntryValue(ezMakeHashedString("Renderer-SSAO"), cvar_OptionsSSAO.GetValue());
-    pBlackboard->SetEntryValue(ezMakeHashedString("Renderer-SSS"), cvar_OptionsSSS.GetValue());
   }
 }
 

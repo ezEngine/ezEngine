@@ -8,6 +8,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
+#include <RendererCore/Pipeline/PipelineCVarRegistry.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderGraph/RenderGraph.h>
@@ -243,6 +244,8 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& documentGuid, cons
 
     m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
     m_pWorld->SetGameObjectReferenceResolver(ezMakeDelegate(&ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle, this));
+    ezPipelineCVarRegistry::ApplyCVarsToBlackboard(m_pWorld->GetBlackboard().Borrow());
+    m_PipelineCVarSubscription = ezPipelineCVarRegistry::s_CVarChangedEvent.AddEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::OnPipelineCVarChangedEvent, this));
 
     GetContext().m_pWorld = m_pWorld;
     m_Mirror.InitReceiver(&GetContext());
@@ -252,6 +255,8 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& documentGuid, cons
 
 void ezEngineProcessDocumentContext::Deinitialize()
 {
+  ezPipelineCVarRegistry::s_CVarChangedEvent.RemoveEventHandler(m_PipelineCVarSubscription);
+
   OnDeinitialize();
 
   ClearViewContexts();
@@ -265,6 +270,14 @@ void ezEngineProcessDocumentContext::Deinitialize()
     EZ_DEFAULT_DELETE(m_pWorld);
   }
   m_pWorld = nullptr;
+}
+
+void ezEngineProcessDocumentContext::OnPipelineCVarChangedEvent(const ezCVarEvent& e)
+{
+  if (m_pWorld != nullptr)
+  {
+    ezPipelineCVarRegistry::ApplyCVarToBlackboard(m_pWorld->GetBlackboard().Borrow(), e.m_pCVar);
+  }
 }
 
 void ezEngineProcessDocumentContext::SendProcessMessage(ezProcessMessage* pMsg)
