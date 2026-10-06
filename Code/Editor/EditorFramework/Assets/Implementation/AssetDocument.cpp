@@ -249,7 +249,8 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
     }
 
     const auto propVarType = pProp->GetSpecificType()->GetVariantType();
-    if (propVarType != ezVariantType::String && propVarType != ezVariantType::StringView)
+    // asset references are stored in all kinds of strings, e.g. particle textures use ezHashedString
+    if (propVarType != ezVariantType::String && propVarType != ezVariantType::StringView && propVarType != ezVariantType::HashedString)
       continue;
 
     // add all strings that are marked as asset references or file references
@@ -273,13 +274,13 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
             const ezVariant& value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
 
             if (depFlags.IsSet(ezDependencyFlags::Transform))
-              pInfo->m_TransformDependencies.Insert(value.Get<ezString>());
+              pInfo->m_TransformDependencies.Insert(value.ConvertTo<ezString>());
 
             if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
-              pInfo->m_ThumbnailDependencies.Insert(value.Get<ezString>());
+              pInfo->m_ThumbnailDependencies.Insert(value.ConvertTo<ezString>());
 
             if (depFlags.IsSet(ezDependencyFlags::Package))
-              pInfo->m_PackageDependencies.Insert(value.Get<ezString>());
+              pInfo->m_PackageDependencies.Insert(value.ConvertTo<ezString>());
           }
         }
         break;
@@ -304,13 +305,13 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
                   continue;
                 }
                 if (depFlags.IsSet(ezDependencyFlags::Transform))
-                  pInfo->m_TransformDependencies.Insert(value.Get<ezString>());
+                  pInfo->m_TransformDependencies.Insert(value.ConvertTo<ezString>());
 
                 if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
-                  pInfo->m_ThumbnailDependencies.Insert(value.Get<ezString>());
+                  pInfo->m_ThumbnailDependencies.Insert(value.ConvertTo<ezString>());
 
                 if (depFlags.IsSet(ezDependencyFlags::Package))
-                  pInfo->m_PackageDependencies.Insert(value.Get<ezString>());
+                  pInfo->m_PackageDependencies.Insert(value.ConvertTo<ezString>());
               }
             }
             else
@@ -320,13 +321,13 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
                 ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i);
 
                 if (depFlags.IsSet(ezDependencyFlags::Transform))
-                  pInfo->m_TransformDependencies.Insert(value.Get<ezString>());
+                  pInfo->m_TransformDependencies.Insert(value.ConvertTo<ezString>());
 
                 if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
-                  pInfo->m_ThumbnailDependencies.Insert(value.Get<ezString>());
+                  pInfo->m_ThumbnailDependencies.Insert(value.ConvertTo<ezString>());
 
                 if (depFlags.IsSet(ezDependencyFlags::Package))
-                  pInfo->m_PackageDependencies.Insert(value.Get<ezString>());
+                  pInfo->m_PackageDependencies.Insert(value.ConvertTo<ezString>());
               }
             }
           }
@@ -352,13 +353,13 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
                 }
 
                 if (depFlags.IsSet(ezDependencyFlags::Transform))
-                  pInfo->m_TransformDependencies.Insert(it.Value().Get<ezString>());
+                  pInfo->m_TransformDependencies.Insert(it.Value().ConvertTo<ezString>());
 
                 if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
-                  pInfo->m_ThumbnailDependencies.Insert(it.Value().Get<ezString>());
+                  pInfo->m_ThumbnailDependencies.Insert(it.Value().ConvertTo<ezString>());
 
                 if (depFlags.IsSet(ezDependencyFlags::Package))
-                  pInfo->m_PackageDependencies.Insert(it.Value().Get<ezString>());
+                  pInfo->m_PackageDependencies.Insert(it.Value().ConvertTo<ezString>());
               }
             }
             else
@@ -366,13 +367,13 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
               for (auto it : varDict)
               {
                 if (depFlags.IsSet(ezDependencyFlags::Transform))
-                  pInfo->m_TransformDependencies.Insert(it.Value().Get<ezString>());
+                  pInfo->m_TransformDependencies.Insert(it.Value().ConvertTo<ezString>());
 
                 if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
-                  pInfo->m_ThumbnailDependencies.Insert(it.Value().Get<ezString>());
+                  pInfo->m_ThumbnailDependencies.Insert(it.Value().ConvertTo<ezString>());
 
                 if (depFlags.IsSet(ezDependencyFlags::Package))
-                  pInfo->m_PackageDependencies.Insert(it.Value().Get<ezString>());
+                  pInfo->m_PackageDependencies.Insert(it.Value().ConvertTo<ezString>());
               }
             }
           }
