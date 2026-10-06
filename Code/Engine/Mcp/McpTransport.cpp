@@ -302,6 +302,14 @@ ezResult ezMcpTransport::DispatchAndWait(const ezMcpHttpRequest& request, ezMcpH
 
 void ezMcpTransport::ProcessPendingRequests()
 {
+  // A tool may pump events while it works, which can end up here again. The request it is answering is still
+  // pending at that point, and running it a second time inside itself is never right.
+  if (m_bProcessingRequest)
+    return;
+
+  m_bProcessingRequest = true;
+  EZ_SCOPE_EXIT(m_bProcessingRequest = false);
+
   const ezMcpHttpRequest* pRequest = nullptr;
   ezMcpHttpResponse* pResponse = nullptr;
 

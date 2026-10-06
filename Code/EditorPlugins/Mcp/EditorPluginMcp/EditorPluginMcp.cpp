@@ -4,6 +4,7 @@
 #include <Mcp/McpToolRegistry.h>
 
 #include <Foundation/Utilities/CommandLineOptions.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
 /// The port to listen on.
@@ -122,7 +123,10 @@ static void TickEventHandler(const ezQtUiServices::TickEvent& e)
   // The transport reads requests on its own thread but never answers one there: a tool call may touch
   // any part of the editor, none of which is thread safe. This is where the answering happens, so if
   // this stops being called, clients simply wait.
-  if (s_pServer != nullptr)
+  // The editor's per-frame work may pump events while it blocks, e.g. to wait for the engine process while it
+  // transforms an asset. Answering a request from in there would run a tool in the middle of that work - closing
+  // the very document that is being exported, for instance. The request is answered once the work is done.
+  if (s_pServer != nullptr && !ezQtEditorApp::GetSingleton()->IsInTimedUpdate())
   {
     s_pServer->ProcessPendingRequests();
   }
