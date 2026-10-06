@@ -35,11 +35,13 @@
 
 namespace
 {
-  IDXGIAdapter1* CreateHighPerformanceAdapter()
+  /// Returns the adapter that the '-gpu' command line option selects, or otherwise the high performance one.
+  ///
+  /// Adapters are ordered by DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, so index 0 is the default choice.
+  IDXGIAdapter1* CreateAdapter()
   {
     IDXGIFactory1* pFactory1 = nullptr;
     IDXGIFactory6* pFactory6 = nullptr;
-    IDXGIAdapter1* pAdapter = nullptr;
     EZ_SCOPE_EXIT(EZ_GAL_DX11_RELEASE(pFactory1));
     EZ_SCOPE_EXIT(EZ_GAL_DX11_RELEASE(pFactory6));
 
@@ -49,10 +51,34 @@ namespace
     if (FAILED(pFactory1->QueryInterface(IID_PPV_ARGS(&pFactory6))))
       return nullptr;
 
-    if (pFactory6->EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&pAdapter)) == DXGI_ERROR_NOT_FOUND)
+    ezHybridArray<IDXGIAdapter1*, 4> adapters;
+    ezHybridArray<ezString, 4> adapterNames;
+
+    IDXGIAdapter1* pAdapter = nullptr;
+    while (pFactory6->EnumAdapterByGpuPreference(adapters.GetCount(), DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&pAdapter)) == S_OK)
+    {
+      DXGI_ADAPTER_DESC1 desc = {};
+      pAdapter->GetDesc1(&desc);
+
+      adapters.PushBack(pAdapter);
+      adapterNames.PushBack(ezStringUtf8(desc.Description).GetView());
+      pAdapter = nullptr;
+    }
+
+    if (adapters.IsEmpty())
       return nullptr;
 
-    return pAdapter;
+    const ezInt32 iSelected = ezMath::Max(0, ezGALDevice::SelectGpuFromCommandLine(adapterNames));
+
+    for (ezUInt32 i = 0; i < adapters.GetCount(); ++i)
+    {
+      if (i != static_cast<ezUInt32>(iSelected))
+      {
+        EZ_GAL_DX11_RELEASE(adapters[i]);
+      }
+    }
+
+    return adapters[iSelected];
   }
 } // namespace
 
@@ -189,7 +215,8 @@ retry:
         {
           D3D11_MESSAGE_ID hide[] = {
             // Hide messages about abandoned query results. This can easily happen when a GPUStopwatch is suddenly unused.
-            D3D11_MESSAGE_ID_QUERY_BEGIN_ABANDONING_PREVIOUS_RESULTS, D3D11_MESSAGE_ID_QUERY_END_ABANDONING_PREVIOUS_RESULTS,
+            D3D11_MESSAGE_ID_QUERY_BEGIN_ABANDONING_PREVIOUS_RESULTS,
+            D3D11_MESSAGE_ID_QUERY_END_ABANDONING_PREVIOUS_RESULTS,
             // Don't break on invalid input assembly. This can easily happen when using the wrong mesh-material combination.
             D3D11_MESSAGE_ID_CREATEINPUTLAYOUT_MISSINGELEMENT,
             // Add more message IDs here as needed
@@ -271,7 +298,7 @@ ezStringView ezGALDeviceDX11::GetRendererPlatform()
 
 ezResult ezGALDeviceDX11::InitPlatform()
 {
-  IDXGIAdapter1* pAdapter = CreateHighPerformanceAdapter();
+  IDXGIAdapter1* pAdapter = CreateAdapter();
   EZ_SCOPE_EXIT(EZ_GAL_DX11_RELEASE(pAdapter));
   return InitPlatform(0, pAdapter);
 }

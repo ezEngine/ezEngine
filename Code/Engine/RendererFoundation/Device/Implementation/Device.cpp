@@ -4,6 +4,8 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Stopwatch.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/Utilities/Stats.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
@@ -65,6 +67,11 @@ namespace
   static_assert(sizeof(ezGALPipelineLayoutHandle) == sizeof(ezUInt32));
   static_assert(sizeof(ezGALGraphicsPipelineHandle) == sizeof(ezUInt32));
   static_assert(sizeof(ezGALComputePipelineHandle) == sizeof(ezUInt32));
+
+  ezCommandLineOptionString opt_Gpu("_RendererFoundation", "-gpu",
+    "Which GPU to render with, either its index or a part of its name, e.g. '-gpu 1' or '-gpu intel'.\n"
+    "The available ones are logged when this option is given. Without it, the renderer picks one by itself.",
+    "");
 } // namespace
 
 ezGALDevice* ezGALDevice::s_pDefaultDevice = nullptr;
@@ -2031,6 +2038,35 @@ void ezGALDevice::OnBindGroupInvalidatedEventHandler(ezGALBindGroup* pBindGroup)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
   pBindGroup->Invalidate(this);
+}
+
+ezInt32 ezGALDevice::SelectGpuFromCommandLine(ezArrayPtr<const ezString> gpuNames)
+{
+  // e.g. to test performance on an integrated GPU on a machine that also has a dedicated one
+  const ezStringView sGpu = opt_Gpu.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+  if (sGpu.IsEmpty())
+    return -1;
+
+  ezInt32 iIndex = -1;
+  const bool bIsIndex = ezConversionUtils::StringToInt(sGpu, iIndex).Succeeded();
+  ezInt32 iSelected = -1;
+
+  for (ezUInt32 i = 0; i < gpuNames.GetCount(); ++i)
+  {
+    ezLog::Info("GPU {}: '{}'", i, gpuNames[i]);
+
+    if (iSelected < 0 && (bIsIndex ? (static_cast<ezInt32>(i) == iIndex) : (gpuNames[i].FindSubString_NoCase(sGpu) != nullptr)))
+    {
+      iSelected = static_cast<ezInt32>(i);
+    }
+  }
+
+  if (iSelected < 0)
+  {
+    ezLog::Warning("No GPU matches '-gpu {}', using the default one.", sGpu);
+  }
+
+  return iSelected;
 }
 
 const ezGALSwapChain* ezGALDevice::GetSwapChainInternal(ezGALSwapChainHandle hSwapChain, const ezRTTI* pRequestedType) const
