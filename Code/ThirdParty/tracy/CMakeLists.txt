@@ -70,8 +70,9 @@ endif()
 
 # Wherever TRACY_ENABLE is defined, Tracy opens a listening socket, even with TRACY_ON_DEMAND,
 # which makes the OS firewall report shipped games as accessing the network.
-# Therefore Tracy is compiled out in shipping builds. Code using the EZ_PROFILE_* macros is unaffected,
-# it falls back to the built-in ez profiling system.
+# Therefore shipping builds neither build nor link Tracy (see Code/Engine/Foundation/CMakeLists.txt).
+ez_pull_config_vars()
+set_property(TARGET TracyClient PROPERTY EXCLUDE_FROM_DEFAULT_BUILD_${EZ_BUILDTYPENAME_RELEASE_UPPER} ON)
 target_compile_definitions(TracyClient PUBLIC $<$<NOT:$<CONFIG:${EZ_BUILDTYPENAME_RELEASE}>>:TRACY_ENABLE>)
 set_option(TRACY_ON_DEMAND "On-demand profiling" ON)
 set_option(TRACY_CALLSTACK "Enforce callstack collection for tracy regions" OFF)

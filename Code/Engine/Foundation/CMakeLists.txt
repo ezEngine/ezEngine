@@ -77,6 +77,7 @@ if(EZ_3RDPARTY_PERFETTO_SUPPORT)
 endif()
 
 if(EZ_3RDPARTY_TRACY_SUPPORT)
-  # Tracy has to be linked to all possible targets since it is a multi dll project.
-  target_link_libraries(${PROJECT_NAME} PUBLIC TracyClient)
+  # Shipping builds don't link Tracy, see Code/ThirdParty/tracy/CMakeLists.txt
+  ez_pull_config_vars()
+  target_link_libraries(${PROJECT_NAME} PUBLIC $<$<NOT:$<CONFIG:${EZ_BUILDTYPENAME_RELEASE}>>:TracyClient>)
 endif()
