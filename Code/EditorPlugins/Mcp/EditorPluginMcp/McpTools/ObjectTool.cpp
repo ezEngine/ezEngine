@@ -282,6 +282,12 @@ namespace
         return EZ_SUCCESS;
       }
 
+      if (targetType == ezVariant::Type::Angle && input.IsNumber())
+      {
+        out_value = ezAngle::MakeFromDegree(input.ConvertTo<float>());
+        return EZ_SUCCESS;
+      }
+
       if (targetType != ezVariant::Type::Invalid && input.GetType() != targetType)
       {
         if (!input.CanConvertTo(targetType))
