@@ -39,6 +39,10 @@ ezStringView ezFormatString::BuildFormattedText(ezStringBuilder& ref_sStorage, e
       {
         EZ_ASSERT_DEBUG(false, "Single percentage signs are not allowed in ezFormatString. Did you forgot to migrate a printf-style "
                                "string? Use double percentage signs for the actual character.");
+
+        // without the assert (e.g. in Dev builds) the character still has to be consumed, otherwise this loops forever
+        ref_sStorage.Append("%"_ezsv);
+        sString.ChopAwayFirstCharacterAscii();
       }
     }
     else if (sString.GetElementCount() >= 3 && *sString.GetStartPointer() == '{' && *(sString.GetStartPointer() + 1) >= '0' && *(sString.GetStartPointer() + 1) <= '9' && *(sString.GetStartPointer() + 2) == '}')
