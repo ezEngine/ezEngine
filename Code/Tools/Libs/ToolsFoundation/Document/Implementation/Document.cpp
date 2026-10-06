@@ -239,6 +239,7 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
     auto afterSaveTask = EZ_DEFAULT_NEW(ezAfterSaveDocumentTask);
     afterSaveTask->m_document = this;
     afterSaveTask->m_callback = callback;
+    afterSaveTask->m_OwnGroup = afterSaveID;
     ezTaskSystem::AddTaskToGroup(afterSaveID, afterSaveTask);
   }
   ezTaskSystem::AddTaskGroupDependency(afterSaveID, saveID);

@@ -30,5 +30,8 @@ public:
   ezDocument* m_document = nullptr;
   ezDocument::AfterSaveCallback m_callback;
 
+  /// The group this task belongs to. A newer save may have replaced the document's active save task in the meantime.
+  ezTaskGroupID m_OwnGroup;
+
   virtual void Execute() override;
 };

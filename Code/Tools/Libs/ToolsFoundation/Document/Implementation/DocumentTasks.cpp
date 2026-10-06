@@ -56,5 +56,12 @@ void ezAfterSaveDocumentTask::Execute()
   {
     m_callback(m_document, m_document->m_LastSaveResult);
   }
-  m_document->m_ActiveSaveTask.Invalidate();
+  // Only reset the active save task if it is still this one.
+  // If the document was saved again while this save was running, the newer save is the active one,
+  // and resetting it would make ezDocument::BeforeClosing() skip waiting for it.
+  // The document could then be deleted while the newer save still accesses it.
+  if (m_document->m_ActiveSaveTask == m_OwnGroup)
+  {
+    m_document->m_ActiveSaveTask.Invalidate();
+  }
 }
