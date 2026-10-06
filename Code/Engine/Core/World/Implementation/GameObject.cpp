@@ -1246,8 +1246,20 @@ void ezGameObject::TransformationData::UpdateLocalTransform()
 
   m_localPosition = tLocal.m_Position;
   m_localRotation = tLocal.m_Rotation;
-  m_localScaling = tLocal.m_Scale;
-  m_localScaling.SetW(1.0f);
+
+  // Keep the split between non-uniform and uniform scale. Otherwise a call like SetGlobalPosition() moves the uniform scale into the
+  // non-uniform scale, and a following SetLocalUniformScaling() would multiply with the previous uniform scale instead of replacing it.
+  const ezSimdFloat fUniformScale = m_localScaling.w();
+  if (fUniformScale != ezSimdFloat::MakeZero())
+  {
+    m_localScaling = tLocal.m_Scale / fUniformScale;
+    m_localScaling.SetW(fUniformScale);
+  }
+  else
+  {
+    m_localScaling = tLocal.m_Scale;
+    m_localScaling.SetW(1.0f);
+  }
 }
 
 void ezGameObject::TransformationData::UpdateGlobalTransformNonRecursive(ezUInt32 uiUpdateCounter)
