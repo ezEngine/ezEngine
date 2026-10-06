@@ -36,6 +36,13 @@ public:
 
   static ezQtContainerWindow* GetContainerWindow() { return s_pContainerWindow; }
 
+  /// Adds a tag that is shown in brackets after the window title, e.g. "[unattended]".
+  ///
+  /// Used to make it visible from the outside in which mode an editor runs, for instance when it is controlled by an
+  /// automated tool, so that a user can tell such an instance apart from their own. Adding a tag twice has no effect.
+  static void AddWindowTitleTag(ezStringView sTag);
+  static void RemoveWindowTitleTag(ezStringView sTag);
+
   void AddDocumentWindow(ezQtDocumentWindow* pDocWindow);
   void DocumentWindowRenamed(ezQtDocumentWindow* pDocWindow);
   void AddApplicationPanel(ezQtApplicationPanel* pPanel);
@@ -117,4 +124,5 @@ private:
 
   static ezQtContainerWindow* s_pContainerWindow;
   static bool s_bForceClose;
+  static ezHybridArray<ezString, 4> s_WindowTitleTags;
 };

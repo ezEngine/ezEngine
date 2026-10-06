@@ -17,6 +17,27 @@
 
 ezQtContainerWindow* ezQtContainerWindow::s_pContainerWindow = nullptr;
 bool ezQtContainerWindow::s_bForceClose = false;
+ezHybridArray<ezString, 4> ezQtContainerWindow::s_WindowTitleTags;
+
+void ezQtContainerWindow::AddWindowTitleTag(ezStringView sTag)
+{
+  if (s_WindowTitleTags.Contains(sTag))
+    return;
+
+  s_WindowTitleTags.PushBack(sTag);
+
+  if (s_pContainerWindow != nullptr)
+    s_pContainerWindow->UpdateWindowTitle();
+}
+
+void ezQtContainerWindow::RemoveWindowTitleTag(ezStringView sTag)
+{
+  if (!s_WindowTitleTags.RemoveAndCopy(sTag))
+    return;
+
+  if (s_pContainerWindow != nullptr)
+    s_pContainerWindow->UpdateWindowTitle();
+}
 
 ezQtContainerWindow::ezQtContainerWindow()
 {
@@ -91,6 +112,11 @@ void ezQtContainerWindow::UpdateWindowTitle()
   }
 
   sTitle.Append(ezApplication::GetApplicationInstance()->GetApplicationName().GetView());
+
+  for (const ezString& sTag : s_WindowTitleTags)
+  {
+    sTitle.Append(" [", sTag, "]");
+  }
 
   setWindowTitle(QString::fromUtf8(sTitle.GetData()));
 }
