@@ -254,6 +254,52 @@ namespace
       return EZ_FAILURE;
     }
 
+    // Small value types such as ezVarianceTypeFloat are stored as typed objects. They are reported as an object with
+    // their members, so that is what is accepted here as well. Members that are not given keep their default value.
+    if (pPropType != nullptr && pPropType->GetVariantType() == ezVariant::Type::TypedObject && input.IsA<ezVariantDictionary>())
+    {
+      if (!pPropType->GetAllocator()->CanAllocate())
+      {
+        out_sError.SetFormat("'{}' is of type '{}', which cannot be created from a JSON object.", pProp->GetPropertyName(), pPropType->GetTypeName());
+        return EZ_FAILURE;
+      }
+
+      void* pInstance = pPropType->GetAllocator()->Allocate<void>();
+      ezVariant result;
+      result.MoveTypedObject(pInstance, pPropType);
+
+      for (auto it : input.Get<ezVariantDictionary>())
+      {
+        if (it.Key() == "$type")
+          continue;
+
+        const ezAbstractProperty* pMember = pPropType->FindPropertyByName(it.Key());
+        if (pMember == nullptr || pMember->GetCategory() != ezPropertyCategory::Member)
+        {
+          ezStringBuilder sMembers;
+          ezHybridArray<const ezAbstractProperty*, 16> members;
+          pPropType->GetAllProperties(members);
+          for (const ezAbstractProperty* pM : members)
+          {
+            if (pM->GetCategory() == ezPropertyCategory::Member)
+              sMembers.AppendWithSeparator(", ", "'", pM->GetPropertyName(), "'");
+          }
+
+          out_sError.SetFormat("'{}' has no member '{}'. Its members are: {}.", pPropType->GetTypeName(), it.Key(), sMembers);
+          return EZ_FAILURE;
+        }
+
+        ezVariant memberValue;
+        if (ObjectToolCoerceValue(it.Value(), pMember, memberValue, out_sError).Failed())
+          return EZ_FAILURE;
+
+        ezReflectionUtils::SetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pMember), const_cast<void*>(result.GetData()), memberValue);
+      }
+
+      out_value = std::move(result);
+      return EZ_SUCCESS;
+    }
+
     // For a plain member the property's own type says what is wanted. Converting rather than
     // requiring an exact match is what lets 42 arrive as a double and still set an ezInt32.
     if (pPropType != nullptr && flags.IsSet(ezPropertyFlags::StandardType))
@@ -285,6 +331,13 @@ namespace
       if (targetType == ezVariant::Type::Angle && input.IsNumber())
       {
         out_value = ezAngle::MakeFromDegree(input.ConvertTo<float>());
+        return EZ_SUCCESS;
+      }
+
+      // Likewise times are plain numbers in seconds.
+      if (targetType == ezVariant::Type::Time && input.IsNumber())
+      {
+        out_value = ezTime::MakeFromSeconds(input.ConvertTo<double>());
         return EZ_SUCCESS;
       }
 
@@ -448,7 +501,10 @@ void ezMcpObjectTool::WritePropertyValue(ezMcpJsonWriter& ref_writer, ezObjectAc
     {
       // A member whose value is an embedded object reports that object's guid, not its contents: the
       // tree is walked with follow up calls, so one response stays bounded regardless of nesting.
-      if (flags.IsAnySet(ezPropertyFlags::Class | ezPropertyFlags::Pointer) && !flags.IsSet(ezPropertyFlags::StandardType))
+      // Value types that are stored as typed objects (e.g. ezVarianceTypeFloat) are read as values below, they are no sub objects.
+      const bool bTypedObjectValue = pPropType != nullptr && pPropType->GetVariantType() == ezVariant::Type::TypedObject;
+
+      if (!bTypedObjectValue && flags.IsAnySet(ezPropertyFlags::Class | ezPropertyFlags::Pointer) && !flags.IsSet(ezPropertyFlags::StandardType))
       {
         const ezDocumentObject* pChild = pAccessor->GetChildObjectByName(pObject, pProp->GetPropertyName(), ezVariant());
 
