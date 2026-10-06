@@ -315,14 +315,10 @@ void ezReflectedTypeStorageManager::TypeEventHandler(const ezPhantomRttiManagerE
       ReflectedTypeStorageMapping* pMapping = s_ReflectedTypeToStorageMapping[e.m_pChangedType];
       EZ_ASSERT_DEV(pMapping != nullptr, "A type was updated but no mapping exists for it!");
 
-      if (pNewType->GetParentType() != nullptr && pNewType->GetParentType()->GetTypeName() == "ezEnumBase")
+      if (pNewType->GetParentType() != nullptr && (pNewType->GetParentType()->GetTypeName() == "ezEnumBase" || pNewType->GetParentType()->GetTypeName() == "ezBitflagsBase"))
       {
-        // EZ_ASSERT_DEV(false, "Updating enums not implemented yet!");
+        // Enum and bitflags types have no storage layout to update. Changes to their values happen e.g. when a C++ plugin is reloaded.
         break;
-      }
-      else if (pNewType->GetParentType() != nullptr && pNewType->GetParentType()->GetTypeName() == "ezBitflagsBase")
-      {
-        EZ_ASSERT_DEV(false, "Updating bitflags not implemented yet!");
       }
 
       pMapping->AddProperties(pNewType);
