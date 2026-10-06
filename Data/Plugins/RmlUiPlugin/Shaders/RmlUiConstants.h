@@ -32,4 +32,4 @@ CONSTANT_BUFFER(ezRmlUiAdditionalConstants, 5)
   [GRADIENT_MAX_NUM_STOPS_PACKED]; // normalized, 0 -> starting point, 1 -> ending point
 };
 
-#define GRADIENT_GET_STOP_POS(i) (GradientStopPositions[i >> 2][i & 3])
+#define GRADIENT_GET_STOP_POS(i) (GradientStopPositions[(i) >> 2][(i) & 3])
