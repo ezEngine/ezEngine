@@ -232,6 +232,13 @@ public:
   static ezGALDevice* GetDefaultDevice();
   static bool HasDefaultDevice();
 
+  /// Returns which of the given GPUs the '-gpu' command line option selects, or -1 if the option isn't given or nothing matches.
+  ///
+  /// To be called by a render API abstraction while picking its adapter / physical device. The option takes either an index into
+  /// \a gpuNames or a part of a name (case insensitive, the first match wins). When the option is given, all GPUs are logged,
+  /// and a warning is logged if none matches. On -1 the renderer should fall back to its default choice.
+  static ezInt32 SelectGpuFromCommandLine(ezArrayPtr<const ezString> gpuNames);
+
   // Sends the queued up commands to the GPU.
   // Same as ezCommandEncoder:Flush.
   void Flush();

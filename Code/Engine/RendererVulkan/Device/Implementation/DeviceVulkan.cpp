@@ -531,9 +531,19 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     physicalDevices.SetCount(physicalDeviceCount);
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_Instance.enumeratePhysicalDevices(&physicalDeviceCount, physicalDevices.GetData()));
 
-    // TODO choosable physical device?
-    // TODO making sure we have a hardware device?
     m_PhysicalDevice = physicalDevices[0];
+
+    ezHybridArray<ezString, 2> gpuNames;
+    for (const vk::PhysicalDevice& physicalDevice : physicalDevices)
+    {
+      gpuNames.PushBack(physicalDevice.getProperties().deviceName.data());
+    }
+
+    const ezInt32 iSelected = SelectGpuFromCommandLine(gpuNames);
+    if (iSelected >= 0)
+    {
+      m_PhysicalDevice = physicalDevices[iSelected];
+    }
   }
   {
     m_Properties = m_PhysicalDevice.getProperties2();
