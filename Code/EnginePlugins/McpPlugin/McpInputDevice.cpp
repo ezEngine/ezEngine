@@ -15,6 +15,9 @@ ezMcpInputDevice::ezMcpInputDevice()
   // start asking it for values. There is no registration call.
   s_pInstance = this;
 
+  // keeps working when the application ignores the real mouse and keyboard ('-ignoreinput')
+  m_bIsSimulatedInput = true;
+
   // An agent moving the mouse to a specific spot (e.g. to click a UI element) means that position
   // literally, not 'whichever is bigger, mine or the real cursor's' - see m_bOverridesAbsoluteInput.
   m_bOverridesAbsoluteInput = true;

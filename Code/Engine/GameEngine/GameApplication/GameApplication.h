@@ -4,6 +4,7 @@
 
 #include <Core/Console/ConsoleFunction.h>
 #include <Core/GameApplication/GameApplicationBase.h>
+#include <Core/Input/Declarations.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Logging/TextFileWriter.h>
 #include <Foundation/Threading/DelegateTask.h>
@@ -222,6 +223,7 @@ protected:
   ezUInt32 m_uiRenderedFrames = 0;
   ezAtomicInteger32 m_iLoggedErrors;
   ezLogWriter::TextFile m_UnattendedLogFile;
+  ezMouseCursorOverrideRequest m_IgnoreInputCursorOverride;
   ezEventSubscriptionID m_UnattendedExecutionEventsID = 0;
   ezEventSubscriptionID m_UnattendedLogToFileID = 0;
   ezEventSubscriptionID m_UnattendedLogErrorCounterID = 0;
