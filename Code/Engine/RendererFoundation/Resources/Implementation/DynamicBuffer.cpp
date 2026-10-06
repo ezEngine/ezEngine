@@ -365,7 +365,8 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
     const ezUInt32 uiOldByteOffset = uiOldOffset * m_Desc.m_uiStructSize;
     const ezUInt32 uiNewByteOffset = uiNewOffset * m_Desc.m_uiStructSize;
     const ezUInt32 uiByteSize = allocation.m_uiCount * m_Desc.m_uiStructSize;
-    ezMemoryUtils::Copy(&m_Data[uiNewByteOffset], &m_Data[uiOldByteOffset], uiByteSize);
+    // moving an allocation forward by less than its own size overlaps
+    ezMemoryUtils::CopyOverlapped(&m_Data[uiNewByteOffset], &m_Data[uiOldByteOffset], uiByteSize);
 
     m_DirtyRange.SetToIncludeRange(uiNewOffset, uiNewOffset + allocation.m_uiCount - 1);
 
@@ -392,6 +393,14 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
 
         m_uiNextOffset = revIt.Key();
         MoveAllocation(revIt.Value(), revIt.Key(), uiNewOffset);
+
+        // A free range directly in front of the moved allocation is now at the end of the buffer.
+        // The ranges are sorted by start in reverse, so it can only be the first one.
+        if (!m_FreeRanges.IsEmpty() && m_FreeRanges[0].m_uiMax + 1 == m_uiNextOffset)
+        {
+          m_uiNextOffset = m_FreeRanges[0].m_uiMin;
+          m_FreeRanges.RemoveAtAndCopy(0);
+        }
         continue;
       }
     }

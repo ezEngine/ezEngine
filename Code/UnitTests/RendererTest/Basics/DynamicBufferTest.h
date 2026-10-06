@@ -16,6 +16,7 @@ private:
     ST_Deallocations,
     ST_Compaction,
     ST_ResizeWhileMapped,
+    ST_RandomCompaction,
   };
 
   virtual void SetupSubTests() override;
