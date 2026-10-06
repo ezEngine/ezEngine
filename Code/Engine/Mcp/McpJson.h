@@ -8,8 +8,9 @@
 /// Reads values out of the arguments of a tool call.
 ///
 /// Every accessor takes a fallback and never fails, because the caller is a language model: arguments
-/// go missing, arrive as the wrong type, or are spelled differently than the schema asked for. A tool
-/// that wants to reject bad input has to compare against the fallback and say so in its result.
+/// go missing or arrive as the wrong type. A tool that wants to reject bad input has to compare against
+/// the fallback and say so in its result. Argument names that the tool's schema doesn't list never get
+/// here, ezMcpToolRegistry::Execute() rejects those.
 ///
 /// For producing JSON see ezMcpJsonWriter.
 struct EZ_MCP_DLL ezMcpJson
@@ -22,6 +23,9 @@ struct EZ_MCP_DLL ezMcpJson
   /// The JSON parser turns every number into a double, and AI clients happily send "10" as a string,
   /// so this accepts anything convertible.
   static ezInt64 GetInt(const ezVariantDictionary& dict, ezStringView sKey, ezInt64 iFallback);
+
+  /// Same as GetInt(), but keeps the fractional part.
+  static double GetDouble(const ezVariantDictionary& dict, ezStringView sKey, double fFallback);
 
   /// Returns the value of a bool member, or bFallback if it is missing or not a bool.
   ///

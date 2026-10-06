@@ -36,6 +36,26 @@ ezInt64 ezMcpJson::GetInt(const ezVariantDictionary& dict, ezStringView sKey, ez
   return iFallback;
 }
 
+double ezMcpJson::GetDouble(const ezVariantDictionary& dict, ezStringView sKey, double fFallback)
+{
+  const ezVariant* pValue = nullptr;
+
+  if (!dict.TryGetValue(sKey, pValue) || !pValue->IsValid())
+    return fFallback;
+
+  if (pValue->IsNumber())
+    return pValue->ConvertTo<double>();
+
+  if (pValue->IsA<ezString>())
+  {
+    double fResult = 0.0;
+    if (ezConversionUtils::StringToFloat(pValue->Get<ezString>(), fResult).Succeeded())
+      return fResult;
+  }
+
+  return fFallback;
+}
+
 bool ezMcpJson::GetBool(const ezVariantDictionary& dict, ezStringView sKey, bool bFallback)
 {
   const ezVariant* pValue = nullptr;

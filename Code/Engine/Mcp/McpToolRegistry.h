@@ -54,6 +54,11 @@ public:
 
   /// Runs a tool. Fails only if no tool of that name exists - a tool that ran but didn't like
   /// its arguments reports that through out_result instead.
+  ///
+  /// Arguments that the tool's input schema doesn't list are rejected with an error result before the
+  /// tool runs. Otherwise a misspelled or made up argument would be ignored silently and the call would
+  /// do something else than the client expects. Schemas that don't list their properties, or allow
+  /// additional ones, are not checked.
   static ezResult Execute(ezStringView sToolName, const ezVariantDictionary& arguments, ezMcpToolResult& out_result);
 
 private:
@@ -61,5 +66,8 @@ private:
   static ezDynamicArray<ezMcpToolProvider*> s_Providers;
   static ezDynamicArray<ezMcpToolDesc> s_Tools;
   static ezMap<ezString, ezMcpToolProvider*> s_ToolLookup;
+
+  /// The argument names each tool accepts, from its input schema. Tools without an entry are not checked.
+  static ezMap<ezString, ezDynamicArray<ezString>> s_ToolArguments;
   static ezMcpExecuteWrapper s_ExecuteWrapper;
 };
