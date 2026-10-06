@@ -2,6 +2,7 @@
 
 #include <RendererTest/Basics/DynamicBufferTest.h>
 
+#include <Foundation/Math/Random.h>
 #include <RendererFoundation/Resources/DynamicBuffer.h>
 
 void ezRendererTestDynamicBuffer::SetupSubTests()
@@ -10,6 +11,7 @@ void ezRendererTestDynamicBuffer::SetupSubTests()
   AddSubTest("Deallocations", SubTests::ST_Deallocations);
   AddSubTest("Compaction", SubTests::ST_Compaction);
   AddSubTest("Resize While Mapped", SubTests::ST_ResizeWhileMapped);
+  AddSubTest("Random Compaction", SubTests::ST_RandomCompaction);
 }
 
 ezResult ezRendererTestDynamicBuffer::InitializeSubTest(ezInt32 iIdentifier)
@@ -271,6 +273,73 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
       {
         EZ_TEST_INT(v, i + 1);
       }
+    }
+  }
+
+  else if (iIdentifier == SubTests::ST_RandomCompaction)
+  {
+    auto pDevice = ezGALDevice::GetDefaultDevice();
+    auto pDynamicBuffer = pDevice->GetDynamicBuffer(m_hDynamicBuffer);
+
+    // user data -> offset, every element of an allocation stores its user data
+    ezMap<ezUInt32, ezUInt32> allocations;
+    ezRandom rng;
+    rng.Initialize(42);
+    ezUInt32 uiNextUserData = 1;
+
+    auto CheckContents = [&]()
+    {
+      for (auto it : allocations)
+      {
+        auto data = pDynamicBuffer->MapForReading<ezUInt64>(it.Value());
+        for (ezUInt64 v : data)
+        {
+          if (!EZ_TEST_INT(v, it.Key()))
+            return false;
+        }
+      }
+      return true;
+    };
+
+    ezTempHybridArray<ezGALDynamicBuffer::ChangedAllocation, 16> changedAllocations;
+
+    for (ezUInt32 uiRound = 0; uiRound < 500; ++uiRound)
+    {
+      const ezUInt32 uiNumOps = rng.UIntInRange(8);
+      for (ezUInt32 i = 0; i < uiNumOps; ++i)
+      {
+        if (allocations.IsEmpty() || rng.Bool())
+        {
+          const ezUInt32 uiUserData = uiNextUserData++;
+          const ezUInt32 uiOffset = pDynamicBuffer->Allocate(uiUserData, 1 + rng.UIntInRange(12));
+          for (auto& v : pDynamicBuffer->MapForWriting<ezUInt64>(uiOffset))
+          {
+            v = uiUserData;
+          }
+          allocations[uiUserData] = uiOffset;
+        }
+        else
+        {
+          auto it = allocations.GetIterator();
+          for (ezUInt32 uiSkip = rng.UIntInRange(allocations.GetCount()); uiSkip > 0; --uiSkip)
+            ++it;
+
+          pDynamicBuffer->Deallocate(it.Value());
+          allocations.Remove(it);
+        }
+      }
+
+      // compaction is skipped while there is temporary data
+      pDynamicBuffer->UploadChangesForNextFrame();
+
+      pDynamicBuffer->RunCompactionSteps(changedAllocations, 1 + rng.UIntInRange(4));
+      for (auto& changed : changedAllocations)
+      {
+        allocations[static_cast<ezUInt32>(changed.m_uiUserData)] = changed.m_uiNewOffset;
+      }
+
+      if (!CheckContents())
+        break;
     }
   }
 
