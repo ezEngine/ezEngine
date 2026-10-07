@@ -8,6 +8,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <RendererCore/Components/SplineComponent.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
@@ -47,7 +48,10 @@ public:
 
     ezMeshResourceDescriptor splineMeshDesc;
     if (ezSplineMeshComponent::GenerateSplineMeshDesc(m_Spline, m_DistanceToKey, cpuMeshes, m_ScaleOffsets, m_fLocalOffsetY, m_fLocalOffsetZ, splineMeshDesc).Failed())
+    {
+      ezLog::Error("Spline collision generation failed for '{}': GenerateSplineMeshDesc failed. GenerationDone is not posted, later generations will stay queued.", m_sCollisionMeshPath);
       return;
+    }
 
     ezJoltMeshDesc joltMeshDesc;
     {
@@ -103,6 +107,10 @@ public:
     if (fileWriter.Close().Failed())
     {
       ezLog::Error("Could not write spline collision mesh file to '{}'", m_sCollisionMeshPath);
+    }
+    else
+    {
+      ezLog::Dev("Spline collision mesh written to '{}'", m_sCollisionMeshPath);
     }
 
     ezMsgComponentInternalTrigger msg;
@@ -294,6 +302,8 @@ void ezJoltGenerateCollisionComponent::OnMsgGenerateSplineMeshCollision(ezMsgGen
   auto pTask = EZ_DEFAULT_NEW(SplineCollisionGenerationTask, GetHandle(), sb, pSplineComponent->GetSpline(), pSplineComponent->GetDistanceToKeyRemapping(), cpuMeshes, scaleOffsets, ref_msg.m_fLocalOffsetY, ref_msg.m_fLocalOffsetZ);
   pTask->ConfigureTask("Generate Spline Collision Mesh", ezTaskNesting::Maybe);
 
+  ezLog::Dev("ezJoltGenerateCollisionComponent on '{}': generation requested for '{}'{}", GetOwner()->GetName(), m_sCollisionMeshPath, m_pGenerationTask != nullptr ? " (queued, another task is running)" : "");
+
   StartGenerateTask(pTask);
 }
 
@@ -326,10 +336,34 @@ void ezJoltGenerateCollisionComponent::StartGenerateTask(ezSharedPtr<ezTask>&& p
 
 void ezJoltGenerateCollisionComponent::FinalizeGeneration()
 {
+  const ezStringView sOwnerName = GetOwner()->GetName();
+
   if (m_sCollisionMeshPath.IsEmpty())
+  {
+    ezLog::Error("ezJoltGenerateCollisionComponent on '{}': FinalizeGeneration called without a collision mesh path, no collision will be created.", sOwnerName);
     return;
+  }
 
   ezTaskSystem::WaitForGroup(m_TaskGroupID);
+
+  // If a new task was started while we were waiting, we need to wait for that one as well.
+  if (m_pNextGenerationTask != nullptr)
+  {
+    m_pGenerationTask = std::move(m_pNextGenerationTask);
+    m_TaskGroupID = ezTaskSystem::StartSingleTask(m_pGenerationTask, ezTaskPriority::LongRunning);
+    m_pNextGenerationTask = nullptr;
+
+    ezTaskSystem::WaitForGroup(m_TaskGroupID);
+  }
+
+  if (!ezFileSystem::ExistsFile(m_sCollisionMeshPath))
+  {
+    ezLog::Error("ezJoltGenerateCollisionComponent on '{}': collision mesh file '{}' does not exist.", sOwnerName, m_sCollisionMeshPath);
+  }
+  else
+  {
+    ezLog::Dev("ezJoltGenerateCollisionComponent on '{}': finalized with '{}'", sOwnerName, m_sCollisionMeshPath);
+  }
 
   ezGameObject* pObject = GetOwner();
   while (pObject->WasCreatedByPrefab())

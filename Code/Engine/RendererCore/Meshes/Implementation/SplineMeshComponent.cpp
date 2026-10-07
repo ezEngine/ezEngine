@@ -64,6 +64,10 @@ public:
     {
       ezLog::Error("Could not write spline mesh file to '{}'", m_sSplineMeshPath);
     }
+    else
+    {
+      ezLog::Dev("Spline mesh written to '{}'", m_sSplineMeshPath);
+    }
 
     {
       ezMsgGenericEvent msg;
@@ -971,6 +975,21 @@ void ezSplineMeshComponent::UpdateSplineMesh()
 
     auto hSplineMesh = ezResourceManager::LoadResource<ezMeshResource>(sMeshPath);
     SetMesh(hSplineMesh);
+  }
+}
+
+void ezSplineMeshComponent::EnsureGenerationFinished()
+{
+  ezTaskSystem::WaitForGroup(m_TaskGroupID);
+
+  // If a new task was started while we were waiting, we need to wait for that one as well.
+  if (m_pNextGenerationTask != nullptr)
+  {
+    m_pGenerationTask = std::move(m_pNextGenerationTask);
+    m_TaskGroupID = ezTaskSystem::StartSingleTask(m_pGenerationTask, ezTaskPriority::LongRunning);
+    m_pNextGenerationTask = nullptr;
+
+    ezTaskSystem::WaitForGroup(m_TaskGroupID);
   }
 }
 

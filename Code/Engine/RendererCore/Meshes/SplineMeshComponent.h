@@ -131,6 +131,12 @@ public:
   /// Helper function to generate a spline mesh descriptor from the given spline and meshes.
   static ezResult GenerateSplineMeshDesc(const ezSpline& spline, const ezArrayMap<float, float>& distanceToKey, ezArrayPtr<ezCpuMeshResource*> meshes, ezArrayPtr<ezVec2> scaleOffsets, float fLocalOffsetY, float fLocalOffsetZ, ezMeshResourceDescriptor& out_splineMeshDesc);
 
+  /// Blocks until the currently running spline mesh generation task is done.
+  ///
+  /// The results (the generated mesh and the collision generation request) are delivered via posted messages
+  /// on the next world update, so the world needs to be updated afterwards to receive them.
+  void EnsureGenerationFinished();
+
 private:
   ezUInt32 MiddleParts_GetCount() const { return m_MiddleParts.GetCount(); }
   const ezSplineMeshPart& MiddleParts_GetValue(ezUInt32 uiIndex) const { return m_MiddleParts[uiIndex]; }
