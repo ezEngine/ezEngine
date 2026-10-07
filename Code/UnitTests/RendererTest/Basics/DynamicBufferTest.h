@@ -17,6 +17,7 @@ private:
     ST_Compaction,
     ST_ResizeWhileMapped,
     ST_RandomCompaction,
+    ST_TempData,
   };
 
   virtual void SetupSubTests() override;

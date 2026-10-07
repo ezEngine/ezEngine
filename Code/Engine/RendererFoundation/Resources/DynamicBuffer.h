@@ -121,8 +121,17 @@ private:
   ezByteArrayPtr MapForWriting(ezUInt32 uiOffset, ezUInt32& out_uiCount);
   ezConstByteArrayPtr MapForReading(ezUInt32 uiOffset, ezUInt32& out_uiCount) const;
 
-  ezUInt32 AllocateTempData(ezUInt32 uiStartOffset, ezUInt32 uiNewCount, ezAllocator* pTempAllocator);
+  /// Returns the m_uiDataIndex for an allocation at this range.
+  ///
+  /// Returns ezInvalidIndex if neither m_Data nor one temp data contains the full range.
+  ezUInt32 FindDataIndex(ezUInt32 uiOffset, ezUInt32 uiCount) const;
 
+  /// Creates new temp data for the range [uiStartOffset, m_uiCapacity) and returns its data index.
+  ///
+  /// If m_uiCapacity is smaller than uiMinCapacity, the capacity is increased first.
+  ezUInt32 AllocateTempData(ezUInt32 uiStartOffset, ezUInt32 uiMinCapacity, ezAllocator* pTempAllocator);
+
+  /// Called by the device in BeginFrame. After this, the renderer uses the buffer of the last upload.
   void SwapBuffers()
   {
     m_hBufferForRendering = m_hBufferForUpload;
@@ -130,16 +139,33 @@ private:
 
   mutable ezMutex m_Mutex;
 
-  ezUInt32 m_uiCapacity = 0;   ///< in number of elements
-  ezUInt32 m_uiNextOffset = 0; ///< in number of elements
+  /// Number of elements that fit into the buffer without growing.
+  ///
+  /// When the buffer grows, this value changes immediately, but m_Data only changes in the next upload.
+  ezUInt32 m_uiCapacity = 0;
 
+  /// End of the used part of the buffer, in number of elements. A new allocation is placed here if it doesn't fit into a free range.
+  ///
+  /// Every element in [0, m_uiNextOffset) is either part of an allocation or part of a free range.
+  /// The last element always belongs to an allocation. There is never a free range at the end.
+  /// Instead, m_uiNextOffset is decreased.
+  ezUInt32 m_uiNextOffset = 0;
+
+  /// CPU copy of the GPU buffer data.
+  ///
+  /// Only UploadChangesForNextFrame and Clear change its size.
+  /// This way, mapped pointers stay valid when the buffer grows during a frame.
   ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_Data;
 
+  /// Extra memory for allocations that don't fit into m_Data. It is used until the next UploadChangesForNextFrame.
+  ///
+  /// The ranges of different temp data can overlap, and they can also overlap m_Data.
+  /// Each allocation is stored in exactly one place, see Allocation::m_uiDataIndex.
   struct TempData
   {
     ezAllocator* m_pAllocator = nullptr;
     ezUInt8* m_pData = nullptr;
-    ezUInt32 m_uiStartByteOffset = 0;
+    ezUInt32 m_uiStartByteOffset = 0; ///< Byte offset in the full buffer where m_pData starts.
     ezUInt32 m_uiByteSize = 0;
   };
 
@@ -148,18 +174,31 @@ private:
   struct Allocation
   {
     ezUInt64 m_uiUserData = 0;
-    ezUInt32 m_uiCount = 0;
-    ezUInt32 m_uiDataIndex = 0; ///< 0 is full buffer, greater than 0 are temp buffers
+    ezUInt32 m_uiCount = 0;     ///< in number of elements
+    ezUInt32 m_uiDataIndex = 0; ///< 0 means the data is in m_Data, otherwise it is in m_TempData[m_uiDataIndex - 1]
   };
 
+  /// All allocations. The key is the offset in number of elements.
   ezMap<ezUInt32, Allocation> m_Allocations;
 
+  /// Unused ranges below m_uiNextOffset, in number of elements. Deallocate creates them.
+  ///
+  /// Two free ranges are never next to each other, they are always merged into one.
+  /// Directly after each free range there is an allocation.
+  /// The array is sorted by count, so that Allocate uses the smallest hole that fits.
+  /// RunCompactionSteps sorts it by start while it runs, and sorts it by count again at the end.
   ezDynamicArray<ezGAL::ModifiedRange> m_FreeRanges;
+
+  /// Range of elements that UploadChangesForNextFrame has to send to the GPU.
   ezGAL::ModifiedRange m_DirtyRange;
 
+  /// m_uiTotalSize changes when the buffer grows. The next upload then uses it for the new size of m_Data and the GPU buffer.
   ezGALBufferCreationDescription m_Desc;
 
+  /// The uploads go into this buffer. In the next BeginFrame it becomes m_hBufferForRendering.
   ezGALBufferHandle m_hBufferForUpload;
+
+  /// The buffer that the renderer uses in the current frame, see GetBufferForRendering().
   ezGALBufferHandle m_hBufferForRendering;
 
   ezString m_sDebugName;

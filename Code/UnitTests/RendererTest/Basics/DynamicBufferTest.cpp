@@ -12,6 +12,7 @@ void ezRendererTestDynamicBuffer::SetupSubTests()
   AddSubTest("Compaction", SubTests::ST_Compaction);
   AddSubTest("Resize While Mapped", SubTests::ST_ResizeWhileMapped);
   AddSubTest("Random Compaction", SubTests::ST_RandomCompaction);
+  AddSubTest("Temp Data", SubTests::ST_TempData);
 }
 
 ezResult ezRendererTestDynamicBuffer::InitializeSubTest(ezInt32 iIdentifier)
@@ -340,6 +341,124 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
 
       if (!CheckContents())
         break;
+    }
+  }
+
+  else if (iIdentifier == SubTests::ST_TempData)
+  {
+    auto pDevice = ezGALDevice::GetDefaultDevice();
+    auto pDynamicBuffer = pDevice->GetDynamicBuffer(m_hDynamicBuffer);
+    const ezGALBufferCreationDescription desc = pDynamicBuffer->GetDescription();
+
+    // user data -> offset, every element of an allocation stores its user data
+    ezMap<ezUInt32, ezUInt32> allocations;
+    ezUInt32 uiNextUserData = 1;
+
+    auto AllocateAndFill = [&](ezUInt32 uiCount)
+    {
+      const ezUInt32 uiUserData = uiNextUserData++;
+      const ezUInt32 uiOffset = pDynamicBuffer->Allocate(uiUserData, uiCount);
+      auto data = pDynamicBuffer->MapForWriting<ezUInt64>(uiOffset);
+      EZ_TEST_INT(data.GetCount(), uiCount);
+      for (auto& v : data)
+      {
+        v = uiUserData;
+      }
+      allocations[uiUserData] = uiOffset;
+      return uiUserData;
+    };
+
+    auto Deallocate = [&](ezUInt32 uiUserData)
+    {
+      pDynamicBuffer->Deallocate(allocations[uiUserData]);
+      allocations.Remove(uiUserData);
+    };
+
+    auto CheckContents = [&]()
+    {
+      for (auto it : allocations)
+      {
+        auto data = pDynamicBuffer->MapForReading<ezUInt64>(it.Value());
+        for (ezUInt64 v : data)
+        {
+          if (!EZ_TEST_INT(v, it.Key()))
+            return false;
+        }
+      }
+      return true;
+    };
+
+    // Clear() keeps the larger capacity. Use a new buffer, so that the buffer has to grow again in the next case.
+    auto Reset = [&]()
+    {
+      pDevice->DestroyDynamicBuffer(m_hDynamicBuffer);
+      m_hDynamicBuffer = pDevice->CreateDynamicBuffer(desc, "Test buffer");
+      pDynamicBuffer = pDevice->GetDynamicBuffer(m_hDynamicBuffer);
+      allocations.Clear();
+    };
+
+    // The end of the buffer moves below the start of the temp data. The next allocation starts in m_Data and ends after it.
+    {
+      const ezUInt32 a = AllocateAndFill(10);
+      const ezUInt32 b = AllocateAndFill(10); // grows the buffer
+      Deallocate(b);
+      Deallocate(a);
+      AllocateAndFill(20);
+      CheckContents();
+
+      pDynamicBuffer->UploadChangesForNextFrame();
+      CheckContents();
+      Reset();
+    }
+
+    // An allocation uses a hole inside the temp data range, but it also fits into m_Data.
+    {
+      AllocateAndFill(10);
+      const ezUInt32 b = AllocateAndFill(10); // grows the buffer
+      AllocateAndFill(4);
+      Deallocate(b);
+      AllocateAndFill(5);
+      CheckContents();
+
+      pDynamicBuffer->UploadChangesForNextFrame();
+      CheckContents();
+      Reset();
+    }
+
+    // Grow several times between uploads.
+    {
+      ezRandom rng;
+      rng.Initialize(7);
+
+      for (ezUInt32 uiRound = 0; uiRound < 400; ++uiRound)
+      {
+        const ezUInt32 uiNumOps = rng.UIntInRange(8);
+        for (ezUInt32 i = 0; i < uiNumOps; ++i)
+        {
+          if (allocations.IsEmpty() || rng.UIntInRange(5) < 3)
+          {
+            AllocateAndFill(1 + rng.UIntInRange(40));
+          }
+          else
+          {
+            auto it = allocations.GetIterator();
+            for (ezUInt32 uiSkip = rng.UIntInRange(allocations.GetCount()); uiSkip > 0; --uiSkip)
+              ++it;
+
+            Deallocate(it.Key());
+          }
+        }
+
+        if (!CheckContents())
+          break;
+
+        if (uiRound % 16 == 15)
+        {
+          pDynamicBuffer->UploadChangesForNextFrame();
+          if (!CheckContents())
+            break;
+        }
+      }
     }
   }
 
