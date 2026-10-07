@@ -153,11 +153,18 @@ struct DecalInfo
 
     if (m_sName.IsEmpty())
     {
+      // This is called while holding the decal manager mutex. Never block on resource loading here,
+      // (AllowLoadingFallback turns into BlockTillLoaded while ForceNoFallbackAcquisition is active),
+      // otherwise other extraction tasks waiting on the mutex can deadlock. Instead only peek at the
+      // resource and request loading, the name is resolved in a later frame once loading is done.
       if (m_hTexture.IsValid())
       {
-        ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::AllowLoadingFallback);
-        if (pTexture.GetAcquireResult() != ezResourceAcquireResult::Final || pTexture->GetNumQualityLevelsLoadable() > 0)
+        ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::PointerOnly);
+        if (pTexture->GetLoadingState() != ezResourceState::Loaded || pTexture->GetNumQualityLevelsLoadable() > 0)
+        {
+          ezResourceManager::PreloadResource(m_hTexture);
           return;
+        }
 
         m_uiMaxWidth = ezMath::Min(pTexture->GetWidth(), s_uiMaxDecalSize);
         m_uiMaxHeight = ezMath::Min(pTexture->GetHeight(), s_uiMaxDecalSize);
@@ -167,9 +174,12 @@ struct DecalInfo
       {
         EZ_ASSERT_DEV(m_hMaterial.IsValid(), "DecalInfo must have either a texture or a material assigned.");
 
-        ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-        if (pMaterial.GetAcquireResult() != ezResourceAcquireResult::Final)
+        ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::PointerOnly);
+        if (pMaterial->GetLoadingState() != ezResourceState::Loaded)
+        {
+          ezResourceManager::PreloadResource(m_hMaterial);
           return;
+        }
 
         m_sName.Assign(DecalInfo::GetNameFromResource(*pMaterial.GetPointer()));
       }
