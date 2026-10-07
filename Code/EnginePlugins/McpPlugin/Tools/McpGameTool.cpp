@@ -33,14 +33,14 @@ void ezMcpGameTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) 
     ezMcpToolDesc& desc = out_tools.ExpandAndGetRef();
     desc.m_sName = "game_wait";
     desc.m_sDescription =
-      "Lets the game run for a number of frames and returns once they have happened. This is how to observe anything: "
+      "Lets the game run for a number of frames, or an amount of game time, and returns once they have passed. This is how to observe anything: "
       "input is consumed one frame at a time and a screenshot captures a frame that was already presented, so "
       "'press a key, wait, look' is the sequence that shows an effect.\n"
       "It does not change how the game runs - it only waits. If frames are not being produced at all, it gives up "
       "after a timeout and says so rather than blocking forever; the usual cause is the editor's engine process, "
       "which renders only while the editor asks it to.";
 
-    desc.m_sInputSchema = R"({"type":"object","properties":{"frames":{"type":"number","description":"How many frames to wait for. Default 1."},"timeout":{"type":"number","description":"Give up after this many seconds if the frames do not happen. Default 30."}}})";
+    desc.m_sInputSchema = R"({"type":"object","properties":{"frames":{"type":"number","description":"How many frames to wait for. Default 1."},"seconds":{"type":"number","description":"Instead of 'frames': how much game time to wait for, measured with the global clock. Follows game_speed, and doesn't pass while the clock is paused. Can't be combined with 'frames'."},"timeout":{"type":"number","description":"Give up after this many real seconds if the wait has not ended. Default 30, or the 'seconds' wait plus 30."}}})";
   }
 
   {
@@ -162,6 +162,21 @@ void ezMcpGameTool::ExecuteWait(const ezVariantDictionary& arguments, ezMcpToolR
   if (!m_bWaiting)
   {
     const ezInt64 iFrames = ezMcpJson::GetInt(arguments, "frames", 1);
+    const double fSeconds = ezMcpJson::GetDouble(arguments, "seconds", 0.0);
+
+    if (arguments.Contains("seconds") && arguments.Contains("frames"))
+    {
+      out_result.SetError("Pass either 'frames' or 'seconds', not both.");
+      return;
+    }
+
+    if (arguments.Contains("seconds") && (fSeconds <= 0.0 || fSeconds > 3600.0))
+    {
+      ezStringBuilder sError;
+      sError.SetFormat("'seconds' must be greater than 0 and at most 3600, not {}.", fSeconds);
+      out_result.SetError(sError);
+      return;
+    }
 
     if (iFrames < 1 || iFrames > s_uiMaxFrames)
     {
@@ -171,19 +186,22 @@ void ezMcpGameTool::ExecuteWait(const ezVariantDictionary& arguments, ezMcpToolR
       return;
     }
 
-    const ezInt64 iTimeout = ezMcpJson::GetInt(arguments, "timeout", static_cast<ezInt64>(s_DefaultTimeout.GetSeconds()));
+    // a wait in game time takes at least that long in real time at normal speed, so the default timeout grows with it
+    const ezTime defaultTimeout = s_DefaultTimeout + ezTime::MakeFromSeconds(fSeconds);
+    const ezInt64 iTimeout = ezMcpJson::GetInt(arguments, "timeout", static_cast<ezInt64>(defaultTimeout.GetSeconds()));
 
     m_bWaiting = true;
     m_uiWaitStartFrame = uiNow;
-    m_uiWaitUntilFrame = uiNow + static_cast<ezUInt64>(iFrames);
+    m_uiWaitUntilFrame = fSeconds > 0.0 ? uiNow : uiNow + static_cast<ezUInt64>(iFrames);
+    m_WaitUntilGameTime = fSeconds > 0.0 ? ezClock::GetGlobalClock()->GetAccumulatedTime() + ezTime::MakeFromSeconds(fSeconds) : ezTime::MakeZero();
     m_WaitStarted = ezTime::Now();
-    m_WaitTimeout = iTimeout > 0 ? ezTime::MakeFromSeconds(static_cast<double>(iTimeout)) : s_DefaultTimeout;
+    m_WaitTimeout = iTimeout > 0 ? ezTime::MakeFromSeconds(static_cast<double>(iTimeout)) : defaultTimeout;
 
     out_result.m_bNotFinished = true;
     return;
   }
 
-  const bool bDone = uiNow >= m_uiWaitUntilFrame;
+  const bool bDone = m_WaitUntilGameTime.IsPositive() ? ezClock::GetGlobalClock()->GetAccumulatedTime() >= m_WaitUntilGameTime : uiNow >= m_uiWaitUntilFrame;
   const bool bTimedOut = !bDone && (ezTime::Now() - m_WaitStarted >= m_WaitTimeout);
 
   if (!bDone && !bTimedOut)
@@ -199,6 +217,16 @@ void ezMcpGameTool::ExecuteWait(const ezVariantDictionary& arguments, ezMcpToolR
 
   if (bTimedOut)
   {
+    if (m_WaitUntilGameTime.IsPositive())
+    {
+      ezStringBuilder sError;
+      sError.SetFormat("Timed out after {} seconds, the game time did not advance far enough ({} frames passed). The clock may "
+                       "be paused (see game_pause) or slowed down (game_speed), or no frames are being produced.",
+        (ezTime::Now() - m_WaitStarted).GetSeconds(), uiElapsed);
+      out_result.SetError(sError);
+      return;
+    }
+
     ezStringBuilder sError;
     sError.SetFormat("Timed out after {} seconds having waited {} of {} frames. The game is not producing frames fast "
                      "enough, or not at all. In the editor's engine process that is the normal state while "

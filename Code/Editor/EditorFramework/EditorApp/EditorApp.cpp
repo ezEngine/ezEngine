@@ -63,6 +63,9 @@ ezInt32 ezQtEditorApp::RunEditor()
 
 void ezQtEditorApp::SlotTimedUpdate()
 {
+  ++m_iTimedUpdateDepth;
+  EZ_SCOPE_EXIT(--m_iTimedUpdateDepth);
+
   if (ezToolsProject::IsProjectOpen())
   {
     if (ezEditorEngineProcessConnection::GetSingleton())

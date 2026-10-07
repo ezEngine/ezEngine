@@ -42,6 +42,9 @@ private:
   ezTime m_WaitStarted;
   ezTime m_WaitTimeout;
 
+  /// For waits given in seconds: the global clock's accumulated time at which the wait ends. Zero for waits given in frames.
+  ezTime m_WaitUntilGameTime;
+
   /// Frames are cheap but not free, and a caller that asks for a million of them has made a mistake
   /// that would otherwise look exactly like a hang.
   static constexpr ezUInt32 s_uiMaxFrames = 10000;

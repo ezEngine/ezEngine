@@ -123,6 +123,13 @@ public:
   /// Returns true if the the app shouldn't display anything. This is the case in an EditorProcessor.
   bool IsInHeadlessMode() const { return m_StartupFlags.IsSet(StartupFlags::Headless); }
 
+  /// Returns true while the editor runs its per-frame work, i.e. the main thread tasks and the asset curator tick.
+  ///
+  /// That work may block for a long time (e.g. a transform after saving a document) and pump the event loop
+  /// meanwhile. Anything else that is driven by events, such as automation, must not run during that time,
+  /// because it could e.g. close a document that is in the middle of being transformed.
+  bool IsInTimedUpdate() const { return m_iTimedUpdateDepth > 0; }
+
   /// Returns true if the editor is started in run in test mode.
   bool IsInUnitTestMode() const { return m_StartupFlags.IsSet(StartupFlags::UnitTest); }
 
@@ -333,6 +340,7 @@ private:
   ezLongOpControllerManager m_LongOpControllerManager;
   ezEditorEngineProcessConnection* m_pEngineViewProcess;
   QTimer* m_pTimer = nullptr;
+  ezInt32 m_iTimedUpdateDepth = 0;
 
   QSplashScreen* m_pSplashScreen = nullptr;
   QTimer* m_pAutoSaveTimer = nullptr;

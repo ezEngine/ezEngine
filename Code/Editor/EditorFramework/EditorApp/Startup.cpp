@@ -365,6 +365,9 @@ void ezQtEditorApp::StartupEditor()
   {
     ezQtUiServices::SetUnattended();
     SetupSilentAsserts();
+
+    // makes an editor that was started by an automated tool recognizable among the user's own windows
+    ezQtContainerWindow::AddWindowTitleTag("unattended");
   }
 
   if (!bUnattended)

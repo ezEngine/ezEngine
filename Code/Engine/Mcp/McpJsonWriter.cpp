@@ -3,6 +3,7 @@
 #include <Mcp/McpJsonWriter.h>
 
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Types/Uuid.h>
 
 ezMcpJsonWriter::ezMcpJsonWriter()
@@ -61,12 +62,35 @@ void ezMcpJsonWriter::WriteVariant(const ezVariant& value)
 
     case ezVariant::Type::TypedObject:
     {
-      // Only the type is written. Serialising the members would need the property system and could
-      // recurse without bound, which is not what a JSON writer should be doing.
+      // Small value types like ezVarianceTypeFloat are stored this way. Their members are written as long as
+      // they are standard types, which is what makes such a value readable and writable through the same JSON.
+      // Nested objects are not followed, so this cannot recurse.
       const ezRTTI* pType = value.GetReflectedType();
+      const void* pObject = value.GetData();
 
       BeginObject();
       AddVariableString("$type", pType != nullptr ? pType->GetTypeName() : ezStringView());
+
+      if (pType != nullptr && pObject != nullptr)
+      {
+        ezHybridArray<const ezAbstractProperty*, 16> properties;
+        pType->GetAllProperties(properties);
+
+        for (const ezAbstractProperty* pProp : properties)
+        {
+          if (pProp->GetCategory() != ezPropertyCategory::Member || !pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+            continue;
+
+          const ezVariant memberValue = ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), pObject);
+          if (memberValue.GetType() == ezVariant::Type::TypedObject)
+            continue;
+
+          BeginVariable(pProp->GetPropertyName());
+          WriteVariant(memberValue);
+          EndVariable();
+        }
+      }
+
       EndObject();
       return;
     }

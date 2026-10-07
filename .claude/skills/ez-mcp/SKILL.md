@@ -132,6 +132,8 @@ process until play-the-game runs, and why input does nothing and screenshots tim
 - **`input_set` then `game_wait`** - input is consumed one frame at a time, so setting a slot alone does
   nothing. `input_sequence` does a whole set/wait/text/clear chain in one call. Injected values merge
   with the real keyboard, larger wins, so a human is never locked out.
+- **`game_wait` takes `frames` or `seconds`** (game time on the global clock). For "let the game play for a
+  while" use `seconds` - a frame count lasts however long the frame rate makes it.
 - **`game_pause` stops the engine clock, not necessarily the game's own simulation.**
 - `cvar_list` is worth far more here than in the editor: render passes, physics and AI visualisation are
   mostly CVars.

@@ -3,7 +3,9 @@
 #include <Mcp/McpServer.h>
 #include <Mcp/McpToolRegistry.h>
 
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
+#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
 /// The port to listen on.
@@ -44,6 +46,12 @@ static void ExecuteWrapper(ezStringView sToolName, ezMcpToolResult& ref_result, 
   // ezQtDialog. What got suppressed is reported afterwards, otherwise a suppressed dialog is
   // indistinguishable from the operation having done nothing.
   ezQtScopedUnattended unattended;
+
+  // Shows in the window title that an agent has been using this editor, so that a user with several editors open
+  // can tell which ones are their own. Stays until the editor is closed, since the agent may continue at any time.
+  ezQtContainerWindow::RemoveWindowTitleTag("unattended");
+  ezQtContainerWindow::AddWindowTitleTag("agent controlled");
+
   ezQtUiServices::ClearSuppressedDialogs();
   ezQtUiServices::ClearFailedAsserts();
 
@@ -122,7 +130,10 @@ static void TickEventHandler(const ezQtUiServices::TickEvent& e)
   // The transport reads requests on its own thread but never answers one there: a tool call may touch
   // any part of the editor, none of which is thread safe. This is where the answering happens, so if
   // this stops being called, clients simply wait.
-  if (s_pServer != nullptr)
+  // The editor's per-frame work may pump events while it blocks, e.g. to wait for the engine process while it
+  // transforms an asset. Answering a request from in there would run a tool in the middle of that work - closing
+  // the very document that is being exported, for instance. The request is answered once the work is done.
+  if (s_pServer != nullptr && !ezQtEditorApp::GetSingleton()->IsInTimedUpdate())
   {
     s_pServer->ProcessPendingRequests();
   }

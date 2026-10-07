@@ -105,6 +105,7 @@ private:
   const ezMcpHttpRequest* m_pPendingRequest = nullptr;
   ezMcpHttpResponse* m_pPendingResponse = nullptr;
   bool m_bRequestAnswered = false;
+  bool m_bProcessingRequest = false; ///< Main thread only. Prevents answering the same request again from a nested event loop inside the tool.
   bool m_bShutdown = false;
 
   /// Raised by the main thread once it has filled in the response, and by Stop() to release a transport
