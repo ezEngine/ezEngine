@@ -3,8 +3,8 @@
 #include <Mcp/McpServer.h>
 #include <Mcp/McpToolRegistry.h>
 
-#include <Foundation/Utilities/CommandLineOptions.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
