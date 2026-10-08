@@ -20,7 +20,7 @@ ezViewHandle ezTextureViewContext::CreateView()
   ezView* pView = CreateDefaultView("Texture Editor - View");
   pView->SetRenderPipelineResource(CreateDefaultEditorRenderPipeline());
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Editor-PostProcessing"), false);
-  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Rendering.Pipeline.SSAO"), false);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Rendering.Pipeline.SSAO"), 0);
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Rendering.Pipeline.SSS"), false);
 
   return pView->GetHandle();

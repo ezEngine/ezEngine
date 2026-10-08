@@ -310,10 +310,11 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     if (!bUseDepthPrePass)
     {
       pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Renderer-DepthPrePass"), false);
-      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Rendering.Pipeline.SSAO"), false); // Also disable SSAO to save some performance
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Rendering.Pipeline.SSAO"), 0); // Also disable SSAO to save some performance
     }
     else
     {
+      // reset to default
       pView->GetBlackboard()->RemoveEntry(ezMakeHashedString("Renderer-DepthPrePass"));
       pView->GetBlackboard()->RemoveEntry(ezMakeHashedString("Rendering.Pipeline.SSAO"));
     }

@@ -41,8 +41,6 @@ ezCVarString cvar_OptionsSoundGroupVolumes("Options.Audio.SoundGroupVolumes", ""
 ezCVarFloat cvar_OptionsUiScale("Options.UI.Scale", 1.0f, ezCVarFlags::Save, "Size of the menu, 1 being the size that the UI documents specify.");
 // Not used by the engine, it demonstrates a text field.
 ezCVarString cvar_OptionsPlayerName("Options.Game.PlayerName", "Player", ezCVarFlags::Save, "The name that the player chose.");
-ezCVarBool cvar_OptionsSSAO("Options.Graphics.SSAO", true, ezCVarFlags::Save, "Whether to enable Screen Space Ambient Occlusion.");
-ezCVarBool cvar_OptionsSSS("Options.Graphics.SSS", true, ezCVarFlags::Save, "Whether to enable Screen Space Shadows (SSS).");
 
 namespace
 {
@@ -436,8 +434,6 @@ void ezRmlUiMainMenuComponent::ApplySettings()
   }
 
   cvar_RenderingTextureQuality = cvar_OptionsTextureFiltering.GetValue();
-  cvar_RenderingPipelineSSS = cvar_OptionsSSAO.GetValue();
-  cvar_RenderingPipelineSSS = cvar_OptionsSSS.GetValue();
 
   {
     const auto& preset = s_TextureQualityPresets[ezMath::Clamp<ezInt32>(cvar_OptionsTextureQuality, 0, EZ_ARRAY_SIZE(s_TextureQualityPresets) - 1)];
@@ -511,14 +507,14 @@ void ezRmlUiMainMenuComponent::RegisterSettingsEventHandlers(ezRmlUiContext* pCo
 
   pContext->RegisterEventHandler("toggle-ssao", [this](Rml::Event& e)
     {
-      cvar_OptionsSSAO = e.GetParameter("checked", false);
+      cvar_RenderingPipelineSSAO = e.GetParameter("checked", false) ? -1 : 0; // select default SSAO implementation
       RequestApplySettings();
       //
     });
 
   pContext->RegisterEventHandler("toggle-sss", [this](Rml::Event& e)
     {
-      cvar_OptionsSSS = e.GetParameter("checked", false);
+      cvar_RenderingPipelineSSS = e.GetParameter("checked", false);
       RequestApplySettings();
       //
     });
@@ -787,8 +783,8 @@ void ezRmlUiMainMenuComponent::Update()
   // these CVars can also be changed from elsewhere, e.g. the console
   ezRmlUiUtils::SetChecked(pDocument->GetElementById("check-vsync"), ezGameApplication::cvar_AppVSync);
   ezRmlUiUtils::SetChecked(pDocument->GetElementById("check-fps"), ezGameApplication::cvar_AppShowFPS);
-  ezRmlUiUtils::SetChecked(pDocument->GetElementById("check-ssao"), cvar_OptionsSSAO);
-  ezRmlUiUtils::SetChecked(pDocument->GetElementById("check-sss"), cvar_OptionsSSS);
+  ezRmlUiUtils::SetChecked(pDocument->GetElementById("check-ssao"), cvar_RenderingPipelineSSAO != 0);
+  ezRmlUiUtils::SetChecked(pDocument->GetElementById("check-sss"), cvar_RenderingPipelineSSS);
 
   // The canvas only updates its document when it gets input. While a key is captured it gets none, so the changes from here have to be announced.
   bool bDocumentChanged = UpdateRenderScaleWidgets(pDocument);
@@ -1204,12 +1200,12 @@ void ezRmlUiMainMenuComponent::RestoreDefaultSettings(Rml::ElementDocument* pDoc
 
   if (IsShown("check-ssao"))
   {
-    cvar_OptionsSSAO = cvar_OptionsSSAO.GetValue(ezCVarValue::Default);
+    cvar_RenderingPipelineSSAO = cvar_RenderingPipelineSSAO.GetValue(ezCVarValue::Default);
   }
 
   if (IsShown("check-sss"))
   {
-    cvar_OptionsSSS = cvar_OptionsSSS.GetValue(ezCVarValue::Default);
+    cvar_RenderingPipelineSSS = cvar_RenderingPipelineSSS.GetValue(ezCVarValue::Default);
   }
 
   if (IsShown("render-scale"))
