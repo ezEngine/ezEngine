@@ -70,7 +70,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezSwitchBasePass::ezSwitchBasePass(const char* szName)
-  : ezRenderPipelinePass(szName)
+  : ezRenderPipelinePass(szName, true)
 {
 }
 
