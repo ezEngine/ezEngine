@@ -35,5 +35,4 @@ private:
   static ezDynamicArray<ezCVar*> s_CVars;
   static ezDynamicArray<ezEventSubscriptionID> s_CVarEventSubscriptions;
   static ezHashTable<const ezCVar*, ezHashedString> s_CVarStrings;
-
 };

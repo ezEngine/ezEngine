@@ -1,8 +1,8 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/Utils/Blackboard.h>
 #include <Foundation/Configuration/CVar.h>
 #include <RendererCore/Pipeline/PipelineCVarRegistry.h>
-#include <Core/Utils/Blackboard.h>
 
 
 // clang-format off
@@ -40,7 +40,7 @@ ezArrayPtr<ezCVar* const> ezPipelineCVarRegistry::GetCVars()
 
 void ezPipelineCVarRegistry::ApplyCVarsToBlackboard(ezBlackboard* pBlackboard)
 {
-  for (ezUInt32 i=0; i < s_CVars.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < s_CVars.GetCount(); ++i)
   {
     ApplyCVarToBlackboard(pBlackboard, s_CVars[i]);
   }
