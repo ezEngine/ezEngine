@@ -275,6 +275,53 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     TestTransforms(o, offset);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Global setters keep uniform scaling")
+  {
+    ezWorldDesc worldDesc("Test");
+    ezWorld world(worldDesc);
+    EZ_LOCK(world.GetWriteMarker());
+
+    ezGameObjectDesc desc;
+    desc.m_bDynamic = true;
+    desc.m_LocalPosition = ezVec3(1, 2, 3);
+    desc.m_LocalScaling = ezVec3(1, 2, 3);
+    desc.m_LocalUniformScaling = 2.0f;
+
+    ezGameObject* pParent = nullptr;
+    world.CreateObject(desc, pParent);
+
+    desc.m_hParent = pParent->GetHandle();
+    desc.m_LocalScaling = ezVec3(1);
+    desc.m_LocalUniformScaling = 1.5f;
+
+    ezGameObject* pChild = nullptr;
+    world.CreateObject(desc, pChild);
+
+    world.Update();
+
+    for (ezUInt32 i = 0; i < 5; ++i)
+    {
+      pParent->SetGlobalPosition(ezVec3(5, 6, 7));
+      pParent->SetGlobalRotation(ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(30)));
+      pChild->SetGlobalPosition(ezVec3(5, 6, 8));
+      pChild->SetGlobalRotation(ezQuat::MakeIdentity());
+
+      EZ_TEST_FLOAT(pParent->GetLocalUniformScaling(), 2.0f, 0.0001f);
+      EZ_TEST_VEC3(pParent->GetLocalScaling(), ezVec3(1, 2, 3), 0.0001f);
+      EZ_TEST_FLOAT(pChild->GetLocalUniformScaling(), 1.5f, 0.0001f);
+      EZ_TEST_VEC3(pChild->GetLocalScaling(), ezVec3(1), 0.0001f);
+
+      // this used to accumulate, because the global setters moved the uniform scale into the non-uniform scale
+      pParent->SetLocalUniformScaling(2.0f);
+      pChild->SetLocalUniformScaling(1.5f);
+
+      world.Update();
+
+      EZ_TEST_VEC3(pParent->GetGlobalScaling(), ezVec3(2, 4, 6), 0.0001f);
+      EZ_TEST_VEC3(pChild->GetGlobalScaling(), ezVec3(3, 6, 9), 0.0001f);
+    }
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GameObject parenting")
   {
     ezWorldDesc worldDesc("Test");
