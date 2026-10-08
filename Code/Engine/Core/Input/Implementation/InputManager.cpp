@@ -14,6 +14,7 @@ ezUInt32 ezInputManager::s_uiMouseCursorChangeCounter = 0;
 ezUInt32 ezInputManager::s_uiMouseCursorIdChangeCounter = 0;
 ezHybridArray<ezInputManager::MouseCursorOverride, 4> ezInputManager::s_MouseCursorOverrides;
 ezUInt32 ezInputManager::s_uiNextMouseCursorOverrideId = 0;
+bool ezInputManager::s_bIgnoreRealInput = false;
 ezUInt32 ezInputManager::s_uiHardwareCursorSize = 0;
 ezUInt32 ezInputManager::s_uiUpdateCount = 0;
 
@@ -413,6 +414,9 @@ void ezInputManager::GatherDeviceInputSlotValues()
   for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
   {
     pDevice->m_bGeneratedInputRecently = false;
+
+    if (s_bIgnoreRealInput && !pDevice->m_bIsSimulatedInput)
+      continue;
 
     // iterate over all the input slots that this device provides
     for (auto it = pDevice->m_InputSlotValues.GetIterator(); it.IsValid(); it.Next())

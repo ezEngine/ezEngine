@@ -146,11 +146,11 @@ void ezGameApplication::StoreScreenshot(ezImage&& image, ezStringView sContext /
 // These options exist to run an application unattended, e.g. as a smoke test from a script.
 // They are implemented here, rather than in ezPlayer, so that every application built with the engine
 // has them - an exported game as much as the player.
-ezCommandLineOptionInt opt_RunFrames("_App", "-runframes", "Quit automatically after this many rendered frames.\nUse this to check that a project starts up and renders at all.", -1, -1);
-ezCommandLineOptionFloat opt_Timeout("_App", "-timeout", "Quit automatically after this many seconds, no matter what.\nSafety net in case startup hangs. Sets the return code to 2 when it triggers.", 0.0f, 0.0f);
+ezCommandLineOptionInt opt_RunFrames("_App", "-runframes", "Quit automatically after this many rendered frames.\nUse this to check that a project starts up and renders at all. Implies -unattended.", -1, -1);
+ezCommandLineOptionFloat opt_Timeout("_App", "-timeout", "Quit automatically after this many seconds, no matter what.\nSafety net in case startup hangs. Sets the return code to 2 when it triggers. Implies -unattended.", 0.0f, 0.0f);
 ezCommandLineOptionPath opt_Screenshot("_App", "-screenshot", "Absolute path to a PNG file to write a screenshot to, right before quitting.\nOnly useful together with -runframes or -timeout.", "");
 ezCommandLineOptionPath opt_LogFile("_App", "-logfile", "Absolute path to a text file to write the full log to.", "");
-ezCommandLineOptionBool opt_FailOnError("_App", "-failonerror", "Set the return code to 1 if any error was logged during the run.", false);
+ezCommandLineOptionBool opt_FailOnError("_App", "-failonerror", "Set the return code to 1 if any error was logged during the run.  Implies -unattended.", false);
 ezCommandLineOptionFloat opt_FixedTimeStep("_App", "-fixedtimestep",
   "Advance the clock by a fixed 1/N seconds per frame, instead of by the time that really elapsed.\n\
 \n\
@@ -164,6 +164,21 @@ ezCommandLineOptionInt opt_Seed("_App", "-seed",
   "Seed for the random number generator of every world, so that random behavior repeats between runs.\n\
 Only useful together with -fixedtimestep.",
   -1, -1);
+ezCommandLineOptionBool opt_Unattended("_App", "-unattended",
+  "Don't block on a modal dialogs and ignore user input.\n\
+Implied by all other unattended options.",
+  false);
+
+namespace
+{
+  bool UnattendedAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+  {
+    ezLog::Error("Assert failed: {}({}) in {}: '{}' {}", szSourceFile, uiLine, szFunction, szExpression, szAssertMsg);
+
+    // triggers the debug break: with a debugger attached it stops there, otherwise the process terminates right away
+    return true;
+  }
+} // namespace
 
 void ezGameApplication::Unattended_Setup()
 {
@@ -202,14 +217,31 @@ void ezGameApplication::Unattended_Setup()
     m_FixedTimeStep = ezTime::MakeFromSeconds(1.0 / fFixedTimeStepHz);
   }
 
-  m_bUnattended = m_iRunFrames >= 0 || m_UnattendedTimeout.IsPositive() || !m_sScreenshotPath.IsEmpty() ||
-                  m_bFailOnError || !sLogFile.IsEmpty() || m_FixedTimeStep.IsPositive() || m_iRandomSeed >= 0;
+  m_bUnattended = opt_Unattended.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified) || (m_iRunFrames >= 0) || m_UnattendedTimeout.IsPositive() || m_bFailOnError;
+
+  // only replace the default handler, an application that installed its own (e.g. the editor's engine process) handles this itself
+  if (m_bUnattended && ezGetAssertHandler() == &ezDefaultAssertHandler)
+  {
+    ezSetAssertHandler(UnattendedAssertHandler);
+  }
+
+  ezInputManager::SetIgnoreRealInput(m_bUnattended);
 }
 
 void ezGameApplication::Unattended_Start()
 {
   // ezTime is only usable once the core systems are up, so the timeout can't start any earlier than this
   m_UnattendedStartTime = ezTime::Now();
+
+  if (ezInputManager::GetIgnoreRealInput())
+  {
+    // the cursor stays visible and can leave the window, whatever the game requests
+    // (cursor overrides can only be changed on the main thread, which isn't known yet in Unattended_Setup())
+    ezMouseCursorOverrideDesc cursor;
+    cursor.m_OSCursor = ezMouseCursorOverride::ForceOSCursor;
+    cursor.m_bForceNoClip = true;
+    m_IgnoreInputCursorOverride.Request(cursor);
+  }
 
   if (m_FixedTimeStep.IsPositive())
   {
@@ -239,6 +271,8 @@ void ezGameApplication::Unattended_Start()
 
 void ezGameApplication::Unattended_Finish()
 {
+  m_IgnoreInputCursorOverride.Release();
+
   if (m_UnattendedExecutionEventsID != 0)
   {
     m_ExecutionEvents.RemoveEventHandler(m_UnattendedExecutionEventsID);

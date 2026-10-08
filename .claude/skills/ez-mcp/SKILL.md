@@ -21,14 +21,12 @@ one, then talk to it. For anything the file system already answers, read the fil
 # editor
 ezEditor.exe -project "Data/Samples/PacMan" -unattended -editor-mcpport 7399
 # game, standalone - no editor needed
-ezPlayer.exe -project <project-folder> -scene <path/to/Scene.ezBinScene> -profile Default -mcpport 7401
+ezPlayer.exe -project <project-folder> -scene <path/to/Scene.ezBinScene> -profile Default -unattended -mcpport 7401
 ```
 
 Binaries are in `Workspace/<workspace>-output/Bin/WinVs2026Dev64/`.
 
-- **`-unattended` is required for the editor.** Otherwise a modal dialog during startup (e.g. "compile
-  the C++ plugin?") hangs it before it serves anything. Tool calls suppress dialogs themselves; startup
-  does not.
+- **`-unattended` is required for the editor, and should be passed to games as well.** Otherwise a modal dialog during startup (e.g. "compile the C++ plugin?") hangs it before it serves anything. Tool calls suppress dialogs themselves; startup does not.
 - Launch detached (`start ""` / `Start-Process`); it runs until told to quit.
 - Startup takes seconds - **poll the port**, do not sleep a fixed time.
 - Pick a port other than the default 7391 so a user's own editor keeps working.
@@ -134,6 +132,9 @@ process until play-the-game runs, and why input does nothing and screenshots tim
   with the real keyboard, larger wins, so a human is never locked out.
 - **`game_wait` takes `frames` or `seconds`** (game time on the global clock). For "let the game play for a
   while" use `seconds` - a frame count lasts however long the frame rate makes it.
+- **Launch games with `-unattended`.** It prevents assert message boxes and the user's mouse and keyboard are 
+  ignored and the window doesn't take the focus or capture the cursor. Only `input_set`/`input_sequence` drive the game.
+
 - **`game_pause` stops the engine clock, not necessarily the game's own simulation.**
 - `cvar_list` is worth far more here than in the editor: render passes, physics and AI visualisation are
   mostly CVars.

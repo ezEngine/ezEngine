@@ -3,6 +3,7 @@
 
 #include <Core/GameApplication/GameApplicationBase.h>
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
+#include <Core/Input/InputManager.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/System/WindowManager.h>
 #include <Core/World/World.h>
@@ -497,6 +498,12 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
   ezWindowCreationDesc wndDesc;
   wndDesc.LoadFromDDL(sWndCfg).IgnoreResult();
   wndDesc.AdjustWindowSizeAndPosition().IgnoreResult();
+
+  // when real input is ignored ('-ignoreinput'), someone else is working on this machine, don't take the focus from them
+  if (ezInputManager::GetIgnoreRealInput())
+  {
+    wndDesc.m_bSetForegroundOnInit = false;
+  }
 
   ezUniquePtr<ezWindow> pWindow = EZ_DEFAULT_NEW(ezWindow);
   pWindow->Initialize(wndDesc).AssertSuccess("Window creation failed");

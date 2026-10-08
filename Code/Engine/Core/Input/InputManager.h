@@ -290,6 +290,14 @@ public:
   /// Note that when the input is injected after ezInputManager::Update was called, its effect will be delayed by one frame.
   static void InjectInputSlotValue(ezStringView sInputSlot, float fValue); // [tested]
 
+  /// If enabled, the values of all input devices that represent real hardware are ignored. Only devices that generate input
+  /// programmatically (see ezInputDevice::m_bIsSimulatedInput) and injected values (see InjectInputSlotValue()) have an effect.
+  ///
+  /// Used when an application is driven by a script or an agent on a machine where someone keeps working,
+  /// so that their mouse and keyboard don't interfere, for example when the window happens to get the focus.
+  static void SetIgnoreRealInput(bool bIgnore) { s_bIgnoreRealInput = bIgnore; }
+  static bool GetIgnoreRealInput() { return s_bIgnoreRealInput; }
+
   /// Checks whether any input slot has been triggered in this frame, which has all \a MustHaveFlags and has none of the \a
   /// MustNotHaveFlags.
   ///
@@ -440,6 +448,7 @@ private:
   /// The active cursor overrides, the last one wins. Also deliberately not part of InternalData.
   static ezHybridArray<MouseCursorOverride, 4> s_MouseCursorOverrides;
   static ezUInt32 s_uiNextMouseCursorOverrideId;
+  static bool s_bIgnoreRealInput;
 
   /// Makes all mouse devices recompute which cursor state to really apply.
   static void UpdateMouseCursorState();

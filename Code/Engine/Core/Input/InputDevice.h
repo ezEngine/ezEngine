@@ -100,6 +100,10 @@ protected:
   /// should ever need.
   bool m_bOverridesAbsoluteInput = false;
 
+  /// Set by devices that don't represent real hardware but generate their input programmatically, e.g. for automated tests.
+  /// Their input still has an effect when ezInputManager::SetIgnoreRealInput() is enabled.
+  bool m_bIsSimulatedInput = false;
+
   /// Stores all the values for all input slots that this device handles.
   ///
   /// A derived class needs to fill out this map every frame. There are two ways this map can be filled out.
