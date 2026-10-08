@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Containers/Map.h>
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
@@ -13,7 +14,6 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Shader/BindGroup.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
-#include <Foundation/Configuration/CVar.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
 
@@ -23,12 +23,6 @@ struct ezRenderWorldRenderEvent;
 ///
 /// 0=Nearest, 1=Bilinear, 2=Trilinear, 3=Aniso2x, 4=Aniso4x, 5=Aniso8x, 6=Aniso16x
 EZ_RENDERERCORE_DLL extern ezCVarInt cvar_RenderingTextureQuality;
-
-EZ_RENDERERCORE_DLL extern ezCVarBool cvar_RenderingPipelineSSAO;
-EZ_RENDERERCORE_DLL extern ezCVarFloat cvar_RenderingPipelineSSAOMaxScreenSpaceRadius;
-
-EZ_RENDERERCORE_DLL extern ezCVarBool cvar_RenderingPipelineSSS;
-
 
 //////////////////////////////////////////////////////////////////////////
 // ezRenderContext

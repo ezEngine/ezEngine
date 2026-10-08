@@ -12,6 +12,7 @@
 #include <Foundation/Threading/ThreadUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameState.h>
+#include <RendererCore/Pipeline/RenderPipelineCVars.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureUtils.h>

@@ -35,12 +35,6 @@ ezHybridArray<ezRenderContext*, 4> ezRenderContext::s_Instances;
 // 0=Nearest, 1=Bilinear, 2=Trilinear, 3=Aniso2x, 4=Aniso4x, 5=Aniso8x, 6=Aniso16x
 ezCVarInt cvar_RenderingTextureQuality("Rendering.TextureQuality", 4, ezCVarFlags::Save, "Default texture filtering quality. 0=Nearest, 1=Bilinear, 2=Trilinear, 3=Anisotropic2x, 4=Anisotropic4x, 5=Anisotropic8x, 6=Anisotropic16x.");
 
-ezCVarBool cvar_RenderingPipelineSSAO("Rendering.Pipeline.SSAO", true, ezCVarFlags::Save, "Whether to enable Screen Space Ambient Occlusion.");
-
-ezCVarFloat cvar_RenderingPipelineSSAOMaxScreenSpaceRadius("Rendering.Pipeline.SSAO.MaxScreenSpaceRadius", 1.0f, ezCVarFlags::Save, "Max screen space radius for SSAO");
-
-ezCVarBool cvar_RenderingPipelineSSS("Rendering.Pipeline.SSS", true, ezCVarFlags::Save, "Whether to enable Screen Space Shadows (SSS).");
-
 ezMap<ezRenderContext::ShaderVertexDecl, ezGALVertexDeclarationHandle> ezRenderContext::s_GALVertexDeclarations;
 
 ezMutex ezRenderContext::s_ConstantBufferStorageMutex;
