@@ -713,7 +713,6 @@ void ezImGuiConsole::BuildCVarTree(CVarTreeNode& root)
         // Intermediate part - create parent node if needed
         auto& parentNode = pCurrentNode->m_Children[sPartName];
         parentNode.m_sName = sPartName;
-        EZ_ASSERT_DEV(parentNode.m_pCVar == nullptr, "CVar name '{}' is used both as a CVar name and as a prefix for other CVars. Rename one of them.", sFullName);
         pCurrentNode = &parentNode;
       }
     }
@@ -729,11 +728,21 @@ void ezImGuiConsole::RenderCVarTreeNode(const ezString& sNodeName, CVarTreeNode&
   ImGui::TableNextRow();
   ImGui::TableSetColumnIndex(0);
 
+  // A node can be a CVar and a parent at the same time, if the CVar name is also a prefix of other CVar names
+  const bool bHasChildren = !node.m_Children.IsEmpty();
+
+  if (bHasChildren)
+  {
+    // Parent node - render as collapsible tree node
+    node.m_bExpanded = ImGui::TreeNodeEx(sNodeName.GetData(), node.m_bExpanded ? ImGuiTreeNodeFlags_DefaultOpen : 0);
+  }
+  else
+  {
+    ImGui::TreeNodeEx(sNodeName.GetData(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
+  }
+
   if (node.m_pCVar != nullptr)
   {
-    // Leaf node - render the actual CVar
-    ImGui::TreeNodeEx(sNodeName.GetData(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
-
     // Value column
     ImGui::TableSetColumnIndex(1);
     RenderCVarValue(node.m_pCVar);
@@ -743,21 +752,15 @@ void ezImGuiConsole::RenderCVarTreeNode(const ezString& sNodeName, CVarTreeNode&
     ezStringBuilder sDescTemp;
     ImGui::Text("%s", node.m_pCVar->GetDescription().GetData(sDescTemp));
   }
-  else
-  {
-    // Parent node - render as collapsible tree node
-    node.m_bExpanded = ImGui::TreeNodeEx(sNodeName.GetData(),
-      node.m_bExpanded ? ImGuiTreeNodeFlags_DefaultOpen : 0);
 
-    if (node.m_bExpanded)
+  if (bHasChildren && node.m_bExpanded)
+  {
+    // Render children
+    for (auto& child : node.m_Children)
     {
-      // Render children
-      for (auto& child : node.m_Children)
-      {
-        RenderCVarTreeNode(child.Key(), child.Value());
-      }
-      ImGui::TreePop();
+      RenderCVarTreeNode(child.Key(), child.Value());
     }
+    ImGui::TreePop();
   }
 }
 
@@ -933,15 +936,16 @@ bool ezImGuiConsole::CVarNamePassesFilter(ezStringView sCVarName) const
 
 bool ezImGuiConsole::CVarTreeNodeHasMatchingDescendant(const CVarTreeNode& node) const
 {
-  // If this is a leaf node with a CVar, check if it passes the filter
+  // If this node has a CVar, check if it passes the filter
   if (node.m_pCVar != nullptr)
   {
     ezStringBuilder sNameTemp;
     ezStringView sFullName = node.m_pCVar->GetName().GetData(sNameTemp);
-    return CVarNamePassesFilter(sFullName);
+    if (CVarNamePassesFilter(sFullName))
+      return true;
   }
 
-  // For parent nodes, recursively check if any child passes
+  // Recursively check if any child passes
   for (auto it = node.m_Children.GetIterator(); it.IsValid(); ++it)
   {
     if (CVarTreeNodeHasMatchingDescendant(it.Value()))
