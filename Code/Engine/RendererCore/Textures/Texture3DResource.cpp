@@ -78,12 +78,6 @@ void ezTexture3DResource::FillOutDescriptor(ezTexture3DResourceDescriptor& ref_t
   if (ref_td.m_DescGAL.m_uiDepth > 1)
     ref_td.m_DescGAL.m_Type = ezGALTextureType::Texture3D;
 
-  if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
-  {
-    ref_td.m_DescGAL.m_uiWidth = ezMath::RoundUp(ref_td.m_DescGAL.m_uiWidth, 4);
-    ref_td.m_DescGAL.m_uiHeight = ezMath::RoundUp(ref_td.m_DescGAL.m_uiHeight, 4);
-  }
-
   out_uiMemoryUsed = 0;
 
   ref_initData.Clear();

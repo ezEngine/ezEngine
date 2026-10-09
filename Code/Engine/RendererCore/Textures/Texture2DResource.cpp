@@ -75,12 +75,6 @@ void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& ref_t
   ref_td.m_DescGAL.m_uiArraySize = pImage->GetNumArrayIndices();
   ref_td.m_DescGAL.m_ResourceAccess.m_bImmutable = true;
 
-  if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
-  {
-    ref_td.m_DescGAL.m_uiWidth = ezMath::RoundUp(ref_td.m_DescGAL.m_uiWidth, 4);
-    ref_td.m_DescGAL.m_uiHeight = ezMath::RoundUp(ref_td.m_DescGAL.m_uiHeight, 4);
-  }
-
   if (ref_td.m_DescGAL.m_uiDepth > 1)
     ref_td.m_DescGAL.m_Type = ezGALTextureType::Texture3D;
 

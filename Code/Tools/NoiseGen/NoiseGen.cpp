@@ -2,6 +2,8 @@
 
 #include "NoiseGen.h"
 
+#include <Foundation/Application/Application.h>
+
 ezNoiseGen::ezNoiseGen()
   : ezApplication("NoiseGen")
 {
@@ -283,6 +285,7 @@ void ezNoiseGen::Run()
   }
 
   SetReturnCode(0);
+  QuitApplication();
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezNoiseGen);
+EZ_APPLICATION_ENTRY_POINT(ezNoiseGen);
