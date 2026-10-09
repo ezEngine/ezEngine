@@ -233,7 +233,7 @@ protected:
 
   virtual void OnWindowEvent(const ezWindowEvent& e);
 
-  void OnPipelineCVarChangedEvent(const ezCVarEvent& e);
+  virtual void OnPipelineCVarChangedEvent(const ezCVarEvent& e);
 
   static ezGameState* s_pActiveGameState;
 

@@ -419,7 +419,9 @@ void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld, ezStringView sStartPos
 
   if (pNewMainWorld)
   {
-    ezPipelineCVarRegistry::ApplyCVarsToBlackboard(pNewMainWorld->GetBlackboard().Borrow());
+    ezCVarEvent e(nullptr);
+    e.m_EventType = ezCVarEvent::Type::ListOfVarsChanged;
+    OnPipelineCVarChangedEvent(e);
   }
   OnChangedMainWorld(pPrevWorld, pNewMainWorld, sStartPosition, startPositionOffset);
 
@@ -679,6 +681,13 @@ void ezGameState::OnPipelineCVarChangedEvent(const ezCVarEvent& e)
 {
   if (m_pMainWorld)
   {
-    ezPipelineCVarRegistry::ApplyCVarToBlackboard(m_pMainWorld->GetBlackboard().Borrow(), e.m_pCVar);
+    if (e.m_EventType == ezCVarEvent::Type::ValueChanged)
+    {
+      ezPipelineCVarRegistry::ApplyCVarToBlackboard(m_pMainWorld->GetBlackboard().Borrow(), e.m_pCVar);
+    }
+    else if (e.m_EventType == ezCVarEvent::Type::ListOfVarsChanged)
+    {
+      ezPipelineCVarRegistry::ApplyCVarsToBlackboard(m_pMainWorld->GetBlackboard().Borrow());
+    }
   }
 }

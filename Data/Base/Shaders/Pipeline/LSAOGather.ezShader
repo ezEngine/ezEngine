@@ -26,10 +26,10 @@ CullMode = CullMode_None
 #include <Shaders/Pipeline/Utils.h>
 #include "LSAOConstants.h"
 
-Texture2DArray<float> DepthBuffer : register(t0);
+Texture2DArray<float> DepthBuffer;
 
-StructuredBuffer<LineInstruction> LineInstructions : register(t1);
-Buffer<uint> LineSweepOutputBuffer : register(t2);
+StructuredBuffer<LineInstruction> LineInstructions;
+Buffer<uint> LineSweepOutputBuffer;
 
 
 // If not defined, all pixels gather all directions, otherwise the work will be distributed to a 3x3 grid.
