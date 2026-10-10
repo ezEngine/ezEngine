@@ -28,7 +28,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTerrainVolumeComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezClampValueAttribute(1.0f, 1024.0f), new ezDefaultValueAttribute(64.0f)),
     EZ_RESOURCE_ACCESSOR_PROPERTY("Material", GetMaterial, SetMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material", "Terrain-Voxel"), new ezRequiredAttribute()),
     EZ_ACCESSOR_PROPERTY("BaseMaterialIndex", GetBaseMaterialIndex, SetBaseMaterialIndex)->AddAttributes(new ezClampValueAttribute(0, 15)),
-    EZ_ACCESSOR_PROPERTY("FillHeight", GetFillHeight, SetFillHeight)->AddAttributes(new ezDefaultValueAttribute(-0.01f), new ezClampValueAttribute(-0.01f, 100.0f), new ezMinValueTextAttribute("Off")),
+    EZ_ACCESSOR_PROPERTY("FillHeight", GetFillHeight, SetFillHeight)->AddAttributes(new ezDefaultValueAttribute(-0.01f), new ezClampValueAttribute(-0.01f, ezVariant()), new ezMinValueTextAttribute("Off")),
     EZ_ACCESSOR_PROPERTY("EnableCollider", GetEnableCollider, SetEnableCollider)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("CleanupIterations", GetCleanupIterations, SetCleanupIterations)->AddAttributes(new ezDefaultValueAttribute(2), new ezClampValueAttribute(0, 4)),
     EZ_SET_ACCESSOR_PROPERTY("TerrainTags", GetTags, Reflection_SetTag, Reflection_RemoveTag)->AddAttributes(new ezTagSetWidgetAttribute("Terrain")),
