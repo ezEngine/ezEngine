@@ -20,6 +20,10 @@ public:
 
   virtual void ReadBackProperties(ezView* pView) override;
 
+  /// Input is forwarded to Output unchanged. The pins only exist so that a switch can cull the pass.
+  ezRenderPipelineNodeInputPin m_PinInput;
+  ezRenderPipelineNodeOutputPin m_PinOutput;
+
   bool m_bPickSelected = true;
   bool m_bPickTransparent = true;
 

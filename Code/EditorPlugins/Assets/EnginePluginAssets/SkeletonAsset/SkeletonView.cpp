@@ -92,7 +92,7 @@ void ezSkeletonViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
     ezView* pView = nullptr;
     if (ezRenderWorld::TryGetView(m_hView, pView))
     {
-      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.Active"), true);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Editor-UpdatePicking"), true);
       pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickSelected"), true);
     }
 

@@ -92,23 +92,35 @@
                   <td id="display-status"></td>
                 </tr>
                 <tr>
+                  <td>Auto Resolution Scale</td>
+                  <td>
+                    <input type="checkbox" id="check-render-scale-auto" onchange="toggle-render-scale-auto" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Resolution Scale</td>
+                  <td>
+                    <input type="range" min="25" max="100" step="5" value="100" id="render-scale" onchange="render-scale-change" />
+                  </td>
+                  <td class="value" id="render-scale-value"></td>
+                </tr>
+                <tr>
                   <td>V-Sync</td>
                   <td>
                     <input type="checkbox" id="check-vsync" onchange="toggle-vsync" />
                   </td>
                 </tr>
                 <tr>
-                  <td>Auto Render Resolution</td>
+                  <td>SSAO</td>
                   <td>
-                    <input type="checkbox" id="check-render-scale-auto" onchange="toggle-render-scale-auto" />
+                    <input type="checkbox" id="check-ssao" onchange="toggle-ssao" />
                   </td>
                 </tr>
                 <tr>
-                  <td>Render Resolution</td>
+                  <td>Screen Space Shadows</td>
                   <td>
-                    <input type="range" min="25" max="100" step="5" value="100" id="render-scale" onchange="render-scale-change" />
+                    <input type="checkbox" id="check-sss" onchange="toggle-sss" />
                   </td>
-                  <td class="value" id="render-scale-value"></td>
                 </tr>
                 <tr>
                   <td>Texture Filtering</td>

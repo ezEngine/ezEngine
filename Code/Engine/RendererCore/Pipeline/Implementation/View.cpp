@@ -461,17 +461,24 @@ void ezView::RebuildPropertyMappings(const ezBlackboard* const* pBlackboards)
 
     for (auto it = pBlackboard->GetAllEntries().GetIterator(); it.IsValid(); ++it)
     {
+      ezReflectedClass* pObject = nullptr;
       const ezStringView sName = it.Key();
       const char* szDot = sName.FindSubString(".");
-      if (szDot == nullptr)
-        continue;
 
-      const ezStringView sObjectName = ezStringView(sName.GetStartPointer(), szDot);
-
-      ezReflectedClass* pObject = m_pRenderPipeline->GetPassByName(sObjectName);
-      if (pObject == nullptr)
+      // Multiple . can exist in a variable, try every split to separate object from property.
+      while (szDot != nullptr)
       {
+        const ezStringView sObjectName = ezStringView(sName.GetStartPointer(), szDot);
+
+        pObject = m_pRenderPipeline->GetPassByName(sObjectName);
+        if (pObject != nullptr)
+          break;
+
         pObject = m_pRenderPipeline->GetExtractorByName(sObjectName);
+        if (pObject != nullptr)
+          break;
+
+        szDot = sName.FindSubString(".", szDot + 1);
       }
 
       if (pObject == nullptr)

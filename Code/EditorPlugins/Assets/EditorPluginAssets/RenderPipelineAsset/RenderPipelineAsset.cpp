@@ -412,11 +412,12 @@ ezStatus ezRenderPipelineAssetDocument::Validate() const
         const ezVisualGraphPin& targetPin = pConnection->GetTargetPin();
         const ezRTTI* pTargetType = targetPin.GetParent()->GetType();
 
-        bool bIsPassThrough = pTargetType->IsDerivedFrom<ezSwitchBasePass>();
+        // Conflicts through switches can only be detected at runtime, once the switch values are known.
+        bool bIsPassThrough = false;
         if (const ezAbstractProperty* pProperty = pTargetType->FindPropertyByName(targetPin.GetName()))
         {
           const ezRTTI* pPinType = pProperty->GetSpecificType();
-          bIsPassThrough |= pPinType->IsDerivedFrom<ezRenderPipelineNodePassThroughPin>() || pPinType->IsDerivedFrom<ezRenderPipelineNodeBufferPassThroughPin>();
+          bIsPassThrough = pPinType->IsDerivedFrom<ezRenderPipelineNodePassThroughPin>() || pPinType->IsDerivedFrom<ezRenderPipelineNodeBufferPassThroughPin>();
         }
 
         if (bIsPassThrough && ++uiPassThroughConnections > 1)

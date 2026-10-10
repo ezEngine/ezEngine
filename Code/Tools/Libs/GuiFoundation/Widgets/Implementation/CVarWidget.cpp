@@ -405,7 +405,7 @@ QModelIndex ezQtCVarModel::parent(const QModelIndex& index) const
     // if the parent has a parent itself, search that array for the row index
     for (ezUInt32 row = 0; row < p->m_pParentEntry->m_ChildEntries.GetCount(); ++row)
     {
-      if (p->m_pParentEntry->m_ChildEntries[row] == e)
+      if (p->m_pParentEntry->m_ChildEntries[row] == p)
       {
         return createIndex(row, index.column(), p);
       }

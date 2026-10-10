@@ -19,6 +19,7 @@ class ezCreateThumbnailMsgToEngine;
 struct ezResourceEvent;
 class ezRenderGraph;
 struct ezGALDeviceEvent;
+struct ezCVarEvent;
 
 struct ezEngineProcessDocumentContextFlags
 {
@@ -167,6 +168,7 @@ private:
 
 private:
   void ClearViewContexts();
+  void OnPipelineCVarChangedEvent(const ezCVarEvent& e);
 
   // Maps a document guid to the corresponding context that handles that document on the engine side
   static ezHashTable<ezUuid, ezEngineProcessDocumentContext*> s_DocumentContexts;
@@ -209,6 +211,7 @@ private:
   ezString m_sDocumentType;
 
   ezSharedPtr<ezRenderGraph> m_pRenderGraph;
+  ezEventSubscriptionID m_PipelineCVarSubscription = {};
 
   void OnGALEvent(const ezGALDeviceEvent& e);
 

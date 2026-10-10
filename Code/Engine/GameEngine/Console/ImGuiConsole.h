@@ -84,7 +84,7 @@ protected:
   struct CVarTreeNode
   {
     ezString m_sName;
-    ezCVar* m_pCVar = nullptr; // nullptr for parent nodes, valid for leaf nodes
+    ezCVar* m_pCVar = nullptr; // nullptr for pure parent nodes, a node can have both a CVar and children
     ezMap<ezString, CVarTreeNode> m_Children;
     bool m_bExpanded = false;
   };

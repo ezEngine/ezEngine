@@ -25,8 +25,8 @@ CullMode = CullMode_None
 #include <Shaders/Pipeline/Utils.h>
 #include "LSAOConstants.h"
 
-Texture2DArray DepthBuffer : register(t0);
-Texture2DArray SSAOGatherOutput : register(t1);
+Texture2DArray DepthBuffer;
+Texture2DArray SSAOGatherOutput;
 
 float4 main(PS_IN input) : SV_Target
 {

@@ -10,7 +10,7 @@ ALL
 #include "LSAOConstants.h"
 #include "Utils.h"
 
-Texture2DArray<float> DepthBuffer : register(t0);
+Texture2DArray<float> DepthBuffer;
 
 StructuredBuffer<LineInstruction> LineInstructions;
 RWBuffer<uint> LineSweepOutputBuffer;

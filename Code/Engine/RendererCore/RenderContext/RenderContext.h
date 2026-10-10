@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Containers/Map.h>
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
@@ -17,6 +18,11 @@
 #include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
 
 struct ezRenderWorldRenderEvent;
+
+/// Controls the default texture filtering quality. Maps to ezGALTextureQuality enum.
+///
+/// 0=Nearest, 1=Bilinear, 2=Trilinear, 3=Aniso2x, 4=Aniso4x, 5=Aniso8x, 6=Aniso16x
+EZ_RENDERERCORE_DLL extern ezCVarInt cvar_RenderingTextureQuality;
 
 //////////////////////////////////////////////////////////////////////////
 // ezRenderContext

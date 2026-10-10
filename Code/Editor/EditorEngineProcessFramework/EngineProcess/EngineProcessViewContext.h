@@ -80,10 +80,7 @@ protected:
   virtual void SetViewProperties(ezView* pView);
 
   /// Returns the handle to the default render pipeline.
-  virtual ezRenderPipelineResourceHandle CreateDefaultRenderPipeline();
-
-  /// Returns the handle to the debug render pipeline.
-  virtual ezRenderPipelineResourceHandle CreateDebugRenderPipeline();
+  virtual ezRenderPipelineResourceHandle CreateDefaultEditorRenderPipeline();
 
   /// Create the actual view.
   virtual ezViewHandle CreateView() = 0;

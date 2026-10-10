@@ -2,7 +2,7 @@
 
 #include <RTSPlugin/GameMode/GameMode.h>
 #include <RTSPlugin/GameState/RTSGameState.h>
-#include <RmlUiPlugin\Components\RmlUiCanvas2DComponent.h>
+#include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
 
 class RtsMainMenuMode : public RtsGameMode
 {
