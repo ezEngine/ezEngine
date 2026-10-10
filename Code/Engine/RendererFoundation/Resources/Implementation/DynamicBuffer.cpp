@@ -82,9 +82,13 @@ void ezGALDynamicBuffer::Clear()
 ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezBitflags<AllocateFlags> allocateFlags, ezAllocator* pTempAllocator)
 {
   EZ_LOCK(m_Mutex);
+  EZ_ASSERT_DEV(uiCount > 0, "Allocation count must be greater than 0");
 
   ezUInt32 uiOffset = ezInvalidIndex;
 
+  // First try to use a hole. m_FreeRanges is sorted by count, smallest first, so this finds the smallest hole that fits.
+  // If the allocation uses only part of a hole, the hole gets smaller but the array is not sorted again.
+  // So the order may not be exact until the next sort.
   for (ezUInt32 i = 0; i < m_FreeRanges.GetCount(); ++i)
   {
     auto& freeRange = m_FreeRanges[i];
@@ -107,30 +111,22 @@ ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezB
     }
   }
 
+  // No hole fits, so add the allocation at the end
   if (uiOffset == ezInvalidIndex)
   {
     uiOffset = m_uiNextOffset;
     m_uiNextOffset += uiCount;
-
-    if (m_uiNextOffset > m_uiCapacity)
-    {
-      AllocateTempData(uiOffset, m_uiNextOffset, pTempAllocator);
-    }
   }
 
-  ezUInt32 uiDataIndex = 0;
-  const ezUInt32 uiByteEndOffset = (uiOffset + uiCount) * m_Desc.m_uiStructSize;
-  if (uiByteEndOffset > m_Data.GetCount())
+  // Don't resize m_Data here. Other threads may still have mapped pointers into it.
+  // If the full allocation is not inside m_Data or inside one temp data, create new temp data for it.
+  // This happens when the buffer has to grow.
+  // It also happens when deallocations moved the end of the buffer below the start of the temp data,
+  // and the new allocation starts inside m_Data but ends after it.
+  ezUInt32 uiDataIndex = FindDataIndex(uiOffset, uiCount);
+  if (uiDataIndex == ezInvalidIndex)
   {
-    for (ezUInt32 i = 0; i < m_TempData.GetCount(); ++i)
-    {
-      auto& tempData = m_TempData[i];
-      if (uiByteEndOffset <= (tempData.m_uiStartByteOffset + tempData.m_uiByteSize))
-      {
-        uiDataIndex = i + 1;
-        break;
-      }
-    }
+    uiDataIndex = AllocateTempData(uiOffset, m_uiNextOffset, pTempAllocator);
   }
 
   m_Allocations.Insert(uiOffset, Allocation{uiUserData, uiCount, uiDataIndex});
@@ -160,9 +156,11 @@ void ezGALDynamicBuffer::Deallocate(ezUInt32 uiOffset)
 
   if (it.Key() == m_Allocations.GetReverseIterator().Key())
   {
+    // This is the last allocation. Don't create a free range, make the used part of the buffer smaller instead.
     m_uiNextOffset = uiOffset;
 
-    // Remove free range in front of the last allocation
+    // If a free range is directly before it, that range is now at the end. Remove it as well.
+    // Free ranges are never next to each other, so there is at most one such range.
     for (ezUInt32 i = 0; i < m_FreeRanges.GetCount(); ++i)
     {
       auto& freeRange = m_FreeRanges[i];
@@ -255,35 +253,59 @@ ezConstByteArrayPtr ezGALDynamicBuffer::MapForReading(ezUInt32 uiOffset, ezUInt3
   return m_Data.GetByteArrayPtr().GetSubArray(uiByteOffset, uiByteSize);
 }
 
-ezUInt32 ezGALDynamicBuffer::AllocateTempData(ezUInt32 uiStartOffset, ezUInt32 uiNewCount, ezAllocator* pTempAllocator)
+ezUInt32 ezGALDynamicBuffer::FindDataIndex(ezUInt32 uiOffset, ezUInt32 uiCount) const
 {
-  constexpr ezUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;
+  const ezUInt32 uiByteOffset = uiOffset * m_Desc.m_uiStructSize;
+  const ezUInt32 uiByteEndOffset = (uiOffset + uiCount) * m_Desc.m_uiStructSize;
 
-  uiNewCount = ezMath::Max(uiNewCount, 256U);
-  if (uiNewCount < uiExpGrowthLimit)
+  if (uiByteEndOffset <= m_Data.GetCount())
+    return 0;
+
+  for (ezUInt32 i = m_TempData.GetCount(); i > 0; --i)
   {
-    uiNewCount = ezMath::PowerOfTwo_Ceil(uiNewCount);
-  }
-  else
-  {
-    uiNewCount = ezMemoryUtils::AlignSize(uiNewCount, uiExpGrowthLimit);
+    const auto& tempData = m_TempData[i - 1];
+    if (uiByteOffset >= tempData.m_uiStartByteOffset && uiByteEndOffset <= tempData.m_uiStartByteOffset + tempData.m_uiByteSize)
+      return i;
   }
 
-  m_Desc.m_uiTotalSize = uiNewCount * m_Desc.m_uiStructSize;
-  m_uiCapacity = uiNewCount;
+  return ezInvalidIndex;
+}
+
+ezUInt32 ezGALDynamicBuffer::AllocateTempData(ezUInt32 uiStartOffset, ezUInt32 uiMinCapacity, ezAllocator* pTempAllocator)
+{
+  if (uiMinCapacity > m_uiCapacity)
+  {
+    constexpr ezUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;
+
+    ezUInt32 uiNewCapacity = ezMath::Max(uiMinCapacity, 256U);
+    if (uiNewCapacity < uiExpGrowthLimit)
+    {
+      uiNewCapacity = ezMath::PowerOfTwo_Ceil(uiNewCapacity);
+    }
+    else
+    {
+      uiNewCapacity = ezMemoryUtils::AlignSize(uiNewCapacity, uiExpGrowthLimit);
+    }
+
+    // UploadChangesForNextFrame changes the size of m_Data and the GPU buffer to this
+    m_Desc.m_uiTotalSize = uiNewCapacity * m_Desc.m_uiStructSize;
+    m_uiCapacity = uiNewCapacity;
+  }
 
   if (pTempAllocator == nullptr)
   {
     pTempAllocator = ezFoundation::GetAlignedAllocator();
   }
 
+  // The temp data always goes up to the capacity. Then the next allocations at the end of the buffer also fit into it.
   TempData& tempData = m_TempData.ExpandAndGetRef();
   tempData.m_pAllocator = pTempAllocator;
-  tempData.m_uiByteSize = (uiNewCount - uiStartOffset) * m_Desc.m_uiStructSize;
+  tempData.m_uiByteSize = (m_uiCapacity - uiStartOffset) * m_Desc.m_uiStructSize;
   tempData.m_uiStartByteOffset = uiStartOffset * m_Desc.m_uiStructSize;
   tempData.m_pData = static_cast<ezUInt8*>(pTempAllocator->Allocate(tempData.m_uiByteSize, 16));
 
-  m_DirtyRange.SetToIncludeRange(0, (uiNewCount - 1));
+  // The GPU buffer may be created again with a new size, so all data has to be uploaded
+  m_DirtyRange.SetToIncludeRange(0, (m_uiCapacity - 1));
 
   return m_TempData.GetCount();
 }
@@ -295,23 +317,31 @@ void ezGALDynamicBuffer::UploadChangesForNextFrame()
   if (m_DirtyRange.IsValid() == false)
     return;
 
-  // Assemble final data buffer
+  // Build the final data buffer. After this, all pointers from earlier Map calls are invalid.
   m_Data.SetCountUninitialized(m_Desc.m_uiTotalSize);
-  for (auto& tempData : m_TempData)
+  if (m_TempData.IsEmpty() == false)
   {
-    ezMemoryUtils::Copy(&m_Data[tempData.m_uiStartByteOffset], tempData.m_pData, tempData.m_uiByteSize);
-    tempData.m_pAllocator->Deallocate(tempData.m_pData);
-  }
-  m_TempData.Clear();
+    // Temp data ranges can overlap each other, and they can overlap allocations in m_Data.
+    // So don't copy the full temp data. Copy each allocation from the temp data where it is stored.
+    for (auto it = m_Allocations.GetIterator(); it.IsValid(); ++it)
+    {
+      auto& allocation = it.Value();
+      if (allocation.m_uiDataIndex == 0)
+        continue;
 
-  // Patch data indices
-  for (auto it = m_Allocations.GetReverseIterator(); it.IsValid(); ++it)
-  {
-    auto& allocation = it.Value();
-    if (allocation.m_uiDataIndex == 0)
-      break;
+      const auto& tempData = m_TempData[allocation.m_uiDataIndex - 1];
+      const ezUInt32 uiByteOffset = it.Key() * m_Desc.m_uiStructSize;
+      const ezUInt32 uiByteSize = allocation.m_uiCount * m_Desc.m_uiStructSize;
+      ezMemoryUtils::Copy(&m_Data[uiByteOffset], tempData.m_pData + (uiByteOffset - tempData.m_uiStartByteOffset), uiByteSize);
 
-    allocation.m_uiDataIndex = 0;
+      allocation.m_uiDataIndex = 0;
+    }
+
+    for (auto& tempData : m_TempData)
+    {
+      tempData.m_pAllocator->Deallocate(tempData.m_pData);
+    }
+    m_TempData.Clear();
   }
 
   auto pDevice = ezGALDevice::GetDefaultDevice();
@@ -351,12 +381,17 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
   if (m_FreeRanges.IsEmpty() || m_Allocations.IsEmpty())
     return;
 
-  // Don't try to compact when we still have temporary data
+  // Don't compact while there is temp data. MoveAllocation only works with m_Data.
   if (m_TempData.IsEmpty() == false)
     return;
 
+  // Each step works on the hole with the lowest offset. Sorting by start in reverse puts this hole at the end of the array.
   m_FreeRanges.Sort(CompareRangesByStartReverse());
   EZ_SCOPE_EXIT(m_FreeRanges.Sort(CompareRangesByCount()));
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  EZ_SCOPE_EXIT(CheckSelf());
+#endif
 
   auto MoveAllocation = [&](const Allocation& allocation, ezUInt32 uiOldOffset, ezUInt32 uiNewOffset)
   {
@@ -365,7 +400,8 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
     const ezUInt32 uiOldByteOffset = uiOldOffset * m_Desc.m_uiStructSize;
     const ezUInt32 uiNewByteOffset = uiNewOffset * m_Desc.m_uiStructSize;
     const ezUInt32 uiByteSize = allocation.m_uiCount * m_Desc.m_uiStructSize;
-    ezMemoryUtils::Copy(&m_Data[uiNewByteOffset], &m_Data[uiOldByteOffset], uiByteSize);
+    // moving an allocation forward by less than its own size overlaps
+    ezMemoryUtils::CopyOverlapped(&m_Data[uiNewByteOffset], &m_Data[uiOldByteOffset], uiByteSize);
 
     m_DirtyRange.SetToIncludeRange(uiNewOffset, uiNewOffset + allocation.m_uiCount - 1);
 
@@ -382,7 +418,8 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
     const ezUInt32 uiFreeCount = freeRange.GetCount();
     const ezUInt32 uiNewOffset = freeRange.m_uiMin;
 
-    // first check whether the last allocation fits into the hole
+    // First check if the last allocation has exactly the size of the hole.
+    // If yes, one move fills the hole and makes the used part of the buffer smaller.
     auto revIt = m_Allocations.GetReverseIterator();
     if (revIt.IsValid())
     {
@@ -390,13 +427,24 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
       {
         m_FreeRanges.PopBack();
 
+        // The old place of the last allocation is at the end of the buffer, so it does not become a free range
         m_uiNextOffset = revIt.Key();
         MoveAllocation(revIt.Value(), revIt.Key(), uiNewOffset);
+
+        // A free range directly in front of the moved allocation is now at the end of the buffer.
+        // The ranges are sorted by start in reverse, so it can only be the first one.
+        if (!m_FreeRanges.IsEmpty() && m_FreeRanges[0].m_uiMax + 1 == m_uiNextOffset)
+        {
+          m_uiNextOffset = m_FreeRanges[0].m_uiMin;
+          m_FreeRanges.RemoveAtAndCopy(0);
+        }
         continue;
       }
     }
 
-    // if not start to move the allocations forward
+    // If not, move the allocation that comes directly after the hole to the start of the hole.
+    // The hole then moves back by the size of that allocation, and it may join the next hole.
+    // There is always an allocation directly after a free range, so Find() always succeeds.
     auto it = m_Allocations.Find(freeRange.m_uiMax + 1);
     EZ_ASSERT_DEV(it.IsValid(), "Implementation error");
     {
@@ -429,15 +477,12 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
       MoveAllocation(it.Value(), it.Key(), uiNewOffset);
     }
   }
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  CheckSelf();
-#endif
 }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 void ezGALDynamicBuffer::CheckSelf() const
 {
+  // Disabled by default, because it checks all allocations on every call. Enable it when you change this class.
 #  if 0
   if (m_uiNextOffset == 0 && m_Allocations.IsEmpty() && m_FreeRanges.IsEmpty())
     return;
@@ -451,6 +496,18 @@ void ezGALDynamicBuffer::CheckSelf() const
     const ezUInt32 uiCount = it.Value().m_uiCount;
     EZ_ASSERT_DEBUG(!check.IsAnyBitSet(uiStart, uiCount), "Overlapping allocation detected");
     check.SetBitRange(uiStart, uiCount);
+
+    const ezUInt32 uiByteOffset = uiStart * m_Desc.m_uiStructSize;
+    const ezUInt32 uiByteEndOffset = (uiStart + uiCount) * m_Desc.m_uiStructSize;
+    if (it.Value().m_uiDataIndex == 0)
+    {
+      EZ_ASSERT_DEBUG(uiByteEndOffset <= m_Data.GetCount(), "Allocation is outside of the regular data");
+    }
+    else
+    {
+      const auto& tempData = m_TempData[it.Value().m_uiDataIndex - 1];
+      EZ_ASSERT_DEBUG(uiByteOffset >= tempData.m_uiStartByteOffset && uiByteEndOffset <= tempData.m_uiStartByteOffset + tempData.m_uiByteSize, "Allocation is outside of its temp data");
+    }
   }
 
   for (auto range : m_FreeRanges)
@@ -459,6 +516,8 @@ void ezGALDynamicBuffer::CheckSelf() const
     const ezUInt32 uiCount = range.GetCount();
     EZ_ASSERT_DEBUG(!check.IsAnyBitSet(uiStart, uiCount), "Overlapping free range detected");
     check.SetBitRange(uiStart, uiCount);
+
+    EZ_ASSERT_DEBUG(m_Allocations.Contains(range.m_uiMax + 1), "Free range is not followed by an allocation");
   }
 
   EZ_ASSERT_DEBUG(check.AreAllBitsSet(), "Some memory is neither allocated nor free");
