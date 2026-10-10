@@ -36,6 +36,33 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // ezPhantomRttiManager public functions
 ////////////////////////////////////////////////////////////////////////
 
+/// Checks whether all values of an enum or bitflags type still exist with the same numeric value in the new descriptor.
+static bool IsCompatibleEnumChange(const ezRTTI* pOldType, const ezReflectedTypeDescriptor& newDesc)
+{
+  for (const ezAbstractProperty* pOldProp : pOldType->GetProperties())
+  {
+    if (pOldProp->GetCategory() != ezPropertyCategory::Constant)
+      continue;
+
+    const ezVariant oldValue = static_cast<const ezAbstractConstantProperty*>(pOldProp)->GetConstant();
+
+    bool bFound = false;
+    for (const ezReflectedPropertyDescriptor& newProp : newDesc.m_Properties)
+    {
+      if (newProp.m_Category == ezPropertyCategory::Constant && newProp.m_sName == pOldProp->GetPropertyName())
+      {
+        bFound = newProp.m_ConstantValue == oldValue;
+        break;
+      }
+    }
+
+    if (!bFound)
+      return false;
+  }
+
+  return true;
+}
+
 const ezRTTI* ezPhantomRttiManager::RegisterType(ezReflectedTypeDescriptor& ref_desc)
 {
   EZ_PROFILE_SCOPE("RegisterType");
@@ -72,11 +99,17 @@ const ezRTTI* ezPhantomRttiManager::RegisterType(ezReflectedTypeDescriptor& ref_
   }
   else
   {
-    pPhantom->UpdateType(ref_desc);
-
     ezPhantomRttiManagerEvent msg;
     msg.m_pChangedType = pPhantom;
     msg.m_Type = ezPhantomRttiManagerEvent::Type::TypeChanged;
+
+    if (pPhantom->IsDerivedFrom<ezEnumBase>() || pPhantom->IsDerivedFrom<ezBitflagsBase>())
+    {
+      msg.m_bIncompatibleChange = !IsCompatibleEnumChange(pPhantom, ref_desc);
+    }
+
+    pPhantom->UpdateType(ref_desc);
+
     s_Events.Broadcast(msg, 1);
   }
 
