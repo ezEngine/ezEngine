@@ -30,6 +30,7 @@ class ezTranslatorFromFiles;
 class ezDynamicStringEnum;
 class QSplashScreen;
 class ezQtVersionChecker;
+struct ezPhantomRttiManagerEvent;
 
 struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
 {
@@ -148,7 +149,11 @@ public:
   const ezPluginBundleSet& GetPluginBundles() const { return m_PluginBundles; }
   ezPluginBundleSet& GetPluginBundles() { return m_PluginBundles; }
 
-  void AddRestartRequiredReason(const char* szReason);
+  /// Shows a permanent status bar message that the editor needs to be restarted.
+  ///
+  /// If bAskToRestart is true, a message box additionally asks whether to restart right away. Pass false when this is called in the
+  /// middle of other work, where restarting immediately isn't possible.
+  void AddRestartRequiredReason(const char* szReason, bool bAskToRestart = true);
   const ezSet<ezString>& GetRestartRequiredReasons() { return m_RestartRequiredReasons; }
 
   void AddReloadProjectRequiredReason(const char* szReason);
@@ -287,6 +292,7 @@ private:
   void ProjectEventHandler(const ezToolsProjectEvent& r);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
   void UiServicesEvents(const ezQtUiServices::Event& e);
+  void PhantomRttiManagerEventHandler(const ezPhantomRttiManagerEvent& e);
 
   /// Silences the assert dialog for the editor and every process it launches, for unattended mode.
   void SetupSilentAsserts();

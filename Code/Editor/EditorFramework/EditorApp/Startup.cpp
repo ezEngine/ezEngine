@@ -462,6 +462,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::ProjectEventHandler, this));
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::EngineProcessMsgHandler, this));
   ezQtUiServices::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::UiServicesEvents, this));
+  ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::PhantomRttiManagerEventHandler, this));
 
   ezStartup::StartupCoreSystems();
 
@@ -670,6 +671,7 @@ void ezQtEditorApp::ShutdownEditor()
   ezDocumentManager::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerRequestHandler, this));
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerEventHandler, this));
   ezQtUiServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::UiServicesEvents, this));
+  ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::PhantomRttiManagerEventHandler, this));
 
   ezQtUiServices::GetSingleton()->SaveState();
 

@@ -21,6 +21,13 @@ struct ezPhantomRttiManagerEvent
 
   Type m_Type = Type::TypeAdded;
   const ezRTTI* m_pChangedType = nullptr;
+
+  /// Only used for TypeChanged events of enum and bitflags types.
+  ///
+  /// Set when values were removed or got a different numeric value. Data in memory stores enum and bitflags values as integers,
+  /// which can't be remapped to the new definition. Such data stays wrong until the documents are reloaded from disk,
+  /// where the values are stored by name, so the editor has to be restarted.
+  bool m_bIncompatibleChange = false;
 };
 
 /// Manages all ezPhantomRTTI types that have been added to him.
