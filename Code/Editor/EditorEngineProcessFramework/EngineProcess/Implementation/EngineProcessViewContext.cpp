@@ -306,8 +306,8 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   {
     pView->SetViewRenderMode(renderMode);
 
-    bool bUseDepthPrePass = renderMode != ezViewRenderMode::WireframeColor && renderMode != ezViewRenderMode::WireframeMonochrome;
-    if (!bUseDepthPrePass)
+    bool bIsWireframe = renderMode == ezViewRenderMode::WireframeColor || renderMode == ezViewRenderMode::WireframeMonochrome;
+    if (bIsWireframe)
     {
       pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Renderer-DepthPrePass"), false);
       pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Rendering.Pipeline.SSAO"), 0); // Also disable SSAO to save some performance

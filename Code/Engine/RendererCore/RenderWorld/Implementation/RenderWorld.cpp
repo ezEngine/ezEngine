@@ -569,6 +569,9 @@ void ezRenderWorld::ExtractMainViews()
     }
   }
 
+  extractionEvent.m_Type = ezRenderWorldExtractionEvent::Type::EndExtraction;
+  s_ExtractionEvent.Broadcast(extractionEvent);
+
   // filter out duplicates and reverse order so that dependent views are rendered first
   {
     auto& filteredRenderPipelines = s_FilteredRenderPipelines[GetDataIndexForExtraction()];
@@ -576,7 +579,11 @@ void ezRenderWorld::ExtractMainViews()
 
     for (ezUInt32 i = s_ViewsToRender.GetCount(); i-- > 0;)
     {
-      auto& pRenderPipeline = s_ViewsToRender[i]->m_pRenderPipeline;
+      auto& pView = s_ViewsToRender[i];
+      if (!pView->IsValid())
+        continue;
+
+      auto& pRenderPipeline = pView->m_pRenderPipeline;
       if (!filteredRenderPipelines.Contains(pRenderPipeline))
       {
         filteredRenderPipelines.PushBack(pRenderPipeline);
@@ -585,9 +592,6 @@ void ezRenderWorld::ExtractMainViews()
 
     s_ViewsToRender.Clear();
   }
-
-  extractionEvent.m_Type = ezRenderWorldExtractionEvent::Type::EndExtraction;
-  s_ExtractionEvent.Broadcast(extractionEvent);
 
   s_bInExtract = false;
 }
@@ -921,6 +925,9 @@ void ezRenderWorld::RebuildPipelines()
     ezView* pView = nullptr;
     if (s_Views.TryGetValue(pipelineToRebuild.m_hView, pView))
     {
+      if (pView->IsValid() == false)
+        continue;
+
       if (pipelineToRebuild.m_pPipeline->Rebuild(*pView) == ezRenderPipeline::PipelineState::RebuildError)
       {
         ezLog::Error("Failed to rebuild pipeline '{}' for view '{}'", pipelineToRebuild.m_pPipeline->m_sName, pView->GetName());
