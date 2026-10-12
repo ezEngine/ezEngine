@@ -155,7 +155,7 @@ double ezRandom::DoubleVariance(double fValue, double fVariance)
   /// \todo Test whether this is actually correct
 
   const double dev = DoubleZeroToOneInclusive();
-  const double offset = fValue * fVariance * dev;
+  const double offset = ezMath::Abs(fValue * fVariance * dev);
   return DoubleMinMax(fValue - offset, fValue + offset);
 }
 

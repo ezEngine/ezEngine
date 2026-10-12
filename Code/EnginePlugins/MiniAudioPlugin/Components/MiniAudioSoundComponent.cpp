@@ -169,6 +169,15 @@ void ezMiniAudioSoundComponent::SetPitch(float f)
   m_fPitch = f;
 }
 
+void ezMiniAudioSoundComponent::SetSound(const ezMiniAudioSoundResourceHandle& hSound)
+{
+  if (m_hSound == hSound)
+    return;
+
+  Stop();
+  m_hSound = hSound;
+}
+
 void ezMiniAudioSoundComponent::SetVolume(float f)
 {
   if (f == m_fComponentVolume)
@@ -237,6 +246,8 @@ void ezMiniAudioSoundComponent::Pause()
   {
     EZ_MA_CHECK(ma_sound_stop(&m_pInstance->m_Sound));
   }
+
+  m_bPaused = true;
 }
 
 void ezMiniAudioSoundComponent::Stop()

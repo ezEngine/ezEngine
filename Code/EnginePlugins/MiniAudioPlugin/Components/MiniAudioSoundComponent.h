@@ -56,6 +56,10 @@ public:
   ezMiniAudioSoundComponent();
   ~ezMiniAudioSoundComponent();
 
+  /// Sets the sound to play. Stops a sound that is currently playing; call Play() to start the new one.
+  void SetSound(const ezMiniAudioSoundResourceHandle& hSound);
+  const ezMiniAudioSoundResourceHandle& GetSound() const { return m_hSound; }
+
   void SetPaused(bool b);                                // [ property ]
   bool GetPaused() const { return m_bPaused; }           // [ property ]
 
