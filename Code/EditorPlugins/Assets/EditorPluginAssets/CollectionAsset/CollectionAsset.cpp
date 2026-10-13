@@ -60,6 +60,9 @@ static bool InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezStri
   }
 
   // insert item itself
+  // Scenes are not resources (they are loaded through ezSceneLoadUtility), so they can't be preloaded.
+  // A scene in a collection is a shortcut for everything it references.
+  if (pInfo->m_Data.m_sSubAssetsDocumentTypeName != "Scene")
   {
     ezCollectionEntry& entry = inout_found[sID];
     entry.m_sOptionalNiceLookupName = sLookupName;
