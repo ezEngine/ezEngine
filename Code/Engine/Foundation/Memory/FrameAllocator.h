@@ -62,6 +62,12 @@ public:
   /// Resets both buffers, typically called during shutdown.
   static void Reset();
 
+  /// Increases by one with every Swap() and by two with every Reset().
+  ///
+  /// Memory that was allocated while this returned N is valid as long as it returns at most N + 1.
+  /// This can be used to detect code that keeps frame allocator memory for too long.
+  static ezUInt64 GetSwapCount() { return s_uiSwapCount; }
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, FrameAllocator);
 
@@ -69,4 +75,5 @@ private:
   static void Shutdown();
 
   static ezDoubleBufferedLinearAllocator* s_pAllocator;
+  static ezUInt64 s_uiSwapCount;
 };

@@ -798,4 +798,71 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
       map.Remove(it);
     }
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetStatistics")
+  {
+    using HashTableTestDetail::Collision;
+
+    ezHashTable<Collision, int> map;
+
+    ezHashTableStatistics stats = map.GetStatistics();
+    EZ_TEST_INT(stats.m_uiCount, 0);
+    EZ_TEST_INT(stats.m_uiCapacity, 0);
+    EZ_TEST_INT(stats.m_uiLongestCluster, 0);
+
+    map.Reserve(8);
+    const ezUInt32 uiCapacity = map.GetStatistics().m_uiCapacity;
+    EZ_TEST_BOOL(uiCapacity >= 16);
+
+    // No collisions
+    map.Insert(Collision(0, 0), 0);
+    map.Insert(Collision(1, 1), 1);
+    map.Insert(Collision(2, 2), 2);
+
+    stats = map.GetStatistics();
+    EZ_TEST_INT(stats.m_uiCount, 3);
+    EZ_TEST_INT(stats.m_uiCapacity, uiCapacity);
+    EZ_TEST_INT(stats.m_uiNumDeletedEntries, 0);
+    EZ_TEST_INT(stats.m_uiNumCollisions, 0);
+    EZ_TEST_INT(stats.m_uiMaxProbeLength, 1);
+    EZ_TEST_FLOAT(stats.m_fAverageProbeLength, 1.0f, 0.0001f);
+    EZ_TEST_FLOAT(stats.m_fAverageMissProbeLength, (3.0f + 2.0f + 1.0f) / uiCapacity, 0.0001f);
+    EZ_TEST_INT(stats.m_uiLongestCluster, 3);
+
+    // Same hash as key 0, so it is stored at index 3
+    map.Insert(Collision(0, 3), 3);
+
+    stats = map.GetStatistics();
+    EZ_TEST_INT(stats.m_uiCount, 4);
+    EZ_TEST_INT(stats.m_uiNumCollisions, 1);
+    EZ_TEST_INT(stats.m_uiMaxProbeLength, 4);
+    EZ_TEST_FLOAT(stats.m_fAverageProbeLength, (1.0f + 1.0f + 1.0f + 4.0f) / 4.0f, 0.0001f);
+    EZ_TEST_FLOAT(stats.m_fAverageMissProbeLength, (4.0f + 3.0f + 2.0f + 1.0f) / uiCapacity, 0.0001f);
+    EZ_TEST_INT(stats.m_uiLongestCluster, 4);
+
+    // Index 1 can't become free, because index 2 is still used
+    EZ_TEST_BOOL(map.Remove(Collision(1, 1)));
+
+    stats = map.GetStatistics();
+    EZ_TEST_INT(stats.m_uiCount, 3);
+    EZ_TEST_INT(stats.m_uiNumDeletedEntries, 1);
+    EZ_TEST_INT(stats.m_uiNumCollisions, 1);
+    EZ_TEST_INT(stats.m_uiMaxProbeLength, 4);
+    EZ_TEST_FLOAT(stats.m_fAverageProbeLength, (1.0f + 1.0f + 4.0f) / 3.0f, 0.0001f);
+    EZ_TEST_INT(stats.m_uiLongestCluster, 4);
+
+    // Wrap around at the end of the table
+    map.Clear();
+    map.Insert(Collision(uiCapacity - 1, 0), 0);
+    map.Insert(Collision(uiCapacity - 1, 1), 1);
+
+    stats = map.GetStatistics();
+    EZ_TEST_INT(stats.m_uiCapacity, uiCapacity);
+    EZ_TEST_INT(stats.m_uiNumDeletedEntries, 0);
+    EZ_TEST_INT(stats.m_uiNumCollisions, 1);
+    EZ_TEST_INT(stats.m_uiMaxProbeLength, 2);
+    EZ_TEST_FLOAT(stats.m_fAverageProbeLength, 1.5f, 0.0001f);
+    EZ_TEST_FLOAT(stats.m_fAverageMissProbeLength, (2.0f + 1.0f) / uiCapacity, 0.0001f);
+    EZ_TEST_INT(stats.m_uiLongestCluster, 2);
+  }
 }

@@ -666,6 +666,73 @@ ezUInt64 ezHashTableBase<K, V, H>::GetHeapMemoryUsage() const
 }
 
 template <typename K, typename V, typename H>
+ezHashTableStatistics ezHashTableBase<K, V, H>::GetStatistics() const
+{
+  ezHashTableStatistics stats;
+  stats.m_uiCount = m_uiCount;
+  stats.m_uiCapacity = m_uiCapacity;
+
+  if (m_uiCapacity == 0)
+    return stats;
+
+  const ezUInt32 uiMask = m_uiCapacity - 1;
+  ezUInt32 uiFreeIndex = ezInvalidIndex;
+  ezUInt64 uiProbeLengthSum = 0;
+
+  for (ezUInt32 i = 0; i < m_uiCapacity; ++i)
+  {
+    if (IsFreeEntry(i))
+    {
+      uiFreeIndex = i;
+      continue;
+    }
+
+    if (IsDeletedEntry(i))
+    {
+      ++stats.m_uiNumDeletedEntries;
+      continue;
+    }
+
+    const ezUInt32 uiStartIndex = H::Hash(m_pEntries[i].key) & uiMask;
+    const ezUInt32 uiProbeLength = ((i - uiStartIndex) & uiMask) + 1;
+
+    if (uiProbeLength > 1)
+      ++stats.m_uiNumCollisions;
+
+    stats.m_uiMaxProbeLength = ezMath::Max(stats.m_uiMaxProbeLength, uiProbeLength);
+    uiProbeLengthSum += uiProbeLength;
+  }
+
+  if (m_uiCount > 0)
+  {
+    stats.m_fAverageProbeLength = static_cast<float>(static_cast<double>(uiProbeLengthSum) / m_uiCount);
+  }
+
+  if (uiFreeIndex == ezInvalidIndex)
+  {
+    stats.m_fAverageMissProbeLength = static_cast<float>(m_uiCapacity);
+    stats.m_uiLongestCluster = m_uiCapacity;
+    return stats;
+  }
+
+  // A lookup of a missing key looks at all entries from its start index up to the next free entry.
+  // Walking backwards from a free entry gives that distance for every index, including the ones that wrap around.
+  ezUInt64 uiMissProbeLengthSum = 0;
+  ezUInt32 uiClusterLength = 0;
+  for (ezUInt32 n = 0; n < m_uiCapacity; ++n)
+  {
+    const ezUInt32 uiIndex = (uiFreeIndex - n) & uiMask;
+    uiClusterLength = IsFreeEntry(uiIndex) ? 0 : uiClusterLength + 1;
+
+    uiMissProbeLengthSum += uiClusterLength;
+    stats.m_uiLongestCluster = ezMath::Max(stats.m_uiLongestCluster, uiClusterLength);
+  }
+
+  stats.m_fAverageMissProbeLength = static_cast<float>(static_cast<double>(uiMissProbeLengthSum) / m_uiCapacity);
+  return stats;
+}
+
+template <typename K, typename V, typename H>
 void ezHashTableBase<K, V, H>::Swap(ezHashTableBase<K, V, H>& other)
 {
   ezMath::Swap(this->m_pEntries, other.m_pEntries);

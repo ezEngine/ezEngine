@@ -1,34 +1,39 @@
 #include <RendererFoundation/RendererFoundationPCH.h>
 
+#include <Foundation/Memory/FrameAllocator.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/DynamicBuffer.h>
 
 namespace
 {
-  struct CompareRangesByStart
-  {
-    bool Less(const ezGAL::ModifiedRange& a, const ezGAL::ModifiedRange& b) const
-    {
-      return a.m_uiMin < b.m_uiMin;
-    }
-  };
+  // Binning similar to https://github.com/sebbbi/OffsetAllocator
+  constexpr ezUInt32 s_uiMantissaBits = 3;
+  constexpr ezUInt32 s_uiMantissaValue = 1u << s_uiMantissaBits; // 8
+  constexpr ezUInt32 s_uiMantissaMask = s_uiMantissaValue - 1;
 
-  struct CompareRangesByStartReverse
+  /// Bin for inserting a free node of this size (round down).
+  ezUInt32 BinFloor(ezUInt32 uiSize)
   {
-    bool Less(const ezGAL::ModifiedRange& a, const ezGAL::ModifiedRange& b) const
-    {
-      return a.m_uiMin > b.m_uiMin;
-    }
-  };
+    if (uiSize < s_uiMantissaValue)
+      return uiSize; // sizes 0..7 map 1:1 (like denormals)
 
-  struct CompareRangesByCount
+    const ezUInt32 uiShift = ezMath::FirstBitHigh(uiSize) - s_uiMantissaBits;
+    const ezUInt32 uiMantissa = (uiSize >> uiShift) & s_uiMantissaMask;
+    return ((uiShift + 1) << s_uiMantissaBits) | uiMantissa;
+  }
+
+  /// Smallest bin where every node is guaranteed to fit this size (round up).
+  ezUInt32 BinCeil(ezUInt32 uiSize)
   {
-    bool Less(const ezGAL::ModifiedRange& a, const ezGAL::ModifiedRange& b) const
-    {
-      return a.GetCount() < b.GetCount();
-    }
-  };
+    if (uiSize < s_uiMantissaValue)
+      return uiSize;
+
+    const ezUInt32 uiShift = ezMath::FirstBitHigh(uiSize) - s_uiMantissaBits;
+    const ezUInt32 uiBin = BinFloor(uiSize);
+    const bool bHasLowBits = (uiSize & ((1u << uiShift) - 1)) != 0;
+    return uiBin + (bHasLowBits ? 1 : 0); // a mantissa overflow moves into the next exponent on its own
+  }
 } // namespace
 
 ////////////////////////////////////////////////////////////////////////
@@ -41,20 +46,19 @@ ezGALDynamicBuffer::~ezGALDynamicBuffer()
 void ezGALDynamicBuffer::Initialize(const ezGALBufferCreationDescription& desc, ezStringView sDebugName)
 {
   EZ_ASSERT_DEV(desc.m_uiStructSize > 0, "Struct size must be greater than 0");
-  EZ_IGNORE_UNUSED(sDebugName);
 
   m_Desc = desc;
-
-  m_Data.SetCountUninitialized(desc.m_uiTotalSize);
   m_uiCapacity = desc.m_uiTotalSize / desc.m_uiStructSize;
-
+  EZ_ASSERT_DEV(m_uiCapacity <= s_uiMaxCount, "Dynamic buffer '{}': Initial size of {} elements is too large, the maximum is {}", sDebugName, m_uiCapacity, s_uiMaxCount);
   m_sDebugName = sDebugName;
+
+  // Sets up m_Data and one free node for the full capacity
+  Clear();
 }
 
 void ezGALDynamicBuffer::Deinitialize()
 {
-  Clear();
-
+  // Only called from the destructor, which frees the containers. Clear() would allocate m_Data again.
   if (m_hBufferForRendering != m_hBufferForUpload)
   {
     ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hBufferForRendering);
@@ -66,74 +70,66 @@ void ezGALDynamicBuffer::Deinitialize()
 void ezGALDynamicBuffer::Clear()
 {
   m_Data.SetCountUninitialized(m_Desc.m_uiTotalSize);
-  m_uiNextOffset = 0;
 
-  for (auto& tempData : m_TempData)
+  // Temp memory comes from the frame allocator, so it doesn't need to be freed
+  m_bHasTempData = false;
+
+  m_Nodes.Clear();
+  m_uiFirstReleasedNodeIndex = ezInvalidIndex;
+  m_OffsetToNodeIndex.Clear();
+
+  for (ezUInt32& uiBinHead : m_FreeNodeBins)
   {
-    tempData.m_pAllocator->Deallocate(tempData.m_pData);
+    uiBinHead = ezInvalidIndex;
   }
-  m_TempData.Clear();
 
-  m_Allocations.Clear();
-  m_FreeRanges.Clear();
+  m_uiFirstNodeIndex = ezInvalidIndex;
+  m_uiLastNodeIndex = ezInvalidIndex;
   m_DirtyRange.Reset();
+
+  if (m_uiCapacity > 0)
+  {
+    const ezUInt32 uiNodeIndex = AllocateNode();
+    m_Nodes[uiNodeIndex].m_uiCount = m_uiCapacity;
+    m_uiFirstNodeIndex = uiNodeIndex;
+    m_uiLastNodeIndex = uiNodeIndex;
+    AddToBin(uiNodeIndex);
+  }
 }
 
-ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezBitflags<AllocateFlags> allocateFlags, ezAllocator* pTempAllocator)
+ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezBitflags<AllocateFlags> allocateFlags)
 {
   EZ_LOCK(m_Mutex);
+  EZ_ASSERT_DEV(uiCount > 0, "Allocation count must be greater than 0");
+  EZ_ASSERT_DEV(uiCount <= s_uiMaxCount, "Allocation count {} is too large, the maximum is {}", uiCount, s_uiMaxCount);
 
-  ezUInt32 uiOffset = ezInvalidIndex;
-
-  for (ezUInt32 i = 0; i < m_FreeRanges.GetCount(); ++i)
+  ezUInt32 uiNodeIndex = FindFreeNode(uiCount);
+  if (uiNodeIndex == ezInvalidIndex)
   {
-    auto& freeRange = m_FreeRanges[i];
-    const ezUInt32 uiFreeCount = freeRange.GetCount();
-
-    if (uiFreeCount >= uiCount)
-    {
-      uiOffset = freeRange.m_uiMin;
-
-      if (uiFreeCount == uiCount)
-      {
-        m_FreeRanges.RemoveAtAndCopy(i);
-      }
-      else
-      {
-        freeRange.m_uiMin += uiCount;
-      }
-
-      break;
-    }
+    // FindFreeNode skips the bin of uiCount, so the last node may still fit. Otherwise the buffer grows.
+    EnsureFreeNodeAtEnd(uiCount);
+    uiNodeIndex = m_uiLastNodeIndex;
   }
 
-  if (uiOffset == ezInvalidIndex)
-  {
-    uiOffset = m_uiNextOffset;
-    m_uiNextOffset += uiCount;
+  RemoveFromBin(uiNodeIndex);
+  SplitNode(uiNodeIndex, uiCount);
 
-    if (m_uiNextOffset > m_uiCapacity)
-    {
-      AllocateTempData(uiOffset, m_uiNextOffset, pTempAllocator);
-    }
+  Node& node = m_Nodes[uiNodeIndex];
+  const ezUInt32 uiOffset = node.m_uiOffset;
+
+  // Don't resize m_Data here. Other threads may still have mapped pointers into it.
+  // If the allocation doesn't fit into m_Data, because the buffer has grown, it gets its own temp memory until the next upload.
+  ezUInt8* pTempData = nullptr;
+  if ((uiOffset + uiCount) * m_Desc.m_uiStructSize > m_Data.GetCount())
+  {
+    pTempData = AllocateTempData(uiCount);
   }
 
-  ezUInt32 uiDataIndex = 0;
-  const ezUInt32 uiByteEndOffset = (uiOffset + uiCount) * m_Desc.m_uiStructSize;
-  if (uiByteEndOffset > m_Data.GetCount())
-  {
-    for (ezUInt32 i = 0; i < m_TempData.GetCount(); ++i)
-    {
-      auto& tempData = m_TempData[i];
-      if (uiByteEndOffset <= (tempData.m_uiStartByteOffset + tempData.m_uiByteSize))
-      {
-        uiDataIndex = i + 1;
-        break;
-      }
-    }
-  }
+  node.m_uiUserData = uiUserData;
+  node.m_pTempData = pTempData;
+  node.m_uiUsed = true;
 
-  m_Allocations.Insert(uiOffset, Allocation{uiUserData, uiCount, uiDataIndex});
+  m_OffsetToNodeIndex.Insert(uiOffset, uiNodeIndex);
 
   if (allocateFlags.IsSet(AllocateFlags::ZeroFill))
   {
@@ -153,51 +149,10 @@ void ezGALDynamicBuffer::Deallocate(ezUInt32 uiOffset)
 {
   EZ_LOCK(m_Mutex);
 
-  auto it = m_Allocations.Find(uiOffset);
-  EZ_ASSERT_DEV(it.IsValid(), "Invalid offset");
+  ezUInt32 uiNodeIndex = ezInvalidIndex;
+  EZ_VERIFY(m_OffsetToNodeIndex.Remove(uiOffset, &uiNodeIndex), "Invalid offset");
 
-  const ezUInt32 uiCount = it.Value().m_uiCount;
-
-  if (it.Key() == m_Allocations.GetReverseIterator().Key())
-  {
-    m_uiNextOffset = uiOffset;
-
-    // Remove free range in front of the last allocation
-    for (ezUInt32 i = 0; i < m_FreeRanges.GetCount(); ++i)
-    {
-      auto& freeRange = m_FreeRanges[i];
-      if (freeRange.m_uiMax + 1 == m_uiNextOffset)
-      {
-        m_uiNextOffset = freeRange.m_uiMin;
-        m_FreeRanges.RemoveAtAndCopy(i);
-        break;
-      }
-    }
-  }
-  else
-  {
-    m_FreeRanges.PushBack(ezGAL::ModifiedRange{uiOffset, uiOffset + uiCount - 1});
-
-    // Merge adjacent free ranges
-    m_FreeRanges.Sort(CompareRangesByStart());
-    for (ezUInt32 i = 0; i < m_FreeRanges.GetCount() - 1; ++i)
-    {
-      auto& currentFreeRange = m_FreeRanges[i];
-      auto& nextFreeRange = m_FreeRanges[i + 1];
-
-      if (currentFreeRange.m_uiMax + 1 == nextFreeRange.m_uiMin)
-      {
-        currentFreeRange.m_uiMax = nextFreeRange.m_uiMax;
-        m_FreeRanges.RemoveAtAndCopy(i + 1);
-        --i;
-      }
-    }
-
-    // Sort by count to make sure that the smaller holes are filled first
-    m_FreeRanges.Sort(CompareRangesByCount());
-  }
-
-  m_Allocations.Remove(it);
+  FreeNodeAndMerge(uiNodeIndex);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   CheckSelf();
@@ -208,11 +163,11 @@ ezByteArrayPtr ezGALDynamicBuffer::MapForWriting(ezUInt32 uiOffset, ezUInt32& ou
 {
   EZ_LOCK(m_Mutex);
 
-  auto it = m_Allocations.Find(uiOffset);
-  EZ_ASSERT_DEV(it.IsValid(), "Invalid offset");
+  ezUInt32 uiNodeIndex = 0;
+  EZ_VERIFY(m_OffsetToNodeIndex.TryGetValue(uiOffset, uiNodeIndex), "Invalid offset");
 
-  auto& allocation = it.Value();
-  out_uiCount = allocation.m_uiCount;
+  auto& node = m_Nodes[uiNodeIndex];
+  out_uiCount = node.m_uiCount;
 
   // Mark dirty
   m_DirtyRange.SetToIncludeRange(uiOffset, uiOffset + out_uiCount - 1);
@@ -220,13 +175,8 @@ ezByteArrayPtr ezGALDynamicBuffer::MapForWriting(ezUInt32 uiOffset, ezUInt32& ou
   const ezUInt32 uiByteOffset = uiOffset * m_Desc.m_uiStructSize;
   const ezUInt32 uiByteSize = out_uiCount * m_Desc.m_uiStructSize;
 
-  if (allocation.m_uiDataIndex > 0)
-  {
-    auto& tempData = m_TempData[allocation.m_uiDataIndex - 1];
-    const ezUInt32 uiLocalByteOffset = uiByteOffset - tempData.m_uiStartByteOffset;
-    EZ_ASSERT_DEBUG(uiLocalByteOffset + uiByteSize <= tempData.m_uiByteSize, "Implementation error");
-    return ezByteArrayPtr(tempData.m_pData + uiLocalByteOffset, uiByteSize);
-  }
+  if (node.m_pTempData != nullptr)
+    return ezByteArrayPtr(node.m_pTempData, uiByteSize);
 
   return m_Data.GetByteArrayPtr().GetSubArray(uiByteOffset, uiByteSize);
 }
@@ -235,57 +185,251 @@ ezConstByteArrayPtr ezGALDynamicBuffer::MapForReading(ezUInt32 uiOffset, ezUInt3
 {
   EZ_LOCK(m_Mutex);
 
-  auto it = m_Allocations.Find(uiOffset);
-  EZ_ASSERT_DEV(it.IsValid(), "Invalid offset");
+  ezUInt32 uiNodeIndex = 0;
+  EZ_VERIFY(m_OffsetToNodeIndex.TryGetValue(uiOffset, uiNodeIndex), "Invalid offset");
 
-  auto& allocation = it.Value();
-  out_uiCount = allocation.m_uiCount;
+  auto& node = m_Nodes[uiNodeIndex];
+  out_uiCount = node.m_uiCount;
 
   const ezUInt32 uiByteOffset = uiOffset * m_Desc.m_uiStructSize;
   const ezUInt32 uiByteSize = out_uiCount * m_Desc.m_uiStructSize;
 
-  if (allocation.m_uiDataIndex > 0)
-  {
-    auto& tempData = m_TempData[allocation.m_uiDataIndex - 1];
-    const ezUInt32 uiLocalByteOffset = uiByteOffset - tempData.m_uiStartByteOffset;
-    EZ_ASSERT_DEBUG(uiLocalByteOffset + uiByteSize <= tempData.m_uiByteSize, "Implementation error");
-    return ezConstByteArrayPtr(tempData.m_pData + uiLocalByteOffset, uiByteSize);
-  }
+  if (node.m_pTempData != nullptr)
+    return ezConstByteArrayPtr(node.m_pTempData, uiByteSize);
 
   return m_Data.GetByteArrayPtr().GetSubArray(uiByteOffset, uiByteSize);
 }
 
-ezUInt32 ezGALDynamicBuffer::AllocateTempData(ezUInt32 uiStartOffset, ezUInt32 uiNewCount, ezAllocator* pTempAllocator)
+ezUInt8* ezGALDynamicBuffer::AllocateTempData(ezUInt32 uiCount)
 {
-  constexpr ezUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;
-
-  uiNewCount = ezMath::Max(uiNewCount, 256U);
-  if (uiNewCount < uiExpGrowthLimit)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  // Remember the oldest temp data, UploadChangesForNextFrame checks that it is still valid
+  if (!m_bHasTempData)
   {
-    uiNewCount = ezMath::PowerOfTwo_Ceil(uiNewCount);
+    m_uiTempDataSwapCount = ezFrameAllocator::GetSwapCount();
+  }
+#endif
+
+  m_bHasTempData = true;
+
+  return static_cast<ezUInt8*>(ezFrameAllocator::GetCurrentAllocator()->Allocate(uiCount * m_Desc.m_uiStructSize, 16));
+}
+
+void ezGALDynamicBuffer::EnsureFreeNodeAtEnd(ezUInt32 uiCount)
+{
+  const bool bLastNodeIsFree = m_uiLastNodeIndex != ezInvalidIndex && !m_Nodes[m_uiLastNodeIndex].m_uiUsed;
+  const ezUInt32 uiFreeOffset = bLastNodeIsFree ? m_Nodes[m_uiLastNodeIndex].m_uiOffset : m_uiCapacity;
+  const ezUInt64 uiMinCapacity = ezUInt64(uiFreeOffset) + uiCount; // 64 bit to detect an overflow below
+
+  if (uiMinCapacity <= m_uiCapacity)
+    return;
+
+  constexpr ezUInt64 uiExpGrowthLimit = 16 * 1024 * 1024;
+
+  // m_uiTotalSize is 32 bit and in bytes, and a free node can cover the whole capacity
+  const ezUInt64 uiMaxCapacity = ezMath::Min<ezUInt64>(ezMath::MaxValue<ezUInt32>() / m_Desc.m_uiStructSize, s_uiMaxCount);
+  EZ_ASSERT_DEV(uiMinCapacity <= uiMaxCapacity, "Dynamic buffer '{}': Can't grow to {} elements, the maximum for a struct size of {} bytes is {}", m_sDebugName, uiMinCapacity, m_Desc.m_uiStructSize, uiMaxCapacity);
+
+  ezUInt64 uiNewCapacity64 = ezMath::Max<ezUInt64>(uiMinCapacity, 256);
+  if (uiNewCapacity64 < uiExpGrowthLimit)
+  {
+    uiNewCapacity64 = ezMath::PowerOfTwo_Ceil(uiNewCapacity64);
   }
   else
   {
-    uiNewCount = ezMemoryUtils::AlignSize(uiNewCount, uiExpGrowthLimit);
+    uiNewCapacity64 = ezMemoryUtils::AlignSize(uiNewCapacity64, uiExpGrowthLimit);
   }
 
-  m_Desc.m_uiTotalSize = uiNewCount * m_Desc.m_uiStructSize;
-  m_uiCapacity = uiNewCount;
+  // Rounding up may go over the limit, even if the required capacity is below it
+  const ezUInt32 uiNewCapacity = static_cast<ezUInt32>(ezMath::Min(uiNewCapacity64, uiMaxCapacity));
+  const ezUInt32 uiOldCapacity = m_uiCapacity;
 
-  if (pTempAllocator == nullptr)
+  // UploadChangesForNextFrame changes the size of m_Data and the GPU buffer to this
+  m_Desc.m_uiTotalSize = uiNewCapacity * m_Desc.m_uiStructSize;
+  m_uiCapacity = uiNewCapacity;
+
+  // The GPU buffer is created again with the new size, so all data has to be uploaded
+  m_DirtyRange.SetToIncludeRange(0, m_uiCapacity - 1);
+
+  // Add a node for the new range at the end. FreeNodeAndMerge joins it with the last node, if that is free.
+  const ezUInt32 uiNewNodeIndex = AllocateNode();
+  Node& newNode = m_Nodes[uiNewNodeIndex];
+  newNode.m_uiOffset = uiOldCapacity;
+  newNode.m_uiCount = uiNewCapacity - uiOldCapacity;
+  newNode.m_uiPrevNodeIndex = m_uiLastNodeIndex;
+
+  if (m_uiLastNodeIndex != ezInvalidIndex)
   {
-    pTempAllocator = ezFoundation::GetAlignedAllocator();
+    m_Nodes[m_uiLastNodeIndex].m_uiNextNodeIndex = uiNewNodeIndex;
+  }
+  else
+  {
+    m_uiFirstNodeIndex = uiNewNodeIndex;
   }
 
-  TempData& tempData = m_TempData.ExpandAndGetRef();
-  tempData.m_pAllocator = pTempAllocator;
-  tempData.m_uiByteSize = (uiNewCount - uiStartOffset) * m_Desc.m_uiStructSize;
-  tempData.m_uiStartByteOffset = uiStartOffset * m_Desc.m_uiStructSize;
-  tempData.m_pData = static_cast<ezUInt8*>(pTempAllocator->Allocate(tempData.m_uiByteSize, 16));
+  m_uiLastNodeIndex = uiNewNodeIndex;
+  FreeNodeAndMerge(uiNewNodeIndex);
+}
 
-  m_DirtyRange.SetToIncludeRange(0, (uiNewCount - 1));
+ezUInt32 ezGALDynamicBuffer::AllocateNode()
+{
+  if (m_uiFirstReleasedNodeIndex != ezInvalidIndex)
+  {
+    const ezUInt32 uiNodeIndex = m_uiFirstReleasedNodeIndex;
+    m_uiFirstReleasedNodeIndex = m_Nodes[uiNodeIndex].m_uiNextNodeIndex;
+    m_Nodes[uiNodeIndex] = Node();
+    return uiNodeIndex;
+  }
 
-  return m_TempData.GetCount();
+  m_Nodes.ExpandAndGetRef();
+  return m_Nodes.GetCount() - 1;
+}
+
+void ezGALDynamicBuffer::ReleaseNode(ezUInt32 uiNodeIndex)
+{
+  m_Nodes[uiNodeIndex] = Node();
+  m_Nodes[uiNodeIndex].m_uiNextNodeIndex = m_uiFirstReleasedNodeIndex;
+  m_uiFirstReleasedNodeIndex = uiNodeIndex;
+}
+
+void ezGALDynamicBuffer::AddToBin(ezUInt32 uiNodeIndex)
+{
+  Node& node = m_Nodes[uiNodeIndex];
+  EZ_ASSERT_DEBUG(!node.m_uiUsed && node.m_uiCount > 0, "Implementation error");
+
+  const ezUInt32 uiBin = BinFloor(node.m_uiCount);
+  const ezUInt32 uiHeadNodeIndex = m_FreeNodeBins[uiBin];
+
+  node.m_uiPrevNodeIndexInBin = ezInvalidIndex;
+  node.m_uiNextNodeIndexInBin = uiHeadNodeIndex;
+
+  if (uiHeadNodeIndex != ezInvalidIndex)
+  {
+    m_Nodes[uiHeadNodeIndex].m_uiPrevNodeIndexInBin = uiNodeIndex;
+  }
+
+  m_FreeNodeBins[uiBin] = uiNodeIndex;
+}
+
+void ezGALDynamicBuffer::RemoveFromBin(ezUInt32 uiNodeIndex)
+{
+  Node& node = m_Nodes[uiNodeIndex];
+  EZ_ASSERT_DEBUG(!node.m_uiUsed, "Implementation error");
+
+  const ezUInt32 uiBin = BinFloor(node.m_uiCount);
+
+  if (node.m_uiPrevNodeIndexInBin != ezInvalidIndex)
+  {
+    m_Nodes[node.m_uiPrevNodeIndexInBin].m_uiNextNodeIndexInBin = node.m_uiNextNodeIndexInBin;
+  }
+  else
+  {
+    EZ_ASSERT_DEBUG(m_FreeNodeBins[uiBin] == uiNodeIndex, "Node is not in the bin for its size");
+    m_FreeNodeBins[uiBin] = node.m_uiNextNodeIndexInBin;
+  }
+
+  if (node.m_uiNextNodeIndexInBin != ezInvalidIndex)
+  {
+    m_Nodes[node.m_uiNextNodeIndexInBin].m_uiPrevNodeIndexInBin = node.m_uiPrevNodeIndexInBin;
+  }
+
+  node.m_uiPrevNodeIndexInBin = ezInvalidIndex;
+  node.m_uiNextNodeIndexInBin = ezInvalidIndex;
+}
+
+void ezGALDynamicBuffer::SplitNode(ezUInt32 uiNodeIndex, ezUInt32 uiCount)
+{
+  EZ_ASSERT_DEBUG(m_Nodes[uiNodeIndex].m_uiCount >= uiCount, "Node is too small");
+  if (m_Nodes[uiNodeIndex].m_uiCount == uiCount)
+    return;
+
+  const ezUInt32 uiRestNodeIndex = AllocateNode(); // can reallocate m_Nodes, so get the references afterwards
+  Node& node = m_Nodes[uiNodeIndex];
+  Node& restNode = m_Nodes[uiRestNodeIndex];
+
+  restNode.m_uiOffset = node.m_uiOffset + uiCount;
+  restNode.m_uiCount = node.m_uiCount - uiCount;
+  restNode.m_uiPrevNodeIndex = uiNodeIndex;
+  restNode.m_uiNextNodeIndex = node.m_uiNextNodeIndex;
+
+  if (node.m_uiNextNodeIndex != ezInvalidIndex)
+  {
+    m_Nodes[node.m_uiNextNodeIndex].m_uiPrevNodeIndex = uiRestNodeIndex;
+  }
+  else
+  {
+    m_uiLastNodeIndex = uiRestNodeIndex;
+  }
+
+  node.m_uiNextNodeIndex = uiRestNodeIndex;
+  node.m_uiCount = uiCount;
+
+  AddToBin(uiRestNodeIndex);
+}
+
+void ezGALDynamicBuffer::FreeNodeAndMerge(ezUInt32 uiNodeIndex)
+{
+  // No nodes are allocated below, so this reference stays valid
+  Node& node = m_Nodes[uiNodeIndex];
+  node.m_uiUsed = false;
+
+  // Merge with free neighbors, so that two free nodes are never next to each other
+  const ezUInt32 uiPrevNodeIndex = node.m_uiPrevNodeIndex;
+  if (uiPrevNodeIndex != ezInvalidIndex && !m_Nodes[uiPrevNodeIndex].m_uiUsed)
+  {
+    RemoveFromBin(uiPrevNodeIndex);
+
+    const Node& prevNode = m_Nodes[uiPrevNodeIndex];
+    node.m_uiOffset = prevNode.m_uiOffset;
+    node.m_uiCount += prevNode.m_uiCount;
+    node.m_uiPrevNodeIndex = prevNode.m_uiPrevNodeIndex;
+
+    if (node.m_uiPrevNodeIndex != ezInvalidIndex)
+    {
+      m_Nodes[node.m_uiPrevNodeIndex].m_uiNextNodeIndex = uiNodeIndex;
+    }
+    else
+    {
+      m_uiFirstNodeIndex = uiNodeIndex;
+    }
+
+    ReleaseNode(uiPrevNodeIndex);
+  }
+
+  const ezUInt32 uiNextNodeIndex = node.m_uiNextNodeIndex;
+  if (uiNextNodeIndex != ezInvalidIndex && !m_Nodes[uiNextNodeIndex].m_uiUsed)
+  {
+    RemoveFromBin(uiNextNodeIndex);
+
+    const Node& nextNode = m_Nodes[uiNextNodeIndex];
+    node.m_uiCount += nextNode.m_uiCount;
+    node.m_uiNextNodeIndex = nextNode.m_uiNextNodeIndex;
+
+    if (node.m_uiNextNodeIndex != ezInvalidIndex)
+    {
+      m_Nodes[node.m_uiNextNodeIndex].m_uiPrevNodeIndex = uiNodeIndex;
+    }
+    else
+    {
+      m_uiLastNodeIndex = uiNodeIndex;
+    }
+
+    ReleaseNode(uiNextNodeIndex);
+  }
+
+  AddToBin(uiNodeIndex);
+}
+
+ezUInt32 ezGALDynamicBuffer::FindFreeNode(ezUInt32 uiCount) const
+{
+  // Every node in this bin or a higher one is large enough, so the first node of the first non-empty bin can be used
+  for (ezUInt32 uiBin = BinCeil(uiCount); uiBin < s_uiNumBins; ++uiBin)
+  {
+    if (m_FreeNodeBins[uiBin] != ezInvalidIndex)
+      return m_FreeNodeBins[uiBin];
+  }
+
+  return ezInvalidIndex;
 }
 
 void ezGALDynamicBuffer::UploadChangesForNextFrame()
@@ -295,23 +439,29 @@ void ezGALDynamicBuffer::UploadChangesForNextFrame()
   if (m_DirtyRange.IsValid() == false)
     return;
 
-  // Assemble final data buffer
+  // Build the final data buffer. After this, all pointers from earlier Map calls are invalid.
   m_Data.SetCountUninitialized(m_Desc.m_uiTotalSize);
-  for (auto& tempData : m_TempData)
+  if (m_bHasTempData)
   {
-    ezMemoryUtils::Copy(&m_Data[tempData.m_uiStartByteOffset], tempData.m_pData, tempData.m_uiByteSize);
-    tempData.m_pAllocator->Deallocate(tempData.m_pData);
-  }
-  m_TempData.Clear();
+    EZ_ASSERT_DEV(ezFrameAllocator::GetSwapCount() - m_uiTempDataSwapCount <= 1,
+      "Dynamic buffer '{}': Temp data is older than the previous frame and the frame allocator has already reset it. UploadChangesForNextFrame must be called at least once per frame after allocations.",
+      m_sDebugName);
 
-  // Patch data indices
-  for (auto it = m_Allocations.GetReverseIterator(); it.IsValid(); ++it)
-  {
-    auto& allocation = it.Value();
-    if (allocation.m_uiDataIndex == 0)
-      break;
+    for (auto& node : m_Nodes)
+    {
+      // Only used nodes have temp data. For free and released nodes, the pointer shares memory with other data.
+      if (!node.m_uiUsed || node.m_pTempData == nullptr)
+        continue;
 
-    allocation.m_uiDataIndex = 0;
+      const ezUInt32 uiByteOffset = node.m_uiOffset * m_Desc.m_uiStructSize;
+      const ezUInt32 uiByteSize = node.m_uiCount * m_Desc.m_uiStructSize;
+      ezMemoryUtils::Copy(&m_Data[uiByteOffset], node.m_pTempData, uiByteSize);
+
+      node.m_pTempData = nullptr;
+    }
+
+    // The frame allocator frees the temp memory itself
+    m_bHasTempData = false;
   }
 
   auto pDevice = ezGALDevice::GetDefaultDevice();
@@ -348,120 +498,154 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
 
   out_changedAllocations.Clear();
 
-  if (m_FreeRanges.IsEmpty() || m_Allocations.IsEmpty())
+  // Don't compact while there is temp data. MoveData only works with m_Data.
+  if (m_bHasTempData)
     return;
 
-  // Don't try to compact when we still have temporary data
-  if (m_TempData.IsEmpty() == false)
-    return;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  EZ_SCOPE_EXIT(CheckSelf());
+#endif
 
-  m_FreeRanges.Sort(CompareRangesByStartReverse());
-  EZ_SCOPE_EXIT(m_FreeRanges.Sort(CompareRangesByCount()));
-
-  auto MoveAllocation = [&](const Allocation& allocation, ezUInt32 uiOldOffset, ezUInt32 uiNewOffset)
+  auto MoveData = [&](ezUInt64 uiUserData, ezUInt32 uiOldOffset, ezUInt32 uiNewOffset, ezUInt32 uiCount)
   {
-    out_changedAllocations.PushBack(ChangedAllocation{allocation.m_uiUserData, uiNewOffset});
+    out_changedAllocations.PushBack(ChangedAllocation{uiUserData, uiNewOffset});
 
     const ezUInt32 uiOldByteOffset = uiOldOffset * m_Desc.m_uiStructSize;
     const ezUInt32 uiNewByteOffset = uiNewOffset * m_Desc.m_uiStructSize;
-    const ezUInt32 uiByteSize = allocation.m_uiCount * m_Desc.m_uiStructSize;
-    ezMemoryUtils::Copy(&m_Data[uiNewByteOffset], &m_Data[uiOldByteOffset], uiByteSize);
+    const ezUInt32 uiByteSize = uiCount * m_Desc.m_uiStructSize;
+    // moving an allocation forward by less than its own size overlaps
+    ezMemoryUtils::CopyOverlapped(&m_Data[uiNewByteOffset], &m_Data[uiOldByteOffset], uiByteSize);
 
-    m_DirtyRange.SetToIncludeRange(uiNewOffset, uiNewOffset + allocation.m_uiCount - 1);
+    m_DirtyRange.SetToIncludeRange(uiNewOffset, uiNewOffset + uiCount - 1);
 
-    m_Allocations.Insert(uiNewOffset, allocation);
-    m_Allocations.Remove(uiOldOffset);
+    m_OffsetToNodeIndex.Remove(uiOldOffset);
   };
+
+  // Each step works on the hole with the lowest offset. Holes only move back, so the search continues where the last step ended.
+  ezUInt32 uiHoleIndex = m_uiFirstNodeIndex;
 
   for (ezUInt32 i = 0; i < uiMaxSteps; ++i)
   {
-    if (m_FreeRanges.IsEmpty())
+    // A hole is a free node that is not at the end of the buffer. Free nodes are never next to each other, so a used node follows it.
+    while (uiHoleIndex != ezInvalidIndex && (m_Nodes[uiHoleIndex].m_uiUsed || uiHoleIndex == m_uiLastNodeIndex))
+    {
+      uiHoleIndex = m_Nodes[uiHoleIndex].m_uiNextNodeIndex;
+    }
+
+    if (uiHoleIndex == ezInvalidIndex)
       return;
 
-    auto& freeRange = m_FreeRanges.PeekBack();
-    const ezUInt32 uiFreeCount = freeRange.GetCount();
-    const ezUInt32 uiNewOffset = freeRange.m_uiMin;
+    Node& hole = m_Nodes[uiHoleIndex];
+    const ezUInt32 uiHoleOffset = hole.m_uiOffset;
+    const ezUInt32 uiHoleCount = hole.m_uiCount;
 
-    // first check whether the last allocation fits into the hole
-    auto revIt = m_Allocations.GetReverseIterator();
-    if (revIt.IsValid())
+    const ezUInt32 uiLastUsedIndex = m_Nodes[m_uiLastNodeIndex].m_uiUsed ? m_uiLastNodeIndex : m_Nodes[m_uiLastNodeIndex].m_uiPrevNodeIndex;
+    Node& lastUsed = m_Nodes[uiLastUsedIndex];
+
+    RemoveFromBin(uiHoleIndex);
+
+    if (lastUsed.m_uiCount == uiHoleCount)
     {
-      if (revIt.Value().m_uiCount == uiFreeCount)
-      {
-        m_FreeRanges.PopBack();
+      // The last allocation has exactly the size of the hole. One move fills the hole, and the free space at the end grows.
+      MoveData(lastUsed.m_uiUserData, lastUsed.m_uiOffset, uiHoleOffset, uiHoleCount);
 
-        m_uiNextOffset = revIt.Key();
-        MoveAllocation(revIt.Value(), revIt.Key(), uiNewOffset);
-        continue;
-      }
+      hole.m_uiUserData = lastUsed.m_uiUserData;
+      hole.m_pTempData = nullptr;
+      hole.m_uiUsed = true;
+
+      FreeNodeAndMerge(uiLastUsedIndex);
+    }
+    else
+    {
+      // Otherwise move the allocation that comes directly after the hole to the start of the hole.
+      // The two nodes swap their roles, so the order of the list stays the same.
+      // The hole then moves back by the size of that allocation, and it may join the next free node.
+      const ezUInt32 uiNextIndex = hole.m_uiNextNodeIndex;
+      Node& next = m_Nodes[uiNextIndex];
+      EZ_ASSERT_DEBUG(next.m_uiUsed, "Implementation error");
+
+      MoveData(next.m_uiUserData, next.m_uiOffset, uiHoleOffset, next.m_uiCount);
+
+      hole.m_uiUserData = next.m_uiUserData;
+      hole.m_uiCount = next.m_uiCount;
+      hole.m_pTempData = nullptr;
+      hole.m_uiUsed = true;
+
+      next.m_uiOffset = uiHoleOffset + hole.m_uiCount;
+      next.m_uiCount = uiHoleCount;
+
+      FreeNodeAndMerge(uiNextIndex);
     }
 
-    // if not start to move the allocations forward
-    auto it = m_Allocations.Find(freeRange.m_uiMax + 1);
-    EZ_ASSERT_DEV(it.IsValid(), "Implementation error");
-    {
-      const ezUInt32 uiNewFreeRangeMin = uiNewOffset + it.Value().m_uiCount;
-
-      if (it.Key() == revIt.Key())
-      {
-        // This was the last allocation
-        m_uiNextOffset = uiNewFreeRangeMin;
-        m_FreeRanges.PopBack();
-      }
-      else
-      {
-        freeRange.m_uiMin = uiNewFreeRangeMin;
-        freeRange.m_uiMax = freeRange.m_uiMin + uiFreeCount - 1;
-
-        // merge adjacent free ranges
-        if (m_FreeRanges.GetCount() > 1)
-        {
-          const ezUInt32 uiSecondIndex = m_FreeRanges.GetCount() - 2;
-          auto& secondFreeRange = m_FreeRanges[uiSecondIndex];
-          if (freeRange.m_uiMax + 1 == secondFreeRange.m_uiMin)
-          {
-            freeRange.m_uiMax = secondFreeRange.m_uiMax;
-            m_FreeRanges.RemoveAtAndCopy(uiSecondIndex);
-          }
-        }
-      }
-
-      MoveAllocation(it.Value(), it.Key(), uiNewOffset);
-    }
+    m_OffsetToNodeIndex.Insert(uiHoleOffset, uiHoleIndex);
   }
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  CheckSelf();
-#endif
 }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 void ezGALDynamicBuffer::CheckSelf() const
 {
+  // Disabled by default, because it checks all nodes on every call. Enable it when you change this class.
 #  if 0
-  if (m_uiNextOffset == 0 && m_Allocations.IsEmpty() && m_FreeRanges.IsEmpty())
-    return;
+  ezUInt32 uiPrevNodeIndex = ezInvalidIndex;
+  ezUInt32 uiExpectedOffset = 0;
+  ezUInt32 uiNumUsedNodes = 0;
+  ezUInt32 uiNumFreeNodes = 0;
 
-  ezDynamicBitfield check;
-  check.SetCount(m_uiNextOffset, false);
-
-  for (auto it : m_Allocations)
+  for (ezUInt32 uiNodeIndex = m_uiFirstNodeIndex; uiNodeIndex != ezInvalidIndex; uiNodeIndex = m_Nodes[uiNodeIndex].m_uiNextNodeIndex)
   {
-    const ezUInt32 uiStart = it.Key();
-    const ezUInt32 uiCount = it.Value().m_uiCount;
-    EZ_ASSERT_DEBUG(!check.IsAnyBitSet(uiStart, uiCount), "Overlapping allocation detected");
-    check.SetBitRange(uiStart, uiCount);
+    const Node& node = m_Nodes[uiNodeIndex];
+    EZ_ASSERT_DEBUG(node.m_uiPrevNodeIndex == uiPrevNodeIndex, "Broken node list");
+    EZ_ASSERT_DEBUG(node.m_uiOffset == uiExpectedOffset, "Nodes are not contiguous");
+    EZ_ASSERT_DEBUG(node.m_uiCount > 0, "Empty node");
+
+    if (node.m_uiUsed)
+    {
+      ++uiNumUsedNodes;
+
+      ezUInt32 uiMappedNodeIndex = ezInvalidIndex;
+      EZ_ASSERT_DEBUG(m_OffsetToNodeIndex.TryGetValue(node.m_uiOffset, uiMappedNodeIndex) && uiMappedNodeIndex == uiNodeIndex, "Allocation is not in the offset map");
+
+      const ezUInt32 uiByteEndOffset = (node.m_uiOffset + node.m_uiCount) * m_Desc.m_uiStructSize;
+      EZ_ASSERT_DEBUG(node.m_pTempData != nullptr || uiByteEndOffset <= m_Data.GetCount(), "Allocation is outside of the regular data");
+    }
+    else
+    {
+      ++uiNumFreeNodes;
+      EZ_ASSERT_DEBUG(uiPrevNodeIndex == ezInvalidIndex || m_Nodes[uiPrevNodeIndex].m_uiUsed, "Two free nodes are next to each other");
+    }
+
+    uiExpectedOffset += node.m_uiCount;
+    uiPrevNodeIndex = uiNodeIndex;
   }
 
-  for (auto range : m_FreeRanges)
+  EZ_ASSERT_DEBUG(uiPrevNodeIndex == m_uiLastNodeIndex, "Wrong last node");
+  EZ_ASSERT_DEBUG(uiExpectedOffset == m_uiCapacity, "Nodes don't cover the full capacity");
+  EZ_ASSERT_DEBUG(uiNumUsedNodes == m_OffsetToNodeIndex.GetCount(), "Offset map contains stale entries");
+  ezUInt32 uiNumReleasedNodes = 0;
+  for (ezUInt32 uiNodeIndex = m_uiFirstReleasedNodeIndex; uiNodeIndex != ezInvalidIndex; uiNodeIndex = m_Nodes[uiNodeIndex].m_uiNextNodeIndex)
   {
-    const ezUInt32 uiStart = range.m_uiMin;
-    const ezUInt32 uiCount = range.GetCount();
-    EZ_ASSERT_DEBUG(!check.IsAnyBitSet(uiStart, uiCount), "Overlapping free range detected");
-    check.SetBitRange(uiStart, uiCount);
+    EZ_ASSERT_DEBUG(!m_Nodes[uiNodeIndex].m_uiUsed && m_Nodes[uiNodeIndex].m_uiCount == 0, "Released node is still in use");
+    ++uiNumReleasedNodes;
   }
 
-  EZ_ASSERT_DEBUG(check.AreAllBitsSet(), "Some memory is neither allocated nor free");
+  EZ_ASSERT_DEBUG(uiNumUsedNodes + uiNumFreeNodes + uiNumReleasedNodes == m_Nodes.GetCount(), "Leaked nodes");
+
+  ezUInt32 uiNumNodesInBins = 0;
+  for (ezUInt32 uiBin = 0; uiBin < s_uiNumBins; ++uiBin)
+  {
+    ezUInt32 uiPrevInBin = ezInvalidIndex;
+    for (ezUInt32 uiNodeIndex = m_FreeNodeBins[uiBin]; uiNodeIndex != ezInvalidIndex; uiNodeIndex = m_Nodes[uiNodeIndex].m_uiNextNodeIndexInBin)
+    {
+      const Node& node = m_Nodes[uiNodeIndex];
+      EZ_ASSERT_DEBUG(!node.m_uiUsed, "Used node in a bin");
+      EZ_ASSERT_DEBUG(BinFloor(node.m_uiCount) == uiBin, "Node is in the wrong bin");
+      EZ_ASSERT_DEBUG(node.m_uiPrevNodeIndexInBin == uiPrevInBin, "Broken bin list");
+      uiPrevInBin = uiNodeIndex;
+      ++uiNumNodesInBins;
+    }
+  }
+
+  EZ_ASSERT_DEBUG(uiNumNodesInBins == uiNumFreeNodes, "Free node is not in a bin");
 #  endif
 }
 #endif
