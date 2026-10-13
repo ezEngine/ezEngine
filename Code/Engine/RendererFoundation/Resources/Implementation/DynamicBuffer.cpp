@@ -1,5 +1,6 @@
 #include <RendererFoundation/RendererFoundationPCH.h>
 
+#include <Foundation/Memory/FrameAllocator.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/DynamicBuffer.h>
@@ -71,11 +72,8 @@ void ezGALDynamicBuffer::Clear()
 {
   m_Data.SetCountUninitialized(m_Desc.m_uiTotalSize);
 
-  for (auto& tempData : m_TempData)
-  {
-    tempData.m_pAllocator->Deallocate(tempData.m_pData);
-  }
-  m_TempData.Clear();
+  // Temp memory comes from the frame allocator, so it doesn't need to be freed
+  m_bHasTempData = false;
 
   m_Nodes.Clear();
   m_uiFirstReleasedNodeIndex = ezInvalidIndex;
@@ -100,7 +98,7 @@ void ezGALDynamicBuffer::Clear()
   }
 }
 
-ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezBitflags<AllocateFlags> allocateFlags, ezAllocator* pTempAllocator)
+ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezBitflags<AllocateFlags> allocateFlags)
 {
   EZ_LOCK(m_Mutex);
   EZ_ASSERT_DEV(uiCount > 0, "Allocation count must be greater than 0");
@@ -124,7 +122,7 @@ ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezB
   ezUInt8* pTempData = nullptr;
   if ((uiOffset + uiCount) * m_Desc.m_uiStructSize > m_Data.GetCount())
   {
-    pTempData = AllocateTempData(uiCount, pTempAllocator);
+    pTempData = AllocateTempData(uiCount);
   }
 
   node.m_uiUserData = uiUserData;
@@ -202,18 +200,19 @@ ezConstByteArrayPtr ezGALDynamicBuffer::MapForReading(ezUInt32 uiOffset, ezUInt3
   return m_Data.GetByteArrayPtr().GetSubArray(uiByteOffset, uiByteSize);
 }
 
-ezUInt8* ezGALDynamicBuffer::AllocateTempData(ezUInt32 uiCount, ezAllocator* pTempAllocator)
+ezUInt8* ezGALDynamicBuffer::AllocateTempData(ezUInt32 uiCount)
 {
-  if (pTempAllocator == nullptr)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  // Remember the oldest temp data, UploadChangesForNextFrame checks that it is still valid
+  if (!m_bHasTempData)
   {
-    pTempAllocator = ezFoundation::GetAlignedAllocator();
+    m_uiTempDataSwapCount = ezFrameAllocator::GetSwapCount();
   }
+#endif
 
-  TempData& tempData = m_TempData.ExpandAndGetRef();
-  tempData.m_pAllocator = pTempAllocator;
-  tempData.m_pData = static_cast<ezUInt8*>(pTempAllocator->Allocate(uiCount * m_Desc.m_uiStructSize, 16));
+  m_bHasTempData = true;
 
-  return tempData.m_pData;
+  return static_cast<ezUInt8*>(ezFrameAllocator::GetCurrentAllocator()->Allocate(uiCount * m_Desc.m_uiStructSize, 16));
 }
 
 void ezGALDynamicBuffer::EnsureFreeNodeAtEnd(ezUInt32 uiCount)
@@ -436,8 +435,12 @@ void ezGALDynamicBuffer::UploadChangesForNextFrame()
 
   // Build the final data buffer. After this, all pointers from earlier Map calls are invalid.
   m_Data.SetCountUninitialized(m_Desc.m_uiTotalSize);
-  if (m_TempData.IsEmpty() == false)
+  if (m_bHasTempData)
   {
+    EZ_ASSERT_DEV(ezFrameAllocator::GetSwapCount() - m_uiTempDataSwapCount <= 1,
+      "Dynamic buffer '{}': Temp data is older than the previous frame and the frame allocator has already reset it. UploadChangesForNextFrame must be called at least once per frame after allocations.",
+      m_sDebugName);
+
     for (auto& node : m_Nodes)
     {
       // Only used nodes have temp data. For free and released nodes, the pointer shares memory with other data.
@@ -451,11 +454,8 @@ void ezGALDynamicBuffer::UploadChangesForNextFrame()
       node.m_pTempData = nullptr;
     }
 
-    for (auto& tempData : m_TempData)
-    {
-      tempData.m_pAllocator->Deallocate(tempData.m_pData);
-    }
-    m_TempData.Clear();
+    // The frame allocator frees the temp memory itself
+    m_bHasTempData = false;
   }
 
   auto pDevice = ezGALDevice::GetDefaultDevice();
@@ -493,7 +493,7 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
   out_changedAllocations.Clear();
 
   // Don't compact while there is temp data. MoveData only works with m_Data.
-  if (m_TempData.IsEmpty() == false)
+  if (m_bHasTempData)
     return;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -579,7 +579,7 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
 void ezGALDynamicBuffer::CheckSelf() const
 {
   // Disabled by default, because it checks all nodes on every call. Enable it when you change this class.
-#  if 1
+#  if 0
   ezUInt32 uiPrevNodeIndex = ezInvalidIndex;
   ezUInt32 uiExpectedOffset = 0;
   ezUInt32 uiNumUsedNodes = 0;

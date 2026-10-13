@@ -57,6 +57,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ezDoubleBufferedLinearAllocator* ezFrameAllocator::s_pAllocator;
+ezUInt64 ezFrameAllocator::s_uiSwapCount = 0;
 
 // static
 void ezFrameAllocator::Swap()
@@ -64,6 +65,7 @@ void ezFrameAllocator::Swap()
   EZ_PROFILE_SCOPE("FrameAllocator.Swap");
 
   s_pAllocator->Swap();
+  ++s_uiSwapCount;
 }
 
 // static
@@ -73,6 +75,9 @@ void ezFrameAllocator::Reset()
   {
     s_pAllocator->Reset();
   }
+
+  // Both buffers are invalid now, as if two swaps happened
+  s_uiSwapCount += 2;
 }
 
 // static

@@ -37,14 +37,17 @@ public:
   /// This offset is used to identify the allocation and should also be used in a shader to read the data from the buffer.
   ///
   /// The user data can be used to store additional information, typically the owner of the allocation, like e.g. a component handle.
+  ///
+  /// If the buffer has to grow, the data of the allocation is stored in frame allocator memory until the next UploadChangesForNextFrame.
+  /// Therefore UploadChangesForNextFrame has to be called in the same or the next frame, before ezFrameAllocator resets that memory.
   template <typename U>
-  ezUInt32 Allocate(const U& userData, ezUInt32 uiCount = 1, ezBitflags<AllocateFlags> allocateFlags = AllocateFlags::None, ezAllocator* pTempAllocator = nullptr)
+  ezUInt32 Allocate(const U& userData, ezUInt32 uiCount = 1, ezBitflags<AllocateFlags> allocateFlags = AllocateFlags::None)
   {
     static_assert(sizeof(U) <= sizeof(ezUInt64), "userData is too large");
     ezUInt64 uiUserData = 0;
     *reinterpret_cast<U*>(&uiUserData) = userData;
 
-    return Allocate(uiUserData, uiCount, allocateFlags, pTempAllocator);
+    return Allocate(uiUserData, uiCount, allocateFlags);
   }
 
   /// Removes an allocation at the given offset. The offset must have been returned by Allocate.
@@ -117,12 +120,12 @@ private:
   void Initialize(const ezGALBufferCreationDescription& desc, ezStringView sDebugName);
   void Deinitialize();
 
-  ezUInt32 Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezBitflags<AllocateFlags> allocateFlags, ezAllocator* pTempAllocator);
+  ezUInt32 Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezBitflags<AllocateFlags> allocateFlags);
   ezByteArrayPtr MapForWriting(ezUInt32 uiOffset, ezUInt32& out_uiCount);
   ezConstByteArrayPtr MapForReading(ezUInt32 uiOffset, ezUInt32& out_uiCount) const;
 
-  /// Allocates temp memory for uiCount elements. UploadChangesForNextFrame and Clear free it.
-  ezUInt8* AllocateTempData(ezUInt32 uiCount, ezAllocator* pTempAllocator);
+  /// Allocates temp memory for uiCount elements from the frame allocator. It is never freed explicitly.
+  ezUInt8* AllocateTempData(ezUInt32 uiCount);
 
   /// Makes sure that the last node is free and has at least uiCount elements. Grows the buffer if necessary.
   ///
@@ -160,28 +163,27 @@ private:
 
   mutable ezMutex m_Mutex;
 
-  /// Number of elements that fit into the buffer without growing.
-  ///
-  /// When the buffer grows, this value changes immediately, but m_Data only changes in the next upload.
-  ezUInt32 m_uiCapacity = 0;
-
   /// CPU copy of the GPU buffer data.
   ///
   /// Only UploadChangesForNextFrame and Clear change its size.
   /// This way, mapped pointers stay valid when the buffer grows during a frame.
   ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_Data;
 
-  /// Memory for allocations that don't fit into m_Data, see Node::m_pTempData.
+  /// Number of elements that fit into the buffer without growing.
   ///
-  /// UploadChangesForNextFrame copies the data into m_Data and frees all of it.
-  /// Temp memory of deallocated nodes is also only freed there, so that it doesn't have to be tracked per node.
-  struct TempData
-  {
-    ezAllocator* m_pAllocator = nullptr;
-    ezUInt8* m_pData = nullptr;
-  };
+  /// When the buffer grows, this value changes immediately, but m_Data only changes in the next upload.
+  ezUInt32 m_uiCapacity = 0;
 
-  ezDynamicArray<TempData> m_TempData;
+  /// True if any node has temp data, see Node::m_pTempData.
+  ///
+  /// The temp data is allocated from the frame allocator. UploadChangesForNextFrame copies it into m_Data.
+  /// Compaction is skipped while this is set, because it only moves data within m_Data.
+  bool m_bHasTempData = false;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  /// ezFrameAllocator::GetSwapCount() when the oldest temp data was allocated.
+  ezUInt64 m_uiTempDataSwapCount = 0;
+#endif
 
   struct Node
   {
