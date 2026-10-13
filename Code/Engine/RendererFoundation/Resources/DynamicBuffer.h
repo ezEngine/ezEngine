@@ -194,9 +194,9 @@ private:
     {
     }
 
-    ezUInt32 m_uiOffset = 0; ///< in number of elements
-    ezUInt32 m_uiCount : 31; ///< in number of elements
-    ezUInt32 m_uiUsed : 1;   ///< true if this node is used for an allocation, false if it is free
+    ezUInt32 m_uiOffset = 0;                     ///< in number of elements
+    ezUInt32 m_uiCount : 31;                     ///< in number of elements
+    ezUInt32 m_uiUsed : 1;                       ///< true if this node is used for an allocation, false if it is free
 
     ezUInt32 m_uiPrevNodeIndex = ezInvalidIndex;
     ezUInt32 m_uiNextNodeIndex = ezInvalidIndex; ///< For released nodes, this is the next released node.
