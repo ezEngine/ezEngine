@@ -144,6 +144,22 @@ public:
 #endif
 };
 
+/// Describes how well the entries of a hash table are distributed, see ezHashTableBase::GetStatistics().
+///
+/// Lookups look at entries one after another, starting at the index of the key's hash, until they find the key or a free entry.
+/// Deleted entries are skipped like valid entries, so they make lookups slower until the table is rehashed.
+struct ezHashTableStatistics
+{
+  ezUInt32 m_uiCount = 0;
+  ezUInt32 m_uiCapacity = 0;
+  ezUInt32 m_uiNumDeletedEntries = 0;     ///< Removed entries that are still marked as deleted, because other entries may come after them.
+  ezUInt32 m_uiNumCollisions = 0;         ///< Number of entries that are not stored at the index of their hash.
+  ezUInt32 m_uiMaxProbeLength = 0;        ///< Highest number of entries that a lookup of an existing key looks at.
+  float m_fAverageProbeLength = 0.0f;     ///< Average number of entries that a lookup of an existing key looks at. 1 means no collisions.
+  float m_fAverageMissProbeLength = 0.0f; ///< Average number of valid and deleted entries that a lookup of a missing key passes before it reaches a free entry, assuming its hash is equally likely to point to any index. 0 is ideal.
+  ezUInt32 m_uiLongestCluster = 0;        ///< Longest sequence of valid and deleted entries without a free entry in between.
+};
+
 /// Implementation of a hashtable which stores key/value pairs.
 ///
 /// The hashtable maps keys to values by using the hash of the key as an index into the table.
@@ -292,6 +308,11 @@ public:
 
   /// Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const; // [tested]
+
+  /// Computes how well the entries are distributed, to find out whether a key type needs a better hash function.
+  ///
+  /// This iterates over the full capacity and hashes every key again, so it is meant for debugging and profiling only.
+  ezHashTableStatistics GetStatistics() const; // [tested]
 
   /// Swaps this map with the other one.
   void Swap(ezHashTableBase<KeyType, ValueType, Hasher>& other); // [tested]
