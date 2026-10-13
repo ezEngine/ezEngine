@@ -242,7 +242,7 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
 
     for (ezUInt32 i = 0; i < mappings.GetCount(); ++i)
     {
-      // Reading will give us temp memory until the next upload
+      // Allocations that don't fit into the old size are read from temp memory until the next upload
       auto data = pDynamicBuffer->MapForReading<ezUInt64>(offsets[i]);
       EZ_TEST_INT(data.GetCount(), mappings[i].GetCount());
       for (auto& v : data)
@@ -397,7 +397,7 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
       allocations.Clear();
     };
 
-    // The end of the buffer moves below the start of the temp data. The next allocation starts in m_Data and ends after it.
+    // A freed temp allocation merges with free space in m_Data. The next allocation starts in m_Data and ends after it, so it gets temp memory.
     {
       const ezUInt32 a = AllocateAndFill(10);
       const ezUInt32 b = AllocateAndFill(10); // grows the buffer
@@ -411,7 +411,7 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
       Reset();
     }
 
-    // An allocation uses a hole inside the temp data range, but it also fits into m_Data.
+    // An allocation reuses the space of a freed temp allocation, but it fits into m_Data, so it doesn't get temp memory.
     {
       AllocateAndFill(10);
       const ezUInt32 b = AllocateAndFill(10); // grows the buffer

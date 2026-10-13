@@ -185,6 +185,9 @@ private:
   ezUInt64 m_uiTempDataSwapCount = 0;
 #endif
 
+  /// Maximum number of elements in one node, Node::m_uiCount has 31 bits. A free node can cover the whole capacity, so this also limits the capacity.
+  static constexpr ezUInt32 s_uiMaxCount = (1u << 31) - 1;
+
   struct Node
   {
     // Bit-fields can't have default member initializers in C++17

@@ -46,10 +46,10 @@ ezGALDynamicBuffer::~ezGALDynamicBuffer()
 void ezGALDynamicBuffer::Initialize(const ezGALBufferCreationDescription& desc, ezStringView sDebugName)
 {
   EZ_ASSERT_DEV(desc.m_uiStructSize > 0, "Struct size must be greater than 0");
-  EZ_IGNORE_UNUSED(sDebugName);
 
   m_Desc = desc;
   m_uiCapacity = desc.m_uiTotalSize / desc.m_uiStructSize;
+  EZ_ASSERT_DEV(m_uiCapacity <= s_uiMaxCount, "Dynamic buffer '{}': Initial size of {} elements is too large, the maximum is {}", sDebugName, m_uiCapacity, s_uiMaxCount);
   m_sDebugName = sDebugName;
 
   // Sets up m_Data and one free node for the full capacity
@@ -58,8 +58,7 @@ void ezGALDynamicBuffer::Initialize(const ezGALBufferCreationDescription& desc, 
 
 void ezGALDynamicBuffer::Deinitialize()
 {
-  Clear();
-
+  // Only called from the destructor, which frees the containers. Clear() would allocate m_Data again.
   if (m_hBufferForRendering != m_hBufferForUpload)
   {
     ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hBufferForRendering);
@@ -102,6 +101,7 @@ ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezB
 {
   EZ_LOCK(m_Mutex);
   EZ_ASSERT_DEV(uiCount > 0, "Allocation count must be greater than 0");
+  EZ_ASSERT_DEV(uiCount <= s_uiMaxCount, "Allocation count {} is too large, the maximum is {}", uiCount, s_uiMaxCount);
 
   ezUInt32 uiNodeIndex = FindFreeNode(uiCount);
   if (uiNodeIndex == ezInvalidIndex)
@@ -219,23 +219,29 @@ void ezGALDynamicBuffer::EnsureFreeNodeAtEnd(ezUInt32 uiCount)
 {
   const bool bLastNodeIsFree = m_uiLastNodeIndex != ezInvalidIndex && !m_Nodes[m_uiLastNodeIndex].m_uiUsed;
   const ezUInt32 uiFreeOffset = bLastNodeIsFree ? m_Nodes[m_uiLastNodeIndex].m_uiOffset : m_uiCapacity;
-  const ezUInt32 uiMinCapacity = uiFreeOffset + uiCount;
+  const ezUInt64 uiMinCapacity = ezUInt64(uiFreeOffset) + uiCount; // 64 bit to detect an overflow below
 
   if (uiMinCapacity <= m_uiCapacity)
     return;
 
-  constexpr ezUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;
+  constexpr ezUInt64 uiExpGrowthLimit = 16 * 1024 * 1024;
 
-  ezUInt32 uiNewCapacity = ezMath::Max(uiMinCapacity, 256U);
-  if (uiNewCapacity < uiExpGrowthLimit)
+  // m_uiTotalSize is 32 bit and in bytes, and a free node can cover the whole capacity
+  const ezUInt64 uiMaxCapacity = ezMath::Min<ezUInt64>(ezMath::MaxValue<ezUInt32>() / m_Desc.m_uiStructSize, s_uiMaxCount);
+  EZ_ASSERT_DEV(uiMinCapacity <= uiMaxCapacity, "Dynamic buffer '{}': Can't grow to {} elements, the maximum for a struct size of {} bytes is {}", m_sDebugName, uiMinCapacity, m_Desc.m_uiStructSize, uiMaxCapacity);
+
+  ezUInt64 uiNewCapacity64 = ezMath::Max<ezUInt64>(uiMinCapacity, 256);
+  if (uiNewCapacity64 < uiExpGrowthLimit)
   {
-    uiNewCapacity = ezMath::PowerOfTwo_Ceil(uiNewCapacity);
+    uiNewCapacity64 = ezMath::PowerOfTwo_Ceil(uiNewCapacity64);
   }
   else
   {
-    uiNewCapacity = ezMemoryUtils::AlignSize(uiNewCapacity, uiExpGrowthLimit);
+    uiNewCapacity64 = ezMemoryUtils::AlignSize(uiNewCapacity64, uiExpGrowthLimit);
   }
 
+  // Rounding up may go over the limit, even if the required capacity is below it
+  const ezUInt32 uiNewCapacity = static_cast<ezUInt32>(ezMath::Min(uiNewCapacity64, uiMaxCapacity));
   const ezUInt32 uiOldCapacity = m_uiCapacity;
 
   // UploadChangesForNextFrame changes the size of m_Data and the GPU buffer to this
