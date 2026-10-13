@@ -9,4 +9,3 @@ ezCVarInt cvar_RenderingPipelineMSAA("Rendering.Pipeline.MSAA", 2, ezCVarFlags::
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineCVars);
-

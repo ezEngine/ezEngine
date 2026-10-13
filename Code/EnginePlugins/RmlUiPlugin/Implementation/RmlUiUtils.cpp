@@ -102,5 +102,3 @@ namespace ezRmlUiUtils
     }
   }
 } // namespace ezRmlUiUtils
-
-

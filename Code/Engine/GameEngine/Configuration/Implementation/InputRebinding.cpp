@@ -279,5 +279,3 @@ bool ezInputRebinding::UpdateCapture()
 
   return true;
 }
-
-
