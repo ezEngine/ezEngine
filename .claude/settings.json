@@ -15,9 +15,18 @@
       "Bash(wc *)",
       "Bash(powershell -NoProfile -ExecutionPolicy ByPass ./RunCMake.ps1 *)",
       "Bash(Data/Tools/Precompiled/cmake/bin/cmake *)",
-      "Bash(ctest --test-dir Workspace/claude-build *)",
-      "Bash(Workspace/claude-build-output/Bin/WinVs2022Debug64/* *)",
-      "Bash(Workspace/claude-build-output/Bin/WinVs2022Dev64/* *)"
+      "Bash(Data/Tools/Precompiled/cmake/bin/ctest *)",
+      "Bash(Workspace/agent-build-output/Bin/WinVs2026Debug64/* *)",
+      "Bash(Workspace/agent-build-output/Bin/WinVs2026Dev64/* *)",
+      "Bash(python Utilities/Scripts/ezddl.py guid *)",
+      "Bash(python Utilities/Scripts/ezddl.py float *)",
+      "Bash(python Utilities/Scripts/ezddl.py asset *)",
+      "Bash(python Utilities/Scripts/ezddl.py uses *)",
+      "Bash(python Utilities/Scripts/ezddl.py show *)",
+      "Bash(python Utilities/Scripts/ezddl.py tree *)",
+      "Bash(python Utilities/Scripts/ezddl.py check *)",
+      "Bash(python Utilities/Scripts/ezddl.py type *)",
+      "Bash(python Utilities/Scripts/ezddl.py example *)"
     ]
   }
 }
