@@ -15,7 +15,12 @@ namespace ezRmlUiUtils
     if (pDocument == nullptr)
       return nullptr;
 
-    return rmlui_dynamic_cast<Rml::ElementFormControlSelect*>(pDocument->GetElementById(szId));
+    // rmlui_dynamic_cast doesn't handle nullptr
+    Rml::Element* pElement = pDocument->GetElementById(szId);
+    if (pElement == nullptr)
+      return nullptr;
+
+    return rmlui_dynamic_cast<Rml::ElementFormControlSelect*>(pElement);
   }
 
   Rml::ElementFormControlInput* GetInputElement(Rml::ElementDocument* pDocument, const char* szId)
@@ -23,7 +28,12 @@ namespace ezRmlUiUtils
     if (pDocument == nullptr)
       return nullptr;
 
-    return rmlui_dynamic_cast<Rml::ElementFormControlInput*>(pDocument->GetElementById(szId));
+    // rmlui_dynamic_cast doesn't handle nullptr
+    Rml::Element* pElement = pDocument->GetElementById(szId);
+    if (pElement == nullptr)
+      return nullptr;
+
+    return rmlui_dynamic_cast<Rml::ElementFormControlInput*>(pElement);
   }
 
   void AddIndexedOption(Rml::ElementFormControlSelect* pSelect, ezStringView sLabel, ezUInt32 uiIndex)
