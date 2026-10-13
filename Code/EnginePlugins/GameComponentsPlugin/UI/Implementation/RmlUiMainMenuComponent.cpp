@@ -1,4 +1,4 @@
-#include <RmlUiPlugin/RmlUiPluginPCH.h>
+#include <GameComponentsPlugin/GameComponentsPCH.h>
 
 #include <Core/Input/InputManager.h>
 #include <Core/Interfaces/SoundInterface.h>
@@ -10,6 +10,7 @@
 #include <Foundation/System/Screen.h>
 #include <Foundation/System/SystemInformation.h>
 #include <Foundation/Threading/ThreadUtils.h>
+#include <GameComponentsPlugin/UI/RmlUiMainMenuComponent.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameState.h>
 #include <RendererCore/Pipeline/Passes/SourcePass.h>
@@ -17,7 +18,6 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureUtils.h>
-#include <RmlUiPlugin/Components/RmlUiMainMenuComponent.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiUtils.h>
 
@@ -1651,4 +1651,4 @@ void ezRmlUiMainMenuComponent::ApplyDisplaySettings()
   }
 }
 
-EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Components_Implementation_RmlUiMainMenuComponent);
+EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_UI_Implementation_RmlUiMainMenuComponent);

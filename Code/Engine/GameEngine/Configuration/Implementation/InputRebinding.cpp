@@ -280,4 +280,4 @@ bool ezInputRebinding::UpdateCapture()
   return true;
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Configuration_Implementation_InputRebinding);
+
