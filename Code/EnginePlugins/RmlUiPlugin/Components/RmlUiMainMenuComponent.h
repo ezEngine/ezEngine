@@ -12,6 +12,7 @@ namespace Rml
   class Element;
   class ElementDocument;
   class Event;
+  class StyleSheetContainer;
 } // namespace Rml
 
 /// One volume slider on the 'Audio' tab of ezRmlUiMainMenuComponent.
@@ -44,7 +45,7 @@ using ezRmlUiMainMenuComponentManager = ezComponentManagerSimple<class ezRmlUiMa
 /// component is activated. A project whose scenes don't contain this component therefore starts with the engine's defaults.
 ///
 /// Changing the window resolution or mode at runtime requires ezWindowPlatformShared::Reconfigure(), which is only
-/// implemented on Windows. Elsewhere the display settings take effect after a restart.
+/// implemented on Windows. Elsewhere the window settings take effect after a restart.
 ///
 /// The 'Controls' tab is implemented with ezInputRebinding, which a custom menu can use as well.
 class EZ_RMLUIPLUGIN_DLL ezRmlUiMainMenuComponent : public ezMainMenuComponent
@@ -70,6 +71,18 @@ public:
   EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(SettingsFile, m_hSettingsResource, SetSettingsResource);
   void SetSettingsResource(const ezRmlUiResourceHandle& hResource);                        // [ property ]
   const ezRmlUiResourceHandle& GetSettingsResource() const { return m_hSettingsResource; } // [ property ]
+
+  /// Shown in the element with the ID 'menu-title' on the main menu page. If empty, the name of the project directory is shown.
+  ///
+  /// Only takes effect when the document gets loaded.
+  ezString m_sTitle; // [ property ]
+
+  /// An additional style sheet (.rcss) for both the main menu and the settings document. Its rules are added after each document's own
+  /// style sheets, as if it was linked last. The stock documents use the body classes 'main-menu' and 'app-settings' to tell them apart.
+  ///
+  /// This restyles the stock documents without a copy of their RML, which would miss new settings and could lack element IDs that the code expects.
+  /// Only takes effect when a document gets loaded.
+  ezString m_sStyleSheet; // [ property ]
 
   /// Whether the world's clock is paused while the menu is open. A world that was already paused stays paused.
   void SetPauseWorld(bool bPause);                     // [ property ]
@@ -111,6 +124,19 @@ protected:
   void RegisterMenuEventHandlers(ezRmlUiContext* pContext);
   void RegisterSettingsEventHandlers(ezRmlUiContext* pContext);
 
+  /// Remembers what ApplyStyleSheet() did to one document.
+  struct StyleSheetState
+  {
+    /// The style sheet that the document was given. A reloaded document has a different one, so m_sStyleSheet is applied again.
+    Rml::SharedPtr<Rml::StyleSheetContainer> m_pApplied;
+
+    /// Prevents loading a broken m_sStyleSheet every frame. Only compared, never dereferenced.
+    const Rml::ElementDocument* m_pFailedDocument = nullptr;
+  };
+
+  /// Adds m_sStyleSheet to the document, unless that was already done for this instance of the document.
+  void ApplyStyleSheet(Rml::ElementDocument* pDocument, StyleSheetState& inout_state);
+
   /// Done once when the page is opened, rather than every frame, because writing to a dropdown while it is open interferes with the selection.
   void InitializeWidgetsFromSettings(Rml::ElementDocument* pDocument);
   void RebuildSoundGroupRows(Rml::ElementDocument* pDocument);
@@ -129,15 +155,20 @@ protected:
   void SaveSoundGroupVolumes() const;
 
   void UpdateStats(Rml::ElementDocument* pDocument);
+  void UpdateTitle(Rml::ElementDocument* pDocument);
 
   void RebuildMonitorList(Rml::ElementDocument* pDocument);
   void RebuildResolutionList(Rml::ElementDocument* pDocument);
   void UpdateResolutionEnabledState(Rml::ElementDocument* pDocument);
 
+  /// Only lists the sample counts that the formats of the default render pipeline support on the current GPU.
+  /// If the CVar holds an unsupported mode, it is set to the closest lower supported one.
+  void RebuildMsaaList(Rml::ElementDocument* pDocument);
+
   /// Returns whether anything in the document changed.
   bool UpdateRenderScaleWidgets(Rml::ElementDocument* pDocument);
 
-  /// Must be called from the main thread, resizing the window from a worker thread deadlocks.
+  /// Applies the window settings. Must be called from the main thread, resizing the window from a worker thread deadlocks.
   void ApplyDisplaySettings();
 
   void RequestApplySettings() { m_bApplySettings = true; }
@@ -157,6 +188,9 @@ protected:
 
   ezTypedComponentHandle<ezRmlUiCanvas2DComponent> m_hMenuCanvas;
   ezTypedComponentHandle<ezRmlUiCanvas2DComponent> m_hSettingsCanvas;
+
+  StyleSheetState m_MenuStyleSheet;
+  StyleSheetState m_SettingsStyleSheet;
 
   /// The volume of each entry in m_SoundGroups.
   ezDynamicArray<float> m_GroupVolumes;
@@ -182,4 +216,7 @@ protected:
   /// The display settings as edited in the UI, only saved and applied when 'Apply' is pressed.
   ezWindowCreationDesc m_PendingWindowDesc;
   ezString m_sDisplayStatus;
+
+  /// The MSAA modes in the dropdown, as values of the 'Rendering.Pipeline.MSAA' CVar.
+  ezHybridArray<ezInt32, 4> m_MsaaModes;
 };

@@ -86,10 +86,17 @@
                 <tr>
                   <td></td>
                   <td>
-                    <!-- Unlike all other settings, the display settings only take effect when this is pressed -->
+                    <!-- Unlike all other settings, the window mode, monitor and resolution only take effect when this is pressed -->
                     <button onclick="display-apply">Apply</button>
                   </td>
                   <td id="display-status"></td>
+                </tr>
+                <tr>
+                  <td>Anti-Aliasing (MSAA)</td>
+                  <td>
+                    <!-- Filled in by ezRmlUiMainMenuComponent::RebuildMsaaList(), with the modes that the GPU supports -->
+                    <select id="select-msaa" onchange="msaa-change"></select>
+                  </td>
                 </tr>
                 <tr>
                   <td>Auto Resolution Scale</td>

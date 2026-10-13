@@ -6,6 +6,7 @@
 /// Render pass that applies post-process anti-aliasing.
 ///
 /// Currently it only does an advanced resolve of MSAA render targets using a two pixel wide bspline filter.
+/// If the input is not multi-sampled, it is forwarded unchanged, see ezMsaaResolvePass for what that means for passes that modify the input in place.
 class EZ_RENDERERCORE_DLL ezAntialiasingPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAntialiasingPass, ezRenderPipelinePass);

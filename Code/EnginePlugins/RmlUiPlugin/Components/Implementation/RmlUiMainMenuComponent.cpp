@@ -12,6 +12,7 @@
 #include <Foundation/Threading/ThreadUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameState.h>
+#include <RendererCore/Pipeline/Passes/SourcePass.h>
 #include <RendererCore/Pipeline/RenderPipelineCVars.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -25,6 +26,9 @@
 #include <RmlUi/Core/Elements/ElementFormControlInput.h>
 #include <RmlUi/Core/Elements/ElementFormControlSelect.h>
 #include <RmlUi/Core/Event.h>
+#include <RmlUi/Core/Factory.h>
+#include <RmlUi/Core/StringUtilities.h>
+#include <RmlUi/Core/StyleSheetContainer.h>
 
 // defined in ShadowPool.cpp, which has no public header for them
 EZ_RENDERERCORE_DLL extern ezCVarInt cvar_RenderingShadowsAtlasSize;
@@ -93,6 +97,40 @@ namespace
     ezSizeU32(3840, 2160),
   };
 
+  // The index into this array is the value of the 'Rendering.Pipeline.MSAA' CVar
+  constexpr ezGALMSAASampleCount::Enum s_MsaaModes[] = {
+    ezGALMSAASampleCount::None,
+    ezGALMSAASampleCount::TwoSamples,
+    ezGALMSAASampleCount::FourSamples,
+    ezGALMSAASampleCount::EightSamples,
+  };
+
+  bool IsMsaaModeSupported(ezGALMSAASampleCount::Enum mode)
+  {
+    ezBitflags<ezGALResourceFormatSupport> support = ezGALResourceFormatSupport::RenderTarget | ezGALResourceFormatSupport::Texture;
+
+    switch (mode)
+    {
+      case ezGALMSAASampleCount::None:
+        return true;
+      case ezGALMSAASampleCount::TwoSamples:
+        support.Add(ezGALResourceFormatSupport::MSAA2x);
+        break;
+      case ezGALMSAASampleCount::FourSamples:
+        support.Add(ezGALResourceFormatSupport::MSAA4x);
+        break;
+      case ezGALMSAASampleCount::EightSamples:
+        support.Add(ezGALResourceFormatSupport::MSAA8x);
+        break;
+      default:
+        return false;
+    }
+
+    // the color and depth targets of the default render pipeline
+    return ezSourcePass::FindFormat(ezRequiredTextureType::Float, ezRequiredTexturePrecision::Bits_16, ezRequiredTextureChannels::Channels_4, support) != ezGALResourceFormat::Invalid &&
+           ezSourcePass::FindFormat(ezRequiredTextureType::Depth, ezRequiredTexturePrecision::Bits_24, ezRequiredTextureChannels::Channels_2, support) != ezGALResourceFormat::Invalid;
+  }
+
   ezWindow* GetMainWindow()
   {
     ezGameState* pGameState = ezGameState::GetActiveGameState();
@@ -118,12 +156,14 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRmlUiSoundGroupSetting, ezNoBase, 1, ezRTTIDefa
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezRmlUiMainMenuComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezRmlUiMainMenuComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_RESOURCE_ACCESSOR_PROPERTY("MenuFile", GetMenuResource, SetMenuResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Rml_UI"), new ezDefaultValueAttribute(s_szDefaultMenuDocument)),
     EZ_RESOURCE_ACCESSOR_PROPERTY("SettingsFile", GetSettingsResource, SetSettingsResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Rml_UI"), new ezDefaultValueAttribute(s_szDefaultSettingsDocument)),
+    EZ_MEMBER_PROPERTY("Title", m_sTitle),
+    EZ_MEMBER_PROPERTY("StyleSheet", m_sStyleSheet)->AddAttributes(new ezFileBrowserAttribute("Select Style Sheet", "*.rcss", {}, {}, ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("PauseWorld", GetPauseWorld, SetPauseWorld)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ARRAY_MEMBER_PROPERTY("SoundGroups", m_SoundGroups),
     EZ_ARRAY_MEMBER_PROPERTY("InputSets", m_InputSets),
@@ -154,6 +194,8 @@ void ezRmlUiMainMenuComponent::SerializeComponent(ezWorldWriter& inout_stream) c
 
   s << m_hMenuResource;
   s << m_hSettingsResource;
+  s << m_sTitle;
+  s << m_sStyleSheet;
   s << m_bPauseWorld;
   s << m_SoundGroups.GetCount();
 
@@ -174,11 +216,19 @@ void ezRmlUiMainMenuComponent::SerializeComponent(ezWorldWriter& inout_stream) c
 void ezRmlUiMainMenuComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
   s >> m_hMenuResource;
   s >> m_hSettingsResource;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_sTitle;
+    s >> m_sStyleSheet;
+  }
+
   s >> m_bPauseWorld;
 
   ezUInt32 uiNumSoundGroups = 0;
@@ -307,6 +357,8 @@ void ezRmlUiMainMenuComponent::OnDeactivated()
   // the new canvases get new RmlUi contexts
   m_bMenuHandlersRegistered = false;
   m_bSettingsHandlersRegistered = false;
+  m_MenuStyleSheet = {};
+  m_SettingsStyleSheet = {};
 
   SUPER::OnDeactivated();
 }
@@ -716,12 +768,52 @@ void ezRmlUiMainMenuComponent::RegisterSettingsEventHandlers(ezRmlUiContext* pCo
       //
     });
 
+  pContext->RegisterEventHandler("msaa-change", [this](Rml::Event& e)
+    {
+      const ezInt32 iSelection = static_cast<Rml::ElementFormControlSelect*>(e.GetCurrentElement())->GetSelection();
+
+      if (iSelection >= 0 && iSelection < (ezInt32)m_MsaaModes.GetCount())
+      {
+        // the render pipeline picks this up through its blackboard, no restart needed
+        cvar_RenderingPipelineMSAA = m_MsaaModes[iSelection];
+      }
+      //
+    });
+
   pContext->RegisterEventHandler("display-apply", [this](Rml::Event& e)
     {
       // applied in TickMainThread(), resizing the window from a worker thread deadlocks
       m_bApplyDisplaySettings = true;
       //
     });
+}
+
+void ezRmlUiMainMenuComponent::ApplyStyleSheet(Rml::ElementDocument* pDocument, StyleSheetState& inout_state)
+{
+  if (m_sStyleSheet.IsEmpty() || pDocument->GetStyleSheetContainer() == inout_state.m_pApplied.get() || pDocument == inout_state.m_pFailedDocument)
+    return;
+
+  // not cached by RmlUi, so changes to the file show up when the document gets reloaded
+  Rml::SharedPtr<Rml::StyleSheetContainer> pExtraSheet = Rml::Factory::InstanceStyleSheetFile(m_sStyleSheet.GetData());
+
+  if (pExtraSheet == nullptr)
+  {
+    ezLog::Error("Failed to load the main menu style sheet '{}'.", m_sStyleSheet);
+    inout_state.m_pFailedDocument = pDocument;
+    return;
+  }
+
+  // the same as what RmlUi does for several <link> elements
+  if (const Rml::StyleSheetContainer* pDocumentSheet = pDocument->GetStyleSheetContainer())
+  {
+    inout_state.m_pApplied = pDocumentSheet->CombineStyleSheetContainer(*pExtraSheet);
+  }
+  else
+  {
+    inout_state.m_pApplied = pExtraSheet;
+  }
+
+  pDocument->SetStyleSheetContainer(inout_state.m_pApplied);
 }
 
 void ezRmlUiMainMenuComponent::Update()
@@ -736,11 +828,14 @@ void ezRmlUiMainMenuComponent::Update()
     {
       if (Rml::ElementDocument* pDocument = pContext->GetDocument(0))
       {
+        ApplyStyleSheet(pDocument, m_MenuStyleSheet);
+
         if (!m_bMenuHandlersRegistered)
         {
           m_bMenuHandlersRegistered = true;
           RegisterMenuEventHandlers(pContext);
           UpdateStats(pDocument);
+          UpdateTitle(pDocument);
         }
 
         if (m_bFocusPending)
@@ -780,6 +875,8 @@ void ezRmlUiMainMenuComponent::Update()
     RegisterSettingsEventHandlers(pContext);
   }
 
+  ApplyStyleSheet(pDocument, m_SettingsStyleSheet);
+
   // these CVars can also be changed from elsewhere, e.g. the console
   ezRmlUiUtils::SetChecked(pDocument->GetElementById("check-vsync"), ezGameApplication::cvar_AppVSync);
   ezRmlUiUtils::SetChecked(pDocument->GetElementById("check-fps"), ezGameApplication::cvar_AppShowFPS);
@@ -801,6 +898,7 @@ void ezRmlUiMainMenuComponent::Update()
 
     RebuildMonitorList(pDocument);
     RebuildResolutionList(pDocument);
+    RebuildMsaaList(pDocument);
     RebuildSoundGroupRows(pDocument);
     RebuildInputBindingRows(pDocument);
     InitializeWidgetsFromSettings(pDocument);
@@ -1171,7 +1269,7 @@ void ezRmlUiMainMenuComponent::UpdateInputBindingLabels(Rml::ElementDocument* pD
 void ezRmlUiMainMenuComponent::RestoreDefaultSettings(Rml::ElementDocument* pDocument)
 {
   // Only the visible settings are reset. Checking visibility instead of a tab index keeps this working with a different tab layout.
-  // The display settings are left alone, they only change through 'Apply'.
+  // The window settings are left alone, they only change through 'Apply'.
   auto IsShown = [&](const char* szId) -> bool
   {
     auto pElement = pDocument->GetElementById(szId);
@@ -1228,6 +1326,12 @@ void ezRmlUiMainMenuComponent::RestoreDefaultSettings(Rml::ElementDocument* pDoc
     cvar_OptionsShadowQuality = cvar_OptionsShadowQuality.GetValue(ezCVarValue::Default);
   }
 
+  if (IsShown("select-msaa"))
+  {
+    cvar_RenderingPipelineMSAA = cvar_RenderingPipelineMSAA.GetValue(ezCVarValue::Default);
+    RebuildMsaaList(pDocument);
+  }
+
   if (IsShown("master-volume"))
   {
     cvar_OptionsMasterVolume = cvar_OptionsMasterVolume.GetValue(ezCVarValue::Default);
@@ -1273,6 +1377,25 @@ void ezRmlUiMainMenuComponent::UpdateStats(Rml::ElementDocument* pDocument)
     __DATE__);
 
   pElement->SetInnerRML(sStats.GetData());
+}
+
+void ezRmlUiMainMenuComponent::UpdateTitle(Rml::ElementDocument* pDocument)
+{
+  auto pElement = pDocument->GetElementById("menu-title");
+
+  if (pElement == nullptr)
+    return;
+
+  ezStringBuilder sTitle = m_sTitle;
+
+  if (sTitle.IsEmpty() && ezFileSystem::ResolveSpecialDirectory(">project", sTitle).Succeeded())
+  {
+    sTitle.Trim(nullptr, "/\\");
+    sTitle = sTitle.GetFileName();
+  }
+
+  // the title is plain text, not RML
+  pElement->SetInnerRML(Rml::StringUtilities::EncodeRml(sTitle.GetData()));
 }
 
 void ezRmlUiMainMenuComponent::RebuildMonitorList(Rml::ElementDocument* pDocument)
@@ -1409,6 +1532,62 @@ void ezRmlUiMainMenuComponent::UpdateResolutionEnabledState(Rml::ElementDocument
   {
     ezRmlUiUtils::SetDisabled(pSelect, ezWindowMode::IsFullscreen(m_PendingWindowDesc.m_WindowMode));
   }
+}
+
+void ezRmlUiMainMenuComponent::RebuildMsaaList(Rml::ElementDocument* pDocument)
+{
+  m_MsaaModes.Clear();
+
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_MsaaModes); ++i)
+  {
+    if (IsMsaaModeSupported(s_MsaaModes[i]))
+    {
+      m_MsaaModes.PushBack(i);
+    }
+  }
+
+  auto pSelect = ezRmlUiUtils::GetSelectElement(pDocument, "select-msaa");
+
+  if (pSelect == nullptr)
+    return;
+
+  pSelect->RemoveAll();
+
+  // an unsupported setting, e.g. from a config made on another GPU, is replaced by the closest lower mode
+  const ezInt32 iCVarMode = cvar_RenderingPipelineMSAA;
+  ezInt32 iCurrent = 0;
+  ezStringBuilder sLabel;
+
+  for (ezUInt32 i = 0; i < m_MsaaModes.GetCount(); ++i)
+  {
+    const ezGALMSAASampleCount::Enum mode = s_MsaaModes[m_MsaaModes[i]];
+
+    if (mode == ezGALMSAASampleCount::None)
+    {
+      sLabel = "Off";
+    }
+    else
+    {
+      sLabel.SetFormat("{}x", (ezInt32)mode);
+    }
+
+    ezRmlUiUtils::AddIndexedOption(pSelect, sLabel.GetData(), i);
+
+    if (m_MsaaModes[i] <= iCVarMode)
+    {
+      iCurrent = i;
+    }
+  }
+
+  if (m_MsaaModes.IsEmpty())
+    return;
+
+  if (cvar_RenderingPipelineMSAA != m_MsaaModes[iCurrent])
+  {
+    cvar_RenderingPipelineMSAA = m_MsaaModes[iCurrent];
+  }
+
+  pSelect->SetSelection(iCurrent);
 }
 
 bool ezRmlUiMainMenuComponent::UpdateRenderScaleWidgets(Rml::ElementDocument* pDocument)

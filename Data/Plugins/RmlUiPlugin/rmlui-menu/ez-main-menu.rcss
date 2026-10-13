@@ -22,6 +22,11 @@ body.main-menu {
   margin-bottom: 16dp;
 }
 
+.main-menu .title {
+  font-size: 32dp;
+  margin-bottom: 24dp;
+}
+
 .main-menu button {
   width: 200dp;
   height: 100dp;

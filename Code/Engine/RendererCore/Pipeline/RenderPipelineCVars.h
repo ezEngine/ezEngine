@@ -6,3 +6,4 @@
 EZ_RENDERERCORE_DLL extern ezCVarInt cvar_RenderingPipelineSSAO;
 EZ_RENDERERCORE_DLL extern ezCVarFloat cvar_RenderingPipelineSSAOMaxScreenSpaceRadius;
 EZ_RENDERERCORE_DLL extern ezCVarBool cvar_RenderingPipelineSSS;
+EZ_RENDERERCORE_DLL extern ezCVarInt cvar_RenderingPipelineMSAA;

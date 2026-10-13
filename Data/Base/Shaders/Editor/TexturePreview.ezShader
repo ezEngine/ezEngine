@@ -11,6 +11,7 @@ int ShowChannelMode;
 float AlphaThreshold;
 float LodLevel;
 bool IsLinear;
+bool IgnoreAlpha;
 int ArrayIndex;
 
 [RENDERSTATE]
@@ -28,6 +29,7 @@ CullMode = CullMode_None
   FLOAT1(AlphaThreshold);
   FLOAT1(LodLevel);
   BOOL1(IsLinear);
+  BOOL1(IgnoreAlpha);
   INT1(ArrayIndex);
 
 [VERTEXSHADER]
@@ -59,6 +61,12 @@ float4 main(PS_IN Input) : SV_Target
 {
   float3 color = float3(1, 1, 1);
   float4 texel = SampleTexture(Input).rgba;
+
+  // Formats without an alpha channel should sample as alpha 1, but some drivers intermittently return 0 for uncompressed two channel formats (e.g. R8G8).
+  if (GetMaterialData(IgnoreAlpha))
+  {
+    texel.a = 1.0;
+  }
 
   if (GetMaterialData(ShowChannelMode) == 0)
   {

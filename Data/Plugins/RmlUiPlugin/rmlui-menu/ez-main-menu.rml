@@ -8,6 +8,9 @@
       <!-- An SVG is rasterized at the size of the layout, so it stays sharp at any UI scale. Raster images use <img>. -->
       <svg src="ez.svg" class="logo"/>
 
+      <!-- Filled in by ezRmlUiMainMenuComponent::UpdateTitle() -->
+      <div class="title" id="menu-title"></div>
+
       <button onclick="MainMenu-Resume">Resume</button>
       <button onclick="MainMenu-Settings">Settings</button>
       <button onclick="MainMenu-Exit" id="button-exit">Exit</button>

@@ -257,9 +257,15 @@ void ezTextureContext::ApplySliceMaterialParameters()
       pMaterial->SetTexture2DBinding("BaseTexture", m_hTexture);
 
       ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::PointerOnly);
-      if (pTexture->GetFormat() != ezGALResourceFormat::Invalid)
+      const ezGALResourceFormat::Enum format = pTexture->GetFormat();
+      if (format != ezGALResourceFormat::Invalid)
       {
-        pMaterial->SetParameter("IsLinear", !ezGALResourceFormat::IsSrgb(pTexture->GetFormat()));
+        pMaterial->SetParameter("IsLinear", !ezGALResourceFormat::IsSrgb(format));
+
+        // Formats without an alpha channel should sample as alpha 1, but that isn't reliable on all drivers (seen with R8G8 on DX11),
+        // which makes the preview flicker between the texture and the transparency checkerboard.
+        const bool bHasAlpha = ezGALResourceFormat::GetChannelCount(format) == 4 || format == ezGALResourceFormat::AUByteNormalized;
+        pMaterial->SetParameter("IgnoreAlpha", !bHasAlpha);
       }
     }
 

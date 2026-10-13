@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Pipeline/Passes/MsaaResolvePass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -8,12 +9,13 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsaaResolvePass, 1, ezRTTIDefaultAllocator<ezMsaaResolvePass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsaaResolvePass, 2, ezRTTIDefaultAllocator<ezMsaaResolvePass>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Input", m_PinInput),
-    EZ_MEMBER_PROPERTY("Output", m_PinOutput)
+    EZ_MEMBER_PROPERTY("Output", m_PinOutput),
+    EZ_MEMBER_PROPERTY("GuaranteeCopy", m_bGuaranteeCopy)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -45,16 +47,32 @@ ezStatus ezMsaaResolvePass::AddRenderPasses(const ezViewData& viewData, const ez
     return ezStatus(ezFmt("Input: Not connected"));
 
   const ezGALTextureCreationDescription inputDesc = ref_graph.GetTextureDesc(hInput);
-  if (inputDesc.m_SampleCount == ezGALMSAASampleCount::None)
-    return ezStatus(ezFmt("Input is not a valid msaa target"));
-
   m_bIsDepth = ezGALResourceFormat::IsDepthFormat(inputDesc.m_Format);
   m_MsaaSampleCount = inputDesc.m_SampleCount;
+
+  const bool bCopy = (m_MsaaSampleCount == ezGALMSAASampleCount::None);
+
+  if (bCopy && !m_bGuaranteeCopy)
+  {
+    outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hInput;
+    return EZ_SUCCESS;
+  }
 
   ezGALTextureCreationDescription outputDesc = inputDesc;
   outputDesc.m_SampleCount = ezGALMSAASampleCount::None;
   ezRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(outputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
+
+  if (bCopy)
+  {
+    auto pass = ref_graph.AddTransferPass(m_bIsDepth ? "CopyNonMsaaDepth" : "CopyNonMsaaColor");
+    pass.ReadTexture(hInput, {}, ezGALResourceState::CopySource);
+    pass.WriteTexture(hOutput, {}, ezGALResourceState::CopyDestination);
+    pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+      { ctx.GetCommandEncoder()->CopyTexture(ctx.ResolveTexture(hOutput), ctx.ResolveTexture(hInput)); });
+
+    return EZ_SUCCESS;
+  }
 
   if (!ref_graph.GetDevice()->GetCapabilities().m_bSupportsMultiSampledArrays)
   {
@@ -105,6 +123,24 @@ ezStatus ezMsaaResolvePass::AddRenderPasses(const ezViewData& viewData, const ez
   return EZ_SUCCESS;
 }
 
+ezResult ezMsaaResolvePass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_bGuaranteeCopy;
+  return EZ_SUCCESS;
+}
 
+ezResult ezMsaaResolvePass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+
+  if (uiVersion >= 2)
+  {
+    inout_stream >> m_bGuaranteeCopy;
+  }
+
+  return EZ_SUCCESS;
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_MsaaResolvePass);
