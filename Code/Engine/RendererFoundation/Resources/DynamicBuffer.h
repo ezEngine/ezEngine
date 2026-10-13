@@ -121,15 +121,36 @@ private:
   ezByteArrayPtr MapForWriting(ezUInt32 uiOffset, ezUInt32& out_uiCount);
   ezConstByteArrayPtr MapForReading(ezUInt32 uiOffset, ezUInt32& out_uiCount) const;
 
-  /// Returns the m_uiDataIndex for an allocation at this range.
-  ///
-  /// Returns ezInvalidIndex if neither m_Data nor one temp data contains the full range.
-  ezUInt32 FindDataIndex(ezUInt32 uiOffset, ezUInt32 uiCount) const;
+  /// Allocates temp memory for uiCount elements. UploadChangesForNextFrame and Clear free it.
+  ezUInt8* AllocateTempData(ezUInt32 uiCount, ezAllocator* pTempAllocator);
 
-  /// Creates new temp data for the range [uiStartOffset, m_uiCapacity) and returns its data index.
+  /// Makes sure that the last node is free and has at least uiCount elements. Grows the buffer if necessary.
   ///
-  /// If m_uiCapacity is smaller than uiMinCapacity, the capacity is increased first.
-  ezUInt32 AllocateTempData(ezUInt32 uiStartOffset, ezUInt32 uiMinCapacity, ezAllocator* pTempAllocator);
+  /// Growing only changes m_uiCapacity and m_Desc. m_Data and the GPU buffer are resized in the next UploadChangesForNextFrame.
+  void EnsureFreeNodeAtEnd(ezUInt32 uiCount);
+
+  /// Returns the index of a node with default values, reusing released nodes first. This can reallocate m_Nodes.
+  ezUInt32 AllocateNode();
+  void ReleaseNode(ezUInt32 uiNodeIndex);
+
+  /// Adds a free node to the bin for its size. The node's count must not change while it is in a bin.
+  void AddToBin(ezUInt32 uiNodeIndex);
+  void RemoveFromBin(ezUInt32 uiNodeIndex);
+
+  /// Shrinks a node to uiCount elements and adds a free node for the rest directly after it.
+  ///
+  /// The node must not be in a bin. Does nothing if the node already has uiCount elements. This can reallocate m_Nodes.
+  void SplitNode(ezUInt32 uiNodeIndex, ezUInt32 uiCount);
+
+  /// Marks a node as free, merges it with free neighbors and adds it to its bin.
+  ///
+  /// The merged neighbors are released, uiNodeIndex stays valid. The node must not be in a bin or in m_OffsetToNodeIndex.
+  void FreeNodeAndMerge(ezUInt32 uiNodeIndex);
+
+  /// Returns the index of a free node with at least uiCount elements, or ezInvalidIndex if none was found.
+  ///
+  /// Only takes nodes from bins where all nodes fit. Nodes in the bin of uiCount itself are not considered, even if they are large enough.
+  ezUInt32 FindFreeNode(ezUInt32 uiCount) const;
 
   /// Called by the device in BeginFrame. After this, the renderer uses the buffer of the last upload.
   void SwapBuffers()
@@ -144,50 +165,82 @@ private:
   /// When the buffer grows, this value changes immediately, but m_Data only changes in the next upload.
   ezUInt32 m_uiCapacity = 0;
 
-  /// End of the used part of the buffer, in number of elements. A new allocation is placed here if it doesn't fit into a free range.
-  ///
-  /// Every element in [0, m_uiNextOffset) is either part of an allocation or part of a free range.
-  /// The last element always belongs to an allocation. There is never a free range at the end.
-  /// Instead, m_uiNextOffset is decreased.
-  ezUInt32 m_uiNextOffset = 0;
-
   /// CPU copy of the GPU buffer data.
   ///
   /// Only UploadChangesForNextFrame and Clear change its size.
   /// This way, mapped pointers stay valid when the buffer grows during a frame.
   ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_Data;
 
-  /// Extra memory for allocations that don't fit into m_Data. It is used until the next UploadChangesForNextFrame.
+  /// Memory for allocations that don't fit into m_Data, see Node::m_pTempData.
   ///
-  /// The ranges of different temp data can overlap, and they can also overlap m_Data.
-  /// Each allocation is stored in exactly one place, see Allocation::m_uiDataIndex.
+  /// UploadChangesForNextFrame copies the data into m_Data and frees all of it.
+  /// Temp memory of deallocated nodes is also only freed there, so that it doesn't have to be tracked per node.
   struct TempData
   {
     ezAllocator* m_pAllocator = nullptr;
     ezUInt8* m_pData = nullptr;
-    ezUInt32 m_uiStartByteOffset = 0; ///< Byte offset in the full buffer where m_pData starts.
-    ezUInt32 m_uiByteSize = 0;
   };
 
-  ezSmallArray<TempData, 2> m_TempData;
+  ezDynamicArray<TempData> m_TempData;
 
-  struct Allocation
+  struct Node
   {
-    ezUInt64 m_uiUserData = 0;
-    ezUInt32 m_uiCount = 0;     ///< in number of elements
-    ezUInt32 m_uiDataIndex = 0; ///< 0 means the data is in m_Data, otherwise it is in m_TempData[m_uiDataIndex - 1]
+    // Bit-fields can't have default member initializers in C++17
+    Node()
+      : m_uiCount(0)
+      , m_uiUsed(0)
+    {
+    }
+
+    ezUInt32 m_uiOffset = 0; ///< in number of elements
+    ezUInt32 m_uiCount : 31; ///< in number of elements
+    ezUInt32 m_uiUsed : 1;   ///< true if this node is used for an allocation, false if it is free
+
+    ezUInt32 m_uiPrevNodeIndex = ezInvalidIndex;
+    ezUInt32 m_uiNextNodeIndex = ezInvalidIndex; ///< For released nodes, this is the next released node.
+
+    /// Used and free nodes need different data, so they share the memory. It is not initialized.
+    union
+    {
+      /// Only valid for used nodes
+      struct
+      {
+        ezUInt64 m_uiUserData;
+
+        /// If set, the data of this allocation is stored here instead of in m_Data, until the next UploadChangesForNextFrame.
+        ezUInt8* m_pTempData;
+      };
+
+      /// Only valid for free nodes. Double linked list of all nodes that are in the same bin.
+      struct
+      {
+        ezUInt32 m_uiPrevNodeIndexInBin;
+        ezUInt32 m_uiNextNodeIndexInBin;
+      };
+    };
   };
 
-  /// All allocations. The key is the offset in number of elements.
-  ezMap<ezUInt32, Allocation> m_Allocations;
+  ezDynamicArray<Node> m_Nodes;
 
-  /// Unused ranges below m_uiNextOffset, in number of elements. Deallocate creates them.
+  /// Single linked list of released nodes in m_Nodes, through Node::m_uiNextNodeIndex. AllocateNode reuses them first.
+  ezUInt32 m_uiFirstReleasedNodeIndex = ezInvalidIndex;
+
+  /// Maps the start offset of an allocation to its index in m_Nodes.
+  ezHashTable<ezUInt32, ezUInt32> m_OffsetToNodeIndex;
+
+  /// Number of size bins. BinFloor(0xFFFFFFFF) is 239 and BinCeil can return 240, see DynamicBuffer.cpp.
+  static constexpr ezUInt32 s_uiNumBins = 241;
+
+  /// Each bin contains a double linked list of nodes that are in the same bin. The bin is chosen by the size of the allocation.
+  ezUInt32 m_FreeNodeBins[s_uiNumBins];
+
+  /// The node with offset 0. The nodes are a double linked list sorted by offset, which covers the full range [0, m_uiCapacity).
+  ezUInt32 m_uiFirstNodeIndex = ezInvalidIndex;
+
+  /// The node with the highest offset, it ends at m_uiCapacity.
   ///
-  /// Two free ranges are never next to each other, they are always merged into one.
-  /// Directly after each free range there is an allocation.
-  /// The array is sorted by count, so that Allocate uses the smallest hole that fits.
-  /// RunCompactionSteps sorts it by start while it runs, and sorts it by count again at the end.
-  ezDynamicArray<ezGAL::ModifiedRange> m_FreeRanges;
+  /// When the buffer grows, this node is extended if it is free. Otherwise a new free node is added after it.
+  ezUInt32 m_uiLastNodeIndex = ezInvalidIndex;
 
   /// Range of elements that UploadChangesForNextFrame has to send to the GPU.
   ezGAL::ModifiedRange m_DirtyRange;
