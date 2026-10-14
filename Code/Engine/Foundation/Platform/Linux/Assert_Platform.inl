@@ -12,3 +12,5 @@ bool ezDefaultAssertHandler_Platform(const char* szSourceFile, ezUInt32 uiLine, 
   // in release-builds this will just crash the app
   return true;
 }
+
+void ezSuppressSystemErrorDialogs() {}

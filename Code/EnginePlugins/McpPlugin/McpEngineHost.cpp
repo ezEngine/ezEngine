@@ -87,6 +87,7 @@ void ezMcpEngineHost::Startup()
   if (!ezEnvironmentVariableUtils::IsVariableSet("EZ_SILENT_ASSERTS"))
   {
     ezEnvironmentVariableUtils::SetValueString("EZ_SILENT_ASSERTS", "1").IgnoreResult();
+    ezSuppressSystemErrorDialogs();
   }
 
   // The editor's engine process sleeps in its IPC wait until the editor sends it something, and an

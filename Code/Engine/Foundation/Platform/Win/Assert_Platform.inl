@@ -48,3 +48,20 @@ bool ezDefaultAssertHandler_Platform(const char* szSourceFile, ezUInt32 uiLine, 
   // in release-builds this will just crash the app
   return true;
 }
+
+void ezSuppressSystemErrorDialogs()
+{
+  // no Windows Error Reporting dialog when the process crashes
+  SetErrorMode(GetErrorMode() | SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
+
+  // no "abort() has been called" message box and no error report when abort() is called
+  _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && defined(_DEBUG)
+  // _CrtDbgReport() is used by the debug CRT's own checks and by third-party code (Qt reports fatal errors this way).
+  // Send its reports to the debugger output instead of a dialog. The debug CRT is a DLL, so this applies to all modules.
+  _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
+  _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
+  _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_DEBUG);
+#endif
+}

@@ -354,6 +354,7 @@ ezResult ezQtEditorApp::CreateProjectFromCommandLine(ezStringView sTargetDirecto
 void ezQtEditorApp::SetupSilentAsserts()
 {
   ezEnvironmentVariableUtils::SetValueInt("EZ_SILENT_ASSERTS", 1).IgnoreResult();
+  ezSuppressSystemErrorDialogs();
 }
 
 void ezQtEditorApp::StartupEditor()

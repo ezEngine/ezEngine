@@ -4,6 +4,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/System/EnvironmentVariableUtils.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezSubSystem);
@@ -215,6 +216,12 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
   if (stage == ezStartupStage::BaseSystems)
   {
     ezFoundation::Initialize();
+
+    // see ezDefaultAssertHandler(), the variable is set by processes that run without a user
+    if (ezEnvironmentVariableUtils::GetValueInt("EZ_SILENT_ASSERTS", 0) != 0)
+    {
+      ezSuppressSystemErrorDialogs();
+    }
   }
 
   const char* szStartup[] = {"Startup Base", "Startup Core", "Startup Engine"};

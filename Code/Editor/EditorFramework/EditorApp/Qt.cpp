@@ -173,7 +173,8 @@ static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& cont
       }
       break;
     case QtFatalMsg:
-      EZ_ASSERT_DEBUG("|Qt| {0} ({1}:{2} {3})", sMsg, context.file, context.line, context.function);
+      // Qt calls abort() after this returns, so this is the only chance to get the message into the log.
+      EZ_REPORT_FAILURE("|Qt| {0} ({1}:{2} {3})", sMsg, context.file, context.line, context.function);
       break;
   }
 }

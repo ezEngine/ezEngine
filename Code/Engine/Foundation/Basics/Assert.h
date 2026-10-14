@@ -42,6 +42,16 @@ EZ_FOUNDATION_DLL ezAssertHandler ezGetAssertHandler();
 /// Sets the assert handler. It is the responsibility of the user to chain assert handlers if needed.
 EZ_FOUNDATION_DLL void ezSetAssertHandler(ezAssertHandler handler);
 
+/// Prevents the operating system and the C runtime from showing message boxes for crashes, abort() and CRT debug reports.
+///
+/// None of these go through the assert handler, and third-party code raises them as well, for example Qt reports fatal
+/// errors in debug builds through the CRT and then calls abort(). In a process without a user such a dialog blocks
+/// until the process is killed, so with this the process terminates instead.
+/// Called automatically on startup when the environment variable EZ_SILENT_ASSERTS is set, which processes launched
+/// from such a process inherit. A process that sets the variable itself has to call this as well.
+/// Does nothing on platforms that show no such dialogs.
+EZ_FOUNDATION_DLL void ezSuppressSystemErrorDialogs();
+
 /// Called by the assert macros whenever a check failed. Returns true if the user wants to trigger a break point
 EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const class ezFormatString& msg);
 EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szMsg);
