@@ -474,7 +474,16 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
         }
       }
 
-      if (!ModifiedDocs.IsEmpty())
+      if (!ModifiedDocs.IsEmpty() && ezQtUiServices::IsUnattended())
+      {
+        // The dialog would block until someone answers it, which in unattended mode means the editor could not be closed at all.
+        // Saving instead would write changes that nobody asked for, so they are discarded.
+        for (ezDocument* pDoc : ModifiedDocs)
+        {
+          ezLog::Warning("Discarding unsaved changes in '{}', because the editor runs unattended.", pDoc->GetDocumentPath());
+        }
+      }
+      else if (!ModifiedDocs.IsEmpty())
       {
         ezQtModifiedDocumentsDlg dlg(QApplication::activeWindow(), ModifiedDocs);
         if (dlg.exec() == 0)

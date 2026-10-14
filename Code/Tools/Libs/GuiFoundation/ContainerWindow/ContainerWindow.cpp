@@ -99,6 +99,21 @@ ezQtContainerWindow::~ezQtContainerWindow()
   ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::DocumentWindowEventHandler, this));
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::ProjectEventHandler, this));
   ezQtUiServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::UIServicesEventHandler, this));
+
+  // Without a preceding closeEvent() the dock manager is still alive. ~QWidget() then closes the window and hides the dock
+  // widgets, which emit signals that are connected to slots of this class, whose destructor has already run at that point.
+  if (m_pDockManager != nullptr)
+  {
+    disconnect(m_pDockManager, nullptr, this, nullptr);
+
+    // Only the document docks are connected to this. The dock manager's own list is no use here, it still contains dock
+    // widgets that were deleted without being removed from it, such as application panels.
+    for (ads::CDockWidget* pDock : m_DocumentDocks)
+    {
+      disconnect(pDock, nullptr, this, nullptr);
+      disconnect(pDock->tabWidget(), nullptr, this, nullptr);
+    }
+  }
 }
 
 void ezQtContainerWindow::UpdateWindowTitle()
