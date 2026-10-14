@@ -28,6 +28,8 @@ struct EZ_RENDERERCORE_DLL ezSkinningState
   void Clear();
 
   /// Returns a writable array of bone transforms, allocating or reallocating the buffer as needed. Note that existing data is lost on reallocation.
+  ///
+  /// For uiNumBones == 0 any existing data is freed and an empty array is returned.
   ezArrayPtr<ezShaderTransform> GetOrCreateBoneTransformsForWriting(ezComponent& ref_ownerComponent, ezUInt32 uiNumBones);
 
   ezArrayPtr<const ezShaderTransform> GetBoneTransformsForReading() const;
