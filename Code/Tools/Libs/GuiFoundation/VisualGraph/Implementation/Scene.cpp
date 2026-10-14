@@ -911,11 +911,44 @@ void ezQtVisualGraphScene::RemoveSelectedNodesAction()
   ezDeque<ezQtVisualGraphNode*> selection;
   GetSelectedNodes(selection);
 
-  if (selection.IsEmpty())
+  // Only some graph types make their connections selectable, e.g. state machines, whose connections have properties.
+  ezHybridArray<ezUuid, 16> selectedConnections;
+  for (QGraphicsItem* pItem : selectedItems())
+  {
+    if (pItem->type() == ezQtVisualGraphScene::Connection)
+    {
+      selectedConnections.PushBack(static_cast<ezQtVisualGraphConnection*>(pItem)->GetObject()->GetGuid());
+    }
+  }
+
+  if (selection.IsEmpty() && selectedConnections.IsEmpty())
     return;
 
   ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction("Remove Nodes");
+
+  // The connections go first, removing a node also removes its connections, which would leave dangling guids here.
+  for (const ezUuid& connectionGuid : selectedConnections)
+  {
+    const ezDocumentObject* pObject = m_pManager->GetObject(connectionGuid);
+    const ezVisualGraphConnection* pConnection = pObject != nullptr ? m_pManager->GetConnectionIfExists(pObject) : nullptr;
+    if (pConnection == nullptr)
+      continue;
+
+    ezStatus res = m_pManager->CanDisconnect(pConnection);
+    if (res.Succeeded())
+    {
+      res = ezNodeCommands::DisconnectAndRemoveCommand(history, connectionGuid);
+    }
+
+    if (res.Failed())
+    {
+      history->CancelTransaction();
+
+      ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Failed to remove connection");
+      return;
+    }
+  }
 
   for (ezQtVisualGraphNode* pNode : selection)
   {
