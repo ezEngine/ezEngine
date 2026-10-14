@@ -56,6 +56,10 @@ ezArrayPtr<ezShaderTransform> ezSkinningState::GetOrCreateBoneTransformsForWriti
   }
   m_uiNumBones = uiNumBones;
 
+  // E.g. a mesh without bone data. The dynamic buffer doesn't support empty allocations.
+  if (uiNumBones == 0)
+    return ezArrayPtr<ezShaderTransform>();
+
   return pRenderDataManager->GetOrCreateSkinningData(&ref_ownerComponent, m_DataOffset, uiNumBones);
 }
 

@@ -168,8 +168,13 @@ ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData(const ezRenderDataMa
 {
   auto pRenderData = pRenderDataManager->CreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
 
-  pRenderData->m_DataOffsets.m_uiSkinning = m_SkinningState.m_DataOffset.m_uiOffset;
-  pRenderData->m_hSkinningBuffer = pRenderDataManager->GetSkinningDataBuffer();
+  // Without bone transforms (e.g. the missing mesh fallback has no bone data) the mesh is rendered without skinning,
+  // the skinning shader permutation needs vertex streams that such a mesh doesn't have.
+  if (m_SkinningState.HasBoneTransforms())
+  {
+    pRenderData->m_DataOffsets.m_uiSkinning = m_SkinningState.m_DataOffset.m_uiOffset;
+    pRenderData->m_hSkinningBuffer = pRenderDataManager->GetSkinningDataBuffer();
+  }
 
   return pRenderData;
 }

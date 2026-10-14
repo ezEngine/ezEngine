@@ -191,8 +191,12 @@ void ezLodAnimatedMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& 
       pRenderData->m_Flags.AddOrRemove(ezRenderData::Flags::FlipWinding, finalTransform.HasMirrorScaling());
 
       pRenderData->m_fSortingDepthOffset = m_fSortingDepthOffset;
-      pRenderData->m_DataOffsets.m_uiSkinning = m_SkinningState.m_DataOffset.m_uiOffset;
-      pRenderData->m_hSkinningBuffer = msg.m_pRenderDataManager->GetSkinningDataBuffer();
+      // Without bone transforms the mesh is rendered without skinning, see ezAnimatedMeshComponent::CreateRenderData
+      if (m_SkinningState.HasBoneTransforms())
+      {
+        pRenderData->m_DataOffsets.m_uiSkinning = m_SkinningState.m_DataOffset.m_uiOffset;
+        pRenderData->m_hSkinningBuffer = msg.m_pRenderDataManager->GetSkinningDataBuffer();
+      }
 
       pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
       pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, hMesh, uiMaterialIndex, uiPartIndex);
