@@ -6,7 +6,7 @@
 
 /// Interface for an in-game main menu, so that a game state can open one without depending on a UI plugin.
 ///
-/// The implementation is provided by a UI plugin, see ezRmlUiMainMenuComponent.
+/// An implementation is provided by the GameComponents plugin, see ezRmlUiMainMenuComponent.
 /// ezFallbackGameState opens the menu when the user presses ESC, instead of quitting.
 class EZ_GAMEENGINE_DLL ezMainMenuComponent : public ezComponent
 {

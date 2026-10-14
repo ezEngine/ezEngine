@@ -9,7 +9,8 @@ PluginInfo
 	string %EditorEnginePlugins{}
 	string %RuntimePlugins{"ezGameComponentsPlugin"}
 	string %PackageDependencies{}
-	string %RequiredPlugins{}
+	string %DataDirectories{">sdk/Data/Plugins/GameComponentsPlugin"}
+	string %RequiredPlugins{"RmlUi"}
 	string %ExclusiveFeatures{}
 	string %EnabledInTemplates{"General3D"}
 	string %CMakeTargetName{"GameComponentsPlugin"}

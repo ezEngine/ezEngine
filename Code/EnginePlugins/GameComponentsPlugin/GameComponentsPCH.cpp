@@ -22,4 +22,5 @@ EZ_STATICLINK_LIBRARY(GameComponentsPlugin)
   EZ_STATICLINK_REFERENCE(GameComponentsPlugin_Physics_Implementation_FakeRopeComponent);
   EZ_STATICLINK_REFERENCE(GameComponentsPlugin_Placement_Implementation_RandomPrefabComponent);
   EZ_STATICLINK_REFERENCE(GameComponentsPlugin_Terrain_Implementation_HeightfieldComponent);
+  EZ_STATICLINK_REFERENCE(GameComponentsPlugin_UI_Implementation_RmlUiMainMenuComponent);
 }

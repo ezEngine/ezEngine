@@ -3,6 +3,7 @@
 #include <Core/GameApplication/GameApplicationBase.h>
 #include <Core/System/Window.h>
 #include <Foundation/System/Screen.h>
+#include <GameComponentsPlugin/GameComponentsDLL.h>
 #include <GameEngine/Configuration/InputRebinding.h>
 #include <GameEngine/UI/MainMenuComponent.h>
 #include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
@@ -19,13 +20,13 @@ namespace Rml
 ///
 /// What a sound group name means depends on the sound plugin: ezMiniAudio uses the names from its sound
 /// group configuration, FMOD expects the GUID of a VCA, which is why the label is configured separately.
-struct EZ_RMLUIPLUGIN_DLL ezRmlUiSoundGroupSetting
+struct EZ_GAMECOMPONENTS_DLL ezRmlUiSoundGroupSetting
 {
   ezString m_sLabel;
   ezString m_sSoundGroup;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RMLUIPLUGIN_DLL, ezRmlUiSoundGroupSetting);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezRmlUiSoundGroupSetting);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +49,7 @@ using ezRmlUiMainMenuComponentManager = ezComponentManagerSimple<class ezRmlUiMa
 /// implemented on Windows. Elsewhere the window settings take effect after a restart.
 ///
 /// The 'Controls' tab is implemented with ezInputRebinding, which a custom menu can use as well.
-class EZ_RMLUIPLUGIN_DLL ezRmlUiMainMenuComponent : public ezMainMenuComponent
+class EZ_GAMECOMPONENTS_DLL ezRmlUiMainMenuComponent : public ezMainMenuComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezRmlUiMainMenuComponent, ezMainMenuComponent, ezRmlUiMainMenuComponentManager);
 

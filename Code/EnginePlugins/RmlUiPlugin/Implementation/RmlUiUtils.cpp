@@ -102,5 +102,3 @@ namespace ezRmlUiUtils
     }
   }
 } // namespace ezRmlUiUtils
-
-EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Implementation_RmlUiUtils);
