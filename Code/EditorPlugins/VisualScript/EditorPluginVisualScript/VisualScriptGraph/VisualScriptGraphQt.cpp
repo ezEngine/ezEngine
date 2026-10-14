@@ -46,8 +46,6 @@ void ezQtVisualScriptPin::SetPin(const ezVisualGraphPin& pin)
   m_bTranslatePinName = false;
 
   ezQtVisualGraphPin::SetPin(pin);
-
-  UpdateTooltip();
 }
 
 bool ezQtVisualScriptPin::UpdatePinColors(const ezColorGammaUB* pOverwriteColor)
@@ -64,6 +62,9 @@ bool ezQtVisualScriptPin::UpdatePinColors(const ezColorGammaUB* pOverwriteColor)
 
   bool res = ezQtVisualGraphPin::UpdatePinColors(pOverwriteColor);
 
+  // The deduced data type changes with the connections of the node, as does the color.
+  UpdateTooltip();
+
   if (vsPin.IsRequired() && type != ezVisualScriptDataType::GameObject && HasAnyConnections() == false)
   {
     QColor requiredColor = ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Red));
@@ -77,29 +78,7 @@ bool ezQtVisualScriptPin::UpdatePinColors(const ezColorGammaUB* pOverwriteColor)
     return true;
   }
 
-  UpdateTooltip();
-
   return res;
-}
-
-void ezQtVisualScriptPin::UpdateTooltip()
-{
-  const ezVisualScriptPin& vsPin = ezStaticCast<const ezVisualScriptPin&>(*GetPin());
-
-  ezStringBuilder sTooltip;
-  sTooltip = vsPin.GetName();
-
-  if (vsPin.IsDataPin())
-  {
-    sTooltip.Append(": ", vsPin.GetDataTypeName());
-
-    if (vsPin.IsRequired())
-    {
-      sTooltip.Append(" (Required)");
-    }
-  }
-
-  setToolTip(sTooltip.GetData());
 }
 
 //////////////////////////////////////////////////////////////////////////

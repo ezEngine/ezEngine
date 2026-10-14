@@ -23,7 +23,8 @@ public:
   EZ_ALWAYS_INLINE const ezRTTI* GetDataType() const { return m_pDesc->m_pDataType; }
   EZ_ALWAYS_INLINE ezVisualScriptDataType::Enum GetScriptDataType() const { return m_pDesc->m_ScriptDataType; }
   ezVisualScriptDataType::Enum GetResolvedScriptDataType() const;
-  ezStringView GetDataTypeName() const;
+  virtual ezStringView GetDataTypeName() const override;
+  virtual void GetDescription(ezStringBuilder& ref_sDescription) const override;
   EZ_ALWAYS_INLINE ezUInt32 GetDataPinIndex() const { return m_uiDataPinIndex; }
   EZ_ALWAYS_INLINE ezUInt32 GetElementIndex() const { return m_uiElementIndex; }
   EZ_ALWAYS_INLINE bool IsRequired() const { return m_pDesc->m_bRequired; }

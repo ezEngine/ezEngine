@@ -50,6 +50,12 @@ public:
 
 protected:
   virtual bool UpdatePinColors(const ezColorGammaUB* pOverwriteColor = nullptr);
+
+  /// Sets the tooltip from the pin's name, ezVisualGraphPin::GetDataTypeName() and ezVisualGraphPin::GetDescription().
+  ///
+  /// Called by SetPin(). Pins whose data type or description changes later, e.g. through type deduction, call it again.
+  void UpdateTooltip();
+
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
 
   ezQtVisualGraphPinHighlight m_HighlightState = ezQtVisualGraphPinHighlight::None;

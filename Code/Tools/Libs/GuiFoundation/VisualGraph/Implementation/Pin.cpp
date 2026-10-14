@@ -111,7 +111,34 @@ void ezQtVisualGraphPin::SetPin(const ezVisualGraphPin& pin)
     setPath(p);
   }
 
+  UpdateTooltip();
   UpdatePinColors();
+}
+
+void ezQtVisualGraphPin::UpdateTooltip()
+{
+  ezStringBuilder sTooltip = m_bTranslatePinName ? ezStringView(ezTranslate(m_pPin->GetName())) : ezStringView(m_pPin->GetName());
+
+  const ezStringView sDataType = m_pPin->GetDataTypeName();
+  if (!sDataType.IsEmpty())
+  {
+    if (!sTooltip.IsEmpty())
+      sTooltip.Append(": ");
+
+    sTooltip.Append(sDataType);
+  }
+
+  ezStringBuilder sDescription;
+  m_pPin->GetDescription(sDescription);
+  if (!sDescription.IsEmpty())
+  {
+    if (!sTooltip.IsEmpty())
+      sTooltip.Append("\n");
+
+    sTooltip.Append(sDescription);
+  }
+
+  setToolTip(ezMakeQString(sTooltip));
 }
 
 QPointF ezQtVisualGraphPin::GetPinPos() const

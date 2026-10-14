@@ -4,6 +4,7 @@
 #include <EditorPluginAssets/StateMachineAsset/StateMachineGraph.h>
 #include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphCommandAccessor.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineAssetDocument, 4, ezRTTINoAllocator)
@@ -13,6 +14,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezStateMachineAssetDocument::ezStateMachineAssetDocument(ezStringView sDocumentPath)
   : ezAssetDocument(sDocumentPath, EZ_DEFAULT_NEW(ezStateMachineNodeManager), ezAssetDocEngineConnection::FullObjectMirroring)
 {
+  m_pObjectAccessor = EZ_DEFAULT_NEW(ezVisualGraphCommandAccessor, GetCommandHistory());
 }
 
 ezTransformStatus ezStateMachineAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)

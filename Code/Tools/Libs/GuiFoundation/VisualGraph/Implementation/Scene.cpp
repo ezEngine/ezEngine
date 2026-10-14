@@ -836,33 +836,10 @@ void ezQtVisualGraphScene::OpenSearchMenu(QPoint screenPos)
 
   for (ezUInt32 i = 0; i < m_NodeCreationTemplates.GetCount(); ++i)
   {
-    const ezVisualGraphNodeDesc& nodeTemplate = m_NodeCreationTemplates[i];
-    const ezRTTI* pRtti = nodeTemplate.m_pType;
-    ezStringView sCleanName = nodeTemplate.m_sTypeName.IsEmpty() ? pRtti->GetTypeName() : nodeTemplate.m_sTypeName;
-
-    if (const char* szUnderscore = sCleanName.FindLastSubString("_"))
-    {
-      sCleanName.SetStartPosition(szUnderscore + 1);
-    }
-
-    if (const char* szBracket = sCleanName.FindLastSubString("<"))
-    {
-      sCleanName = ezStringView(sCleanName.GetStartPointer(), szBracket);
-    }
-
-    sFullPath = nodeTemplate.m_sCategory.GetString();
-    if (sFullPath.IsEmpty())
-    {
-      if (auto pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
-      {
-        sFullPath = pAttr->GetCategory();
-      }
-    }
-
-    sFullPath.AppendPath(sCleanName);
+    ezVisualGraphObjectManager::GetNodeCreationTemplateName(m_NodeCreationTemplates[i], tmp, sFullPath);
 
     m_NodeCreationTemplatePaths[i] = sFullPath;
-    templateNames[i] = ezTranslate(sCleanName.GetData(tmp));
+    templateNames[i] = ezTranslate(tmp.GetData());
 
     pSearchMenu->AddItem(templateNames[i], sFullPath, QVariant::fromValue(i));
   }
@@ -1042,33 +1019,37 @@ void ezQtVisualGraphScene::ConnectPinsAction(const ezVisualGraphPin& sourcePin, 
   ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction("Connect Pins");
 
+  // Disconnecting removes the connection from the array that GetConnections() returns and deletes it, so collect them up front.
+  ezHybridArray<ezUuid, 8> connectionsToRemove;
+  auto CollectConnections = [&](const ezVisualGraphPin& pin)
+  {
+    for (const ezVisualGraphConnection* pConnection : m_pManager->GetConnections(pin))
+    {
+      const ezUuid& connectionGuid = pConnection->GetParent()->GetGuid();
+      if (!connectionsToRemove.Contains(connectionGuid))
+        connectionsToRemove.PushBack(connectionGuid);
+    }
+  };
+
   // disconnect everything from the source pin
   if (connect == ezVisualGraphObjectManager::CanConnectResult::Connect1to1 || connect == ezVisualGraphObjectManager::CanConnectResult::Connect1toN)
   {
-    const ezArrayPtr<const ezVisualGraphConnection* const> connections = m_pManager->GetConnections(sourcePin);
-    for (const ezVisualGraphConnection* pConnection : connections)
-    {
-      res = ezNodeCommands::DisconnectAndRemoveCommand(history, pConnection->GetParent()->GetGuid());
-      if (res.Failed())
-      {
-        history->CancelTransaction();
-        return;
-      }
-    }
+    CollectConnections(sourcePin);
   }
 
   // disconnect everything from the target pin
   if (connect == ezVisualGraphObjectManager::CanConnectResult::Connect1to1 || connect == ezVisualGraphObjectManager::CanConnectResult::ConnectNto1)
   {
-    const ezArrayPtr<const ezVisualGraphConnection* const> connections = m_pManager->GetConnections(targetPin);
-    for (const ezVisualGraphConnection* pConnection : connections)
+    CollectConnections(targetPin);
+  }
+
+  for (const ezUuid& connectionGuid : connectionsToRemove)
+  {
+    res = ezNodeCommands::DisconnectAndRemoveCommand(history, connectionGuid);
+    if (res.Failed())
     {
-      res = ezNodeCommands::DisconnectAndRemoveCommand(history, pConnection->GetParent()->GetGuid());
-      if (res.Failed())
-      {
-        history->CancelTransaction();
-        return;
-      }
+      history->CancelTransaction();
+      return;
     }
   }
 

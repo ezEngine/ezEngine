@@ -20,9 +20,22 @@ const ezRTTI* ezVisualShaderPin::GetDataType() const
   return m_pDescriptor->m_pDataType;
 }
 
-const ezString& ezVisualShaderPin::GetTooltip() const
+ezStringView ezVisualShaderPin::GetDataTypeName() const
 {
-  return m_pDescriptor->m_sTooltip;
+  return m_pDescriptor->m_pDataType != nullptr ? m_pDescriptor->m_pDataType->GetTypeName() : ezStringView();
+}
+
+void ezVisualShaderPin::GetDescription(ezStringBuilder& ref_sDescription) const
+{
+  ref_sDescription.Append(m_pDescriptor->m_sTooltip);
+
+  if (!m_pDescriptor->m_sDefaultValue.IsEmpty())
+  {
+    if (!ref_sDescription.IsEmpty())
+      ref_sDescription.Append(" ");
+
+    ref_sDescription.Append("Default is ", m_pDescriptor->m_sDefaultValue, ".");
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

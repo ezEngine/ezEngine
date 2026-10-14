@@ -361,3 +361,32 @@ ezAnimationGraphNodePin::ezAnimationGraphNodePin(Type type, const char* szName, 
 }
 
 ezAnimationGraphNodePin::~ezAnimationGraphNodePin() = default;
+
+ezStringView ezAnimationGraphNodePin::GetDataTypeName() const
+{
+  switch (m_DataType)
+  {
+    case ezAnimGraphPin::Trigger:
+      return "Trigger";
+    case ezAnimGraphPin::Number:
+      return "Number";
+    case ezAnimGraphPin::Bool:
+      return "Bool";
+    case ezAnimGraphPin::BoneWeights:
+      return "BoneWeights";
+    case ezAnimGraphPin::LocalPose:
+      return "LocalPose";
+    case ezAnimGraphPin::ModelPose:
+      return "ModelPose";
+    default:
+      return {};
+  }
+}
+
+void ezAnimationGraphNodePin::GetDescription(ezStringBuilder& ref_sDescription) const
+{
+  if (m_bMultiInputPin)
+  {
+    ref_sDescription.Append("Accepts multiple connections.");
+  }
+}

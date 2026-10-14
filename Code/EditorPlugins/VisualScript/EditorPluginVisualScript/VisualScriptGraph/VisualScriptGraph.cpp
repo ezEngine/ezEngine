@@ -47,6 +47,9 @@ ezVisualScriptDataType::Enum ezVisualScriptPin::GetResolvedScriptDataType() cons
 
 ezStringView ezVisualScriptPin::GetDataTypeName() const
 {
+  if (IsExecutionPin())
+    return "Execution";
+
   ezVisualScriptDataType::Enum resolvedDataType = GetResolvedScriptDataType();
   if (resolvedDataType == ezVisualScriptDataType::Invalid)
   {
@@ -61,6 +64,22 @@ ezStringView ezVisualScriptPin::GetDataTypeName() const
   }
 
   return ezVisualScriptDataType::GetName(resolvedDataType);
+}
+
+void ezVisualScriptPin::GetDescription(ezStringBuilder& ref_sDescription) const
+{
+  if (IsDataPin() && IsRequired())
+  {
+    ref_sDescription.Append("Required.");
+  }
+
+  if (NeedsTypeDeduction() && GetResolvedScriptDataType() == ezVisualScriptDataType::Invalid)
+  {
+    if (!ref_sDescription.IsEmpty())
+      ref_sDescription.Append(" ");
+
+    ref_sDescription.Append("The data type is deduced from what gets connected.");
+  }
 }
 
 bool ezVisualScriptPin::CanConvertTo(const ezVisualScriptPin& targetPin, bool bUseResolvedDataTypes /*= true*/) const

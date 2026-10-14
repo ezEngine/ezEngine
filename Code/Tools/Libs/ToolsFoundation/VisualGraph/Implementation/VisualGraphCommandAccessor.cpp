@@ -18,6 +18,13 @@ ezVisualGraphCommandAccessor::~ezVisualGraphCommandAccessor() = default;
 
 ezStatus ezVisualGraphCommandAccessor::SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
 {
+  if (IsConnectionEndpointProperty(pObject, pProp))
+  {
+    // The object manager keeps its own record of which pins are connected, which only the connect and disconnect commands update.
+    // Changing these properties directly would make the two disagree until the document is reloaded, which then drops the connection.
+    return ezStatus(ezFmt("'{}' of a connection cannot be changed. Remove the connection and connect the pins anew.", pProp->GetPropertyName()));
+  }
+
   if (m_pHistory->InTemporaryTransaction() == false)
   {
     auto pNodeObject = pObject;
@@ -104,6 +111,13 @@ ezStatus ezVisualGraphCommandAccessor::MoveValue(const ezDocumentObject* pObject
 
 ezStatus ezVisualGraphCommandAccessor::AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
 {
+  auto pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
+  if (pType->IsDerivedFrom(pManager->GetConnectionType()))
+  {
+    // A connection object on its own is not connected to anything, see ezNodeCommands::AddAndConnectCommand.
+    return ezStatus("Connections cannot be added as objects. Connect two pins instead.");
+  }
+
   if (IsDynamicPinProperty(pParent, pParentProp))
   {
     ezTempHybridArray<ConnectionInfo, 16> oldConnections;
@@ -123,6 +137,24 @@ ezStatus ezVisualGraphCommandAccessor::AddObject(const ezDocumentObject* pParent
 
 ezStatus ezVisualGraphCommandAccessor::RemoveObject(const ezDocumentObject* pObject)
 {
+  if (IsNode(pObject))
+  {
+    // Connection objects reference the nodes they connect, so they have to go first, as in ezRemoveNodeCommand.
+    ezTempHybridArray<ConnectionInfo, 16> oldConnections;
+    EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pObject, oldConnections));
+
+    return ezObjectCommandAccessor::RemoveObject(pObject);
+  }
+
+  if (IsConnection(pObject))
+  {
+    auto pManager = static_cast<const ezVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
+    if (pManager->GetConnectionIfExists(pObject) != nullptr)
+    {
+      return ezNodeCommands::DisconnectAndRemoveCommand(m_pHistory, pObject->GetGuid());
+    }
+  }
+
   if (const ezDocumentObject* pParent = pObject->GetParent())
   {
     const ezAbstractProperty* pProp = pParent->GetType()->FindPropertyByName(pObject->GetParentProperty());
@@ -150,6 +182,22 @@ bool ezVisualGraphCommandAccessor::IsNode(const ezDocumentObject* pObject) const
   return pManager->IsNode(pObject);
 }
 
+bool ezVisualGraphCommandAccessor::IsConnection(const ezDocumentObject* pObject) const
+{
+  auto pManager = static_cast<const ezVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
+
+  return pManager->IsConnection(pObject);
+}
+
+bool ezVisualGraphCommandAccessor::IsConnectionEndpointProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const
+{
+  if (pProp == nullptr || !IsConnection(pObject))
+    return false;
+
+  const ezStringView sName = pProp->GetPropertyName();
+  return sName == "Source" || sName == "Target" || sName == "SourcePin" || sName == "TargetPin";
+}
+
 bool ezVisualGraphCommandAccessor::IsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const
 {
   auto pManager = static_cast<const ezVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
@@ -163,6 +211,9 @@ ezStatus ezVisualGraphCommandAccessor::DisconnectAllPins(const ezDocumentObject*
 
   auto Disconnect = [&](ezArrayPtr<const ezVisualGraphConnection* const> connections) -> ezStatus
   {
+    // Disconnecting removes the connection from the array that 'connections' points into and deletes it,
+    // so collect everything needed up front.
+    ezTempHybridArray<ezUuid, 16> connectionObjects;
     for (const ezVisualGraphConnection* pConnection : connections)
     {
       auto& connectionInfo = out_oldConnections.ExpandAndGetRef();
@@ -171,7 +222,12 @@ ezStatus ezVisualGraphCommandAccessor::DisconnectAllPins(const ezDocumentObject*
       connectionInfo.m_sSourcePin = pConnection->GetSourcePin().GetName();
       connectionInfo.m_sTargetPin = pConnection->GetTargetPin().GetName();
 
-      EZ_SUCCEED_OR_RETURN(ezNodeCommands::DisconnectAndRemoveCommand(m_pHistory, pConnection->GetParent()->GetGuid()));
+      connectionObjects.PushBack(pConnection->GetParent()->GetGuid());
+    }
+
+    for (const ezUuid& connectionObject : connectionObjects)
+    {
+      EZ_SUCCEED_OR_RETURN(ezNodeCommands::DisconnectAndRemoveCommand(m_pHistory, connectionObject));
     }
 
     return ezStatus(EZ_SUCCESS);

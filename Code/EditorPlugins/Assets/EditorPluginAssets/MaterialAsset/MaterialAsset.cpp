@@ -12,6 +12,7 @@
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphCommandAccessor.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 #  include <Foundation/IO/CompressedStreamZstd.h>
@@ -568,6 +569,7 @@ ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
 ezMaterialAssetDocument::ezMaterialAssetDocument(ezStringView sDocumentPath)
   : ezSimpleAssetDocument<ezMaterialAssetProperties>(EZ_DEFAULT_NEW(ezMaterialObjectManager), sDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
+  m_pObjectAccessor = EZ_DEFAULT_NEW(ezVisualGraphCommandAccessor, GetCommandHistory());
   ezQtEditorApp::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezMaterialAssetDocument::EditorEventHandler, this));
 }
 

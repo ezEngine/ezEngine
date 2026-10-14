@@ -29,7 +29,6 @@ class ezQtVisualShaderPin : public ezQtVisualGraphPin
 public:
   ezQtVisualShaderPin();
 
-  virtual void SetPin(const ezVisualGraphPin& pin) override;
   virtual void paint(QPainter* pPainter, const QStyleOptionGraphicsItem* pOption, QWidget* pWidget) override;
 };
 

@@ -23,6 +23,9 @@ public:
   ezAnimationGraphNodePin(Type type, const char* szName, const ezColorGammaUB& color, const ezDocumentObject* pObject);
   ~ezAnimationGraphNodePin();
 
+  virtual ezStringView GetDataTypeName() const override;
+  virtual void GetDescription(ezStringBuilder& ref_sDescription) const override;
+
   bool m_bMultiInputPin = false;
   ezAnimGraphPin::Type m_DataType = ezAnimGraphPin::Invalid;
 };

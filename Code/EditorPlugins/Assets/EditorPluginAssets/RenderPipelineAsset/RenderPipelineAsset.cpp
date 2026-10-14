@@ -96,6 +96,11 @@ ezRenderPipelineNodeGraphPin::ezRenderPipelineNodeGraphPin(ezVisualGraphPin::Typ
 
 ezRenderPipelineNodeGraphPin::~ezRenderPipelineNodeGraphPin() = default;
 
+ezStringView ezRenderPipelineNodeGraphPin::GetDataTypeName() const
+{
+  return m_ResourceType == ezRenderPipelineResourceType::Buffer ? "Buffer" : "Texture";
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 ezRenderPipelineNodeManager::ezRenderPipelineNodeManager()

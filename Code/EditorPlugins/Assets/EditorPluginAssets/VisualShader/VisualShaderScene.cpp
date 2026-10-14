@@ -18,33 +18,6 @@ ezQtVisualShaderScene::~ezQtVisualShaderScene() = default;
 
 ezQtVisualShaderPin::ezQtVisualShaderPin() = default;
 
-void ezQtVisualShaderPin::SetPin(const ezVisualGraphPin& pin)
-{
-  ezQtVisualGraphPin::SetPin(pin);
-
-  const ezVisualShaderPin& shaderPin = ezStaticCast<const ezVisualShaderPin&>(pin);
-
-  ezStringBuilder sTooltip;
-  if (!shaderPin.GetTooltip().IsEmpty())
-  {
-    sTooltip = shaderPin.GetTooltip();
-  }
-  else
-  {
-    sTooltip = shaderPin.GetName();
-  }
-
-  if (!shaderPin.GetDescriptor()->m_sDefaultValue.IsEmpty())
-  {
-    if (!sTooltip.IsEmpty())
-      sTooltip.Append("\n");
-
-    sTooltip.Append("Default is ", shaderPin.GetDescriptor()->m_sDefaultValue);
-  }
-
-  setToolTip(sTooltip.GetData());
-}
-
 void ezQtVisualShaderPin::paint(QPainter* pPainter, const QStyleOptionGraphicsItem* pOption, QWidget* pWidget)
 {
   QPainterPath p = path();
