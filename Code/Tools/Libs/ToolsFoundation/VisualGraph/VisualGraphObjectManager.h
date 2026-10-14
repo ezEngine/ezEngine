@@ -185,6 +185,12 @@ public:
   /// The name is not translated. Several templates can end up with the same path.
   static void GetNodeCreationTemplateName(const ezVisualGraphNodeDesc& nodeTemplate, ezStringBuilder& out_sName, ezStringBuilder& out_sPath);
 
+  /// Whether the document currently makes use of its graph.
+  ///
+  /// Some documents only use their graph in one configuration, e.g. a material only uses its visual shader with shader mode 'Custom'.
+  /// Nodes added otherwise are stored, but have no effect and are not shown. Returns a failure that says why in that case.
+  virtual ezStatus IsGraphInUse() const { return ezStatus(EZ_SUCCESS); }
+
   virtual const ezRTTI* GetConnectionType() const;
 
   ezVec2 GetNodePos(const ezDocumentObject* pObject) const;

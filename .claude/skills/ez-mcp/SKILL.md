@@ -63,7 +63,9 @@ Both hosts: `app_info`, `app_ping`, `app_quit`, `app_command_line_options`, `log
 | C++ plugin | `cpp_status`, `cpp_generate`, `cpp_build` |
 | Assets | `asset_types`, `asset_find`, `asset_info`, `asset_uses`, `asset_thumbnail`, `asset_transform`, `asset_health`, `asset_history`, `asset_processor`, `asset_importers`, `asset_import` |
 | Documents | `document_types`, `document_list`, `document_open`, `document_create`, `document_save`, `document_close`, `document_focus`, `document_delete` |
-| Contents | `object_tree`, `object_properties`, `object_modify`, `object_undo` |
+| Contents | `object_tree`, `object_properties`, `object_modify`, `object_undo`, `object_drop_asset` |
+| Scene layers | `scene_layers` |
+| Node graphs | `graph_info`, `graph_node_templates`, `graph_add_node`, `graph_move_nodes`, `graph_connect`, `graph_disconnect` |
 | Selection | `selection_get`, `selection_set` |
 | Actions | `action_list`, `action_state`, `action_execute` |
 
@@ -106,16 +108,49 @@ A scene's game objects and components live in the same hierarchy, told apart by 
 sit in. Building one is all `object_modify`:
 
 ```
-addObject   property "Children",   type "ezGameObject"          -> child object
+addObject   property "Children",   type "ezGameObject"          -> child object ('object' "root": top level object)
 addObject   property "Components", type "ezPointLightComponent"  -> component on it
 set         property "Name" / "LocalPosition" / any component property
-moveObject  newParent <guid>    | duplicateObject | deleteObject  (each takes everything below it)
+moveObject  newParent <guid>|"root" | duplicateObject | deleteObject  (each takes everything below it)
 ```
+
+To place an asset, `object_drop_asset` runs the editor's own drag & drop handler: a mesh becomes an object with
+an `ezMeshComponent`, a prefab one with an `ezPrefabReferenceComponent` (`prefabInstance` true: an editable,
+linked prefab instance, like Shift+drag), and so on, at `position` and under `parent`. `attachTo` adds the
+component to an existing object instead, `targetComponent` assigns a material to a mesh component.
+
+Scenes can have **layers**, separate `.ezSceneLayer` documents in `<Scene>_data`, listed by `scene_layers`. Only
+the active layer is editable, and while a layer is active the scene's objects are that layer's. The object tools
+therefore refuse a scene or layer that is not active, and say which one is. `scene_layers` `setActive` switches
+(the user sees it), after which the scene and the layer document both reach the layer's objects. Switch back to
+`Scene` to edit the scene's own objects.
 
 `rtti_derived_types` of `ezComponent` lists component types; `rtti_type_properties` gives property
 names, value types and enum values before writing any. Vectors and colours go in as they come out
 (`{"x":1,"y":2,"z":3}` or `[1,2,3]`). `selection_set` is worth calling even when it changes nothing - it
 is how the user sees which object is meant, and `selection_get` answers "this object".
+
+## Editing a node graph
+
+Visual scripts, materials using a visual shader, render pipelines, state machines, animation graphs and ProcGen
+graphs are node graphs. Nodes and connections are ordinary top level objects in `object_tree`, but pins, node
+positions and connecting only exist in the graph_* tools:
+
+1. `graph_info` - nodes with position and pins (name, `dataType`, `description`, connection count), connections as
+   source node + output pin -> target node + input pin, and `otherObjects` (the asset's own settings).
+   `graphInUse` false: the document ignores its graph (a material only uses it with `ShaderMode` `Custom`), and
+   adding nodes or connections is refused until that is changed.
+2. `graph_node_templates` with `contains` - the node creation menu. Visual scripts have thousands of entries, many
+   sharing one node type and differing only in pre-filled properties, so add by `path`, not by type.
+3. `graph_add_node` (`template`, `position`) returns the node with its pins. Node properties are set with
+   `object_modify` as usual; a property can change the pins (e.g. a pin count), so re-read them afterwards.
+4. `graph_connect` goes from an output (`source`) to an input (`target`). Pins that take one connection get it
+   replaced, reported under `removedConnections`. Pin names can be empty strings.
+5. `graph_disconnect`, `graph_move_nodes`. `object_modify` `deleteObject` on a node also removes its connections.
+
+Connection objects cannot be created with `addObject` and their `Source`/`Target`/`SourcePin`/`TargetPin` cannot be
+set - use connect/disconnect. Other properties of a connection (a state machine transition) are set with
+`object_modify`. Lay out left to right, ~300 units apart, y pointing down.
 
 ## Driving the game
 

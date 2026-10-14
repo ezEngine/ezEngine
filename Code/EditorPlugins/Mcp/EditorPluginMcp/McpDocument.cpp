@@ -6,6 +6,8 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphCommandAccessor.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 ezDocument* ezMcpDocument::Find(ezStringView sIdentifier)
 {
@@ -81,6 +83,54 @@ void ezMcpDocument::SetNotOpenError(ezMcpToolResult& out_result, ezStringView sI
   out_result.SetError(s);
 }
 
+ezDocument* ezMcpDocument::FindForObjects(ezStringView sIdentifier, ezMcpToolResult& out_result)
+{
+  ezDocument* pDocument = Find(sIdentifier);
+
+  if (pDocument == nullptr)
+  {
+    SetNotOpenError(out_result, sIdentifier);
+    return nullptr;
+  }
+
+  const ezDocument* pActive = pDocument->GetMainDocument()->GetActiveSubDocument();
+
+  if (pActive == nullptr || pActive == pDocument)
+    return pDocument;
+
+  ezStringBuilder sActiveGuid;
+  ezConversionUtils::ToString(pActive->GetGuid(), sActiveGuid);
+
+  ezStringBuilder s;
+  if (pDocument->IsMainDocument())
+  {
+    s.SetFormat("'{}' currently has its layer '{}' active, and while it is, the objects, undo history and selection of the scene are "
+                "those of that layer. Pass the layer ('{}') as 'document' to work on the layer, or make the scene itself the active layer "
+                "with 'scene_layers' to work on the scene's own objects. Note that the user sees the active layer change.",
+      pDocument->GetDocumentPath(), pActive->GetDocumentPath(), sActiveGuid);
+  }
+  else
+  {
+    ezStringBuilder sMainGuid;
+    ezConversionUtils::ToString(pDocument->GetMainDocument()->GetGuid(), sMainGuid);
+
+    s.SetFormat("'{}' is a layer of '{}', and only the active layer can be read or edited. The active one is '{}' ('{}'). Make this layer the "
+                "active one with 'scene_layers' (document '{}'), which the user sees as well.",
+      pDocument->GetDocumentPath(), pDocument->GetMainDocument()->GetDocumentPath(), pActive->GetDocumentPath(), sActiveGuid, sMainGuid);
+  }
+
+  out_result.SetError(s);
+  return nullptr;
+}
+
+const ezDocumentObject* ezMcpDocument::ResolveParentObject(const ezDocument* pDocument, ezStringView sObjectGuid, ezStringBuilder& out_sError)
+{
+  if (sObjectGuid == s_sRootObject)
+    return pDocument->GetObjectManager()->GetRootObject();
+
+  return ResolveObject(pDocument, sObjectGuid, out_sError);
+}
+
 const ezDocumentObject* ezMcpDocument::ResolveObject(const ezDocument* pDocument, ezStringView sObjectGuid, ezStringBuilder& out_sError)
 {
   const ezDocumentObjectManager* pManager = pDocument->GetObjectManager();
@@ -128,7 +178,7 @@ const ezDocumentObject* ezMcpDocument::ResolveObject(const ezDocument* pDocument
   if (pRoot->GetChildren().GetCount() > 1)
   {
     out_sError.SetFormat("The document has {} top level objects, so there is no single one to default to. Pass 'object' with the guid "
-                         "of the one to act on - 'object_tree' lists them.",
+                         "of the one to act on - 'object_tree' lists them. To create a new top level object, pass 'root' as 'object'.",
       pRoot->GetChildren().GetCount());
     return nullptr;
   }
@@ -149,4 +199,14 @@ ezString ezMcpDocument::GetObjectName(const ezDocumentObject* pObject)
     return {};
 
   return name.ConvertTo<ezString>();
+}
+
+const ezVisualGraphObjectManager* ezMcpDocument::GetVisualGraph(const ezDocument* pDocument)
+{
+  const ezObjectAccessorBase* pAccessor = pDocument->GetObjectAccessor();
+
+  if (pAccessor == nullptr || !pAccessor->GetDynamicRTTI()->IsDerivedFrom<ezVisualGraphCommandAccessor>())
+    return nullptr;
+
+  return static_cast<const ezVisualGraphObjectManager*>(pDocument->GetObjectManager());
 }

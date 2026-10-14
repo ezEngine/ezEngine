@@ -78,13 +78,10 @@ void ezMcpSelectionTool::ExecuteGet(const ezVariantDictionary& arguments, ezMcpT
 {
   const ezStringView sDocument = ezMcpJson::GetString(arguments, "document");
 
-  ezDocument* pDocument = ezMcpDocument::Find(sDocument);
+  ezDocument* pDocument = ezMcpDocument::FindForObjects(sDocument, out_result);
 
   if (pDocument == nullptr)
-  {
-    ezMcpDocument::SetNotOpenError(out_result, sDocument);
     return;
-  }
 
   const ezSelectionManager* pSelection = pDocument->GetSelectionManager();
 
@@ -126,13 +123,10 @@ void ezMcpSelectionTool::ExecuteSet(const ezVariantDictionary& arguments, ezMcpT
 {
   const ezStringView sDocument = ezMcpJson::GetString(arguments, "document");
 
-  ezDocument* pDocument = ezMcpDocument::Find(sDocument);
+  ezDocument* pDocument = ezMcpDocument::FindForObjects(sDocument, out_result);
 
   if (pDocument == nullptr)
-  {
-    ezMcpDocument::SetNotOpenError(out_result, sDocument);
     return;
-  }
 
   ezSelectionManager* pSelection = pDocument->GetSelectionManager();
 

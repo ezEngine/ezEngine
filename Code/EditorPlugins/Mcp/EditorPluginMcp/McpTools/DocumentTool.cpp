@@ -75,7 +75,20 @@ void ezMcpDocumentTool::WriteDocumentIdentity(ezMcpJsonWriter& ref_writer, const
   // A sub-document is edited through its main document, so a caller that got one here needs to know
   // that acting on it is not the same as acting on a normal document.
   if (document.IsSubDocument())
+  {
     ref_writer.AddVariableBool("subDocument", true);
+
+    ezConversionUtils::ToString(document.GetMainDocument()->GetGuid(), sGuid);
+    ref_writer.AddVariableString("mainDocument", sGuid);
+
+    // Only the active sub-document's objects can be reached, see ezMcpDocument::FindForObjects().
+    ref_writer.AddVariableBool("active", document.GetMainDocument()->GetActiveSubDocument() == &document);
+  }
+  else if (const ezDocument* pActive = document.GetActiveSubDocument(); pActive != nullptr && pActive != &document)
+  {
+    ezConversionUtils::ToString(pActive->GetGuid(), sGuid);
+    ref_writer.AddVariableString("activeSubDocument", sGuid);
+  }
 }
 
 void ezMcpDocumentTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools) const

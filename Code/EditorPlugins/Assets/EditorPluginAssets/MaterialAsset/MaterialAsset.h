@@ -162,4 +162,6 @@ private:
 
 class ezMaterialObjectManager : public ezVisualShaderNodeManager
 {
+public:
+  virtual ezStatus IsGraphInUse() const override;
 };

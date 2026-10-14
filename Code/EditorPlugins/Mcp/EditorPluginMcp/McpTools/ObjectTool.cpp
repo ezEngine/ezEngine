@@ -662,13 +662,10 @@ void ezMcpObjectTool::ExecuteTree(const ezVariantDictionary& arguments, ezMcpToo
 {
   const ezStringView sDocument = ezMcpJson::GetString(arguments, "document");
 
-  ezDocument* pDocument = ezMcpDocument::Find(sDocument);
+  ezDocument* pDocument = ezMcpDocument::FindForObjects(sDocument, out_result);
 
   if (pDocument == nullptr)
-  {
-    ezMcpDocument::SetNotOpenError(out_result, sDocument);
     return;
-  }
 
   const ezDocumentObjectManager* pManager = pDocument->GetObjectManager();
   const ezStringView sObject = ezMcpJson::GetString(arguments, "object");
@@ -803,14 +800,16 @@ void ezMcpObjectTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tools
       "'duplicateObject' copies it, with its children and components, into 'newParent' (its own parent by default). "
       "This is also how a scene is built: 'addObject' on a game object with property 'Children' and type 'ezGameObject' creates a "
       "child object, and with property 'Components' and a component type name ('rtti_derived_types' of 'ezComponent' lists them) "
-      "adds a component to it. New guids come back as 'addedObject'/'addedObjects'; set their properties with further calls. "
+      "adds a component to it. A top level object is created the same way with 'root' as 'object', and 'root' as 'newParent' moves or "
+      "duplicates an object to the top level. To place an asset the way dragging it into the viewport does, use 'object_drop_asset'. "
+      "New guids come back as 'addedObject'/'addedObjects'; set their properties with further calls. "
       "Vectors and colours are written the way they are reported ({\"x\":1,\"y\":2,\"z\":3} or [1,2,3]).";
     desc.m_sInputSchema = R"({"type":"object","properties":{)"
                           R"("document":{"type":"string","description":"Guid or path of an open document."},)"
-                          R"("object":{"type":"string","description":"Guid of the object to modify. Omit for the document's top level object."},)"
+                          R"("object":{"type":"string","description":"Guid of the object to modify. Omit for the document's top level object. 'root' with 'addObject' into 'Children' creates a new top level object."},)"
                           R"("property":{"type":"string","description":"Name of the property to change. See 'object_properties'."},)"
                           R"("operation":{"type":"string","enum":["set","insert","remove","move","addObject","removeObject","deleteObject","moveObject","duplicateObject"],"description":"What to do. Defaults to 'set'. 'deleteObject', 'moveObject' and 'duplicateObject' act on 'object' itself and need no 'property'."},)"
-                          R"("newParent":{"type":"string","description":"Guid of the object to move or duplicate into, for 'moveObject' and 'duplicateObject'. Defaults to the object's current parent, which for 'moveObject' means reordering it among its siblings."},)"
+                          R"("newParent":{"type":"string","description":"Guid of the object to move or duplicate into, for 'moveObject' and 'duplicateObject'. Defaults to the object's current parent, which for 'moveObject' means reordering it among its siblings. 'root' is the top level."},)"
                           R"("value":{"description":"The new value, for 'set' and 'insert'. Enums take the value name as a string."},)"
                           R"("index":{"description":"Which element: a number for arrays and sets, the key for maps. Required for 'remove' and for 'set' on a container."},)"
                           R"("newIndex":{"description":"Where to move the element to, for 'move'."},)"
@@ -849,13 +848,10 @@ void ezMcpObjectTool::ExecuteReadProperties(const ezVariantDictionary& arguments
 {
   const ezStringView sDocument = ezMcpJson::GetString(arguments, "document");
 
-  ezDocument* pDocument = ezMcpDocument::Find(sDocument);
+  ezDocument* pDocument = ezMcpDocument::FindForObjects(sDocument, out_result);
 
   if (pDocument == nullptr)
-  {
-    ezMcpDocument::SetNotOpenError(out_result, sDocument);
     return;
-  }
 
   ezStringBuilder sError;
   const ezDocumentObject* pObject = ezMcpDocument::ResolveObject(pDocument, ezMcpJson::GetString(arguments, "object"), sError);
@@ -1023,13 +1019,10 @@ void ezMcpObjectTool::ExecuteModify(const ezVariantDictionary& arguments, ezMcpT
 {
   const ezStringView sDocument = ezMcpJson::GetString(arguments, "document");
 
-  ezDocument* pDocument = ezMcpDocument::Find(sDocument);
+  ezDocument* pDocument = ezMcpDocument::FindForObjects(sDocument, out_result);
 
   if (pDocument == nullptr)
-  {
-    ezMcpDocument::SetNotOpenError(out_result, sDocument);
     return;
-  }
 
   if (pDocument->IsReadOnly())
   {
@@ -1037,8 +1030,26 @@ void ezMcpObjectTool::ExecuteModify(const ezVariantDictionary& arguments, ezMcpT
     return;
   }
 
+  const ezStringView sObject = ezMcpJson::GetString(arguments, "object");
+  const ezStringView sProperty = ezMcpJson::GetString(arguments, "property");
+
+  // The root is the parent of the top level objects and has nothing else to offer: its other properties are internal, and it
+  // cannot be deleted, moved or duplicated.
+  if (sObject == ezMcpDocument::s_sRootObject && (ezMcpJson::GetString(arguments, "operation") != "addObject" || sProperty != "Children"))
+  {
+    out_result.SetError("'root' can only be used with operation 'addObject' and property 'Children', to create a top level object. "
+                        "Pass the guid of a top level object to act on it, 'object_tree' lists them.");
+    return;
+  }
+
+  if (sObject == ezMcpDocument::s_sRootObject && ezMcpDocument::GetVisualGraph(pDocument) != nullptr)
+  {
+    out_result.SetError("The top level objects of a graph are its nodes. Create them with 'graph_add_node'.");
+    return;
+  }
+
   ezStringBuilder sError;
-  const ezDocumentObject* pObject = ezMcpDocument::ResolveObject(pDocument, ezMcpJson::GetString(arguments, "object"), sError);
+  const ezDocumentObject* pObject = ezMcpDocument::ResolveParentObject(pDocument, sObject, sError);
 
   if (pObject == nullptr)
   {
@@ -1053,8 +1064,6 @@ void ezMcpObjectTool::ExecuteModify(const ezVariantDictionary& arguments, ezMcpT
     out_result.SetError("The document has no object accessor, so it cannot be modified.");
     return;
   }
-
-  const ezStringView sProperty = ezMcpJson::GetString(arguments, "property");
 
   // These address the object itself rather than one of its properties, because that is the form an
   // agent has: object_tree reports guids, not the index a child happens to sit at inside its parent's
@@ -1287,8 +1296,10 @@ void ezMcpObjectTool::ExecuteModify(const ezVariantDictionary& arguments, ezMcpT
     }
 
     // Instantiating a type the property cannot hold would either fail deep inside the accessor or
-    // produce an object that cannot be serialised, so it is checked here.
-    if (pProp->GetSpecificType() != nullptr && !pType->IsDerivedFrom(pProp->GetSpecificType()))
+    // produce an object that cannot be serialised, so it is checked here. Not for the root, whose 'Children' are declared as
+    // ezReflectedClass pointers, but hold whatever the object manager allows at the top level, which CanAdd() checks below.
+    if (pObject != pDocument->GetObjectManager()->GetRootObject() && pProp->GetSpecificType() != nullptr &&
+        !pType->IsDerivedFrom(pProp->GetSpecificType()))
     {
       pAccessor->CancelTransaction();
       ezStringBuilder s;
@@ -1482,7 +1493,7 @@ void ezMcpObjectTool::ExecuteMoveObject(const ezVariantDictionary& arguments, ez
   if (!sNewParent.IsEmpty())
   {
     ezStringBuilder sParentError;
-    pNewParent = ezMcpDocument::ResolveObject(pDocument, sNewParent, sParentError);
+    pNewParent = ezMcpDocument::ResolveParentObject(pDocument, sNewParent, sParentError);
 
     if (pNewParent == nullptr)
     {
@@ -1583,7 +1594,7 @@ void ezMcpObjectTool::ExecuteDuplicateObject(const ezVariantDictionary& argument
   if (!sNewParent.IsEmpty())
   {
     ezStringBuilder sParentError;
-    pParent = ezMcpDocument::ResolveObject(pDocument, sNewParent, sParentError);
+    pParent = ezMcpDocument::ResolveParentObject(pDocument, sNewParent, sParentError);
 
     if (pParent == nullptr)
     {
@@ -1693,9 +1704,19 @@ void ezMcpObjectTool::ExecuteDuplicateObject(const ezVariantDictionary& argument
   writer.EndArray();
 
   writer.AddVariableBool("modified", pDocument->IsModified());
-  writer.AddVariableString("note", "The copy sits at the same position as the original, so it is hidden inside it until it is moved "
-                                   "('moveObject', or set its LocalPosition). It is now the document's selection, as it would be "
-                                   "after pasting in the editor. The document is not saved yet.");
+
+  if (ezMcpDocument::GetVisualGraph(pDocument) != nullptr)
+  {
+    writer.AddVariableString("note", "The copy sits at the same position in the graph as the original, so it is hidden behind it until it "
+                                     "is moved with 'graph_move_nodes'. Its connections were not copied. It is now the document's "
+                                     "selection, as it would be after pasting in the editor. The document is not saved yet.");
+  }
+  else
+  {
+    writer.AddVariableString("note", "The copy sits at the same position as the original, so it is hidden inside it until it is moved "
+                                     "('moveObject', or set its LocalPosition). It is now the document's selection, as it would be "
+                                     "after pasting in the editor. The document is not saved yet.");
+  }
 
   writer.EndObject();
 
@@ -1706,13 +1727,10 @@ void ezMcpObjectTool::ExecuteUndo(const ezVariantDictionary& arguments, ezMcpToo
 {
   const ezStringView sDocument = ezMcpJson::GetString(arguments, "document");
 
-  ezDocument* pDocument = ezMcpDocument::Find(sDocument);
+  ezDocument* pDocument = ezMcpDocument::FindForObjects(sDocument, out_result);
 
   if (pDocument == nullptr)
-  {
-    ezMcpDocument::SetNotOpenError(out_result, sDocument);
     return;
-  }
 
   ezCommandHistory* pHistory = pDocument->GetCommandHistory();
 
