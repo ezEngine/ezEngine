@@ -818,7 +818,12 @@ EZ_CREATE_SIMPLE_TEST(World, World)
       EZ_TEST_VEC3(pObject->GetGlobalPosition(), expectedPos, ezMath::DefaultEpsilon<float>());
       EZ_TEST_VEC3(pObject->GetLinearVelocity(), expectedLinearVelocity, ezMath::DefaultEpsilon<float>());
 
-      ezVec3 expectedAngularVelocity = ezVec3(0, 0, (ezAngle::MakeFromDegree(i * 30.0f) - ezAngle::MakeFromDegree(90)).GetRadian() * 10);
+      // only the orientation is known, so the angular velocity always describes the shortest rotation in [-180, 180] degree
+      ezAngle deltaAngle = (ezAngle::MakeFromDegree(i * 30.0f) - ezAngle::MakeFromDegree(90)).GetNormalizedRange();
+      if (deltaAngle > ezAngle::MakeFromDegree(180))
+        deltaAngle -= ezAngle::MakeFromDegree(360);
+
+      ezVec3 expectedAngularVelocity = ezVec3(0, 0, deltaAngle.GetRadian() * 10);
       ezVec3 angularVelocity = pObject->GetAngularVelocity();
       EZ_TEST_VEC3(angularVelocity, expectedAngularVelocity, ezMath::DefaultEpsilon<float>());
     }
