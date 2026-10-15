@@ -56,7 +56,7 @@ void CppProjectGame::DetermineProjectPath()
 #ifdef GAME_PROJECT_FOLDER
   // this absolute path will only work on the machine where the game is compiled,
   // but it works for projects that are located outside the ezEngine folder
-  if (TryProjectFolder(EZ_PP_STRINGIFY(GAME_PROJECT_FOLDER)).Succeeded())
+  if (TryProjectFolder(GAME_PROJECT_FOLDER).Succeeded())
     return;
 #endif
 
