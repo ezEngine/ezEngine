@@ -640,9 +640,9 @@ void ezVisualScriptCompiler::MarkAsCoroutine(AstNode* pEntryAstNode)
 void ezVisualScriptCompiler::AddConstantDataInput(AstNode& node, const ezVariant& value0)
 {
   ezVariant value = value0;
-  if (value.IsA<ezString>())
+  if (value.IsString() || value.IsA<ezHashedString>())
   {
-    value = UnescapeString(value.Get<ezString>());
+    value = ezVariant(UnescapeString(value.ConvertTo<ezString>())).ConvertTo(value0.GetType());
   }
 
   ezVisualScriptDataType::Enum dataType = ezVisualScriptDataType::FromVariantType(value.GetType());
