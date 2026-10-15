@@ -566,6 +566,18 @@ ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
 
 //////////////////////////////////////////////////////////////////////////
 
+ezStatus ezMaterialObjectManager::IsGraphInUse() const
+{
+  const ezMaterialAssetDocument* pDocument = static_cast<const ezMaterialAssetDocument*>(GetDocument());
+
+  if (pDocument->GetProperties()->m_ShaderMode != ezMaterialShaderMode::Custom)
+    return ezStatus("The material does not use a visual shader. Its graph is only used, and shown, when its 'ShaderMode' is 'Custom'.");
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 ezMaterialAssetDocument::ezMaterialAssetDocument(ezStringView sDocumentPath)
   : ezSimpleAssetDocument<ezMaterialAssetProperties>(EZ_DEFAULT_NEW(ezMaterialObjectManager), sDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
