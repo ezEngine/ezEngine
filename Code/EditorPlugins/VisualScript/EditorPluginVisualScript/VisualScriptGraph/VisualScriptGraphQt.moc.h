@@ -17,9 +17,6 @@ public:
 
   virtual void SetPin(const ezVisualGraphPin& pin) override;
   virtual bool UpdatePinColors(const ezColorGammaUB* pOverwriteColor = nullptr) override;
-
-private:
-  void UpdateTooltip();
 };
 
 /// Qt graphics item for visual script connections.

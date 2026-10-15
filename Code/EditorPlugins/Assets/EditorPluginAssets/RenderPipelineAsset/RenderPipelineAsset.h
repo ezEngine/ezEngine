@@ -49,6 +49,8 @@ public:
   ezRenderPipelineNodeGraphPin(ezVisualGraphPin::Type type, const char* szName, const ezColorGammaUB& color, const ezDocumentObject* pObject, ezRenderPipelineResourceType::Enum resourceType);
   ~ezRenderPipelineNodeGraphPin();
 
+  virtual ezStringView GetDataTypeName() const override;
+
   ezRenderPipelineResourceType::Enum m_ResourceType = ezRenderPipelineResourceType::Texture;
 };
 

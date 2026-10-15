@@ -6,6 +6,9 @@
 /// Extends the base command accessor to handle visual graph-specific operations.
 /// When node properties change (such as adding or removing dynamic pins), it automatically
 /// disconnects and reconnects pins as needed to maintain graph consistency.
+/// Removing a node also removes its connections, and removing a connection object disconnects it first.
+/// Adding connection objects and changing which pins a connection object connects is refused,
+/// use ezNodeCommands for that instead.
 class EZ_TOOLSFOUNDATION_DLL ezVisualGraphCommandAccessor : public ezObjectCommandAccessor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualGraphCommandAccessor, ezObjectCommandAccessor);
@@ -24,6 +27,12 @@ public:
   virtual ezStatus RemoveObject(const ezDocumentObject* pObject) override;
 
   bool IsNode(const ezDocumentObject* pObject) const;
+  bool IsConnection(const ezDocumentObject* pObject) const;
+
+  /// Whether pProp is one of the properties of a connection object that say which pins it connects.
+  ///
+  /// These are only written by ezNodeCommands::AddAndConnectCommand, so SetValue() refuses them.
+  bool IsConnectionEndpointProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const;
   bool IsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const;
 
   struct ConnectionInfo

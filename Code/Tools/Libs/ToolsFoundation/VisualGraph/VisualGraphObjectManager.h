@@ -99,6 +99,18 @@ public:
   const ezColorGammaUB& GetColor() const { return m_Color; }
   const ezDocumentObject* GetParent() const { return m_pParent; }
 
+  /// The kind of data that flows through the pin, for instance 'Float', 'Texture' or 'Execution'.
+  ///
+  /// Shown in the pin's tooltip, see ezQtVisualGraphPin::UpdateTooltip().
+  /// Returns an empty string for graph types that do not distinguish between pin types.
+  virtual ezStringView GetDataTypeName() const { return {}; }
+
+  /// Appends additional information about the pin that is not part of its name or data type, such as what it is for,
+  /// a default value or whether it has to be connected. Shown in the pin's tooltip below the name and data type.
+  ///
+  /// Appends nothing by default.
+  virtual void GetDescription(ezStringBuilder& ref_sDescription) const {}
+
 private:
   friend class ezVisualGraphObjectManager;
 
@@ -167,6 +179,11 @@ public:
   ///
   /// \see ezVisualGraphNodeDesc
   virtual void GetNodeCreationTemplates(ezDynamicArray<ezVisualGraphNodeDesc>& out_templates) const;
+
+  /// Builds the name a node creation template is shown with and the menu path it is listed under, e.g. 'Add' and 'Math/Add'.
+  ///
+  /// The name is not translated. Several templates can end up with the same path.
+  static void GetNodeCreationTemplateName(const ezVisualGraphNodeDesc& nodeTemplate, ezStringBuilder& out_sName, ezStringBuilder& out_sPath);
 
   virtual const ezRTTI* GetConnectionType() const;
 

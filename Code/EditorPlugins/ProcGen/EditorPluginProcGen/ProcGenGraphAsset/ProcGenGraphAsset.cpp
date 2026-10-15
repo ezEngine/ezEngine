@@ -9,6 +9,7 @@
 #include <Foundation/Utilities/DGMLWriter.h>
 #include <ToolsFoundation/Command/VisualGraphCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphCommandAccessor.h>
 
 namespace
 {
@@ -105,6 +106,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezProcGenGraphAssetDocument::ezProcGenGraphAssetDocument(ezStringView sDocumentPath)
   : ezAssetDocument(sDocumentPath, EZ_DEFAULT_NEW(ezProcGenNodeManager), ezAssetDocEngineConnection::None)
 {
+  m_pObjectAccessor = EZ_DEFAULT_NEW(ezVisualGraphCommandAccessor, GetCommandHistory());
 }
 
 void ezProcGenGraphAssetDocument::SetDebugPin(const ezVisualGraphPin* pDebugPin)

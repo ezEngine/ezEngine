@@ -17,8 +17,10 @@ public:
   ezVisualShaderPin(Type type, const ezVisualShaderPinDescriptor* pDescriptor, const ezDocumentObject* pObject);
 
   const ezRTTI* GetDataType() const;
-  const ezString& GetTooltip() const;
   const ezVisualShaderPinDescriptor* GetDescriptor() const { return m_pDescriptor; }
+
+  virtual ezStringView GetDataTypeName() const override;
+  virtual void GetDescription(ezStringBuilder& ref_sDescription) const override;
 
 private:
   const ezVisualShaderPinDescriptor* m_pDescriptor;

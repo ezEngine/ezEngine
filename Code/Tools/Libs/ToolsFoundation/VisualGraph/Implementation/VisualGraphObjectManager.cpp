@@ -121,6 +121,36 @@ void ezVisualGraphObjectManager::GetNodeCreationTemplates(ezDynamicArray<ezVisua
   }
 }
 
+// static
+void ezVisualGraphObjectManager::GetNodeCreationTemplateName(const ezVisualGraphNodeDesc& nodeTemplate, ezStringBuilder& out_sName, ezStringBuilder& out_sPath)
+{
+  const ezRTTI* pRtti = nodeTemplate.m_pType;
+  ezStringView sCleanName = nodeTemplate.m_sTypeName.IsEmpty() ? pRtti->GetTypeName() : nodeTemplate.m_sTypeName;
+
+  if (const char* szUnderscore = sCleanName.FindLastSubString("_"))
+  {
+    sCleanName.SetStartPosition(szUnderscore + 1);
+  }
+
+  if (const char* szBracket = sCleanName.FindLastSubString("<"))
+  {
+    sCleanName = ezStringView(sCleanName.GetStartPointer(), szBracket);
+  }
+
+  out_sName = sCleanName;
+
+  out_sPath = nodeTemplate.m_sCategory.GetString();
+  if (out_sPath.IsEmpty())
+  {
+    if (auto pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
+    {
+      out_sPath = pAttr->GetCategory();
+    }
+  }
+
+  out_sPath.AppendPath(sCleanName);
+}
+
 const ezRTTI* ezVisualGraphObjectManager::GetConnectionType() const
 {
   return ezGetStaticRTTI<ezDocumentObject_ConnectionBase>();
