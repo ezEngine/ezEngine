@@ -62,6 +62,14 @@ public:
   void SetTriggerMessage(const char* szSz) { m_sTriggerMessage.Assign(szSz); }  // [ property ]
   const char* GetTriggerMessage() const { return m_sTriggerMessage.GetData(); } // [ property ]
 
+  /// Whether the trigger keeps detecting objects that come to rest inside it and fall asleep.
+  ///
+  /// If disabled, a physics object that falls asleep inside the trigger is reported as having left it,
+  /// and it is reported as entering again once it wakes up. Enabling this keeps the trigger body awake,
+  /// which costs a bit of performance.
+  void SetDetectSleepingBodies(bool bDetect);                              // [ property ]
+  bool GetDetectSleepingBodies() const { return m_bDetectSleepingBodies; } // [ property ]
+
 protected:
   friend class ezJoltWorldModule;
   friend class ezJoltContactListener;
@@ -69,5 +77,6 @@ protected:
   void PostTriggerMessage(const ezGameObjectHandle& hOtherObject, ezTriggerState::Enum triggerState) const;
 
   ezHashedString m_sTriggerMessage;
+  bool m_bDetectSleepingBodies = true;
   ezEventMessageSender<ezMsgTriggerTriggered> m_TriggerEventSender; // [ event ]
 };

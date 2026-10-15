@@ -774,7 +774,12 @@ ezVec3 ezGameObject::GetLinearVelocity() const
 ezVec3 ezGameObject::GetAngularVelocity() const
 {
   const ezSimdFloat invDeltaSeconds = GetWorld()->GetInvDeltaSeconds();
-  const ezSimdQuat q = m_pTransformationData->m_globalTransform.m_Rotation * -m_pTransformationData->m_lastGlobalTransform.m_Rotation;
+  ezSimdQuat q = m_pTransformationData->m_globalTransform.m_Rotation * -m_pTransformationData->m_lastGlobalTransform.m_Rotation;
+
+  // q and -q describe the same rotation, take the shortest path
+  if (q.m_v.w() < ezSimdFloat::MakeZero())
+    q.m_v = -q.m_v;
+
   ezSimdVec4f angularVelocity = ezSimdVec4f::MakeZero();
 
   ezSimdVec4f axis;

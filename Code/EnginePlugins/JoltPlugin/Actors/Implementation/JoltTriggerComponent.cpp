@@ -36,11 +36,12 @@ void ezJoltTriggerComponentManager::UpdateMovingTriggers()
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltTriggerComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezJoltTriggerComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("TriggerMessage", GetTriggerMessage, SetTriggerMessage)
+    EZ_ACCESSOR_PROPERTY("TriggerMessage", GetTriggerMessage, SetTriggerMessage),
+    EZ_ACCESSOR_PROPERTY("DetectSleepingBodies", GetDetectSleepingBodies, SetDetectSleepingBodies)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGESENDERS
@@ -62,16 +63,60 @@ void ezJoltTriggerComponent::SerializeComponent(ezWorldWriter& inout_stream) con
   auto& s = inout_stream.GetStream();
 
   s << m_sTriggerMessage;
+  s << m_bDetectSleepingBodies;
 }
 
 void ezJoltTriggerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
   s >> m_sTriggerMessage;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_bDetectSleepingBodies;
+  }
+}
+
+void ezJoltTriggerComponent::SetDetectSleepingBodies(bool bDetect)
+{
+  if (m_bDetectSleepingBodies == bDetect)
+    return;
+
+  m_bDetectSleepingBodies = bDetect;
+
+  if (m_uiJoltBodyID == ezInvalidIndex)
+    return;
+
+  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  if (pModule == nullptr)
+    return;
+
+  const JPH::BodyID bodyId(m_uiJoltBodyID);
+  auto& bodyInterface = pModule->GetJoltSystem()->GetBodyInterface();
+
+  if (!bodyInterface.IsAdded(bodyId))
+  {
+    // the body is still waiting to be added, re-queue it with the new activation state
+    JPH::BodyLockWrite lock(pModule->GetJoltSystem()->GetBodyLockInterface(), bodyId);
+    if (lock.Succeeded())
+    {
+      pModule->RemoveBodyFromQueue(bodyId);
+      pModule->QueueBodyToAdd(&lock.GetBody(), m_bDetectSleepingBodies);
+    }
+  }
+  else if (m_bDetectSleepingBodies)
+  {
+    // an active sensor never falls asleep and also detects sleeping bodies
+    bodyInterface.ActivateBody(bodyId);
+  }
+  else
+  {
+    bodyInterface.DeactivateBody(bodyId);
+  }
 }
 
 void ezJoltTriggerComponent::OnSimulationStarted()
@@ -110,7 +155,8 @@ void ezJoltTriggerComponent::OnSimulationStarted()
 
   m_uiJoltBodyID = pBody->GetID().GetIndexAndSequenceNumber();
 
-  pModule->QueueBodyToAdd(pBody, false);
+  // an inactive sensor only detects active bodies and loses the contact as soon as an overlapping body falls asleep
+  pModule->QueueBodyToAdd(pBody, m_bDetectSleepingBodies);
 
   if (GetOwner()->IsDynamic())
   {
