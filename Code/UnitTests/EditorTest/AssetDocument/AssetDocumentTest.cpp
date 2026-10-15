@@ -180,14 +180,17 @@ void ezEditorAssetDocumentTest::SaveOnTransform()
 
     const ezTransformStatus res = ezAssetCurator::GetSingleton()->TransformAsset(pDoc->GetGuid(), ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
     EZ_TEST_BOOL(res.Failed());
+    // Forcing the transform must not hide the actual cause behind a failing hash computation.
+    EZ_TEST_BOOL(res.m_sMessage.FindSubString("Meshes/Missing.obj") != nullptr);
     ProcessEvents();
 
-    // A failed manual transform has to leave the asset in the error state, or the asset curator panel
+    // A failed manual transform has to leave the asset in an error state, or the asset curator panel
     // does not list it, and it has to keep the message around, or the panel cannot say what went wrong.
+    // The missing dependency is the more specific state, so it is kept over a generic transform error.
     const ezAssetCurator::ezLockedSubAsset subAsset = ezAssetCurator::GetSingleton()->GetSubAsset(pDoc->GetGuid());
     if (EZ_TEST_BOOL(subAsset.isValid()))
     {
-      EZ_TEST_BOOL(subAsset->m_pAssetInfo->m_TransformState == ezAssetInfo::TransformState::TransformError);
+      EZ_TEST_BOOL(subAsset->m_pAssetInfo->m_TransformState == ezAssetInfo::TransformState::MissingTransformDependency);
       EZ_TEST_BOOL(!subAsset->m_pAssetInfo->m_LogEntries.IsEmpty());
     }
   }

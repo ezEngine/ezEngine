@@ -35,7 +35,7 @@ ezCollectionAssetDocument::ezCollectionAssetDocument(ezStringView sDocumentPath)
 {
 }
 
-static bool InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezString, ezCollectionEntry>& inout_found)
+static bool InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezString, ezCollectionEntry>& inout_found, ezSet<ezString>& inout_visited)
 {
   auto it = inout_found.Find(sID);
 
@@ -59,6 +59,13 @@ static bool InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezStri
     return false;
   }
 
+  // Scenes are not added to inout_found, so without this, package dependency cycles through scenes (e.g. two scenes that transition into each other) would recurse endlessly.
+  // Only known assets are tracked, so that a top-level entry that was already reached as a transitive dependency still reports an unknown asset.
+  if (inout_visited.Contains(sID))
+    return true;
+
+  inout_visited.Insert(sID);
+
   // insert item itself
   // Scenes are not resources (they are loaded through ezSceneLoadUtility), so they can't be preloaded.
   // A scene in a collection is a shortcut for everything it references.
@@ -77,7 +84,7 @@ static bool InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezStri
     for (const ezString& doc : pDocInfo->m_PackageDependencies)
     {
       // ignore return value, we are only interested in top-level information
-      InsertEntry(doc, {}, inout_found);
+      InsertEntry(doc, {}, inout_found, inout_visited);
     }
   }
 
@@ -88,14 +95,15 @@ ezTransformStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWrit
 {
   const ezCollectionAssetData* pProp = GetProperties();
 
-  ezMap<ezString, ezCollectionEntry> entries;
+  ezMap<ezString, ezCollectionEntry> entries(ezTempAllocatorWrapper::GetAllocator());
+  ezSet<ezString> visited(ezTempAllocatorWrapper::GetAllocator());
 
   for (const auto& e : pProp->m_Entries)
   {
     if (e.m_sRedirectionAsset.IsEmpty())
       continue;
 
-    if (!InsertEntry(e.m_sRedirectionAsset, e.m_sLookupName, entries))
+    if (!InsertEntry(e.m_sRedirectionAsset, e.m_sLookupName, entries, visited))
     {
       // this should be treated as an error for top-level references, since they are manually added (in contrast to the transitive dependencies)
       return ezStatus(ezFmt("Asset in Collection is unknown: '{0}'", e.m_sRedirectionAsset));

@@ -12,7 +12,7 @@
 // ezAssetCurator Asset Hashing and Status Updates
 ////////////////////////////////////////////////////////////////////////
 
-ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDeps, const ezHybridArray<ezString, 16>& assetThumbnailDeps, const ezHybridArray<ezString, 16>& assetPackageDeps, ezSet<ezString>& missingTransformDeps, ezSet<ezString>& missingThumbnailDeps, ezSet<ezString>& missingPackageDeps, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, ezUInt64& out_PackageHash, bool bForce)
+ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDeps, const ezHybridArray<ezString, 16>& assetThumbnailDeps, const ezHybridArray<ezString, 16>& assetPackageDeps, ezSet<ezString>& missingTransformDeps, ezSet<ezString>& missingThumbnailDeps, ezSet<ezString>& missingPackageDeps, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, ezUInt64& out_PackageHash, bool bForce, const HashingStack* pHashingStack)
 {
   CURATOR_PROFILE("HashAsset");
   ezStringBuilder tmp;
@@ -27,7 +27,7 @@ ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, c
     for (const auto& dep : assetTransformDeps)
     {
       ezString sPath = dep;
-      if (!AddAssetHash(sPath, ezDependencyFlags::Transform, out_AssetHash, out_ThumbHash, out_PackageHash, bForce))
+      if (!AddAssetHash(sPath, ezDependencyFlags::Transform, out_AssetHash, out_ThumbHash, out_PackageHash, bForce, pHashingStack))
       {
         missingTransformDeps.Insert(sPath);
       }
@@ -36,7 +36,7 @@ ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, c
     for (const auto& dep : assetThumbnailDeps)
     {
       ezString sPath = dep;
-      if (!AddAssetHash(sPath, ezDependencyFlags::Thumbnail, out_AssetHash, out_ThumbHash, out_PackageHash, bForce))
+      if (!AddAssetHash(sPath, ezDependencyFlags::Thumbnail, out_AssetHash, out_ThumbHash, out_PackageHash, bForce, pHashingStack))
       {
         missingThumbnailDeps.Insert(sPath);
       }
@@ -45,23 +45,19 @@ ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, c
     for (const auto& dep : assetPackageDeps)
     {
       ezString sPath = dep;
-      if (!AddAssetHash(sPath, ezDependencyFlags::Package, out_AssetHash, out_ThumbHash, out_PackageHash, bForce))
+      if (!AddAssetHash(sPath, ezDependencyFlags::Package, out_AssetHash, out_ThumbHash, out_PackageHash, bForce, pHashingStack))
       {
         missingPackageDeps.Insert(sPath);
       }
     }
   }
 
+  // The checks are ordered by priority, the last one that applies determines the state. A missing transform dependency comes last,
+  // as it prevents the transform and is often also a package dependency (e.g. a base material).
   if (!missingThumbnailDeps.IsEmpty())
   {
     out_ThumbHash = 0;
     state = ezAssetInfo::MissingThumbnailDependency;
-  }
-  if (!missingTransformDeps.IsEmpty())
-  {
-    out_AssetHash = 0;
-    out_ThumbHash = 0;
-    state = ezAssetInfo::MissingTransformDependency;
   }
   if (!missingPackageDeps.IsEmpty())
   {
@@ -69,11 +65,28 @@ ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, c
     out_ThumbHash = 0;
     state = ezAssetInfo::MissingPackageDependency;
   }
+  if (!missingTransformDeps.IsEmpty())
+  {
+    out_AssetHash = 0;
+    out_ThumbHash = 0;
+    state = ezAssetInfo::MissingTransformDependency;
+  }
 
   return state;
 }
 
-bool ezAssetCurator::AddAssetHash(ezString& sPath, ezBitflags<ezDependencyFlags> dependencyType, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, ezUInt64& out_PackageHash, bool bForce)
+bool ezAssetCurator::HashingStack::Contains(const ezUuid& assetGuid) const
+{
+  for (const HashingStack* pEntry = this; pEntry != nullptr; pEntry = pEntry->m_pParent)
+  {
+    if (pEntry->m_AssetGuid == assetGuid)
+      return true;
+  }
+
+  return false;
+}
+
+bool ezAssetCurator::AddAssetHash(ezString& sPath, ezBitflags<ezDependencyFlags> dependencyType, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, ezUInt64& out_PackageHash, bool bForce, const HashingStack* pHashingStack)
 {
   if (sPath.IsEmpty())
     return true;
@@ -81,10 +94,32 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, ezBitflags<ezDependencyFlags>
   if (ezConversionUtils::IsStringUuid(sPath))
   {
     const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
+
+    // Package dependencies are allowed to form cycles (e.g. two scenes that transition into each other, or a prefab that spawns itself),
+    // whereas cycles through transform and thumbnail dependencies are rejected by CheckForCircularDependencies.
+    // If a package dependency leads back to an asset that is currently being hashed, it is skipped and counted as present.
+    // This only affects the package hash of the assets in the cycle, which is never written to disk. The asset and thumbnail hashes
+    // don't include package hashes, so they stay deterministic.
+    if (dependencyType == ezDependencyFlags::Package && pHashingStack != nullptr)
+    {
+      // The stack contains main assets, the dependency may be a sub-asset.
+      ezUuid mainAssetGuid = guid;
+      {
+        EZ_LOCK(m_CuratorMutex);
+        if (auto it = m_KnownSubAssets.Find(guid); it.IsValid())
+        {
+          mainAssetGuid = it.Value().m_pAssetInfo->m_Info->m_DocumentID;
+        }
+      }
+
+      if (pHashingStack->Contains(mainAssetGuid))
+        return true;
+    }
+
     ezUInt64 assetHash = 0;
     ezUInt64 thumbHash = 0;
     ezUInt64 packageHash = 0;
-    ezAssetInfo::TransformState state = UpdateAssetTransformState(guid, assetHash, thumbHash, packageHash, bForce);
+    ezAssetInfo::TransformState state = UpdateAssetTransformState(guid, assetHash, thumbHash, packageHash, bForce, pHashingStack);
     if (state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingTransformDependency || state == ezAssetInfo::MissingThumbnailDependency || state == ezAssetInfo::MissingPackageDependency || state == ezAssetInfo::CircularDependency)
     {
       ezLog::Error("Failed to hash dependency asset '{0}'", sPath);
@@ -331,35 +366,29 @@ void ezAssetCurator::UntrackDependencies(ezAssetInfo* pAssetInfo)
 
 ezResult ezAssetCurator::CheckForCircularDependencies(ezAssetInfo* pAssetInfo)
 {
+  // Cycles through package dependencies are allowed, AddAssetHash breaks them while hashing.
   ezSet<ezUuid> inverseHull;
   GenerateInverseTransitiveHull(pAssetInfo, inverseHull, true, true);
 
   ezResult res = EZ_SUCCESS;
-  for (const auto& sDep : pAssetInfo->m_Info->m_TransformDependencies)
+  auto CheckDeps = [&](const ezSet<ezString>& deps)
   {
-    if (ezConversionUtils::IsStringUuid(sDep))
+    for (const auto& sDep : deps)
     {
-      const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sDep);
-      if (inverseHull.Contains(guid))
+      if (ezConversionUtils::IsStringUuid(sDep))
       {
-        pAssetInfo->m_CircularDependencies.Insert(sDep);
-        res = EZ_FAILURE;
+        const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sDep);
+        if (inverseHull.Contains(guid))
+        {
+          pAssetInfo->m_CircularDependencies.Insert(sDep);
+          res = EZ_FAILURE;
+        }
       }
     }
-  }
+  };
 
-  for (const auto& sDep : pAssetInfo->m_Info->m_ThumbnailDependencies)
-  {
-    if (ezConversionUtils::IsStringUuid(sDep))
-    {
-      const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sDep);
-      if (inverseHull.Contains(guid))
-      {
-        pAssetInfo->m_CircularDependencies.Insert(sDep);
-        res = EZ_FAILURE;
-      }
-    }
-  }
+  CheckDeps(pAssetInfo->m_Info->m_TransformDependencies);
+  CheckDeps(pAssetInfo->m_Info->m_ThumbnailDependencies);
   return res;
 }
 
@@ -629,6 +658,31 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
   ezAssetInfo* pAssetInfo = nullptr;
   if (m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))
   {
+    if (state == ezAssetInfo::TransformState::TransformError)
+    {
+      // A failed transform is reported after the fact, usually after the asset was invalidated (ezAssetDocument::TransformAsset
+      // calls NotifyOfAssetChange), which resets its cached hashes. The error state below removes the asset from
+      // m_TransformStateStale, so without recomputing them here, the zero hashes would be treated as valid and every
+      // following transform of this asset would fail with "Computing the hash for this asset or any dependency failed".
+      if (m_TransformStateStale.Contains(assetGuid))
+      {
+        ezUInt64 uiAssetHash = 0;
+        ezUInt64 uiThumbHash = 0;
+        ezUInt64 uiPackageHash = 0;
+        UpdateAssetTransformState(assetGuid, uiAssetHash, uiThumbHash, uiPackageHash, false);
+      }
+
+      // A missing or circular dependency is the cause of the failed transform and more specific, keep reporting that.
+      if (!pAssetInfo->m_CircularDependencies.IsEmpty())
+      {
+        state = ezAssetInfo::TransformState::CircularDependency;
+      }
+      else if (pAssetInfo->m_TransformState == ezAssetInfo::TransformState::MissingTransformDependency || pAssetInfo->m_TransformState == ezAssetInfo::TransformState::MissingThumbnailDependency || pAssetInfo->m_TransformState == ezAssetInfo::TransformState::MissingPackageDependency)
+      {
+        state = pAssetInfo->m_TransformState;
+      }
+    }
+
     m_TransformStateStale.Remove(assetGuid);
     for (int i = 0; i < ezAssetInfo::TransformState::COUNT; i++)
     {
@@ -636,7 +690,8 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
     }
     m_TransformState[state].Insert(assetGuid);
 
-    const bool bStateChanged = pAssetInfo->m_TransformState != state;
+    const ezAssetInfo::TransformState previousState = pAssetInfo->m_TransformState;
+    const bool bStateChanged = previousState != state;
 
     if (bStateChanged)
     {
@@ -645,6 +700,27 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
       for (const auto& key : pAssetInfo->m_SubAssets)
       {
         m_SubAssetChanged.Insert(key);
+      }
+    }
+
+    // Assets that reference this one through package dependencies are not invalidated when it changes, as that would re-hash
+    // everything that references a modified asset. Whether this asset can be hashed at all does affect their state though
+    // (see AddAssetHash), so they are invalidated when that changes. A modified file is first set to Unknown, which counts as
+    // hashable, so a broken asset invalidates them when it is modified and again if it is still broken afterwards. Assets that
+    // can be hashed don't cause any invalidations.
+    auto IsUnhashable = [](ezAssetInfo::TransformState s)
+    {
+      return s == ezAssetInfo::MissingTransformDependency || s == ezAssetInfo::MissingThumbnailDependency || s == ezAssetInfo::MissingPackageDependency || s == ezAssetInfo::CircularDependency;
+    };
+
+    if (IsUnhashable(previousState) != IsUnhashable(state))
+    {
+      if (auto it = m_InversePackageDeps.Find(pAssetInfo->m_Path); it.IsValid())
+      {
+        for (const ezUuid& guid : it.Value())
+        {
+          InvalidateAssetTransformState(guid);
+        }
       }
     }
 
