@@ -169,8 +169,9 @@ void ezEditorAssetDocumentTest::SaveOnTransform()
   {
     ezTestLogInterface log;
     ezTestLogSystemScope logSystemScope(&log, true);
-    // Once while resolving the path for the transform, once while writing the asset's dependencies.
-    log.ExpectMessage("Failed to make path absolute 'Meshes/Missing.obj'", ezLogMsgType::ErrorMsg, 2);
+    // Logged every time the asset is hashed on the main thread. How often that happens depends on whether the curator's background
+    // update task hashed it first (which doesn't log), so the count is not checked. The transform result below names the file.
+    log.IgnoreMessage("Failed to make path absolute 'Meshes/Missing.obj'", ezLogMsgType::ErrorMsg);
 
     // Point the asset at a mesh that does not exist, so that transforming it is bound to fail.
     pAcc->StartTransaction("Set Invalid Mesh");
