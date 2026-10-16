@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17186564394336932993,5559752034210902017}}
-		u4 %Hash{15093917610236540785}
+		u4 %Hash{4206631165855713054}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13842754148076809277,15694984236757704698}}
@@ -19,13 +19,17 @@ o
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
+			s{"{ 5960875e-fd79-4e1a-a7f6-8c084e7fba9b }"}
 			s{"{ ab745bdf-bc09-9e34-77b5-734904059b96 }"}
 			s{"{ d26eb0e2-d440-4595-92df-bbf6ccf7aa6b }"}
+			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 		}
 		VarArray %References
 		{
+			s{"{ 5960875e-fd79-4e1a-a7f6-8c084e7fba9b }"}
 			s{"{ ab745bdf-bc09-9e34-77b5-734904059b96 }"}
 			s{"{ d26eb0e2-d440-4595-92df-bbf6ccf7aa6b }"}
+			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 		}
 		s %Tags{""}
 	}
@@ -174,11 +178,11 @@ o
 	p
 	{
 		f %Intensity{0x00002041}
-		s %IntensityScaleParam{""}
+		HashedString %IntensityScaleParam{s{""}}
 		u3 %Percentage{20}
 		f %SizeFactor{0x0000A040}
-		s %SizeScaleParam{""}
-		s %TintColorParam{""}
+		HashedString %SizeScaleParam{s{""}}
+		HashedString %TintColorParam{s{""}}
 	}
 }
 o

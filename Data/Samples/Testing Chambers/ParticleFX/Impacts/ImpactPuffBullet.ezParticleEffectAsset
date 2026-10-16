@@ -24,7 +24,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17416888867860498366,5583682757376855072}}
-		u4 %Hash{4986095335352301781}
+		u4 %Hash{16016485774579265740}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{9887361779137956369,4853260135742033856}}
@@ -32,10 +32,12 @@ o
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
+			s{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 			s{"{ f633ccad-b4d5-12e5-260a-bb050d602881 }"}
 		}
 		VarArray %References
 		{
+			s{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 			s{"{ f633ccad-b4d5-12e5-260a-bb050d602881 }"}
 		}
 		s %Tags{""}
