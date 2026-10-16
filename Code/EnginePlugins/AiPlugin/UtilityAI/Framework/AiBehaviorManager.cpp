@@ -49,6 +49,12 @@ ezAiBehaviorCandidate ezAiBehaviorManager::DetermineBehaviorCandidate(ezGameObje
     if (info.m_uiNeededInUpdate == m_uiUpdateCount)
     {
       const ezAiBehaviorScore scored = info.m_pBehavior->DetermineBehaviorScore(owner, perceptionManager);
+      info.m_fLastScore = scored.GetScore();
+
+      if (info.m_pBehavior == m_pActiveBehavior)
+      {
+        candidate.m_fActiveBehaviorScore = scored.GetScore();
+      }
 
       if (scored.GetScore() > res.GetScore())
       {
@@ -109,4 +115,26 @@ ezAiBehavior::ContinuationState ezAiBehaviorManager::ContinueActiveBehavior(ezGa
   }
 
   return {};
+}
+
+void ezAiBehaviorManager::GetDebugText(ezStringBuilder& inout_sText) const
+{
+  for (const auto& info : m_Behaviors)
+  {
+    const bool bActive = info.m_pBehavior == m_pActiveBehavior;
+
+    const char* szPrefix = bActive ? "> " : "";
+
+    if (info.m_uiNeededInUpdate != m_uiUpdateCount)
+    {
+      if (info.m_CooldownUntil > m_CurrentTime)
+        inout_sText.AppendFormat("{}{}: cooldown {}s\n", szPrefix, info.m_pBehavior->GetName(), ezArgF((info.m_CooldownUntil - m_CurrentTime).GetSeconds(), 1));
+      else
+        inout_sText.AppendFormat("{}{}: n/a\n", szPrefix, info.m_pBehavior->GetName());
+    }
+    else
+    {
+      inout_sText.AppendFormat("{}{}: {}\n", szPrefix, info.m_pBehavior->GetName(), ezArgF(info.m_fLastScore, 2));
+    }
+  }
 }

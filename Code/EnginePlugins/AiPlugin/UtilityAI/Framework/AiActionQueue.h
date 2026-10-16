@@ -41,6 +41,9 @@ public:
 
   void PrintDebugInfo(ezGameObject& owner);
 
+  /// Writes the description of the currently executing action.
+  void GetDebugDesc(ezStringBuilder& out_sText) const;
+
 private:
   ezHybridArray<ezAiAction*, 16> m_Queue;
 };

@@ -310,7 +310,6 @@ ezAiActionResult ezAiActionBlackboardSetEntry::Execute(ezGameObject& owner, ezTi
     return ezAiActionResult::Failed;
   }
 
-  ezLog::Debug("Setting '{}' to {}", m_sEntryName, m_Value.ConvertTo<ezString>());
   pBlackboard->SetEntryValue(m_sEntryName, m_Value);
   return ezAiActionResult::Finished;
 }
@@ -386,6 +385,7 @@ void ezAiActionBlackboardSetAndWait::Reset()
   m_SetValue = {};
   m_WaitValue = {};
   m_bEqualsWaitValue = true;
+  m_Timeout = ezTime::MakeZero();
 }
 
 void ezAiActionBlackboardSetAndWait::GetDebugDesc(ezStringBuilder& inout_sText)
@@ -417,6 +417,13 @@ ezAiActionResult ezAiActionBlackboardSetAndWait::Execute(ezGameObject& owner, ez
 
   if (m_bEqualsWaitValue == bIsEqual)
     return ezAiActionResult::Finished;
+
+  if (m_Timeout.IsPositive())
+  {
+    m_Timeout -= tDiff;
+    if (!m_Timeout.IsPositive())
+      return ezAiActionResult::Finished;
+  }
 
   return ezAiActionResult::Succeded;
 }
@@ -591,20 +598,220 @@ ezAiActionNavigateTo::~ezAiActionNavigateTo() = default;
 void ezAiActionNavigateTo::Reset()
 {
   m_pTargetPosition = nullptr;
+  m_vTargetPosition = ezVec3::MakeZero();
+  m_hTargetObject.Invalidate();
   m_fSpeed = 0.0f;
   m_fReachedDist = 1.0f;
+  m_bAllowPartialPath = false;
   m_bStarted = false;
+  m_vLastDestination = ezVec3::MakeZero();
 }
 
 void ezAiActionNavigateTo::GetDebugDesc(ezStringBuilder& inout_sText)
 {
-  inout_sText.SetFormat("NavTo: {}/{}/{} - @{}/sec", m_pTargetPosition->x, m_pTargetPosition->y, m_pTargetPosition->z, m_fSpeed);
+  const ezVec3 vPos = m_pTargetPosition ? *m_pTargetPosition : m_vTargetPosition;
+  inout_sText.SetFormat("NavTo: {}/{}/{} - @{}/sec", ezArgF(vPos.x, 1), ezArgF(vPos.y, 1), ezArgF(vPos.z, 1), m_fSpeed);
 }
 
 ezAiActionResult ezAiActionNavigateTo::Execute(ezGameObject& owner, ezTime tDiff, ezLogInterface* pLog)
 {
-  if (m_pTargetPosition == nullptr || m_fSpeed <= 0.0f)
+  if (m_fSpeed <= 0.0f)
     return ezAiActionResult::Finished; // or canceled
+
+  ezVec3 vTargetPos = m_pTargetPosition ? *m_pTargetPosition : m_vTargetPosition;
+
+  if (!m_hTargetObject.IsInvalidated())
+  {
+    ezGameObject* pTarget;
+    if (!owner.GetWorld()->TryGetObject(m_hTargetObject, pTarget))
+    {
+      ezLog::Error(pLog, "ezAiActionNavigateTo: Target object doesn't exist (anymore).");
+      return ezAiActionResult::Failed;
+    }
+
+    vTargetPos = pTarget->GetGlobalPosition();
+  }
+
+  return ExecuteNavigation(owner, vTargetPos, pLog);
+}
+
+ezAiActionResult ezAiActionNavigateTo::ExecuteNavigation(ezGameObject& owner, const ezVec3& vTargetPos, ezLogInterface* pLog)
+{
+  ezAiNavigationComponent* pNav;
+  if (!owner.TryGetComponentOfBaseType(pNav))
+  {
+    ezLog::Error(pLog, "No ezAiNavigationComponent found.");
+    return ezAiActionResult::Failed;
+  }
+
+  if (m_bStarted)
+  {
+    switch (pNav->GetState())
+    {
+      case ezAiNavigationComponentState::Idle:
+        return ezAiActionResult::Finished;
+
+      case ezAiNavigationComponentState::Failed:
+      case ezAiNavigationComponentState::Fallen:
+        ezLog::Warning(pLog, "Path navigation failed.");
+        pNav->CancelNavigation();
+        return ezAiActionResult::Failed;
+
+      default:
+        break;
+    }
+  }
+
+  pNav->m_fReachedDistance = m_fReachedDist;
+  pNav->m_fSpeed = m_fSpeed;
+
+  // setting the destination triggers a path search, so only do that when it changes noticeably
+  if (!m_bStarted || (vTargetPos - m_vLastDestination).GetLengthSquared() > ezMath::Square(0.5f))
+  {
+    m_bStarted = true;
+    m_vLastDestination = vTargetPos;
+    pNav->SetDestination(vTargetPos, m_bAllowPartialPath);
+  }
+
+  return ezAiActionResult::Succeded;
+}
+
+void ezAiActionNavigateTo::Cancel(ezGameObject& owner)
+{
+  m_fSpeed = 0.0f;
+
+  if (m_bStarted)
+  {
+    ezAiNavigationComponent* pNav;
+    if (owner.TryGetComponentOfBaseType(pNav))
+    {
+      pNav->CancelNavigation();
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+EZ_IMPLEMENT_AICMD(ezAiActionNavigateToRandomPoint);
+
+ezAiActionNavigateToRandomPoint::ezAiActionNavigateToRandomPoint() = default;
+ezAiActionNavigateToRandomPoint::~ezAiActionNavigateToRandomPoint() = default;
+
+void ezAiActionNavigateToRandomPoint::Reset()
+{
+  m_vCenter = ezVec3::MakeZero();
+  m_fRadius = 10.0f;
+  m_fMaxDistToCenter = 0.0f;
+  m_fSpeed = 0.0f;
+  m_fReachedDist = 1.0f;
+  m_bAllowPartialPath = false;
+  m_bHasPoint = false;
+  m_uiAttempts = 0;
+  m_Navigate.Reset();
+}
+
+void ezAiActionNavigateToRandomPoint::GetDebugDesc(ezStringBuilder& inout_sText)
+{
+  if (m_bHasPoint)
+  {
+    m_Navigate.GetDebugDesc(inout_sText);
+    inout_sText.Prepend("Random ");
+  }
+  else
+  {
+    inout_sText.SetFormat("Find random point (r={}), attempt {}", m_fRadius, m_uiAttempts);
+  }
+}
+
+ezAiActionResult ezAiActionNavigateToRandomPoint::Execute(ezGameObject& owner, ezTime tDiff, ezLogInterface* pLog)
+{
+  if (m_fSpeed <= 0.0f)
+    return ezAiActionResult::Finished; // or canceled
+
+  if (!m_bHasPoint)
+  {
+    ezAiNavigationComponent* pNav;
+    if (!owner.TryGetComponentOfBaseType(pNav))
+    {
+      ezLog::Error(pLog, "No ezAiNavigationComponent found.");
+      return ezAiActionResult::Failed;
+    }
+
+    ezVec3 vPoint;
+    if (pNav->FindRandomPointAroundCircle(m_vCenter, m_fRadius, vPoint) && (m_fMaxDistToCenter <= 0.0f || (vPoint - m_vCenter).GetLength() <= m_fMaxDistToCenter))
+    {
+      m_bHasPoint = true;
+      m_Navigate.Reset();
+      m_Navigate.m_vTargetPosition = vPoint;
+      m_Navigate.m_fSpeed = m_fSpeed;
+      m_Navigate.m_fReachedDist = m_fReachedDist;
+      m_Navigate.m_bAllowPartialPath = m_bAllowPartialPath;
+    }
+    else
+    {
+      // fails as long as the navmesh around the center isn't loaded yet, or when the point is too far away
+      if (++m_uiAttempts > 100)
+      {
+        ezLog::Warning(pLog, "ezAiActionNavigateToRandomPoint: Couldn't find a point.");
+        return ezAiActionResult::Failed;
+      }
+
+      return ezAiActionResult::Succeded;
+    }
+  }
+
+  return m_Navigate.Execute(owner, tDiff, pLog);
+}
+
+void ezAiActionNavigateToRandomPoint::Cancel(ezGameObject& owner)
+{
+  m_fSpeed = 0.0f;
+
+  if (m_bHasPoint)
+  {
+    m_Navigate.Cancel(owner);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+EZ_IMPLEMENT_AICMD(ezAiActionTurnTowards);
+
+ezAiActionTurnTowards::ezAiActionTurnTowards() = default;
+ezAiActionTurnTowards::~ezAiActionTurnTowards() = default;
+
+void ezAiActionTurnTowards::Reset()
+{
+  m_vTargetPosition = ezVec3::MakeZero();
+  m_hTargetObject.Invalidate();
+  m_MaxAngle = ezAngle::MakeFromDegree(20);
+  m_Timeout = ezTime::Seconds(2);
+}
+
+void ezAiActionTurnTowards::GetDebugDesc(ezStringBuilder& inout_sText)
+{
+  inout_sText.SetFormat("Turn Towards: {}/{}/{}", ezArgF(m_vTargetPosition.x, 1), ezArgF(m_vTargetPosition.y, 1), ezArgF(m_vTargetPosition.z, 1));
+}
+
+ezAiActionResult ezAiActionTurnTowards::Execute(ezGameObject& owner, ezTime tDiff, ezLogInterface* pLog)
+{
+  if (!m_Timeout.IsPositive())
+    return ezAiActionResult::Finished; // or canceled
+
+  m_Timeout -= tDiff;
+
+  if (!m_hTargetObject.IsInvalidated())
+  {
+    ezGameObject* pTarget;
+    if (!owner.GetWorld()->TryGetObject(m_hTargetObject, pTarget))
+      return ezAiActionResult::Finished;
+
+    m_vTargetPosition = pTarget->GetGlobalPosition();
+  }
 
   ezAiNavigationComponent* pNav;
   if (!owner.TryGetComponentOfBaseType(pNav))
@@ -613,30 +820,53 @@ ezAiActionResult ezAiActionNavigateTo::Execute(ezGameObject& owner, ezTime tDiff
     return ezAiActionResult::Failed;
   }
 
-  switch (pNav->GetState())
-  {
-    case ezAiNavigationComponentState::Idle:
-      if (m_bStarted)
-      {
-        pNav->CancelNavigation();
-        return ezAiActionResult::Finished;
-      }
-      break;
+  if (ezMath::Abs(pNav->GetTurnAngleTowards(m_vTargetPosition.GetAsVec2()).GetDegree()) <= m_MaxAngle.GetDegree())
+    return ezAiActionResult::Finished;
 
-    case ezAiNavigationComponentState::Failed:
-      ezLog::Error(pLog, "Path navigation failed.");
-      return ezAiActionResult::Failed;
-  }
-
-  pNav->m_fReachedDistance = m_fReachedDist;
-  pNav->m_fSpeed = m_fSpeed;
-
-  m_bStarted = true;
-  pNav->SetDestination(*m_pTargetPosition, false);
+  pNav->TurnTowards(m_vTargetPosition.GetAsVec2());
   return ezAiActionResult::Succeded;
 }
 
-void ezAiActionNavigateTo::Cancel(ezGameObject& owner)
+void ezAiActionTurnTowards::Cancel(ezGameObject& owner)
 {
-  m_fSpeed = 0.0f;
+  m_Timeout = ezTime::MakeZero();
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+EZ_IMPLEMENT_AICMD(ezAiActionStopWalking);
+
+ezAiActionStopWalking::ezAiActionStopWalking() = default;
+ezAiActionStopWalking::~ezAiActionStopWalking() = default;
+
+void ezAiActionStopWalking::Reset()
+{
+  m_fWithinDistance = 0.5f;
+  m_bCanceled = false;
+}
+
+void ezAiActionStopWalking::GetDebugDesc(ezStringBuilder& inout_sText)
+{
+  inout_sText.SetFormat("Stop Walking within {}m", m_fWithinDistance);
+}
+
+ezAiActionResult ezAiActionStopWalking::Execute(ezGameObject& owner, ezTime tDiff, ezLogInterface* pLog)
+{
+  if (m_bCanceled)
+    return ezAiActionResult::Finished;
+
+  ezAiNavigationComponent* pNav;
+  if (owner.TryGetComponentOfBaseType(pNav))
+  {
+    pNav->StopWalking(m_fWithinDistance);
+  }
+
+  return ezAiActionResult::Finished;
+}
+
+void ezAiActionStopWalking::Cancel(ezGameObject& owner)
+{
+  m_bCanceled = true;
 }

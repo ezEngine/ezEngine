@@ -32,12 +32,16 @@ public:
 
   ezAiBehavior* GetActiveBehavior() const { return m_pActiveBehavior; }
 
+  /// Appends one line per behavior with its score from the last DetermineBehaviorCandidate() call.
+  void GetDebugText(ezStringBuilder& inout_sText) const;
+
 private:
   struct BehaviorInfo
   {
     // bool m_bActive = true;
     ezTime m_CooldownUntil;
     ezUInt32 m_uiNeededInUpdate = 0;
+    float m_fLastScore = 0.0f;
 
     ezUniquePtr<ezAiBehavior> m_pBehavior;
   };

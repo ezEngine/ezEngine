@@ -24,6 +24,8 @@ public:
   void UpdateNeededPerceptions(ezGameObject& owner, const ezAiSensorManager& ref_SensorManager);
 
   bool HasPerceptionsOfType(ezStringView sPerceptionType) const;
+  void HandleMessage(ezGameObject& owner, const ezMessage& msg);
+
   void GetPerceptionsOfType(ezStringView sPerceptionType, ezDynamicArray<const ezAiPerception*>& out_Perceptions) const;
 
 private:

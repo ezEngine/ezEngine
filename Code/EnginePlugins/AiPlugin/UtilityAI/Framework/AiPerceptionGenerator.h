@@ -7,6 +7,7 @@
 
 class ezGameObject;
 class ezAiSensorManager;
+struct ezMessage;
 
 class EZ_AIPLUGIN_DLL ezAiPerceptionGenerator
 {
@@ -19,4 +20,9 @@ public:
   virtual bool HasPerceptions() const = 0;
   virtual void GetPerceptions(ezDynamicArray<const ezAiPerception*>& out_Perceptions) const = 0;
   virtual void FlagNeededSensors(ezAiSensorManager& ref_SensorManager) = 0;
+
+  /// Called for messages that the AI component receives (e.g. ezMsgDamage), to push events into the perception.
+  ///
+  /// Since perceptions are only updated when needed, generators should store the information and evaluate it in UpdatePerceptions().
+  virtual void HandleMessage(ezGameObject& owner, const ezMessage& msg) {}
 };

@@ -9,6 +9,8 @@
 class EZ_AIPLUGIN_DLL ezAiBehaviorGoToPOI : public ezAiBehavior
 {
 public:
+  virtual ezStringView GetName() const override { return "GoToPOI"; }
+
   ezAiBehaviorGoToPOI();
   ~ezAiBehaviorGoToPOI();
 
@@ -29,6 +31,8 @@ private:
 class EZ_AIPLUGIN_DLL ezAiBehaviorWander : public ezAiBehavior
 {
 public:
+  virtual ezStringView GetName() const override { return "Wander"; }
+
   ezAiBehaviorWander();
   ~ezAiBehaviorWander();
 
@@ -49,6 +53,8 @@ private:
 class EZ_AIPLUGIN_DLL ezAiBehaviorGoToCheckpoint : public ezAiBehavior
 {
 public:
+  virtual ezStringView GetName() const override { return "GoToCheckpoint"; }
+
   ezAiBehaviorGoToCheckpoint();
   ~ezAiBehaviorGoToCheckpoint();
 
@@ -69,6 +75,8 @@ private:
 class EZ_AIPLUGIN_DLL ezAiBehaviorShoot : public ezAiBehavior
 {
 public:
+  virtual ezStringView GetName() const override { return "Shoot"; }
+
   ezAiBehaviorShoot();
   ~ezAiBehaviorShoot();
 
@@ -86,6 +94,8 @@ public:
 class EZ_AIPLUGIN_DLL ezAiBehaviorQuip : public ezAiBehavior
 {
 public:
+  virtual ezStringView GetName() const override { return "Quip"; }
+
   ezAiBehaviorQuip();
   ~ezAiBehaviorQuip();
 

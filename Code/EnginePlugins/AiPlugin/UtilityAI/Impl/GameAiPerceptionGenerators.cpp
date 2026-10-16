@@ -5,6 +5,7 @@
 #include <AiPlugin/UtilityAI/Impl/GameAiPerceptions.h>
 #include <AiPlugin/UtilityAI/Impl/GameAiSensors.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>
+#include <GameEngine/Messages/DamageMessage.h>
 
 ezAiPerceptionGenPOI::ezAiPerceptionGenPOI() = default;
 ezAiPerceptionGenPOI::~ezAiPerceptionGenPOI() = default;
@@ -175,4 +176,107 @@ void ezAiPerceptionGenCheckpoint::GetPerceptions(ezDynamicArray<const ezAiPercep
 
 void ezAiPerceptionGenCheckpoint::FlagNeededSensors(ezAiSensorManager& ref_SensorManager)
 {
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+ezAiPerceptionGenTarget::ezAiPerceptionGenTarget() = default;
+ezAiPerceptionGenTarget::~ezAiPerceptionGenTarget() = default;
+
+void ezAiPerceptionGenTarget::UpdatePerceptions(ezGameObject& owner, const ezAiSensorManager& ref_SensorManager)
+{
+  ezWorld* pWorld = owner.GetWorld();
+  const ezTime tNow = pWorld->GetClock().GetAccumulatedTime();
+
+  ezGameObject* pVisible = nullptr;
+
+  for (const ezString& sName : m_SensorNames)
+  {
+    const ezAiSensorSpatial* pSensor = static_cast<const ezAiSensorSpatial*>(ref_SensorManager.GetSensor(sName));
+    if (pSensor == nullptr)
+      continue;
+
+    ezHybridArray<ezGameObjectHandle, 32> detectedObjects;
+    pSensor->RetrieveSensations(owner, detectedObjects);
+
+    for (ezGameObjectHandle hObj : detectedObjects)
+    {
+      if (pWorld->TryGetObject(hObj, pVisible))
+        break;
+    }
+
+    if (pVisible)
+      break;
+  }
+
+  if (pVisible)
+  {
+    m_bHasTarget = true;
+    m_bDamageReceived = false;
+    m_Target.m_hTarget = pVisible->GetHandle();
+    m_Target.m_vGlobalPosition = pVisible->GetGlobalPosition();
+    m_Target.m_bVisible = true;
+    m_Target.m_bAlerted = false;
+    m_Target.m_LastSeen = tNow;
+  }
+  else
+  {
+    m_Target.m_bVisible = false;
+
+    if (m_bDamageReceived)
+    {
+      m_bDamageReceived = false;
+
+      ezGameObject* pSource = nullptr;
+      if (!m_sDamageSourceGlobalKey.IsEmpty() && pWorld->TryGetObjectWithGlobalKey(ezTempHashedString(m_sDamageSourceGlobalKey), pSource))
+      {
+        m_bHasTarget = true;
+        m_Target.m_hTarget = pSource->GetHandle();
+        m_Target.m_vGlobalPosition = pSource->GetGlobalPosition();
+        m_Target.m_bAlerted = true;
+        m_Target.m_LastSeen = tNow;
+      }
+    }
+
+    if (m_bHasTarget && tNow - m_Target.m_LastSeen > m_MemoryDuration)
+    {
+      m_bHasTarget = false;
+    }
+  }
+
+  if (m_bHasTarget)
+  {
+    m_Target.m_fDistance = (m_Target.m_vGlobalPosition - owner.GetGlobalPosition()).GetLength();
+  }
+}
+
+bool ezAiPerceptionGenTarget::HasPerceptions() const
+{
+  return m_bHasTarget;
+}
+
+void ezAiPerceptionGenTarget::GetPerceptions(ezDynamicArray<const ezAiPerception*>& out_Perceptions) const
+{
+  if (m_bHasTarget)
+  {
+    out_Perceptions.PushBack(&m_Target);
+  }
+}
+
+void ezAiPerceptionGenTarget::FlagNeededSensors(ezAiSensorManager& ref_SensorManager)
+{
+  for (const ezString& sName : m_SensorNames)
+  {
+    ref_SensorManager.FlagAsNeeded(sName);
+  }
+}
+
+void ezAiPerceptionGenTarget::HandleMessage(ezGameObject& owner, const ezMessage& msg)
+{
+  if (msg.GetId() == ezMsgDamage::GetTypeMsgId())
+  {
+    m_bDamageReceived = true;
+  }
 }

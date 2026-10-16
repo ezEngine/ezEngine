@@ -71,3 +71,11 @@ void ezAiPerceptionManager::GetPerceptionsOfType(ezStringView sPerceptionType, e
     }
   }
 }
+
+void ezAiPerceptionManager::HandleMessage(ezGameObject& owner, const ezMessage& msg)
+{
+  for (auto& p : m_PerceptionGenerators)
+  {
+    p.m_pPerceptionGenerator->HandleMessage(owner, msg);
+  }
+}

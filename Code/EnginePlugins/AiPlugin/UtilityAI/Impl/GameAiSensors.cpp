@@ -22,27 +22,7 @@ void ezAiSensorSpatial::UpdateSensor(ezGameObject& owner)
     m_hSensorObject = pSensors->GetHandle();
   }
 
-  ezWorld* pWorld = owner.GetWorld();
-  ezGameObject* pSensors = nullptr;
-  if (!pWorld->TryGetObject(m_hSensorObject, pSensors))
-    return;
-
-  ezDynamicArray<ezSensorComponent*> sensors;
-  pSensors->TryGetComponentsOfBaseType(sensors);
-
-  if (sensors.IsEmpty())
-    return;
-
-
-  ezPhysicsWorldModuleInterface* pPhysicsWorldModule = pWorld->GetModule<ezPhysicsWorldModuleInterface>();
-
-  ezHybridArray<ezGameObject*, 32> objectsInSensorVolume;
-  ezHybridArray<ezGameObjectHandle, 32> detectedObjects;
-
-  for (auto pSensor : sensors)
-  {
-    pSensor->RunSensorCheck(pPhysicsWorldModule, objectsInSensorVolume, detectedObjects, false);
-  }
+  // the sensor components update themselves (see their update rate), RetrieveSensations() reads their last results
 }
 
 void ezAiSensorSpatial::RetrieveSensations(ezGameObject& owner, ezDynamicArray<ezGameObjectHandle>& out_Sensations) const
@@ -58,13 +38,11 @@ void ezAiSensorSpatial::RetrieveSensations(ezGameObject& owner, ezDynamicArray<e
   if (sensors.IsEmpty())
     return;
 
-  ezPhysicsWorldModuleInterface* pPhysicsWorldModule = pWorld->GetModule<ezPhysicsWorldModuleInterface>();
-
-  ezHybridArray<ezGameObject*, 32> objectsInSensorVolume;
-  ezHybridArray<ezGameObjectHandle, 32> detectedObjects;
-
   for (auto pSensor : sensors)
   {
+    if (!pSensor->IsActiveAndInitialized())
+      continue;
+
     ezArrayPtr<const ezGameObjectHandle> detections = pSensor->GetLastDetectedObjects();
     out_Sensations.PushBackRange(detections);
   }

@@ -57,7 +57,7 @@ void ezAiActionQueue::Execute(ezGameObject& owner, ezTime tDiff, ezLogInterface*
     {
       ezStringBuilder str;
       pCmd->GetDebugDesc(str);
-      ezLog::Error("AI cmd failed: {}", str);
+      ezLog::Error(pLog, "AI cmd failed: {}", str);
 
       CancelCurrentActions(owner);
     }
@@ -80,5 +80,22 @@ void ezAiActionQueue::PrintDebugInfo(ezGameObject& owner)
   {
     m_Queue[0]->GetDebugDesc(str);
     ezDebugRenderer::DrawInfoText(owner.GetWorld(), ezDebugTextPlacement::BottomRight, "AI", str);
+  }
+}
+
+void ezAiActionQueue::GetDebugDesc(ezStringBuilder& out_sText) const
+{
+  if (m_Queue.IsEmpty())
+  {
+    out_sText = "<no action>";
+  }
+  else
+  {
+    m_Queue[0]->GetDebugDesc(out_sText);
+
+    if (m_Queue.GetCount() > 1)
+    {
+      out_sText.AppendFormat(" (+{})", m_Queue.GetCount() - 1);
+    }
   }
 }

@@ -43,6 +43,9 @@ struct ezAiBehaviorCandidate
   ezAiBehavior* m_pBehavior = nullptr;
   const ezAiPerception* m_pPerception = nullptr;
   float m_fScore = 0.0f;
+
+  /// Score of the currently active behavior in the same update, or -1 if it wasn't evaluated (e.g. due to cooldown).
+  float m_fActiveBehaviorScore = -1.0f;
 };
 
 class EZ_AIPLUGIN_DLL ezAiBehavior
@@ -75,4 +78,7 @@ public:
   }
 
   virtual ezTime GetCooldownDuration() { return ezTime::MakeZero(); }
+
+  /// Used for debug output.
+  virtual ezStringView GetName() const { return "<unnamed>"; }
 };
