@@ -22,6 +22,52 @@ namespace
     out_sName.SetFormat("{}_{}_{}", pEntryObject != nullptr ? ezVisualScriptNodeManager::GetNiceFunctionName(pEntryObject) : "", sNameProperty, ezArgU(uiHash, 8, true, 16));
   }
 
+  /// Converts the escape sequences \n, \t and \\ in user entered string constants. Unknown sequences are kept as is.
+  ezString UnescapeString(ezStringView sText)
+  {
+    if (sText.FindSubString("\\") == nullptr)
+      return sText;
+
+    ezStringBuilder sResult;
+    for (auto it = sText.GetIteratorFront(); it.IsValid(); ++it)
+    {
+      const ezUInt32 c = it.GetCharacter();
+
+      auto next = it;
+      ++next;
+
+      if (c != '\\' || !next.IsValid())
+      {
+        sResult.Append(c);
+        continue;
+      }
+
+      switch (next.GetCharacter())
+      {
+        case 'n':
+          sResult.Append('\n');
+          it = next;
+          break;
+
+        case 't':
+          sResult.Append('\t');
+          it = next;
+          break;
+
+        case '\\':
+          sResult.Append('\\');
+          it = next;
+          break;
+
+        default:
+          sResult.Append(c);
+          break;
+      }
+    }
+
+    return sResult;
+  }
+
   ezVisualScriptDataType::Enum FinalizeDataType(ezVisualScriptDataType::Enum dataType)
   {
     ezVisualScriptDataType::Enum result = dataType;
@@ -591,8 +637,14 @@ void ezVisualScriptCompiler::MarkAsCoroutine(AstNode* pEntryAstNode)
 // Pins, inputs and outputs
 //////////////////////////////////////////////////////////////////////////
 
-void ezVisualScriptCompiler::AddConstantDataInput(AstNode& node, const ezVariant& value)
+void ezVisualScriptCompiler::AddConstantDataInput(AstNode& node, const ezVariant& value0)
 {
+  ezVariant value = value0;
+  if (value.IsString() || value.IsA<ezHashedString>())
+  {
+    value = ezVariant(UnescapeString(value.ConvertTo<ezString>())).ConvertTo(value0.GetType());
+  }
+
   ezVisualScriptDataType::Enum dataType = ezVisualScriptDataType::FromVariantType(value.GetType());
 
   ezUInt32 uiIndex = ezInvalidIndex;

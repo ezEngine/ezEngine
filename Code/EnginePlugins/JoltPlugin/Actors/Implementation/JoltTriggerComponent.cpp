@@ -40,7 +40,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltTriggerComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("TriggerMessage", GetTriggerMessage, SetTriggerMessage)
+    EZ_ACCESSOR_PROPERTY("TriggerMessage", GetTriggerMessage, SetTriggerMessage),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGESENDERS
@@ -67,7 +67,7 @@ void ezJoltTriggerComponent::SerializeComponent(ezWorldWriter& inout_stream) con
 void ezJoltTriggerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -110,7 +110,8 @@ void ezJoltTriggerComponent::OnSimulationStarted()
 
   m_uiJoltBodyID = pBody->GetID().GetIndexAndSequenceNumber();
 
-  pModule->QueueBodyToAdd(pBody, false);
+  // an inactive sensor only detects active bodies and loses the contact as soon as an overlapping body falls asleep
+  pModule->QueueBodyToAdd(pBody, true);
 
   if (GetOwner()->IsDynamic())
   {
