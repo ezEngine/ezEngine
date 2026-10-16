@@ -8,6 +8,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Threading/TaskSystem.h>
+#include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <TestFramework/Utilities/TestLogInterface.h>
@@ -156,6 +157,10 @@ void ezEditorAssetCuratorTest::AddCollectionEntry(ezAssetDocument* pDoc, ezStrin
 
 void ezEditorAssetCuratorTest::SaveAsset(ezAssetDocument* pDoc)
 {
+  // ezFileSystemModel detects modified files only by their modification time. Saving the same file twice within the resolution of
+  // the file system time stamps would go unnoticed, so make sure that the time stamp of this save differs from the previous one.
+  ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(20));
+
   EZ_TEST_BOOL(pDoc->SaveDocument().Succeeded());
   RunFrameTasks();
 }
@@ -226,6 +231,9 @@ void ezEditorAssetCuratorTest::PackageDependencyChange()
   EZ_TEST_BOOL(TransformAsset(pTarget->GetGuid()).Succeeded());
   EZ_TEST_BOOL(UpdateState(pUser->GetGuid()) == ezAssetInfo::TransformState::UpToDate);
 
+  // A transform invalidates the asset, whether its hashes are computed again by the time the snapshot is taken depends on the
+  // curator's background update task. UpdateState makes sure they are.
+  EZ_TEST_BOOL(UpdateState(pTarget->GetGuid()) == ezAssetInfo::TransformState::UpToDate);
   const AssetSnapshot userBefore = GetSnapshot(pUser->GetGuid());
   const AssetSnapshot targetBefore = GetSnapshot(pTarget->GetGuid());
 
@@ -234,6 +242,7 @@ void ezEditorAssetCuratorTest::PackageDependencyChange()
     AddCollectionEntry(pTarget, ToString(pOther->GetGuid()));
     SaveAsset(pTarget);
     EZ_TEST_BOOL(TransformAsset(pTarget->GetGuid()).Succeeded());
+    EZ_TEST_BOOL(UpdateState(pTarget->GetGuid()) == ezAssetInfo::TransformState::UpToDate);
 
     // The modified asset itself was invalidated, this is what the check below relies on.
     const AssetSnapshot targetAfter = GetSnapshot(pTarget->GetGuid());
@@ -291,8 +300,10 @@ void ezEditorAssetCuratorTest::PackageDependencyBroken()
       EZ_TEST_STATUS(pAcc->RemoveObject(pAcc->GetChildObjectByName(pTargetRoot, "Entries", 0)));
       pAcc->FinishTransaction();
       SaveAsset(pTarget);
+      EZ_TEST_BOOL(TransformAsset(pTarget->GetGuid()).Succeeded());
 
-      EZ_TEST_BOOL(UpdateState(pTarget->GetGuid()) == ezAssetInfo::TransformState::UpToDate);
+      const ezAssetInfo::TransformState targetState = UpdateState(pTarget->GetGuid());
+      EZ_TEST_BOOL_MSG(targetState == ezAssetInfo::TransformState::UpToDate, "State: %d", (int)targetState);
       const ezAssetInfo::TransformState state = UpdateState(pUser->GetGuid());
       EZ_TEST_BOOL_MSG(state == ezAssetInfo::TransformState::UpToDate, "State: %d", (int)state);
     }
@@ -449,6 +460,11 @@ void ezEditorAssetCuratorTest::CircularTransformDependencies()
   ezAssetDocument* pB = CreateAsset("CircularMaterialB.ezMaterialAsset");
   if (!EZ_TEST_BOOL(pA && pB))
     return;
+
+  // Hashing an asset whose dependency is circular logs an error with the dependency's GUID. Whether that happens depends on whether
+  // the curator's background update task hashed it first, which doesn't log.
+  log.IgnoreMessage(ToString(pA->GetGuid()));
+  log.IgnoreMessage(ToString(pB->GetGuid()));
 
   auto IsErrorState = [](ezAssetInfo::TransformState state)
   {
