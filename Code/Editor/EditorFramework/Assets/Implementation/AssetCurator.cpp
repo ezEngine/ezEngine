@@ -57,7 +57,8 @@ void ezAssetInfo::Update(ezUniquePtr<ezAssetInfo>& rhs)
 {
   // Don't update the existance state, it is handled via ezAssetCurator::SetAssetExistanceState
   // m_ExistanceState = rhs->m_ExistanceState;
-  m_TransformState = rhs->m_TransformState;
+  // Don't update the transform state either, the caller resets it through ezAssetCurator::UpdateAssetTransformState, which needs
+  // to know the previous state.
   m_pDocumentTypeDescriptor = rhs->m_pDocumentTypeDescriptor;
   m_Path = std::move(rhs->m_Path);
   m_Info = std::move(rhs->m_Info);
@@ -899,7 +900,7 @@ void ezAssetCurator::InvalidateAssetsWithTransformState(ezAssetInfo::TransformSt
   }
 }
 
-ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid assetGuid, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, ezUInt64& out_PackageHash, bool bForce)
+ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid assetGuid, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, ezUInt64& out_PackageHash, bool bForce, const HashingStack* pHashingStack)
 {
   CURATOR_PROFILE("UpdateAssetTransformState");
   ezStringBuilder sAbsAssetPath;
@@ -1003,7 +1004,8 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
   ezSet<ezString> missingPackageDeps;
   // Compute final state and hashes.
   {
-    state = HashAsset(uiSettingsHash, transformDeps, thumbnailDeps, packageDeps, missingTransformDeps, missingThumbnailDeps, missingPackageDeps, out_AssetHash, out_ThumbHash, out_PackageHash, bForce);
+    const HashingStack hashingStack{assetGuid, pHashingStack};
+    state = HashAsset(uiSettingsHash, transformDeps, thumbnailDeps, packageDeps, missingTransformDeps, missingThumbnailDeps, missingPackageDeps, out_AssetHash, out_ThumbHash, out_PackageHash, bForce, &hashingStack);
     EZ_ASSERT_DEV(state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingTransformDependency || state == ezAssetInfo::MissingThumbnailDependency || state == ezAssetInfo::MissingPackageDependency, "Unhandled case of HashAsset return value.");
 
     if (state == ezAssetInfo::Unknown)
@@ -1527,7 +1529,7 @@ void ezAssetCurator::GenerateSettingsHashMap(const ezSet<ezString>& deps, ezBitf
   }
 }
 
-void ezAssetCurator::GenerateInverseTransitiveHull(const ezAssetInfo* pAssetInfo, ezSet<ezUuid>& inout_inverseDeps, bool bIncludeTransformDebs, bool bIncludeThumbnailDebs) const
+void ezAssetCurator::GenerateInverseTransitiveHull(const ezAssetInfo* pAssetInfo, ezSet<ezUuid>& inout_inverseDeps, bool bIncludeTransformDeps, bool bIncludeThumbnailDeps) const
 {
   EZ_LOCK(m_CuratorMutex);
 
@@ -1535,48 +1537,36 @@ void ezAssetCurator::GenerateInverseTransitiveHull(const ezAssetInfo* pAssetInfo
   toDoList.PushBack(pAssetInfo);
   inout_inverseDeps.Insert(pAssetInfo->m_Info->m_DocumentID);
 
+  auto AddInverseDeps = [&](const ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseDeps, const ezAssetInfo* pCurrentAsset)
+  {
+    auto it = inverseDeps.Find(pCurrentAsset->m_Path.GetAbsolutePath());
+    if (!it.IsValid())
+      return;
+
+    for (const ezUuid& asset : it.Value())
+    {
+      if (!inout_inverseDeps.Contains(asset))
+      {
+        ezAssetInfo* pDepAssetInfo = nullptr;
+        if (m_KnownAssets.TryGetValue(asset, pDepAssetInfo))
+        {
+          toDoList.PushBack(pDepAssetInfo);
+          inout_inverseDeps.Insert(asset);
+        }
+      }
+    }
+  };
+
   while (!toDoList.IsEmpty())
   {
-    const ezAssetInfo* currentAsset = toDoList.PeekBack();
+    const ezAssetInfo* pCurrentAsset = toDoList.PeekBack();
     toDoList.PopBack();
 
-    if (bIncludeTransformDebs)
-    {
-      if (auto it = m_InverseTransformDeps.Find(currentAsset->m_Path.GetAbsolutePath()); it.IsValid())
-      {
-        for (const ezUuid& asset : it.Value())
-        {
-          if (!inout_inverseDeps.Contains(asset))
-          {
-            ezAssetInfo* pAssetInfo = nullptr;
-            if (m_KnownAssets.TryGetValue(asset, pAssetInfo))
-            {
-              toDoList.PushBack(pAssetInfo);
-              inout_inverseDeps.Insert(asset);
-            }
-          }
-        }
-      }
-    }
+    if (bIncludeTransformDeps)
+      AddInverseDeps(m_InverseTransformDeps, pCurrentAsset);
 
-    if (bIncludeThumbnailDebs)
-    {
-      if (auto it = m_InverseThumbnailDeps.Find(currentAsset->m_Path.GetAbsolutePath()); it.IsValid())
-      {
-        for (const ezUuid& asset : it.Value())
-        {
-          if (!inout_inverseDeps.Contains(asset))
-          {
-            ezAssetInfo* pAssetInfo = nullptr;
-            if (m_KnownAssets.TryGetValue(asset, pAssetInfo))
-            {
-              toDoList.PushBack(pAssetInfo);
-              inout_inverseDeps.Insert(asset);
-            }
-          }
-        }
-      }
-    }
+    if (bIncludeThumbnailDeps)
+      AddInverseDeps(m_InverseThumbnailDeps, pCurrentAsset);
   }
 }
 
@@ -1757,7 +1747,9 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
   ezUInt64 uiPackageHash = 0;
   ezAssetInfo::TransformState state = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, pAssetProfile, pTypeDesc, uiHash, uiThumbHash, uiPackageHash);
 
-  if (state == ezAssetInfo::TransformState::CircularDependency)
+  // Check m_CircularDependencies as well, the stored state may have been replaced (e.g. by a TransformError) and recursing into the
+  // dependencies below would then never end. IsAssetUpToDate re-validates m_CircularDependencies for stale assets.
+  if (state == ezAssetInfo::TransformState::CircularDependency || !pAssetInfo->m_CircularDependencies.IsEmpty())
   {
     return ezTransformStatus(ezFmt("Circular dependency for asset '{0}', can't transform.", pAssetInfo->m_Path.GetAbsolutePath()));
   }
@@ -1826,7 +1818,9 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
   }
 #endif
 
-  if (transformFlags.IsSet(ezTransformFlags::ForceTransform))
+  // Forcing a transform can't fix a missing dependency. The asset hash is zero in that case, so the transform would only fail
+  // with a message that doesn't say what is wrong.
+  if (transformFlags.IsSet(ezTransformFlags::ForceTransform) && state != ezAssetInfo::MissingTransformDependency && state != ezAssetInfo::MissingPackageDependency)
   {
     state = ezAssetInfo::NeedsTransform;
   }
@@ -1836,7 +1830,13 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
 
   if (state == ezAssetInfo::TransformState::MissingTransformDependency)
   {
-    return ezTransformStatus(ezFmt("Missing dependency for asset '{0}', can't transform.", pAssetInfo->m_Path.GetAbsolutePath()));
+    ezStringBuilder sMissing;
+    for (const ezString& sDep : pAssetInfo->m_MissingTransformDeps)
+    {
+      sMissing.AppendWithSeparator(", ", sDep);
+    }
+
+    return ezTransformStatus(ezFmt("Missing dependency for asset '{0}', can't transform: {1}", pAssetInfo->m_Path.GetAbsolutePath(), sMissing));
   }
 
   // does the document already exist and is open ?

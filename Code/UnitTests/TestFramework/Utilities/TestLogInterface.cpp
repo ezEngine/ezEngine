@@ -8,6 +8,9 @@ ezTestLogInterface::~ezTestLogInterface()
 {
   for (const ExpectedMsg& msg : m_ExpectedMessages)
   {
+    if (msg.m_bIgnore)
+      continue;
+
     ezInt32 count = msg.m_iCount;
     EZ_TEST_BOOL_MSG(count == 0, "Message \"%s\" was logged %d times %s than expected.", msg.m_sMsgSubString.GetData(), count < 0 ? -count : count,
       count < 0 ? "more" : "less");
@@ -28,7 +31,10 @@ void ezTestLogInterface::HandleLogMessage(const ezLoggingEventData& le)
 
       if (le.m_sText.FindSubString(msg.m_sMsgSubString))
       {
-        --msg.m_iCount;
+        if (!msg.m_bIgnore)
+        {
+          --msg.m_iCount;
+        }
 
         // filter out error and warning messages entirely
         if (le.m_EventType >= ezLogMsgType::ErrorMsg && le.m_EventType <= ezLogMsgType::WarningMsg)
@@ -58,4 +64,14 @@ void ezTestLogInterface::ExpectMessage(const char* szMsg, ezLogMsgType::Enum typ
   em.m_sMsgSubString = szMsg;
   em.m_iCount = iCount;
   em.m_Type = type;
+}
+
+void ezTestLogInterface::IgnoreMessage(const char* szMsg, ezLogMsgType::Enum type /*= ezLogMsgType::All*/)
+{
+  EZ_LOCK(m_Mutex);
+
+  ExpectedMsg& em = m_ExpectedMessages.ExpandAndGetRef();
+  em.m_sMsgSubString = szMsg;
+  em.m_Type = type;
+  em.m_bIgnore = true;
 }
