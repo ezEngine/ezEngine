@@ -92,7 +92,7 @@ private:
   //////////////////////////////////////////////////////////////////////////
   // Input Handling
 private:
-  virtual void ConfigureMainWindowInputDevices(ezWindow* pWindow) override;
+  virtual void ConfigureMainWindowInputDevices(ezWindowPlatformShared* pWindow) override;
   virtual void ConfigureInputActions() override;
   virtual void ProcessInput() override;
   void UpdateMousePosition();

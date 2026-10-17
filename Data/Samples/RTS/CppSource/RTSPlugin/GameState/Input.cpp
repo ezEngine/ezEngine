@@ -2,7 +2,7 @@
 
 #include <RTSPlugin/GameState/RTSGameState.h>
 
-void RTSGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
+void RTSGameState::ConfigureMainWindowInputDevices(ezWindowPlatformShared* pWindow)
 {
   SUPER::ConfigureMainWindowInputDevices(pWindow);
 

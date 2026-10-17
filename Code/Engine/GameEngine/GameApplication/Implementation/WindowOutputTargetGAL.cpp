@@ -156,7 +156,7 @@ void ezWindowOutputTargetGAL::SwapChainUpdatedEventHandler(const ezGALSwapChain*
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   const ezGALSwapChain* pMySwapChain = pDevice->GetSwapChain(m_hSwapChain);
 
-  if (pSwapChain != pMySwapChain || !m_OnSwapChainChanged.IsValid())
+  if (pSwapChain == nullptr || pSwapChain != pMySwapChain || !m_OnSwapChainChanged.IsValid())
     return;
 
   ezSizeU32 currentSize = pSwapChain->GetCurrentSize();

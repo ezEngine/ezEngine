@@ -110,7 +110,7 @@ void SampleGameState::BeforeWorldUpdate()
 #endif
 }
 
-void SampleGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
+void SampleGameState::ConfigureMainWindowInputDevices(ezWindowPlatformShared* pWindow)
 {
   SUPER::ConfigureMainWindowInputDevices(pWindow);
 
