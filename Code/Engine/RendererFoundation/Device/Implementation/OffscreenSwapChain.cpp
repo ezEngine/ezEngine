@@ -1,7 +1,7 @@
 #include <RendererFoundation/RendererFoundationPCH.h>
 
-#include <Foundation/Logging/Log.h>
 #include <Core/System/Window.h>
+#include <Foundation/Logging/Log.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/OffscreenSwapChain.h>
 
