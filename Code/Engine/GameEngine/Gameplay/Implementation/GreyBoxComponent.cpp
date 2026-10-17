@@ -5,6 +5,7 @@
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Algorithm/HashStream.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 #include <GameEngine/Gameplay/GreyBoxComponent.h>
@@ -15,7 +16,7 @@
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGreyBoxShape, 2)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGreyBoxShape, 3)
   EZ_ENUM_CONSTANTS(ezGreyBoxShape::Box)
   EZ_ENUM_CONSTANTS(ezGreyBoxShape::RampPosX, ezGreyBoxShape::RampNegX)
   EZ_ENUM_CONSTANTS(ezGreyBoxShape::RampPosY, ezGreyBoxShape::RampNegY)
@@ -24,9 +25,10 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGreyBoxShape, 2)
   EZ_ENUM_CONSTANTS(ezGreyBoxShape::StairsPosY, ezGreyBoxShape::StairsNegY)
   EZ_ENUM_CONSTANTS(ezGreyBoxShape::ArchX, ezGreyBoxShape::ArchY)
   EZ_ENUM_CONSTANTS(ezGreyBoxShape::SpiralStairs)
+  EZ_ENUM_CONSTANTS(ezGreyBoxShape::Cone)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 7, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 8, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -45,6 +47,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 7, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Thickness", GetThickness, SetThickness)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SlopedTop", GetSlopedTop, SetSlopedTop),
     EZ_ACCESSOR_PROPERTY("SlopedBottom", GetSlopedBottom, SetSlopedBottom),
+    EZ_ACCESSOR_PROPERTY("BaseRadiusScale", GetBaseRadiusScale, SetBaseRadiusScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 4.0f)),
+    EZ_ACCESSOR_PROPERTY("TopRadiusScale", GetTopRadiusScale, SetTopRadiusScale)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 4.0f)),
+    EZ_ACCESSOR_PROPERTY("Sides", GetSides, SetSides)->AddAttributes(new ezDefaultValueAttribute(32), new ezClampValueAttribute(3u, 128u)),
+    EZ_ACCESSOR_PROPERTY("HeightSegments", GetHeightSegments, SetHeightSegments)->AddAttributes(new ezDefaultValueAttribute(8), new ezClampValueAttribute(1u, 64u)),
+    EZ_ACCESSOR_PROPERTY("ProfileCurve", GetProfileCurve, SetProfileCurve)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(-0.95f, 1.0f)),
+    EZ_ACCESSOR_PROPERTY("SmoothShading", GetSmoothShading, SetSmoothShading)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("GenerateCollision", GetGenerateCollision, SetGenerateCollision)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("UseAsOccluder", m_bUseAsOccluder)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
@@ -107,6 +115,9 @@ void ezGreyBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 
   // Version 7
   s << m_vCustomData;
+
+  // Version 8
+  s << m_fBaseRadiusScale << m_fTopRadiusScale << m_uiSides << m_uiHeightSegments << m_fProfileCurve << m_bSmoothShading;
 }
 
 void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -153,6 +164,11 @@ void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
   if (uiVersion >= 7)
   {
     s >> m_vCustomData;
+  }
+
+  if (uiVersion >= 8)
+  {
+    s >> m_fBaseRadiusScale >> m_fTopRadiusScale >> m_uiSides >> m_uiHeightSegments >> m_fProfileCurve >> m_bSmoothShading;
   }
 }
 
@@ -283,6 +299,48 @@ void ezGreyBoxComponent::SetSizeNegZ(float f)
 void ezGreyBoxComponent::SetSizePosZ(float f)
 {
   m_fSizePosZ = f;
+  InvalidateMesh();
+}
+
+void ezGreyBoxComponent::SetBaseRadiusScale(float value)
+{
+  if (!ezMath::IsFinite(value))
+    return;
+  m_fBaseRadiusScale = ezMath::Clamp(value, 0.0f, 4.0f);
+  InvalidateMesh();
+}
+
+void ezGreyBoxComponent::SetTopRadiusScale(float value)
+{
+  if (!ezMath::IsFinite(value))
+    return;
+  m_fTopRadiusScale = ezMath::Clamp(value, 0.0f, 4.0f);
+  InvalidateMesh();
+}
+
+void ezGreyBoxComponent::SetSides(ezUInt32 value)
+{
+  m_uiSides = ezMath::Clamp(value, 3u, 128u);
+  InvalidateMesh();
+}
+
+void ezGreyBoxComponent::SetHeightSegments(ezUInt32 value)
+{
+  m_uiHeightSegments = ezMath::Clamp(value, 1u, 64u);
+  InvalidateMesh();
+}
+
+void ezGreyBoxComponent::SetProfileCurve(float value)
+{
+  if (!ezMath::IsFinite(value))
+    return;
+  m_fProfileCurve = ezMath::Clamp(value, -0.95f, 1.0f);
+  InvalidateMesh();
+}
+
+void ezGreyBoxComponent::SetSmoothShading(bool value)
+{
+  m_bSmoothShading = value;
   InvalidateMesh();
 }
 
@@ -488,6 +546,11 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> 
 
   switch (shape)
   {
+    case ezGreyBoxShape::Cone:
+      if (BuildConeGeometry(geom).Failed())
+        geom.AddBox(ezVec3(0.01f), true, opt);
+      break;
+
     case ezGreyBoxShape::Box:
       geom.AddBox(size, true, opt);
       break;
@@ -584,6 +647,15 @@ void ezGreyBoxComponent::GenerateMeshName(ezStringBuilder& out_sName) const
 {
   switch (m_Shape)
   {
+    case ezGreyBoxShape::Cone:
+    {
+      ezHashStreamWriter64 hash;
+      hash << m_fSizeNegX << m_fSizePosX << m_fSizeNegY << m_fSizePosY << m_fSizeNegZ << m_fSizePosZ;
+      hash << m_fBaseRadiusScale << m_fTopRadiusScale << m_uiSides << m_uiHeightSegments << m_fProfileCurve << m_bSmoothShading;
+      out_sName.SetFormat("Grey-Cone:{}", hash.GetHashValue());
+      break;
+    }
+
     case ezGreyBoxShape::Box:
       out_sName.SetFormat("Grey-Box:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
       break;

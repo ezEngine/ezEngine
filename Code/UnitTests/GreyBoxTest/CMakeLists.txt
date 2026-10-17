@@ -1,0 +1,5 @@
+ez_cmake_init()
+ez_requires_renderer()
+ez_create_target(APPLICATION GreyBoxTest NO_PCH NO_UNITY)
+target_link_libraries(GreyBoxTest PRIVATE TestFramework GameEngine)
+ez_ci_add_test(GreyBoxTest)

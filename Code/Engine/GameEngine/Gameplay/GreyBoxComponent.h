@@ -42,6 +42,7 @@ struct EZ_GAMEENGINE_DLL ezGreyBoxShape
     ArchX,
     ArchY,
     SpiralStairs,
+    Cone,
 
     Default = Box
   };
@@ -136,6 +137,20 @@ public:
   void SetThickness(float f);                         // [ property ]
   float GetThickness() const { return m_fThickness; } // [ property ]
 
+  /// Cone profile along local +Z. Radius scales are relative to half the X/Y extents.
+  void SetBaseRadiusScale(float value);
+  float GetBaseRadiusScale() const { return m_fBaseRadiusScale; }
+  void SetTopRadiusScale(float value);
+  float GetTopRadiusScale() const { return m_fTopRadiusScale; }
+  void SetSides(ezUInt32 value);
+  ezUInt32 GetSides() const { return m_uiSides; }
+  void SetHeightSegments(ezUInt32 value);
+  ezUInt32 GetHeightSegments() const { return m_uiHeightSegments; }
+  void SetProfileCurve(float value);
+  float GetProfileCurve() const { return m_fProfileCurve; }
+  void SetSmoothShading(bool value);
+  bool GetSmoothShading() const { return m_bSmoothShading; }
+
   /// Whether the mesh should be used as a collider.
   void SetGenerateCollision(bool b);                                 // [ property ]
   bool GetGenerateCollision() const { return m_bGenerateCollision; } // [ property ]
@@ -171,6 +186,14 @@ protected:
   bool m_bGenerateCollision = true;
   bool m_bUseAsOccluder = true;
 
+  float m_fBaseRadiusScale = 1.0f;
+  float m_fTopRadiusScale = 0.0f;
+  ezUInt32 m_uiSides = 32;
+  ezUInt32 m_uiHeightSegments = 8;
+  float m_fProfileCurve = 0.0f;
+  bool m_bSmoothShading = true;
+
+  ezResult BuildConeGeometry(ezGeometry& geom) const;
   void InvalidateMesh();
   void BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> shape, bool bOnlyRoughDetails) const;
 
