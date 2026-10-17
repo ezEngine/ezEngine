@@ -12,7 +12,7 @@
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-class ezWindow;
+class ezWindowPlatformShared;
 class ezWindowOutputTargetBase;
 class ezView;
 class ezWindowOutputTargetGAL;
@@ -69,7 +69,7 @@ public:
   /// and once the window was closed.
   ///
   /// The window may only be modified (e.g. through Reconfigure()) from the main thread.
-  ezWindow* GetMainWindow() const;
+  ezWindowPlatformShared* GetMainWindow() const;
 
   /// Returns the ezWorld that is currently the active one.
   ezWorld* GetMainWorld() { return m_pMainWorld; }
@@ -189,17 +189,17 @@ protected:
   virtual void ConfigureMainCamera() override;
 
   /// Override this to modify the default window creation behavior. Called by CreateActors().
-  virtual ezUniquePtr<ezWindow> CreateMainWindow();
+  virtual ezUniquePtr<ezWindowPlatformShared> CreateMainWindow();
 
   /// Override this to modify the default output target creation behavior. Called by CreateActors().
-  virtual ezUniquePtr<ezWindowOutputTargetGAL> CreateMainOutputTarget(ezWindow* pMainWindow);
+  virtual ezUniquePtr<ezWindowOutputTargetGAL> CreateMainOutputTarget(ezWindowPlatformShared* pMainWindow);
 
   /// Creates a default render view. Unless overridden, OnActivation() will do this for the main window.
   virtual void SetupMainView(ezGALSwapChainHandle hSwapChain, ezSizeU32 viewportSize);
 
   /// Configures available input devices, e.g. sets mouse speed, cursor clipping, etc.
   /// Called by CreateActors() with the result of CreateMainWindow().
-  virtual void ConfigureMainWindowInputDevices(ezWindow* pWindow);
+  virtual void ConfigureMainWindowInputDevices(ezWindowPlatformShared* pWindow);
 
   /// Returns the path to the scene file and the corresponding preload collection to load at startup.
   ///
@@ -242,7 +242,7 @@ protected:
   /// The registered window that owns m_pMainWindow. With XR, that is the XR window.
   ezRegisteredWndHandle m_hMainWindow;
   ezEventSubscriptionID m_PipelineCVarRegistry = {};
-  ezWindow* m_pMainWindow = nullptr;
+  ezWindowPlatformShared* m_pMainWindow = nullptr;
 
   ezWorld* m_pMainWorld = nullptr;
 

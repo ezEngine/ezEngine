@@ -3,6 +3,7 @@
 #include <Foundation/Configuration/CVar.h>
 
 #include "TestClass.h"
+#include <Core/System/HeadlessWindow.h>
 #include <Core/World/World.h>
 #include <Core/World/WorldDesc.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -246,4 +247,19 @@ void ezGameEngineTestGameState::ProcessInput()
 void ezGameEngineTestGameState::ConfigureInputActions()
 {
   // do nothing
+}
+
+ezUniquePtr<ezWindowPlatformShared> ezGameEngineTestGameState::CreateMainWindow()
+{
+  if (!ezTestFramework::GetInstance()->IsHeadless())
+  {
+    return ezGameState::CreateMainWindow();
+  }
+
+  ezWindowCreationDesc windowDesc;
+  windowDesc.LoadFromDDL(s_sWindowConfigFile).IgnoreResult();
+
+  ezUniquePtr<ezHeadlessWindow> pWindow = EZ_DEFAULT_NEW(ezHeadlessWindow);
+  pWindow->Initialize(windowDesc).AssertSuccess("Headless window creation failed");
+  return pWindow;
 }

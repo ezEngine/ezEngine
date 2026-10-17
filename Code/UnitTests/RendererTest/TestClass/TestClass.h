@@ -86,7 +86,7 @@ protected:
   void TextureBarrier(const ezGALTextureBarrier& barrier);
   void BufferBarrier(const ezGALBufferBarrier& barrier);
 
-  ezWindow* m_pWindow = nullptr;
+  ezWindowPlatformShared* m_pWindow = nullptr;
   ezGALDevice* m_pDevice = nullptr;
   ezGALCommandEncoder* m_pEncoder = nullptr;
 

@@ -131,7 +131,7 @@ namespace
            ezSourcePass::FindFormat(ezRequiredTextureType::Depth, ezRequiredTexturePrecision::Bits_24, ezRequiredTextureChannels::Channels_2, support) != ezGALResourceFormat::Invalid;
   }
 
-  ezWindow* GetMainWindow()
+  ezWindowPlatformShared* GetMainWindow()
   {
     ezGameState* pGameState = ezGameState::GetActiveGameState();
     return pGameState != nullptr ? pGameState->GetMainWindow() : nullptr;

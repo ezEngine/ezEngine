@@ -17,7 +17,7 @@ public:
   virtual void ProcessInput() override;
 
 protected:
-  virtual void ConfigureMainWindowInputDevices(ezWindow* pWindow) override;
+  virtual void ConfigureMainWindowInputDevices(ezWindowPlatformShared* pWindow) override;
   virtual void ConfigureInputActions() override;
   virtual void ConfigureMainCamera() override;
 

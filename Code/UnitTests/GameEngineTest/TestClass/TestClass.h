@@ -12,6 +12,9 @@ class ezGameEngineTestGameState : public ezGameState
 public:
   virtual void ProcessInput() override;
   virtual void ConfigureInputActions() override;
+
+protected:
+  virtual ezUniquePtr<ezWindowPlatformShared> CreateMainWindow() override;
 };
 
 class ezGameEngineTestApplication : public ezGameApplication

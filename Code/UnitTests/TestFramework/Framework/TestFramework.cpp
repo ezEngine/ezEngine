@@ -29,7 +29,9 @@ ezLog::TimestampMode ezTestFramework::s_LogTimestampMode = ezLog::TimestampMode:
 
 ezCommandLineOptionPath opt_OrderFile("_TestFramework", "-order", "Path to a file that defines which tests to run.", "");
 ezCommandLineOptionPath opt_SettingsFile("_TestFramework", "-settings", "Path to a file containing the test settings.", "");
+ezCommandLineOptionBool opt_Agent("_TestFramework", "-agent", "Runs tests unattended and prevents supported tests from creating native windows.", false);
 ezCommandLineOptionBool opt_NoGui("_TestFramework", "-noGui", "Runs the tests in console mode, without showing a window. This is what automated runs want: the tests start on their own and the process exits when they are done, whether they passed or not.", false);
+ezCommandLineOptionBool opt_Headless("_TestFramework", "-headless", "If supported, tests will refrain from creating windows e.g. by rendering offscreen.", false);
 ezCommandLineOptionBool opt_Timestamps("_TestFramework", "-timestamps", "Show timestamps in logs.", false);
 ezCommandLineOptionInt opt_Revision("_TestFramework", "-rev", "Revision number to pass through to JSON output.", -1);
 ezCommandLineOptionInt opt_Assert("_TestFramework", "-assert", "Whether to assert when a test fails.", (int)AssertOnTestFail::AssertIfDebuggerAttached);
@@ -126,6 +128,11 @@ ezTestFramework::~ezTestFramework()
   if (m_bIsInitialized)
     DeInitialize();
   s_pInstance = nullptr;
+}
+
+bool ezTestFramework::IsHeadless() const
+{
+  return opt_Agent.GetOptionValue(ezCommandLineOption::LogMode::Never) || opt_Headless.GetOptionValue(ezCommandLineOption::LogMode::Never);
 }
 
 void ezTestFramework::Initialize()
@@ -349,7 +356,8 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
   // use a local instance of ezCommandLineUtils as global instance is not guaranteed to have been set up
   // for all call sites of this method.
 
-  m_Settings.m_bNoGUI = opt_NoGui.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
+  const bool bAgent = opt_Agent.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
+  m_Settings.m_bNoGUI = bAgent || opt_NoGui.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
   if (opt_Assert.IsOptionSpecified(nullptr, &cmd))
   {

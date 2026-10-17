@@ -1,7 +1,9 @@
 #include <RendererTest/RendererTestPCH.h>
 
 #include <Core/Graphics/Camera.h>
+#include <Core/System/HeadlessWindow.h>
 #include <Foundation/Configuration/Startup.h>
+#include <RendererFoundation/Device/OffscreenSwapChain.h>
 #include <RendererTest/Basics/SwapChain.h>
 
 ezResult ezRendererTestSwapChain::InitializeTest()
@@ -31,6 +33,7 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
 
   m_CurrentWindowSize = ezSizeU32(320, 240);
 
+  const bool bHeadless = ezTestFramework::GetInstance()->IsHeadless();
   // Window
   {
     ezWindowCreationDesc WindowCreationDesc;
@@ -39,8 +42,11 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
     WindowCreationDesc.m_bClipMouseCursor = false;
     WindowCreationDesc.m_bShowMouseCursor = true;
     WindowCreationDesc.m_WindowMode = (iIdentifier == SubTests::ST_ResizeWindow) ? ezWindowMode::WindowResizable : ezWindowMode::WindowFixedResolution;
-    // ezWindow writes any window size changes into the config.
-    m_pWindow = EZ_DEFAULT_NEW(ezWindow);
+    if (bHeadless)
+      m_pWindow = EZ_DEFAULT_NEW(ezHeadlessWindow);
+    else
+      m_pWindow = EZ_DEFAULT_NEW(ezWindow);
+
     m_pWindow->Initialize(WindowCreationDesc).AssertSuccess("Window creation failed");
   }
 
@@ -49,7 +55,11 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
     swapChainDesc.m_pWindow = m_pWindow;
     swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
     swapChainDesc.m_InitialPresentMode = (iIdentifier == SubTests::ST_VSync) ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate;
-    m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
+
+    if (bHeadless)
+      m_hSwapChain = ezGALOffscreenSwapChain::Create(swapChainDesc);
+    else
+      m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
   }
 
   // Depth Texture
@@ -106,8 +116,13 @@ void ezRendererTestSwapChain::ResizeTest(ezUInt32 uiInvocationCount)
 
     // Swap Chain
     {
-      auto presentMode = m_pDevice->GetSwapChain<ezGALWindowSwapChain>(m_hSwapChain)->GetWindowDescription().m_InitialPresentMode;
+      ezEnum<ezGALPresentMode> presentMode = ezGALPresentMode::Immediate;
+      if (const ezGALWindowSwapChain* pWindowSwapChain = m_pDevice->GetSwapChain<ezGALWindowSwapChain>(m_hSwapChain))
+      {
+        presentMode = pWindowSwapChain->GetWindowDescription().m_InitialPresentMode;
+      }
       EZ_TEST_RESULT(m_pDevice->UpdateSwapChain(m_hSwapChain, presentMode));
+      EZ_TEST_BOOL(m_pDevice->GetSwapChain(m_hSwapChain)->GetCurrentSize() == m_CurrentWindowSize);
     }
 
     // Depth Texture
