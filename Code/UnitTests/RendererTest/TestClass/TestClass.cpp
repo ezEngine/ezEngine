@@ -3,6 +3,7 @@
 #include "TestClass.h"
 
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Core/System/HeadlessWindow.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -16,6 +17,7 @@
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
+#include <RendererFoundation/Device/OffscreenSwapChain.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererFoundation/Utils/ResourceStateTracker.h>
@@ -186,6 +188,7 @@ void ezGraphicsTest::ShutdownRenderer()
 
 ezResult ezGraphicsTest::CreateWindow(ezUInt32 uiResolutionX, ezUInt32 uiResolutionY)
 {
+  const bool bHeadless = ezTestFramework::GetInstance()->IsHeadless();
   // Create a window for rendering
   {
     ezWindowCreationDesc WindowCreationDesc;
@@ -195,7 +198,11 @@ ezResult ezGraphicsTest::CreateWindow(ezUInt32 uiResolutionX, ezUInt32 uiResolut
     WindowCreationDesc.m_bClipMouseCursor = false;
     WindowCreationDesc.m_bSetForegroundOnInit = false;
 
-    m_pWindow = EZ_DEFAULT_NEW(ezWindow);
+    if (bHeadless)
+      m_pWindow = EZ_DEFAULT_NEW(ezHeadlessWindow);
+    else
+      m_pWindow = EZ_DEFAULT_NEW(ezWindow);
+
     if (m_pWindow->Initialize(WindowCreationDesc).Failed())
       return EZ_FAILURE;
   }
@@ -205,7 +212,12 @@ ezResult ezGraphicsTest::CreateWindow(ezUInt32 uiResolutionX, ezUInt32 uiResolut
     ezGALWindowSwapChainCreationDescription swapChainDesc;
     swapChainDesc.m_pWindow = m_pWindow;
     swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
-    m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
+
+    if (bHeadless)
+      m_hSwapChain = ezGALOffscreenSwapChain::Create(swapChainDesc);
+    else
+      m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
+
     if (m_hSwapChain.IsInvalidated())
     {
       return EZ_FAILURE;

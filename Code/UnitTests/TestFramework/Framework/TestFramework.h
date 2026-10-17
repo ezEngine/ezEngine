@@ -96,6 +96,7 @@ public:
   // Global settings
   TestSettings GetSettings() const;
   void SetSettings(const TestSettings& settings);
+  bool IsHeadless() const;
 
   // Test results
   ezTestFrameworkResult& GetTestResult();

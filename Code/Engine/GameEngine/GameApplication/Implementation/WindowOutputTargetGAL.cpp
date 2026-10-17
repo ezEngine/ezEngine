@@ -10,6 +10,7 @@
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/OffscreenSwapChain.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Image.h>
@@ -47,7 +48,9 @@ void ezWindowOutputTargetGAL::CreateSwapchain(const ezGALWindowSwapChainCreation
   else
   {
     m_Size = desc.m_pWindow->GetClientAreaSize();
-    m_hSwapChain = ezGALWindowSwapChain::Create(m_CurrentDesc);
+    ezWindowHandle nativeWindowHandle = desc.m_pWindow->GetNativeWindowHandle();
+    ezWindowHandle invalidWindowHandle = INVALID_WINDOW_HANDLE_VALUE;
+    m_hSwapChain = nativeWindowHandle == invalidWindowHandle ? ezGALOffscreenSwapChain::Create(m_CurrentDesc) : ezGALWindowSwapChain::Create(m_CurrentDesc);
   }
 }
 
@@ -62,7 +65,6 @@ void ezWindowOutputTargetGAL::AcquireImage()
   // This call is only used to recreate the swapchain at a safe location.
 
   ezEnum<ezGALPresentMode> presentMode = ezGameApplication::cvar_AppVSync ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate;
-
   if (m_Size != m_CurrentDesc.m_pWindow->GetClientAreaSize() || presentMode != m_CurrentDesc.m_InitialPresentMode)
   {
     CreateSwapchain(m_CurrentDesc);
@@ -152,7 +154,7 @@ void ezWindowOutputTargetGAL::SwapChainUpdatedEventHandler(const ezGALSwapChain*
     return;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  auto* pMySwapChain = pDevice->GetSwapChain<ezGALWindowSwapChain>(m_hSwapChain);
+  const ezGALSwapChain* pMySwapChain = pDevice->GetSwapChain(m_hSwapChain);
 
   if (pSwapChain != pMySwapChain || !m_OnSwapChainChanged.IsValid())
     return;

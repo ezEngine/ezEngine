@@ -190,7 +190,7 @@ ezRegisteredWndHandle ezGameState::CreateXRWindow()
   }
   m_bXREnabled = true;
 
-  ezUniquePtr<ezWindow> pMainWindow;
+  ezUniquePtr<ezWindowPlatformShared> pMainWindow;
   ezUniquePtr<ezWindowOutputTargetGAL> pOutput;
 
   if (pXRInterface->SupportsCompanionView())
@@ -211,7 +211,7 @@ ezRegisteredWndHandle ezGameState::CreateXRWindow()
   }
 
   // the XR window takes ownership of the companion window, which lives as long as the XR window is registered
-  ezWindow* pCompanionWindow = pMainWindow.Borrow();
+  ezWindowPlatformShared* pCompanionWindow = pMainWindow.Borrow();
 
   ezView* pView = nullptr;
   EZ_VERIFY(ezRenderWorld::TryGetView(m_hMainView, pView), "");
@@ -233,7 +233,7 @@ void ezGameState::CreateWindows()
   if (!windowId.IsInvalidated())
     return;
 
-  ezUniquePtr<ezWindow> pMainWindow = CreateMainWindow();
+  ezUniquePtr<ezWindowPlatformShared> pMainWindow = CreateMainWindow();
   EZ_ASSERT_DEV(pMainWindow != nullptr, "To change the main window creation behavior, override ezGameState::CreateActors().");
   ezUniquePtr<ezWindowOutputTargetGAL> pOutput = CreateMainOutputTarget(pMainWindow.Borrow());
   ConfigureMainWindowInputDevices(pMainWindow.Borrow());
@@ -251,7 +251,7 @@ void ezGameState::CreateWindows()
   m_hMainWindow = id;
 }
 
-ezWindow* ezGameState::GetMainWindow() const
+ezWindowPlatformShared* ezGameState::GetMainWindow() const
 {
   // the window manager owns the window and may have closed it already
   auto pWinMan = ezWindowManager::GetSingleton();
@@ -262,7 +262,7 @@ ezWindow* ezGameState::GetMainWindow() const
   return m_pMainWindow;
 }
 
-void ezGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow) {}
+void ezGameState::ConfigureMainWindowInputDevices(ezWindowPlatformShared* pWindow) {}
 
 void ezGameState::ConfigureInputActions()
 {
@@ -479,7 +479,7 @@ void ezGameState::ConfigureMainCamera()
   }
 }
 
-ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
+ezUniquePtr<ezWindowPlatformShared> ezGameState::CreateMainWindow()
 {
   if (false)
   {
@@ -530,7 +530,7 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
   return pWindow;
 }
 
-ezUniquePtr<ezWindowOutputTargetGAL> ezGameState::CreateMainOutputTarget(ezWindow* pMainWindow)
+ezUniquePtr<ezWindowOutputTargetGAL> ezGameState::CreateMainOutputTarget(ezWindowPlatformShared* pMainWindow)
 {
   ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL, [this](ezGALSwapChainHandle hSwapChain, ezSizeU32 size)
     { SetupMainView(hSwapChain, size); });

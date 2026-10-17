@@ -9,6 +9,7 @@
 #include <Foundation/Utilities/Stats.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/OffscreenSwapChain.h>
 #include <RendererFoundation/Device/SharedTextureSwapChain.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Buffer.h>
@@ -158,6 +159,10 @@ ezResult ezGALDevice::Init()
   ezGALSharedTextureSwapChain::SetFactoryMethod([this](const ezGALSharedTextureSwapChainCreationDescription& desc) -> ezGALSwapChainHandle
     { return CreateSwapChain([&desc](ezAllocator* pAllocator) -> ezGALSwapChain*
         { return EZ_NEW(pAllocator, ezGALSharedTextureSwapChain, desc); }); });
+
+  ezGALOffscreenSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle
+    { return CreateSwapChain([&desc](ezAllocator* pAllocator) -> ezGALSwapChain*
+        { return EZ_NEW(pAllocator, ezGALOffscreenSwapChain, desc); }); });
 
   // Fill the capabilities
   FillCapabilitiesPlatform();

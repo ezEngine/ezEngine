@@ -52,7 +52,7 @@ Data/Tools/Precompiled/cmake/bin/cmake --build Workspace/agent-build --target cl
 ```shell
 ./RunCMake.sh --target linux-gcc-debug --solution-name AgentBuild --workspace-dir agent-build
 cmake --build Workspace/agent-build
-Workspace/agent-build-output/Bin/LinuxNinjaGccDebug64/FoundationTest -noGui
+Workspace/agent-build-output/Bin/LinuxNinjaGccDebug64/FoundationTest -noGui -headless
 ```
 
 Linux uses the system `cmake` (the precompiled tools in `Data/Tools/Precompiled` are Windows binaries). Presets: `linux-gcc-debug`, `linux-gcc-dev`, `linux-clang-debug`, `linux-clang-dev`. `./RunCMake.sh --setup` installs the required packages. Outputs go to `Workspace/agent-build-output/Bin/LinuxNinja<Compiler><Config>64/`.
@@ -74,17 +74,17 @@ Data/Tools/Precompiled/cmake/bin/ctest --test-dir Workspace/agent-build -C Debug
 
 # Run a test executable directly. -noGui is what makes it usable from a script: the tests start on
 # their own, output goes to the console, and the process exits when they are done. Without it a
-# window opens and waits for interaction.
-Workspace/agent-build-output/Bin/WinVs2026Debug64/FoundationTest.exe -noGui
+# window opens and waits for interaction. Pass -headless to avoid creating windows in tests that support it.
+Workspace/agent-build-output/Bin/WinVs2026Debug64/FoundationTest.exe -noGui -headless
 
 # Run only some tests. -filter does a case insensitive 'contains' check against both test and
 # sub-test names; add '*'/'?' for a full-match wildcard pattern instead. Check the output actually
 # says what you expect - a filter that matches nothing is reported as a failure, not as a pass.
-Workspace/agent-build-output/Bin/WinVs2026Debug64/FoundationTest.exe -noGui -filter "JSON"
-Workspace/agent-build-output/Bin/WinVs2026Debug64/FoundationTest.exe -noGui -filter "IO*"
+Workspace/agent-build-output/Bin/WinVs2026Debug64/FoundationTest.exe -noGui -headless -filter "JSON"
+Workspace/agent-build-output/Bin/WinVs2026Debug64/FoundationTest.exe -noGui -headless -filter "IO*"
 ```
 
-`-list` prints the available test names, `-help` every option. `-filter` is not a regex: alternation like `-filter "IO|Serialization"` does not work, run the groups one after another instead. There are no `-run` or `-all` options anymore; `-noGui` starts the tests and runs all of them unless `-filter` is given.
+`-list` prints the available test names, `-help` every option. `-headless` prevents supported rendering tests from creating native windows. `-filter` is not a regex: alternation like `-filter "IO|Serialization"` does not work, run the groups one after another instead. There are no `-run` or `-all` options anymore; `-noGui` starts the tests and runs all of them unless `-filter` is given.
 
 ### Important Notes
 
