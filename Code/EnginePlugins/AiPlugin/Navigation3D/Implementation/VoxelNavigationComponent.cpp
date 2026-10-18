@@ -17,7 +17,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezAiVoxelNavigationComponentState, 1)
   EZ_ENUM_CONSTANTS(ezAiVoxelNavigationComponentState::Idle, ezAiVoxelNavigationComponentState::Moving, ezAiVoxelNavigationComponentState::Failed)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezAiVoxelNavigationComponent, 1, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezAiVoxelNavigationComponent, 2, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -26,6 +26,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAiVoxelNavigationComponent, 1, ezComponentMode::Dynami
     EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration)->AddAttributes(new ezDefaultValueAttribute(3.0f)),
     EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration)->AddAttributes(new ezDefaultValueAttribute(8.0f)),
     EZ_MEMBER_PROPERTY("ReachedDistance", m_fReachedDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
+    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 100.0f)),
     EZ_MEMBER_PROPERTY("ApplySteering", m_bApplySteering)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("LookAheadDistance", m_fLookAheadDistance)->AddAttributes(new ezDefaultValueAttribute(3.0f), new ezClampValueAttribute(0.1f, ezVariant())),
     EZ_MEMBER_PROPERTY("MaxPathOffset", m_fMaxPathOffset)->AddAttributes(new ezDefaultValueAttribute(3.0f), new ezClampValueAttribute(0.1f, ezVariant())),
@@ -134,7 +135,7 @@ void ezAiVoxelNavigationComponent::SetDestination(const ezVec3& vGlobalPos)
       out_grids.PushBack(&pGridComponent->GetStaticVoxelGrid());
   };
 
-  const auto result = m_Navigation.FindPath(vCurrentPos, vGlobalPos, gridFinder);
+  const auto result = m_Navigation.FindPath(vCurrentPos, vGlobalPos, gridFinder, 5.0f, 10000, 16, m_fRadius);
 
   switch (result)
   {
@@ -320,13 +321,13 @@ bool ezAiVoxelNavigationComponent::GetValidCellNearby(const ezVec3& vStart, floa
 
   const ezVoxelGrid& grid = pOwningGrid->GetStaticVoxelGrid();
 
-  if (!grid.IsVoxelSet(vStartCoord))
+  if (grid.IsVoxelNavigable(vStartCoord, m_fRadius))
   {
     out_vPoint = vStart;
     return true;
   }
 
-  // vStart is blocked - scan every voxel within fSearchRadius and keep the physically closest free
+  // vStart lacks clearance - scan every voxel within fSearchRadius and keep the physically closest free
   // one found. Simple exhaustive scan rather than an expanding-shell search: fSearchRadius is
   // expected to stay small (this is meant for local recovery, not long-range searches).
   const float fVoxelSize = grid.GetVoxelSize();
@@ -345,7 +346,7 @@ bool ezAiVoxelNavigationComponent::GetValidCellNearby(const ezVec3& vStart, floa
           continue;
 
         const ezVec3I32 vCoord = vStartCoord + ezVec3I32(dx, dy, dz);
-        if (!grid.IsCoordValid(vCoord) || grid.IsVoxelSet(vCoord))
+        if (!grid.IsCoordValid(vCoord) || !grid.IsVoxelNavigable(vCoord, m_fRadius))
           continue;
 
         const ezVec3 vCandidate = grid.CoordToWorld(vCoord);
@@ -382,6 +383,7 @@ void ezAiVoxelNavigationComponent::SerializeComponent(ezWorldWriter& inout_strea
   s << m_MaxBankAngle;
   s << m_fMaxPathOffset;
   s << m_fCorridorCorrectionRate;
+  s << m_fRadius;
 }
 
 void ezAiVoxelNavigationComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -403,6 +405,11 @@ void ezAiVoxelNavigationComponent::DeserializeComponent(ezWorldReader& inout_str
   s >> m_MaxBankAngle;
   s >> m_fMaxPathOffset;
   s >> m_fCorridorCorrectionRate;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_fRadius;
+  }
 }
 
 void ezAiVoxelNavigationComponent::Update()

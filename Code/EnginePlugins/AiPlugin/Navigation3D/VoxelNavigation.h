@@ -48,8 +48,9 @@ public:
   /// fSearchMargin is added around that box.
   /// uiMaxIterationsPerHop limits the A* node expansion within a single grid, to prevent frame stalls.
   /// uiMaxHops limits how many grids the path may pass through, as a safety net against infinite loops.
+  /// fRadius specifies the clearance radius required around the path (0 for point-based navigation).
   State FindPath(const ezVec3& vStart, const ezVec3& vTarget, const ezAiVoxelGridFinder& gridFinder,
-    float fSearchMargin = 5.0f, ezUInt32 uiMaxIterationsPerHop = 10000, ezUInt32 uiMaxHops = 16);
+    float fSearchMargin = 5.0f, ezUInt32 uiMaxIterationsPerHop = 10000, ezUInt32 uiMaxHops = 16, float fRadius = 0.0f);
 
   /// Sets a trivial, single-segment path straight from vStart to vTarget, bypassing pathfinding and
   /// occlusion checks entirely. Useful for emergency recovery (e.g. moving out of a voxel that
@@ -105,7 +106,7 @@ private:
   /// Searches for a path from vStart to vTarget, with both positions required to be inside grid.
   ///
   /// out_waypoints receives the A* path after string-pulling smoothing.
-  State FindPathToTarget(const ezVoxelGrid& grid, const ezVec3& vStart, const ezVec3& vTarget, ezUInt32 uiMaxIterations,
+  State FindPathToTarget(const ezVoxelGrid& grid, const ezVec3& vStart, const ezVec3& vTarget, ezUInt32 uiMaxIterations, float fRadius,
     ezDynamicArray<ezVec3>& out_waypoints) const;
 
   /// Searches for a path from vStart to any voxel on the boundary of grid, biased towards vRealTarget.
@@ -115,9 +116,9 @@ private:
   /// grid (grids are not supposed to overlap, but this guards against it regardless).
   /// out_waypoints receives the A* path after string-pulling smoothing.
   State FindPathToExit(const ezVoxelGrid& grid, const ezVec3& vStart, const ezVec3& vRealTarget,
-    ezArrayPtr<const ezVoxelGrid* const> otherGrids, ezUInt32 uiMaxIterations, ezDynamicArray<ezVec3>& out_waypoints) const;
+    ezArrayPtr<const ezVoxelGrid* const> otherGrids, ezUInt32 uiMaxIterations, float fRadius, ezDynamicArray<ezVec3>& out_waypoints) const;
 
-  void SmoothPath(const ezVoxelGrid& grid, ezDynamicArray<ezVec3>& inout_waypoints) const;
+  void SmoothPath(const ezVoxelGrid& grid, float fRadius, ezDynamicArray<ezVec3>& inout_waypoints) const;
 
   /// Shared arc-length walk used by GetLookAheadPoint() (peek, local index copy) and
   /// AdvanceAlongPath() (mutates m_uiCurrentWaypoint via inout_uiIndex). Walks forward from
@@ -126,10 +127,9 @@ private:
   ezVec3 WalkPathForward(const ezVec3& vCurrentPos, float fDistance, ezUInt32& inout_uiIndex) const;
 
   /// Searches all coordinates within uiMaxRadius voxels of vCoord for the closest valid, non-solid
-  /// coordinate. Used to recover a search that would otherwise fail immediately because its exact
-  /// start voxel is solid or out of bounds (e.g. a moving object ending up inside a voxel that
-  /// turned solid after it last pathed, or momentum having carried it slightly past one).
-  static bool FindNearbyValidCoord(const ezVoxelGrid& grid, const ezVec3I32& vCoord, ezUInt32 uiMaxRadius, ezVec3I32& out_vValidCoord);
+  /// coordinate that also satisfies the given radius clearance. Used to recover a search that would
+  /// otherwise fail immediately because its exact start voxel is solid, out of bounds, or too close to a wall.
+  static bool FindNearbyValidCoord(const ezVoxelGrid& grid, const ezVec3I32& vCoord, ezUInt32 uiMaxRadius, float fRadius, ezVec3I32& out_vValidCoord);
 
   State m_State = State::Idle;
   ezDynamicArray<ezVec3> m_Waypoints;
