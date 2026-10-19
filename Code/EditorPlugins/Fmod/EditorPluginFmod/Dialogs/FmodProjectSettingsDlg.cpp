@@ -139,10 +139,13 @@ void ezQtFmodProjectSettingsDlg::on_ButtonBox_clicked(QAbstractButton* pButton)
     {
       if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Save the changes to the FMOD configuration?\nYou need to reload the project for the changes to take effect.", QMessageBox::Yes | QMessageBox::No, QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
       {
-        ezQtEditorApp::GetSingleton()->AddReloadProjectRequiredReason("FMOD configuration was modified.");
-
         if (Save().Failed())
           return;
+
+        // this may reload the project right away, which unmounts the ':project' data directory, so it must happen after saving
+        accept();
+        ezQtEditorApp::GetSingleton()->AddReloadProjectRequiredReason("FMOD configuration was modified.");
+        return;
       }
     }
 
