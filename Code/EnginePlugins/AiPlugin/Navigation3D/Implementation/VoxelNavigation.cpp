@@ -14,7 +14,7 @@ ezAiVoxelNavigation::~ezAiVoxelNavigation() = default;
 // (e.g. a tight corner), without letting recovery silently teleport the object very far.
 static const ezUInt32 s_uiStartRecoveryRadiusVoxels = 2;
 
-bool ezAiVoxelNavigation::FindNearbyValidCoord(const ezVoxelGrid& grid, const ezVec3I32& vCoord, ezUInt32 uiMaxRadius, float fRadius, ezVec3I32& out_vValidCoord)
+bool ezAiVoxelNavigation::FindNearbyValidCoord(const ezVoxelGrid& grid, const ezVec3I32& vCoord, ezUInt32 uiMaxRadius, ezArrayPtr<const ezVec3I32> sphereOffsets, ezVec3I32& out_vValidCoord)
 {
   // Exhaustive search of the (2*uiMaxRadius+1)^3 cube around vCoord, keeping the closest valid,
   // non-solid coordinate found (squared voxel-offset distance is monotonic with physical distance
@@ -39,7 +39,7 @@ bool ezAiVoxelNavigation::FindNearbyValidCoord(const ezVoxelGrid& grid, const ez
           continue;
 
         const ezVec3I32 vNeighbor = vCoord + ezVec3I32(dx, dy, dz);
-        if (!grid.IsCoordValid(vNeighbor) || !grid.IsVoxelNavigable(vNeighbor, fRadius))
+        if (!grid.IsCoordValid(vNeighbor) || !grid.IsVoxelNavigable(vNeighbor, sphereOffsets))
           continue;
 
         iBestDistSqr = iDistSqr;
@@ -234,7 +234,7 @@ namespace
 // true, vTargetCoord is only used to bias the search heuristic and may lie outside grid; the search
 // stops at the first voxel reached that lies on the boundary of grid.
 static ezAiVoxelNavigation::State RunGridAStar(const ezVoxelGrid& grid, const ezVec3I32& vStartCoord, const ezVec3I32& vTargetCoord,
-  bool bExitSearch, ezArrayPtr<const ezVoxelGrid* const> otherGrids, ezUInt32 uiMaxIterations, float fRadius, ezDynamicArray<ezVec3>& out_waypoints)
+  bool bExitSearch, ezArrayPtr<const ezVoxelGrid* const> otherGrids, ezUInt32 uiMaxIterations, ezArrayPtr<const ezVec3I32> sphereOffsets, ezDynamicArray<ezVec3>& out_waypoints)
 {
   using State = ezAiVoxelNavigation::State;
 
@@ -247,12 +247,6 @@ static ezAiVoxelNavigation::State RunGridAStar(const ezVoxelGrid& grid, const ez
 
   ezHashTable<ezUInt32, AStarNode> nodes;
   ezDynamicArray<OpenSetEntry> openSet;
-
-  ezDynamicArray<ezVec3I32> sphereOffsets;
-  if (fRadius > 0.0f)
-  {
-    grid.ComputeSphereVoxelOffsets(fRadius, sphereOffsets);
-  }
 
   // Initialize start node
   {
@@ -324,21 +318,26 @@ static ezAiVoxelNavigation::State RunGridAStar(const ezVoxelGrid& grid, const ez
       if (!grid.IsCoordValid(vNeighborCoord))
         continue;
 
-      if (grid.IsVoxelSet(vNeighborCoord))
-        continue;
-
-      bool bBlocked = false;
-      for (const ezVec3I32& offset : sphereOffsets)
+      if (sphereOffsets.IsEmpty())
       {
-        const ezVec3I32 vCheck = vNeighborCoord + offset;
-        if (grid.IsCoordValid(vCheck) && grid.IsVoxelSet(vCheck))
-        {
-          bBlocked = true;
-          break;
-        }
+        if (grid.IsVoxelSet(vNeighborCoord))
+          continue;
       }
-      if (bBlocked)
-        continue;
+      else
+      {
+        bool bBlocked = false;
+        for (const ezVec3I32& offset : sphereOffsets)
+        {
+          const ezVec3I32 vCheck = vNeighborCoord + offset;
+          if (!grid.IsCoordValid(vCheck) || grid.IsVoxelSet(vCheck))
+          {
+            bBlocked = true;
+            break;
+          }
+        }
+        if (bBlocked)
+          continue;
+      }
 
       const ezUInt32 uiNeighborPacked = PackCoord(vNeighborCoord, uiDimX, uiDimY);
       const float fTentativeG = fCurrentG + 1.0f;
@@ -398,67 +397,67 @@ static ezAiVoxelNavigation::State RunGridAStar(const ezVoxelGrid& grid, const ez
 }
 
 ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPathToTarget(const ezVoxelGrid& grid, const ezVec3& vStart, const ezVec3& vTarget,
-  ezUInt32 uiMaxIterations, float fRadius, ezDynamicArray<ezVec3>& out_waypoints) const
+  ezUInt32 uiMaxIterations, ezArrayPtr<const ezVec3I32> sphereOffsets, ezDynamicArray<ezVec3>& out_waypoints) const
 {
   out_waypoints.Clear();
 
   ezVec3I32 vStartCoord = grid.WorldToCoord(vStart);
   const ezVec3I32 vTargetCoord = grid.WorldToCoord(vTarget);
 
-  if (!grid.IsCoordValid(vStartCoord) || !grid.IsVoxelNavigable(vStartCoord, fRadius))
+  if (!grid.IsCoordValid(vStartCoord) || !grid.IsVoxelNavigable(vStartCoord, sphereOffsets))
   {
     // The exact start voxel is blocked or lacks clearance - before giving up, try to recover by
     // stepping into a free voxel immediately next to it (e.g. the object got pushed into a voxel
     // that turned solid after it last pathed).
     ezVec3I32 vRecoveredCoord;
-    if (!FindNearbyValidCoord(grid, vStartCoord, s_uiStartRecoveryRadiusVoxels, fRadius, vRecoveredCoord))
+    if (!FindNearbyValidCoord(grid, vStartCoord, s_uiStartRecoveryRadiusVoxels, sphereOffsets, vRecoveredCoord))
       return State::InvalidStartPosition;
 
     vStartCoord = vRecoveredCoord;
   }
 
-  if (!grid.IsCoordValid(vTargetCoord) || !grid.IsVoxelNavigable(vTargetCoord, fRadius))
+  if (!grid.IsCoordValid(vTargetCoord) || !grid.IsVoxelNavigable(vTargetCoord, sphereOffsets))
     return State::InvalidTargetPosition;
 
-  const State result = RunGridAStar(grid, vStartCoord, vTargetCoord, false, ezArrayPtr<const ezVoxelGrid* const>(), uiMaxIterations, fRadius, out_waypoints);
+  const State result = RunGridAStar(grid, vStartCoord, vTargetCoord, false, ezArrayPtr<const ezVoxelGrid* const>(), uiMaxIterations, sphereOffsets, out_waypoints);
 
   if (result == State::PathFound)
   {
-    SmoothPath(grid, fRadius, out_waypoints);
+    SmoothPath(grid, sphereOffsets, out_waypoints);
   }
 
   return result;
 }
 
 ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPathToExit(const ezVoxelGrid& grid, const ezVec3& vStart, const ezVec3& vRealTarget,
-  ezArrayPtr<const ezVoxelGrid* const> otherGrids, ezUInt32 uiMaxIterations, float fRadius, ezDynamicArray<ezVec3>& out_waypoints) const
+  ezArrayPtr<const ezVoxelGrid* const> otherGrids, ezUInt32 uiMaxIterations, ezArrayPtr<const ezVec3I32> sphereOffsets, ezDynamicArray<ezVec3>& out_waypoints) const
 {
   out_waypoints.Clear();
 
   ezVec3I32 vStartCoord = grid.WorldToCoord(vStart);
   const ezVec3I32 vTargetCoord = grid.WorldToCoord(vRealTarget); // may lie outside grid, only used for the heuristic
 
-  if (!grid.IsCoordValid(vStartCoord) || !grid.IsVoxelNavigable(vStartCoord, fRadius))
+  if (!grid.IsCoordValid(vStartCoord) || !grid.IsVoxelNavigable(vStartCoord, sphereOffsets))
   {
     ezVec3I32 vRecoveredCoord;
-    if (!FindNearbyValidCoord(grid, vStartCoord, s_uiStartRecoveryRadiusVoxels, fRadius, vRecoveredCoord))
+    if (!FindNearbyValidCoord(grid, vStartCoord, s_uiStartRecoveryRadiusVoxels, sphereOffsets, vRecoveredCoord))
       return State::InvalidStartPosition;
 
     vStartCoord = vRecoveredCoord;
   }
 
-  const State result = RunGridAStar(grid, vStartCoord, vTargetCoord, true, otherGrids, uiMaxIterations, fRadius, out_waypoints);
+  const State result = RunGridAStar(grid, vStartCoord, vTargetCoord, true, otherGrids, uiMaxIterations, sphereOffsets, out_waypoints);
 
   if (result == State::PathFound)
   {
-    SmoothPath(grid, fRadius, out_waypoints);
+    SmoothPath(grid, sphereOffsets, out_waypoints);
   }
 
   return result;
 }
 
-ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, const ezVec3& vTarget, const ezAiVoxelGridFinder& gridFinder,
-  float fSearchMargin, ezUInt32 uiMaxIterationsPerHop, ezUInt32 uiMaxHops, float fRadius)
+ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, const ezVec3& vTarget, ezArrayPtr<const ezVec3I32> sphereOffsets,
+  const ezAiVoxelGridFinder& gridFinder, float fSearchMargin, ezUInt32 uiMaxIterationsPerHop, ezUInt32 uiMaxHops)
 {
   m_Waypoints.Clear();
   m_SegmentInsideGrid.Clear();
@@ -532,8 +531,8 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, c
 
     ezDynamicArray<ezVec3> hopWaypoints;
     const State hopState = bTargetInside
-                             ? FindPathToTarget(*pGrid, vEntry, vTarget, uiMaxIterationsPerHop, fRadius, hopWaypoints)
-                             : FindPathToExit(*pGrid, vEntry, vTarget, grids, uiMaxIterationsPerHop, fRadius, hopWaypoints);
+                             ? FindPathToTarget(*pGrid, vEntry, vTarget, uiMaxIterationsPerHop, sphereOffsets, hopWaypoints)
+                             : FindPathToExit(*pGrid, vEntry, vTarget, grids, uiMaxIterationsPerHop, sphereOffsets, hopWaypoints);
 
     if (hopState != State::PathFound)
     {
@@ -577,7 +576,7 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, c
   return m_State;
 }
 
-void ezAiVoxelNavigation::SmoothPath(const ezVoxelGrid& grid, float fRadius, ezDynamicArray<ezVec3>& inout_waypoints) const
+void ezAiVoxelNavigation::SmoothPath(const ezVoxelGrid& grid, ezArrayPtr<const ezVec3I32> sphereOffsets, ezDynamicArray<ezVec3>& inout_waypoints) const
 {
   if (inout_waypoints.GetCount() <= 2)
     return;
@@ -598,7 +597,7 @@ void ezAiVoxelNavigation::SmoothPath(const ezVoxelGrid& grid, float fRadius, ezD
 
       if (grid.IsCoordValid(vCoordA) &&
           grid.IsCoordValid(vCoordB) &&
-          grid.CheckLineOfSight(vCoordA, vCoordB, fRadius))
+          grid.CheckLineOfSight(vCoordA, vCoordB, sphereOffsets))
       {
         uiFarthestVisible = i;
         break;

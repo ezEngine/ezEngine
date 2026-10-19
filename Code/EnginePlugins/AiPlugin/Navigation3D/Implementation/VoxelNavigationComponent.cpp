@@ -26,7 +26,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAiVoxelNavigationComponent, 2, ezComponentMode::Dynami
     EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration)->AddAttributes(new ezDefaultValueAttribute(3.0f)),
     EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration)->AddAttributes(new ezDefaultValueAttribute(8.0f)),
     EZ_MEMBER_PROPERTY("ReachedDistance", m_fReachedDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 100.0f)),
+    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezClampValueAttribute(0.0f, 100.0f)),
     EZ_MEMBER_PROPERTY("ApplySteering", m_bApplySteering)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("LookAheadDistance", m_fLookAheadDistance)->AddAttributes(new ezDefaultValueAttribute(3.0f), new ezClampValueAttribute(0.1f, ezVariant())),
     EZ_MEMBER_PROPERTY("MaxPathOffset", m_fMaxPathOffset)->AddAttributes(new ezDefaultValueAttribute(3.0f), new ezClampValueAttribute(0.1f, ezVariant())),
@@ -101,13 +101,21 @@ void ezAiVoxelNavigationComponent::SetDestination(const ezVec3& vGlobalPos)
     return;
   }
 
+  ezDynamicArray<ezVec3I32> sphereOffsets;
+
   // Track the actual voxel size of the grid we're in, so the runtime thresholds derived from it
   // (arrival/repath distances in Update()) scale with the grid instead of a fixed assumption.
   {
     ezTempHybridArray<ezAiVoxelGridComponent*, 8> grids;
     pVoxelModule->FindGridsInBox(ezBoundingBox::MakeFromCenterAndHalfExtents(GetOwner()->GetGlobalPosition(), ezVec3(0.01f)), grids);
     if (!grids.IsEmpty())
+    {
       m_fVoxelSize = grids[0]->GetVoxelSize();
+      if (m_fRadius > 0.0f)
+      {
+        grids[0]->GetStaticVoxelGrid().ComputeSphereVoxelOffsets(m_fRadius, sphereOffsets);
+      }
+    }
   }
 
   if (!m_bPathPositionInitialized)
@@ -135,7 +143,7 @@ void ezAiVoxelNavigationComponent::SetDestination(const ezVec3& vGlobalPos)
       out_grids.PushBack(&pGridComponent->GetStaticVoxelGrid());
   };
 
-  const auto result = m_Navigation.FindPath(vCurrentPos, vGlobalPos, gridFinder, 5.0f, 10000, 16, m_fRadius);
+  const auto result = m_Navigation.FindPath(vCurrentPos, vGlobalPos, sphereOffsets, gridFinder);
 
   switch (result)
   {
@@ -321,7 +329,13 @@ bool ezAiVoxelNavigationComponent::GetValidCellNearby(const ezVec3& vStart, floa
 
   const ezVoxelGrid& grid = pOwningGrid->GetStaticVoxelGrid();
 
-  if (grid.IsVoxelNavigable(vStartCoord, m_fRadius))
+  ezDynamicArray<ezVec3I32> sphereOffsets;
+  if (m_fRadius > 0.0f)
+  {
+    grid.ComputeSphereVoxelOffsets(m_fRadius, sphereOffsets);
+  }
+
+  if (grid.IsVoxelNavigable(vStartCoord, sphereOffsets))
   {
     out_vPoint = vStart;
     return true;
@@ -346,7 +360,7 @@ bool ezAiVoxelNavigationComponent::GetValidCellNearby(const ezVec3& vStart, floa
           continue;
 
         const ezVec3I32 vCoord = vStartCoord + ezVec3I32(dx, dy, dz);
-        if (!grid.IsCoordValid(vCoord) || !grid.IsVoxelNavigable(vCoord, m_fRadius))
+        if (!grid.IsCoordValid(vCoord) || !grid.IsVoxelNavigable(vCoord, sphereOffsets))
           continue;
 
         const ezVec3 vCandidate = grid.CoordToWorld(vCoord);

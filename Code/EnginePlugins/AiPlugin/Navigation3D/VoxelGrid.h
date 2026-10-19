@@ -59,12 +59,11 @@ public:
   /// Returns whether the voxel at the given coordinate is occupied.
   bool IsVoxelSet(const ezVec3I32& vCoord) const;
 
-  /// Returns whether the coordinate is navigable for an entity with the given radius.
-  /// If fRadius <= 0.0f, checks only if the voxel itself is occupied.
-  bool IsVoxelNavigable(const ezVec3I32& vCoord, float fRadius = 0.0f) const;
+  /// Returns whether the coordinate is navigable with the given spherical clearance offsets.
+  /// If sphereOffsets is empty, checks only if the voxel itself is occupied.
+  bool IsVoxelNavigable(const ezVec3I32& vCoord, ezArrayPtr<const ezVec3I32> sphereOffsets = {}) const;
 
-  /// Precomputes non-zero integer voxel offsets that fall within the given radius.
-  /// Offsets are sorted in ascending order of squared distance for fast fail-early checks.
+  /// Precomputes integer voxel offsets (including (0,0,0)) that fall within the given radius.
   void ComputeSphereVoxelOffsets(float fRadius, ezDynamicArray<ezVec3I32>& out_offsets) const;
 
   /// Rasterizes a world-space triangle into the grid, setting (or clearing) every voxel it overlaps.
@@ -74,10 +73,10 @@ public:
   void SetVoxelsOnTriangle(const ezVec3& v0, const ezVec3& v1, const ezVec3& v2, bool bSet = true);
 
   /// Ray-march visibility test between two grid-space coordinates.
-  /// If fRadius > 0.0f, checks clearance with the given radius along the line.
+  /// If sphereOffsets is non-empty, checks clearance with the given offsets along the line.
   ///
   /// Returns true if no occupied voxel blocks the line of sight.
-  bool CheckLineOfSight(const ezVec3I32& vStart, const ezVec3I32& vGoal, float fRadius = 0.0f) const;
+  bool CheckLineOfSight(const ezVec3I32& vStart, const ezVec3I32& vGoal, ezArrayPtr<const ezVec3I32> sphereOffsets = {}) const;
 
   /// Returns the world-space AABB of the entire grid.
   ezBoundingBox GetAABB() const;

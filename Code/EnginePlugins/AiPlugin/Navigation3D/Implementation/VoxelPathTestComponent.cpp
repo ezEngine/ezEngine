@@ -20,7 +20,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAiVoxelPathTestComponent, 2, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("SearchMargin", m_fSearchMargin)->AddAttributes(new ezDefaultValueAttribute(5.0f)),
     EZ_MEMBER_PROPERTY("MaxIterationsPerHop", m_uiMaxIterationsPerHop)->AddAttributes(new ezDefaultValueAttribute(10000)),
     EZ_MEMBER_PROPERTY("MaxHops", m_uiMaxHops)->AddAttributes(new ezDefaultValueAttribute(16)),
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 100.0f)),
+    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezClampValueAttribute(0.0f, 100.0f)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -109,7 +109,18 @@ void ezAiVoxelPathTestComponent::Update()
       out_grids.PushBack(&pGridComponent->GetStaticVoxelGrid());
   };
 
-  const auto state = m_Navigation.FindPath(vStart, vTarget, gridFinder, m_fSearchMargin, m_uiMaxIterationsPerHop, m_uiMaxHops, m_fRadius);
+  ezDynamicArray<ezVec3I32> sphereOffsets;
+  if (m_fRadius > 0.0f)
+  {
+    ezTempHybridArray<ezAiVoxelGridComponent*, 1> startGrids;
+    pVoxelModule->FindGridsInBox(ezBoundingBox::MakeFromCenterAndHalfExtents(vStart, ezVec3(0.01f)), startGrids);
+    if (!startGrids.IsEmpty())
+    {
+      startGrids[0]->GetStaticVoxelGrid().ComputeSphereVoxelOffsets(m_fRadius, sphereOffsets);
+    }
+  }
+
+  const auto state = m_Navigation.FindPath(vStart, vTarget, sphereOffsets, gridFinder, m_fSearchMargin, m_uiMaxIterationsPerHop, m_uiMaxHops);
 
   if (m_bVisualizeSmoothedPath)
   {
