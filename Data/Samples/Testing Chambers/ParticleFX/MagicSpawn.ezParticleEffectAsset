@@ -42,7 +42,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2102503715191217833,5588297821589819351}}
-		u4 %Hash{5635003458480281266}
+		u4 %Hash{7912179547978271299}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{12769378660227227937,14734651298189082489}}
@@ -51,11 +51,13 @@ o
 		VarArray %PackageDeps
 		{
 			s{"{ 3619cd17-924e-4a3a-8aab-ecd69716ab3d }"}
+			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 			s{"{ f633ccad-b4d5-12e5-260a-bb050d602881 }"}
 		}
 		VarArray %References
 		{
 			s{"{ 3619cd17-924e-4a3a-8aab-ecd69716ab3d }"}
+			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 			s{"{ f633ccad-b4d5-12e5-260a-bb050d602881 }"}
 		}
 		s %Tags{""}
@@ -140,8 +142,8 @@ o
 		f %ApplyOwnerVelocity{0}
 		VarDict %ColorParameters
 		{
-			Color %Color2{f{0x0AF39B40,0x767FA141,0x68DCDE42,0x0000803F}}
 			Color %Color{f{0x3A9B953E,0x81614641,0x6E44E841,0x0000803F}}
+			Color %Color2{f{0x0AF39B40,0x767FA141,0x68DCDE42,0x0000803F}}
 		}
 		VarArray %EventReactions{}
 		VarDict %FloatParameters{}
@@ -619,7 +621,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %CustomMaterial{""}
+		HashedString %CustomMaterial{s{""}}
 		f %LightDirectionality{0x0000003F}
 		s %LightingMode{"ezParticleLightingMode::Fullbright"}
 		f %NormalCurvature{0x0000003F}
@@ -627,10 +629,10 @@ o
 		u1 %NumSpritesY{1}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
 		u2 %Segments{6}
-		s %Texture{"{ 3619cd17-924e-4a3a-8aab-ecd69716ab3d }"}
+		HashedString %Texture{s{"{ 3619cd17-924e-4a3a-8aab-ecd69716ab3d }"}}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
 		s %TextureOrientation{"ezParticleTextureAtlasOrientation::Up"}
-		s %TintColorParam{""}
+		HashedString %TintColorParam{s{""}}
 		b %UseCustomMaterial{0}
 	}
 }

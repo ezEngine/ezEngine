@@ -28,7 +28,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8041297443414721205,4824718660267000895}}
-		u4 %Hash{4390379573573491055}
+		u4 %Hash{5329288822624222563}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{10002920575294395407,8209054380563027724}}
@@ -38,11 +38,15 @@ o
 		{
 			s{"{ ab745bdf-bc09-9e34-77b5-734904059b96 }"}
 			s{"{ ca7b26fd-7c01-42be-adec-fd843d5bcc93 }"}
+			s{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
+			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 		}
 		VarArray %References
 		{
 			s{"{ ab745bdf-bc09-9e34-77b5-734904059b96 }"}
 			s{"{ ca7b26fd-7c01-42be-adec-fd843d5bcc93 }"}
+			s{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
+			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 		}
 		s %Tags{""}
 	}
@@ -246,11 +250,11 @@ o
 	p
 	{
 		f %Intensity{0x0000803F}
-		s %IntensityScaleParam{""}
+		HashedString %IntensityScaleParam{s{""}}
 		u3 %Percentage{100}
 		f %SizeFactor{0x00004040}
-		s %SizeScaleParam{""}
-		s %TintColorParam{"Color"}
+		HashedString %SizeScaleParam{s{""}}
+		HashedString %TintColorParam{s{"Color"}}
 	}
 }
 o

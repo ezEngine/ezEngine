@@ -16,6 +16,13 @@ public:
   /// encountered. Can take an optional count, if messages are expected multiple times
   void ExpectMessage(const char* szMsg, ezLogMsgType::Enum type = ezLogMsgType::All, ezInt32 iCount = 1);
 
+  /// Add a message that may be logged any number of times, including never. Like expected messages, matching errors and warnings
+  /// are not passed on and do not cause tests to fail.
+  ///
+  /// For messages whose number is an implementation detail of the tested code, e.g. the errors of a transform that may run
+  /// several times.
+  void IgnoreMessage(const char* szMsg, ezLogMsgType::Enum type = ezLogMsgType::All);
+
   /// Set the log interface that unhandled messages are forwarded to.
   void SetParentLog(ezLogInterface* pInterface) { m_pParentLog = pInterface; }
 
@@ -27,6 +34,7 @@ private:
     ezInt32 m_iCount = 0;
     ezString m_sMsgSubString;
     ezLogMsgType::Enum m_Type = ezLogMsgType::All;
+    bool m_bIgnore = false;
   };
 
   mutable ezMutex m_Mutex;

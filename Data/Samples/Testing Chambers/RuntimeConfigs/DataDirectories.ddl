@@ -12,6 +12,12 @@ DataDir
 }
 DataDir
 {
+	string %Path{">sdk/Data/Plugins/GameComponentsPlugin"}
+	string %RootName{""}
+	bool %Writable{false}
+}
+DataDir
+{
 	string %Path{">sdk/Data/Plugins/KrautPlugin"}
 	string %RootName{""}
 	bool %Writable{false}
