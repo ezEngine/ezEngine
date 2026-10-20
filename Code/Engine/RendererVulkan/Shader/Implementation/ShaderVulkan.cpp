@@ -15,6 +15,8 @@ ezGALShaderVulkan::~ezGALShaderVulkan() = default;
 
 void ezGALShaderVulkan::SetDebugName(ezStringView sName) const
 {
+  m_sDebugName = sName;
+
   ezStringBuilder tmp;
   for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
   {
