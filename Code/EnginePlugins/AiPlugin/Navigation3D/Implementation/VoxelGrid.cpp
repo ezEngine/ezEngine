@@ -252,39 +252,40 @@ void ezVoxelGrid::SetVoxelsOnTriangle(const ezVec3& v0, const ezVec3& v1, const 
   }
 }
 
-bool ezVoxelGrid::IsVoxelNavigable(const ezVec3I32& vCoord, ezArrayPtr<const ezVec3I32> sphereOffsets /*= {}*/) const
+bool ezVoxelGrid::IsVoxelNavigable(const ezVec3I32& vCoord, ezArrayPtr<const ezVec3I32> voxelOffsets /*= {}*/) const
 {
-  if (sphereOffsets.IsEmpty())
+  if (voxelOffsets.IsEmpty())
   {
-    return IsCoordValid(vCoord) && !IsVoxelSet(vCoord);
+    return !IsCoordValid(vCoord) || !IsVoxelSet(vCoord);
   }
 
-  for (const ezVec3I32& offset : sphereOffsets)
+  for (const ezVec3I32& offset : voxelOffsets)
   {
     const ezVec3I32 vNeighbor = vCoord + offset;
-    if (!IsCoordValid(vNeighbor) || IsVoxelSet(vNeighbor))
+    if (IsCoordValid(vNeighbor) && IsVoxelSet(vNeighbor))
       return false;
   }
 
   return true;
 }
 
-void ezVoxelGrid::ComputeSphereVoxelOffsets(float fRadius, ezDynamicArray<ezVec3I32>& out_offsets) const
+void ezVoxelGrid::ComputeSphereVoxelOffsets(float fRadius, ezDynamicArrayBase<ezVec3I32>& out_offsets) const
 {
   out_offsets.Clear();
 
   if (fRadius <= 0.0f)
     return;
 
-  const ezInt32 iRadiusVoxels = (ezInt32)ezMath::Ceil(fRadius * m_fInvVoxelSize);
+  const ezInt32 iRadiusVoxels = (ezInt32)ezMath::Floor(fRadius * m_fInvVoxelSize);
+  if (iRadiusVoxels <= 0)
+    return;
+
   const float fRadiusSqr = fRadius * fRadius;
 
   for (ezInt32 dz = -iRadiusVoxels; dz <= iRadiusVoxels; ++dz)
   {
     const float fZDist = (float)dz * m_fVoxelSize;
     const float fZDistSqr = fZDist * fZDist;
-    if (fZDistSqr > fRadiusSqr)
-      continue;
 
     for (ezInt32 dy = -iRadiusVoxels; dy <= iRadiusVoxels; ++dy)
     {
@@ -303,9 +304,15 @@ void ezVoxelGrid::ComputeSphereVoxelOffsets(float fRadius, ezDynamicArray<ezVec3
       }
     }
   }
+
+  // If the computed sphere only covers a single center voxel, clear it so callers take the fast path
+  if (out_offsets.GetCount() <= 1)
+  {
+    out_offsets.Clear();
+  }
 }
 
-bool ezVoxelGrid::CheckLineOfSight(const ezVec3I32& vStart, const ezVec3I32& vGoal, ezArrayPtr<const ezVec3I32> sphereOffsets /*= {}*/) const
+bool ezVoxelGrid::CheckLineOfSight(const ezVec3I32& vStart, const ezVec3I32& vGoal, ezArrayPtr<const ezVec3I32> voxelOffsets /*= {}*/) const
 {
   const ezInt32 dx = vGoal.x - vStart.x;
   const ezInt32 dy = vGoal.y - vStart.y;
@@ -314,7 +321,7 @@ bool ezVoxelGrid::CheckLineOfSight(const ezVec3I32& vStart, const ezVec3I32& vGo
   const ezInt32 iSteps = ezMath::Max(ezMath::Abs(dx), ezMath::Max(ezMath::Abs(dy), ezMath::Abs(dz)));
 
   if (iSteps == 0)
-    return IsVoxelNavigable(vStart, sphereOffsets);
+    return IsVoxelNavigable(vStart, voxelOffsets);
 
   const float fInvSteps = 1.0f / (float)iSteps;
   const float fXIncr = (float)dx * fInvSteps;
@@ -335,17 +342,17 @@ bool ezVoxelGrid::CheckLineOfSight(const ezVec3I32& vStart, const ezVec3I32& vGo
     if (vCoord.x == vGoal.x && vCoord.y == vGoal.y && vCoord.z == vGoal.z)
       return true;
 
-    if (sphereOffsets.IsEmpty())
+    if (voxelOffsets.IsEmpty())
     {
-      if (!IsCoordValid(vCoord) || IsVoxelSet(vCoord))
+      if (IsCoordValid(vCoord) && IsVoxelSet(vCoord))
         return false;
     }
     else
     {
-      for (const ezVec3I32& offset : sphereOffsets)
+      for (const ezVec3I32& offset : voxelOffsets)
       {
         const ezVec3I32 vNeighbor = vCoord + offset;
-        if (!IsCoordValid(vNeighbor) || IsVoxelSet(vNeighbor))
+        if (IsCoordValid(vNeighbor) && IsVoxelSet(vNeighbor))
           return false;
       }
     }

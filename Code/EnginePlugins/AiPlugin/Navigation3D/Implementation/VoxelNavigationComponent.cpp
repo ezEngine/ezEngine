@@ -101,7 +101,7 @@ void ezAiVoxelNavigationComponent::SetDestination(const ezVec3& vGlobalPos)
     return;
   }
 
-  ezDynamicArray<ezVec3I32> sphereOffsets;
+  ezTempHybridArray<ezVec3I32, 9> voxelOffsets;
 
   // Track the actual voxel size of the grid we're in, so the runtime thresholds derived from it
   // (arrival/repath distances in Update()) scale with the grid instead of a fixed assumption.
@@ -113,7 +113,7 @@ void ezAiVoxelNavigationComponent::SetDestination(const ezVec3& vGlobalPos)
       m_fVoxelSize = grids[0]->GetVoxelSize();
       if (m_fRadius > 0.0f)
       {
-        grids[0]->GetStaticVoxelGrid().ComputeSphereVoxelOffsets(m_fRadius, sphereOffsets);
+        grids[0]->GetStaticVoxelGrid().ComputeSphereVoxelOffsets(m_fRadius, voxelOffsets);
       }
     }
   }
@@ -143,7 +143,7 @@ void ezAiVoxelNavigationComponent::SetDestination(const ezVec3& vGlobalPos)
       out_grids.PushBack(&pGridComponent->GetStaticVoxelGrid());
   };
 
-  const auto result = m_Navigation.FindPath(vCurrentPos, vGlobalPos, sphereOffsets, gridFinder);
+  const auto result = m_Navigation.FindPath(vCurrentPos, vGlobalPos, voxelOffsets, gridFinder);
 
   switch (result)
   {
@@ -329,13 +329,13 @@ bool ezAiVoxelNavigationComponent::GetValidCellNearby(const ezVec3& vStart, floa
 
   const ezVoxelGrid& grid = pOwningGrid->GetStaticVoxelGrid();
 
-  ezDynamicArray<ezVec3I32> sphereOffsets;
+  ezTempHybridArray<ezVec3I32, 9> voxelOffsets;
   if (m_fRadius > 0.0f)
   {
-    grid.ComputeSphereVoxelOffsets(m_fRadius, sphereOffsets);
+    grid.ComputeSphereVoxelOffsets(m_fRadius, voxelOffsets);
   }
 
-  if (grid.IsVoxelNavigable(vStartCoord, sphereOffsets))
+  if (grid.IsVoxelNavigable(vStartCoord, voxelOffsets))
   {
     out_vPoint = vStart;
     return true;
@@ -360,7 +360,7 @@ bool ezAiVoxelNavigationComponent::GetValidCellNearby(const ezVec3& vStart, floa
           continue;
 
         const ezVec3I32 vCoord = vStartCoord + ezVec3I32(dx, dy, dz);
-        if (!grid.IsCoordValid(vCoord) || !grid.IsVoxelNavigable(vCoord, sphereOffsets))
+        if (!grid.IsCoordValid(vCoord) || !grid.IsVoxelNavigable(vCoord, voxelOffsets))
           continue;
 
         const ezVec3 vCandidate = grid.CoordToWorld(vCoord);
