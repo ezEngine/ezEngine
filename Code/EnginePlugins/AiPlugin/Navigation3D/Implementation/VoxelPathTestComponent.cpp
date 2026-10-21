@@ -109,18 +109,7 @@ void ezAiVoxelPathTestComponent::Update()
       out_grids.PushBack(&pGridComponent->GetStaticVoxelGrid());
   };
 
-  ezTempHybridArray<ezVec3I32, 9> voxelOffsets;
-  if (m_fRadius > 0.0f)
-  {
-    ezTempHybridArray<ezAiVoxelGridComponent*, 1> startGrids;
-    pVoxelModule->FindGridsInBox(ezBoundingBox::MakeFromCenterAndHalfExtents(vStart, ezVec3(0.01f)), startGrids);
-    if (!startGrids.IsEmpty())
-    {
-      startGrids[0]->GetStaticVoxelGrid().ComputeSphereVoxelOffsets(m_fRadius, voxelOffsets);
-    }
-  }
-
-  const auto state = m_Navigation.FindPath(vStart, vTarget, voxelOffsets, gridFinder, m_fSearchMargin, m_uiMaxIterationsPerHop, m_uiMaxHops);
+  const auto state = m_Navigation.FindPath(vStart, vTarget, gridFinder, m_fSearchMargin, m_uiMaxIterationsPerHop, m_uiMaxHops, m_fRadius);
 
   if (m_bVisualizeSmoothedPath)
   {

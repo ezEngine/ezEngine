@@ -48,9 +48,9 @@ public:
   /// fSearchMargin is added around that box.
   /// uiMaxIterationsPerHop limits the A* node expansion within a single grid, to prevent frame stalls.
   /// uiMaxHops limits how many grids the path may pass through, as a safety net against infinite loops.
-  /// voxelOffsets specifies precomputed voxel offsets for agent clearance (pass empty {} for point-based navigation).
-  State FindPath(const ezVec3& vStart, const ezVec3& vTarget, ezArrayPtr<const ezVec3I32> voxelOffsets,
-    const ezAiVoxelGridFinder& gridFinder, float fSearchMargin = 5.0f, ezUInt32 uiMaxIterationsPerHop = 10000, ezUInt32 uiMaxHops = 16);
+  /// fRadius specifies the agent clearance radius (0.0f for point-based navigation).
+  State FindPath(const ezVec3& vStart, const ezVec3& vTarget, const ezAiVoxelGridFinder& gridFinder,
+    float fSearchMargin = 5.0f, ezUInt32 uiMaxIterationsPerHop = 10000, ezUInt32 uiMaxHops = 16, float fRadius = 0.0f);
 
   /// Sets a trivial, single-segment path straight from vStart to vTarget, bypassing pathfinding and
   /// occlusion checks entirely. Useful for emergency recovery (e.g. moving out of a voxel that

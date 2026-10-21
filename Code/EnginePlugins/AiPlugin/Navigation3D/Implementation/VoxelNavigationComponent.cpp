@@ -101,8 +101,6 @@ void ezAiVoxelNavigationComponent::SetDestination(const ezVec3& vGlobalPos)
     return;
   }
 
-  ezTempHybridArray<ezVec3I32, 9> voxelOffsets;
-
   // Track the actual voxel size of the grid we're in, so the runtime thresholds derived from it
   // (arrival/repath distances in Update()) scale with the grid instead of a fixed assumption.
   {
@@ -111,10 +109,6 @@ void ezAiVoxelNavigationComponent::SetDestination(const ezVec3& vGlobalPos)
     if (!grids.IsEmpty())
     {
       m_fVoxelSize = grids[0]->GetVoxelSize();
-      if (m_fRadius > 0.0f)
-      {
-        grids[0]->GetStaticVoxelGrid().ComputeSphereVoxelOffsets(m_fRadius, voxelOffsets);
-      }
     }
   }
 
@@ -143,7 +137,7 @@ void ezAiVoxelNavigationComponent::SetDestination(const ezVec3& vGlobalPos)
       out_grids.PushBack(&pGridComponent->GetStaticVoxelGrid());
   };
 
-  const auto result = m_Navigation.FindPath(vCurrentPos, vGlobalPos, voxelOffsets, gridFinder);
+  const auto result = m_Navigation.FindPath(vCurrentPos, vGlobalPos, gridFinder, 5.0f, 10000, 16, m_fRadius);
 
   switch (result)
   {
@@ -258,6 +252,9 @@ bool ezAiVoxelNavigationComponent::FindRandomPointAroundSphere(const ezVec3& vCe
 
   ezRandom& rng = GetWorld()->GetRandomNumberGenerator();
 
+  float fCachedVoxelSize = -1.0f;
+  ezTempHybridArray<ezVec3I32, 64> voxelOffsets;
+
   for (ezUInt32 i = 0; i < uiMaxAttempts; ++i)
   {
     const ezVec3 vCandidate = vCenter + ezVec3::MakeRandomPointInSphere(rng) * fRadius;
@@ -275,8 +272,17 @@ bool ezAiVoxelNavigationComponent::FindRandomPointAroundSphere(const ezVec3& vCe
         continue;
       }
 
-      // Covered by a grid: solid means try another candidate, free means this point is good.
-      bBlocked = grid.IsVoxelSet(vCoord);
+      if (m_fRadius > 0.0f)
+      {
+        if (grid.GetVoxelSize() != fCachedVoxelSize)
+        {
+          fCachedVoxelSize = grid.GetVoxelSize();
+          grid.ComputeSphereVoxelOffsets(m_fRadius, voxelOffsets);
+        }
+      }
+
+      // Covered by a grid: check clearance with agent's radius offsets
+      bBlocked = !grid.IsVoxelNavigable(vCoord, voxelOffsets);
       break;
     }
 
@@ -329,7 +335,7 @@ bool ezAiVoxelNavigationComponent::GetValidCellNearby(const ezVec3& vStart, floa
 
   const ezVoxelGrid& grid = pOwningGrid->GetStaticVoxelGrid();
 
-  ezTempHybridArray<ezVec3I32, 9> voxelOffsets;
+  ezTempHybridArray<ezVec3I32, 64> voxelOffsets;
   if (m_fRadius > 0.0f)
   {
     grid.ComputeSphereVoxelOffsets(m_fRadius, voxelOffsets);

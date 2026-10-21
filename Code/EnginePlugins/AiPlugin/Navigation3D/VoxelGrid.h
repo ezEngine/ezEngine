@@ -57,14 +57,51 @@ public:
   void SetVoxel(const ezVec3I32& vCoord, bool bSolid);
 
   /// Returns whether the voxel at the given coordinate is occupied.
-  bool IsVoxelSet(const ezVec3I32& vCoord) const;
+  EZ_FORCE_INLINE bool IsVoxelSet(const ezVec3I32& vCoord) const
+  {
+    EZ_ASSERT_DEBUG(IsCoordValid(vCoord), "Invalid coordinate");
+
+    const ezUInt32 uiX = (ezUInt32)vCoord.x;
+    const ezUInt32 uiY = (ezUInt32)vCoord.y;
+    const ezUInt32 uiZ = (ezUInt32)vCoord.z;
+
+    const ezUInt32 uiBlockIdx = GetBlockIndex(uiX / 4u, uiY / 4u, uiZ / 4u);
+    const ezUInt64 uiBlock = m_Blocks[uiBlockIdx];
+
+    if (uiBlock == 0ull)
+      return false;
+
+    const ezUInt32 uiBit = GetBitIndex(uiX % 4u, uiY % 4u, uiZ % 4u);
+    const ezUInt64 uiMask = 1ull << uiBit;
+
+    return (uiBlock & uiMask) != 0ull;
+  }
 
   /// Returns whether the coordinate is navigable with the given clearance offsets.
   /// If voxelOffsets is empty, checks only if the voxel itself is occupied.
-  bool IsVoxelNavigable(const ezVec3I32& vCoord, ezArrayPtr<const ezVec3I32> voxelOffsets = {}) const;
+  EZ_FORCE_INLINE bool IsVoxelNavigable(const ezVec3I32& vCoord, ezArrayPtr<const ezVec3I32> voxelOffsets = {}) const
+  {
+    if (voxelOffsets.IsEmpty())
+    {
+      return !IsCoordValid(vCoord) || !IsVoxelSet(vCoord);
+    }
 
-  /// Precomputes integer voxel offsets (including (0,0,0)) that fall within the given radius.
-  /// If the radius covers only a single voxel (<= 1 cell), out_offsets is left empty so callers can use the fast path.
+    for (const ezVec3I32& offset : voxelOffsets)
+    {
+      const ezVec3I32 vNeighbor = vCoord + offset;
+      if (IsCoordValid(vNeighbor) && IsVoxelSet(vNeighbor))
+        return false;
+    }
+
+    return true;
+  }
+
+  /// Precomputes integer voxel offsets (including (0,0,0)) whose bounding boxes overlap a sphere
+  /// of the given radius centered at a voxel.
+  /// Uses conservative sphere-box distance (measuring to the nearest point of each voxel) so edge
+  /// and corner voxels are reliably included.
+  /// Offsets are sorted in ascending order of distance for fast fail-early checks.
+  /// If the radius covers only a single voxel cell, out_offsets is left empty so callers take the fast path.
   void ComputeSphereVoxelOffsets(float fRadius, ezDynamicArrayBase<ezVec3I32>& out_offsets) const;
 
   /// Rasterizes a world-space triangle into the grid, setting (or clearing) every voxel it overlaps.

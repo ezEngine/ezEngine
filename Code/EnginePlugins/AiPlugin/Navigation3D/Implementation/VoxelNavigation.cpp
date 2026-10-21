@@ -318,26 +318,8 @@ static ezAiVoxelNavigation::State RunGridAStar(const ezVoxelGrid& grid, const ez
       if (!grid.IsCoordValid(vNeighborCoord))
         continue;
 
-      if (voxelOffsets.IsEmpty())
-      {
-        if (grid.IsVoxelSet(vNeighborCoord))
-          continue;
-      }
-      else
-      {
-        bool bBlocked = false;
-        for (const ezVec3I32& offset : voxelOffsets)
-        {
-          const ezVec3I32 vCheck = vNeighborCoord + offset;
-          if (grid.IsCoordValid(vCheck) && grid.IsVoxelSet(vCheck))
-          {
-            bBlocked = true;
-            break;
-          }
-        }
-        if (bBlocked)
-          continue;
-      }
+      if (!grid.IsVoxelNavigable(vNeighborCoord, voxelOffsets))
+        continue;
 
       const ezUInt32 uiNeighborPacked = PackCoord(vNeighborCoord, uiDimX, uiDimY);
       const float fTentativeG = fCurrentG + 1.0f;
@@ -402,7 +384,14 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPathToTarget(const ezVoxelGr
   out_waypoints.Clear();
 
   ezVec3I32 vStartCoord = grid.WorldToCoord(vStart);
-  const ezVec3I32 vTargetCoord = grid.WorldToCoord(vTarget);
+  ezVec3I32 vTargetCoord = grid.WorldToCoord(vTarget);
+
+  ezUInt32 uiOffsetExtent = 0;
+  for (const ezVec3I32& offset : voxelOffsets)
+  {
+    uiOffsetExtent = ezMath::Max(uiOffsetExtent, (ezUInt32)ezMath::Max(ezMath::Abs(offset.x), ezMath::Max(ezMath::Abs(offset.y), ezMath::Abs(offset.z))));
+  }
+  const ezUInt32 uiRecoveryRadius = s_uiStartRecoveryRadiusVoxels + uiOffsetExtent;
 
   if (!grid.IsCoordValid(vStartCoord) || !grid.IsVoxelNavigable(vStartCoord, voxelOffsets))
   {
@@ -410,14 +399,22 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPathToTarget(const ezVoxelGr
     // stepping into a free voxel immediately next to it (e.g. the object got pushed into a voxel
     // that turned solid after it last pathed).
     ezVec3I32 vRecoveredCoord;
-    if (!FindNearbyValidCoord(grid, vStartCoord, s_uiStartRecoveryRadiusVoxels, voxelOffsets, vRecoveredCoord))
+    if (!FindNearbyValidCoord(grid, vStartCoord, uiRecoveryRadius, voxelOffsets, vRecoveredCoord))
       return State::InvalidStartPosition;
 
     vStartCoord = vRecoveredCoord;
   }
 
   if (!grid.IsCoordValid(vTargetCoord) || !grid.IsVoxelNavigable(vTargetCoord, voxelOffsets))
-    return State::InvalidTargetPosition;
+  {
+    // Targets on or next to geometry are common and lack clearance when a radius is set.
+    // Recover to the nearest navigable cell within the recovery radius.
+    ezVec3I32 vRecoveredCoord;
+    if (!FindNearbyValidCoord(grid, vTargetCoord, uiRecoveryRadius, voxelOffsets, vRecoveredCoord))
+      return State::InvalidTargetPosition;
+
+    vTargetCoord = vRecoveredCoord;
+  }
 
   const State result = RunGridAStar(grid, vStartCoord, vTargetCoord, false, ezArrayPtr<const ezVoxelGrid* const>(), uiMaxIterations, voxelOffsets, out_waypoints);
 
@@ -437,10 +434,17 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPathToExit(const ezVoxelGrid
   ezVec3I32 vStartCoord = grid.WorldToCoord(vStart);
   const ezVec3I32 vTargetCoord = grid.WorldToCoord(vRealTarget); // may lie outside grid, only used for the heuristic
 
+  ezUInt32 uiOffsetExtent = 0;
+  for (const ezVec3I32& offset : voxelOffsets)
+  {
+    uiOffsetExtent = ezMath::Max(uiOffsetExtent, (ezUInt32)ezMath::Max(ezMath::Abs(offset.x), ezMath::Max(ezMath::Abs(offset.y), ezMath::Abs(offset.z))));
+  }
+  const ezUInt32 uiRecoveryRadius = s_uiStartRecoveryRadiusVoxels + uiOffsetExtent;
+
   if (!grid.IsCoordValid(vStartCoord) || !grid.IsVoxelNavigable(vStartCoord, voxelOffsets))
   {
     ezVec3I32 vRecoveredCoord;
-    if (!FindNearbyValidCoord(grid, vStartCoord, s_uiStartRecoveryRadiusVoxels, voxelOffsets, vRecoveredCoord))
+    if (!FindNearbyValidCoord(grid, vStartCoord, uiRecoveryRadius, voxelOffsets, vRecoveredCoord))
       return State::InvalidStartPosition;
 
     vStartCoord = vRecoveredCoord;
@@ -456,8 +460,8 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPathToExit(const ezVoxelGrid
   return result;
 }
 
-ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, const ezVec3& vTarget, ezArrayPtr<const ezVec3I32> voxelOffsets,
-  const ezAiVoxelGridFinder& gridFinder, float fSearchMargin, ezUInt32 uiMaxIterationsPerHop, ezUInt32 uiMaxHops)
+ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, const ezVec3& vTarget,
+  const ezAiVoxelGridFinder& gridFinder, float fSearchMargin, ezUInt32 uiMaxIterationsPerHop, ezUInt32 uiMaxHops, float fRadius)
 {
   m_Waypoints.Clear();
   m_SegmentInsideGrid.Clear();
@@ -465,6 +469,9 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, c
   m_Waypoints.PushBack(vStart);
 
   ezVec3 vCurrent = vStart;
+
+  float fCachedVoxelSize = -1.0f;
+  ezTempHybridArray<ezVec3I32, 64> hopVoxelOffsets;
 
   for (ezUInt32 uiHop = 0; uiHop < uiMaxHops; ++uiHop)
   {
@@ -521,6 +528,19 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, c
       return m_State;
     }
 
+    if (fRadius > 0.0f)
+    {
+      if (pGrid->GetVoxelSize() != fCachedVoxelSize)
+      {
+        fCachedVoxelSize = pGrid->GetVoxelSize();
+        pGrid->ComputeSphereVoxelOffsets(fRadius, hopVoxelOffsets);
+      }
+    }
+    else
+    {
+      hopVoxelOffsets.Clear();
+    }
+
     if (!vEntry.IsEqual(vCurrent, 0.0001f))
     {
       m_Waypoints.PushBack(vEntry);
@@ -531,8 +551,8 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, c
 
     ezDynamicArray<ezVec3> hopWaypoints;
     const State hopState = bTargetInside
-                             ? FindPathToTarget(*pGrid, vEntry, vTarget, uiMaxIterationsPerHop, voxelOffsets, hopWaypoints)
-                             : FindPathToExit(*pGrid, vEntry, vTarget, grids, uiMaxIterationsPerHop, voxelOffsets, hopWaypoints);
+                             ? FindPathToTarget(*pGrid, vEntry, vTarget, uiMaxIterationsPerHop, hopVoxelOffsets, hopWaypoints)
+                             : FindPathToExit(*pGrid, vEntry, vTarget, grids, uiMaxIterationsPerHop, hopVoxelOffsets, hopWaypoints);
 
     if (hopState != State::PathFound)
     {

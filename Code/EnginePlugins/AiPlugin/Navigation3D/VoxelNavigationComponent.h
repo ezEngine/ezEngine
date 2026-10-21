@@ -101,7 +101,7 @@ public:
   float m_fAcceleration = 3.0f;                                                  ///< [ property ] How fast to gain speed.
   float m_fDeceleration = 8.0f;                                                  ///< [ property ] How fast to brake.
   float m_fReachedDistance = 1.0f;                                               ///< [ property ] Distance at which destination is considered reached.
-  float m_fRadius = 0.0f;                                                        ///< [ property ] Physical clearance radius of the agent; corridors narrower than 2*radius are avoided.
+  float m_fRadius = 0.0f;                                                        ///< [ property ] Physical clearance radius of the agent; corridors narrower than 2*radius are avoided. Clearance is tested conservatively against voxel bounding boxes.
   bool m_bApplySteering = true;                                                  ///< [ property ] Whether to apply movement to the game object.
   float m_fLookAheadDistance = 3.0f;                                             ///< [ property ] How far ahead along the path to steer towards, instead of snapping onto waypoints.
   float m_fMaxPathOffset = 3.0f;                                                 ///< [ property ] Max distance the visual position may stray from the path before being pulled back.
