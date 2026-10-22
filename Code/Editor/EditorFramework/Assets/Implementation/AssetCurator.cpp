@@ -1754,6 +1754,8 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
     return ezTransformStatus(ezFmt("Circular dependency for asset '{0}', can't transform.", pAssetInfo->m_Path.GetAbsolutePath()));
   }
 
+  const ezInt32 iOutdatedAssetInfoSaves = m_iOutdatedAssetInfoSaves;
+
   for (const auto& dep : pAssetInfo->m_Info->m_TransformDependencies)
   {
     ezBitflags<ezTransformFlags> transformFlagsDeps = transformFlags;
@@ -1779,6 +1781,13 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
 
 
   EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('{0}')", pAssetInfo->m_Path.GetDataDirParentRelativePath());
+
+  if (iOutdatedAssetInfoSaves != m_iOutdatedAssetInfoSaves)
+  {
+    // a dependency updated the dependencies stored in its header (see ezAssetDocument::TransformAsset()),
+    // which changes the hashes of this asset, so its state has to be determined again
+    state = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, pAssetProfile, pTypeDesc, uiHash, uiThumbHash, uiPackageHash);
+  }
 
   auto assetFlags = pTypeDesc->m_AssetDocumentFlags;
 

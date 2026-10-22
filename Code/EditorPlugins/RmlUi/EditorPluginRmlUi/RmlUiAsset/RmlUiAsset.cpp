@@ -104,6 +104,51 @@ ezStringView FindNextSrcValue(ezStringView& ref_sContent)
   }
 }
 
+/// Finds the next 'image(...)' or 'url(...)' in RCSS, e.g. 'decorator: image(file.png flip-vertical);', and returns its first argument.
+///
+/// The argument may also be the name of a sprite, callers have to check whether it is a file.
+ezStringView FindNextCssFunctionPath(ezStringView& ref_sContent)
+{
+  while (true)
+  {
+    const char* szImage = ref_sContent.FindSubString("image(");
+    const char* szUrl = ref_sContent.FindSubString("url(");
+
+    if (szImage == nullptr && szUrl == nullptr)
+      return ezStringView();
+
+    const char* szCurrent = nullptr;
+    if (szImage != nullptr && (szUrl == nullptr || szImage < szUrl))
+      szCurrent = szImage + 6; // skip "image("
+    else
+      szCurrent = szUrl + 4;   // skip "url("
+
+    szCurrent = ezStringUtils::SkipCharacters(szCurrent, ezStringUtils::IsWhiteSpace);
+
+    char cQuote = '\0';
+    if (*szCurrent == '"' || *szCurrent == '\'')
+    {
+      cQuote = *szCurrent;
+      ++szCurrent;
+    }
+
+    // without quotes, further arguments (e.g. the orientation of an image decorator) are separated by whitespace or commas
+    const char* szStart = szCurrent;
+    while (*szCurrent != '\0')
+    {
+      if (cQuote != '\0' ? (*szCurrent == cQuote) : (*szCurrent == ')' || *szCurrent == ',' || ezStringUtils::IsWhiteSpace(*szCurrent)))
+        break;
+
+      ++szCurrent;
+    }
+
+    ref_sContent.SetStartPosition(szCurrent);
+
+    if (szCurrent > szStart)
+      return ezStringView(szStart, szCurrent);
+  }
+}
+
 static ezStringView SanitizePath(ezStringView sPath)
 {
   sPath.Trim("/\\", "");
@@ -270,6 +315,28 @@ void ezRmlUiAssetDocument::FindPackageDependencies(ezSet<ezString>& ref_packageD
     while (true)
     {
       const ezStringView src = SanitizePath(FindNextSrcValue(sContentView));
+      if (src.IsEmpty())
+        break;
+
+      if (ezFileSystem::ExistsFile(src))
+      {
+        ref_packageDeps.Insert(src);
+      }
+      else
+      {
+        sTemp.SetPath(sFileDir, src);
+        if (ezFileSystem::ExistsFile(sTemp))
+          ref_packageDeps.Insert(sTemp);
+      }
+    }
+  }
+
+  // Collect files referenced through RCSS functions (e.g. image decorators)
+  {
+    ezStringView sContentView = sContent;
+    while (true)
+    {
+      const ezStringView src = SanitizePath(FindNextCssFunctionPath(sContentView));
       if (src.IsEmpty())
         break;
 
