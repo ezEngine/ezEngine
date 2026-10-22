@@ -8,7 +8,9 @@ SamplerState LinearClampSampler;
 SamplerState PointSampler;
 SamplerState PointClampSampler;
 
-const static float PI = 3.1415926535897932f;
+#ifndef PI
+#  define PI 3.1415926535897932
+#endif
 
 float4 RGBA8ToFloat4(uint x)
 {
