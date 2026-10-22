@@ -2,7 +2,7 @@ Node %ScrollFloat4
 {
   string %Category { "Utils" }
   string %Color { "Green" }
-  string %Docs { "Scrolls a float4 value (e.g. a UV coordinate) over time, using the world time." }
+  string %Docs { "Scrolls a float4 value (e.g. a UV coordinate) over time, using the world time.\nThe speed is rounded to a multiple of 0.001 (see 'Wrap Safe Rate'), so the scrolling does not jump when the shader time wraps around." }
   string %Title { "Scroll: {$in0}" }
 
   InputPin %UV
@@ -17,7 +17,7 @@ Node %ScrollFloat4
     string %Type { "float4" }
     bool %Expose { true }
     string %DefaultValue { "1, 1, 1, 1" }
-    string %Tooltip { "Scroll speed along X, Y, Z and W." }
+    string %Tooltip { "Scroll speed along X, Y, Z and W. Rounded to a multiple of 0.001." }
   }
 
   InputPin %Scale
@@ -40,8 +40,62 @@ Node %ScrollFloat4
   {
     string %Type { "float4" }
     string %Color { "Teal" }
-    string %Inline { "(ToFloat4Direction($in0) * $in2 + $in3) + frac(WorldTime * $in1)" }
+    string %Inline { "(ToFloat4Direction($in0) * $in2 + $in3) + frac(WorldTime * WrapSafeRate($in1, 1.0))" }
     string %Tooltip { "The scrolled value." }
+  }
+}
+
+Node %WrapSafeRate
+{
+  string %Category { "Utils" }
+  string %Color { "Green" }
+  string %Docs { "The shader time values wrap around every 1000 seconds to prevent floating point precision issues.\nRounds a rate (units per second) so that any periodic function of 'Time * Rate' with the given period does not jump when the time wraps around.\nUse a period of 1 for e.g. texture scrolling in UV space or 'frac', and 'Wrap Safe Angular Frequency' for sine and cosine." }
+  string %Title { "Wrap Safe Rate: {$in0}" }
+
+  InputPin %Rate
+  {
+    string %Type { "auto" }
+    bool %Expose { true }
+    string %DefaultValue { "1" }
+    string %Tooltip { "The rate in units per second, e.g. a scroll speed." }
+  }
+
+  InputPin %Period
+  {
+    string %Type { "float" }
+    bool %Expose { true }
+    string %DefaultValue { "1" }
+    string %Tooltip { "The period after which the function that uses the rate repeats, e.g. 1 for texture scrolling in UV space with a repeating sampler." }
+  }
+
+  OutputPin %Result
+  {
+    string %Type { "auto" }
+    string %Inline { "WrapSafeRate($in0, ToFloat1($in1))" }
+    string %Tooltip { "The rate rounded to a multiple of 'Period / 1000' (component-wise)." }
+  }
+}
+
+Node %WrapSafeAngularFrequency
+{
+  string %Category { "Utils" }
+  string %Color { "Green" }
+  string %Docs { "The shader time values wrap around every 1000 seconds to prevent floating point precision issues.\nRounds an angular frequency (radians per second, as in 'sin(Time * Frequency)') so that the sine or cosine does not jump when the time wraps around." }
+  string %Title { "Wrap Safe Angular Frequency: {$in0}" }
+
+  InputPin %Frequency
+  {
+    string %Type { "auto" }
+    bool %Expose { true }
+    string %DefaultValue { "1" }
+    string %Tooltip { "The angular frequency in radians per second." }
+  }
+
+  OutputPin %Result
+  {
+    string %Type { "auto" }
+    string %Inline { "WrapSafeAngularFrequency($in0)" }
+    string %Tooltip { "The angular frequency rounded to a multiple of '2 * PI / 1000' (component-wise)." }
   }
 }
 

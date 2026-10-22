@@ -93,6 +93,12 @@ float3 WrapSafeRate(float3 rate, float period)
   return round(rate / step) * step;
 }
 
+float4 WrapSafeRate(float4 rate, float period)
+{
+  const float step = period / TIME_WRAP_AROUND;
+  return round(rate / step) * step;
+}
+
 // Rounds an angular frequency (radians per second, as in sin(GlobalTime * frequency)) so that the sine / cosine does not jump when the time wraps around.
 float WrapSafeAngularFrequency(float frequency)
 {
@@ -105,6 +111,11 @@ float2 WrapSafeAngularFrequency(float2 frequency)
 }
 
 float3 WrapSafeAngularFrequency(float3 frequency)
+{
+  return WrapSafeRate(frequency, 2.0f * PI);
+}
+
+float4 WrapSafeAngularFrequency(float4 frequency)
 {
   return WrapSafeRate(frequency, 2.0f * PI);
 }
