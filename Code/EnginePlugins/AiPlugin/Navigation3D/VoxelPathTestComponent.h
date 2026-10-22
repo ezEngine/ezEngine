@@ -55,6 +55,9 @@ public:
   /// Passed through to ezAiVoxelNavigation::FindPath().
   ezUInt32 m_uiMaxHops = 16; // [ property ]
 
+  /// Passed through to ezAiVoxelNavigation::FindPath().
+  float m_fRadius = 0.0f; // [ property ]
+
 protected:
   void Update();
 

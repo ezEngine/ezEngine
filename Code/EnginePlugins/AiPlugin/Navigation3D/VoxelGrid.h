@@ -57,7 +57,52 @@ public:
   void SetVoxel(const ezVec3I32& vCoord, bool bSolid);
 
   /// Returns whether the voxel at the given coordinate is occupied.
-  bool IsVoxelSet(const ezVec3I32& vCoord) const;
+  EZ_FORCE_INLINE bool IsVoxelSet(const ezVec3I32& vCoord) const
+  {
+    EZ_ASSERT_DEBUG(IsCoordValid(vCoord), "Invalid coordinate");
+
+    const ezUInt32 uiX = (ezUInt32)vCoord.x;
+    const ezUInt32 uiY = (ezUInt32)vCoord.y;
+    const ezUInt32 uiZ = (ezUInt32)vCoord.z;
+
+    const ezUInt32 uiBlockIdx = GetBlockIndex(uiX / 4u, uiY / 4u, uiZ / 4u);
+    const ezUInt64 uiBlock = m_Blocks[uiBlockIdx];
+
+    if (uiBlock == 0ull)
+      return false;
+
+    const ezUInt32 uiBit = GetBitIndex(uiX % 4u, uiY % 4u, uiZ % 4u);
+    const ezUInt64 uiMask = 1ull << uiBit;
+
+    return (uiBlock & uiMask) != 0ull;
+  }
+
+  /// Returns whether the coordinate is navigable with the given clearance offsets.
+  /// If voxelOffsets is empty, checks only if the voxel itself is occupied.
+  EZ_FORCE_INLINE bool IsVoxelNavigable(const ezVec3I32& vCoord, ezArrayPtr<const ezVec3I32> voxelOffsets = {}) const
+  {
+    if (voxelOffsets.IsEmpty())
+    {
+      return !IsCoordValid(vCoord) || !IsVoxelSet(vCoord);
+    }
+
+    for (const ezVec3I32& offset : voxelOffsets)
+    {
+      const ezVec3I32 vNeighbor = vCoord + offset;
+      if (IsCoordValid(vNeighbor) && IsVoxelSet(vNeighbor))
+        return false;
+    }
+
+    return true;
+  }
+
+  /// Precomputes integer voxel offsets (including (0,0,0)) whose bounding boxes overlap a sphere
+  /// of the given radius centered at a voxel.
+  /// Uses conservative sphere-box distance (measuring to the nearest point of each voxel) so edge
+  /// and corner voxels are reliably included.
+  /// Offsets are sorted in ascending order of distance for fast fail-early checks.
+  /// If the radius covers only a single voxel cell, out_offsets is left empty so callers take the fast path.
+  void ComputeSphereVoxelOffsets(float fRadius, ezDynamicArrayBase<ezVec3I32>& out_offsets) const;
 
   /// Rasterizes a world-space triangle into the grid, setting (or clearing) every voxel it overlaps.
   ///
@@ -66,9 +111,10 @@ public:
   void SetVoxelsOnTriangle(const ezVec3& v0, const ezVec3& v1, const ezVec3& v2, bool bSet = true);
 
   /// Ray-march visibility test between two grid-space coordinates.
+  /// If voxelOffsets is non-empty, checks clearance with the given offsets along the line.
   ///
   /// Returns true if no occupied voxel blocks the line of sight.
-  bool CheckLineOfSight(const ezVec3I32& vStart, const ezVec3I32& vGoal) const;
+  bool CheckLineOfSight(const ezVec3I32& vStart, const ezVec3I32& vGoal, ezArrayPtr<const ezVec3I32> voxelOffsets = {}) const;
 
   /// Returns the world-space AABB of the entire grid.
   ezBoundingBox GetAABB() const;
