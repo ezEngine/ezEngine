@@ -104,7 +104,7 @@ bool ezJoltGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezT
   ezPhysicsQueryParameters queryParam;
   queryParam.m_bIgnoreInitialOverlap = true;
   queryParam.m_uiCollisionLayer = m_uiCollisionLayer;
-  queryParam.m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
+  queryParam.m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic | ezPhysicsShapeType::Query;
 
   if (bIgnoreGrabbedActor)
   {
