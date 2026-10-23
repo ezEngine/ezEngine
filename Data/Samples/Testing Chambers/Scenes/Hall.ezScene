@@ -15,7 +15,7 @@ o
 			s{"{ 62d40fa4-f74f-462b-a5de-84941069cdd2 }"}
 		}
 		Uuid %DocumentID{u4{486148939000192446,5710267355810385475}}
-		u4 %Hash{407583407003416225}
+		u4 %Hash{6273266594249454945}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -407,7 +407,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0x22B21841,0x201A8B41,0x0000803F}}
-		Vec4 %CustomData{f{0x1F852B3F,0xD7A3303F,0x8FC2F53C,0x0000803F}}
+		Vec4 %CustomData{f{0xEC51783F,0x0000C03F,0x0000803E,0x8FC2F53C}}
 		VarArray %Materials
 		{
 			s{"{ cacf50cb-b295-480d-b320-7b571bac79fc }"}
@@ -962,9 +962,9 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
-			d %ConsumableType{0x0000000000001840}
 			d %Amount{0x0000000000002440}
 			Color %Color{f{0x492FFB40,0xBB87853F,0xFF491C40,0x0000803F}}
+			d %ConsumableType{0x0000000000001840}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 		b %ShowShapeIcons{0}
@@ -1045,9 +1045,9 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
-			d %ConsumableType{0x0000000000001840}
 			d %Amount{0x0000000000002440}
 			Color %Color{f{0x492FFB40,0xBB87853F,0xFF491C40,0x0000803F}}
+			d %ConsumableType{0x0000000000001840}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 		b %ShowShapeIcons{0}
@@ -1089,9 +1089,9 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
-			d %ConsumableType{0x0000000000001840}
 			d %Amount{0x0000000000002440}
 			Color %Color{f{0x492FFB40,0xBB87853F,0xFF491C40,0x0000803F}}
+			d %ConsumableType{0x0000000000001840}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 		b %ShowShapeIcons{0}
@@ -1107,9 +1107,9 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
-			d %ConsumableType{0x0000000000001840}
 			d %Amount{0x0000000000002440}
 			Color %Color{f{0x492FFB40,0xBB87853F,0xFF491C40,0x0000803F}}
+			d %ConsumableType{0x0000000000001840}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 		b %ShowShapeIcons{0}
@@ -1190,7 +1190,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x201A8B41,0x8DA2DF3F,0,0x0000803F}}
-		Vec4 %CustomData{f{0x0000803F,0x5C8F023F,0xEC51B83D,0x0000803F}}
+		Vec4 %CustomData{f{0x00000040,0x00000040,0x0AD7A33C,0xEC51B83D}}
 		VarArray %Materials
 		{
 			s{"{ cacf50cb-b295-480d-b320-7b571bac79fc }"}

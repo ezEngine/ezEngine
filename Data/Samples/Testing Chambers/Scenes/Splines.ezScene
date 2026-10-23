@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12640593572254555674,10304997345485202463}}
-		u4 %Hash{3282321812895180339}
+		u4 %Hash{508123758481393633}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -180,16 +180,16 @@ o
 		b %HandleGlobalEvents{0}
 		VarDict %Parameters
 		{
-			Vec3 %RandomRotation{f{0,0x00003443,0x00003443}}
-			f %Spacing{0x0000803F}
-			Vec3 %RandomOffset{f{0x0000003F,0x0000803F,0}}
+			f %AlignToSpline{0x0000803F}
 			VarArray %Prefab
 			{
 				s{"{ 566bc9c8-ad7f-4578-ba63-f5cf83c6c0e2 }"}
 				s{"{ eb1da1f2-56db-4444-9379-315c8c5ef3c0 }"}
 				s{"{ e207fd9e-794e-4b79-9eeb-908c865e73e5 }"}
 			}
-			f %AlignToSpline{0x0000803F}
+			Vec3 %RandomOffset{f{0x0000003F,0x0000803F,0}}
+			Vec3 %RandomRotation{f{0,0x00003443,0x00003443}}
+			f %Spacing{0x0000803F}
 		}
 		b %PassThroughUnhandledEvents{0}
 		s %ScriptClass{"{ 9da1e077-d7d2-4901-9685-f71e3913edb2 }"}
@@ -1054,7 +1054,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0,0x84CE4F3F,0x483D0840,0x0000803F}}
-		Vec4 %CustomData{f{0x3333333F,0x9A99193F,0x0AD7A33C,0x0000803F}}
+		Vec4 %CustomData{f{0x9A99993F,0x0000C03F,0xCDCC4C3E,0x0AD7A33C}}
 		s %DistributionMode{"ezSplineMeshDistributionMode::ScaleEvenly"}
 		Uuid %EndPart{u4{5103342127232299319,13135327381395966142}}
 		VarArray %Materials{}
