@@ -38,6 +38,9 @@ private:
   ezUInt8 DetectResizeEdge(const QPointF& localPos) const;
   void UpdateCursorForEdge(ezUInt8 uiEdge);
 
+  /// Wraps the label to the current width and grows the header so that it contains all lines of the comment.
+  void UpdateLabelLayout();
+
   const ezVisualGraphObjectManager* m_pManager = nullptr;
   QGraphicsTextItem* m_pCommentLabel = nullptr;
   QColor m_CommentColor;
@@ -48,13 +51,15 @@ private:
   QPointF m_ResizeStartPos;
   ezVec2 m_vResizeStartSize;
   ezVec2 m_vCurrentSize = ezVec2(300, 200);
+  float m_fHeaderHeight = s_fHeaderHeight;
 
   // Containment tracking: when moving the comment, contained nodes move with it
   QPointF m_PrevPos;
   ezDynamicArray<QGraphicsItem*> m_ContainedNodes;
 
   static constexpr float s_fEdgeThreshold = 10.0f;
-  static constexpr float s_fHeaderHeight = 26.0f;
+  static constexpr float s_fHeaderHeight = 26.0f; ///< Minimum header height, the header grows with multi-line comments.
+  static constexpr float s_fPadding = 8.0f;
   static constexpr float s_fMinWidth = 120.0f;
   static constexpr float s_fMinHeight = 80.0f;
 };
