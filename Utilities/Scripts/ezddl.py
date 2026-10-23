@@ -644,7 +644,7 @@ def type_index():
             for m in _RE_DECL_BASE.finditer(src):
                 bases[m.group(1)] = m.group(2)
             for m in _RE_BEGIN_TYPE.finditer(src):
-                args = [a.strip() for a in m.group("args").split(",")]
+                args = [a.strip() for a in re.sub(r"/\*.*?\*/", "", m.group("args")).split(",")]
                 kind = m.group("kind")
                 info = {"name": args[0], "kind": kind, "file": rel(full), "line": src.count("\n", 0, m.start()) + 1, "base": None, "version": None}
                 try:

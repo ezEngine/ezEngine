@@ -19,6 +19,10 @@ using ezTriggerDelayModifierComponentManager = ezComponentManager<class ezTrigge
 /// inside it for the full duration of the delay. Which exact object may change, but once the trigger contains no object, the timer is reset.
 ///
 /// The sent ezMsgTriggerTriggered does not contain a reference to the 'triggering' object, since there may be multiple and they may change randomly.
+///
+/// Place this component on the same object as the trigger component. The delayed messages are sent to the parent object,
+/// so the component that handles them (e.g. a script) has to be on the parent. If it is on the same object as the trigger,
+/// it receives the original, undelayed messages instead.
 class EZ_GAMEENGINE_DLL ezTriggerDelayModifierComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezTriggerDelayModifierComponent, ezComponent, ezTriggerDelayModifierComponentManager);
