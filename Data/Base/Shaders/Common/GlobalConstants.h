@@ -68,9 +68,9 @@ CONSTANT_BUFFER(ezGlobalConstants, 0)
 
 #if EZ_ENABLED(PLATFORM_SHADER)
 
-#ifndef PI
-#  define PI 3.1415926535897932
-#endif
+#  ifndef PI
+#    define PI 3.1415926535897932
+#  endif
 
 // Rounds a rate (units per second) so that rate * TIME_WRAP_AROUND is a whole multiple of period.
 // Any periodic function f(GlobalTime * rate) with the given period then does not jump when the time wraps around.
