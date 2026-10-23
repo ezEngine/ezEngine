@@ -16,9 +16,10 @@ o
 			s{":app/VisualShader/Math_Trigonometry.ddl"}
 			s{":app/VisualShader/Output_Material.ddl"}
 			s{":app/VisualShader/Textures.ddl"}
+			s{":app/VisualShader/Utils.ddl"}
 		}
 		Uuid %DocumentID{u4{7620995397824001423,5349799445066999962}}
-		u4 %Hash{5602799293241726800}
+		u4 %Hash{11143630740599315610}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -37,6 +38,7 @@ o
 			s{":app/VisualShader/Math_Trigonometry.ddl"}
 			s{":app/VisualShader/Output_Material.ddl"}
 			s{":app/VisualShader/Textures.ddl"}
+			s{":app/VisualShader/Utils.ddl"}
 			s{"{ 40de4c83-c72f-4be8-8c10-9cf6f780f723 }"}
 			s{"{ 62679f43-c2b8-4eed-8fc9-b79ea6f0fb19 }"}
 			s{"{ ef681deb-d047-488f-9197-58afd67c9800 }"}
@@ -112,6 +114,18 @@ o
 }
 o
 {
+	Uuid %id{u4{861877417417966763,4717071186441112180}}
+	s %t{"ShaderNode::Multiply"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x87F90845,0xD0FB1544}}
+		f %a{0x0000803F}
+		f %b{0x0000803F}
+	}
+}
+o
+{
 	Uuid %id{u4{10307994535211158188,4760007707387977561}}
 	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
@@ -121,6 +135,19 @@ o
 		s %SourcePin{"result"}
 		Uuid %Target{u4{2024197163528181709,14660675474249370171}}
 		s %TargetPin{"UV"}
+	}
+}
+o
+{
+	Uuid %id{u4{14441800419833562004,4787513439579583089}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{16787082539869161871,5213012835885122245}}
+		s %SourcePin{"Result"}
+		Uuid %Target{u4{861877417417966763,4717071186441112180}}
+		s %TargetPin{"b"}
 	}
 }
 o
@@ -304,6 +331,30 @@ o
 }
 o
 {
+	Uuid %id{u4{16787082539869161871,5213012835885122245}}
+	s %t{"ShaderNode::WrapSafeAngularFrequency"}
+	u3 %v{1}
+	p
+	{
+		f %Frequency{0x0000803F}
+		Vec2 %Node::Pos{f{0xC630F544,0x0A782144}}
+	}
+}
+o
+{
+	Uuid %id{u4{8131403482063847051,5220033874502312341}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{861877417417966763,4717071186441112180}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{9487853269919055524,5740397998833056191}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
 	Uuid %id{u4{10835647626882961591,5222971829265593029}}
 	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
@@ -354,6 +405,19 @@ o
 }
 o
 {
+	Uuid %id{u4{12001061639179639457,5286901749253899034}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{15664057804964861627,5731417291837603831}}
+		s %SourcePin{"World"}
+		Uuid %Target{u4{861877417417966763,4717071186441112180}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
 	Uuid %id{u4{9644899597780581504,5372999771974556509}}
 	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
@@ -362,19 +426,6 @@ o
 		Uuid %Source{u4{10900406169349141413,4861314832855801546}}
 		s %SourcePin{"RGBA"}
 		Uuid %Target{u4{396155798551472306,5425639480846733752}}
-		s %TargetPin{"a"}
-	}
-}
-o
-{
-	Uuid %id{u4{8184431435568734873,5376905992263344653}}
-	s %t{"ezDocumentObject_ConnectionBase"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Source{u4{15664057804964861627,5731417291837603831}}
-		s %SourcePin{"World"}
-		Uuid %Target{u4{9487853269919055524,5740397998833056191}}
 		s %TargetPin{"a"}
 	}
 }
@@ -526,7 +577,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x2E610645,0x6E171844}}
+		Vec2 %Node::Pos{f{0xC16C0145,0x4FD30844}}
 	}
 }
 o
@@ -588,7 +639,6 @@ o
 			Uuid{u4{10307994535211158188,4760007707387977561}}
 			Uuid{u4{8542093244893389712,5456825699951990947}}
 			Uuid{u4{494273815294764678,5043113297439582202}}
-			Uuid{u4{8184431435568734873,5376905992263344653}}
 			Uuid{u4{11661956813677645457,5432494419731223099}}
 			Uuid{u4{10835647626882961591,5222971829265593029}}
 			Uuid{u4{9663884224744028065,5456395035450563106}}
@@ -596,6 +646,11 @@ o
 			Uuid{u4{3294756573717885067,4978355415533087640}}
 			Uuid{u4{15579623011355058868,5077479493023092567}}
 			Uuid{u4{5296986609061087672,5591744086666326696}}
+			Uuid{u4{16787082539869161871,5213012835885122245}}
+			Uuid{u4{861877417417966763,4717071186441112180}}
+			Uuid{u4{12001061639179639457,5286901749253899034}}
+			Uuid{u4{14441800419833562004,4787513439579583089}}
+			Uuid{u4{8131403482063847051,5220033874502312341}}
 		}
 	}
 }
@@ -663,7 +718,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x1CA8F544,0x66432844}}
+		Vec2 %Node::Pos{f{0xFB1EF544,0xCAE23C44}}
 		f %a{0x0000803F}
 		f %b{0xCDCC4C3E}
 	}
@@ -1257,6 +1312,26 @@ o
 }
 o
 {
+	Uuid %id{u4{5686632535197269856,6196586460874276519}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualShaderNodeBase"}
+		s %PluginName{"VisualShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{6273147926911788810,8884307516844846881}}
+		}
+		s %TypeName{"ShaderNode::WrapSafeAngularFrequency"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{168057228374501286,6251753556952912477}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
@@ -1413,6 +1488,24 @@ o
 	p
 	{
 		f %Value{0}
+	}
+}
+o
+{
+	Uuid %id{u4{6273147926911788810,8884307516844846881}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{5604420514066806039,13929044898096829474}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Frequency"}
+		s %Type{"float"}
 	}
 }
 o
@@ -1825,6 +1918,16 @@ o
 o
 {
 	Uuid %id{u4{6649753934969554305,13791166057793731169}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{5604420514066806039,13929044898096829474}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
 	p

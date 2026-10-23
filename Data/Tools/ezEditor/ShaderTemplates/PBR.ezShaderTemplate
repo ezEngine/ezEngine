@@ -291,7 +291,8 @@ float3 GetBaseColor()
   rimLight = pow(rimLight, 4);
 
   // WorldTime allows us to change the effect over time
-  rimLight *= sin(WorldTime) + 1;
+  // WorldTime wraps around, WrapSafeAngularFrequency() prevents the pulse from jumping when that happens
+  rimLight *= sin(WorldTime * WrapSafeAngularFrequency(1.0)) + 1;
 
   // we could also add material input variables for the rim light color, strenght and pulse speed
   baseColor.rgb += float3(rimLight, rimLight, rimLight);
