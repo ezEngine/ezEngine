@@ -136,6 +136,10 @@ void ezFallbackGameState::ConfigureInputActions()
 
   RegisterInputAction("Game", "NextCamera", ezInputSlot_KeyPageDown);
   RegisterInputAction("Game", "PrevCamera", ezInputSlot_KeyPageUp);
+
+  // ESC is also the developer shortcut to quit, which RequestQuit() turns into opening the menu,
+  // but developer shortcuts aren't registered in shipping builds, so the menu needs its own action
+  RegisterInputAction("Game", "OpenMainMenu", ezInputSlot_KeyEscape, ezInputSlot_Controller0_ButtonBack);
 }
 
 const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
@@ -239,7 +243,7 @@ bool ezFallbackGameState::IsMainMenuOpen()
 
 void ezFallbackGameState::RequestQuit(ezStringView sRequestedBy)
 {
-  if (m_pMainWorld != nullptr && (sRequestedBy == "dev-esc" || sRequestedBy == "editor-esc"))
+  if (m_pMainWorld != nullptr && (sRequestedBy == "dev-esc" || sRequestedBy == "editor-esc" || sRequestedBy == "game-esc"))
   {
     EZ_LOCK(m_pMainWorld->GetWriteMarker());
 
@@ -264,6 +268,9 @@ void ezFallbackGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewW
 void ezFallbackGameState::ProcessInput()
 {
   SUPER::ProcessInput();
+
+  // the scene selection menu closes on ESC, which must not open the main menu in the same frame
+  const bool bShowedSceneMenu = m_bShowMenu;
 
   if (IsInLoadingScreen())
   {
@@ -301,6 +308,14 @@ void ezFallbackGameState::ProcessInput()
     {
       ezInputManager::SetExclusiveInputSet("");
     }
+  }
+
+  // while the main menu is open, the exclusive input set suppresses this action, so the menu can handle ESC itself
+  // without a main menu this quits, otherwise shipping builds would have no way to quit through the keyboard or controller
+  if (!bShowedSceneMenu && m_State == State::Ok && m_pMainWorld != nullptr && ezInputManager::GetInputActionState("Game", "OpenMainMenu") == ezKeyState::Pressed)
+  {
+    RequestQuit("game-esc");
+    return;
   }
 
   if (m_pMainWorld)

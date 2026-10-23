@@ -28,6 +28,10 @@ public:
   virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
 
   /// If the world contains an ezMainMenuComponent, pressing ESC ("dev-esc" and "editor-esc") opens it instead of quitting.
+  ///
+  /// The developer shortcuts don't exist in shipping builds, so there ESC (and the controller's back button) opens the menu
+  /// through the 'Game / OpenMainMenu' input action instead, see ProcessInput(). That action passes "game-esc" and, like the
+  /// developer shortcut, quits when there is no main menu.
   virtual void RequestQuit(ezStringView sRequestedBy) override;
 
   /// Reports true for ezFallbackGameState only, not for derived types.
