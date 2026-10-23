@@ -23,7 +23,7 @@ o
 			s{":app/VisualShader/Utils.ddl"}
 		}
 		Uuid %DocumentID{u4{13501307380740068006,5386818146636628353}}
-		u4 %Hash{13040527025385561807}
+		u4 %Hash{1805798974412816335}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -57,6 +57,19 @@ Objects
 {
 o
 {
+	Uuid %id{u4{16591072003136261809,4618248855842822415}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{2444002250972840586,4928413831431432768}}
+		s %SourcePin{"Result"}
+		Uuid %Target{u4{17901684221899174875,15539666110585877827}}
+		s %TargetPin{"b"}
+	}
+}
+o
+{
 	Uuid %id{u4{6315378829911171762,4648245528072617197}}
 	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
@@ -75,7 +88,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0xB6F397C4,0x3813CCC3}}
+		Vec2 %Node::Pos{f{0x69BEA7C4,0x3813CCC3}}
 		s %ParamName{"Wave2Speed"}
 	}
 }
@@ -160,7 +173,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x6CE290C4,0x41632BC4}}
+		Vec2 %Node::Pos{f{0x1FADA0C4,0x41632BC4}}
 		f %a{0x0000803F}
 		f %b{0x0000803F}
 	}
@@ -222,19 +235,6 @@ o
 		s %SourcePin{"Z"}
 		Uuid %Target{u4{6243334548945078917,5013760944503518676}}
 		s %TargetPin{"a"}
-	}
-}
-o
-{
-	Uuid %id{u4{17945843887594129342,4839338263606051179}}
-	s %t{"ezDocumentObject_ConnectionBase"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Source{u4{16272591908659773622,4760275323368455438}}
-		s %SourcePin{"result"}
-		Uuid %Target{u4{17901684221899174875,15539666110585877827}}
-		s %TargetPin{"b"}
 	}
 }
 o
@@ -337,6 +337,18 @@ o
 }
 o
 {
+	Uuid %id{u4{2444002250972840586,4928413831431432768}}
+	s %t{"ShaderNode::WrapSafeRate"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x13C690C4,0xF9232BC4}}
+		f %Period{0x0000803F}
+		f %Rate{0x0000803F}
+	}
+}
+o
+{
 	Uuid %id{u4{10110384405444929972,4930427916246378320}}
 	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
@@ -368,7 +380,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0xB9FEA2C4,0x886927C4}}
+		Vec2 %Node::Pos{f{0x6CC9B2C4,0x886927C4}}
 		Vec2 %Value{f{0x000080BF,0x0000803F}}
 	}
 }
@@ -561,7 +573,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0xD97977C4,0xC98A98C2}}
+		Vec2 %Node::Pos{f{0xB4998CC4,0x5F906CC2}}
 		s %ParamName{"Wave1Speed"}
 	}
 }
@@ -615,6 +627,31 @@ o
 		Vec2 %Wave2Speed{f{0x0AD7A3BB,0x0AD7A33B}}
 		f %Wave2Strength{0xCDCC4C3F}
 		s %Wave2Texture{"{ 1ce4366f-d898-4a91-977e-82f8f9acdc18 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{6129069985954118065,5093711121069290371}}
+	s %t{"ShaderNode::WrapSafeRate"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x22A290C4,0x01E4CEC3}}
+		f %Period{0x0000803F}
+		f %Rate{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{12927903872213567387,5096118424757516732}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{16272591908659773622,4760275323368455438}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{2444002250972840586,4928413831431432768}}
+		s %TargetPin{"Rate"}
 	}
 }
 o
@@ -692,6 +729,18 @@ o
 }
 o
 {
+	Uuid %id{u4{14050339930850935457,5145646886799539998}}
+	s %t{"ShaderNode::WrapSafeRate"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0xD89B6BC4,0xAEAD5BC2}}
+		f %Period{0x0000803F}
+		f %Rate{0x0000803F}
+	}
+}
+o
+{
 	Uuid %id{u4{14084326856280611970,5145727616562959472}}
 	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
@@ -724,6 +773,19 @@ o
 	p
 	{
 		Vec2 %Node::Pos{f{0x508231C4,0xE2598D44}}
+	}
+}
+o
+{
+	Uuid %id{u4{28466526940035766,5163567868728105378}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{6129069985954118065,5093711121069290371}}
+		s %SourcePin{"Result"}
+		Uuid %Target{u4{17278977604892450643,10031938707848363743}}
+		s %TargetPin{"a"}
 	}
 }
 o
@@ -770,7 +832,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x6466A9C4,0xC34E02C4}}
+		Vec2 %Node::Pos{f{0x1731B9C4,0xC34E02C4}}
 		s %ParamName{"Wave2Scale"}
 	}
 }
@@ -875,19 +937,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13505307804187628949,5223025638483768920}}
-	s %t{"ezDocumentObject_ConnectionBase"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Source{u4{17127620543731159967,5080230176136837210}}
-		s %SourcePin{"Value"}
-		Uuid %Target{u4{3936789690048387994,4985620966627624147}}
-		s %TargetPin{"a"}
-	}
-}
-o
-{
 	Uuid %id{u4{2034342660398236589,5256139169134078718}}
 	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
@@ -919,7 +968,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0xF19267C4,0x57E62441}}
+		Vec2 %Node::Pos{f{0x601460C4,0xFA433242}}
 	}
 }
 o
@@ -931,6 +980,19 @@ o
 	{
 		Vec2 %Node::Pos{f{0x3680A143,0x209611C3}}
 		Vec3 %Value{f{0,0,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{1582624845364046009,5289522846231107146}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{4746677947907125688,4668502957685056381}}
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{6129069985954118065,5093711121069290371}}
+		s %TargetPin{"Rate"}
 	}
 }
 o
@@ -1238,6 +1300,19 @@ o
 }
 o
 {
+	Uuid %id{u4{10962287983145972916,5622054221988486536}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{17127620543731159967,5080230176136837210}}
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{14050339930850935457,5145646886799539998}}
+		s %TargetPin{"Rate"}
+	}
+}
+o
+{
 	Uuid %id{u4{9263154331911615888,5640771943378115649}}
 	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
@@ -1246,19 +1321,6 @@ o
 		Uuid %Source{u4{6243334548945078917,5013760944503518676}}
 		s %SourcePin{"result"}
 		Uuid %Target{u4{6499911994049223310,5707099521623936828}}
-		s %TargetPin{"a"}
-	}
-}
-o
-{
-	Uuid %id{u4{838329388713957562,5654654086088212499}}
-	s %t{"ezDocumentObject_ConnectionBase"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Source{u4{4746677947907125688,4668502957685056381}}
-		s %SourcePin{"Value"}
-		Uuid %Target{u4{17278977604892450643,10031938707848363743}}
 		s %TargetPin{"a"}
 	}
 }
@@ -1298,6 +1360,19 @@ o
 		Uuid %Source{u4{8767969736113602197,4701996665417481985}}
 		s %SourcePin{"Value"}
 		Uuid %Target{u4{13867857172212770728,5070168668536426759}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{2648273408571906224,5683197302206152651}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{14050339930850935457,5145646886799539998}}
+		s %SourcePin{"Result"}
+		Uuid %Target{u4{3936789690048387994,4985620966627624147}}
 		s %TargetPin{"a"}
 	}
 }
@@ -1420,7 +1495,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x74F6BCC4,0x0E0EB3C3}}
+		Vec2 %Node::Pos{f{0x27C1CCC4,0x0E0EB3C3}}
 	}
 }
 o
@@ -1474,7 +1549,6 @@ o
 			Uuid{u4{17127620543731159967,5080230176136837210}}
 			Uuid{u4{3936789690048387994,4985620966627624147}}
 			Uuid{u4{7295379446303420570,5350185567352319067}}
-			Uuid{u4{13505307804187628949,5223025638483768920}}
 			Uuid{u4{10786985100295119275,5734869650030216341}}
 			Uuid{u4{13029413030833050553,5120074540962861300}}
 			Uuid{u4{1597844079515087768,5763393872683948738}}
@@ -1496,7 +1570,6 @@ o
 			Uuid{u4{7409153293462672214,10305811782058956307}}
 			Uuid{u4{2190823287437931603,10396503308573058663}}
 			Uuid{u4{17278977604892450643,10031938707848363743}}
-			Uuid{u4{838329388713957562,5654654086088212499}}
 			Uuid{u4{8022651488432541360,4894010506354958432}}
 			Uuid{u4{2034342660398236589,5256139169134078718}}
 			Uuid{u4{2253203741760743867,5190007657023402120}}
@@ -1517,7 +1590,6 @@ o
 			Uuid{u4{13257056180414248324,5697619748851805596}}
 			Uuid{u4{12353039624814454669,4935723263889726269}}
 			Uuid{u4{18362070224647960229,5759246836606725359}}
-			Uuid{u4{17945843887594129342,4839338263606051179}}
 			Uuid{u4{5996665792953739998,14946149886928108773}}
 			Uuid{u4{11559922863723390083,5433900700516394486}}
 			Uuid{u4{2619783082295201920,5106641854237227473}}
@@ -1572,6 +1644,15 @@ o
 			Uuid{u4{14331916605069010846,4940749077372898687}}
 			Uuid{u4{7296562667701628838,4956376492110580701}}
 			Uuid{u4{17428255043727727786,5585662783716723452}}
+			Uuid{u4{14050339930850935457,5145646886799539998}}
+			Uuid{u4{10962287983145972916,5622054221988486536}}
+			Uuid{u4{2648273408571906224,5683197302206152651}}
+			Uuid{u4{6129069985954118065,5093711121069290371}}
+			Uuid{u4{1582624845364046009,5289522846231107146}}
+			Uuid{u4{28466526940035766,5163567868728105378}}
+			Uuid{u4{2444002250972840586,4928413831431432768}}
+			Uuid{u4{12927903872213567387,5096118424757516732}}
+			Uuid{u4{16591072003136261809,4618248855842822415}}
 		}
 	}
 }
@@ -1582,7 +1663,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x49DF92C4,0x8F50FFC3}}
+		Vec2 %Node::Pos{f{0xFCA9A2C4,0x8F50FFC3}}
 		f %a{0x0000803F}
 		f %b{0x0000803F}
 	}
@@ -1653,7 +1734,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0xCE3890C4,0x9CDAA7C3}}
+		Vec2 %Node::Pos{f{0xCE3890C4,0xCC259DC3}}
 	}
 }
 o
@@ -1757,7 +1838,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0xF71A91C4,0x027345C4}}
+		Vec2 %Node::Pos{f{0xAAE5A0C4,0x027345C4}}
 	}
 }
 o
@@ -1791,6 +1872,24 @@ o
 	p
 	{
 		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{8879923960782971610,1269410471751753584}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{18386198489726629594,4979570541234255049}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Period"}
+		s %Type{"float"}
 	}
 }
 o
@@ -2180,6 +2279,27 @@ o
 }
 o
 {
+	Uuid %id{u4{3652855185438980075,3505725390483387646}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualShaderNodeBase"}
+		s %PluginName{"VisualShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{6161963024428505853,6552398797823329679}}
+			Uuid{u4{8879923960782971610,1269410471751753584}}
+		}
+		s %TypeName{"ShaderNode::WrapSafeRate"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{10546328178433928928,3538178021212683011}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
@@ -2334,6 +2454,16 @@ o
 		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Name{"Value"}
 		s %Type{"ezVec3"}
+	}
+}
+o
+{
+	Uuid %id{u4{18386198489726629594,4979570541234255049}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
 	}
 }
 o
@@ -2554,6 +2684,24 @@ o
 		}
 		s %TypeName{"SHADING_MODE"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6161963024428505853,6552398797823329679}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{3586192708758292558,12248257033079533361}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Rate"}
+		s %Type{"float"}
 	}
 }
 o
@@ -3233,6 +3381,16 @@ o
 	p
 	{
 		s %Category{"Texture 2D"}
+	}
+}
+o
+{
+	Uuid %id{u4{3586192708758292558,12248257033079533361}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
 	}
 }
 o

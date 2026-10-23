@@ -83,7 +83,7 @@ float3 BendPosition(float3 position, float positionBend, float3 anchorPre, float
   return anchorPost + normalize(position) * distToAnchor;
 }
 
-float3 ComputeWind(float phasedTime, float3 localPosition, float4 vWindTrunk, float4 vWindBranches, float fBendAndFlutterStrength, float fBranchLevel, float fFlutterPhase, float3 vBendAnchorPre, float fBendAnchorStrength)
+float3 ComputeWind(float time, float timePhase, float3 localPosition, float4 vWindTrunk, float4 vWindBranches, float fBendAndFlutterStrength, float fBranchLevel, float fFlutterPhase, float3 vBendAnchorPre, float fBendAnchorStrength)
 {
   // wind direction is always in local object space
   // but uses the global 0 - 20 m/sec speed range (w component and length) no matter the object scale
@@ -106,11 +106,16 @@ float3 ComputeWind(float phasedTime, float3 localPosition, float4 vWindTrunk, fl
   }
   else
   {
-    float2 flutterSamplePos = float2(fFlutterPhase + phasedTime, (fFlutterPhase + phasedTime) * fFlutterPhaseShift);
     float flutterAmount = fFlutterAmplitude * fBendAndFlutterStrength * clamp(vWindBranches.w, fMinFlutterWindSpeed, fMaxFlutterWindSpeed);
 
-    float2 flutterSlow = sin(flutterSamplePos * fSlowFlutterSpeed);
-    float2 flutterFast = sin(flutterSamplePos * fFastFlutterSpeed);
+    // the time is multiplied with wrap safe frequencies separately from the phase,
+    // so that the flutter does not jump when the time wraps around
+    float phase = fFlutterPhase + timePhase;
+    float2 slowFrequency = float2(1.0, fFlutterPhaseShift) * fSlowFlutterSpeed;
+    float2 fastFrequency = float2(1.0, fFlutterPhaseShift) * fFastFlutterSpeed;
+
+    float2 flutterSlow = sin(phase * slowFrequency + time * WrapSafeAngularFrequency(slowFrequency));
+    float2 flutterFast = sin(phase * fastFrequency + time * WrapSafeAngularFrequency(fastFrequency));
     float2 flutter = lerp(flutterSlow, flutterFast, clamp(vWindBranches.w / fFastFlutterWindSpeed, 0, 1)) * flutterAmount;
 
     localPosition = BendPosition(localPosition, fBendAndFlutterStrength, vBendAnchorPre, vBendAnchorPost, vWindBranches.xyz, flutter.x + flutter.y);
@@ -135,9 +140,9 @@ VS_OUT main(VS_IN Input)
   scale.z = length(objectToWorld._m02_m12_m22);
 
   // shift time by world space position (x, y) to make trees standing next to each other flutter out of phase
-  float phasedTime = WorldTime + objectToWorld._m03 + objectToWorld._m13;
+  float timePhase = objectToWorld._m03 + objectToWorld._m13;
 
-  localPosition = ComputeWind(phasedTime, localPosition, data.Color, data.Color, Input.Color0.r, Input.Color0.g, Input.Color0.b, Input.Color1.xyz, Input.Color1.w);
+  localPosition = ComputeWind(WorldTime, timePhase, localPosition, data.Color, data.Color, Input.Color0.r, Input.Color0.g, Input.Color0.b, Input.Color1.xyz, Input.Color1.w);
 
   float4 worldPosition = mul(objectToWorld, float4(localPosition, 1));
 

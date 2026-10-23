@@ -22,7 +22,7 @@ o
 			s{":app/VisualShader/Utils.ddl"}
 		}
 		Uuid %DocumentID{u4{11626913915742574482,5132528984747720437}}
-		u4 %Hash{10764752029768490669}
+		u4 %Hash{295020048449314088}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -242,6 +242,17 @@ o
 }
 o
 {
+	Uuid %id{u4{13364094586431624634,4977969766095031866}}
+	s %t{"ShaderNode::WrapSafeAngularFrequency"}
+	u3 %v{1}
+	p
+	{
+		f %Frequency{0x00004040}
+		Vec2 %Node::Pos{f{0x43459B43,0x6EA96A44}}
+	}
+}
+o
+{
 	Uuid %id{u4{13635284119314568081,4998199912135703830}}
 	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
@@ -336,7 +347,7 @@ o
 	{
 		Vec2 %Node::Pos{f{0x0C6C0B44,0xD9656044}}
 		f %a{0x0000803F}
-		f %b{0x00004040}
+		f %b{0x0000803F}
 	}
 }
 o
@@ -355,6 +366,19 @@ o
 		s %RoughnessTexture{"{ f207c20e-dfa0-418c-973d-204aba4077ae }"}
 		s %SHADING_MODE{"SHADING_MODE::SHADING_MODE_LIT"}
 		b %TWO_SIDED{0}
+	}
+}
+o
+{
+	Uuid %id{u4{15124420932783898267,5144872276087400562}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{13364094586431624634,4977969766095031866}}
+		s %SourcePin{"Result"}
+		Uuid %Target{u4{12198106424227415212,5121410289175320388}}
+		s %TargetPin{"b"}
 	}
 }
 o
@@ -792,6 +816,8 @@ o
 			Uuid{u4{10881109902098185628,5398040595949425206}}
 			Uuid{u4{17271202308567986056,5413413794629804288}}
 			Uuid{u4{13498672871394296997,5008639736180909199}}
+			Uuid{u4{13364094586431624634,4977969766095031866}}
+			Uuid{u4{15124420932783898267,5144872276087400562}}
 		}
 	}
 }
@@ -1513,6 +1539,26 @@ o
 }
 o
 {
+	Uuid %id{u4{5686632535197269856,6196586460874276519}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualShaderNodeBase"}
+		s %PluginName{"VisualShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{6273147926911788810,8884307516844846881}}
+		}
+		s %TypeName{"ShaderNode::WrapSafeAngularFrequency"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{168057228374501286,6251753556952912477}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
@@ -1743,6 +1789,24 @@ o
 	p
 	{
 		f %Value{0}
+	}
+}
+o
+{
+	Uuid %id{u4{6273147926911788810,8884307516844846881}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{5604420514066806039,13929044898096829474}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Frequency"}
+		s %Type{"float"}
 	}
 }
 o
@@ -2135,6 +2199,16 @@ o
 o
 {
 	Uuid %id{u4{6649753934969554305,13791166057793731169}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{5604420514066806039,13929044898096829474}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
 	p

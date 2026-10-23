@@ -68,7 +68,7 @@ Node %UVScroll
 {
   string %Category { "Input" }
   string %Color { "Green" }
-  string %Docs { "Outputs the first vertex texture coordinate (UV0) and applies a scrolling effect, using the world time. " }
+  string %Docs { "Outputs the first vertex texture coordinate (UV0) and applies a scrolling effect, using the world time.\nThe speed is rounded to a multiple of 0.001 (see 'Wrap Safe Rate'), so the scrolling does not jump when the shader time wraps around." }
   string %Title { "UV Scroll: {$in1}" }
 
   string %CodeShaderShared { "
@@ -82,6 +82,7 @@ Node %UVScroll
     string %Type { "float2" }
     bool %Expose { true }
     string %DefaultValue { "1, 1" }
+    string %Tooltip { "Scroll speed along U and V. Rounded to a multiple of 0.001." }
   }
 
   InputPin %Scale
@@ -102,7 +103,7 @@ Node %UVScroll
   {
     string %Type { "float2" }
     string %Color { "Teal" }
-    string %Inline { "(G.Input.TexCoord0 * $in1 + $in2) + frac(WorldTime * $in0)" }
+    string %Inline { "(G.Input.TexCoord0 * $in1 + $in2) + frac(WorldTime * WrapSafeRate($in0, 1.0))" }
     string %Tooltip { "The scrolled UV 0 texture coordinate." }
   }
 }

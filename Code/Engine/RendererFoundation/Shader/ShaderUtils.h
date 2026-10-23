@@ -5,6 +5,7 @@
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Vec3.h>
+#include <Foundation/Time/Time.h>
 
 class ezShaderUtils
 {
@@ -41,6 +42,38 @@ public:
     out_uiRG = Float2ToRG16F(ezVec2(value.x, value.y));
     out_uiBA = Float2ToRG16F(ezVec2(value.z, value.w));
   }
+
+
+  /// The shader constants GlobalTime and WorldTime wrap around at this value to prevent floating point precision issues.
+  ///
+  /// Must match TIME_WRAP_AROUND in Shaders/Common/GlobalConstants.h.
+  static constexpr double s_fTimeWrapAround = 1000.0;
+  static constexpr float s_fInvTimeWrapAround = static_cast<float>(1.0 / s_fTimeWrapAround);
+
+  /// Wraps the given time around at TimeWrapAround, the same way GlobalTime and WorldTime are wrapped for shaders.
+  EZ_ALWAYS_INLINE static float WrappedTimeInSeconds(ezTime time)
+  {
+    return static_cast<float>(ezMath::Mod(time.GetSeconds(), s_fTimeWrapAround));
+  }
+
+  /// Rounds a rate (units per second) so that rate * TimeWrapAround is a whole multiple of fPeriod.
+  ///
+  /// Any periodic function f(wrappedTime * rate) with the given period then does not jump when the time wraps around.
+  /// E.g. use a period of 1 for texture scrolling in UV space with a repeating sampler, or 2 * pi for sin / cos (see WrapSafeAngularFrequency).
+  /// CPU equivalent of WrapSafeRate() in Shaders/Common/GlobalConstants.h.
+  EZ_ALWAYS_INLINE static float WrapSafeRate(float fRate, float fPeriod)
+  {
+    return ezMath::RoundToMultiple(fRate, fPeriod * s_fInvTimeWrapAround);
+  }
+
+  /// Rounds an angular frequency (radians per second, as in sin(wrappedTime * frequency)) so that the sine / cosine does not jump when the time wraps around.
+  ///
+  /// CPU equivalent of WrapSafeAngularFrequency() in Shaders/Common/GlobalConstants.h.
+  EZ_ALWAYS_INLINE static float WrapSafeAngularFrequency(float fFrequency)
+  {
+    return WrapSafeRate(fFrequency, 2.0f * ezMath::Pi<float>());
+  }
+
 
   enum class ezBuiltinShaderType
   {

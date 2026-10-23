@@ -58,16 +58,24 @@ void ezQtVisualGraphCommentNode::UpdateGeometry()
   }
 
   m_vCurrentSize.x = ezMath::Max(m_vCurrentSize.x, s_fMinWidth);
-  m_vCurrentSize.y = ezMath::Max(m_vCurrentSize.y, s_fMinHeight);
 
-  const float padding = 8.0f;
+  UpdateLabelLayout();
+
+  m_vCurrentSize.y = ezMath::Max(m_vCurrentSize.y, ezMath::Max(s_fMinHeight, m_fHeaderHeight));
 
   QPainterPath p;
   p.addRoundedRect(0, 0, m_vCurrentSize.x, m_vCurrentSize.y, 8, 8);
   setPath(p);
+}
 
-  m_pCommentLabel->setPos(padding, (s_fHeaderHeight - m_pCommentLabel->boundingRect().height()) * 0.5f);
-  m_pCommentLabel->setTextWidth(m_vCurrentSize.x - padding * 2);
+void ezQtVisualGraphCommentNode::UpdateLabelLayout()
+{
+  m_pCommentLabel->setTextWidth(m_vCurrentSize.x - s_fPadding * 2);
+
+  const float fTextHeight = static_cast<float>(m_pCommentLabel->boundingRect().height());
+  m_fHeaderHeight = ezMath::Max(s_fHeaderHeight, fTextHeight);
+
+  m_pCommentLabel->setPos(s_fPadding, (m_fHeaderHeight - fTextHeight) * 0.5f);
 }
 
 void ezQtVisualGraphCommentNode::UpdateState()
@@ -120,7 +128,7 @@ void ezQtVisualGraphCommentNode::paint(QPainter* painter, const QStyleOptionGrap
 
     painter->setClipPath(path());
     painter->setBrush(headerColor);
-    painter->drawRect(bounds.x(), bounds.y(), bounds.width(), s_fHeaderHeight);
+    painter->drawRect(bounds.x(), bounds.y(), bounds.width(), m_fHeaderHeight);
     painter->setClipping(false);
   }
 
@@ -258,9 +266,6 @@ void ezQtVisualGraphCommentNode::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
     if (m_uiActiveResizeEdge & Right)
       newSize.x = ezMath::Max(m_vResizeStartSize.x + (float)delta.x(), s_fMinWidth);
 
-    if (m_uiActiveResizeEdge & Bottom)
-      newSize.y = ezMath::Max(m_vResizeStartSize.y + (float)delta.y(), s_fMinHeight);
-
     if (m_uiActiveResizeEdge & Left)
     {
       float maxDeltaX = m_vResizeStartSize.x - s_fMinWidth;
@@ -269,11 +274,21 @@ void ezQtVisualGraphCommentNode::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
       newPos.setX(m_ResizeStartPos.x() + dx);
     }
 
+    // Narrowing the comment can wrap the text onto more lines and grow the header, which limits the minimum height.
+    m_vCurrentSize.x = newSize.x;
+    UpdateLabelLayout();
+    const float fMinHeight = ezMath::Max(s_fMinHeight, m_fHeaderHeight);
+    const float fStartHeight = ezMath::Max(m_vResizeStartSize.y, fMinHeight);
+    newSize.y = fStartHeight;
+
+    if (m_uiActiveResizeEdge & Bottom)
+      newSize.y = ezMath::Max(fStartHeight + (float)delta.y(), fMinHeight);
+
     if (m_uiActiveResizeEdge & Top)
     {
-      float maxDeltaY = m_vResizeStartSize.y - s_fMinHeight;
+      float maxDeltaY = fStartHeight - fMinHeight;
       float dy = ezMath::Clamp((float)delta.y(), -10000.0f, maxDeltaY);
-      newSize.y = m_vResizeStartSize.y - dy;
+      newSize.y = fStartHeight - dy;
       newPos.setY(m_ResizeStartPos.y() + dy);
     }
 
@@ -281,12 +296,10 @@ void ezQtVisualGraphCommentNode::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
     // Update visual path directly (no document commit until release)
     prepareGeometryChange();
+
     QPainterPath p;
     p.addRoundedRect(0, 0, m_vCurrentSize.x, m_vCurrentSize.y, 8, 8);
     setPath(p);
-
-    float padding = 8.0f;
-    m_pCommentLabel->setTextWidth(m_vCurrentSize.x - padding * 2);
 
     setPos(newPos);
 

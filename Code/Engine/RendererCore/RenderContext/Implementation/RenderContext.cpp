@@ -26,6 +26,7 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererFoundation/Shader/Shader.h>
+#include <RendererFoundation/Shader/ShaderUtils.h>
 #include <RendererFoundation/State/PipelineCache.h>
 
 ezRenderContext* ezRenderContext::s_pDefaultInstance = nullptr;
@@ -719,13 +720,12 @@ const ezGlobalConstants& ezRenderContext::ReadGlobalConstants() const
 
 void ezRenderContext::SetGlobalAndWorldTimeConstants(ezTime worldTime)
 {
-  auto& gc = WriteGlobalConstants();
+  static_assert(TIME_WRAP_AROUND == ezShaderUtils::s_fTimeWrapAround, "TIME_WRAP_AROUND in GlobalConstants.h must match ezShaderUtils::s_fTimeWrapAround");
 
-  // Wrap around to prevent floating point issues. A wrap around of 1000 allows all frequencies with 3 digits after the decimal.
-  const double fWrapAround = 1000.0;
+  auto& gc = WriteGlobalConstants();
   gc.DeltaTime = (float)ezClock::GetGlobalClock()->GetTimeDiff().GetSeconds();
-  gc.GlobalTime = (float)ezMath::Mod(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(), fWrapAround);
-  gc.WorldTime = (float)ezMath::Mod(worldTime.GetSeconds(), fWrapAround);
+  gc.GlobalTime = ezShaderUtils::WrappedTimeInSeconds(ezClock::GetGlobalClock()->GetAccumulatedTime());
+  gc.WorldTime = ezShaderUtils::WrappedTimeInSeconds(worldTime);
 }
 
 // static
