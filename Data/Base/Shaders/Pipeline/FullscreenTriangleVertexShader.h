@@ -8,7 +8,7 @@ VS_OUT main(uint vertexId : SV_VertexID, uint InstanceId : SV_InstanceID)
   VS_OUT Output;
   Output.Position.x = (float)(vertexId / 2) * 4.0f - 1.0f;
   Output.Position.y = (float)(vertexId % 2) * 4.0f - 1.0f;
-  Output.Position.z = 0.0f;
+  Output.Position.z = GetFarPlaneDeviceDepth();
   Output.Position.w = 1.0f;
 
   Output.TexCoord0.x = (float)(vertexId / 2) * 2.0f;

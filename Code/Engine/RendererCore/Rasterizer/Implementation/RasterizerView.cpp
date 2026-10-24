@@ -109,6 +109,9 @@ void ezRasterizerView::UpdateViewProjectionMatrix()
   ezMat4 mProjection;
   m_pCamera->GetProjectionMatrix(m_fAspectRation, mProjection, ezCameraEye::Left, ezClipSpaceDepthRange::ZeroToOne);
 
+  // The software rasterizer expects near depth 0 and far depth 1.
+  // depth = clipZ / clipW. Row 2 produces clipZ; row 3 produces clipW. Replacing row 2 with row3 - row2 therefore flips depth.
+  mProjection.SetRow(2, mProjection.GetRow(3) - mProjection.GetRow(2));
   m_mViewProjection = mProjection * m_pCamera->GetViewMatrix();
 }
 

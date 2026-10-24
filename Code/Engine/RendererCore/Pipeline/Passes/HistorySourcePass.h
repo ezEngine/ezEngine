@@ -30,7 +30,7 @@ protected:
   ezEnum<ezRequiredTextureChannels> m_MinChannels = ezRequiredTextureChannels::Channels_4; ///< Minimum channel count.
   ezEnum<ezGALMSAASampleCount> m_MsaaMode = ezGALMSAASampleCount::None;                    ///< MSAA sample count.
   ezColor m_ClearColor = ezColor::Black;                                                   ///< Initial clear color for first frame.
-  float m_fClearDepth = 1.0f;                                                              ///< Initial clear depth for first frame.
+  float m_fClearDepth = 0.0f;                                                              ///< Initial clear depth for first frame.
   bool m_bUAV = false;
   ezGALTextureHandle m_hTextureCleared = {};
 };

@@ -84,16 +84,15 @@ float SampleSceneDepth(float2 screenPosition)
   int2 screenXY = clamp(screenPosition.xy, 0, ViewportSize.xy - 1);
 
   float depthFromZBuffer = SceneDepth.Load(int4(screenXY, s_ActiveCameraEyeIndex, 0)).r;
-  return LinearizeZBufferDepth(depthFromZBuffer);
+  return ConvertDeviceDepthToLinearDepth(depthFromZBuffer);
 }
 
 float3 SampleScenePosition(float2 screenPosition)
 {
   float2 normalizedScreenPosition = screenPosition.xy * ViewportSize.zw;
   float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, float3(normalizedScreenPosition, s_ActiveCameraEyeIndex), 0.0f).r;
-  float4 fullScreenPosition = float4(normalizedScreenPosition * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), depthFromZBuffer, 1.0f);
-  float4 scenePosition = mul(GetScreenToWorldMatrix(), fullScreenPosition);
-  return scenePosition.xyz / scenePosition.w;
+  float2 normalizedDeviceCoordinates = normalizedScreenPosition * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f);
+  return ReconstructWorldPositionFromDeviceDepth(normalizedDeviceCoordinates, depthFromZBuffer);
 }
 
 float DepthFade(float3 screenPosition, float fadeDistance)
@@ -245,7 +244,7 @@ float CalculateShadowTerm(float3 worldPosition, float3 vertexNormal, float3 ligh
     uint cascadeIndex = 0;
     while (cascadeIndex < lastCascadeIndex)
     {
-      if (all(abs(shadowPosition.xyz) < threshold.xxy))
+      if (all(abs(shadowPosition.xy) < threshold.xx) && IsDeviceDepthCloser(shadowPosition.z, GetNearPlaneDeviceDepth() - threshold.y))
         break;
 
       float4 cascadeScale = shadowDataBuffer[GET_CASCADE_SCALE_INDEX(shadowDataOffset, cascadeIndex)];
@@ -305,7 +304,7 @@ float CalculateShadowTerm(float3 worldPosition, float3 vertexNormal, float3 ligh
   [branch] if (fadeOut > 0.0f)
   {
     // constant bias
-    shadowPosition.z -= constantBias;
+    shadowPosition.z += constantBias;
 
     shadowPosition.xyz /= shadowPosition.w;
 
@@ -902,7 +901,7 @@ float4 CalculateRefraction(float3 worldPosition, float4 screenPosition, float3 w
   float2 refractCoords = screenCoords + distortion;
 
   float depthFromZBuffer = SceneDepth.SampleLevel(PointSampler, float3(refractCoords, s_ActiveCameraEyeIndex), 0).r;
-  float depthDiff = LinearizeZBufferDepth(depthFromZBuffer) - screenPosition.w;
+  float depthDiff = ConvertDeviceDepthToLinearDepth(depthFromZBuffer) - screenPosition.w;
   refractCoords = lerp(screenCoords, refractCoords, saturate(depthDiff * 0.5));
   refractedScreenPosition = refractCoords * ViewportSize.xy;
 

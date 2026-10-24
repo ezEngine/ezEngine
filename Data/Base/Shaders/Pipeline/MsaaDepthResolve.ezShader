@@ -35,11 +35,11 @@ float main(PS_IN Input) : SV_Depth
 #endif
 
   int3 coords = int3(Input.Position.xy, s_ActiveCameraEyeIndex);
-  float depth = 0.0f;
+  float depth = GetNearPlaneDeviceDepth();
 
   for (uint i = 0; i < NumMsaaSamples; ++i)
   {
-    depth = max(depth, DepthTexture.Load(coords, i).r);
+    depth = SelectFarthestDeviceDepth(depth, DepthTexture.Load(coords, i).r);
   }
 
   return depth;

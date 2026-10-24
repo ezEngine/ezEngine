@@ -23,8 +23,8 @@ void main(uint3 groupID : SV_GroupID, uint groupThreadID : SV_GroupThreadID)
   dispatchParams.LightCoordinate = LightCoordinate;
   dispatchParams.WaveOffset = WaveOffset;
 
-  dispatchParams.FarDepthValue = 1;
-  dispatchParams.NearDepthValue = 0;
+  dispatchParams.FarDepthValue = GetFarPlaneDeviceDepth();
+  dispatchParams.NearDepthValue = GetNearPlaneDeviceDepth();
   dispatchParams.InvDepthTextureSize = InvDepthTextureSize;
   dispatchParams.EyeIndex = EyeIndex;
 

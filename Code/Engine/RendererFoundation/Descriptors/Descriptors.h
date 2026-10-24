@@ -142,7 +142,7 @@ struct ezGALDepthStencilStateCreationDescription : public ezHashableStruct<ezGAL
   ezGALStencilOpDescription m_FrontFaceStencilOp;
   ezGALStencilOpDescription m_BackFaceStencilOp;
 
-  ezEnum<ezGALCompareFunc> m_DepthTestFunc = ezGALCompareFunc::Less;
+  ezEnum<ezGALCompareFunc> m_DepthTestFunc = ezGALCompareFunc::Greater;
 
   bool m_bDepthEnable = true;
   bool m_bDepthWrite = true;
@@ -155,9 +155,9 @@ struct ezGALDepthStencilStateCreationDescription : public ezHashableStruct<ezGAL
 struct ezGALRasterizerStateCreationDescription : public ezHashableStruct<ezGALRasterizerStateCreationDescription>
 {
   ezEnum<ezGALCullMode> m_CullMode = ezGALCullMode::Back; ///< Which sides of a triangle to cull. Default is ezGALCullMode::Back
-  ezInt32 m_iDepthBias = 0;                               ///< The pixel depth bias. Default is 0
-  float m_fDepthBiasClamp = 0.0f;                         ///< The pixel depth bias clamp. Default is 0
-  float m_fSlopeScaledDepthBias = 0.0f;                   ///< The pixel slope scaled depth bias clamp. Default is 0
+  ezInt32 m_iDepthBias = 0;                               ///< Raw device-depth bias. Positive pulls towards the camera with inverse depth.
+  float m_fDepthBiasClamp = 0.0f;                         ///< Raw signed bias clamp; negate along with the biases when migrating conventional-depth states.
+  float m_fSlopeScaledDepthBias = 0.0f;                   ///< Raw slope-scaled device-depth bias. Positive pulls towards the camera with inverse depth.
   bool m_bWireFrame = false;                              ///< Whether triangles are rendered filled or as wireframe. Default is false
   bool m_bFrontCounterClockwise = false;                  ///< Sets which triangle winding order defines the 'front' of a triangle. If true, the front of a triangle
                                                           ///< is the one where the vertices appear in counter clockwise order. Default is false

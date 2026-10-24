@@ -183,15 +183,19 @@ public:
   static void DrawTexturedTriangles(const ezDebugRendererContext& context, ezArrayPtr<ezDebugRendererTexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture, bool bTwoSided = false);
 
   /// Renders a filled 2D rectangle in screen-space for one frame.
+  /// fDepth is inverse device depth (1 near, 0 far), relevant only when a depth target is bound.
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
 
   /// Renders a textured 2D rectangle in screen-space for one frame.
+  /// fDepth is inverse device depth (1 near, 0 far), relevant only when a depth target is bound.
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture, ezVec2 vScale = ezVec2(1, 1));
 
   /// Renders a textured 2D rectangle in screen-space for one frame.
+  /// fDepth is inverse device depth (1 near, 0 far), relevant only when a depth target is bound.
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALTextureHandle hResourceView, ezVec2 vScale = ezVec2(1, 1));
 
   /// Renders a wireframe 2D rectangle in screen-space for one frame.
+  /// fDepth is inverse device depth (1 near, 0 far), relevant only when a depth target is bound.
   static void Draw2DLineRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
 
   /// Displays a string in screen-space for one frame.

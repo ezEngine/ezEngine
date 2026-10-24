@@ -63,7 +63,7 @@ float4 main(PS_IN Input) : SV_Target
   int2 coords = Input.Position.xy;
   float depth = SampleDepth(SelectionDepthTexture, int3(coords, s_ActiveCameraEyeIndex), Input);
 
-  if (depth == 1.0f)
+  if (depth == GetFarPlaneDeviceDepth())
   {
     float avgEdgeDistance = 0.0f;
     float validSampleCount = 0.0f;
@@ -87,7 +87,7 @@ float4 main(PS_IN Input) : SV_Target
         int2 currentCoords = coords + int2(x, y);
         float currentDepth = SampleDepth(SelectionDepthTexture, int3(currentCoords, s_ActiveCameraEyeIndex), Input);
 
-        if (currentDepth > 0.0f && currentDepth < 1.0f)
+        if (IsDeviceDepthCloser(currentDepth, GetFarPlaneDeviceDepth()) && IsDeviceDepthFarther(currentDepth, GetNearPlaneDeviceDepth()))
         {
           avgEdgeDistance += sqrt((float)edgeDistanceSqr);
           validSampleCount += 1.0f;
@@ -108,7 +108,7 @@ float4 main(PS_IN Input) : SV_Target
   else
   {
     float sceneDepth = SampleDepth(SceneDepthTexture, int3(coords, s_ActiveCameraEyeIndex), Input);
-    if (sceneDepth < depth)
+    if (IsDeviceDepthCloser(sceneDepth, depth))
     {
       discard;
     }

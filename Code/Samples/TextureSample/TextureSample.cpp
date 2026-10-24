@@ -299,7 +299,7 @@ public:
 
       ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, ezRectFloat(0.0f, 0.0f, fWindowWidth, fWindowHeight));
 
-      ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -fWindowWidth * 0.5f, m_vCameraPosition.x + fWindowWidth * 0.5f, m_vCameraPosition.y + -fWindowHeight * 0.5f, m_vCameraPosition.y + fWindowHeight * 0.5f, -1.0f, 1.0f);
+      ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -fWindowWidth * 0.5f, m_vCameraPosition.x + fWindowWidth * 0.5f, m_vCameraPosition.y + -fWindowHeight * 0.5f, m_vCameraPosition.y + fWindowHeight * 0.5f, 1.0f, -1.0f);
 
       ezBindGroupBuilder& bindGroupSample = ezRenderContext::GetDefaultInstance()->GetBindGroup();
       bindGroupSample.BindBuffer("ezTextureSampleConstants", m_hSampleConstants);

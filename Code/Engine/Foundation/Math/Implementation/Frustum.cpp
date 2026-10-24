@@ -307,7 +307,12 @@ ezResult ezFrustum::TryMakeFromMVP(ezFrustum& out_frustum, const ezMat4& mModelV
 
   // The last matrix row is giving the camera's plane, which means its normal is
   // also the camera's viewing direction.
-  const ezVec3 cameraViewDirection = ModelViewProjection.GetRow(3).GetAsVec3();
+  ezVec3 cameraViewDirection = ModelViewProjection.GetRow(3).GetAsVec3();
+  if (cameraViewDirection.IsZero())
+  {
+    // Orthographic projections have a constant W; derive forward from the screen axes instead.
+    cameraViewDirection = -ModelViewProjection.GetRow(0).GetAsVec3().CrossRH(ModelViewProjection.GetRow(1).GetAsVec3());
+  }
 
   // Making sure the near/far plane is always closest/farthest. The way we derive the
   // planes always yields the closer plane pointing towards the camera and the farther

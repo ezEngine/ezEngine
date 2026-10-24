@@ -89,7 +89,7 @@ Node %DepthState
   Property %DepthTestFunc
   {
     string %Type { "enum" }
-    string %DefaultValue { "CompareFunc_LessEqual" }
+    string %DefaultValue { "CompareFunc_GreaterEqual" }
     string %EnumValues { "CompareFunc_Never, CompareFunc_Less, CompareFunc_Equal, CompareFunc_LessEqual, CompareFunc_Greater, CompareFunc_NotEqual, CompareFunc_GreaterEqual, CompareFunc_Always" }
   }
 

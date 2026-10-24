@@ -290,32 +290,35 @@ void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out
   {
     case ezCameraMode::PerspectiveFixedFovX:
       out_mProjectionMatrix = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::MakeFromDegree(m_fFovOrDim), fAspectRatioWidthDivHeight,
-        m_fNearPlane, m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+        m_fFarPlane, m_fNearPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
       break;
 
     case ezCameraMode::PerspectiveFixedFovY:
       out_mProjectionMatrix = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::MakeFromDegree(m_fFovOrDim), fAspectRatioWidthDivHeight,
-        m_fNearPlane, m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+        m_fFarPlane, m_fNearPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
       break;
 
     case ezCameraMode::OrthoFixedWidth:
-      out_mProjectionMatrix = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_fFovOrDim, m_fFovOrDim / fAspectRatioWidthDivHeight, m_fNearPlane,
-        m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+      out_mProjectionMatrix = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_fFovOrDim, m_fFovOrDim / fAspectRatioWidthDivHeight, m_fFarPlane,
+        m_fNearPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
       break;
 
     case ezCameraMode::OrthoFixedHeight:
-      out_mProjectionMatrix = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_fFovOrDim * fAspectRatioWidthDivHeight, m_fFovOrDim, m_fNearPlane,
-        m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+      out_mProjectionMatrix = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_fFovOrDim * fAspectRatioWidthDivHeight, m_fFovOrDim, m_fFarPlane,
+        m_fNearPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
       break;
 
     case ezCameraMode::Stereo:
       if (ezMath::IsEqual(m_fAspectOfPrecomputedStereoProjection, fAspectRatioWidthDivHeight, ezMath::LargeEpsilon<float>()))
+      {
         out_mProjectionMatrix = m_mStereoProjectionMatrix[static_cast<int>(eye)];
+        ezGraphicsUtils::ConvertProjectionMatrixDepthRange(out_mProjectionMatrix, ezClipSpaceDepthRange::Default, depthRange);
+      }
       else
       {
         // Evade to FixedFovY
         out_mProjectionMatrix = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::MakeFromDegree(m_fFovOrDim), fAspectRatioWidthDivHeight,
-          m_fNearPlane, m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+          m_fFarPlane, m_fNearPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
       }
       break;
 

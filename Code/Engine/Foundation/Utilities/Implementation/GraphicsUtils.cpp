@@ -34,8 +34,6 @@ ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& mModelViewPro
     return EZ_FAILURE;
 
   ezVec3 vProjected = vClipSpace.GetAsVec3() / vClipSpace.w;
-  if (vClipSpace.w < 0.0f)
-    vProjected.z = -vProjected.z;
 
   // move into [0; 1] range
   out_vScreenPosNormalized.x = (vProjected.x * 0.5f) + 0.5f;
@@ -85,7 +83,8 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& mInverseModel
 
   if (out_pDirection != nullptr)
   {
-    vToUnProject.z += 0.1f; // a point that is a bit further away
+    // Sample towards the near plane to avoid crossing infinity at small inverse depths.
+    vToUnProject.z += 0.1f;
 
     const ezVec4 vWorldSpacePoint2 = mInverseModelViewProjection * vToUnProject;
 
@@ -93,7 +92,7 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& mInverseModel
 
     const ezVec3 vPoint2 = vWorldSpacePoint2.GetAsVec3() / vWorldSpacePoint2.w;
 
-    *out_pDirection = (vPoint2 - out_vPoint).GetNormalized();
+    *out_pDirection = (out_vPoint - vPoint2).GetNormalized();
   }
 
   return EZ_SUCCESS;
@@ -136,7 +135,8 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& mInverseMode
 
   if (out_pDirection != nullptr)
   {
-    vToUnProject.z += 0.1f; // a point that is a bit further away
+    // Sample towards the near plane to avoid crossing infinity at small inverse depths.
+    vToUnProject.z += 0.1f;
 
     const ezVec4d vWorldSpacePoint2 = mInverseModelViewProjection * vToUnProject;
 
@@ -144,7 +144,7 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& mInverseMode
 
     const ezVec3d vPoint2 = vWorldSpacePoint2.GetAsVec3() / vWorldSpacePoint2.w;
 
-    ezVec3d outDir = (vPoint2 - outTemp).GetNormalized();
+    ezVec3d outDir = (outTemp - vPoint2).GetNormalized();
     out_pDirection->Set((float)outDir.x, (float)outDir.y, (float)outDir.z);
   }
 
@@ -224,7 +224,7 @@ ezResult ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& mPro
 {
   float fNear, fFar;
   EZ_SUCCEED_OR_RETURN(ExtractNearAndFarClipPlaneDistances(fNear, fFar, mProjectionMatrix, depthRange));
-  // Compensate for inverse-Z.
+  // Compensate for inverse depth.
   const float fMinDepth = ezMath::Min(fNear, fFar);
 
   ezAngle fFovLeft;
@@ -306,15 +306,22 @@ ezPlane ezGraphicsUtils::ComputeInterpolatedFrustumPlane(FrustumPlaneInterpolati
       rowA = mProjectionMatrix.GetRow(2);
 
       if (depthRange == ezClipSpaceDepthRange::ZeroToOne)
-        rowB *= fLerpFactor; // [0; 1] range
+        rowB *= 1.0f - fLerpFactor; // inverse-depth [1; 0] range
       else
-        rowB *= factorMinus1to1;
+        rowB *= -factorMinus1to1;   // inverse-depth [+1; -1] range
       break;
   }
 
   ezPlane res;
   res.m_vNormal = rowA.GetAsVec3() - rowB.GetAsVec3();
   res.m_fNegDistance = (rowA.w - rowB.w) / res.m_vNormal.GetLengthAndNormalize();
+
+  // Preserve the forward-facing orientation with inverse depth.
+  if (direction == FrustumPlaneInterpolation::NearToFar)
+  {
+    res.m_vNormal = -res.m_vNormal;
+    res.m_fNegDistance = -res.m_fNegDistance;
+  }
 
   return res;
 }
@@ -330,7 +337,7 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fViewWidth, floa
 ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle fieldOfViewX, float fAspectRatioWidthDivHeight, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum depthRange, ezClipSpaceYMode::Enum range, ezHandedness::Enum handedness)
 {
   // Taking the minimum allows the function to be used to create
-  // inverse z matrices (fNearZ > fFarZ) as well.
+  // inverse-depth matrices (fNearZ > fFarZ) as well.
   const float xm = ezMath::Min(fNearZ, fFarZ) * ezMath::Tan(fieldOfViewX * 0.5f);
   const float ym = xm / fAspectRatioWidthDivHeight;
 
@@ -340,7 +347,7 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle fieldO
 ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, float fAspectRatioWidthDivHeight, float fNearZ, float fFarZ, ezClipSpaceDepthRange::Enum depthRange, ezClipSpaceYMode::Enum range, ezHandedness::Enum handedness)
 {
   // Taking the minimum allows the function to be used to create
-  // inverse z matrices (fNearZ > fFarZ) as well.
+  // inverse-depth matrices (fNearZ > fFarZ) as well.
   const float ym = ezMath::Min(fNearZ, fFarZ) * ezMath::Tan(fieldOfViewY * 0.5f);
   const float xm = ym * fAspectRatioWidthDivHeight;
 
@@ -412,7 +419,7 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRi
   }
 
   // Taking the minimum of the two plane values allows
-  // this function to also be used to create inverse-z
+  // this function to also be used to create inverse-depth
   // matrices by specifying values of fNearZ > fFarZ.
   // Otherwise the x and y scaling values will be wrong
   // in the final matrix.

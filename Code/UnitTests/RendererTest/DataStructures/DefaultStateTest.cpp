@@ -2,6 +2,9 @@
 
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Descriptors/Enumerations.h>
+#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <RendererFoundation/Resources/Texture.h>
 #include <RendererTest/TestClass/SimpleRendererTest.h>
 
 EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, TextureDefaultState)
@@ -60,6 +63,33 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, TextureDefaultState)
     desc.m_Format = ezGALResourceFormat::RGBAFloat;
     desc.m_TextureFlags = ezGALTextureUsageFlags::UnorderedAccess;
     EZ_TEST_BOOL(desc.GetDefaultState() == ezGALResourceState::UnorderedAccess);
+  }
+}
+
+EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, DepthDefaultState)
+{
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Depth state defaults to inverse depth")
+  {
+    ezGALDepthStencilStateCreationDescription desc;
+    EZ_TEST_BOOL(desc.m_bDepthEnable);
+    EZ_TEST_BOOL(desc.m_bDepthWrite);
+    EZ_TEST_BOOL(desc.m_DepthTestFunc == ezGALCompareFunc::Greater);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Rendering setup clears depth to zero")
+  {
+    ezGALTextureCreationDescription textureDesc;
+    textureDesc.SetAsRenderTarget(4, 4, ezGALResourceFormat::D16);
+
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    ezGALTextureHandle hTexture = pDevice->CreateTexture(textureDesc);
+
+    ezGALRenderingSetup setup;
+    setup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hTexture));
+    setup.SetClearDepth();
+
+    EZ_TEST_FLOAT(setup.GetClearDepth(), 0.0f, 0.0f);
+    pDevice->DestroyTexture(hTexture);
   }
 }
 

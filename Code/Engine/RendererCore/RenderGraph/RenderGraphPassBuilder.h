@@ -73,7 +73,7 @@ public:
     bool bReadOnly = false);
 
   /// Sets the clear depth value and switches the depth load op to `Clear`. SetDepthStencilTarget must have been called first.
-  ezRenderGraphPassBuilder& SetClearDepth(float fDepthClear = 1.0f);
+  ezRenderGraphPassBuilder& SetClearDepth(float fDepthClear = 0.0f);
 
   /// Sets the clear stencil value and switches the stencil load op to `Clear`. SetDepthStencilTarget must have been called first.
   ezRenderGraphPassBuilder& SetClearStencil(ezUInt8 uiStencilClear = 0);

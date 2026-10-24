@@ -13,6 +13,7 @@ struct ezShaderPermutationBinaryVersion
     Version5 = 5,
     Version6 = 6, // Fixed DX11 particles vanishing
     Version7 = 7,
+    Version8 = 8, // Recompile render states with inverse-depth defaults.
 
     // Increase this version number to trigger shader recompilation
 
