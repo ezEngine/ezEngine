@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9942389368597704355,5056955079846159374}}
-		u4 %Hash{18316305979856231299}
+		u4 %Hash{16392314950189391436}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -46,6 +46,7 @@ o
 			s{"{ d63193e0-3e77-4960-a51a-9c8a45393450 }"}
 			s{"{ f9a7dcf9-790a-49f5-91a9-dad0345dddbc }"}
 			s{"{ fbbe8b57-91b5-4a9f-bf1e-e30ac87a8a6c }"}
+			s{"{ fe594680-2ccf-8bdc-41dd-6e908da72ff5 }"}
 		}
 		VarArray %References
 		{
@@ -880,89 +881,11 @@ o
 		b %Active{1}
 		VarDict %Bones
 		{
-			ezExposedBone %LowerLeg.L
-			{
-				s %Name{"LowerLeg.L"}
-				s %Parent{"UpperLeg.L"}
-				Transform %Transform{f{0x00800137,0xCB8BF93E,0x00000B36,0x21592A3F,0x25805BBD,0xAD246E3D,0x39053E3F,0x0000803F,0x0000803F,0x0000803F}}
-			}
-			ezExposedBone %Head
-			{
-				s %Name{"Head"}
-				s %Parent{"Neck"}
-				Transform %Transform{f{0x00004C36,0x84C2FD3D,0x000000B6,0xC4EA823E,0x6E92F0BD,0x21C22B3D,0xE06B753F,0x0000803F,0x0000803F,0x0000803F}}
-			}
-			ezExposedBone %Foot.L
-			{
-				s %Name{"Foot.L"}
-				s %Parent{"LowerLeg.L"}
-				Transform %Transform{f{0x00804F37,0x921FEF3E,0x00003636,0xB98F0CBF,0x87913DBB,0xC30B253D,0x81B5553F,0x0000803F,0x0000803F,0x0000803F}}
-			}
-			ezExposedBone %Hip
-			{
-				s %Name{"Hip"}
-				s %Parent{"Root"}
-				Transform %Transform{f{0x6A4600B5,0xD1708C3F,0xCDD38C3B,0xC20128B4,0x01044033,0x80FAD0B4,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-			}
-			ezExposedBone %Torso
-			{
-				s %Name{"Torso"}
-				s %Parent{"Belly"}
-				Transform %Transform{f{0x00006036,0x18113D3E,0x0000A0B4,0x685F833E,0x8556CA3C,0x2210123D,0x192E773F,0x0000803F,0x0000803F,0x0000803F}}
-			}
-			ezExposedBone %LowerLeg.R
-			{
-				s %Name{"LowerLeg.R"}
-				s %Parent{"UpperLeg.R"}
-				Transform %Transform{f{0x00801237,0x8E8BF93E,0x0000C235,0x9EEB283F,0x17780DBD,0x62772F3D,0x9ED73F3F,0x0000803F,0x0000803F,0x0000803F}}
-			}
-			ezExposedBone %LowerArm.R
-			{
-				s %Name{"LowerArm.R"}
-				s %Parent{"UpperArm.R"}
-				Transform %Transform{f{0x00006036,0xF8D4AE3E,0x0000C6B6,0x874508BF,0x15C8D53E,0x1A11913E,0x73022E3F,0x0000803F,0x0000803F,0x0000803F}}
-			}
 			ezExposedBone %Armature
 			{
 				s %Name{"Armature"}
 				s %Parent{""}
 				Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-			}
-			ezExposedBone %UpperLeg.R
-			{
-				s %Name{"UpperLeg.R"}
-				s %Parent{"Hip"}
-				Transform %Transform{f{0x5DC8AEBD,0xA03E9DBD,0x78A5133A,0x31AD7B3F,0xB56E2B3E,0x8147F23C,0xB6BE8A3D,0x0000803F,0x0000803F,0x0000803F}}
-			}
-			ezExposedBone %LowerArm.L
-			{
-				s %Name{"LowerArm.L"}
-				s %Parent{"UpperArm.L"}
-				Transform %Transform{f{0x000090B6,0x68D7AE3E,0x00005236,0x14048B3B,0x28BDC9BE,0x817D153D,0x131A6B3F,0x0000803F,0x0000803F,0x0000803F}}
-			}
-			ezExposedBone %Hand.L
-			{
-				s %Name{"Hand.L"}
-				s %Parent{"LowerArm.L"}
-				Transform %Transform{f{0x000088B5,0x0EA8A03E,0x0000A436,0xFD3D4DBE,0xEE0BF8BD,0x4E22A8BE,0xD9406A3F,0x0000803F,0x0000803F,0x0000803F}}
-			}
-			ezExposedBone %Mesh
-			{
-				s %Name{"Mesh"}
-				s %Parent{"Armature"}
-				Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-			}
-			ezExposedBone %Root
-			{
-				s %Name{"Root"}
-				s %Parent{"Armature"}
-				Transform %Transform{f{0,0,0,0x000000B3,0xFEFFFF33,0x0000001C,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-			}
-			ezExposedBone %Hand.R
-			{
-				s %Name{"Hand.R"}
-				s %Parent{"LowerArm.R"}
-				Transform %Transform{f{0x0000A536,0x70A6A03E,0x0000A033,0xDC23DF3C,0xE437F0BC,0x511EA5BE,0xF81A723F,0x0000803F,0x0000803F,0x0000803F}}
 			}
 			ezExposedBone %Belly
 			{
@@ -970,11 +893,71 @@ o
 				s %Parent{"Hip"}
 				Transform %Transform{f{0x2051C635,0xC805023E,0x00C0A6B4,0xD189653E,0xEA87523D,0xDE82063E,0xBDDB763F,0x0000803F,0x0000803F,0x0000803F}}
 			}
+			ezExposedBone %Foot.L
+			{
+				s %Name{"Foot.L"}
+				s %Parent{"LowerLeg.L"}
+				Transform %Transform{f{0x00804F37,0x921FEF3E,0x00003636,0xB98F0CBF,0x87913DBB,0xC30B253D,0x81B5553F,0x0000803F,0x0000803F,0x0000803F}}
+			}
 			ezExposedBone %Foot.R
 			{
 				s %Name{"Foot.R"}
 				s %Parent{"LowerLeg.R"}
 				Transform %Transform{f{0x00003736,0x861FEF3E,0x0000F435,0xEBB3F7BE,0xD961A9BD,0x8A78DEBC,0x7BEF5E3F,0x0000803F,0x0000803F,0x0000803F}}
+			}
+			ezExposedBone %Hand.L
+			{
+				s %Name{"Hand.L"}
+				s %Parent{"LowerArm.L"}
+				Transform %Transform{f{0x000088B5,0x0EA8A03E,0x0000A436,0xFD3D4DBE,0xEE0BF8BD,0x4E22A8BE,0xD9406A3F,0x0000803F,0x0000803F,0x0000803F}}
+			}
+			ezExposedBone %Hand.R
+			{
+				s %Name{"Hand.R"}
+				s %Parent{"LowerArm.R"}
+				Transform %Transform{f{0x0000A536,0x70A6A03E,0x0000A033,0xDC23DF3C,0xE437F0BC,0x511EA5BE,0xF81A723F,0x0000803F,0x0000803F,0x0000803F}}
+			}
+			ezExposedBone %Head
+			{
+				s %Name{"Head"}
+				s %Parent{"Neck"}
+				Transform %Transform{f{0x00004C36,0x84C2FD3D,0x000000B6,0xC4EA823E,0x6E92F0BD,0x21C22B3D,0xE06B753F,0x0000803F,0x0000803F,0x0000803F}}
+			}
+			ezExposedBone %Hip
+			{
+				s %Name{"Hip"}
+				s %Parent{"Root"}
+				Transform %Transform{f{0x6A4600B5,0xD1708C3F,0xCDD38C3B,0xC20128B4,0x01044033,0x80FAD0B4,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+			}
+			ezExposedBone %LowerArm.L
+			{
+				s %Name{"LowerArm.L"}
+				s %Parent{"UpperArm.L"}
+				Transform %Transform{f{0x000090B6,0x68D7AE3E,0x00005236,0x14048B3B,0x28BDC9BE,0x817D153D,0x131A6B3F,0x0000803F,0x0000803F,0x0000803F}}
+			}
+			ezExposedBone %LowerArm.R
+			{
+				s %Name{"LowerArm.R"}
+				s %Parent{"UpperArm.R"}
+				Transform %Transform{f{0x00006036,0xF8D4AE3E,0x0000C6B6,0x874508BF,0x15C8D53E,0x1A11913E,0x73022E3F,0x0000803F,0x0000803F,0x0000803F}}
+			}
+			ezExposedBone %LowerLeg.L
+			{
+				s %Name{"LowerLeg.L"}
+				s %Parent{"UpperLeg.L"}
+				Transform %Transform{f{0x00800137,0xCB8BF93E,0x00000B36,0x21592A3F,0x25805BBD,0xAD246E3D,0x39053E3F,0x0000803F,0x0000803F,0x0000803F}}
+			}
+			ezExposedBone %LowerLeg.R
+			{
+				s %Name{"LowerLeg.R"}
+				s %Parent{"UpperLeg.R"}
+				Transform %Transform{f{0x00801237,0x8E8BF93E,0x0000C235,0x9EEB283F,0x17780DBD,0x62772F3D,0x9ED73F3F,0x0000803F,0x0000803F,0x0000803F}}
+			}
+			ezExposedBone %Mesh
+			{
+				s %Name{"Mesh"}
+				s %Parent{"Armature"}
+				Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 			}
 			ezExposedBone %Neck
 			{
@@ -982,11 +965,23 @@ o
 				s %Parent{"Torso"}
 				Transform %Transform{f{0x0000A636,0x8AC6823E,0x000020B5,0x7A01813E,0x296F37BD,0xB3607F3D,0xBBF5763F,0x0000803F,0x0000803F,0x0000803F}}
 			}
-			ezExposedBone %UpperLeg.L
+			ezExposedBone %Root
 			{
-				s %Name{"UpperLeg.L"}
-				s %Parent{"Hip"}
-				Transform %Transform{f{0x9FC6AE3D,0xA03C9DBD,0x38A1133A,0xCC0A7B3F,0x4BB23D3E,0xE8AA5D3D,0x548D083D,0x0000803F,0x0000803F,0x0000803F}}
+				s %Name{"Root"}
+				s %Parent{"Armature"}
+				Transform %Transform{f{0,0,0,0x000000B3,0xFEFFFF33,0x0000001C,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+			}
+			ezExposedBone %Torso
+			{
+				s %Name{"Torso"}
+				s %Parent{"Belly"}
+				Transform %Transform{f{0x00006036,0x18113D3E,0x0000A0B4,0x685F833E,0x8556CA3C,0x2210123D,0x192E773F,0x0000803F,0x0000803F,0x0000803F}}
+			}
+			ezExposedBone %UpperArm.L
+			{
+				s %Name{"UpperArm.L"}
+				s %Parent{"Torso"}
+				Transform %Transform{f{0x541B463E,0x38CE383E,0x00BE5F3B,0xCA90843E,0x4DB98D3E,0x29886C3F,0x4402533D,0x0000803F,0x0000803F,0x0000803F}}
 			}
 			ezExposedBone %UpperArm.R
 			{
@@ -994,11 +989,17 @@ o
 				s %Parent{"Torso"}
 				Transform %Transform{f{0x5E1946BE,0x94CD383E,0x001A603B,0x974C6C3F,0x215C84BD,0xFC7FB8BE,0x44FAF1BD,0x0000803F,0x0000803F,0x0000803F}}
 			}
-			ezExposedBone %UpperArm.L
+			ezExposedBone %UpperLeg.L
 			{
-				s %Name{"UpperArm.L"}
-				s %Parent{"Torso"}
-				Transform %Transform{f{0x541B463E,0x38CE383E,0x00BE5F3B,0xCA90843E,0x4DB98D3E,0x29886C3F,0x4402533D,0x0000803F,0x0000803F,0x0000803F}}
+				s %Name{"UpperLeg.L"}
+				s %Parent{"Hip"}
+				Transform %Transform{f{0x9FC6AE3D,0xA03C9DBD,0x38A1133A,0xCC0A7B3F,0x4BB23D3E,0xE8AA5D3D,0x548D083D,0x0000803F,0x0000803F,0x0000803F}}
+			}
+			ezExposedBone %UpperLeg.R
+			{
+				s %Name{"UpperLeg.R"}
+				s %Parent{"Hip"}
+				Transform %Transform{f{0x5DC8AEBD,0xA03E9DBD,0x78A5133A,0x31AD7B3F,0xB56E2B3E,0x8147F23C,0xB6BE8A3D,0x0000803F,0x0000803F,0x0000803F}}
 			}
 		}
 		f %EditBones{0}
@@ -4737,29 +4738,11 @@ o
 		b %Active{1}
 		VarDict %Bones
 		{
-			ezExposedBone %LowerLeg.L
-			{
-				s %Name{"LowerLeg.L"}
-				s %Parent{"UpperLeg.L"}
-				Transform %Transform{f{0x00F08C37,0x2F88F93E,0x000022B7,0x7EFA573F,0x418C173B,0x7D573C3C,0xD167093F,0x0000803F,0x0000803F,0x0000803F}}
-			}
-			ezExposedBone %Head
-			{
-				s %Name{"Head"}
-				s %Parent{"Neck"}
-				Transform %Transform{f{0x00002EAC,0x90C1FD3D,0x00C02E37,0xC2471ABE,0x33794DB4,0x8FF8DBB2,0xE8137D3F,0x0000803F,0x0000803F,0x0000803F}}
-			}
 			ezExposedBone %Foot.L
 			{
 				s %Name{"Foot.L"}
 				s %Parent{"LowerLeg.L"}
 				Transform %Transform{f{0x00004E34,0x6417EF3E,0x000060B4,0xBF376B3F,0xFE2A20BB,0x258A37BC,0x74FDC9BE,0x0000803F,0x0000803F,0x0000803F}}
-			}
-			ezExposedBone %LowerLeg.R
-			{
-				s %Name{"LowerLeg.R"}
-				s %Parent{"UpperLeg.R"}
-				Transform %Transform{f{0x00009034,0xB68BF93E,0x00007436,0xCD26273E,0xDDF1E53B,0xA9E519BC,0x6D8C7C3F,0x0000803F,0x0000803F,0x0000803F}}
 			}
 			ezExposedBone %Foot.R
 			{
@@ -4767,23 +4750,29 @@ o
 				s %Parent{"LowerLeg.R"}
 				Transform %Transform{f{0x000000B3,0x6717EF3E,0x00000435,0x8F2B5ABF,0x304384BB,0x31DA2FBC,0x5EE6053F,0x0000803F,0x0000803F,0x0000803F}}
 			}
+			ezExposedBone %Head
+			{
+				s %Name{"Head"}
+				s %Parent{"Neck"}
+				Transform %Transform{f{0x00002EAC,0x90C1FD3D,0x00C02E37,0xC2471ABE,0x33794DB4,0x8FF8DBB2,0xE8137D3F,0x0000803F,0x0000803F,0x0000803F}}
+			}
+			ezExposedBone %LowerLeg.L
+			{
+				s %Name{"LowerLeg.L"}
+				s %Parent{"UpperLeg.L"}
+				Transform %Transform{f{0x00F08C37,0x2F88F93E,0x000022B7,0x7EFA573F,0x418C173B,0x7D573C3C,0xD167093F,0x0000803F,0x0000803F,0x0000803F}}
+			}
+			ezExposedBone %LowerLeg.R
+			{
+				s %Name{"LowerLeg.R"}
+				s %Parent{"UpperLeg.R"}
+				Transform %Transform{f{0x00009034,0xB68BF93E,0x00007436,0xCD26273E,0xDDF1E53B,0xA9E519BC,0x6D8C7C3F,0x0000803F,0x0000803F,0x0000803F}}
+			}
 			ezExposedBone %Neck
 			{
 				s %Name{"Neck"}
 				s %Parent{"Torso"}
 				Transform %Transform{f{0x00000035,0xA0C6823E,0x0080C7B4,0xFF3F0ABE,0xF2DD5933,0x496B1B32,0xF9A77D3F,0x0000803F,0x0000803F,0x0000803F}}
-			}
-			ezExposedBone %UpperLeg.R
-			{
-				s %Name{"UpperLeg.R"}
-				s %Parent{"Hip"}
-				Transform %Transform{f{0x00C3AEBD,0x303F9DBD,0x88A40F3A,0xC4B77A3F,0x64FA12BE,0x4DED20BC,0xFD54113E,0x0000803F,0x0000803F,0x0000803F}}
-			}
-			ezExposedBone %UpperArm.R
-			{
-				s %Name{"UpperArm.R"}
-				s %Parent{"Torso"}
-				Transform %Transform{f{0x601946BE,0x00CE383E,0xB4B95F3B,0x5E8FA8BE,0xAFE4593F,0x6764793D,0x7A00CFBE,0x0000803F,0x0000803F,0x0000803F}}
 			}
 			ezExposedBone %UpperArm.L
 			{
@@ -4791,11 +4780,23 @@ o
 				s %Parent{"Torso"}
 				Transform %Transform{f{0x401E463E,0x88D1383E,0xB6D95E3B,0x58D3923E,0x8D646D3F,0x09F1E73D,0xBD47593E,0x0000803F,0x0000803F,0x0000803F}}
 			}
+			ezExposedBone %UpperArm.R
+			{
+				s %Name{"UpperArm.R"}
+				s %Parent{"Torso"}
+				Transform %Transform{f{0x601946BE,0x00CE383E,0xB4B95F3B,0x5E8FA8BE,0xAFE4593F,0x6764793D,0x7A00CFBE,0x0000803F,0x0000803F,0x0000803F}}
+			}
 			ezExposedBone %UpperLeg.L
 			{
 				s %Name{"UpperLeg.L"}
 				s %Parent{"Hip"}
 				Transform %Transform{f{0xC0C8AE3D,0x703D9DBD,0x88E4133A,0x315A083F,0x82C48C3E,0x77477CBE,0xB6F7423F,0x0000803F,0x0000803F,0x0000803F}}
+			}
+			ezExposedBone %UpperLeg.R
+			{
+				s %Name{"UpperLeg.R"}
+				s %Parent{"Hip"}
+				Transform %Transform{f{0x00C3AEBD,0x303F9DBD,0x88A40F3A,0xC4B77A3F,0x64FA12BE,0x4DED20BC,0xFD54113E,0x0000803F,0x0000803F,0x0000803F}}
 			}
 		}
 		f %EditBones{0}

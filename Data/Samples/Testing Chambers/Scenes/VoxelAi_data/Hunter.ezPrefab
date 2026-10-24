@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13606272058858474412,5483788108129816089}}
-		u4 %Hash{7002805139409655265}
+		u4 %Hash{8466266829981558629}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{8150991766768770418,17025925912514406868}}
@@ -403,7 +403,7 @@ o
 {
 	Uuid %id{u4{10165059359542952217,18296316791441185422}}
 	s %t{"ezAiVoxelNavigationComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		f %Acceleration{0x0000C841}
@@ -418,6 +418,7 @@ o
 		Angle %MaxBankAngle{f{0xDB0F493F}}
 		f %MaxPathOffset{0x00002041}
 		s %NavigationTarget{""}
+		f %Radius{0}
 		f %ReachedDistance{0x00002041}
 		f %Speed{0x0000B041}
 	}
@@ -1012,7 +1013,7 @@ o
 		s %PluginName{"ezEditorPluginAi"}
 		VarArray %Properties{}
 		s %TypeName{"ezAiVoxelNavigationComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

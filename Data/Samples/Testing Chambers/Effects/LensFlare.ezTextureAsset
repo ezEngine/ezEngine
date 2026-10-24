@@ -14,7 +14,7 @@ o
 			s{"Effects/LensFlare.png"}
 		}
 		Uuid %DocumentID{u4{7920398512929784454,4878242039207896049}}
-		u4 %Hash{16542202295967324480}
+		u4 %Hash{12402827739135953111}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -35,13 +35,14 @@ o
 {
 	Uuid %id{u4{14100267583939363493,4971692934691881055}}
 	s %t{"ezTextureAssetProperties"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		s %AddressModeU{"ezImageAddressMode::Repeat"}
 		s %AddressModeV{"ezImageAddressMode::Repeat"}
 		s %AddressModeW{"ezImageAddressMode::Repeat"}
 		f %AlphaThreshold{0x0000003F}
+		s %ArrayChannelMapping{"ezTextureArrayChannelMappingEnum::RGBA"}
 		VarArray %ArraySlices{}
 		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
@@ -112,7 +113,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezTextureAssetProperties"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o
@@ -146,6 +147,23 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderTargetFormat"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4439624141160076334,7137082278828783315}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezTextureArrayChannelMappingEnum"}
 		u3 %TypeVersion{1}
 	}
 }

@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5178697373805173665,4831239405236242489}}
-		u4 %Hash{11983288210428134319}
+		u4 %Hash{12972526346233751018}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3675384872936077629,2965238409702194180}}
@@ -109,7 +109,7 @@ o
 {
 	Uuid %id{u4{668241231819712550,17875492871794231201}}
 	s %t{"ezRmlUiMainMenuComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -125,6 +125,8 @@ o
 			Uuid{u4{17311605405737359358,165999271913670161}}
 			Uuid{u4{4263982099874265373,18440919313277031226}}
 		}
+		s %StyleSheet{""}
+		s %Title{""}
 	}
 }
 o
@@ -156,6 +158,25 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{963776210223577180,1623496636398126823}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{11417289279323971902,13895369568245685018}}
+			Uuid{u4{11814299103550459220,5580417707152361727}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"MenuFile"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -211,17 +232,98 @@ o
 }
 o
 {
+	Uuid %id{u4{10949568083706397061,3605464119100365259}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Label"}
+		s %Type{"ezString"}
+	}
+}
+o
+{
+	Uuid %id{u4{15792136643595128347,3641004820788063961}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{9772771478112912882,8832152857860170003}}
+			Uuid{u4{9104169269982703523,18361955854140656169}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"SettingsFile"}
+		s %Type{"ezStringView"}
+	}
+}
+o
+{
+	Uuid %id{u4{8249208572876445391,5094181849448162485}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Array"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::Class"}
+		s %Name{"SoundGroups"}
+		s %Type{"ezRmlUiSoundGroupSetting"}
+	}
+}
+o
+{
+	Uuid %id{u4{11814299103550459220,5580417707152361727}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Value{"{ 1c5c6a91-80d3-ccce-3c89-ac2150700d87 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{663865307726591903,5636593283083359209}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{4933766654344823632,8773911624798199836}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"PauseWorld"}
+		s %Type{"bool"}
+	}
+}
+o
+{
 	Uuid %id{u4{18329615886557822518,5906794617071553329}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{""}
-		s %PluginName{"ezEditorPluginRmlUi"}
-		VarArray %Properties{}
+		s %PluginName{"ezGameComponentsPlugin"}
+		VarArray %Properties
+		{
+			Uuid{u4{10949568083706397061,3605464119100365259}}
+			Uuid{u4{3796965332702210546,12098349729783638717}}
+		}
 		s %TypeName{"ezRmlUiSoundGroupSetting"}
 		u3 %TypeVersion{1}
 	}
@@ -262,19 +364,53 @@ o
 }
 o
 {
+	Uuid %id{u4{4933766654344823632,8773911624798199836}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i3 %Value{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9772771478112912882,8832152857860170003}}
+	s %t{"ezAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
+		s %Filter{";CompatibleAsset_Rml_UI;"}
+		s %RequiredTag{""}
+	}
+}
+o
+{
 	Uuid %id{u4{18364459167664304635,8872111205080687760}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
 	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Attributes
+		{
+			Uuid{u4{225797313532130837,11865027265957901936}}
+		}
+		s %Flags{"ezTypeFlags::Class"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezMainMenuComponent"}
-		s %PluginName{"ezEditorPluginRmlUi"}
-		VarArray %Properties{}
+		s %PluginName{"ezGameComponentsPlugin"}
+		VarArray %Properties
+		{
+			Uuid{u4{963776210223577180,1623496636398126823}}
+			Uuid{u4{15792136643595128347,3641004820788063961}}
+			Uuid{u4{5951896958538357737,11230653311084130059}}
+			Uuid{u4{302192927309782433,16093679916944088870}}
+			Uuid{u4{663865307726591903,5636593283083359209}}
+			Uuid{u4{8249208572876445391,5094181849448162485}}
+			Uuid{u4{10771939316557398436,16170093411201139239}}
+		}
 		s %TypeName{"ezRmlUiMainMenuComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -313,6 +449,21 @@ o
 }
 o
 {
+	Uuid %id{u4{5951896958538357737,11230653311084130059}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Title"}
+		s %Type{"ezString"}
+	}
+}
+o
+{
 	Uuid %id{u4{14700230518358869173,11472901527618371423}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -326,6 +477,31 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettingsBase"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{225797313532130837,11865027265957901936}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Input/RmlUi"}
+	}
+}
+o
+{
+	Uuid %id{u4{3796965332702210546,12098349729783638717}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"SoundGroup"}
+		s %Type{"ezString"}
 	}
 }
 o
@@ -347,6 +523,18 @@ o
 }
 o
 {
+	Uuid %id{u4{11417289279323971902,13895369568245685018}}
+	s %t{"ezAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
+		s %Filter{";CompatibleAsset_Rml_UI;"}
+		s %RequiredTag{""}
+	}
+}
+o
+{
 	Uuid %id{u4{2947336711354777548,15013008608905564043}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -360,6 +548,52 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11250008380891252823,15429317730706550315}}
+	s %t{"ezFileBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %CustomAction{""}
+		s %DependencyFlags{"ezDependencyFlags::Package"}
+		s %Filter{"*.rcss"}
+		s %Title{"Select Style Sheet"}
+	}
+}
+o
+{
+	Uuid %id{u4{302192927309782433,16093679916944088870}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{11250008380891252823,15429317730706550315}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"StyleSheet"}
+		s %Type{"ezString"}
+	}
+}
+o
+{
+	Uuid %id{u4{10771939316557398436,16170093411201139239}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Array"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"InputSets"}
+		s %Type{"ezString"}
 	}
 }
 o
@@ -394,6 +628,16 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9104169269982703523,18361955854140656169}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Value{"{ 31a4e443-c1eb-e15d-3bfc-6e5750ce191a }"}
 	}
 }
 }
