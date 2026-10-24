@@ -871,8 +871,8 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
         ezUInt32 xyScaleOffset = ezShaderUtils::PackFloat16intoUint(xyScale, xyOffset);
 
         float zFadeOutRange = fadeOutRange * pLastCascadeCamera->GetFovOrDim() / pLastCascadeCamera->GetFarPlane();
-        float zScale = -1.0f / zFadeOutRange;
-        float zOffset = -zScale;
+        float zScale = 1.0f / zFadeOutRange;
+        float zOffset = 0.0f;
         ezUInt32 zScaleOffset = ezShaderUtils::PackFloat16intoUint(zScale, zOffset);
 
         float distanceFadeOutRange = fadeOutRange * shadowData.m_fActualRange;

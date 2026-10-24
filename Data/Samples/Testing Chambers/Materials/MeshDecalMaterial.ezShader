@@ -78,7 +78,7 @@ VS_OUT main(VS_IN Input)
   if (decalIndex == 0xFFFF || atlasData.scale == 0)
   {
     // Invalid decal -> cull
-    Output.Position.z = 2 * Output.Position.w;
+    Output.Position.z = -Output.Position.w;
   }
   else
   {

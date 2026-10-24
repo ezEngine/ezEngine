@@ -4,11 +4,61 @@
 
 EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
 {
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Inverse-depth rays at near and far depths")
+  {
+    const ezClipSpaceDepthRange::Enum clipRanges[] = {ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceDepthRange::MinusOneToOne};
+    const float depths[] = {0.0f, 0.001f, 0.05f, 0.5f, 1.0f};
+
+    for (auto clipRange : clipRanges)
+    {
+      for (bool bPerspective : {false, true})
+      {
+        const ezMat4 projection = bPerspective
+                                    ? ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::MakeFromDegree(60), 1.5f, 100.0f, 0.5f, clipRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded)
+                                    : ezGraphicsUtils::CreateOrthographicProjectionMatrix(20.0f, 10.0f, 100.0f, 0.5f, clipRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+        const ezMat4 inverse = projection.GetInverse();
+        ezMat4d inverseDouble;
+        for (ezUInt32 i = 0; i < 16; ++i)
+          inverseDouble.m_fElementsCM[i] = inverse.m_fElementsCM[i];
+
+        for (float fDepth : depths)
+        {
+          const ezVec3 screen(0.7f, 0.3f, fDepth);
+          ezVec3 point, direction;
+          EZ_TEST_BOOL(ezGraphicsUtils::ConvertScreenPosToWorldPos(inverse, screen, point, &direction, clipRange).Succeeded());
+          const ezVec3 expectedDirection = bPerspective ? point.GetNormalized() : ezVec3::MakeAxisZ();
+          EZ_TEST_VEC3(direction, expectedDirection, 0.001f);
+
+          ezVec3 pointDouble, directionDouble;
+          EZ_TEST_BOOL(ezGraphicsUtils::ConvertScreenPosToWorldPos(inverseDouble, screen, pointDouble, &directionDouble, clipRange).Succeeded());
+          EZ_TEST_VEC3(pointDouble, point, 0.001f);
+          EZ_TEST_VEC3(directionDouble, expectedDirection, 0.001f);
+        }
+      }
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Projection preserves depth behind the camera")
+  {
+    const ezClipSpaceDepthRange::Enum clipRanges[] = {ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceDepthRange::MinusOneToOne};
+    for (auto clipRange : clipRanges)
+    {
+      const ezMat4 projection = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
+        ezAngle::MakeFromDegree(60), 1.5f, 100.0f, 0.5f, clipRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+      const ezVec3 point(1.0f, 2.0f, -5.0f);
+      ezVec3 screen, unprojected;
+      EZ_TEST_BOOL(ezGraphicsUtils::ConvertWorldPosToScreenPos(projection, point, screen, clipRange).Succeeded());
+      EZ_TEST_BOOL(screen.z < 0.0f);
+      EZ_TEST_BOOL(ezGraphicsUtils::ConvertScreenPosToWorldPos(projection.GetInverse(), screen, unprojected, nullptr, clipRange).Succeeded());
+      EZ_TEST_VEC3(unprojected, point, 0.001f);
+    }
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Perspective (-1/1): ConvertWorldPosToScreenPos / ConvertScreenPosToWorldPos")
   {
     ezMat4 mProj, mProjInv;
 
-    mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::MakeFromDegree(85.0f), 2.0f, 1.0f, 1000.0f, ezClipSpaceDepthRange::MinusOneToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+    mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::MakeFromDegree(85.0f), 2.0f, 1000.0f, 1.0f, ezClipSpaceDepthRange::MinusOneToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
     mProjInv = mProj.GetInverse();
 
     for (ezUInt32 y = 0; y < 25; ++y)
@@ -31,7 +81,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Perspective (0/1): ConvertWorldPosToScreenPos / ConvertScreenPosToWorldPos")
   {
     ezMat4 mProj, mProjInv;
-    mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::MakeFromDegree(85.0f), 2.0f, 1.0f, 1000.0f, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+    mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::MakeFromDegree(85.0f), 2.0f, 1000.0f, 1.0f, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
     mProjInv = mProj.GetInverse();
 
     for (ezUInt32 y = 0; y < 25; ++y)
@@ -54,7 +104,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Ortho (-1/1): ConvertWorldPosToScreenPos / ConvertScreenPosToWorldPos")
   {
     ezMat4 mProj, mProjInv;
-    mProj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(50, 25, 1.0f, 1000.0f, ezClipSpaceDepthRange::MinusOneToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+    mProj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(50, 25, 1000.0f, 1.0f, ezClipSpaceDepthRange::MinusOneToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
 
     mProjInv = mProj.GetInverse();
 
@@ -79,7 +129,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Ortho (0/1): ConvertWorldPosToScreenPos / ConvertScreenPosToWorldPos")
   {
     ezMat4 mProj, mProjInv;
-    mProj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(50, 25, 1.0f, 1000.0f, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+    mProj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(50, 25, 1000.0f, 1.0f, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
     mProjInv = mProj.GetInverse();
 
     for (ezUInt32 y = 0; y < 25; ++y)
@@ -261,48 +311,52 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ComputeInterpolatedFrustumPlane")
   {
-    for (ezUInt32 i = 0; i <= 10; ++i)
+    const ezClipSpaceDepthRange::Enum clipRanges[] = {ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceDepthRange::MinusOneToOne};
+    for (auto clipRange : clipRanges)
     {
-      float nearPlane = 1.0f;
-      float farPlane = 1000.0f;
-
-      ezMat4 mProj;
-      mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
-        ezAngle::MakeFromDegree(90.0f), 1.0f, nearPlane, farPlane, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
-
-      const ezPlane horz = ezGraphicsUtils::ComputeInterpolatedFrustumPlane(
-        ezGraphicsUtils::FrustumPlaneInterpolation::LeftToRight, i * 0.1f, mProj, ezClipSpaceDepthRange::ZeroToOne);
-      const ezPlane vert = ezGraphicsUtils::ComputeInterpolatedFrustumPlane(
-        ezGraphicsUtils::FrustumPlaneInterpolation::BottomToTop, i * 0.1f, mProj, ezClipSpaceDepthRange::ZeroToOne);
-      const ezPlane forw = ezGraphicsUtils::ComputeInterpolatedFrustumPlane(
-        ezGraphicsUtils::FrustumPlaneInterpolation::NearToFar, i * 0.1f, mProj, ezClipSpaceDepthRange::ZeroToOne);
-
-      // Generate clip space point at intersection of the 3 planes and project to worldspace
-      ezVec4 clipSpacePoint = ezVec4(0.1f * i * 2 - 1, 0.1f * i * 2 - 1, 0.1f * i, 1);
-
-      ezVec4 worldSpacePoint = mProj.GetInverse() * clipSpacePoint;
-      worldSpacePoint /= worldSpacePoint.w;
-
-      EZ_TEST_FLOAT(horz.GetDistanceTo(ezVec3::MakeZero()), 0.0f, 0.01f);
-      EZ_TEST_FLOAT(vert.GetDistanceTo(ezVec3::MakeZero()), 0.0f, 0.01f);
-
-      if (i == 0)
+      for (ezUInt32 i = 0; i <= 10; ++i)
       {
-        EZ_TEST_FLOAT(forw.GetDistanceTo(ezVec3::MakeZero()), -nearPlane, 0.01f);
-      }
-      else if (i == 10)
-      {
-        EZ_TEST_FLOAT(forw.GetDistanceTo(ezVec3::MakeZero()), -farPlane, 0.01f);
-      }
+        const float nearPlane = 1.0f;
+        const float farPlane = 1000.0f;
+        const float fLerp = i * 0.1f;
 
-      EZ_TEST_FLOAT(horz.GetDistanceTo(worldSpacePoint.GetAsVec3()), 0.0f, 0.02f);
-      EZ_TEST_FLOAT(vert.GetDistanceTo(worldSpacePoint.GetAsVec3()), 0.0f, 0.02f);
-      EZ_TEST_FLOAT(forw.GetDistanceTo(worldSpacePoint.GetAsVec3()), 0.0f, 0.02f);
+        const ezMat4 mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
+          ezAngle::MakeFromDegree(90.0f), 1.0f, farPlane, nearPlane, clipRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
 
-      // this isn't interpolated linearly across the angle (rotated), so the epsilon has to be very large (just an approx test)
-      EZ_TEST_FLOAT(horz.m_vNormal.GetAngleBetween(ezVec3(1, 0, 0)).GetDegree(), ezMath::Abs(-45.0f + 90.0f * i * 0.1f), 4.0f);
-      EZ_TEST_FLOAT(vert.m_vNormal.GetAngleBetween(ezVec3(0, 1, 0)).GetDegree(), ezMath::Abs(-45.0f + 90.0f * i * 0.1f), 4.0f);
-      EZ_TEST_VEC3(forw.m_vNormal, ezVec3(0, 0, 1), 0.01f);
+        const ezPlane horz = ezGraphicsUtils::ComputeInterpolatedFrustumPlane(
+          ezGraphicsUtils::FrustumPlaneInterpolation::LeftToRight, fLerp, mProj, clipRange);
+        const ezPlane vert = ezGraphicsUtils::ComputeInterpolatedFrustumPlane(
+          ezGraphicsUtils::FrustumPlaneInterpolation::BottomToTop, fLerp, mProj, clipRange);
+        const ezPlane forw = ezGraphicsUtils::ComputeInterpolatedFrustumPlane(
+          ezGraphicsUtils::FrustumPlaneInterpolation::NearToFar, fLerp, mProj, clipRange);
+
+        // Generate clip space point at intersection of the 3 planes and project to worldspace
+        const float fClipDepth = (clipRange == ezClipSpaceDepthRange::ZeroToOne) ? 1.0f - fLerp : 1.0f - 2.0f * fLerp;
+        ezVec4 clipSpacePoint = ezVec4(fLerp * 2 - 1, fLerp * 2 - 1, fClipDepth, 1);
+        ezVec4 worldSpacePoint = mProj.GetInverse() * clipSpacePoint;
+        worldSpacePoint /= worldSpacePoint.w;
+
+        EZ_TEST_FLOAT(horz.GetDistanceTo(ezVec3::MakeZero()), 0.0f, 0.01f);
+        EZ_TEST_FLOAT(vert.GetDistanceTo(ezVec3::MakeZero()), 0.0f, 0.01f);
+
+        if (i == 0)
+        {
+          EZ_TEST_FLOAT(forw.GetDistanceTo(ezVec3::MakeZero()), -nearPlane, 0.01f);
+        }
+        else if (i == 10)
+        {
+          EZ_TEST_FLOAT(forw.GetDistanceTo(ezVec3::MakeZero()), -farPlane, 0.01f);
+        }
+
+        EZ_TEST_FLOAT(horz.GetDistanceTo(worldSpacePoint.GetAsVec3()), 0.0f, 0.02f);
+        EZ_TEST_FLOAT(vert.GetDistanceTo(worldSpacePoint.GetAsVec3()), 0.0f, 0.02f);
+        EZ_TEST_FLOAT(forw.GetDistanceTo(worldSpacePoint.GetAsVec3()), 0.0f, 0.02f);
+
+        // this isn't interpolated linearly across the angle (rotated), so the epsilon has to be very large (just an approx test)
+        EZ_TEST_FLOAT(horz.m_vNormal.GetAngleBetween(ezVec3(1, 0, 0)).GetDegree(), ezMath::Abs(-45.0f + 90.0f * fLerp), 4.0f);
+        EZ_TEST_FLOAT(vert.m_vNormal.GetAngleBetween(ezVec3(0, 1, 0)).GetDegree(), ezMath::Abs(-45.0f + 90.0f * fLerp), 4.0f);
+        EZ_TEST_VEC3(forw.m_vNormal, ezVec3(0, 0, 1), 0.01f);
+      }
     }
   }
 

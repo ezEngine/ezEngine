@@ -33,13 +33,17 @@ Texture2D NoiseTexture BIND_GROUP(BG_RENDER_PASS);
 
 float SampleDepth(float2 texCoords)
 {
-  return ezSampleLevel_PointClampBorder(DepthTexture, DepthSampler, texCoords, s_ActiveCameraEyeIndex, 0, FadeOutEnd.xxxx).r;
+  // We can't use the DepthSampler here as that one clamps to a border color in linear depth space.
+  if (any(texCoords < 0.0f) || any(texCoords >= 1.0f))
+    return ConvertLinearDepthToDeviceDepth(FadeOutEnd);
+
+  return DepthTexture.SampleLevel(PointClampSampler, float3(texCoords, s_ActiveCameraEyeIndex), 0).r;
 }
 
 float SampleLowResDepth(float2 texCoords, float mipLevel)
 {
 #if 0
-  return LinearizeZBufferDepth(ezSampleLevel_PointClampBorder(DepthTexture, DepthSampler, texCoords, s_ActiveCameraEyeIndex, 0, FadeOutEnd.xxxx).r);
+  return ConvertDeviceDepthToLinearDepth(SampleDepth(texCoords));
 #else
   texCoords = texCoords * TexCoordsScale;
   return ezSampleLevel_PointClampBorder(LowResDepthTexture, DepthSampler, texCoords, s_ActiveCameraEyeIndex, mipLevel, FadeOutEnd.xxxx).r;
@@ -72,7 +76,7 @@ float3 ReconstructNormal(float2 texCoords, float centerDepth)
   float rightDepth = SampleDepth(texCoords + float2(texelSize.x, 0));
   float bottomDepth = SampleDepth(texCoords + float2(0, texelSize.y));
   float2 normalizedCoords = texCoords * 2.0f - 1.0f;
-  return ReconstructViewSpaceNormal(normalizedCoords, centerDepth, leftDepth, rightDepth, topDepth, bottomDepth);
+  return ReconstructCameraNormalFromDeviceDepth(normalizedCoords, centerDepth, leftDepth, rightDepth, topDepth, bottomDepth);
 }
 
 float2 OcclusionSample(float2 normalizedCoords, float2 offset, float3 invFovCorrection, float3 centerPos, float3 viewSpaceNormal, float mipLevel)
@@ -112,7 +116,7 @@ float4 main(PS_IN Input) : SV_Target
   };
 
   float centerDepth = SampleDepth(Input.TexCoord0);
-  float linearCenterDepth = LinearizeZBufferDepth(centerDepth);
+  float linearCenterDepth = ConvertDeviceDepthToLinearDepth(centerDepth);
 
   float fadeOutFactor = saturate(linearCenterDepth * FadeOutParams.x + FadeOutParams.y);
 
@@ -214,5 +218,4 @@ float4 main(PS_IN Input) : SV_Target
 
   return float4(occlusion, linearCenterDepth, 0, 1);
 }
-
 

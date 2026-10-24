@@ -112,25 +112,29 @@ public:
   /// For all cameras execpt Stereo cameras this is identical to GetDirRight()
   ezVec3 GetCenterDirRight() const;
 
-  /// Returns the near plane distance that was passed to SetCameraProjectionAndMode().
+  /// Returns the physical near plane distance that was passed to SetCameraMode().
   float GetNearPlane() const;
 
-  /// Returns the far plane distance that was passed to SetCameraProjectionAndMode().
+  /// Returns the physical far plane distance that was passed to SetCameraMode().
   float GetFarPlane() const;
 
   /// Specifies the mode and the projection settings that this camera uses.
+  ///
+  /// Near and far are physical distances with near < far. Projection matrices use inverse depth, independently of these physical distances.
   ///
   /// \param fFovOrDim
   ///   Fov X/Y in degree or width/height (depending on Mode).
   void SetCameraMode(ezCameraMode::Enum mode, float fFovOrDim, float fNearPlane, float fFarPlane);
 
-  /// Sets the camera mode to stereo and specifies projection matrices directly.
+  /// Specifies inverse-depth projection matrices for a camera already configured in stereo mode.
   ///
-  /// \param fAspectRatio
-  ///   These stereo projection matrices will only be returned by getProjectionMatrix for the given aspectRatio.
+  /// The matrices must use ezClipSpaceDepthRange::Default, mapping the physical near plane to device depth 1 and far to 0. GetProjectionMatrix() converts their clip-space depth range when requested; it does not invert their depth direction.
+  ///
+  /// \param fAspectRatioWidthDivHeight
+  ///   The matrices are used only for a matching aspect ratio. Other aspect ratios use a symmetric perspective fallback.
   void SetStereoProjection(const ezMat4& mProjectionLeftEye, const ezMat4& mProjectionRightEye, float fAspectRatioWidthDivHeight);
 
-  /// Returns the fFovOrDim parameter that was passed to SetCameraProjectionAndMode().
+  /// Returns the fFovOrDim parameter that was passed to SetCameraMode().
   float GetFovOrDim() const;
 
   /// Returns the current camera mode.
@@ -182,8 +186,8 @@ public:
 
   /// Calculates the projection matrix from the current camera properties and stores it in out_projectionMatrix.
   ///
-  /// If the camera is stereo and the given aspect ratio is close to the aspect ratio passed in SetStereoProjection,
-  /// the matrix set in SetStereoProjection will be used.
+  /// Uses inverse depth: the physical near plane maps to device depth 1 and the far plane to 0.
+  /// If the camera is stereo and the given aspect ratio is close to the aspect ratio passed in SetStereoProjection, the supplied matrix is converted from ezClipSpaceDepthRange::Default to depthRange.
   void GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_mProjectionMatrix, ezCameraEye eye = ezCameraEye::Left,
     ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default) const;
 

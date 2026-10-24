@@ -52,7 +52,7 @@ VS_OUT main(VS_IN Input)
   // Cull behind farplane if it is completely faded out anyways
   if (GetInstanceData().Color.a <= 0)
   {
-    Output.Position.z = 2;
+    Output.Position.z = -1;
   }
 
   return Output;

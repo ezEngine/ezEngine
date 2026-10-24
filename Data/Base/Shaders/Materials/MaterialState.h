@@ -19,7 +19,7 @@
 // depth stencil state
 DepthTest = true
 DepthWrite = true
-DepthTestFunc = CompareFunc_LessEqual
+DepthTestFunc = CompareFunc_GreaterEqual
 
 #if defined(BLEND_MODE) && (BLEND_MODE == BLEND_MODE_OPAQUE || BLEND_MODE == BLEND_MODE_MASKED || BLEND_MODE == BLEND_MODE_DITHERED)
 

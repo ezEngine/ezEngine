@@ -286,7 +286,7 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
 
   if (bNeedsCompilation)
   {
-    if (RunCompiler(pResource, permutationBinary, false).Failed())
+    if (RunCompiler(pResource, permutationBinary, bOldVersion).Failed())
       return res;
 
     ezFileReader File;

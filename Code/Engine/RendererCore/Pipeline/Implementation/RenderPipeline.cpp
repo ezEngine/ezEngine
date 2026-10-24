@@ -599,7 +599,7 @@ void ezRenderPipeline::UpdateRenderContext(ezRenderGraphContext& ctx)
 
   const bool bIsShadowPass = pViewData->m_CameraUsageHint == ezCameraUsageHint::Shadow;
   const bool bIsDirectionalLightShadow = bIsShadowPass && pCamera->IsOrthographic();
-  gc.MaxZValue = bIsDirectionalLightShadow ? 0.0f : ezMath::MinValue<float>();
+  gc.MaxZValue = bIsDirectionalLightShadow ? 1.0f : ezMath::MaxValue<float>();
 
   gc.Exposure = pCamera->GetExposure();
   gc.RenderPass = ezViewRenderMode::GetRenderPassForShader(pViewData->m_ViewRenderMode);

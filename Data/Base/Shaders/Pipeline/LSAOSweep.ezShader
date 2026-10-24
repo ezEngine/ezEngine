@@ -106,7 +106,7 @@ void main(uint3 groupID : SV_GroupID, uint3 groupThreadID : SV_GroupThreadID)
     float2 screenCor = samplePos * inverseScreenSize;
     float depthBufferDepth = DepthBuffer.SampleLevel(PointClampSampler, float3(screenCor, s_ActiveCameraEyeIndex), 0.0f);
     float2 normalizedScreenCor = screenCor * 2.0f - 1.0f;
-    float3 viewPos = FastScreenCoordToViewSpace(normalizedScreenCor, depthBufferDepth);
+    float3 viewPos = ReconstructPerspectiveCameraPositionFromDeviceDepth(normalizedScreenCor, depthBufferDepth);
 
     // All other calculations work in a 2D "line projected" space.
     float2 position = float2(dot(viewPos.xy, directionNormed), viewPos.z);

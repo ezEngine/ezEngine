@@ -790,7 +790,7 @@ void ezOpenXR::UpdateCamera()
     auto CreateProjection = [](const XrView& view, ezCamera* cam)
     {
       return ezGraphicsUtils::CreatePerspectiveProjectionMatrix(ezMath::Tan(ezAngle::MakeFromRadian(view.fov.angleLeft)) * cam->GetNearPlane(), ezMath::Tan(ezAngle::MakeFromRadian(view.fov.angleRight)) * cam->GetNearPlane(), ezMath::Tan(ezAngle::MakeFromRadian(view.fov.angleDown)) * cam->GetNearPlane(),
-        ezMath::Tan(ezAngle::MakeFromRadian(view.fov.angleUp)) * cam->GetNearPlane(), cam->GetNearPlane(), cam->GetFarPlane());
+        ezMath::Tan(ezAngle::MakeFromRadian(view.fov.angleUp)) * cam->GetNearPlane(), cam->GetFarPlane(), cam->GetNearPlane());
     };
 
     // Update projection with newest near/ far values. If not sync camera is set, just use the last value from XR
@@ -950,8 +950,9 @@ void ezOpenXR::EndFrame()
         m_DepthLayerViews[i] = {XR_TYPE_COMPOSITION_LAYER_DEPTH_INFO_KHR};
         m_DepthLayerViews[i].minDepth = 0;
         m_DepthLayerViews[i].maxDepth = 1;
-        m_DepthLayerViews[i].nearZ = m_pCameraToSynchronize->GetNearPlane();
-        m_DepthLayerViews[i].farZ = m_pCameraToSynchronize->GetFarPlane();
+        // nearZ and farZ describe the distances at minDepth and maxDepth. nearZ > farZ signals inverse depth.
+        m_DepthLayerViews[i].nearZ = m_pCameraToSynchronize->GetFarPlane();
+        m_DepthLayerViews[i].farZ = m_pCameraToSynchronize->GetNearPlane();
         m_DepthLayerViews[i].subImage.swapchain = pSwapChain->GetDepthSwapchain();
         m_DepthLayerViews[i].subImage.imageRect.offset = {0, 0};
         m_DepthLayerViews[i].subImage.imageRect.extent = {(ezInt32)m_Info.m_vEyeRenderTargetSize.width, (ezInt32)m_Info.m_vEyeRenderTargetSize.height};

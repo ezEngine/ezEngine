@@ -545,7 +545,7 @@ void ezRenderGraphTest::MsaaResolve()
     pass.AddColorTarget(hMsaaColor, {}, ezGALRenderTargetLoadOp::Clear, ezGALRenderTargetStoreOp::Store);
     pass.SetClearColor(0, ezColor::CornflowerBlue);
     pass.AddDepthStencilTarget(hMsaaDepth, {}, ezGALRenderTargetLoadOp::Clear, ezGALRenderTargetStoreOp::Store, ezGALRenderTargetLoadOp::Clear, ezGALRenderTargetStoreOp::Store);
-    pass.SetClearDepth(1.0f);
+    pass.SetClearDepth();
     pass.SetClearStencil(0);
     pass.SetStereoscopic(false);
     pass.HasSideEffects();

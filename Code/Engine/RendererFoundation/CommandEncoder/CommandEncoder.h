@@ -218,7 +218,7 @@ public:
   ///
   /// \param uiRenderTargetClearMask
   ///   Each bit represents a bound color target. If all bits are set, all bound color targets will be cleared.
-  void Clear(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFFu, bool bClearDepth = true, bool bClearStencil = true, float fDepthClear = 1.0f, ezUInt8 uiStencilClear = 0x0u);
+  void Clear(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFFu, bool bClearDepth = true, bool bClearStencil = true, float fDepthClear = 0.0f, ezUInt8 uiStencilClear = 0x0u);
 
   /// Bound vertex buffers must be in ezGALResourceState::VertexBuffer.
   ezResult Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex);
