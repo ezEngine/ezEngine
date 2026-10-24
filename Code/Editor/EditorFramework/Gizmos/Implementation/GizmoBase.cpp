@@ -53,7 +53,7 @@ ezResult ezGizmo::GetPointOnPlane(const ezPlane& plane, const ezVec2I32& vScreen
   out_Result = ezVec3::MakeZero();
 
   ezVec3 vPos, vRayDir;
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, ezVec3(vScreenPos.x, vScreenPos.y, 0), vPos, &vRayDir).Failed())
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, ezVec3(vScreenPos.x, vScreenPos.y, 1), vPos, &vRayDir).Failed())
     return EZ_FAILURE;
 
   ezVec3 vIntersection;
@@ -69,7 +69,7 @@ ezResult ezGizmo::GetPointOnAxis(const ezVec3& vStartPos, const ezVec3& vAxis, c
   out_Result = vStartPos;
 
   ezVec3 vPos, vRayDir;
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, ezVec3(vScreenPos.x, vScreenPos.y, 0), vPos, &vRayDir).Failed())
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, ezVec3(vScreenPos.x, vScreenPos.y, 1), vPos, &vRayDir).Failed())
     return EZ_FAILURE;
 
   const ezVec3 vPlaneTangent = vAxis.CrossRH(m_pCamera->GetDirForwards()).GetNormalized();

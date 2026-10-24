@@ -47,14 +47,77 @@ float3 GetCameraDirUp()
   return GetCameraToWorldMatrix()._m01_m11_m21;
 };
 
-// Computes linear depth from depth buffer depth.
-// Note that computations like this are not set in stone as we may want to move to a different way of storing Z
-// (for example flipped near/far plane is quite common for better float precision)
-//
-// Basically removes the w division from z again.
-float LinearizeZBufferDepth(float depthFromZBuffer)
+/// Device depth uses the fixed inverse-depth convention: one is the near plane and zero is the far plane.
+/// Shader projection matrices use ZeroToOne clip-space depth on all supported rendering backends.
+float GetNearPlaneDeviceDepth()
 {
-  return 1.0f / (depthFromZBuffer * GetScreenToCameraMatrix()._43 + GetScreenToCameraMatrix()._44);
+  return 1.0f;
+}
+
+float GetFarPlaneDeviceDepth()
+{
+  return 0.0f;
+}
+
+bool IsDeviceDepthCloser(float lhs, float rhs)
+{
+  return lhs > rhs;
+}
+
+bool IsDeviceDepthFarther(float lhs, float rhs)
+{
+  return lhs < rhs;
+}
+
+float SelectClosestDeviceDepth(float lhs, float rhs)
+{
+  return max(lhs, rhs);
+}
+
+float SelectFarthestDeviceDepth(float lhs, float rhs)
+{
+  return min(lhs, rhs);
+}
+
+/// Reconstructs a camera-space position from NDC XY in [-1, +1] and device depth.
+float3 ReconstructCameraPositionFromDeviceDepth(float2 ndcXY, float deviceDepth)
+{
+  float4 cameraPosition = mul(GetScreenToCameraMatrix(), float4(ndcXY, deviceDepth, 1.0f));
+  return cameraPosition.xyz / cameraPosition.w;
+}
+
+/// Reconstructs a world-space position from NDC XY in [-1, +1] and device depth.
+float3 ReconstructWorldPositionFromDeviceDepth(float2 ndcXY, float deviceDepth)
+{
+  float4 worldPosition = mul(GetScreenToWorldMatrix(), float4(ndcXY, deviceDepth, 1.0f));
+  return worldPosition.xyz / worldPosition.w;
+}
+
+/// Converts inverse device depth to camera-space Z, not distance from the camera.
+/// Uses the perspective projection's reciprocal-depth relation.
+float ConvertDeviceDepthToLinearDepth(float deviceDepth)
+{
+  return 1.0f / (deviceDepth * GetScreenToCameraMatrix()._43 + GetScreenToCameraMatrix()._44);
+}
+
+/// Projects camera-space Z to device depth. linearDepth must be finite and positive for perspective projections.
+float ConvertLinearDepthToDeviceDepth(float linearDepth)
+{
+  float4 screenPosition = mul(GetCameraToScreenMatrix(), float4(0.0f, 0.0f, linearDepth, 1.0f));
+  return screenPosition.z / screenPosition.w;
+}
+
+/// Reconstructs from NDC XY in [-1, +1] and camera-space Z.
+/// Assumes a centered perspective projection.
+float3 ReconstructPerspectiveCameraPositionFromLinearDepth(float2 ndcXY, float linearDepth)
+{
+  return float3(float2(GetScreenToCameraMatrix()._11, GetScreenToCameraMatrix()._22) * ndcXY * linearDepth, linearDepth);
+}
+
+/// Assumes a centered perspective projection. For general projections use ReconstructCameraPositionFromDeviceDepth().
+float3 ReconstructPerspectiveCameraPositionFromDeviceDepth(float2 ndcXY, float deviceDepth)
+{
+  return ReconstructPerspectiveCameraPositionFromLinearDepth(ndcXY, ConvertDeviceDepthToLinearDepth(deviceDepth));
 }
 
 #else

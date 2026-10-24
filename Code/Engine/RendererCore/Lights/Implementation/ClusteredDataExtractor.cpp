@@ -236,7 +236,7 @@ ezClusteredDataGPU::ezClusteredDataGPU()
     desc.m_AddressU = ezImageAddressMode::Clamp;
     desc.m_AddressV = ezImageAddressMode::Clamp;
     desc.m_AddressW = ezImageAddressMode::Clamp;
-    desc.m_SampleCompareFunc = ezGALCompareFunc::Less;
+    desc.m_SampleCompareFunc = ezGALCompareFunc::Greater;
 
     m_hShadowSampler = pDevice->CreateSamplerState(desc);
   }

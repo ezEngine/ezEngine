@@ -49,13 +49,13 @@ VS_OUT main(VS_IN Input)
   VS_OUT Output = FillVertexData(Input);
 
   float2 ScreenPos = sign(Input.Position.xy);
-  float4 dir = mul(GetScreenToCameraMatrix(), float4(ScreenPos.xy,1.0,1.0));
+  float4 dir = mul(GetScreenToCameraMatrix(), float4(ScreenPos.xy, GetFarPlaneDeviceDepth(), 1.0));
   dir.w = 0.0;
 
   ezPerInstanceData data = GetInstanceData();
   float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
 
-  Output.Position = float4(ScreenPos.xy, 1.0, 1.0);
+  Output.Position = float4(ScreenPos.xy, GetFarPlaneDeviceDepth(), 1.0);
   Output.ViewDirection = mul(transpose(objectToWorld), mul(GetCameraToWorldMatrix(), dir)).xyz;
 
   return Output;

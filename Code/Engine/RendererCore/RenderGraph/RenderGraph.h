@@ -177,7 +177,7 @@ private:
 
   struct DepthStencilTargetClearInfo
   {
-    float fDepthClear = 1.0f;
+    float fDepthClear = 0.0f;
     ezUInt8 uiStencilClear = 0;
   };
 

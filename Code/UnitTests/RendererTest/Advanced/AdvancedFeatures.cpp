@@ -1399,7 +1399,7 @@ void ezRendererTestAdvancedFeatures::DepthBias()
     renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hDepthBiasColor));
     renderingSetup.SetClearColor(0, ezColor::Black);
     renderingSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthBiasDepth));
-    renderingSetup.SetClearDepth();
+    renderingSetup.SetClearDepth(1.0f);
 
     ezRectFloat viewport = ezRectFloat(0, 0, (float)(s_uiDepthBiasCellSize * s_uiDepthBiasCaseCount), (float)s_uiDepthBiasCellSize);
     pRenderContext->BeginRendering(renderingSetup, viewport);

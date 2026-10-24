@@ -35,7 +35,7 @@ float4 main(PS_IN input) : SV_Target
   sceneColor = sceneColor * (adjustedLuminance / luminance);
 
   float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, float3(input.TexCoord0, s_ActiveCameraEyeIndex), 0).r;
-  float occlusion = (depthFromZBuffer >= 0.9999) ? 1.0 : 0.0;
+  float occlusion = (depthFromZBuffer <= 0.0001) ? 1.0 : 0.0;
 
   float2 edges = input.TexCoord0 * (1 - input.TexCoord0);
   float edgeMask = saturate(edges.x * edges.y * 22.0);

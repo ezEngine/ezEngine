@@ -9,7 +9,7 @@ CAMERA_MODE
 [RENDERSTATE]
 
 DepthTest = false
-DepthTestFunc = CompareFunc_Less
+DepthTestFunc = CompareFunc_Greater
 DepthWrite = false
 CullMode = CullMode_None
 
@@ -31,7 +31,7 @@ Texture2DArray DepthBuffer;
 
 float LoadLinearDepth(int2 texelCoord)
 {
-  return LinearizeZBufferDepth(DepthBuffer.Load(int4(texelCoord, s_ActiveCameraEyeIndex, 0)).r);
+  return ConvertDeviceDepthToLinearDepth(DepthBuffer.Load(int4(texelCoord, s_ActiveCameraEyeIndex, 0)).r);
 }
 
 

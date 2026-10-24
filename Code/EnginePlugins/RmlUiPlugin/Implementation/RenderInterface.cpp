@@ -540,7 +540,7 @@ namespace ezRmlUiInternal
     m_pCurrentCommandBuffer->m_uiTargetWidth = uiTargetWidth;
     m_pCurrentCommandBuffer->m_uiTargetHeight = uiTargetHeight;
 
-    m_mProjection = ezGraphicsUtils::CreateOrthographicProjectionMatrix(0.0f, (float)uiTargetWidth, (float)uiTargetHeight, 0.0f, -1.0f, 1.0f);
+    m_mProjection = ezGraphicsUtils::CreateOrthographicProjectionMatrix(0.0f, (float)uiTargetWidth, (float)uiTargetHeight, 0.0f, 1.0f, -1.0f);
     SetTransform(nullptr);
     m_bUseStencilTest = false;
   }

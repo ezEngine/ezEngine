@@ -106,9 +106,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
         const ezMat4 mViewRH = ezGraphicsUtils::CreateLookAtViewMatrix(vCamPos, vCamPos + vLookDir, ezVec3(0, 1, 0), ezHandedness::RightHanded);
 
         const ezMat4 mProjLH = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
-          ezAngle::MakeFromDegree(90), 1.0f, 1.0f, 100.0f, range, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+          ezAngle::MakeFromDegree(90), 1.0f, 100.0f, 1.0f, range, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
         const ezMat4 mProjRH = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
-          ezAngle::MakeFromDegree(90), 1.0f, 1.0f, 100.0f, range, ezClipSpaceYMode::Regular, ezHandedness::RightHanded);
+          ezAngle::MakeFromDegree(90), 1.0f, 100.0f, 1.0f, range, ezClipSpaceYMode::Regular, ezHandedness::RightHanded);
 
         const ezMat4 mViewProjLH = mProjLH * mViewLH;
         const ezMat4 mViewProjRH = mProjRH * mViewRH;
@@ -132,6 +132,19 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
         EZ_TEST_BOOL(fLH.GetPlane(ezFrustum::FarPlane).IsEqual(fB.GetPlane(ezFrustum::FarPlane), 0.1f));
         EZ_TEST_BOOL(fLH.GetPlane(ezFrustum::BottomPlane).IsEqual(fB.GetPlane(ezFrustum::BottomPlane), 0.1f));
         EZ_TEST_BOOL(fLH.GetPlane(ezFrustum::TopPlane).IsEqual(fB.GetPlane(ezFrustum::TopPlane), 0.1f));
+
+        for (bool bInverseDepth : {false, true})
+        {
+          for (auto handedness : {ezHandedness::LeftHanded, ezHandedness::RightHanded})
+          {
+            const ezMat4 projection = ezGraphicsUtils::CreateOrthographicProjectionMatrix(
+              20.0f, 10.0f, bInverseDepth ? 100.0f : 1.0f, bInverseDepth ? 1.0f : 100.0f, range, ezClipSpaceYMode::Regular, handedness);
+            const ezMat4& view = handedness == ezHandedness::LeftHanded ? mViewLH : mViewRH;
+            const ezFrustum frustum = ezFrustum::MakeFromMVP(projection * view, range, handedness);
+            EZ_TEST_BOOL(frustum.GetPlane(ezFrustum::NearPlane).IsEqual(fB.GetPlane(ezFrustum::NearPlane), 0.1f));
+            EZ_TEST_BOOL(frustum.GetPlane(ezFrustum::FarPlane).IsEqual(fB.GetPlane(ezFrustum::FarPlane), 0.1f));
+          }
+        }
       }
     }
   }

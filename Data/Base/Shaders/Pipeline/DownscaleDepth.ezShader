@@ -40,19 +40,31 @@ float4 main(PS_IN Input) : SV_Target
   };
 
   float2 screenPosition = Input.Position.xy * 2;
-  float depth = 0.0f;
+  float depth = LinearizeDepth ? GetNearPlaneDeviceDepth() : 0.0f;
 
   [unroll]
   for (int i = 0; i < 4; ++i)
   {
     float2 samplePos = (screenPosition.xy + offsets[i]) * PixelSize;
-    
-    depth = max(depth, ezSampleLevel_PointClampBorder(DepthTexture, DepthSampler, samplePos, s_ActiveCameraEyeIndex, 0, FadeOutEnd.xxxx).r);
+    float sampleDepth;
+    if (LinearizeDepth)
+    {
+      // We can't use the DepthSampler here as that one clamps to a border color in linear depth space.
+      sampleDepth = any(samplePos < 0.0f) || any(samplePos >= 1.0f)
+        ? ConvertLinearDepthToDeviceDepth(FadeOutEnd)
+        : DepthTexture.SampleLevel(PointClampSampler, float3(samplePos, s_ActiveCameraEyeIndex), 0).r;
+    }
+    else
+    {
+      sampleDepth = ezSampleLevel_PointClampBorder(DepthTexture, DepthSampler, samplePos, s_ActiveCameraEyeIndex, 0, FadeOutEnd.xxxx).r;
+    }
+
+    depth = LinearizeDepth ? SelectFarthestDeviceDepth(depth, sampleDepth) : max(depth, sampleDepth);
   }
 
   if (LinearizeDepth)
   {
-    depth = LinearizeZBufferDepth(depth);
+    depth = ConvertDeviceDepthToLinearDepth(depth);
   }
 
   return depth;

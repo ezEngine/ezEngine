@@ -8,7 +8,7 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 5, ezRTTIDefaultAllocator<ezSourcePass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 6, ezRTTIDefaultAllocator<ezSourcePass>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -19,7 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 5, ezRTTIDefaultAllocator<ezSource
     EZ_ENUM_MEMBER_PROPERTY("MSAA_Mode", ezGALMSAASampleCount, m_MsaaMode),
     EZ_MEMBER_PROPERTY("UAV", m_bUAV),
     EZ_MEMBER_PROPERTY("ClearColor", m_ClearColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_MEMBER_PROPERTY("ClearDepth", m_fClearDepth)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_MEMBER_PROPERTY("ClearDepth", m_fClearDepth)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("Clear", m_bClear),
     EZ_MEMBER_PROPERTY("ApplyRenderScale", m_bApplyRenderScale),
   }
@@ -381,6 +381,10 @@ ezResult ezSourcePass::Deserialize(ezStreamReader& inout_stream)
     inout_stream >> m_MsaaMode;
     inout_stream >> m_ClearColor;
     inout_stream >> m_fClearDepth;
+    if (uiVersion < 6)
+    {
+      m_fClearDepth = 1.0f - m_fClearDepth;
+    }
     inout_stream >> m_bClear;
     inout_stream >> m_bUAV;
 
@@ -521,5 +525,24 @@ public:
 };
 
 ezSourcePassPatch_3_4 g_ezSourcePassPatch_3_4;
+
+class ezSourcePassPatch_5_6 : public ezGraphPatch
+{
+public:
+  ezSourcePassPatch_5_6()
+    : ezGraphPatch("ezSourcePass", 6)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    if (auto pClearDepth = pNode->FindProperty("ClearDepth"))
+    {
+      pClearDepth->m_Value = 1.0f - pClearDepth->m_Value.ConvertTo<float>();
+    }
+  }
+};
+
+ezSourcePassPatch_5_6 g_ezSourcePassPatch_5_6;
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SourcePass);

@@ -10,7 +10,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezHistorySourcePassTextureDataProvider, 1, ezRTTIDefaultAllocator<ezHistorySourcePassTextureDataProvider>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezHistorySourcePass, 2, ezRTTIDefaultAllocator<ezHistorySourcePass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezHistorySourcePass, 3, ezRTTIDefaultAllocator<ezHistorySourcePass>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -21,7 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezHistorySourcePass, 2, ezRTTIDefaultAllocator<e
     EZ_ENUM_MEMBER_PROPERTY("MSAA_Mode", ezGALMSAASampleCount, m_MsaaMode),
     EZ_MEMBER_PROPERTY("UAV", m_bUAV),
     EZ_MEMBER_PROPERTY("ClearColor", m_ClearColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_MEMBER_PROPERTY("ClearDepth", m_fClearDepth)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_MEMBER_PROPERTY("ClearDepth", m_fClearDepth)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 1.0f)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -93,12 +93,11 @@ ezStatus ezHistorySourcePass::AddRenderPasses(const ezViewData& viewData, const 
     if (ezGALResourceFormat::IsDepthFormat(desc.m_Format))
     {
       pass.AddDepthStencilTarget(hGraphTexture, {}, ezGALRenderTargetLoadOp::Clear);
-      pass.SetClearDepth().SetClearStencil();
-      pass.SetClearDepth(m_fClearDepth);
+      pass.SetClearDepth(m_fClearDepth).SetClearStencil();
     }
     else
     {
-      pass.AddDepthStencilTarget(hGraphTexture, {}, ezGALRenderTargetLoadOp::Clear);
+      pass.AddColorTarget(hGraphTexture, {}, ezGALRenderTargetLoadOp::Clear);
       pass.SetClearColor(0, m_ClearColor);
     }
   }
@@ -137,6 +136,10 @@ ezResult ezHistorySourcePass::Deserialize(ezStreamReader& inout_stream)
     inout_stream >> m_MsaaMode;
     inout_stream >> m_ClearColor;
     inout_stream >> m_fClearDepth;
+    if (uiVersion < 3)
+    {
+      m_fClearDepth = 1.0f - m_fClearDepth;
+    }
     inout_stream >> m_bUAV;
   }
   else
@@ -172,6 +175,25 @@ public:
 };
 
 ezHistorySourcePassPatch_1_2 g_ezHistorySourcePassPatch_1_2;
+
+class ezHistorySourcePassPatch_2_3 : public ezGraphPatch
+{
+public:
+  ezHistorySourcePassPatch_2_3()
+    : ezGraphPatch("ezHistorySourcePass", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    if (auto pClearDepth = pNode->FindProperty("ClearDepth"))
+    {
+      pClearDepth->m_Value = 1.0f - pClearDepth->m_Value.ConvertTo<float>();
+    }
+  }
+};
+
+ezHistorySourcePassPatch_2_3 g_ezHistorySourcePassPatch_2_3;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_HistorySourcePass);

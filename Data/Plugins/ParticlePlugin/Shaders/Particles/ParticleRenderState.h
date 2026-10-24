@@ -4,7 +4,7 @@ SourceBlend0 = Blend_SrcAlpha
 DestBlendAlpha0 = Blend_One
 SourceBlendAlpha0 = Blend_Zero
 DepthTest = true
-DepthTestFunc = CompareFunc_LessEqual
+DepthTestFunc = CompareFunc_GreaterEqual
 DepthWrite = false
 CullMode = CullMode_None
 

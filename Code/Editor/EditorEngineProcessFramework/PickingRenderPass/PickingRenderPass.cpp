@@ -298,7 +298,7 @@ void ezPickingRenderPass::ReadBackPropertiesSinglePick(ezView* pView)
   {
     const float fDepth = m_PickingResultsDepth[uiIndex];
     ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)y, fDepth), vPickedPosition).IgnoreResult();
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)y, 0), vPickingRayStartPosition).IgnoreResult();
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)y, 1), vPickingRayStartPosition).IgnoreResult();
 
     float fOtherDepths[4] = {fDepth, fDepth, fDepth, fDepth};
     ezVec3 vOtherPos[4];

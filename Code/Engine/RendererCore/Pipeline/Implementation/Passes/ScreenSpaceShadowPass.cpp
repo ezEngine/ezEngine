@@ -185,7 +185,7 @@ void ezScreenSpaceShadowPass::CreateSamplerState()
     desc.m_AddressU = ezImageAddressMode::ClampBorder;
     desc.m_AddressV = ezImageAddressMode::ClampBorder;
     desc.m_AddressW = ezImageAddressMode::ClampBorder;
-    desc.m_BorderColor = ezColor::White;
+    desc.m_BorderColor = ezColor::MakeZero(); // Far-plane device depth.
 
     m_hDepthSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(desc);
   }

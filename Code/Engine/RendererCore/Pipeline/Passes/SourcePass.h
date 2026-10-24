@@ -109,7 +109,7 @@ protected:
   ezEnum<ezRequiredTextureChannels> m_MinChannels = ezRequiredTextureChannels::Channels_4; ///< Minimum channel count.
   ezEnum<ezGALMSAASampleCount> m_MsaaMode = ezGALMSAASampleCount::None;                    ///< MSAA sample count.
   ezColor m_ClearColor = ezColor::Black;                                                   ///< Clear color if clearing is enabled and the format is not a depth format.
-  float m_fClearDepth = 1.0f;                                                              ///< Clear depth if clearing is enabled and the format is a depth format.
+  float m_fClearDepth = 0.0f;                                                              ///< Clear depth if clearing is enabled and the format is a depth format.
   bool m_bClear = false;                                                                   ///< Whether to clear the render target on each execution.
   bool m_bUAV = false;                                                                     ///< Whether the texture also has to be writable from compute shaders.
   bool m_bApplyRenderScale = false;                                                        ///< Whether the texture size is scaled by the view's render scale. Requires an ezUpscalePass before the target.

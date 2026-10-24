@@ -86,10 +86,10 @@ VS_OUT FillVertexData(VS_IN Input)
 
 #if defined(USE_VERTEX_DEPTH_BIAS)
   float depthBiasScale = 1.5f / (1 << 16);
-  Output.Position.z += GetVertexDepthBias() * depthBiasScale * Output.Position.w;
+  Output.Position.z -= GetVertexDepthBias() * depthBiasScale * Output.Position.w;
 #endif
 
-  Output.Position.z = max(Output.Position.z, MaxZValue);
+  Output.Position.z = SelectFarthestDeviceDepth(Output.Position.z, MaxZValue);
 
 #if defined(USE_NORMAL)
   float3 normal = Input.Normal * 2.0 - 1.0;

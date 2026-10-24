@@ -11,7 +11,7 @@ DepthTest = true
 DepthWrite = true
 WireFrame = true
 CullMode = CullMode_None
-DepthTestFunc = CompareFunc_Less
+DepthTestFunc = CompareFunc_Greater
 
 [MATERIALCONFIG]
 

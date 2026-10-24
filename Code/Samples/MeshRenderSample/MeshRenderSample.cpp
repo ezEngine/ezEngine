@@ -201,7 +201,7 @@ public:
 
       ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, ezRectFloat(0.0f, 0.0f, fWindowWidth, fWindowHeight));
 
-      const ezMat4 mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::MakeFromDegree(70), fWindowWidth / fWindowHeight, 0.1f, 1000.0f);
+      const ezMat4 mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::MakeFromDegree(70), fWindowWidth / fWindowHeight, 1000.0f, 0.1f);
 
       ezBindGroupBuilder& bindGroupSample = ezRenderContext::GetDefaultInstance()->GetBindGroup();
       bindGroupSample.BindBuffer("ezMeshRenderSampleConstants", m_hSampleConstants);
