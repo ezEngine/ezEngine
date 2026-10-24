@@ -139,6 +139,23 @@ EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezString>(const ezVariant&
 }
 
 template <>
+EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezStringView>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
+{
+  EZ_IGNORE_UNUSED(v);
+  // hash the characters, not the pointer
+  return ezHashingUtils::xxHash64String(*static_cast<const ezStringView*>(pData), uiSeed);
+}
+
+template <>
+EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezHashedString>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
+{
+  EZ_IGNORE_UNUSED(v);
+  // ezHashedString only stores a pointer into the global string table, which differs between processes,
+  // so hash the string hash instead to get a stable result
+  return ezHashingUtils::CombineHashValues64(uiSeed, static_cast<const ezHashedString*>(pData)->GetHash());
+}
+
+template <>
 EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezMat3>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
   EZ_IGNORE_UNUSED(v);

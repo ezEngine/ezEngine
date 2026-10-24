@@ -10,7 +10,11 @@
   {                                                                  \
     EZ_ALWAYS_INLINE static ezUInt32 Hash(const TYPE& value)         \
     {                                                                \
-      return ezHashingUtils::xxHash32(&value, sizeof(TYPE));         \
+      /* hash the members individually, the padding is undefined */  \
+      const ezUInt32 uiHash = ezHashingUtils::xxHash32(              \
+        &value.m_fVariance, sizeof(value.m_fVariance));              \
+      return ezHashingUtils::xxHash32(                               \
+        &value.m_Value, sizeof(value.m_Value), uiHash);              \
     }                                                                \
     EZ_ALWAYS_INLINE static bool Equal(const TYPE& a, const TYPE& b) \
     {                                                                \

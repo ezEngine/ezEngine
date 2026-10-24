@@ -176,7 +176,7 @@ struct ezHashHelper<ezExposedBone>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezExposedBone& value)
   {
-    return ezHashingUtils::xxHash32String(value.m_sName) + ezHashingUtils::xxHash32String(value.m_sParent) + ezHashingUtils::xxHash32(&value, sizeof(ezTransform));
+    return ezHashingUtils::xxHash32String(value.m_sName) + ezHashingUtils::xxHash32String(value.m_sParent) + ezHashingUtils::xxHash32(&value.m_Transform, sizeof(ezTransform));
   }
 
   EZ_ALWAYS_INLINE static bool Equal(const ezExposedBone& a, const ezExposedBone& b) { return a == b; }
