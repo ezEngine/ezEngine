@@ -27,6 +27,8 @@ ezQtExposedBoneWidget::ezQtExposedBoneWidget()
     m_pRotWidget[c]->setSingleStep(1.0);
     m_pRotWidget[c]->setAccelerated(true);
     m_pRotWidget[c]->setDisplaySuffix("\xC2\xB0");
+    // the angles are computed from a float quaternion, round away the imprecision, so that 90 isn't displayed as 89.999992
+    m_pRotWidget[c]->setDecimals(3);
 
     policy.setHorizontalStretch(2);
     m_pRotWidget[c]->setSizePolicy(policy);

@@ -1146,6 +1146,8 @@ ezQtPropertyEditorQuaternionWidget::ezQtPropertyEditorQuaternionWidget()
     m_pWidget[c]->setSingleStep(1.0);
     m_pWidget[c]->setAccelerated(true);
     m_pWidget[c]->setDisplaySuffix("\xC2\xB0");
+    // the angles are computed from a float quaternion, round away the imprecision, so that 90 isn't displayed as 89.999992
+    m_pWidget[c]->setDecimals(3);
 
     policy.setHorizontalStretch(2);
     m_pWidget[c]->setSizePolicy(policy);
@@ -1295,6 +1297,9 @@ ezQtPropertyEditorTransformWidget::ezQtPropertyEditorTransformWidget()
     for (ezUInt32 c = 0; c < 3; ++c)
     {
       AddWidget(pSubLayout, 1.0, szRotLabels[c], szRotTooltip[c], labelColors[c], "\xC2\xB0");
+
+      // the angles are computed from a float quaternion, round away the imprecision, so that 90 isn't displayed as 89.999992
+      m_pWidget[uiCurrentWidget - 1]->setDecimals(3);
     }
   }
 
