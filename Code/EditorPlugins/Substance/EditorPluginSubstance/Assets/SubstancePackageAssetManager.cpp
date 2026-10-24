@@ -23,7 +23,7 @@ ezSubstancePackageAssetDocumentManager::ezSubstancePackageAssetDocumentManager()
     m_PackageTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Substance_Package");
 
     m_PackageTypeDesc.m_sResourceFileExtension = "ezBinSubstancePackage";
-    m_PackageTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SubAssetsAutoThumbnailOnTransform;
+    m_PackageTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SubAssetsAutoThumbnailOnTransform | ezAssetDocumentFlags::DependenciesFromFileContent;
 
     ezQtImageCache::GetSingleton()->RegisterTypeImage("Substance Package", QPixmap(":/AssetIcons/SubstanceDesigner.svg"));
   }

@@ -382,6 +382,11 @@ public:
 
   void InvalidateAssetsWithTransformState(ezAssetInfo::TransformState state);
 
+  /// Called when an asset document had to be saved during its transform, because the dependencies stored in its header were outdated.
+  ///
+  /// This changes the hashes of all assets that depend on it, which ProcessAsset() has to take into account.
+  void NotifyOfOutdatedAssetInfoSaved() { m_iOutdatedAssetInfoSaves.Increment(); }
+
   ///@}
   /// \name Utilities
   ///@{
@@ -516,6 +521,8 @@ private:
 
   mutable ezCuratorMutex m_CuratorMutex; // Global lock
   ezTaskGroupID m_InitializeCuratorTaskID;
+
+  ezAtomicInteger32 m_iOutdatedAssetInfoSaves; ///< See NotifyOfOutdatedAssetInfoSaved()
 
   ezUInt32 m_uiActiveAssetProfile = 0;
 

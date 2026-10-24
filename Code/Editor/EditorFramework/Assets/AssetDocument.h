@@ -302,6 +302,16 @@ protected:
 
   ezTransformStatus DoTransformAsset(const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags);
 
+  /// Fills out pInfo the way it gets stored in the document header when the document is saved.
+  void FillAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const;
+
+  /// Returns true, if the dependencies and outputs stored in the document header differ from what the document would store now.
+  ///
+  /// This happens when the content of a file that the asset references changes, such that it now references other files.
+  /// Such a change triggers a transform, but doesn't modify the document, so it wouldn't be saved otherwise.
+  /// Calls UpdateAssetDocumentInfo(), which may parse files, so it is only used for asset types with ezAssetDocumentFlags::DependenciesFromFileContent.
+  bool IsAssetDocumentInfoOutdated() const;
+
   EngineStatus m_EngineStatus;
   ezAssetDocEngineConnection m_EngineConnectionType = ezAssetDocEngineConnection::None;
 

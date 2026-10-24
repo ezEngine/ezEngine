@@ -89,10 +89,8 @@ ezDocumentInfo* ezAssetDocument::CreateDocumentInfo()
   return EZ_DEFAULT_NEW(ezAssetDocumentInfo);
 }
 
-ezTaskGroupID ezAssetDocument::InternalSaveDocument(AfterSaveCallback callback)
+void ezAssetDocument::FillAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
-  ezAssetDocumentInfo* pInfo = static_cast<ezAssetDocumentInfo*>(m_pDocumentInfo);
-
   pInfo->m_TransformDependencies.Clear();
   pInfo->m_ThumbnailDependencies.Clear();
   pInfo->m_PackageDependencies.Clear();
@@ -106,6 +104,28 @@ ezTaskGroupID ezAssetDocument::InternalSaveDocument(AfterSaveCallback callback)
   pInfo->m_TransformDependencies.Remove(ezString());
   pInfo->m_ThumbnailDependencies.Remove(ezString());
   pInfo->m_PackageDependencies.Remove(ezString());
+}
+
+bool ezAssetDocument::IsAssetDocumentInfoOutdated() const
+{
+  const ezAssetDocumentInfo* pStored = static_cast<const ezAssetDocumentInfo*>(m_pDocumentInfo);
+
+  ezAssetDocumentInfo current;
+  FillAssetDocumentInfo(&current);
+
+  const bool bSame = current.m_TransformDependencies == pStored->m_TransformDependencies &&
+                     current.m_ThumbnailDependencies == pStored->m_ThumbnailDependencies &&
+                     current.m_PackageDependencies == pStored->m_PackageDependencies &&
+                     current.m_Outputs == pStored->m_Outputs;
+
+  return !bSame;
+}
+
+ezTaskGroupID ezAssetDocument::InternalSaveDocument(AfterSaveCallback callback)
+{
+  ezAssetDocumentInfo* pInfo = static_cast<ezAssetDocumentInfo*>(m_pDocumentInfo);
+
+  FillAssetDocumentInfo(pInfo);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   // Dependencies must be either an asset GUID or a path that other machines can resolve as well,
@@ -550,7 +570,16 @@ ezTransformStatus ezAssetDocument::TransformAsset(ezBitflags<ezTransformFlags> t
 
   if (!transformFlags.IsSet(ezTransformFlags::ForceTransform))
   {
-    EZ_SUCCEED_OR_RETURN(SaveDocument());
+    // an unmodified document is only saved, if a referenced file changed what it would write into its header,
+    // otherwise the stored dependencies stay outdated (e.g. newly referenced files wouldn't get packaged)
+    const bool bForceSave = !IsModified() && GetAssetFlags().IsSet(ezAssetDocumentFlags::DependenciesFromFileContent) && IsAssetDocumentInfoOutdated();
+
+    EZ_SUCCEED_OR_RETURN(SaveDocument(bForceSave));
+
+    if (bForceSave)
+    {
+      ezAssetCurator::GetSingleton()->NotifyOfOutdatedAssetInfoSaved();
+    }
 
     const auto assetFlags = GetAssetFlags();
 
