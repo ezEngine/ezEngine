@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15739941795641151403,5759572578474318800}}
-		u4 %Hash{12035258944192632397}
+		u4 %Hash{9096617802647684019}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{16631324145099746905,8144057168679425803}}
@@ -223,10 +223,10 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Material{""}
-		s %Mesh{"{ 8f6f6dfa-4ec0-48d9-acc5-10c898e31b58 }"}
+		HashedString %Material{s{""}}
+		HashedString %Mesh{s{"{ 8f6f6dfa-4ec0-48d9-acc5-10c898e31b58 }"}}
 		f %Scale{0x0000803F}
-		s %TintColorParam{"Color"}
+		HashedString %TintColorParam{s{"Color"}}
 	}
 }
 o

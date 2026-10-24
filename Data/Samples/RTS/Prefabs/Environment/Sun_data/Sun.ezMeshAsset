@@ -11,7 +11,7 @@ o
 		s %AssetType{"Mesh"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10741760120864177544,5403483661380958337}}
-		u4 %Hash{8151596299973657604}
+		u4 %Hash{12739636770801316914}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -56,6 +56,7 @@ o
 		s %MeshIncludeTags{""}
 		u1 %MeshSimplification{50}
 		f %NormalWeight{0x0000003F}
+		Vec3 %PositionOffset{f{0,0,0}}
 		s %PrimitiveType{"ezMeshPrimitive::Sphere"}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}

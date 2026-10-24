@@ -11,8 +11,6 @@ o
 		s %AssetType{"RmlUi"}
 		VarArray %Dependencies
 		{
-			s{"rmlui-menu/ez-main-menu.rcss"}
-			s{"rmlui-menu/ez-main-menu.rml"}
 			s{"rmlui-default/assets.rcss"}
 			s{"rmlui-default/button.rcss"}
 			s{"rmlui-default/common.rcss"}
@@ -30,15 +28,15 @@ o
 			s{"rmlui-default/template.rml"}
 			s{"rmlui-default/textarea.rcss"}
 			s{"rmlui-default/window.rcss"}
+			s{"rmlui-menu/ez-main-menu.rcss"}
+			s{"rmlui-menu/ez-main-menu.rml"}
 		}
 		Uuid %DocumentID{u4{9731557859282159932,14757874673141967505}}
-		u4 %Hash{0}
+		u4 %Hash{4341760790903683651}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
-			s{"rmlui-menu/ez-main-menu.rcss"}
-			s{"rmlui-menu/ez-main-menu.rml"}
 			s{"rmlui-default/assets.png"}
 			s{"rmlui-default/assets.rcss"}
 			s{"rmlui-default/button.rcss"}
@@ -57,11 +55,12 @@ o
 			s{"rmlui-default/template.rml"}
 			s{"rmlui-default/textarea.rcss"}
 			s{"rmlui-default/window.rcss"}
+			s{"rmlui-menu/ez-main-menu.rcss"}
+			s{"rmlui-menu/ez-main-menu.rml"}
+			s{"rmlui-menu/ez.svg"}
 		}
 		VarArray %References
 		{
-			s{"rmlui-menu/ez-main-menu.rcss"}
-			s{"rmlui-menu/ez-main-menu.rml"}
 			s{"rmlui-default/assets.png"}
 			s{"rmlui-default/assets.rcss"}
 			s{"rmlui-default/button.rcss"}
@@ -80,6 +79,9 @@ o
 			s{"rmlui-default/template.rml"}
 			s{"rmlui-default/textarea.rcss"}
 			s{"rmlui-default/window.rcss"}
+			s{"rmlui-menu/ez-main-menu.rcss"}
+			s{"rmlui-menu/ez-main-menu.rml"}
+			s{"rmlui-menu/ez.svg"}
 		}
 		s %Tags{""}
 	}
@@ -87,18 +89,6 @@ o
 }
 Objects
 {
-o
-{
-	Uuid %id{u4{2262049079263739789,18409093322168598192}}
-	s %t{"ezRmlUiAssetProperties"}
-	u3 %v{1}
-	p
-	{
-		Vec2u %ReferenceResolution{u3{1920,1080}}
-		s %RmlFile{"rmlui-menu/ez-main-menu.rml"}
-		s %ScaleMode{"ezRmlUiScaleMode::WithScreenSize"}
-	}
-}
 o
 {
 	Uuid %id{u4{18096612296587978288,6449934965513159559}}
@@ -111,6 +101,18 @@ o
 		{
 			Uuid{u4{2262049079263739789,18409093322168598192}}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{2262049079263739789,18409093322168598192}}
+	s %t{"ezRmlUiAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		Vec2u %ReferenceResolution{u3{1920,1080}}
+		s %RmlFile{"rmlui-menu/ez-main-menu.rml"}
+		s %ScaleMode{"ezRmlUiScaleMode::WithScreenSize"}
 	}
 }
 }
