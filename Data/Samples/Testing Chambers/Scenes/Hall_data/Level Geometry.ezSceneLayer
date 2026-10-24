@@ -8062,9 +8062,9 @@ o
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters
 		{
-			f %NumMultiplier{0x00002041}
-			Color %LightColor{f{0xDBE3173F,0xB273E942,0x33E72443,0x0000803F}}
 			Color %Color{f{0x82DAC840,0x5AC6543E,0xCC8F7240,0x0000803F}}
+			Color %LightColor{f{0xDBE3173F,0xB273E942,0x33E72443,0x0000803F}}
+			f %NumMultiplier{0x00002041}
 		}
 		u4 %RandomSeed{0}
 		Time %RestartDelayRange{d{0x0000000000000040}}

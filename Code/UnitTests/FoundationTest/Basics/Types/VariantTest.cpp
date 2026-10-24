@@ -844,6 +844,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     ezString sString = v.ConvertTo<ezString>();
     EZ_TEST_BOOL(sString == v.Get<ezStringView>());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
+
+    // the hash must depend on the characters, not on the location of the string
+    const ezString sOther = "blurg!";
+    EZ_TEST_INT(v.ComputeHash(0), ezVariant(sOther.GetView(), false).ComputeHash(0));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezDataBuffer")
@@ -963,6 +967,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.IsNumber() == false);
     EZ_TEST_BOOL(v.IsString() == false);
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
+
+    // the hash must only depend on the string, not on the address of the entry in the string table,
+    // because it is stored in asset documents
+    EZ_TEST_INT(v.ComputeHash(7), ezHashingUtils::CombineHashValues64(7 + ezVariantType::HashedString, ezTempHashedString("HHH").GetHash()));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTempHashedString")
@@ -1162,7 +1170,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v != v2);
 
     ezUInt64 uiHash = v.ComputeHash(0);
-    EZ_TEST_INT(uiHash, 8527525522777555267ul);
+    EZ_TEST_INT(uiHash, 7218997283537322824ul);
 
     ezVarianceTypeAngle* pTypedAngle = EZ_DEFAULT_NEW(ezVarianceTypeAngle, ezAngle::MakeFromRadian(1.57079637f), 0.1f);
     ezVariant copy;
@@ -1171,6 +1179,20 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     move.MoveTypedObject(pTypedAngle, ezGetStaticRTTI<ezVarianceTypeAngle>());
     EZ_TEST_BOOL(v == copy);
     EZ_TEST_BOOL(v == move);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTypedObject hash ignores padding")
+  {
+    // ezVarianceTypeTime has padding between the float variance and the double value
+    alignas(ezVarianceTypeTime) ezUInt8 storageA[sizeof(ezVarianceTypeTime)];
+    alignas(ezVarianceTypeTime) ezUInt8 storageB[sizeof(ezVarianceTypeTime)];
+    ezMemoryUtils::PatternFill(storageA, 0x00, sizeof(storageA));
+    ezMemoryUtils::PatternFill(storageB, 0xFF, sizeof(storageB));
+
+    ezVarianceTypeTime* pA = new (storageA) ezVarianceTypeTime(ezTime::MakeFromSeconds(2.0), 0.5f);
+    ezVarianceTypeTime* pB = new (storageB) ezVarianceTypeTime(ezTime::MakeFromSeconds(2.0), 0.5f);
+
+    EZ_TEST_INT(ezHashHelper<ezVarianceTypeTime>::Hash(*pA), ezHashHelper<ezVarianceTypeTime>::Hash(*pB));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTypedObject shared")

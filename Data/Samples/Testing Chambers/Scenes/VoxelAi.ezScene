@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{984390114722623023,11038557269066726856}}
-		u4 %Hash{8700818153723774784}
+		u4 %Hash{2276446125504229393}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -2420,13 +2420,14 @@ o
 {
 	Uuid %id{u4{7680532900834896275,5725464895366085207}}
 	s %t{"ezAiVoxelPathTestComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		u3 %MaxHops{16}
 		u3 %MaxIterationsPerHop{10000}
 		s %PathEnd{"{ 13cfed70-8e88-4b22-90fc-94f80c16f558 }"}
+		f %Radius{0}
 		f %SearchMargin{0x0000A040}
 		b %VisualizePathState{1}
 		b %VisualizeSmoothedPath{1}
@@ -8311,7 +8312,7 @@ o
 		s %PluginName{"ezEditorPluginAi"}
 		VarArray %Properties{}
 		s %TypeName{"ezAiVoxelPathTestComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

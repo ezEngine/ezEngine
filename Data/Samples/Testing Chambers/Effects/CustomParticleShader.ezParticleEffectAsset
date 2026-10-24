@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12499081548750111905,5098320840254519259}}
-		u4 %Hash{8380910014932625616}
+		u4 %Hash{9400705506247013022}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13165321594895125825,13490457828695981343}}
@@ -19,10 +19,14 @@ o
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
+			s{"{ 44d1d17d-4d68-4f8f-b3e3-7e0f82cf58c3 }"}
+			s{"{ 6702a0c1-8ef6-4019-bdd3-5d1df66e5f02 }"}
 			s{"{ fa809b34-ccf3-49fb-b648-1ad793cb66f9 }"}
 		}
 		VarArray %References
 		{
+			s{"{ 44d1d17d-4d68-4f8f-b3e3-7e0f82cf58c3 }"}
+			s{"{ 6702a0c1-8ef6-4019-bdd3-5d1df66e5f02 }"}
 			s{"{ fa809b34-ccf3-49fb-b648-1ad793cb66f9 }"}
 		}
 		s %Tags{""}
@@ -290,11 +294,11 @@ o
 	p
 	{
 		f %Intensity{0x0000A040}
-		s %IntensityScaleParam{""}
+		HashedString %IntensityScaleParam{s{""}}
 		u3 %Percentage{10}
 		f %SizeFactor{0x0000A040}
-		s %SizeScaleParam{""}
-		s %TintColorParam{"FireColor"}
+		HashedString %SizeScaleParam{s{""}}
+		HashedString %TintColorParam{s{"FireColor"}}
 	}
 }
 o

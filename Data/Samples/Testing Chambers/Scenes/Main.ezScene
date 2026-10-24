@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{14679083707888742653}
+		u4 %Hash{8356037211178534933}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -31549,6 +31549,31 @@ o
 }
 o
 {
+	Uuid %id{u4{9633569491077080546,12426702806167765095}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{16264510615861772136,13053208030962668278}}
+			Uuid{u4{5810934151619703970,5312229628657844477}}
+			Uuid{u4{12746720162416302782,5712596777469792967}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Delayed Trigger"}
+		VarArray %Tags{}
+	}
+}
+o
+{
 	Uuid %id{u4{10478248890730334832,12440072588013365095}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -32535,6 +32560,18 @@ o
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
 		b %UseAsOccluder{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16264510615861772136,13053208030962668278}}
+	s %t{"ezTriggerDelayModifierComponent"}
+	u3 %v{1}
+	p
+	{
+		Time %ActivationDelay{d{0x000000000000F03F}}
+		b %Active{1}
+		Time %DeactivationDelay{d{0x0000000000000040}}
 	}
 }
 o
@@ -42522,43 +42559,6 @@ o
 		}
 	}
 }
-o
-{
-	Uuid %id{u4{9633569491077080546,12426702806167765095}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{16264510615861772136,13053208030962668278}}
-			Uuid{u4{5810934151619703970,5312229628657844477}}
-			Uuid{u4{12746720162416302782,5712596777469792967}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Delayed Trigger"}
-		VarArray %Tags{}
-	}
-}
-o
-{
-	Uuid %id{u4{16264510615861772136,13053208030962668278}}
-	s %t{"ezTriggerDelayModifierComponent"}
-	u3 %v{1}
-	p
-	{
-		Time %ActivationDelay{d{0x000000000000F03F}}
-		b %Active{1}
-		Time %DeactivationDelay{d{0x0000000000000040}}
-	}
-}
 }
 Types
 {
@@ -45102,6 +45102,23 @@ o
 	p
 	{
 		s %Category{"Terrain"}
+	}
+}
+o
+{
+	Uuid %id{u4{17557227232053354477,14571284226767265629}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTriggerDelayModifierComponent"}
+		u3 %TypeVersion{1}
 	}
 }
 o

@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3403762621888900804,982542979997145320}}
-		u4 %Hash{16805470617716907938}
+		u4 %Hash{8281982069230184269}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{6656421557665243152,6552981695984977282}}
@@ -292,9 +292,10 @@ o
 {
 	Uuid %id{u4{17158037350687856310,5273637871777512332}}
 	s %t{"ezMsaaResolvePass"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		b %GuaranteeCopy{1}
 		Uuid %Input{u4{4430619014450742974,14017138917057919658}}
 		s %Name{""}
 		Vec2 %Node::Pos{f{0x856D87C4,0xA444A2C2}}
@@ -731,7 +732,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMsaaResolvePass"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
