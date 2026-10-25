@@ -146,6 +146,19 @@ View.DirLightIntensity;Directional Light Intensity
 View.Fog;Enable Fog
 View.SetAsDefault;Set As Default...
 
+Scene.Camera.View.Menu;Camera View
+Scene.Camera.View.Front;View from Front;Rotates the camera around the orbit point to look along -X. In an orthographic view, switches to the front view.
+Scene.Camera.View.Back;View from Back;Rotates the camera around the orbit point to look along +X.
+Scene.Camera.View.Right;View from Right;Rotates the camera around the orbit point to look along -Y. In an orthographic view, switches to the right view.
+Scene.Camera.View.Left;View from Left;Rotates the camera around the orbit point to look along +Y.
+Scene.Camera.View.Top;View from Top;Rotates the camera around the orbit point to look down. In an orthographic view, switches to the top view.
+Scene.Camera.View.Bottom;View from Bottom;Rotates the camera around the orbit point to look up.
+Scene.Camera.View.Flip;Flip View;Rotates the camera around the orbit point to look from the opposite side.
+Scene.Camera.View.OrbitLeft;Orbit Left
+Scene.Camera.View.OrbitRight;Orbit Right
+Scene.Camera.View.OrbitUp;Orbit Up
+Scene.Camera.View.OrbitDown;Orbit Down
+
 ezViewRenderMode::None;Default
 ezViewRenderMode::TexCoordsUV0;Texture Coordinates (UV0)
 ezViewRenderMode::TexCoordsUV1;Texture Coordinates (UV1)

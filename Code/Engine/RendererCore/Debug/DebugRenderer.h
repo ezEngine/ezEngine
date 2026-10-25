@@ -191,6 +191,12 @@ public:
   /// Renders a textured 2D rectangle in screen-space for one frame.
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALTextureHandle hResourceView, ezVec2 vScale = ezVec2(1, 1));
 
+  /// Renders filled triangles in screen-space for one frame.
+  ///
+  /// The positions are in pixels, z is the depth. The winding order doesn't matter, the triangles are never culled.
+  /// They are drawn in the same batch as 2D rectangles, in the order in which they were added.
+  static void Draw2DTriangles(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererTriangle> triangles, const ezColor& color);
+
   /// Renders a wireframe 2D rectangle in screen-space for one frame.
   static void Draw2DLineRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
 

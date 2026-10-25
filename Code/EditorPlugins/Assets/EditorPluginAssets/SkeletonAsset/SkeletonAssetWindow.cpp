@@ -47,6 +47,7 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
 
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig, true);
     m_pViewWidget->ConfigureRelative(ezVec3(0, 0, 1), ezVec3(5.0f), ezVec3(5, -2, 3), 2.0f);
+    m_pViewWidget->SetShowOrientationIndicator(true);
     AddViewWidget(m_pViewWidget);
     pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "SkeletonAssetViewToolBar");
     m_pDockManager->setCentralWidget(pContainer);

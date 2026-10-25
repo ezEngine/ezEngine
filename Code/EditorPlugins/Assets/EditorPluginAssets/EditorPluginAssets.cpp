@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/CameraModeSwitchActions.h>
+#include <EditorFramework/Actions/CameraViewActions.h>
 #include <EditorFramework/Actions/CommonAssetActions.h>
 #include <EditorFramework/Actions/GameObjectContextActions.h>
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
@@ -230,6 +231,7 @@ static void ConfigurePropertyAnimAsset()
     ezDocumentActions::MapToolsActions("PropertyAnimAssetMenuBar");
     ezGameObjectSelectionActions::MapActions("PropertyAnimAssetMenuBar");
     ezGameObjectDocumentActions::MapMenuActions("PropertyAnimAssetMenuBar");
+    ezCameraViewActions::MapMenuActions("PropertyAnimAssetMenuBar");
     ezGameObjectDocumentActions::MapMenuSimulationSpeed("PropertyAnimAssetMenuBar");
     ezTransformGizmoActions::MapMenuActions("PropertyAnimAssetMenuBar");
     ezTranslateGizmoAction::MapActions("PropertyAnimAssetMenuBar");

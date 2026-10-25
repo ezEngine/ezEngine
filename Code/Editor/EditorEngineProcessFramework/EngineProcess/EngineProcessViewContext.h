@@ -5,6 +5,7 @@
 #include <Core/System/Window.h>
 #include <Core/System/WindowManager.h>
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
+#include <Foundation/Math/Rect.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
 class ezEngineProcessDocumentContext;
@@ -71,6 +72,9 @@ public:
 
   void DrawSimpleGrid() const;
 
+  /// Draws the world axes, as seen from the current camera, into the top right corner of the view.
+  void DrawOrientationIndicator(const ezRectFloat& viewport) const;
+
 protected:
   void SendViewMessage(ezEditorEngineViewMsg* pViewMsg);
   void HandleWindowUpdate(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
@@ -96,4 +100,5 @@ protected:
   ezCamera m_Camera;
   ezViewHandle m_hView;
   ezUInt32 m_uiViewID;
+  bool m_bShowOrientationIndicator = false;
 };

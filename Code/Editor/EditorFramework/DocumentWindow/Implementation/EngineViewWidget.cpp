@@ -156,11 +156,15 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_bUpdatePickingData = m_bUpdatePickingData;
   cam.m_bEnablePickingSelected = IsPickingAgainstSelectionAllowed() && (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
   cam.m_bEnablePickTransparent = m_bPickTransparent;
+  cam.m_bShowOrientationIndicator = m_bShowOrientationIndicator && ezPreferences::QueryPreferences<ezEditorPreferencesUser>()->m_bShowOrientationIndicator;
 
   if (s_FixedResolution.HasNonZeroArea())
   {
     cam.m_uiWindowWidth = s_FixedResolution.width;
     cam.m_uiWindowHeight = s_FixedResolution.height;
+
+    // unit tests compare images of views rendered at a fixed resolution, keep editor decorations out of those
+    cam.m_bShowOrientationIndicator = false;
   }
 
   m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);
@@ -191,38 +195,60 @@ void ezQtEngineViewWidget::UpdateCameraInterpolation()
 
   const float fLerpValue = ezMath::Sin(ezAngle::MakeFromDegree(90.0f * m_fCameraLerp));
 
-  ezQuat qRot, qRotFinal;
-  qRot = ezQuat::MakeShortestRotation(m_vCameraStartDirection, m_vCameraTargetDirection);
-  qRotFinal = ezQuat::MakeSlerp(ezQuat::MakeIdentity(), qRot, fLerpValue);
-
-  const ezVec3 vNewDirection = qRotFinal * m_vCameraStartDirection;
-  const ezVec3 vNewPosition = ezMath::Lerp(m_vCameraStartPosition, m_vCameraTargetPosition, fLerpValue);
+  // interpolating the whole orientation (instead of only the direction) also rotates the up vector along,
+  // so it never ends up parallel to the view direction, e.g. when switching to a top-down view
+  const ezQuat qRotation = ezQuat::MakeSlerp(m_qCameraStartRotation, m_qCameraTargetRotation, fLerpValue);
+  const ezVec3 vNewDirection = qRotation * ezVec3(1, 0, 0);
+  const ezVec3 vNewUp = qRotation * ezVec3(0, 0, 1);
   const float fNewFovOrDim = ezMath::Lerp(m_fCameraStartFovOrDim, m_fCameraTargetFovOrDim, fLerpValue);
 
-  /// \todo Hard coded up vector
-  cam.LookAt(vNewPosition, vNewPosition + vNewDirection, m_vCameraUp);
+  ezVec3 vNewPosition;
+  if (m_bCameraOrbitInterpolation)
+    vNewPosition = m_vCameraOrbitPoint - vNewDirection * ezMath::Lerp(m_fCameraStartOrbitDistance, m_fCameraTargetOrbitDistance, fLerpValue);
+  else
+    vNewPosition = ezMath::Lerp(m_vCameraStartPosition, m_vCameraTargetPosition, fLerpValue);
+
+  cam.LookAt(vNewPosition, vNewPosition + vNewDirection, vNewUp);
   cam.SetCameraMode(cam.GetCameraMode(), fNewFovOrDim, cam.GetNearPlane(), cam.GetFarPlane());
 }
 
+namespace
+{
+  /// Returns the rotation that maps +X to vForward and +Z to vUp (after making vUp orthogonal to vForward).
+  ezQuat MakeCameraRotation(const ezVec3& vForward, const ezVec3& vUp)
+  {
+    const ezVec3 vDir = vForward.GetNormalized();
+
+    ezVec3 vRight = vUp.CrossRH(vDir);
+    if (vRight.NormalizeIfNotZero(ezVec3::MakeZero()).Failed())
+    {
+      // up vector is parallel to the view direction, any roll is as good as any other
+      vRight = vDir.GetOrthogonalVector().GetNormalized();
+    }
+
+    ezMat3 mRotation;
+    mRotation.SetColumn(0, vDir);
+    mRotation.SetColumn(1, vRight);
+    mRotation.SetColumn(2, vDir.CrossRH(vRight));
+    return ezQuat::MakeFromMat3(mRotation);
+  }
+} // namespace
+
 void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim, const ezVec3* pNewUpDirection /*= nullptr*/, bool bImmediate /*= false*/)
 {
-  m_vCameraStartPosition = m_pViewConfig->m_Camera.GetPosition();
+  const ezCamera& cam = m_pViewConfig->m_Camera;
+
+  m_bCameraOrbitInterpolation = false;
+
+  m_vCameraStartPosition = cam.GetPosition();
   m_vCameraTargetPosition = vPosition;
 
-  m_vCameraStartDirection = m_pViewConfig->m_Camera.GetCenterDirForwards();
-  m_vCameraTargetDirection = vDirection;
+  const ezVec3 vTargetUp = pNewUpDirection ? *pNewUpDirection : cam.GetCenterDirUp();
 
-  if (pNewUpDirection)
-    m_vCameraUp = *pNewUpDirection;
-  else
-    m_vCameraUp = m_pViewConfig->m_Camera.GetCenterDirUp();
+  m_qCameraStartRotation = MakeCameraRotation(cam.GetCenterDirForwards(), cam.GetCenterDirUp());
+  m_qCameraTargetRotation = MakeCameraRotation(vDirection, vTargetUp);
 
-  m_vCameraStartDirection.Normalize();
-  m_vCameraTargetDirection.Normalize();
-  m_vCameraUp.Normalize();
-
-
-  m_fCameraStartFovOrDim = m_pViewConfig->m_Camera.GetFovOrDim();
+  m_fCameraStartFovOrDim = cam.GetFovOrDim();
 
   if (fFovOrDim > 0.0f)
     m_fCameraTargetFovOrDim = fFovOrDim;
@@ -230,7 +256,7 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
 
   EZ_ASSERT_DEV(m_fCameraTargetFovOrDim > 0, "Invalid FOV or ortho dimension");
 
-  if (m_vCameraStartPosition == m_vCameraTargetPosition && m_vCameraStartDirection == m_vCameraTargetDirection && m_fCameraStartFovOrDim == m_fCameraTargetFovOrDim)
+  if (m_vCameraStartPosition == m_vCameraTargetPosition && m_qCameraStartRotation.IsEqualRotation(m_qCameraTargetRotation, 0.0001f) && m_fCameraStartFovOrDim == m_fCameraTargetFovOrDim)
     return;
 
   m_LastCameraUpdate = ezTime::Now();
@@ -242,6 +268,41 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
     m_LastCameraUpdate -= ezTime::MakeFromSeconds(10);
     m_fCameraLerp = 0.9f;
   }
+}
+
+void ezQtEngineViewWidget::InterpolateCameraAroundPoint(const ezVec3& vOrbitPoint, const ezVec3& vDirection, const ezVec3& vUp)
+{
+  const ezCamera& cam = m_pViewConfig->m_Camera;
+
+  const ezQuat qStartRotation = MakeCameraRotation(cam.GetCenterDirForwards(), cam.GetCenterDirUp());
+  const ezQuat qTargetRotation = MakeCameraRotation(vDirection, vUp);
+
+  if (qStartRotation.IsEqualRotation(qTargetRotation, 0.0001f))
+    return;
+
+  m_qCameraStartRotation = qStartRotation;
+  m_qCameraTargetRotation = qTargetRotation;
+  m_bCameraOrbitInterpolation = true;
+  m_vCameraOrbitPoint = vOrbitPoint;
+  m_fCameraStartOrbitDistance = vOrbitPoint.GetDistanceTo(cam.GetCenterPosition());
+  m_fCameraTargetOrbitDistance = m_fCameraStartOrbitDistance;
+
+  m_fCameraStartFovOrDim = cam.GetFovOrDim();
+  m_fCameraTargetFovOrDim = m_fCameraStartFovOrDim;
+
+  m_LastCameraUpdate = ezTime::Now();
+  m_fCameraLerp = 0.0f;
+}
+
+bool ezQtEngineViewWidget::GetCameraOrbitTarget(ezVec3& out_vOrbitPoint, ezVec3& out_vDirection, ezVec3& out_vUp) const
+{
+  if (!m_bCameraOrbitInterpolation || m_fCameraLerp >= 1.0f)
+    return false;
+
+  out_vOrbitPoint = m_vCameraOrbitPoint;
+  out_vDirection = m_qCameraTargetRotation * ezVec3(1, 0, 0);
+  out_vUp = m_qCameraTargetRotation * ezVec3(0, 0, 1);
+  return true;
 }
 
 void ezQtEngineViewWidget::SetEnablePicking(bool bEnable)
