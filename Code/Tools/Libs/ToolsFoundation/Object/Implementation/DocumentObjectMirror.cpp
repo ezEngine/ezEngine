@@ -545,6 +545,13 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
         return;
       }
 
+      if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner) && m_pContext->DeleteObjectRemovesFromOwner(change.m_Change.m_Value.Get<ezUuid>()))
+      {
+        // Keep the object linked to its owner until it is deleted, so it is in the same state as when it gets deleted outside the editor.
+        m_pContext->DeleteObject(change.m_Change.m_Value.Get<ezUuid>());
+        return;
+      }
+
       if (pProp->GetCategory() == ezPropertyCategory::Member)
       {
         auto pSpecificProp = static_cast<const ezAbstractMemberProperty*>(pProp);
