@@ -14,7 +14,7 @@ o
 			s{"Vegetation/Quaternius/Tree2.fbx"}
 		}
 		Uuid %DocumentID{u4{15466481147065981873,5074029759346242961}}
-		u4 %Hash{8600599989587136073}
+		u4 %Hash{9963198289120698839}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -65,6 +65,7 @@ o
 		s %MeshIncludeTags{""}
 		u1 %MeshSimplification{50}
 		f %NormalWeight{0x0000003F}
+		Vec3 %PositionOffset{f{0,0,0}}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
 		s %RightDir{"ezBasisAxis::PositiveX"}

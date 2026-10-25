@@ -24,7 +24,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18423804289550068914,5029208661442092394}}
-		u4 %Hash{9848002902756463564}
+		u4 %Hash{12875962279371901650}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{12870683337904732869,2574950570201427135}}

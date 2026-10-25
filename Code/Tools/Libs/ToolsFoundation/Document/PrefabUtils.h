@@ -32,5 +32,6 @@ public:
   static void Merge(ezStringView sBase, ezStringView sLeft, ezDocumentObject* pRight, bool bRightIsNotPartOfPrefab, const ezUuid& prefabSeed,
     ezStringBuilder& out_sNewGraph);
 
+  /// Reads the entire file as text. Line endings are normalized to '\n'.
   static ezString ReadDocumentAsString(ezStringView sFile);
 };

@@ -11,7 +11,7 @@ o
 		s %AssetType{"VisualScriptClass"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9942795247594471086,5752047563689221132}}
-		u4 %Hash{14388857637170980122}
+		u4 %Hash{11799874171281685422}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2478121005359868517,16907153569290989844}}

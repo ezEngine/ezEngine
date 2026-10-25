@@ -14,7 +14,7 @@ o
 			s{"Objects/cc0Textures.com/ScannedRock03/ScannedRock03_LQ.obj"}
 		}
 		Uuid %DocumentID{u4{12651756784638135706,5108001582393647091}}
-		u4 %Hash{12955191314586767721}
+		u4 %Hash{16418164697928118752}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -64,6 +64,7 @@ o
 		s %MeshIncludeTags{""}
 		u1 %MeshSimplification{50}
 		f %NormalWeight{0x0000003F}
+		Vec3 %PositionOffset{f{0,0,0}}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
 		s %RightDir{"ezBasisAxis::PositiveX"}

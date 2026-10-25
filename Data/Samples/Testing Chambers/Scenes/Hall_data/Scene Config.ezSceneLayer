@@ -11,7 +11,7 @@ o
 		s %AssetType{"Layer"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4025706763557391268,5561767617844493014}}
-		u4 %Hash{8885810905668537578}
+		u4 %Hash{12984802102081497093}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -77,9 +77,9 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
-			d %ConsumableType{0x0000000000001440}
 			d %Amount{0x0000000000003940}
 			Color %Color{f{0xB1ED9640,0x735C3940,0x4959E93D,0x0000803F}}
+			d %ConsumableType{0x0000000000001440}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 		b %ShowShapeIcons{0}
@@ -758,9 +758,9 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
-			d %ConsumableType{0x0000000000001440}
 			d %Amount{0x0000000000003940}
 			Color %Color{f{0xB1ED9640,0x735C3940,0x4959E93D,0x0000803F}}
+			d %ConsumableType{0x0000000000001440}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 		b %ShowShapeIcons{0}
@@ -776,9 +776,9 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
-			d %ConsumableType{0x0000000000001440}
 			d %Amount{0x0000000000003940}
 			Color %Color{f{0xB1ED9640,0x735C3940,0x4959E93D,0x0000803F}}
+			d %ConsumableType{0x0000000000001440}
 		}
 		s %Prefab{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 		b %ShowShapeIcons{0}

@@ -14,7 +14,7 @@ o
 			s{"Objects/Asteroid_data/Asteroid.obj"}
 		}
 		Uuid %DocumentID{u4{3015100364453290899,5456997555746291155}}
-		u4 %Hash{11727516105739135441}
+		u4 %Hash{13972897335704357271}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -52,6 +52,7 @@ o
 		s %MeshIncludeTags{""}
 		u1 %MeshSimplification{50}
 		f %NormalWeight{0x0000003F}
+		Vec3 %PositionOffset{f{0,0,0}}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
 		s %RightDir{"ezBasisAxis::PositiveX"}

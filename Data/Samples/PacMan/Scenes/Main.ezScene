@@ -6030,8 +6030,8 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
-			f %Speed{0x0000C03F}
 			ColorGamma %Color{u1{46,255,255,255}}
+			f %Speed{0x0000C03F}
 		}
 		s %Prefab{"{ a6778b81-e505-4529-9e70-5e87f37e0403 }"}
 		b %ShowShapeIcons{0}
@@ -6346,8 +6346,8 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
-			f %Speed{0x0000C03F}
 			ColorGamma %Color{u1{255,109,255,255}}
+			f %Speed{0x0000C03F}
 		}
 		s %Prefab{"{ a6778b81-e505-4529-9e70-5e87f37e0403 }"}
 		b %ShowShapeIcons{0}
@@ -6415,8 +6415,8 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
-			f %Speed{0x00002040}
 			ColorGamma %Color{u1{110,255,178,255}}
+			f %Speed{0x00002040}
 		}
 		s %Prefab{"{ a6778b81-e505-4529-9e70-5e87f37e0403 }"}
 		b %ShowShapeIcons{0}

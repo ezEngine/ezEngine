@@ -330,5 +330,9 @@ ezString ezPrefabUtils::ReadDocumentAsString(ezStringView sFile)
   ezStringBuilder sGraph;
   sGraph.ReadAll(file);
 
+  // the text is stored in other documents (e.g. as the base prefab of a material), so it must not depend on whether
+  // git checked out the file with CRLF or LF line endings
+  sGraph.ReplaceAll("\r", "");
+
   return sGraph;
 }
