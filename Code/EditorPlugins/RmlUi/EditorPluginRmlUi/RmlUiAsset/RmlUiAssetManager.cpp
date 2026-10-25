@@ -19,7 +19,7 @@ ezRmlUiAssetDocumentManager::ezRmlUiAssetDocumentManager()
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Rml_UI");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezBinRmlUi";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail | ezAssetDocumentFlags::DependenciesFromFileContent;
 }
 
 ezRmlUiAssetDocumentManager::~ezRmlUiAssetDocumentManager()
