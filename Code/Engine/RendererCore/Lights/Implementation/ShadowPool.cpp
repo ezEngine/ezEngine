@@ -135,10 +135,19 @@ struct SortedShadowData
 
 static ezDynamicArray<SortedShadowData> s_SortedShadowData;
 
-static float ShadowMapScaleFromScreenSpaceSize(float fScreenSpaceSize)
+static float ShadowMapScaleFromView(const ezView& referenceView)
 {
-  const float fClampedShadowMapScale = ezMath::Clamp(ezMath::Pow(fScreenSpaceSize * 0.5f, cvar_RenderingShadowsScaleMappingExponent), s_fMinRelativeShadowMapSize, 1.0f);
-  return fClampedShadowMapScale;
+  const ezSizeFloat scaledViewportSize = referenceView.GetScaledViewportSize();
+  const float fMaxReferenceSize = ezMath::Max(scaledViewportSize.width, scaledViewportSize.height);
+  const float fShadowMapScale = fMaxReferenceSize / static_cast<float>(s_uiMaxShadowMapSize);
+  return fShadowMapScale;
+}
+
+static float ShadowMapScaleFromScreenSpaceSize(float fScreenSpaceSize, const ezView& referenceView)
+{
+  const float fScaleFromScreenSize = ezMath::Pow(fScreenSpaceSize * 0.5f, cvar_RenderingShadowsScaleMappingExponent);
+  const float fScaleFromView = ezMath::Saturate(ShadowMapScaleFromView(referenceView));
+  return ezMath::Clamp(fScaleFromScreenSize * fScaleFromView, s_fMinRelativeShadowMapSize, 1.0f);
 }
 
 static float AddSafeBorder(ezAngle fov, float fPenumbraSize)
@@ -348,28 +357,26 @@ struct ezShadowPool::Data
 ezShadowPool::Data* ezShadowPool::s_pData = nullptr;
 
 // static
-ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pDirLight, const ezView* pReferenceView)
+ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pDirLight, const ezView& referenceView)
 {
   EZ_ASSERT_DEBUG(pDirLight->GetCastShadows(), "Implementation error");
 
   // No shadows in orthographic views
-  if (pReferenceView->GetCullingCamera()->IsOrthographic())
+  if (referenceView.GetCullingCamera()->IsOrthographic())
   {
     return ezInvalidIndex;
   }
 
-  const ezSizeFloat scaledViewportSize = pReferenceView->GetScaledViewportSize();
-  const float fMaxReferenceSize = ezMath::Max(scaledViewportSize.width, scaledViewportSize.height);
-  const float fShadowMapScale = ezMath::Clamp(fMaxReferenceSize / s_uiMaxShadowMapSize, s_fMinRelativeShadowMapSize, 10.0f);
+  const float fShadowMapScale = ezMath::Clamp(ShadowMapScaleFromView(referenceView), s_fMinRelativeShadowMapSize, 10.0f);
 
   ShadowData* pData = nullptr;
-  if (s_pData->GetDataForExtraction(pDirLight, pReferenceView, fShadowMapScale, sizeof(ezDirShadowData), pData))
+  if (s_pData->GetDataForExtraction(pDirLight, &referenceView, fShadowMapScale, sizeof(ezDirShadowData), pData))
   {
     return pData->m_uiPackedDataOffset;
   }
 
   ezUInt32 uiNumCascades = ezMath::Min(pDirLight->GetNumCascades(), 4u);
-  const ezCamera* pReferenceCamera = pReferenceView->GetCullingCamera();
+  const ezCamera* pReferenceCamera = referenceView.GetCullingCamera();
 
   pData->m_uiType = LIGHT_TYPE_DIR;
   pData->m_fFadeOutStart = pDirLight->GetFadeOutStart();
@@ -397,7 +404,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
   const ezVec3 vLightDirForwards = pOwner->GetGlobalDirForwards();
   const ezVec3 vLightDirUp = pOwner->GetGlobalDirUp();
 
-  float fAspectRatio = pReferenceView->GetViewport().width / pReferenceView->GetViewport().height;
+  float fAspectRatio = referenceView.GetViewport().width / referenceView.GetViewport().height;
 
   float fCascadeStart = 0.0f;
   float fCascadeEnd = 0.0f;
@@ -430,7 +437,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
       pView->SetCullingCamera(&shadowView.m_CullingCamera);
       pView->SetLodCamera(pReferenceCamera);
       pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ShadowDepth.RenderTransparentObjects"), pDirLight->GetTransparentShadows());
-      CopyExcludeTagsOnWhiteList(pReferenceView->m_ExcludeTags, pView->m_ExcludeTags);
+      CopyExcludeTagsOnWhiteList(referenceView.m_ExcludeTags, pView->m_ExcludeTags);
     }
 
     // Setup camera
@@ -496,14 +503,14 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
       if (cvar_RenderingShadowsVisCascadeBounds)
       {
-        ezDebugRenderer::DrawLineSphere(pReferenceView->GetHandle(), ezBoundingSphere::MakeFromCenterAndRadius(center, radius), ezColorScheme::LightUI(ezColorScheme::Orange));
+        ezDebugRenderer::DrawLineSphere(referenceView.GetHandle(), ezBoundingSphere::MakeFromCenterAndRadius(center, radius), ezColorScheme::LightUI(ezColorScheme::Orange));
 
-        ezDebugRenderer::DrawLineSphere(pReferenceView->GetHandle(), ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, fCameraToCenterDistance), radius), ezColorScheme::LightUI(ezColorScheme::Red), ezTransform::MakeFromMat4(camera.GetViewMatrix().GetInverse()));
+        ezDebugRenderer::DrawLineSphere(referenceView.GetHandle(), ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, fCameraToCenterDistance), radius), ezColorScheme::LightUI(ezColorScheme::Red), ezTransform::MakeFromMat4(camera.GetViewMatrix().GetInverse()));
       }
 #endif
     }
 
-    ezRenderWorld::AddViewDependency(*pReferenceView, GetShadowAtlasTexture(), ezGALResourceState::ShaderResource);
+    ezRenderWorld::AddViewDependency(referenceView, GetShadowAtlasTexture(), ezGALResourceState::ShaderResource);
     ezRenderWorld::AddViewToRender(shadowView.m_hView);
   }
 
@@ -511,12 +518,14 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 }
 
 // static
-ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, float fScreenSpaceSize, const ezView* pReferenceView)
+ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, float fScreenSpaceSize, const ezView& referenceView)
 {
   EZ_ASSERT_DEBUG(pPointLight->GetCastShadows(), "Implementation error");
 
   // point lights use a lot of atlas space thus we half the scale
-  const float fShadowMapScale = ShadowMapScaleFromScreenSpaceSize(fScreenSpaceSize) * 0.5f;
+  const float fShadowMapScale = ShadowMapScaleFromScreenSpaceSize(fScreenSpaceSize, referenceView) * 0.5f;
+
+
   ShadowData* pData = nullptr;
   if (s_pData->GetDataForExtraction(pPointLight, nullptr, fShadowMapScale, sizeof(ezPointShadowData), pData))
   {
@@ -579,7 +588,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
 
       pView->SetWorld(const_cast<ezWorld*>(pPointLight->GetWorld()));
       pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ShadowDepth.RenderTransparentObjects"), pPointLight->GetTransparentShadows());
-      CopyExcludeTagsOnWhiteList(pReferenceView->m_ExcludeTags, pView->m_ExcludeTags);
+      CopyExcludeTagsOnWhiteList(referenceView.m_ExcludeTags, pView->m_ExcludeTags);
     }
 
     // Setup camera
@@ -591,7 +600,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
       camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, fFov, fNearPlane, fFarPlane);
     }
 
-    ezRenderWorld::AddViewDependency(*pReferenceView, GetShadowAtlasTexture(), ezGALResourceState::ShaderResource);
+    ezRenderWorld::AddViewDependency(referenceView, GetShadowAtlasTexture(), ezGALResourceState::ShaderResource);
     ezRenderWorld::AddViewToRender(shadowView.m_hView);
   }
 
@@ -599,11 +608,13 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
 }
 
 // static
-ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, float fScreenSpaceSize, const ezView* pReferenceView)
+ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, float fScreenSpaceSize, const ezView& referenceView)
 {
   EZ_ASSERT_DEBUG(pSpotLight->GetCastShadows(), "Implementation error");
 
-  const float fShadowMapScale = ShadowMapScaleFromScreenSpaceSize(fScreenSpaceSize);
+  const float fShadowMapScale = ShadowMapScaleFromScreenSpaceSize(fScreenSpaceSize, referenceView);
+
+
   ShadowData* pData = nullptr;
   if (s_pData->GetDataForExtraction(pSpotLight, nullptr, fShadowMapScale, sizeof(ezSpotShadowData), pData))
   {
@@ -632,7 +643,7 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
 
     pView->SetWorld(const_cast<ezWorld*>(pSpotLight->GetWorld()));
     pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ShadowDepth.RenderTransparentObjects"), pSpotLight->GetTransparentShadows());
-    CopyExcludeTagsOnWhiteList(pReferenceView->m_ExcludeTags, pView->m_ExcludeTags);
+    CopyExcludeTagsOnWhiteList(referenceView.m_ExcludeTags, pView->m_ExcludeTags);
   }
 
   // Setup camera
@@ -650,7 +661,7 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
     camera.LookAt(vPosition, vPosition + vForward, vUp);
     camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, fFov, fNearPlane, fFarPlane);
   }
-  ezRenderWorld::AddViewDependency(*pReferenceView, GetShadowAtlasTexture(), ezGALResourceState::ShaderResource);
+  ezRenderWorld::AddViewDependency(referenceView, GetShadowAtlasTexture(), ezGALResourceState::ShaderResource);
   ezRenderWorld::AddViewToRender(shadowView.m_hView);
 
   return pData->m_uiPackedDataOffset;

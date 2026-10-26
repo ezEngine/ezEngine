@@ -157,7 +157,7 @@ void ezPointLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
   if (m_bCastShadows && fShadowFadeOut > 0.0f)
   {
-    pRenderData->FillShadowDataOffsetAndFadeOut(ezShadowPool::AddPointLight(this, fScreenSpaceSize, msg.m_pView), fShadowFadeOut);
+    pRenderData->FillShadowDataOffsetAndFadeOut(ezShadowPool::AddPointLight(this, fScreenSpaceSize, *msg.m_pView), fShadowFadeOut);
   }
   else
   {
