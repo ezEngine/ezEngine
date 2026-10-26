@@ -14,9 +14,9 @@ struct ezRenderWorldRenderEvent;
 class EZ_RENDERERCORE_DLL ezShadowPool
 {
 public:
-  static ezUInt32 AddDirectionalLight(const ezDirectionalLightComponent* pDirLight, const ezView* pReferenceView);
-  static ezUInt32 AddPointLight(const ezPointLightComponent* pPointLight, float fScreenSpaceSize, const ezView* pReferenceView);
-  static ezUInt32 AddSpotLight(const ezSpotLightComponent* pSpotLight, float fScreenSpaceSize, const ezView* pReferenceView);
+  static ezUInt32 AddDirectionalLight(const ezDirectionalLightComponent* pDirLight, const ezView& referenceView);
+  static ezUInt32 AddPointLight(const ezPointLightComponent* pPointLight, float fScreenSpaceSize, const ezView& referenceView);
+  static ezUInt32 AddSpotLight(const ezSpotLightComponent* pSpotLight, float fScreenSpaceSize, const ezView& referenceView);
 
   static ezGALTextureHandle GetShadowAtlasTexture();
   static ezGALBufferHandle GetShadowDataBuffer();

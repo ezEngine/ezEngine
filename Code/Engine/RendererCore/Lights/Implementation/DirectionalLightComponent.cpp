@@ -150,13 +150,13 @@ void ezDirectionalLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
   pRenderData->m_vDirection = GetOwner()->GetGlobalRotation() * ezVec3(-1, 0, 0);
   // The shader reinterprets ezLightRenderData::m_fRadius for directional lights as sin(halfAngle)
   // of the emitter disc. This keeps the packed fp16 slot (specularMultiplierAndRadius) uniform
-  // across all light types while giving directional lights an angular parameterisation.
+  // across all light types while giving directional lights an angular parameterization.
   pRenderData->m_fRadius = ezMath::Sin(m_SourceAngle * 0.5f);
   pRenderData->m_bScreenSpaceShadows = m_bScreenSpaceShadows;
 
   if (m_bCastShadows)
   {
-    pRenderData->FillShadowDataOffsetAndFadeOut(ezShadowPool::AddDirectionalLight(this, msg.m_pView), 1.0f);
+    pRenderData->FillShadowDataOffsetAndFadeOut(ezShadowPool::AddDirectionalLight(this, *msg.m_pView), 1.0f);
   }
   else
   {
