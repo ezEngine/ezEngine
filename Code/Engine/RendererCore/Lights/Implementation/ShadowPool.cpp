@@ -48,6 +48,7 @@ ezCVarBool cvar_RenderingShadowsVisCascadeBounds("Rendering.Shadows.VisCascadeBo
 #endif
 
 ezCVarFloat cvar_RenderingShadowsScaleMappingExponent("Rendering.Shadows.ScaleMappingExponent", 1.5f, ezCVarFlags::Default, "Determines how fast the shadow map size is reduced with screen space size");
+ezCVarFloat cvar_RenderingShadowsSecondsToKeepScale("Rendering.Shadows.SecondsToKeepScale", 1.0f, ezCVarFlags::Default, "How long the max shadow map scale is kept for point and spot lights before it can be reduced");
 
 /// NOTE: The atlas is recreated when any of these changes, at the start of the next frame, so they can be
 ///       set at any time. The values are clamped against each other, see UpdateClampedSizes().
@@ -97,7 +98,7 @@ struct ShadowView
 
 struct ShadowData
 {
-  ezHybridArray<ezViewHandle, 6> m_Views;
+  ezSmallArray<ezViewHandle, 6> m_Views;
   ezUInt32 m_uiType;
   float m_fShadowMapScale;
   float m_fPenumbraSize;
@@ -115,6 +116,14 @@ struct LightAndRefView
 
   const ezLightComponent* m_pLight;
   const ezView* m_pReferenceView;
+};
+
+struct ShadowMapScale
+{
+  EZ_DECLARE_POD_TYPE();
+
+  float m_fSecondsSinceLastUse = 0.0f;
+  float m_fScale = 0.0f;
 };
 
 struct SortedShadowData
@@ -294,6 +303,21 @@ struct ezShadowPool::Data
   {
     EZ_LOCK(m_ShadowDataMutex);
 
+    if (pReferenceView == nullptr) // only point and spot lights
+    {
+      // Keep the cached max scale
+      ShadowMapScale& cachedScale = m_LightToShadowMapScaleTable[pLight->GetHandle()];
+      if (cachedScale.m_fScale > fShadowMapScale)
+      {
+        fShadowMapScale = cachedScale.m_fScale;
+      }
+      else
+      {
+        cachedScale.m_fScale = fShadowMapScale;
+        cachedScale.m_fSecondsSinceLastUse = 0.0f;
+      }
+    }
+
     LightAndRefView key = {pLight, pReferenceView};
 
     ezUInt32 uiDataIndex = ezInvalidIndex;
@@ -342,6 +366,10 @@ struct ezShadowPool::Data
   ezDeque<ShadowData> m_ShadowData;
   ezUInt32 m_uiUsedShadowData = 0;
   ezHashTable<LightAndRefView, ezUInt32> m_LightToShadowDataTable;
+
+  // Store the max shadow map scale of point and spot lights for a while to prevent them from flickering
+  // between different shadow map sizes when other views are rendered every now and then, e.g. reflection probes.
+  ezHashTable<ezComponentHandle, ShadowMapScale> m_LightToShadowMapScaleTable;
 
   ezDynamicArray<ezVec4, ezAlignedAllocatorWrapper> m_PackedShadowData[2];
   ezUInt32 m_uiUsedPackedShadowData = 0; // in 16 bytes steps (sizeof(ezVec4))
@@ -613,7 +641,6 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
   EZ_ASSERT_DEBUG(pSpotLight->GetCastShadows(), "Implementation error");
 
   const float fShadowMapScale = ShadowMapScaleFromScreenSpaceSize(fScreenSpaceSize, referenceView);
-
 
   ShadowData* pData = nullptr;
   if (s_pData->GetDataForExtraction(pSpotLight, nullptr, fShadowMapScale, sizeof(ezSpotShadowData), pData))
@@ -956,6 +983,27 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
       shadowParams.y = constantBias;
       shadowParams.z = penumbraSize * relativeShadowSize;
       shadowParams.w = 0.0f;
+    }
+  }
+
+  // Update and remove cached shadow map scales
+  {
+    float fTimeDiff = ezClock::GetGlobalClock()->GetTimeDiff().AsFloatInSeconds();
+    ezTempHybridArray<ezComponentHandle, 16> lightsToRemove;
+
+    for (auto it = s_pData->m_LightToShadowMapScaleTable.GetIterator(); it.IsValid(); ++it)
+    {
+      auto& shadowMapScale = it.Value();
+      shadowMapScale.m_fSecondsSinceLastUse += fTimeDiff;
+      if (shadowMapScale.m_fSecondsSinceLastUse > cvar_RenderingShadowsSecondsToKeepScale)
+      {
+        lightsToRemove.PushBack(it.Key());
+      }
+    }
+
+    for (auto& light : lightsToRemove)
+    {
+      s_pData->m_LightToShadowMapScaleTable.Remove(light);
     }
   }
 
