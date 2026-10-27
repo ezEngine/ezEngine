@@ -18,6 +18,7 @@ public:
 
   virtual ezInternal::NewInstance<void> CreateObject(const ezUuid& guid, const ezRTTI* pRtti) override;
   virtual void DeleteObject(const ezUuid& guid) override;
+  virtual bool DeleteObjectRemovesFromOwner(const ezUuid& guid) const override;
 
   virtual void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject) override;
   virtual void UnregisterObject(const ezUuid& guid) override;

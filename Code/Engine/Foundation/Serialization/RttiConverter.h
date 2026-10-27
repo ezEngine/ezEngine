@@ -65,6 +65,13 @@ public:
   virtual ezInternal::NewInstance<void> CreateObject(const ezUuid& guid, const ezRTTI* pRtti);
   virtual void DeleteObject(const ezUuid& guid);
 
+  /// Returns true if DeleteObject() also removes the object from the container that owns it.
+  ///
+  /// ezDocumentObjectMirror uses this to skip removing an owned object from its owner before deleting it,
+  /// so that the object is still linked to its owner while it gets destroyed.
+  /// The default implementation returns false, because DeleteObject() only frees the memory.
+  virtual bool DeleteObjectRemovesFromOwner(const ezUuid& guid) const { return false; }
+
   virtual void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject);
   virtual void UnregisterObject(const ezUuid& guid);
 

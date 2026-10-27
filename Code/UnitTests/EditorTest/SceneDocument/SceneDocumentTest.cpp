@@ -1,6 +1,8 @@
 #include <EditorTest/EditorTestPCH.h>
 
 #include <Core/World/GameObject.h>
+#include <Core/World/World.h>
+#include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DragDrop/DragDropHandler.h>
@@ -15,6 +17,7 @@
 #include <Foundation/Reflection/Implementation/RTTI.h>
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <RendererCore/Lights/SphereReflectionProbeComponent.h>
+#include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 #include <QMimeData>
@@ -33,6 +36,7 @@ void ezEditorSceneDocumentTest::SetupSubTests()
   AddSubTest("Component Operations", SubTests::ST_ComponentOperations);
   AddSubTest("Object Property Path", SubTests::ST_ObjectPropertyPath);
   AddSubTest("Hide Show Selection", SubTests::ST_HideShowSelection);
+  AddSubTest("Delete Object Keeps Parent", SubTests::ST_DeleteObjectKeepsParent);
 }
 
 ezResult ezEditorSceneDocumentTest::InitializeTest()
@@ -83,6 +87,9 @@ ezTestAppRun ezEditorSceneDocumentTest::RunSubTest(ezInt32 iIdentifier, ezUInt32
       break;
     case SubTests::ST_HideShowSelection:
       HideShowSelection();
+      break;
+    case SubTests::ST_DeleteObjectKeepsParent:
+      DeleteObjectKeepsParent();
       break;
   }
   return ezTestAppRun::Quit;
@@ -1078,4 +1085,220 @@ void ezEditorSceneDocumentTest::CheckHierarchy(ezObjectAccessorBase* pAccessor, 
       objects.PushBack(pChild);
     }
   }
+}
+
+void ezEditorSceneDocumentTest::DeleteObjectKeepsParent()
+{
+  // Mirrors the scene into a local world, the same way the engine process does it, to check what state the
+  // engine side objects are in while the editor deletes them (see https://github.com/ezEngine/ezEngine/issues/849).
+
+  if (CreateSimpleScene("DeleteObjectKeepsParent.ezScene").Failed())
+    return;
+
+  auto pAccessor = m_pDoc->GetObjectAccessor();
+
+  {
+    // Only the test objects should get mirrored, the default scene objects (sky box etc.) would load rendering resources.
+    ezTempHybridArray<ezVariant, 16> rootObjects;
+    EZ_TEST_STATUS(pAccessor->GetValuesByName(m_pDoc->GetObjectManager()->GetRootObject(), "Children", rootObjects));
+
+    pAccessor->StartTransaction("Remove Default Objects");
+    for (const ezVariant& guid : rootObjects)
+    {
+      EZ_TEST_STATUS(pAccessor->RemoveObject(pAccessor->GetObject(guid.Get<ezUuid>())));
+    }
+    pAccessor->FinishTransaction();
+  }
+
+  const ezDocumentObject* pParent = CreateGameObject(m_pDoc, nullptr, "Parent"_ezsv);
+  const ezDocumentObject* pChild = CreateGameObject(m_pDoc, pParent, "Child"_ezsv);
+  const ezDocumentObject* pGrandChild = CreateGameObject(m_pDoc, pChild, "GrandChild"_ezsv);
+
+  const ezUuid parentGuid = pParent->GetGuid();
+  const ezUuid childGuid = pChild->GetGuid();
+  const ezUuid grandChildGuid = pGrandChild->GetGuid();
+
+  {
+    pAccessor->StartTransaction("Add Component");
+    ezUuid compGuid;
+    EZ_TEST_STATUS(pAccessor->AddObjectByName(pChild, "Components", -1, ezRTTI::FindTypeByName("ezForwardEventsToGameStateComponent"), compGuid));
+    pAccessor->FinishTransaction();
+  }
+
+  ezWorldDesc worldDesc("DeleteObjectKeepsParent");
+  worldDesc.m_bReportErrorWhenStaticObjectMoves = false;
+  ezWorld world(worldDesc);
+
+  ezWorldRttiConverterContext context;
+  context.m_pWorld = &world;
+
+  const ezDocumentObjectManager* pManager = pParent->GetDocumentObjectManager();
+
+  ezDocumentObjectMirror mirror;
+  mirror.SetFilterFunction([pManager](const ezDocumentObject* pObject, ezStringView sProperty) -> bool
+    { return pManager->IsUnderRootProperty("Children", pObject, sProperty); });
+
+  struct DeletedObject
+  {
+    ezString m_sName;
+    ezString m_sParentName;
+  };
+
+  ezHybridArray<DeletedObject, 4> deletedObjects;
+
+  // The deletion event is broadcast at the start of ezWorld::DeleteObjectNow(), right before the object gets deactivated.
+  // The hierarchy at that point is what components see in OnDeactivated().
+  ezEventSubscriptionID deletionEventId = world.GetObjectDeletionEvent().AddEventHandler([&](const ezGameObject* pObject)
+    {
+      auto& del = deletedObjects.ExpandAndGetRef();
+      del.m_sName = pObject->GetName();
+      if (pObject->GetParent() != nullptr)
+      {
+        del.m_sParentName = pObject->GetParent()->GetName();
+      } });
+
+  auto GetWorldObject = [&](const ezUuid& guid) -> const ezGameObject*
+  {
+    ezGameObject* pObject = nullptr;
+    [[maybe_unused]] bool bFound = world.TryGetObject(context.m_GameObjectMap.GetHandle(guid), pObject);
+    return pObject;
+  };
+
+  auto CheckHierarchyIntact = [&]()
+  {
+    const ezGameObject* pWorldParent = GetWorldObject(parentGuid);
+    const ezGameObject* pWorldChild = GetWorldObject(childGuid);
+    const ezGameObject* pWorldGrandChild = GetWorldObject(grandChildGuid);
+
+    if (!EZ_TEST_BOOL(pWorldParent != nullptr && pWorldChild != nullptr && pWorldGrandChild != nullptr))
+      return;
+
+    EZ_TEST_BOOL(pWorldChild->GetParent() == pWorldParent);
+    EZ_TEST_BOOL(pWorldGrandChild->GetParent() == pWorldChild);
+    EZ_TEST_INT(pWorldParent->GetChildCount(), 1);
+    EZ_TEST_INT(pWorldChild->GetComponents().GetCount(), 1);
+  };
+
+  auto CheckChildDeleted = [&]()
+  {
+    const ezGameObject* pWorldParent = GetWorldObject(parentGuid);
+    if (!EZ_TEST_BOOL(pWorldParent != nullptr))
+      return;
+
+    EZ_TEST_INT(pWorldParent->GetChildCount(), 0);
+    EZ_TEST_BOOL(GetWorldObject(childGuid) == nullptr);
+
+    if (EZ_TEST_INT(deletedObjects.GetCount(), 2))
+    {
+      EZ_TEST_STRING(deletedObjects[0].m_sName, "Child");
+      EZ_TEST_STRING(deletedObjects[0].m_sParentName, "Parent");
+      EZ_TEST_STRING(deletedObjects[1].m_sName, "GrandChild");
+      EZ_TEST_STRING(deletedObjects[1].m_sParentName, "Child");
+    }
+  };
+
+  {
+    EZ_LOCK(world.GetWriteMarker());
+
+    mirror.InitSender(pManager);
+    mirror.InitReceiver(&context);
+    mirror.SendDocument();
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "Initial State")
+    {
+      CheckHierarchyIntact();
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "Delete")
+    {
+      deletedObjects.Clear();
+
+      pAccessor->StartTransaction("Delete Child");
+      EZ_TEST_STATUS(pAccessor->RemoveObject(pAccessor->GetObject(childGuid)));
+      pAccessor->FinishTransaction();
+
+      CheckChildDeleted();
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "Undo Delete")
+    {
+      deletedObjects.Clear();
+      EZ_TEST_STATUS(m_pDoc->GetCommandHistory()->Undo(1));
+
+      EZ_TEST_INT(deletedObjects.GetCount(), 0);
+      CheckHierarchyIntact();
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "Redo Delete")
+    {
+      deletedObjects.Clear();
+      EZ_TEST_STATUS(m_pDoc->GetCommandHistory()->Redo(1));
+
+      CheckChildDeleted();
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "Undo Delete Again")
+    {
+      deletedObjects.Clear();
+      EZ_TEST_STATUS(m_pDoc->GetCommandHistory()->Undo(1));
+
+      EZ_TEST_INT(deletedObjects.GetCount(), 0);
+      CheckHierarchyIntact();
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "Delete Component")
+    {
+      ezTempHybridArray<ezVariant, 1> components;
+      EZ_TEST_STATUS(pAccessor->GetValuesByName(pAccessor->GetObject(childGuid), "Components", components));
+      if (EZ_TEST_INT(components.GetCount(), 1))
+      {
+        pAccessor->StartTransaction("Delete Component");
+        EZ_TEST_STATUS(pAccessor->RemoveObject(pAccessor->GetObject(components[0].Get<ezUuid>())));
+        pAccessor->FinishTransaction();
+
+        EZ_TEST_INT(GetWorldObject(childGuid)->GetComponents().GetCount(), 0);
+
+        EZ_TEST_STATUS(m_pDoc->GetCommandHistory()->Undo(1));
+        CheckHierarchyIntact();
+
+        EZ_TEST_STATUS(m_pDoc->GetCommandHistory()->Redo(1));
+        EZ_TEST_INT(GetWorldObject(childGuid)->GetComponents().GetCount(), 0);
+
+        EZ_TEST_STATUS(m_pDoc->GetCommandHistory()->Undo(1));
+        CheckHierarchyIntact();
+      }
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move To Root And Back")
+    {
+      // Moving still has to detach objects from their parent.
+      deletedObjects.Clear();
+
+      pAccessor->StartTransaction("Move Child To Root");
+      EZ_TEST_STATUS(pAccessor->MoveObjectByName(pAccessor->GetObject(childGuid), pManager->GetRootObject(), "Children", -1));
+      pAccessor->FinishTransaction();
+
+      EZ_TEST_INT(deletedObjects.GetCount(), 0);
+      EZ_TEST_BOOL(GetWorldObject(childGuid)->GetParent() == nullptr);
+      EZ_TEST_INT(GetWorldObject(parentGuid)->GetChildCount(), 0);
+      EZ_TEST_BOOL(GetWorldObject(grandChildGuid)->GetParent() == GetWorldObject(childGuid));
+
+      EZ_TEST_STATUS(m_pDoc->GetCommandHistory()->Undo(1));
+      EZ_TEST_INT(deletedObjects.GetCount(), 0);
+      CheckHierarchyIntact();
+
+      EZ_TEST_STATUS(m_pDoc->GetCommandHistory()->Redo(1));
+      EZ_TEST_BOOL(GetWorldObject(childGuid)->GetParent() == nullptr);
+
+      EZ_TEST_STATUS(m_pDoc->GetCommandHistory()->Undo(1));
+      CheckHierarchyIntact();
+    }
+
+    mirror.DeInit();
+    context.Clear();
+  }
+
+  world.GetObjectDeletionEvent().RemoveEventHandler(deletionEventId);
+
+  CloseSimpleScene();
 }

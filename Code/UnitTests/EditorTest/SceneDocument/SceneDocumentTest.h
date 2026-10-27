@@ -19,6 +19,7 @@ private:
     ST_ComponentOperations,
     ST_ObjectPropertyPath,
     ST_HideShowSelection,
+    ST_DeleteObjectKeepsParent,
   };
 
   virtual void SetupSubTests() override;
@@ -33,6 +34,7 @@ private:
   void ComponentOperations();
   void ObjectPropertyPath();
   void HideShowSelection();
+  void DeleteObjectKeepsParent();
 
   static void CheckHierarchy(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pRoot, ezDelegate<void(const ezDocumentObject* pChild)> functor);
 

@@ -158,6 +158,14 @@ void ezWorldRttiConverterContext::DeleteObject(const ezUuid& guid)
   }
 }
 
+bool ezWorldRttiConverterContext::DeleteObjectRemovesFromOwner(const ezUuid& guid) const
+{
+  // Deleting game objects and components through the world unlinks them from their parent / owner.
+  // Detaching them first would make them appear as root objects in OnDeactivated(), which doesn't happen outside the editor.
+  const ezRTTI* pRtti = GetObjectByGUID(guid).m_pType;
+  return pRtti != nullptr && (pRtti == ezGetStaticRTTI<ezGameObject>() || pRtti->IsDerivedFrom<ezComponent>());
+}
+
 void ezWorldRttiConverterContext::RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject)
 {
   if (pRtti == ezGetStaticRTTI<ezGameObject>())
