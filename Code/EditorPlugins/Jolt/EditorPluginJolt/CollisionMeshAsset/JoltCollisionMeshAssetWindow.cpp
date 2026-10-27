@@ -47,6 +47,7 @@ ezQtJoltCollisionMeshAssetDocumentWindow::ezQtJoltCollisionMeshAssetDocumentWind
 
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
     m_pViewWidget->ConfigureRelative(ezVec3(0), ezVec3(5.0f), ezVec3(5, -2, 3), 2.0f);
+    m_pViewWidget->SetShowOrientationIndicator(true);
     AddViewWidget(m_pViewWidget);
 
     m_pCameraFlyContext = EZ_DEFAULT_NEW(ezCameraMoveContext, this, m_pViewWidget);

@@ -20,6 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("MaxAssetProcessors", m_uiMaxAssetProcessors)->AddAttributes(new ezDefaultValueAttribute(8), new ezClampValueAttribute(1, 8)),
     EZ_MEMBER_PROPERTY("FieldOfView", m_fPerspectiveFieldOfView)->AddAttributes(new ezDefaultValueAttribute(70.0f), new ezClampValueAttribute(10.0f, 150.0f)),
     EZ_MEMBER_PROPERTY("CameraRotationSpeed", m_fCameraRotationSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
+    EZ_MEMBER_PROPERTY("ShowOrientationIndicator", m_bShowOrientationIndicator)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("MaxFramerate", m_uiMaxFramerate)->AddAttributes(new ezDefaultValueAttribute(60)),
     EZ_ACCESSOR_PROPERTY("GizmoSize", GetGizmoSize, SetGizmoSize)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.2f, 5.0f)),
     EZ_ACCESSOR_PROPERTY("ShapeIconSize", GetShapeIconSize, SetShapeIconSize)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.2f, 5.0f)),

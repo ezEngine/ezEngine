@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/CameraModeSwitchActions.h>
+#include <EditorFramework/Actions/CameraViewActions.h>
 #include <EditorFramework/Actions/CommonAssetActions.h>
 #include <EditorFramework/Actions/GameObjectContextActions.h>
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
@@ -114,6 +115,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezTranslateGizmoAction::RegisterActions();
     ezCommonAssetActions::RegisterActions();
     ezCameraModeSwitchActions::RegisterActions();
+    ezCameraViewActions::RegisterActions();
     ezWindowLayoutActions::RegisterActions();
 
     // Default Asset Menu Bar
@@ -218,6 +220,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezTranslateGizmoAction::UnregisterActions();
     ezCommonAssetActions::UnregisterActions();
     ezCameraModeSwitchActions::UnregisterActions();
+    ezCameraViewActions::UnregisterActions();
     ezWindowLayoutActions::UnregisterActions();
 
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>());

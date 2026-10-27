@@ -1085,6 +1085,31 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   data.m_texTriangle2DVertices[hResourceView].PushBackRange(ezMakeArrayPtr(vertices));
 }
 
+void ezDebugRenderer::Draw2DTriangles(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererTriangle> triangles, const ezColor& color)
+{
+  if (triangles.IsEmpty())
+    return;
+
+  EZ_LOCK(s_Mutex);
+
+  auto& data = GetDataForExtraction(context);
+
+  for (auto& triangle : triangles)
+  {
+    // the 2D triangles are rendered with back-face culling, use the same winding as Draw2DRectangle()
+    const ezVec3 e1 = triangle.m_position[1] - triangle.m_position[0];
+    const ezVec3 e2 = triangle.m_position[2] - triangle.m_position[0];
+    const bool bFlip = (e1.x * e2.y - e1.y * e2.x) < 0.0f;
+
+    for (ezUInt32 i : {0u, bFlip ? 2u : 1u, bFlip ? 1u : 2u})
+    {
+      auto& vertex = data.m_triangle2DVertices.ExpandAndGetRef();
+      vertex.m_position = triangle.m_position[i];
+      vertex.m_color = triangle.m_color * color;
+    }
+  }
+}
+
 void ezDebugRenderer::Draw2DLineRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color)
 {
   ezDebugRendererLine lines[4];

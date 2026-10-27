@@ -5,6 +5,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
+#include <Foundation/Containers/StaticArray.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -42,6 +43,7 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
     const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
 
     SetCamera(pMsg2);
+    m_bShowOrientationIndicator = pMsg2->m_bShowOrientationIndicator;
 
     if (pMsg2->m_uiWindowWidth > 0 && pMsg2->m_uiWindowHeight > 0)
     {
@@ -199,6 +201,11 @@ void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
     else
     {
       pView->m_ExcludeTags.Remove(tagEditor);
+
+      if (m_bShowOrientationIndicator)
+      {
+        DrawOrientationIndicator(pView->GetViewport());
+      }
     }
 
     ezRenderWorld::AddMainView(m_hView);
@@ -444,6 +451,92 @@ void ezEngineProcessViewContext::DrawSimpleGrid() const
   }
 
   ezDebugRenderer::DrawLines(m_hView, lines, ezColor::White);
+}
+
+void ezEngineProcessViewContext::DrawOrientationIndicator(const ezRectFloat& viewport) const
+{
+  // all sizes are in pixels, scaled the same way as the debug text (DPI and user preference), so that the labels keep fitting
+  const float fScale = ezDebugRenderer::GetTextScale();
+  const float fAxisLength = 32.0f * fScale;
+  const float fMargin = 16.0f * fScale;
+  const float fTipSize = 7.0f * fScale;
+  const float fLabelDistance = 11.0f * fScale;
+  const float fAxisHalfWidth = 1.5f * fScale;
+
+  if (viewport.width < 4.0f * fAxisLength || viewport.height < 4.0f * fAxisLength)
+    return;
+
+  const ezVec2 vCenter(viewport.width - fMargin - fAxisLength, fMargin + fAxisLength);
+
+  const ezVec3 vCamRight = m_Camera.GetCenterDirRight();
+  const ezVec3 vCamUp = m_Camera.GetCenterDirUp();
+  const ezVec3 vCamForward = m_Camera.GetCenterDirForwards();
+
+  struct Axis
+  {
+    ezVec2 m_vScreenDir;
+    float m_fDepth;
+    ezColor m_Color;
+    const char* m_szLabel;
+  };
+
+  ezStaticArray<Axis, 6> axes;
+
+  auto AddAxis = [&](const ezVec3& vAxis, ezColorScheme::Enum color, const char* szLabel)
+  {
+    Axis& axis = axes.ExpandAndGetRef();
+    axis.m_vScreenDir.Set(vAxis.Dot(vCamRight), -vAxis.Dot(vCamUp)); // screen space Y points down
+    axis.m_fDepth = vAxis.Dot(vCamForward);
+    axis.m_Color = ezColorScheme::LightUI(color);
+    axis.m_szLabel = szLabel;
+
+    // darken axes that point away from the camera, as a depth cue
+    axis.m_Color.ScaleRGB(1.0f - 0.45f * ezMath::Max(0.0f, axis.m_fDepth));
+  };
+
+  AddAxis(ezVec3(1, 0, 0), ezColorScheme::Red, "X");
+  AddAxis(ezVec3(0, 1, 0), ezColorScheme::Green, "Y");
+  AddAxis(ezVec3(0, 0, 1), ezColorScheme::Blue, "Z");
+  AddAxis(ezVec3(-1, 0, 0), ezColorScheme::Red, nullptr);
+  AddAxis(ezVec3(0, -1, 0), ezColorScheme::Green, nullptr);
+  AddAxis(ezVec3(0, 0, -1), ezColorScheme::Blue, nullptr);
+
+  // the filled 2D primitives are drawn in order, so start with the ones furthest away
+  axes.Sort([](const Axis& a, const Axis& b)
+    { return a.m_fDepth > b.m_fDepth; });
+
+  for (const Axis& axis : axes)
+  {
+    const ezVec2 vTip = vCenter + axis.m_vScreenDir * fAxisLength;
+    const ezRectFloat tipRect(vTip.x - fTipSize * 0.5f, vTip.y - fTipSize * 0.5f, fTipSize, fTipSize);
+
+    if (axis.m_szLabel == nullptr)
+    {
+      // negative axes only get a hollow tip, like in most DCC tools
+      ezDebugRenderer::Draw2DLineRectangle(m_hView, tipRect, 0.0f, axis.m_Color);
+      continue;
+    }
+
+    ezVec2 vDir = axis.m_vScreenDir;
+    if (vDir.NormalizeIfNotZero(ezVec2::MakeZero(), 0.05f).Succeeded())
+    {
+      // the 2D lines are only one pixel wide, so draw the axis as a quad
+      const ezVec2 vSide = ezVec2(-vDir.y, vDir.x) * fAxisHalfWidth;
+      const ezVec3 v0 = (vCenter - vSide).GetAsVec3(0.0f);
+      const ezVec3 v1 = (vCenter + vSide).GetAsVec3(0.0f);
+      const ezVec3 v2 = (vTip + vSide).GetAsVec3(0.0f);
+      const ezVec3 v3 = (vTip - vSide).GetAsVec3(0.0f);
+
+      const ezDebugRendererTriangle quad[2] = {{v0, v1, v2}, {v0, v2, v3}};
+      ezDebugRenderer::Draw2DTriangles(m_hView, quad, axis.m_Color);
+    }
+
+    ezDebugRenderer::Draw2DRectangle(m_hView, tipRect, 0.0f, axis.m_Color);
+
+    // if the axis points straight at the camera, vDir is zero and the label ends up on the tip
+    const ezVec2 vLabelPos = vTip + vDir * fLabelDistance;
+    ezDebugRenderer::Draw2DText(m_hView, axis.m_szLabel, ezVec2I32((ezInt32)vLabelPos.x, (ezInt32)vLabelPos.y), axis.m_Color, 16, ezDebugTextHAlign::Center, ezDebugTextVAlign::Center);
+  }
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

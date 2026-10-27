@@ -265,6 +265,7 @@ public:
   bool m_bEnablePickingSelected;
   bool m_bEnablePickTransparent;
   bool m_bUseCameraTransformOnDevice = true;
+  bool m_bShowOrientationIndicator = false;
 
   ezInt8 m_iCameraMode; ///< ezCameraMode::Enum
   float m_fNearPlane;

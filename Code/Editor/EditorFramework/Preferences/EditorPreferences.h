@@ -33,6 +33,7 @@ public:
   ezUInt8 m_uiMaxAssetProcessors = 8;
   bool m_bHighlightUntranslatedUI = false;
   bool m_bAssetBrowserShowItemsInSubFolders = true;
+  bool m_bShowOrientationIndicator = true;
 
   // Auto-save interval in minutes. 0 = off.
   ezUInt32 m_uiAutoSaveMinutes = 5;

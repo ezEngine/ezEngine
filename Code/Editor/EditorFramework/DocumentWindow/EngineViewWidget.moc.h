@@ -61,6 +61,18 @@ public:
   void InterpolateCameraTo(
     const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim, const ezVec3* pNewUpDirection = nullptr, bool bImmediate = false);
 
+  /// The view's camera will be rotated around vOrbitPoint, until it looks into vDirection.
+  ///
+  /// The camera position is computed from the interpolated direction, so the camera keeps its distance to the orbit point
+  /// and doesn't cut through it, as a linear interpolation of the position would for large rotations.
+  /// The camera is expected to look at vOrbitPoint already, otherwise it jumps there at the start of the interpolation.
+  void InterpolateCameraAroundPoint(const ezVec3& vOrbitPoint, const ezVec3& vDirection, const ezVec3& vUp);
+
+  /// While an interpolation started with InterpolateCameraAroundPoint() is running, returns its orbit point and the orientation it ends at.
+  ///
+  /// Used to chain rotations that are triggered in quick succession, so that each one starts where the previous one ends.
+  bool GetCameraOrbitTarget(ezVec3& out_vOrbitPoint, ezVec3& out_vDirection, ezVec3& out_vUp) const;
+
   /// If disabled, no picking takes place in this view.
   ///
   /// Disabled in views that do not need picking (material asset, particle asset, etc.)
@@ -110,6 +122,11 @@ public:
 
   void TakeScreenshot(const char* szOutputPath) const;
 
+  /// Makes the engine draw the world axes into the corner of this view, for views that show 3D content where the orientation matters.
+  ///
+  /// The indicator is only shown, if the user didn't disable it in the editor preferences, and never in views with a fixed resolution (unit tests).
+  void SetShowOrientationIndicator(bool bShow) { m_bShowOrientationIndicator = bShow; }
+
 protected:
   /// Used to deactivate shortcuts
   virtual bool eventFilter(QObject* object, QEvent* event) override;
@@ -144,6 +161,7 @@ private Q_SLOTS:
 protected:
   bool m_bUpdatePickingData;
   bool m_bPickTransparent = true;
+  bool m_bShowOrientationIndicator = false;
   bool m_bInDragAndDropOperation;
   ezUInt32 m_uiViewID;
   ezQtEngineDocumentWindow* m_pDocumentWindow = nullptr;
@@ -156,9 +174,12 @@ protected:
   float m_fCameraTargetFovOrDim;
   ezVec3 m_vCameraStartPosition;
   ezVec3 m_vCameraTargetPosition;
-  ezVec3 m_vCameraStartDirection;
-  ezVec3 m_vCameraTargetDirection;
-  ezVec3 m_vCameraUp;
+  ezQuat m_qCameraStartRotation;
+  ezQuat m_qCameraTargetRotation;
+  bool m_bCameraOrbitInterpolation = false;
+  ezVec3 m_vCameraOrbitPoint;
+  float m_fCameraStartOrbitDistance = 0.0f;
+  float m_fCameraTargetOrbitDistance = 0.0f;
   ezTime m_LastCameraUpdate;
 
   QHBoxLayout* m_pMainLayout = nullptr;
