@@ -52,7 +52,7 @@
 
 
 /// [internal] Helper class to generate accessor functions for (private) resource handle members
-template <typename Class, typename Type, Type Class::*Member>
+template <typename Class, typename Type, Type Class::* Member>
 struct ezResourceHandlePropertyAccessor
 {
   static ezStringView GetValue(const Class* pInstance) { return ((*pInstance).*Member).GetResourceID(); }

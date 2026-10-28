@@ -138,5 +138,3 @@ bool ezFmodSoundBankResourceLoader::IsResourceOutdated(const ezResource* pResour
 
 #endif
 }
-
-

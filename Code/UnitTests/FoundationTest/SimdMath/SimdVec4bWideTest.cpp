@@ -21,13 +21,13 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4bWide)
 
     static_assert(sizeof(ezSimdVec4bWide) == 32);
 
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
+#  if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
     static_assert(alignof(ezSimdVec4bWide) == 16);
-#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
+#  elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
     static_assert(alignof(ezSimdVec4bWide) == 8);
-#endif
+#  endif
 
-    #endif
+#endif
 
     ezSimdVec4bWide vInit1B(true);
     EZ_TEST_BOOL(vInit1B.x() == true && vInit1B.y() == true && vInit1B.z() == true && vInit1B.w() == true);
@@ -37,23 +37,17 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4bWide)
     alignas(32) ezUInt64 vals[4];
     _mm256_store_si256((__m256i*)vals, _mm256_castpd_si256(vInit1B.m_v));
 
-    EZ_TEST_BOOL(vals[0] == 0xFFFFFFFFFFFFFFFFULL
-      && vals[1] == 0xFFFFFFFFFFFFFFFFULL
-      && vals[2] == 0xFFFFFFFFFFFFFFFFULL
-      && vals[3] == 0xFFFFFFFFFFFFFFFFULL);
+    EZ_TEST_BOOL(vals[0] == 0xFFFFFFFFFFFFFFFFULL && vals[1] == 0xFFFFFFFFFFFFFFFFULL && vals[2] == 0xFFFFFFFFFFFFFFFFULL && vals[3] == 0xFFFFFFFFFFFFFFFFULL);
 #else
 
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
+#  if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
     alignas(16) ezUInt64 valsXY[2];
     alignas(16) ezUInt64 valsZW[2];
     _mm_store_si128((__m128i*)valsXY, _mm_castpd_si128(vInit1B.m_v.xy));
     _mm_store_si128((__m128i*)valsZW, _mm_castpd_si128(vInit1B.m_v.zw));
 
-    EZ_TEST_BOOL(valsXY[0] == 0xFFFFFFFFFFFFFFFFULL
-      && valsXY[1] == 0xFFFFFFFFFFFFFFFFULL
-      && valsZW[0] == 0xFFFFFFFFFFFFFFFFULL
-      && valsZW[1] == 0xFFFFFFFFFFFFFFFFULL);
-#endif
+    EZ_TEST_BOOL(valsXY[0] == 0xFFFFFFFFFFFFFFFFULL && valsXY[1] == 0xFFFFFFFFFFFFFFFFULL && valsZW[0] == 0xFFFFFFFFFFFFFFFFULL && valsZW[1] == 0xFFFFFFFFFFFFFFFFULL);
+#  endif
 
 #endif
 
@@ -63,21 +57,15 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4bWide)
     // Make sure all components have the correct value
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
     _mm256_store_si256((__m256i*)vals, _mm256_castpd_si256(vInit4B.m_v));
-    EZ_TEST_BOOL(vals[0] == 0
-      && vals[1] == 0xFFFFFFFFFFFFFFFFULL
-      && vals[2] == 0
-      && vals[3] == 0xFFFFFFFFFFFFFFFFULL);
+    EZ_TEST_BOOL(vals[0] == 0 && vals[1] == 0xFFFFFFFFFFFFFFFFULL && vals[2] == 0 && vals[3] == 0xFFFFFFFFFFFFFFFFULL);
 #else
 
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
+#  if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
     _mm_store_si128((__m128i*)valsXY, _mm_castpd_si128(vInit4B.m_v.xy));
     _mm_store_si128((__m128i*)valsZW, _mm_castpd_si128(vInit4B.m_v.zw));
-    
-    EZ_TEST_BOOL(valsXY[0] == 0
-      && valsXY[1] == 0xFFFFFFFFFFFFFFFFULL
-      && valsZW[0] == 0
-      && valsZW[1] == 0xFFFFFFFFFFFFFFFFULL);
-#endif
+
+    EZ_TEST_BOOL(valsXY[0] == 0 && valsXY[1] == 0xFFFFFFFFFFFFFFFFULL && valsZW[0] == 0 && valsZW[1] == 0xFFFFFFFFFFFFFFFFULL);
+#  endif
 #endif
 
     ezSimdVec4bWide vCopy(vInit4B);

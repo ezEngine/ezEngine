@@ -17,9 +17,9 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide::ezSimdVec4bWide(bool b)
 #else
 
   __m128d val;
-  if(b)
+  if (b)
   {
-    alignas(16) ezUInt64 trueVal[2] = {0xFFFFFFFFFFFFFFFFULL,0xFFFFFFFFFFFFFFFFULL};
+    alignas(16) ezUInt64 trueVal[2] = {0xFFFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFFFULL};
     val = _mm_load_pd(((double*)(&trueVal)));
   }
   else
@@ -211,13 +211,13 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::Select(const ezSimdVec4bWide& 
   return _mm256_blendv_pd(vFalse.m_v, vTrue.m_v, vCmp.m_v);
 #else
   ezSimdVec4bWide result;
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#  if EZ_SSE_LEVEL >= EZ_SSE_41
   result.m_v.xy = _mm_blendv_pd(vFalse.m_v.xy, vTrue.m_v.xy, vCmp.m_v.xy);
   result.m_v.zw = _mm_blendv_pd(vFalse.m_v.zw, vTrue.m_v.zw, vCmp.m_v.zw);
-#else
+#  else
   result.m_v.xy = _mm_or_pd(_mm_andnot_pd(vCmp.m_v.xy, vFalse.m_v.xy), _mm_and_pd(vCmp.m_v.xy, vTrue.m_v.xy));
   result.m_v.zw = _mm_or_pd(_mm_andnot_pd(vCmp.m_v.zw, vFalse.m_v.zw), _mm_and_pd(vCmp.m_v.zw, vTrue.m_v.zw));
-#endif
+#  endif
   return result;
 #endif
 }

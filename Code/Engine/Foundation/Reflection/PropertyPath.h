@@ -7,7 +7,7 @@
 class ezAbstractProperty;
 
 
-///Reflected property step that can be used to init an ezPropertyPath
+/// Reflected property step that can be used to init an ezPropertyPath
 struct EZ_FOUNDATION_DLL ezPropertyPathStep
 {
   ezString m_sProperty;
@@ -53,30 +53,30 @@ public:
   /// name and appropriate index (if required by the property type).
   ezResult InitializeFromPath(const ezRTTI* pRootObjectRtti, const ezArrayPtr<const ezPropertyPathStep> path);
 
-  ///Applies the entire path and allows writing to the target object.
+  /// Applies the entire path and allows writing to the target object.
   ezResult WriteToLeafObject(void* pRootObject, const ezRTTI* pType, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const;
-  ///Applies the entire path and allows reading from the target object.
+  /// Applies the entire path and allows reading from the target object.
   ezResult ReadFromLeafObject(void* pRootObject, const ezRTTI* pType, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const;
 
-  ///Applies the path up to the last step and allows a functor to write to the final property.
+  /// Applies the path up to the last step and allows a functor to write to the final property.
   ezResult WriteProperty(
     void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pProp, const ezVariant& index)> func) const;
-  ///Applies the path up to the last step and allows a functor to read from the final property.
+  /// Applies the path up to the last step and allows a functor to read from the final property.
   ezResult ReadProperty(
     void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pProp, const ezVariant& index)> func) const;
 
-  ///Convenience function that writes 'value' to the 'pRootObject' at the current path.
+  /// Convenience function that writes 'value' to the 'pRootObject' at the current path.
   void SetValue(void* pRootObject, const ezRTTI& type, const ezVariant& value) const;
-  ///Convenience function that writes 'value' to the 'pRootObject' at the current path.
+  /// Convenience function that writes 'value' to the 'pRootObject' at the current path.
   template <typename T>
   EZ_ALWAYS_INLINE void SetValue(T* pRootObject, const ezVariant& value) const
   {
     SetValue(pRootObject, *ezGetStaticRTTI<T>(), value);
   }
 
-  ///Convenience function that reads the value from 'pRootObject' at the current path and stores it in 'out_value'.
+  /// Convenience function that reads the value from 'pRootObject' at the current path and stores it in 'out_value'.
   void GetValue(void* pRootObject, const ezRTTI& type, ezVariant& out_value) const;
-  ///Convenience function that reads the value from 'pRootObject' at the current path and stores it in 'out_value'.
+  /// Convenience function that reads the value from 'pRootObject' at the current path and stores it in 'out_value'.
   template <typename T>
   EZ_ALWAYS_INLINE void GetValue(T* pRootObject, ezVariant& out_value) const
   {

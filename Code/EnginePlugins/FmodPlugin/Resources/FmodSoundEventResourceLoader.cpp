@@ -103,5 +103,3 @@ bool ezFmodSoundEventResourceLoader::IsResourceOutdated(const ezResource* pResou
 
 #endif
 }
-
-

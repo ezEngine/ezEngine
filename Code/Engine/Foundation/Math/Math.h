@@ -149,19 +149,19 @@ namespace ezMath
   /// Both iMinValue and iExcludedMaxValue can be negative, but iMinValue has to be strictly smaller than iExcludedMaxValue.
   [[nodiscard]] constexpr ezInt32 WrapInt(ezInt32 iValue, ezInt32 iMinValue, ezInt32 iExcludedMaxValue); // [tested]
 
-  /// Wraps a float value around to stay within the [0; 1] range.
+                                                                                                         /// Wraps a float value around to stay within the [0; 1] range.
   ///
   /// Wrapping happens in both positive and negative direction. Ie -0.1f will be wrapped to 0.9f and 1.1f will be wrapped to 0.1f.
   /// Note that here the value 1.0f is included in the range. Only values larger than 1.0f get wrapped back to zero.
   /// Therefore it is different to what 'Fraction' would return.
-    template <typename T>
+  template <typename T>
   [[nodiscard]] T WrapFloat01(T fValue); // [tested]
 
-  /// Wraps a float value around to stay within the [min; max] range.
+                                         /// Wraps a float value around to stay within the [min; max] range.
   ///
   /// Both fMinValue and fMaxValue are inclusive.
   /// Both values may be negative, but fMinValue has to be strictly smaller than fMaxValue.
-    template <typename T>
+  template <typename T>
   [[nodiscard]] T WrapFloat(T fValue, T fMinValue, T fMaxValue); // [tested]
 
   /// Clamps "value" to the range [0; 1]. Returns "value", if it is inside the range already

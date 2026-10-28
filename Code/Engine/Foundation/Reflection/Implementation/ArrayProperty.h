@@ -125,7 +125,7 @@ private:
 
 
 
-template <typename Class, typename Container, Container Class::*Member>
+template <typename Class, typename Container, Container Class::* Member>
 struct ezArrayPropertyAccessor
 {
   using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;
@@ -143,7 +143,7 @@ class ezMemberArrayProperty : public ezTypedArrayProperty<typename ezTypeTraits<
 public:
   using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
   using GetConstContainerFunc = const Container& (*)(const Class* pInstance);
-  using GetContainerFunc = Container& (*)(Class* pInstance);
+  using GetContainerFunc = Container& (*)(Class * pInstance);
 
   ezMemberArrayProperty(const char* szPropertyName, GetConstContainerFunc constGetter, GetContainerFunc getter)
     : ezTypedArrayProperty<RealType>(szPropertyName)

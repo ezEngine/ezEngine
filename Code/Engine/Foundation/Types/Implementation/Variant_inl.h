@@ -170,7 +170,7 @@ EZ_ALWAYS_INLINE ezVariant::ezVariant(const T& value)
   const constexpr bool forceSharing = TypeDeduction<T>::forceSharing;
   const constexpr bool inlineSized = sizeof(T) <= InlinedStruct::DataSize;
   const constexpr bool isPOD = ezIsPodType<T>::value;
-  InitTypedObject(value, ezTraitInt < (!forceSharing && inlineSized && isPOD) ? 1 : 0 > ());
+  InitTypedObject(value, ezTraitInt<(!forceSharing && inlineSized && isPOD) ? 1 : 0>());
 }
 
 template <typename T>

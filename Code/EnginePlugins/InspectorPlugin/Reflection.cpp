@@ -141,5 +141,3 @@ void RemoveReflectionEventHandler()
 
   ezTelemetry::RemoveEventHandler(ReflectionDetail::TelemetryEventsHandler);
 }
-
-

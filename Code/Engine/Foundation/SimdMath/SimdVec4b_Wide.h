@@ -12,48 +12,42 @@ public:
   ezSimdVec4bWide();                               // [tested]
   ezSimdVec4bWide(bool b);                         // [tested]
   ezSimdVec4bWide(bool x, bool y, bool z, bool w); // [tested]
-  ezSimdVec4bWide(ezInternal::QuadBoolWide b);         // [tested]
+  ezSimdVec4bWide(ezInternal::QuadBoolWide b);     // [tested]
 
 public:
   template <int N>
-  bool GetComponent() const;                                                                               // [tested]
+  bool GetComponent() const;                                                                                               // [tested]
 
-  bool x() const;                                                                                          // [tested]
-  bool y() const;                                                                                          // [tested]
-  bool z() const;                                                                                          // [tested]
-  bool w() const;                                                                                          // [tested]
+  bool x() const;                                                                                                          // [tested]
+  bool y() const;                                                                                                          // [tested]
+  bool z() const;                                                                                                          // [tested]
+  bool w() const;                                                                                                          // [tested]
 
   template <ezSwizzle::Enum s>
-  ezSimdVec4bWide Get() const;                                                                                 // [tested]
+  ezSimdVec4bWide Get() const;                                                                                             // [tested]
 
 public:
-  ezSimdVec4bWide operator&&(const ezSimdVec4bWide& rhs) const;                                                    // [tested]
-  ezSimdVec4bWide operator||(const ezSimdVec4bWide& rhs) const;                                                    // [tested]
-  ezSimdVec4bWide operator!() const;                                                                           // [tested]
+  ezSimdVec4bWide operator&&(const ezSimdVec4bWide& rhs) const;                                                            // [tested]
+  ezSimdVec4bWide operator||(const ezSimdVec4bWide& rhs) const;                                                            // [tested]
+  ezSimdVec4bWide operator!() const;                                                                                       // [tested]
 
-  ezSimdVec4bWide operator==(const ezSimdVec4bWide& rhs) const;                                                    // [tested]
-  ezSimdVec4bWide operator!=(const ezSimdVec4bWide& rhs) const;                                                    // [tested]
-
-  template <int N = 4>
-  bool AllSet() const;                                                                                     // [tested]
+  ezSimdVec4bWide operator==(const ezSimdVec4bWide& rhs) const;                                                            // [tested]
+  ezSimdVec4bWide operator!=(const ezSimdVec4bWide& rhs) const;                                                            // [tested]
 
   template <int N = 4>
-  bool AnySet() const;                                                                                     // [tested]
+  bool AllSet() const;                                                                                                     // [tested]
 
   template <int N = 4>
-  bool NoneSet() const;                                                                                    // [tested]
+  bool AnySet() const;                                                                                                     // [tested]
+
+  template <int N = 4>
+  bool NoneSet() const;                                                                                                    // [tested]
 
   static ezSimdVec4bWide Select(const ezSimdVec4bWide& vCmp, const ezSimdVec4bWide& vTrue, const ezSimdVec4bWide& vFalse); // [tested]
 
 public:
   ezInternal::QuadBoolWide m_v;
 };
-
-
-
-
-
-
 
 
 

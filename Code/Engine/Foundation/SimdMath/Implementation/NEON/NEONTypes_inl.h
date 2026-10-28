@@ -20,7 +20,7 @@ namespace ezInternal
 
   using QuadFloat = float32x4_t;
   using QuadBool = uint32x4_t;
-  
+
   struct QuadBoolWide
   {
     uint64x2_t xy;

@@ -39,44 +39,44 @@ public:
   /// Loads N floats from pFloats into the vector.
   /// N must be between 1 and 4. Unused components are set to zero.
   template <int N>
-  void Load(const float* pFloats);              // [tested]
+  void Load(const float* pFloats); // [tested]
 
   /// Stores the first N components to pFloats.
   /// N must be between 1 and 4.
   template <int N>
-  void Store(float* pFloats) const;             // [tested]
+  void Store(float* pFloats) const; // [tested]
 
 public:
   template <ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdVec4f GetReciprocal() const;                                                                                  // [tested]
+  ezSimdVec4f GetReciprocal() const;    // [tested]
 
   template <ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdVec4f GetSqrt() const;                                                                                        // [tested]
+  ezSimdVec4f GetSqrt() const;          // [tested]
 
   template <ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdVec4f GetInvSqrt() const;                                                                                     // [tested]
+  ezSimdVec4f GetInvSqrt() const;       // [tested]
 
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdFloat GetLength() const;                                                                                      // [tested]
+  ezSimdFloat GetLength() const;        // [tested]
 
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdFloat GetInvLength() const;                                                                                   // [tested]
+  ezSimdFloat GetInvLength() const;     // [tested]
 
   template <int N>
-  ezSimdFloat GetLengthSquared() const;                                                                               // [tested]
+  ezSimdFloat GetLengthSquared() const; // [tested]
 
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdFloat GetLengthAndNormalize();                                                                                // [tested]
+  ezSimdFloat GetLengthAndNormalize();  // [tested]
 
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdVec4f GetNormalized() const;                                                                                  // [tested]
+  ezSimdVec4f GetNormalized() const;    // [tested]
 
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  void Normalize();                                                                                                   // [tested]
+  void Normalize();                     // [tested]
 
   /// Normalizes the first N components if the squared length is greater than fEpsilon, otherwise sets the vector to zero.
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  void NormalizeIfNotZero(const ezSimdFloat& fEpsilon = ezMath::SmallEpsilon<float>());                               // [tested]
+  void NormalizeIfNotZero(const ezSimdFloat& fEpsilon = ezMath::SmallEpsilon<float>()); // [tested]
 
   /// Normalizes the first N components if the squared length is greater than fEpsilon, otherwise sets the vector to vFallback.
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
@@ -100,7 +100,7 @@ public:
 public:
   /// Creates an ezSimdFloat with all elements set to the given component
   template <int N>
-  ezSimdFloat GetComponent() const;      // [tested]
+  ezSimdFloat GetComponent() const; // [tested]
 
   /// Creates an ezSimdFloat with all elements set to the given component
   ezSimdFloat GetComponent(int i) const; // [tested]
@@ -113,7 +113,7 @@ public:
   template <ezSwizzle::Enum s>
   ezSimdVec4f Get() const;               // [tested]
 
-  ///x = this[s0], y = this[s1], z = other[s2], w = other[s3]
+  /// x = this[s0], y = this[s1], z = other[s2], w = other[s3]
   template <ezSwizzle::Enum s>
   [[nodiscard]] ezSimdVec4f GetCombined(const ezSimdVec4f& other) const;                                                 // [tested]
 
@@ -163,25 +163,25 @@ public:
 
   /// Returns the sum of the first N components.
   template <int N>
-  [[nodiscard]] ezSimdFloat HorizontalSum() const;                                // [tested]
+  [[nodiscard]] ezSimdFloat HorizontalSum() const; // [tested]
 
   /// Returns the minimum of the first N components.
   template <int N>
-  [[nodiscard]] ezSimdFloat HorizontalMin() const;                                // [tested]
+  [[nodiscard]] ezSimdFloat HorizontalMin() const; // [tested]
 
   /// Returns the maximum of the first N components.
   template <int N>
-  [[nodiscard]] ezSimdFloat HorizontalMax() const;                                // [tested]
+  [[nodiscard]] ezSimdFloat HorizontalMax() const; // [tested]
 
   /// Returns the dot product of the first N components of this vector and v.
   template <int N>
-  [[nodiscard]] ezSimdFloat Dot(const ezSimdVec4f& v) const;                      // [tested]
+  [[nodiscard]] ezSimdFloat Dot(const ezSimdVec4f& v) const; // [tested]
 
-  ///3D cross product, w is ignored.
+  /// 3D cross product, w is ignored.
   [[nodiscard]] ezSimdVec4f CrossRH(const ezSimdVec4f& v) const; // [tested]
 
-  ///Generates an arbitrary vector such that Dot<3>(GetOrthogonalVector()) == 0
-  [[nodiscard]] ezSimdVec4f GetOrthogonalVector() const;                                                     // [tested]
+  /// Generates an arbitrary vector such that Dot<3>(GetOrthogonalVector()) == 0
+  [[nodiscard]] ezSimdVec4f GetOrthogonalVector() const; // [tested]
 
   /// Returns a * b + c
   [[nodiscard]] static ezSimdVec4f MulAdd(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c); // [tested]
@@ -192,7 +192,7 @@ public:
   [[nodiscard]] static ezSimdVec4f MulSub(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c); // [tested]
 
   /// Returns a vector with the magnitude from vMagnitude and the sign from vSign.
-  [[nodiscard]] static ezSimdVec4f CopySign(const ezSimdVec4f& vMagnitude, const ezSimdVec4f& vSign);        // [tested]
+  [[nodiscard]] static ezSimdVec4f CopySign(const ezSimdVec4f& vMagnitude, const ezSimdVec4f& vSign); // [tested]
 
 public:
   ezInternal::QuadFloat m_v;

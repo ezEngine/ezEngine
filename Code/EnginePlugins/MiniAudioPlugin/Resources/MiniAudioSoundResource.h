@@ -10,7 +10,8 @@ struct ezComponentHandle;
 
 using ezMiniAudioSoundResourceHandle = ezTypedResourceHandle<class ezMiniAudioSoundResource>;
 
-struct EZ_MINIAUDIOPLUGIN_DLL ezMiniAudioSoundResourceDescriptor{
+struct EZ_MINIAUDIOPLUGIN_DLL ezMiniAudioSoundResourceDescriptor
+{
   // empty, these types of resources must be loaded from file
 };
 

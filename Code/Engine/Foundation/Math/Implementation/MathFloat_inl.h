@@ -1,7 +1,7 @@
 #pragma once
 
 #include <algorithm>
-//#include <type_traits>
+// #include <type_traits>
 
 namespace ezMath
 {
@@ -100,7 +100,7 @@ namespace ezMath
     else
       return tan(a.GetRadian());
   }
-  
+
   template <typename Type>
   EZ_ALWAYS_INLINE ezAngleTemplate<Type> ASin(Type f)
   {

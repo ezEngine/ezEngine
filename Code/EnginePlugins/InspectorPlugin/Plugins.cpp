@@ -73,5 +73,3 @@ void RemovePluginEventHandler()
   ezPlugin::Events().RemoveEventHandler(PluginsDetail::PluginEventHandler);
   ezTelemetry::RemoveEventHandler(PluginsDetail::TelemetryEventsHandler);
 }
-
-

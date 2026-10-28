@@ -519,7 +519,7 @@ private:
   friend class ezAssetProcessor;
   friend class ezEditorProcessorProcess;
 
-  mutable ezCuratorMutex m_CuratorMutex; // Global lock
+  mutable ezCuratorMutex m_CuratorMutex;       // Global lock
   ezTaskGroupID m_InitializeCuratorTaskID;
 
   ezAtomicInteger32 m_iOutdatedAssetInfoSaves; ///< See NotifyOfOutdatedAssetInfoSaved()

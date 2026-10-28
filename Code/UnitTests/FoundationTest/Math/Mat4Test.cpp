@@ -28,7 +28,7 @@ void TestMat4()
 #else
     // Placement new of the default constructor should not have any effect on the previous data.
     Type testBlock[16] = {(Type)1, (Type)2, (Type)3, (Type)4, (Type)5, (Type)6, (Type)7, (Type)8,
-                          (Type)9, (Type)10, (Type)11, (Type)12, (Type)13, (Type)14, (Type)15, (Type)16};
+      (Type)9, (Type)10, (Type)11, (Type)12, (Type)13, (Type)14, (Type)15, (Type)16};
     ezMat4Type* m = ::new ((void*)&testBlock[0]) ezMat4Type;
 
     EZ_TEST_BOOL(m->m_fElementsCM[0] == (Type)1 && m->m_fElementsCM[1] == (Type)2 && m->m_fElementsCM[2] == (Type)3 && m->m_fElementsCM[3] == (Type)4 &&

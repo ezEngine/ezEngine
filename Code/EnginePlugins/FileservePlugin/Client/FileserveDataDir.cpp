@@ -186,5 +186,3 @@ void ezDataDirectory::FileserveType::FinishedWriting(FolderWriter* pWriter)
 
   ezFileserveClient::GetSingleton()->UploadFile(m_uiDataDirID, pWriter->GetFilePath(), content);
 }
-
-

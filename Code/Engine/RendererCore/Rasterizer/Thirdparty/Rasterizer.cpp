@@ -1372,8 +1372,8 @@ void Rasterizer::rasterize(const Occluder& occluder)
       uint32_t primitiveMode = primModes[primitiveIdx];
 
       for (uint32_t blockY = 0;
-           blockY < blockRangeY;
-           ++blockY,
+        blockY < blockRangeY;
+        ++blockY,
                     pPrimitiveHiZ += blocksX,
                     pPrimitiveOut += 4 * blocksX,
                     lineDepth = _mm256_add_ps(lineDepth, depthDy),
@@ -1387,8 +1387,8 @@ void Rasterizer::rasterize(const Occluder& occluder)
 
         bool anyBlockHit = false;
         for (uint32_t blockX = 0;
-             blockX < blockRangeX;
-             ++blockX,
+          blockX < blockRangeX;
+          ++blockX,
                       pBlockRowHiZ += 1,
                       out += 4,
                       depth = _mm256_add_ps(depthDx, depth),

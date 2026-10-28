@@ -517,7 +517,7 @@ EZ_ALWAYS_INLINE constexpr ezInt32 ezMath::WrapInt(ezInt32 iValue, ezInt32 iMinV
   return iMinValue + WrapInt(iValue - iMinValue, static_cast<ezUInt32>(iExcludedMaxValue - iMinValue));
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE Type ezMath::WrapFloat01(Type fValue)
 {
   if (fValue < (Type)0.0)
@@ -531,7 +531,7 @@ EZ_ALWAYS_INLINE Type ezMath::WrapFloat01(Type fValue)
 
   return fValue;
 }
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE Type ezMath::WrapFloat(Type fValue, Type fMinValue, Type fMaxValue)
 {
   const Type range = fMaxValue - fMinValue;

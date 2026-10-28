@@ -8,5 +8,4 @@ EZ_STATICLINK_LIBRARY(RenderDocPlugin)
 {
   if (bReturn)
     return;
-
 }

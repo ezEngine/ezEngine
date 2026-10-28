@@ -59,7 +59,7 @@ public:
   void operator*=(const ezSimdTransformd& other); // [tested]
 
   /// Multiplies \a q into the rotation component, thus rotating the entire transformation.
-  void operator*=(const ezSimdQuatd& q);  // [tested]
+  void operator*=(const ezSimdQuatd& q); // [tested]
 
   void operator+=(const ezSimdVec4d& v); // [tested]
   void operator-=(const ezSimdVec4d& v); // [tested]
@@ -90,8 +90,8 @@ EZ_ALWAYS_INLINE const ezSimdTransformd operator-(const ezSimdTransformd& t, con
 /// Concatenates the two transforms. This is the same as a matrix multiplication, thus not commutative.
 EZ_ALWAYS_INLINE const ezSimdTransformd operator*(const ezSimdTransformd& lhs, const ezSimdTransformd& rhs); // [tested]
 
-EZ_ALWAYS_INLINE bool operator==(const ezSimdTransformd& t1, const ezSimdTransformd& t2);                   // [tested]
-EZ_ALWAYS_INLINE bool operator!=(const ezSimdTransformd& t1, const ezSimdTransformd& t2);                   // [tested]
+EZ_ALWAYS_INLINE bool operator==(const ezSimdTransformd& t1, const ezSimdTransformd& t2);                    // [tested]
+EZ_ALWAYS_INLINE bool operator!=(const ezSimdTransformd& t1, const ezSimdTransformd& t2);                    // [tested]
 
 
 #include <Foundation/SimdMath/Implementation/SimdTransformd_inl.h>

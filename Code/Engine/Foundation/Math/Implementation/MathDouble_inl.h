@@ -50,7 +50,7 @@ namespace ezMath
   {
     return FloorToInt(f + 0.5);
   }
-  
+
   inline double RoundDown(double f, double fMultiple)
   {
     double fDivides = f / fMultiple;

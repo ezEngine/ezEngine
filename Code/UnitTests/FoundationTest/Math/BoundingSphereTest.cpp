@@ -418,7 +418,7 @@ void TestBoundingSphere()
     {
       const ezVec3Type vDir = ezVec3Type(ezMath::Sin(ezAngleTemplate<Type>::MakeFromDegree(i * Type(1))), ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(i * Type(3))),
         ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(i * Type(1))))
-                             .GetNormalized();
+                                .GetNormalized();
       const ezVec3Type vTarget = vDir * s.m_fRadius + s.m_vCenter - vDir;
       const ezVec3Type vSource = vTarget + vDir * Type(5);
 

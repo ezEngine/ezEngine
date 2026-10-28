@@ -161,5 +161,3 @@ void RemoveStatsEventHandler()
 
   ezStats::RemoveEventHandler(StatsEventHandler);
 }
-
-

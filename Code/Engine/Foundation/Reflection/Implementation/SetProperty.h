@@ -116,7 +116,7 @@ private:
 
 
 
-template <typename Class, typename Container, Container Class::*Member>
+template <typename Class, typename Container, Container Class::* Member>
 struct ezSetPropertyAccessor
 {
   using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;
@@ -134,7 +134,7 @@ class ezMemberSetProperty : public ezTypedSetProperty<typename ezTypeTraits<Type
 public:
   using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
   using GetConstContainerFunc = const Container& (*)(const Class* pInstance);
-  using GetContainerFunc = Container& (*)(Class* pInstance);
+  using GetContainerFunc = Container& (*)(Class * pInstance);
 
   ezMemberSetProperty(const char* szPropertyName, GetConstContainerFunc constGetter, GetContainerFunc getter)
     : ezTypedSetProperty<RealType>(szPropertyName)
