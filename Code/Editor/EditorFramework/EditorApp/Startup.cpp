@@ -273,6 +273,7 @@ ezCommandLineOptionBool opt_Dashboard("_Editor", "-dashboard", "Starts the edito
 ezCommandLineOptionBool opt_Unattended("_Editor", "-unattended",
   "Runs the editor without a user present, e.g. driven by a script or an AI agent.\n"
   "Nothing modal is displayed, questions are answered with the option that lets the operation continue.\n"
+  "Sound is muted.\n"
   "Without this, a dialog that nobody closes blocks the editor indefinitely.",
   false);
 

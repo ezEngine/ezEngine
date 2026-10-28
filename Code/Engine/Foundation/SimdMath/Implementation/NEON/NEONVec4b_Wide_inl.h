@@ -18,8 +18,8 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide::ezSimdVec4bWide(bool x, bool y, bool z, bool w
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
   alignas(16) ezUInt64 mask[4] = {x ? 0xFFFFFFFFFFFFFFFFULL : 0, y ? 0xFFFFFFFFFFFFFFFFULL : 0, z ? 0xFFFFFFFFFFFFFFFFULL : 0, w ? 0xFFFFFFFFFFFFFFFFULL : 0};
-  m_v.xy = vld1q_u64(reinterpret_cast<unsigned long *>(mask));
-  m_v.zw = vld1q_u64(reinterpret_cast<unsigned long *>(mask + 2));
+  m_v.xy = vld1q_u64(reinterpret_cast<unsigned long*>(mask));
+  m_v.zw = vld1q_u64(reinterpret_cast<unsigned long*>(mask + 2));
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4bWide::ezSimdVec4bWide(ezInternal::QuadBoolWide v)
@@ -126,7 +126,7 @@ namespace ezInternal
     mask |= (vgetq_lane_u64(v.zw, 1) != 0) ? 8 : 0;
     return mask;
   }
-}
+} // namespace ezInternal
 
 template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4bWide::AllSet() const

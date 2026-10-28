@@ -119,5 +119,3 @@ void RemoveInputEventHandler()
   ezInputManager::RemoveEventHandler(InputDetail::InputManagerEventHandler);
   ezTelemetry::RemoveEventHandler(InputDetail::TelemetryEventsHandler);
 }
-
-

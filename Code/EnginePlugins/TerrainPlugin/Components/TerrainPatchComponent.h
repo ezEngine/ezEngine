@@ -141,9 +141,9 @@ public:
   /// 'Terrain.VisOccluder' is enabled.
   void DebugDrawOccluder() const;
 
-  const ezTagSet& GetTags() const { return m_Tags; }                // [ property ]
-  void Reflection_SetTag(const char* szTagName);                    // [ property ]
-  void Reflection_RemoveTag(const char* szTagName);                 // [ property ]
+  const ezTagSet& GetTags() const { return m_Tags; } // [ property ]
+  void Reflection_SetTag(const char* szTagName);     // [ property ]
+  void Reflection_RemoveTag(const char* szTagName);  // [ property ]
 
   /// Per-material-index physics surface handles. Entry i is the surface used when dominant material index == i.
   ezUInt32 Surfaces_GetCount() const;
@@ -204,7 +204,7 @@ private:
   ezVec2 m_vImageSize = ezVec2(1.0f);
   float m_fHeightScale = 32.0f;
   float m_fLodCellPixelSize = 16.0f;
-  bool m_bHeightImageDirty = false; ///< Set when the image resource reloads
+  bool m_bHeightImageDirty = false;          ///< Set when the image resource reloads
 
   float m_fOcclusionCellSize = 0.0f;
   ezDynamicArray<ezVec3> m_OccluderVertices; ///< Local space vertices of the baked occluder mesh.

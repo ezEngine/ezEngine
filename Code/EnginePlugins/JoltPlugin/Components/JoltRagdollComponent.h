@@ -192,18 +192,18 @@ public:
   /// one can separate limbs by setting their joint to 'none'.
   void SetJointTypeOverride(ezStringView sJointName, ezEnum<ezSkeletonJointType> overrideType);
 
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg);          // [ msg handler ]
-  void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const;          // [ msg handler ]
-  void OnInjectPoseCommands(ezMsgInjectPoseCommands& ref_msg);              // [ msg handler ]
+  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg);     // [ msg handler ]
+  void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const;     // [ msg handler ]
+  void OnInjectPoseCommands(ezMsgInjectPoseCommands& ref_msg);         // [ msg handler ]
 
-  void SetJointMotorStrength(float fStrength);                              // [ scriptable ]
-  float GetJointMotorStrength() const;                                      // [ scriptable ]
-  void FadeJointMotorStrength(float fTargetStrength, ezTime duration);      // [ scriptable ]
+  void SetJointMotorStrength(float fStrength);                         // [ scriptable ]
+  float GetJointMotorStrength() const;                                 // [ scriptable ]
+  void FadeJointMotorStrength(float fTargetStrength, ezTime duration); // [ scriptable ]
 
 protected:
-  ezEnum<ezJoltRagdollStartMode> m_StartMode;                               // [ property ]
-  ezEnum<ezJoltRagdollAnimMode> m_AnimMode;                                 // [ property ]
-  float m_fGravityFactor = 1.0f;                                            // [ property ]
+  ezEnum<ezJoltRagdollStartMode> m_StartMode;                          // [ property ]
+  ezEnum<ezJoltRagdollAnimMode> m_AnimMode;                            // [ property ]
+  float m_fGravityFactor = 1.0f;                                       // [ property ]
 
   struct Limb
   {

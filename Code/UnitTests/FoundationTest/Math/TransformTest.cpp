@@ -196,7 +196,7 @@ void TestTransform()
 
     EZ_TEST_BOOL(t.IsEqual(t, ezMath::DefaultEpsilon<Type>()));
 
-    ezTransformType t2(ezVec3Type(1, 2, (Type)3 + 2*ezMath::DefaultEpsilon<Type>()));
+    ezTransformType t2(ezVec3Type(1, 2, (Type)3 + 2 * ezMath::DefaultEpsilon<Type>()));
     t2.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
 
     EZ_TEST_BOOL(t.IsEqual(t2, ezMath::LargeEpsilon<Type>()));

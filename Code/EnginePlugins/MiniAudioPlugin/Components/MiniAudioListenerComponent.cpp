@@ -76,4 +76,3 @@ void ezMiniAudioListenerComponent::Update()
 
   ezMiniAudioSingleton::GetSingleton()->SetListener(0, pos, fwd, up, vel);
 }
-

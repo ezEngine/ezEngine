@@ -141,5 +141,3 @@ void RemoveGlobalEventHandler()
 
   ezTelemetry::RemoveEventHandler(GlobalEventsDetail::TelemetryEventsHandler);
 }
-
-

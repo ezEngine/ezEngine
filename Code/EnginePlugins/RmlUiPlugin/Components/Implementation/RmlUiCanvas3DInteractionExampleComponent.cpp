@@ -1,15 +1,15 @@
 #include <RmlUiPlugin/RmlUiPluginPCH.h>
 
-#include <RmlUiPlugin/Components/RmlUiCanvas3DInteractionExampleComponent.h>
 #include <RmlUiPlugin/Components/RmlUiCanvas3DComponent.h>
+#include <RmlUiPlugin/Components/RmlUiCanvas3DInteractionExampleComponent.h>
 
+#include <Core/Input/InputManager.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <Core/Input/InputManager.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas3DInteractionExampleComponent, 1, ezComponentMode::Static)
@@ -77,7 +77,7 @@ void ezRmlUiCanvas3DInteractionExampleComponent::Interact(ezRmlUiInputSnapshot i
   {
     return;
   }
-  
+
   ezGameObject* pGameObject = nullptr;
   if (!GetWorld()->TryGetObject(hit.m_hShapeObject, pGameObject))
   {

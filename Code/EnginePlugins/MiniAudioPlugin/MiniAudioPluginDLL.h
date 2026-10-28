@@ -10,4 +10,3 @@
 #else
 #  define EZ_MINIAUDIOPLUGIN_DLL
 #endif
-

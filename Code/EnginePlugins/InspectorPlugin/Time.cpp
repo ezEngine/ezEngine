@@ -27,5 +27,3 @@ void RemoveTimeEventHandler()
 {
   ezClock::RemoveEventHandler(TimeEventHandler);
 }
-
-

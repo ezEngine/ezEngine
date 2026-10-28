@@ -55,18 +55,18 @@ void TestMath()
   //  EZ_TEST_BOOL(EZ_8BIT(01010101) == 85);
   //  EZ_TEST_BOOL(EZ_16BIT(10101010, 01010101) == 43605);
   //  EZ_TEST_BOOL(EZ_32BIT(10000000, 11111111, 10101010, 01010101) == 2164238933);
-  
+
   //  // Infinity test
   //  //                           Sign:_
   //  //                       Exponent: _______  _
   //  //                       Fraction:           _______  ________  ________
   //  ezIntFloatUnion uInf = { EZ_32BIT(01111111, 10000000, 00000000, 00000000) };
   //  EZ_TEST_BOOL(uInf.f == ezMath::FloatInfinity());
-  
+
   //  // FloatMax_Pos test
   //  ezIntFloatUnion uMax = { EZ_32BIT(01111111, 01111111, 11111111, 11111111) };
   //  EZ_TEST_BOOL(uMax.f == ezMath::FloatMax_Pos());
-  
+
   //  // FloatMax_Neg test
   //  ezIntFloatUnion uMin = { EZ_32BIT(11111111, 01111111, 11111111, 11111111) };
   //  EZ_TEST_BOOL(uMin.f == ezMath::FloatMax_Neg());
@@ -79,10 +79,10 @@ void TestMath()
     EZ_TEST_FLOAT(ezMath::Sin(ezAngleTemplate<Type>::MakeFromDegree(180.0)), 0.0, ezMath::SmallEpsilon<Type>());
     EZ_TEST_FLOAT(ezMath::Sin(ezAngleTemplate<Type>::MakeFromDegree(270.0)), -1.0, ezMath::SmallEpsilon<Type>());
 
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngleTemplate<Type>::MakeFromDegree(45.0)), ezMath::Sqrt(2.0)/2.0, ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngleTemplate<Type>::MakeFromDegree(135.0)), ezMath::Sqrt(2.0)/2.0, ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngleTemplate<Type>::MakeFromDegree(225.0)), -ezMath::Sqrt(2.0)/2.0, ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngleTemplate<Type>::MakeFromDegree(315.0)), -ezMath::Sqrt(2.0)/2.0, ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngleTemplate<Type>::MakeFromDegree(45.0)), ezMath::Sqrt(2.0) / 2.0, ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngleTemplate<Type>::MakeFromDegree(135.0)), ezMath::Sqrt(2.0) / 2.0, ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngleTemplate<Type>::MakeFromDegree(225.0)), -ezMath::Sqrt(2.0) / 2.0, ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngleTemplate<Type>::MakeFromDegree(315.0)), -ezMath::Sqrt(2.0) / 2.0, ezMath::SmallEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Cos")
@@ -92,10 +92,10 @@ void TestMath()
     EZ_TEST_FLOAT(ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(180.0)), -1.0, ezMath::SmallEpsilon<Type>());
     EZ_TEST_FLOAT(ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(270.0)), 0.0, ezMath::SmallEpsilon<Type>());
 
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(45.0)), ezMath::Sqrt(2.0)/2.0, ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(135.0)), -ezMath::Sqrt(2.0)/2.0, ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(225.0)), -ezMath::Sqrt(2.0)/2.0, ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(315.0)), ezMath::Sqrt(2.0)/2.0, ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(45.0)), ezMath::Sqrt(2.0) / 2.0, ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(135.0)), -ezMath::Sqrt(2.0) / 2.0, ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(225.0)), -ezMath::Sqrt(2.0) / 2.0, ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(315.0)), ezMath::Sqrt(2.0) / 2.0, ezMath::SmallEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Tan")
@@ -129,8 +129,8 @@ void TestMath()
     EZ_TEST_FLOAT(ezMath::ASin(1.0).GetDegree(), 90.0, ezMath::DefaultEpsilon<Type>());
     EZ_TEST_FLOAT(ezMath::ASin(-1.0).GetDegree(), -90.0, ezMath::DefaultEpsilon<Type>());
 
-    EZ_TEST_FLOAT(ezMath::ASin(ezMath::Sqrt(2.0)/2.0).GetDegree(), 45.0, ezMath::LargeEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::ASin(-ezMath::Sqrt(2.0)/2.0).GetDegree(), -45.0, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::ASin(ezMath::Sqrt(2.0) / 2.0).GetDegree(), 45.0, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::ASin(-ezMath::Sqrt(2.0) / 2.0).GetDegree(), -45.0, ezMath::LargeEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ACos")
@@ -139,8 +139,8 @@ void TestMath()
     EZ_TEST_FLOAT(ezMath::ACos(1.0).GetDegree(), 0.0, ezMath::DefaultEpsilon<Type>());
     EZ_TEST_FLOAT(ezMath::ACos(-1.0).GetDegree(), 180.0, ezMath::LargeEpsilon<Type>());
 
-    EZ_TEST_FLOAT(ezMath::ACos(ezMath::Sqrt(2.0)/2.0).GetDegree(), 45.0, ezMath::LargeEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::ACos(-ezMath::Sqrt(2.0)/2.0).GetDegree(), 135.0, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::ACos(ezMath::Sqrt(2.0) / 2.0).GetDegree(), 45.0, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::ACos(-ezMath::Sqrt(2.0) / 2.0).GetDegree(), 135.0, ezMath::LargeEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ATan")
@@ -148,8 +148,8 @@ void TestMath()
     EZ_TEST_FLOAT(ezMath::ATan(0.0).GetDegree(), 0.0, ezMath::SmallEpsilon<Type>());
     EZ_TEST_FLOAT(ezMath::ATan(1.0).GetDegree(), 45.0, ezMath::DefaultEpsilon<Type>());
     EZ_TEST_FLOAT(ezMath::ATan(-1.0).GetDegree(), -45.0, ezMath::DefaultEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::ATan(10000000.0).GetDegree(), 90.0, ezMath::LargeEpsilon<float>()*2);
-    EZ_TEST_FLOAT(ezMath::ATan(-10000000.0).GetDegree(), -90.0, ezMath::DefaultEpsilon<float>()*2);
+    EZ_TEST_FLOAT(ezMath::ATan(10000000.0).GetDegree(), 90.0, ezMath::LargeEpsilon<float>() * 2);
+    EZ_TEST_FLOAT(ezMath::ATan(-10000000.0).GetDegree(), -90.0, ezMath::DefaultEpsilon<float>() * 2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ATan2")
@@ -168,8 +168,8 @@ void TestMath()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Exp")
   {
     EZ_TEST_FLOAT(1.0, ezMath::Exp(0.0), ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(2.7182818284, ezMath::Exp(1.0), ezMath::SmallEpsilon<float>());//todo improve double compatibility
-    EZ_TEST_FLOAT(7.3890560989, ezMath::Exp(2.0), ezMath::SmallEpsilon<float>());//todo improve double compatibility
+    EZ_TEST_FLOAT(2.7182818284, ezMath::Exp(1.0), ezMath::SmallEpsilon<float>()); // todo improve double compatibility
+    EZ_TEST_FLOAT(7.3890560989, ezMath::Exp(2.0), ezMath::SmallEpsilon<float>()); // todo improve double compatibility
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Ln")
@@ -678,9 +678,9 @@ void TestMath()
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsZero")
   {
-    EZ_TEST_BOOL(ezMath::IsZero(ezMath::HugeEpsilon<Type>()*((Type)9.0), ezMath::VeryHugeEpsilon<Type>()) == true);
+    EZ_TEST_BOOL(ezMath::IsZero(ezMath::HugeEpsilon<Type>() * ((Type)9.0), ezMath::VeryHugeEpsilon<Type>()) == true);
     EZ_TEST_BOOL(ezMath::IsZero(ezMath::HugeEpsilon<Type>(), ezMath::VeryHugeEpsilon<Type>()) == true);
-    EZ_TEST_BOOL(ezMath::IsZero(ezMath::HugeEpsilon<Type>()*((Type)9.0), ezMath::SmallEpsilon<Type>()) == false);
+    EZ_TEST_BOOL(ezMath::IsZero(ezMath::HugeEpsilon<Type>() * ((Type)9.0), ezMath::SmallEpsilon<Type>()) == false);
     EZ_TEST_BOOL(ezMath::IsZero(ezMath::HugeEpsilon<Type>(), ezMath::SmallEpsilon<Type>()) == false);
   }
 

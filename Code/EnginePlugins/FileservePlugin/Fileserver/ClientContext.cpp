@@ -75,5 +75,3 @@ ezFileserveFileState ezFileserveClientContext::GetFileStatus(ezUInt16& inout_uiD
 
   return ezFileserveFileState::NonExistant;
 }
-
-

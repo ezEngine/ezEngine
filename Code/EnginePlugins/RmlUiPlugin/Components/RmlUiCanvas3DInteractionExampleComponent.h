@@ -27,7 +27,6 @@ public:
   void Interact(ezRmlUiInputSnapshot input);
 
 private:
-  
   ezUInt32 m_uiCollisionLayer = 0;
   float m_fMaxDistance = 2.0f;
   ezPhysicsWorldModuleInterface* m_pPhysicsWorldModule = nullptr;

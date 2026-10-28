@@ -154,5 +154,3 @@ void ezJoltDebugRenderer::DrawGeometry(JPH::Mat44Arg modelMatrix, const JPH::AAB
 }
 
 #endif
-
-

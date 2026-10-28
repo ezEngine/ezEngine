@@ -6,6 +6,25 @@
 #include <GameEngine/AI/SensorComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
+namespace
+{
+  /// The bounding sphere of pObject in world space, which the sensors test for overlap with their shape.
+  ///
+  /// Objects without valid bounds and always visible objects are treated as a point at their position.
+  ezSimdBSphere GetObjectSphere(const ezGameObject* pObject)
+  {
+    const bool bIsAlwaysVisible = pObject->GetLocalBoundsSimd().m_BoxHalfExtents.w() != ezSimdFloat::MakeZero();
+    const ezSimdBBoxSphere& bounds = pObject->GetGlobalBoundsSimd();
+
+    if (bIsAlwaysVisible || !bounds.IsValid())
+    {
+      return ezSimdBSphere(pObject->GetGlobalPositionSimd(), ezSimdFloat::MakeZero());
+    }
+
+    return bounds.GetSphere();
+  }
+} // namespace
+
 // clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSensorDetectedObjectsChanged);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSensorDetectedObjectsChanged, 1, ezRTTIDefaultAllocator<ezMsgSensorDetectedObjectsChanged>)
@@ -329,12 +348,14 @@ void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObje
   params.m_pExcludeTags = &m_ExcludeTags;
 
   ezSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
-  ezSimdFloat radiusSquared = m_fRadius * m_fRadius;
+  const float fInvScale = 1.0f / scale;
 
   GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](ezGameObject* pObject)
     {
-    ezSimdVec4f localSpacePos = toLocalSpace.TransformPosition(pObject->GetGlobalPositionSimd());
-    const bool bInRadius = localSpacePos.GetLengthSquared<3>() <= radiusSquared;
+    const ezSimdBSphere objectSphere = GetObjectSphere(pObject);
+    ezSimdVec4f localSpacePos = toLocalSpace.TransformPosition(objectSphere.GetCenter());
+    const float fRadius = m_fRadius + (float)objectSphere.GetRadius() * fInvScale;
+    const bool bInRadius = localSpacePos.GetLengthSquared<3>() <= ezSimdFloat(fRadius * fRadius);
 
     if (bInRadius)
     {
@@ -409,14 +430,16 @@ void ezSensorCylinderComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameOb
   params.m_pExcludeTags = &m_ExcludeTags;
 
   ezSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
-  ezSimdFloat radiusSquared = m_fRadius * m_fRadius;
-  ezSimdFloat halfHeight = m_fHeight * 0.5f;
+  const float fInvScale = 1.0f / ezMath::Max(xyScale, scale.z);
 
   GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](ezGameObject* pObject)
     {
-    ezSimdVec4f localSpacePos = toLocalSpace.TransformPosition(pObject->GetGlobalPositionSimd());
-    const bool bInRadius = localSpacePos.GetLengthSquared<2>() <= radiusSquared;
-    const bool bInHeight = localSpacePos.Abs().z() <= halfHeight;
+    const ezSimdBSphere objectSphere = GetObjectSphere(pObject);
+    ezSimdVec4f localSpacePos = toLocalSpace.TransformPosition(objectSphere.GetCenter());
+    const float fObjectRadius = (float)objectSphere.GetRadius() * fInvScale;
+    const float fRadius = m_fRadius + fObjectRadius;
+    const bool bInRadius = localSpacePos.GetLengthSquared<2>() <= ezSimdFloat(fRadius * fRadius);
+    const bool bInHeight = localSpacePos.Abs().z() <= ezSimdFloat(m_fHeight * 0.5f + fObjectRadius);
 
     if (bInRadius && bInHeight)
     {
@@ -494,16 +517,43 @@ void ezSensorConeComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject
   ezSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
   const ezSimdFloat nearSquared = m_fNearDistance * m_fNearDistance;
   const ezSimdFloat farSquared = m_fFarDistance * m_fFarDistance;
-  const ezSimdFloat cosAngle = ezMath::Cos(m_Angle * 0.5f);
+  const ezAngle halfAngle = m_Angle * 0.5f;
+  const ezSimdFloat cosAngle = ezMath::Cos(halfAngle);
+  const float fInvScale = 1.0f / scale;
 
   GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](ezGameObject* pObject)
     {
-    ezSimdVec4f localSpacePos = toLocalSpace.TransformPosition(pObject->GetGlobalPositionSimd());
+    const ezSimdBSphere objectSphere = GetObjectSphere(pObject);
+    ezSimdVec4f localSpacePos = toLocalSpace.TransformPosition(objectSphere.GetCenter());
     const ezSimdFloat fDistanceSquared = localSpacePos.GetLengthSquared<3>();
-    const bool bInDistance = fDistanceSquared >= nearSquared && fDistanceSquared <= farSquared;
-
     const ezSimdVec4f normalizedPos = localSpacePos * fDistanceSquared.GetInvSqrt();
-    const bool bInAngle = normalizedPos.x() >= cosAngle;
+
+    const float fObjectRadius = (float)objectSphere.GetRadius() * fInvScale;
+
+    bool bInDistance = false;
+    bool bInAngle = false;
+
+    if (fObjectRadius <= 0.0f)
+    {
+      bInDistance = fDistanceSquared >= nearSquared && fDistanceSquared <= farSquared;
+      bInAngle = normalizedPos.x() >= cosAngle;
+    }
+    else
+    {
+      // the object is detected as soon as its bounding sphere overlaps the cone (approximately)
+      const float fDistance = fDistanceSquared.GetSqrt();
+      bInDistance = fDistance >= m_fNearDistance - fObjectRadius && fDistance <= m_fFarDistance + fObjectRadius;
+
+      if (fDistance <= fObjectRadius)
+      {
+        bInAngle = true;
+      }
+      else
+      {
+        const ezAngle angleToCenter = ezMath::ACos(ezMath::Clamp<float>(normalizedPos.x(), -1.0f, 1.0f));
+        bInAngle = angleToCenter <= halfAngle + ezMath::ASin(fObjectRadius / fDistance);
+      }
+    }
 
     if (bInDistance && bInAngle)
     {

@@ -90,21 +90,21 @@ struct ezTerrainData_Brush
   bool m_bInUse = false;
   bool m_bAffectHeightfields = true;
   bool m_bAffectVoxels = true;
-  ezInt8 m_iPriority = 0;                      ///< Sort order. Higher = applied later = wins over lower-priority brushes. Equal priorities use mode-based ordering.
-  ezUInt8 m_uiMaterialIndex = 0;               ///< Material (layer) index to paint: 0-3.
+  ezInt8 m_iPriority = 0;                                 ///< Sort order. Higher = applied later = wins over lower-priority brushes. Equal priorities use mode-based ordering.
+  ezUInt8 m_uiMaterialIndex = 0;                          ///< Material (layer) index to paint: 0-3.
   ezEnum<ezTerrainModifyMode> m_ModifyMode;
   ezVec3 m_vPosition = ezVec3::MakeZero();
-  ezQuat m_qRotation = ezQuat::MakeIdentity(); ///< World-space rotation of the brush.
-  ezVec2 m_vHalfExtents = ezVec2::MakeZero();  ///< Half-size of the straight rectangular region along each brush axis.
-  float m_fHalfExtentZ = 0.0f;                 ///< Half-size along the brush Z axis. Used only by Carve/Add mode for a 3D rounded-box volume.
-  float m_fHalfExtentYTop = 0.0f;              ///< Upper Y half-size for asymmetric Carve/Add volumes (e.g. flat-floor tunnels). 0 = same as m_vHalfExtents.y (symmetric).
-  float m_fInnerRadius = 0.0f;                 ///< Corner rounding radius of the inner (full-weight) region.
-  float m_fOuterRadius = 5.0f;                 ///< Corner rounding radius; also the outer edge of the falloff zone.
-  float m_fFalloff = 1.0f;                     ///< Exponent applied after smoothstep in the transition zone.
-  float m_fMaterialStrength = 0.0f;            ///< Blend weight for material painting in [0, 1]. 0 = disabled (no material write).
+  ezQuat m_qRotation = ezQuat::MakeIdentity();            ///< World-space rotation of the brush.
+  ezVec2 m_vHalfExtents = ezVec2::MakeZero();             ///< Half-size of the straight rectangular region along each brush axis.
+  float m_fHalfExtentZ = 0.0f;                            ///< Half-size along the brush Z axis. Used only by Carve/Add mode for a 3D rounded-box volume.
+  float m_fHalfExtentYTop = 0.0f;                         ///< Upper Y half-size for asymmetric Carve/Add volumes (e.g. flat-floor tunnels). 0 = same as m_vHalfExtents.y (symmetric).
+  float m_fInnerRadius = 0.0f;                            ///< Corner rounding radius of the inner (full-weight) region.
+  float m_fOuterRadius = 5.0f;                            ///< Corner rounding radius; also the outer edge of the falloff zone.
+  float m_fFalloff = 1.0f;                                ///< Exponent applied after smoothstep in the transition zone.
+  float m_fMaterialStrength = 0.0f;                       ///< Blend weight for material painting in [0, 1]. 0 = disabled (no material write).
   float m_fNoiseStrength = 0.0f;
   float m_fNoiseFrequency = 1.0f;
-  ezTagSet m_Tags;                             ///< If non-empty, the brush only affects terrain objects that have at least one matching tag.
+  ezTagSet m_Tags;                                        ///< If non-empty, the brush only affects terrain objects that have at least one matching tag.
   ezDynamicArray<ezTerrainData_SplineNode> m_SplineNodes; ///< Polyline the brush follows. Fewer than two nodes = box brush.
   float m_fSplineLength = 0.0f;                           ///< Arc length of the spline; equals the arc length of the last node.
   bool m_bSplineClosed = false;                           ///< The last node connects back to the first, so the brush has no ends.
@@ -165,8 +165,8 @@ struct ezTerrainData_Voxel
   /// DrawArgs buffer: 4 uints {IndexCount, 1, 0, 0}. Written by VoxelCompactCopyCS thread 0.
   ezGALBufferHandle m_hFinalDrawArgs;
 
-  float m_fFillHeight = 0.0f; ///< World-space Z height below which voxels start as solid (when m_bInitialSolid is true).
-  ezTagSet m_Tags;            ///< Identity tags for this voxel volume; matched against brush include-tag filters.
+  float m_fFillHeight = 0.0f;                                      ///< World-space Z height below which voxels start as solid (when m_bInitialSolid is true).
+  ezTagSet m_Tags;                                                 ///< Identity tags for this voxel volume; matched against brush include-tag filters.
   ezUInt64 m_uiBrushOverlapHash = 0;                               ///< Combined hash of m_BrushContributions and the volume properties that affect the bake. Updated when the volume is baked.
   ezDynamicArray<ezTerrainBrushContribution> m_BrushContributions; ///< All brushes that affect this volume, sorted by brush index.
   bool m_bBrushContributionsValid = false;                         ///< If false, m_BrushContributions is rebuilt from all brushes.

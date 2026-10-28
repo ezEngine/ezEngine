@@ -43,5 +43,3 @@ void RemoveLogWriter()
 {
   ezGlobalLog::RemoveLogWriter(&ezLogWriter::Telemetry::LogMessageHandler);
 }
-
-

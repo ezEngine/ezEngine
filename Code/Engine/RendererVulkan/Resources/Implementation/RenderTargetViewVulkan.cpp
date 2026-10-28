@@ -95,5 +95,3 @@ ezResult ezGALRenderTargetViewVulkan::DeInitPlatform(ezGALDevice* pDevice)
   pVulkanDevice->DeleteLater(m_ImageView);
   return EZ_SUCCESS;
 }
-
-

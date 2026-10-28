@@ -108,7 +108,7 @@ public:
   /// A size of 32x32 is already quite performance intensive. Use as few segments as possible.
   /// For many cases 8x8 or 12x12 should already be good enough.
   /// Also the more segments there are, the more the cloth will sag.
-  void SetSegments(ezVec2U32 vVal);                     // [ property ]
+  void SetSegments(ezVec2U32 vVal);                        // [ property ]
   ezVec2U32 GetSegments() const { return m_vNumVertices; } // [ property ]
 
   /// The collision layer determines with which other actors this actor collides. \see ezJoltActorComponent

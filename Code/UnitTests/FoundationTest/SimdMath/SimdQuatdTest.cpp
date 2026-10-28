@@ -28,14 +28,13 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, ezSimdQuatd)
 #else
 
     static_assert(sizeof(ezSimdQuatd) == 32);
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE    
+#  if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
     static_assert(alignof(ezSimdQuatd) == 16);
-#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
+#  elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
     static_assert(alignof(ezSimdQuatd) == 8);
-#endif
+#  endif
 
 #endif
-
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IdentityQuaternion")

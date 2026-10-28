@@ -412,9 +412,10 @@ struct ezProcessImpl
 
         executablePath.Clear();
 
-        if(!pathPart.IsAbsolutePath()){
-            executablePath.AppendPath(homePath);
-            executablePath.Append("/");
+        if (!pathPart.IsAbsolutePath())
+        {
+          executablePath.AppendPath(homePath);
+          executablePath.Append("/");
         }
         executablePath.AppendPath(pathPart);
         executablePath.AppendPath(opt.m_sProcess);

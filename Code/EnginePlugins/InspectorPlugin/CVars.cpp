@@ -205,5 +205,3 @@ void RemoveCVarEventHandler()
   ezTelemetry::RemoveEventHandler(CVarsDetail::TelemetryEventsHandler);
   ezTelemetry::AcceptMessagesForSystem('SVAR', false);
 }
-
-

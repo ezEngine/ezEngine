@@ -6,12 +6,12 @@ EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d()
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
-#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+#  if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_set1_pd(ezMath::NaN<double>());
-#else
+#  else
   m_v.xy = _mm_set1_pd(ezMath::NaN<double>());
   m_v.zw = m_v.xy;
-#endif
+#  endif
 #endif
 }
 
@@ -46,7 +46,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(const ezSimdDouble& fXyzw)
 }
 EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(int x, int y, int z, int w)
 {
-    EZ_CHECK_SIMD_ALIGNMENT(this);
+  EZ_CHECK_SIMD_ALIGNMENT(this);
 
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_setr_pd(static_cast<double>(x), static_cast<double>(y), static_cast<double>(z), static_cast<double>(w));
@@ -54,7 +54,6 @@ EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(int x, int y, int z, int w)
   m_v.xy = _mm_setr_pd(static_cast<double>(x), static_cast<double>(y));
   m_v.zw = _mm_setr_pd(static_cast<double>(z), static_cast<double>(w));
 #endif
-
 }
 EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(float x, float y, float z, float w)
 {
@@ -134,7 +133,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::SetX(const ezSimdDouble& f)
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_blend_pd(m_v, f.m_v, 0x1);
 #else
-m_v.xy = _mm_shuffle_pd(f.m_v.xy, m_v.xy, EZ_SHUFFLE_2(0, 1));
+  m_v.xy = _mm_shuffle_pd(f.m_v.xy, m_v.xy, EZ_SHUFFLE_2(0, 1));
 #endif
 }
 
@@ -143,7 +142,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::SetY(const ezSimdDouble& f)
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_blend_pd(m_v, f.m_v, 0x2);
 #else
-m_v.xy = _mm_shuffle_pd(m_v.xy, f.m_v.xy, EZ_SHUFFLE_2(0, 1));
+  m_v.xy = _mm_shuffle_pd(m_v.xy, f.m_v.xy, EZ_SHUFFLE_2(0, 1));
 #endif
 }
 
@@ -152,7 +151,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::SetZ(const ezSimdDouble& f)
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_blend_pd(m_v, f.m_v, 0x4);
 #else
-m_v.zw = _mm_shuffle_pd(f.m_v.zw, m_v.zw, EZ_SHUFFLE_2(0, 1));
+  m_v.zw = _mm_shuffle_pd(f.m_v.zw, m_v.zw, EZ_SHUFFLE_2(0, 1));
 #endif
 }
 
@@ -161,7 +160,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::SetW(const ezSimdDouble& f)
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_blend_pd(m_v, f.m_v, 0x8);
 #else
-m_v.zw = _mm_shuffle_pd(m_v.zw, f.m_v.zw, EZ_SHUFFLE_2(0, 1));
+  m_v.zw = _mm_shuffle_pd(m_v.zw, f.m_v.zw, EZ_SHUFFLE_2(0, 1));
 #endif
 }
 
@@ -419,8 +418,8 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::GetComponent() const
   ezSimdDouble result;
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 
-  const int lane_selector = 0x11 * (N >> 1); 
-  const int permute_mask = 0xF * (N & 1);     
+  const int lane_selector = 0x11 * (N >> 1);
+  const int permute_mask = 0xF * (N & 1);
 
   result.m_v = _mm256_permute2f128_pd(m_v, m_v, lane_selector);
   result.m_v = _mm256_permute_pd(result.m_v, permute_mask);
@@ -430,20 +429,19 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::GetComponent() const
 
   if constexpr (N < 2)
   {
-    //broadcast from 0 or 1 to result
-    result.m_v.xy = _mm_shuffle_pd(m_v.xy, m_v.xy, EZ_SHUFFLE_2(N,N));
+    // broadcast from 0 or 1 to result
+    result.m_v.xy = _mm_shuffle_pd(m_v.xy, m_v.xy, EZ_SHUFFLE_2(N, N));
     result.m_v.zw = result.m_v.xy;
   }
   else
   {
-    //broadcast from 2 or 3 to result
-    result.m_v.xy = _mm_shuffle_pd(m_v.zw, m_v.zw, EZ_SHUFFLE_2(N-2,N-2));
+    // broadcast from 2 or 3 to result
+    result.m_v.xy = _mm_shuffle_pd(m_v.zw, m_v.zw, EZ_SHUFFLE_2(N - 2, N - 2));
     result.m_v.zw = result.m_v.xy;
   }
   return result;
 
 #endif
-
 }
 
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::x() const
@@ -845,7 +843,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CrossRH(const ezSimdVec4d& v) const
   double x2 = static_cast<double>(v.x());
   double y2 = static_cast<double>(v.y());
   double z2 = static_cast<double>(v.z());
-  
+
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d temp = _mm256_setr_pd(y1 * z2 - z1 * y2, z1 * x2 - x1 * z2, x1 * y2 - y1 * x2, 0.0);
   result.m_v = temp;
@@ -874,7 +872,6 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalSum<4>() const
 {
 
   return (GetComponent<0>() + GetComponent<1>()) + (GetComponent<2>() + GetComponent<3>());
-
 }
 
 template <>
@@ -903,7 +900,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalMin<4>() const
   __m128d minXYZW = _mm_min_pd(lo, hi);
   __m128d minYXWZ = _mm_shuffle_pd(minXYZW, minXYZW, _MM_SHUFFLE2(0, 1));
   __m128d minResult = _mm_min_pd(minXYZW, minYXWZ);
-  
+
   ezSimdDouble result;
   result.m_v = _mm256_insertf128_pd(_mm256_castpd128_pd256(minResult), minResult, 1);
   return result;
@@ -938,7 +935,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalMax<4>() const
   __m128d maxXYZW = _mm_max_pd(lo, hi);
   __m128d maxYXWZ = _mm_shuffle_pd(maxXYZW, maxXYZW, _MM_SHUFFLE2(0, 1));
   __m128d maxResult = _mm_max_pd(maxXYZW, maxYXWZ);
-  
+
   ezSimdDouble result;
   result.m_v = _mm256_insertf128_pd(_mm256_castpd128_pd256(maxResult), maxResult, 1);
   return result;
@@ -1028,7 +1025,7 @@ inline bool ezSimdVec4d::IsNaN() const
 {
   // NAN -> (exponent = all 1, mantissa = non-zero)
   // For double: exponent = 11 bits, sign bit mask = 0x7FF0000000000000
-  
+
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   alignas(32) const ezUInt64 s_exponentMask[4] = {0x7FF0000000000000ULL, 0x7FF0000000000000ULL, 0x7FF0000000000000ULL, 0x7FF0000000000000ULL};
   alignas(32) const ezUInt64 s_mantissaMask[4] = {0x000FFFFFFFFFFFFFULL, 0x000FFFFFFFFFFFFFULL, 0x000FFFFFFFFFFFFFULL, 0x000FFFFFFFFFFFFFULL};
@@ -1055,7 +1052,7 @@ inline bool ezSimdVec4d::IsNaN() const
 
   int m1 = _mm_movemask_pd(_mm_and_pd(exponentAll1_xy, mantissaNon0_xy));
   int m2 = _mm_movemask_pd(_mm_and_pd(exponentAll1_zw, mantissaNon0_zw));
-  
+
   const int mask = EZ_BIT(N) - 1;
   return ((m1 | (m2 << 2)) & mask) != 0;
 #endif
@@ -1086,7 +1083,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4d::IsValid() const
 
   int m1 = _mm_movemask_pd(exponentNot1_xy);
   int m2 = _mm_movemask_pd(exponentNot1_zw);
-  
+
   const int mask = EZ_BIT(N) - 1;
   return ((m1 | (m2 << 2)) & mask) == mask;
 #endif
@@ -1109,7 +1106,7 @@ void ezSimdVec4d::NormalizeIfNotZero(const ezSimdDouble& fEpsilon)
 #endif
 }
 
-  ///x = this[s0], y = this[s1], z = other[s2], w = other[s3]
+/// x = this[s0], y = this[s1], z = other[s2], w = other[s3]
 template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetCombined(const ezSimdVec4d& other) const
 {

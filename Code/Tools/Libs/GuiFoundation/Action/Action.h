@@ -95,10 +95,10 @@ struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
   ezEnum<ezActionType> m_Type;
 
   ezEnum<ezActionScope> m_Scope;
-  ezString m_sActionName;   ///< Unique within category path, shown in key configuration dialog
-  ezString m_sCategoryPath; ///< Category in key configuration dialog, e.g. "Tree View" or "File"
+  ezString m_sActionName;      ///< Unique within category path, shown in key configuration dialog
+  ezString m_sCategoryPath;    ///< Category in key configuration dialog, e.g. "Tree View" or "File"
 
-  ezString m_sShortcut;     ///< The currently configured shortcut. May be modified by the user, empty means no shortcut.
+  ezString m_sShortcut;        ///< The currently configured shortcut. May be modified by the user, empty means no shortcut.
   ezString m_sDefaultShortcut; ///< The shortcut that the action was registered with, used to reset m_sShortcut.
 
   /// Creates an action instance for the given context and adds it to GetCreatedActions().

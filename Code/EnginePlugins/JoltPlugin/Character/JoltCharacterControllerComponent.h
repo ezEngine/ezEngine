@@ -86,8 +86,8 @@ public:
   float m_fWeightScale = 1.0f;                                       // [ property ]
 
   /// The strength with which the character will push against objects that it is running into.
-  void SetStrength(float fStrength);                        // [ property ]
-  float GetStrength() const { return m_fStrength; }         // [ property ]
+  void SetStrength(float fStrength);                // [ property ]
+  float GetStrength() const { return m_fStrength; } // [ property ]
 
   float GetMass() const { return m_fMass; }
 

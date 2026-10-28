@@ -499,19 +499,19 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
       return;
     }
 
-      // these messages would only arrive, if the window had the flag CS_DBLCLKS
-      // see https://docs.microsoft.com/windows/win32/inputdev/wm-lbuttondblclk
-      // this would add lag and hide single clicks when the user double clicks
-      // therefore it is not used
-      // case WM_LBUTTONDBLCLK:
-      //  m_InputSlotValues[ezInputSlot_MouseDblClick0] = 1.0f;
-      //  return;
-      // case WM_RBUTTONDBLCLK:
-      //  m_InputSlotValues[ezInputSlot_MouseDblClick1] = 1.0f;
-      //  return;
-      // case WM_MBUTTONDBLCLK:
-      //  m_InputSlotValues[ezInputSlot_MouseDblClick2] = 1.0f;
-      //  return;
+    // these messages would only arrive, if the window had the flag CS_DBLCLKS
+    // see https://docs.microsoft.com/windows/win32/inputdev/wm-lbuttondblclk
+    // this would add lag and hide single clicks when the user double clicks
+    // therefore it is not used
+    // case WM_LBUTTONDBLCLK:
+    //  m_InputSlotValues[ezInputSlot_MouseDblClick0] = 1.0f;
+    //  return;
+    // case WM_RBUTTONDBLCLK:
+    //  m_InputSlotValues[ezInputSlot_MouseDblClick1] = 1.0f;
+    //  return;
+    // case WM_MBUTTONDBLCLK:
+    //  m_InputSlotValues[ezInputSlot_MouseDblClick2] = 1.0f;
+    //  return;
 
 #  if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
 

@@ -137,8 +137,8 @@ inline ezResult ezVisualScriptInstanceData::Serialize(ezStreamWriter& inout_stre
   EZ_SUCCEED_OR_RETURN(m_DataOffset.Serialize(inout_stream));
 
   if (m_DataOffset.GetType() != ezVisualScriptDataType::GameObject &&
-    m_DataOffset.GetType() != ezVisualScriptDataType::Component &&
-    m_DataOffset.GetType() != ezVisualScriptDataType::TypedPointer)
+      m_DataOffset.GetType() != ezVisualScriptDataType::Component &&
+      m_DataOffset.GetType() != ezVisualScriptDataType::TypedPointer)
   {
     inout_stream << m_DefaultValue;
   }

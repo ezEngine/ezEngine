@@ -50,13 +50,13 @@ struct ezTextureArrayChannelMappingEnum
 
   enum Enum
   {
-    RGBA,      ///< Take all four channels as they are.
-    RGB,       ///< Take RGB, discard alpha.
-    RG,        ///< Take red and green.
-    R_Red,     ///< Single channel output, taken from the input's red channel.
-    R_Green,   ///< Single channel output, taken from the input's green channel.
-    R_Blue,    ///< Single channel output, taken from the input's blue channel.
-    R_Alpha,   ///< Single channel output, taken from the input's alpha channel.
+    RGBA,    ///< Take all four channels as they are.
+    RGB,     ///< Take RGB, discard alpha.
+    RG,      ///< Take red and green.
+    R_Red,   ///< Single channel output, taken from the input's red channel.
+    R_Green, ///< Single channel output, taken from the input's green channel.
+    R_Blue,  ///< Single channel output, taken from the input's blue channel.
+    R_Alpha, ///< Single channel output, taken from the input's alpha channel.
 
     Default = RGBA,
   };

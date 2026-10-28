@@ -46,7 +46,6 @@ public:
 
 
 
-
   /// Returns the degree value. (Performs a conversion)
   constexpr Type GetDegree() const; // [tested]
 
@@ -100,7 +99,6 @@ public:
   // Note: relational operators on angles are not really possible - is 0 degree smaller or bigger than 359 degree?
 
 private:
-
   /// The ezRadian value
   Type m_fRadian;
 

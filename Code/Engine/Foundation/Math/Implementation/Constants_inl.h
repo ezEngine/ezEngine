@@ -308,15 +308,15 @@ namespace ezMath
   {
     if constexpr (std::is_same_v<TYPE, float>)
     {
-      return (TYPE)0.000001; 
+      return (TYPE)0.000001;
     }
     else if constexpr (std::is_same_v<TYPE, double>)
     {
-      return (TYPE)0.000001; 
+      return (TYPE)0.000001;
     }
     else
     {
-      return (TYPE)0.000001; 
+      return (TYPE)0.000001;
     }
   }
 
@@ -327,7 +327,7 @@ namespace ezMath
   {
     if constexpr (std::is_same_v<TYPE, float>)
     {
-      return (TYPE)0.00000001;  
+      return (TYPE)0.00000001;
     }
     else if constexpr (std::is_same_v<TYPE, double>)
     {
@@ -335,7 +335,7 @@ namespace ezMath
     }
     else
     {
-      return (TYPE)0.00000001;  
+      return (TYPE)0.00000001;
     }
   }
   template <typename TYPE>
@@ -343,7 +343,7 @@ namespace ezMath
   {
     if constexpr (std::is_same_v<TYPE, float>)
     {
-      return (TYPE)0.0000001;  
+      return (TYPE)0.0000001;
     }
     else if constexpr (std::is_same_v<TYPE, double>)
     {
@@ -351,7 +351,7 @@ namespace ezMath
     }
     else
     {
-      return (TYPE)0.0000001;  
+      return (TYPE)0.0000001;
     }
   }
   template <typename TYPE>
@@ -359,7 +359,7 @@ namespace ezMath
   {
     if constexpr (std::is_same_v<TYPE, float>)
     {
-      return (TYPE)0.000001;  
+      return (TYPE)0.000001;
     }
     else if constexpr (std::is_same_v<TYPE, double>)
     {
@@ -367,7 +367,7 @@ namespace ezMath
     }
     else
     {
-      return (TYPE)0.000001;  
+      return (TYPE)0.000001;
     }
   }
 
@@ -376,7 +376,7 @@ namespace ezMath
   {
     if constexpr (std::is_same_v<TYPE, float>)
     {
-      return (TYPE)0.00001; 
+      return (TYPE)0.00001;
     }
     else if constexpr (std::is_same_v<TYPE, double>)
     {
@@ -384,7 +384,7 @@ namespace ezMath
     }
     else
     {
-      return (TYPE)0.00001; 
+      return (TYPE)0.00001;
     }
   }
 
@@ -393,7 +393,7 @@ namespace ezMath
   {
     if constexpr (std::is_same_v<TYPE, float>)
     {
-      return (TYPE)0.0001; 
+      return (TYPE)0.0001;
     }
     else if constexpr (std::is_same_v<TYPE, double>)
     {
@@ -401,7 +401,7 @@ namespace ezMath
     }
     else
     {
-      return (TYPE)0.0001;  
+      return (TYPE)0.0001;
     }
   }
 
@@ -410,7 +410,7 @@ namespace ezMath
   {
     if constexpr (std::is_same_v<TYPE, float>)
     {
-      return (TYPE)0.001; 
+      return (TYPE)0.001;
     }
     else if constexpr (std::is_same_v<TYPE, double>)
     {
@@ -418,7 +418,7 @@ namespace ezMath
     }
     else
     {
-      return (TYPE)0.001; 
+      return (TYPE)0.001;
     }
   }
   template <typename TYPE>
@@ -426,7 +426,7 @@ namespace ezMath
   {
     if constexpr (std::is_same_v<TYPE, float>)
     {
-      return (TYPE)0.01; 
+      return (TYPE)0.01;
     }
     else if constexpr (std::is_same_v<TYPE, double>)
     {
@@ -434,7 +434,7 @@ namespace ezMath
     }
     else
     {
-      return (TYPE)0.01; 
+      return (TYPE)0.01;
     }
   }
 

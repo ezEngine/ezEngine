@@ -123,5 +123,3 @@ void RemoveOSFileEventHandler()
 {
   ezOSFile::RemoveEventHandler(OSFileEventHandler);
 }
-
-

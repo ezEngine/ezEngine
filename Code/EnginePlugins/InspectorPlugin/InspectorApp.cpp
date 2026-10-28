@@ -99,5 +99,3 @@ void SetAppStats()
 #endif
   ezStats::SetStat("Platform/Endianess", sOut.GetData());
 }
-
-

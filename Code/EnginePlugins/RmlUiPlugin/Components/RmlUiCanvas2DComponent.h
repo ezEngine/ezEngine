@@ -19,20 +19,20 @@ public:
 
   void Update() final override;
 
-  void SetOffset(const ezVec2I32& vOffset);                                   // [ property ]
-  const ezVec2I32& GetOffset() const { return m_vOffset; }                    // [ property ]
+  void SetOffset(const ezVec2I32& vOffset);                       // [ property ]
+  const ezVec2I32& GetOffset() const { return m_vOffset; }        // [ property ]
 
-  void SetSize(const ezVec2U32& vSize);                                       // [ property ]
-  const ezVec2U32& GetSize() const { return m_vSize; }                        // [ property ]
+  void SetSize(const ezVec2U32& vSize);                           // [ property ]
+  const ezVec2U32& GetSize() const { return m_vSize; }            // [ property ]
 
-  void SetAnchorPoint(const ezVec2& vAnchorPoint);                            // [ property ]
-  const ezVec2& GetAnchorPoint() const { return m_vAnchorPoint; }             // [ property ]
+  void SetAnchorPoint(const ezVec2& vAnchorPoint);                // [ property ]
+  const ezVec2& GetAnchorPoint() const { return m_vAnchorPoint; } // [ property ]
 
-  void SetPassInput(bool bPassInput);                                         // [ property ]
-  bool GetPassInput() const { return m_bPassInput; }                          // [ property ]
+  void SetPassInput(bool bPassInput);                             // [ property ]
+  bool GetPassInput() const { return m_bPassInput; }              // [ property ]
 
-  void SetCustomScale(float fScale);                                          // [ property ]
-  float GetCustomScale() const { return m_fCustomScale; }                     // [ property ]
+  void SetCustomScale(float fScale);                              // [ property ]
+  float GetCustomScale() const { return m_fCustomScale; }         // [ property ]
 
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;

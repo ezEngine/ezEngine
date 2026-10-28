@@ -90,5 +90,3 @@ void RemoveMemoryEventHandler()
     ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(MemoryDetail::PerframeUpdateHandler);
   }
 }
-
-

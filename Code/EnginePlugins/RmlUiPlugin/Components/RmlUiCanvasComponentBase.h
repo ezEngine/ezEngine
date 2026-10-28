@@ -54,8 +54,8 @@ public:
   ///
   /// Changes to the document from code aren't noticed that way, so they aren't laid out and rendered until something else
   /// triggers an update. Call RequestUpdate() after such changes.
-  void SetOnDemandUpdate(bool bOnDemandUpdate);                    // [ property ]
-  bool GetOnDemandUpdate() const { return m_bOnDemandUpdate; }     // [ property ]
+  void SetOnDemandUpdate(bool bOnDemandUpdate);                // [ property ]
+  bool GetOnDemandUpdate() const { return m_bOnDemandUpdate; } // [ property ]
 
   /// Makes the next Update() update the RmlUi context, see SetOnDemandUpdate().
   ///

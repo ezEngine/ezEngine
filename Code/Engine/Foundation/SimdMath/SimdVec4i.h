@@ -53,7 +53,7 @@ public:
   template <ezSwizzle::Enum s>
   ezSimdVec4i Get() const;      // [tested]
 
-  ///x = this[s0], y = this[s1], z = other[s2], w = other[s3]
+  /// x = this[s0], y = this[s1], z = other[s2], w = other[s3]
   template <ezSwizzle::Enum s>
   [[nodiscard]] ezSimdVec4i GetCombined(const ezSimdVec4i& other) const;                                                 // [tested]
 

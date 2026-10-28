@@ -1,6 +1,6 @@
 
-#include <RmlUiPlugin/RmlUiInput.h>
 #include <Core/Input/InputManager.h>
+#include <RmlUiPlugin/RmlUiInput.h>
 
 
 ezRmlUiInputSnapshot ezRmlUiInputSnapshot::MakeFromCurrentInput()
@@ -8,11 +8,11 @@ ezRmlUiInputSnapshot ezRmlUiInputSnapshot::MakeFromCurrentInput()
   ezRmlUiInputSnapshot snapshot = ezRmlUiInputSnapshot::MakeEmpty();
 
   const bool bCtrlPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) >= ezKeyState::Pressed ||
-    ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) >= ezKeyState::Pressed;
+                            ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) >= ezKeyState::Pressed;
   const bool bShiftPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftShift) >= ezKeyState::Pressed ||
-    ezInputManager::GetInputSlotState(ezInputSlot_KeyRightShift) >= ezKeyState::Pressed;
+                             ezInputManager::GetInputSlotState(ezInputSlot_KeyRightShift) >= ezKeyState::Pressed;
   const bool bAltPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftAlt) >= ezKeyState::Pressed ||
-    ezInputManager::GetInputSlotState(ezInputSlot_KeyRightAlt) >= ezKeyState::Pressed;
+                           ezInputManager::GetInputSlotState(ezInputSlot_KeyRightAlt) >= ezKeyState::Pressed;
 
   if (bCtrlPressed)
     snapshot.m_Buttons |= ezRmlUiInputButtons::Ctrl;

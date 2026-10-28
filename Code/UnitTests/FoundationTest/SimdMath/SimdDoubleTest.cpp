@@ -162,11 +162,11 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdDouble)
     ezSimdDouble a = 2.0;
 
     EZ_TEST_DOUBLE(a.GetReciprocal(), 0.5, ezMath::SmallEpsilon<double>());
-    
+
     EZ_TEST_DOUBLE(a.GetSqrt(), 1.41421356237309504880, ezMath::SmallEpsilon<double>());
-    
+
     EZ_TEST_DOUBLE(a.GetInvSqrt(), 0.70710678118654752440, ezMath::SmallEpsilon<double>());
-    
+
     ezSimdDouble b = 5.0;
     EZ_TEST_BOOL(a.Max(b) == b);
     EZ_TEST_BOOL(a.Min(b) == a);

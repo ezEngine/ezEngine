@@ -9,8 +9,6 @@ EZ_ALWAYS_INLINE ezSimdDouble::ezSimdDouble()
   m_v.xy = _mm_set1_pd(ezMath::NaN<double>());
   m_v.zw = m_v.xy;
 #endif
-
-
 }
 
 EZ_ALWAYS_INLINE ezSimdDouble::ezSimdDouble(float f)

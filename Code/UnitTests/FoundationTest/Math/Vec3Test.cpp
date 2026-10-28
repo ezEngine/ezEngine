@@ -363,7 +363,7 @@ void TestVec3()
     EZ_TEST_BOOL(vOp2.CompMul(vOp1).IsEqual(ezVec3Type((Type)-8.0, (Type)-0.06, (Type)-3.5), ezMath::SmallEpsilon<Type>()));
 
     // CompDiv
-    EZ_TEST_BOOL(vOp1.CompDiv(vOp2).IsEqual(ezVec3Type((Type)-2.0, (Type)(-2.0/3.0), (Type)-14.0), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp1.CompDiv(vOp2).IsEqual(ezVec3Type((Type)-2.0, (Type)(-2.0 / 3.0), (Type)-14.0), ezMath::SmallEpsilon<Type>()));
 
     // Abs
     EZ_TEST_VEC3(vOp1.Abs(), ezVec3Type((Type)4.0, (Type)0.2, (Type)7.0), ezMath::SmallEpsilon<Type>());

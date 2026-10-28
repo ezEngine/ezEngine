@@ -124,7 +124,7 @@ public:
   template <ezSwizzle::Enum s>
   ezSimdVec4d Get() const;
 
-  ///x = this[s0], y = this[s1], z = other[s2], w = other[s3]
+  /// x = this[s0], y = this[s1], z = other[s2], w = other[s3]
   template <ezSwizzle::Enum s>
   [[nodiscard]] ezSimdVec4d GetCombined(const ezSimdVec4d& other) const;
 
@@ -187,10 +187,10 @@ public:
   template <int N>
   [[nodiscard]] ezSimdDouble Dot(const ezSimdVec4d& v) const;
 
-  ///3D cross product, w is ignored.
+  /// 3D cross product, w is ignored.
   [[nodiscard]] ezSimdVec4d CrossRH(const ezSimdVec4d& v) const;
 
-  ///Generates an arbitrary vector such that Dot<3>(GetOrthogonalVector()) == 0
+  /// Generates an arbitrary vector such that Dot<3>(GetOrthogonalVector()) == 0
   [[nodiscard]] ezSimdVec4d GetOrthogonalVector() const;
 
   /// Returns a * b + c

@@ -47,7 +47,8 @@ void ezFmodProjectPreferences::SyncCVars()
   {
     ezChangeCVarMsgToEngine msg;
     msg.m_sCVarName = "FMOD.Mute";
-    msg.m_NewValue = m_bMute;
+    // unattended (e.g. driven over MCP) nobody is listening; the preference itself stays as the user set it
+    msg.m_NewValue = m_bMute || ezQtEditorApp::GetSingleton()->IsInUnattendedMode();
 
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }

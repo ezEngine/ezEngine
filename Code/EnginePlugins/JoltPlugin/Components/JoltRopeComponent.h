@@ -12,7 +12,7 @@ namespace JPH
 {
   class Constraint;
   class Ragdoll;
-}
+} // namespace JPH
 
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 

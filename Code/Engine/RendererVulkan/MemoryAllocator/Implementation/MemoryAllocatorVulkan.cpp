@@ -62,7 +62,7 @@ namespace ezMemoryAllocatorVulkanInternal
     ezUniquePtr<vk::ExportMemoryWin32HandleInfoKHR> m_exportInfoWin32;
 #endif
   };
-} // namespace
+} // namespace ezMemoryAllocatorVulkanInternal
 
 struct ezMemoryAllocatorVulkan::Impl
 {

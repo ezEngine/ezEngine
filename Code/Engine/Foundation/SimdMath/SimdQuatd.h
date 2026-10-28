@@ -62,8 +62,8 @@ public:
   /// Concatenates the rotations of q1 and q2
   [[nodiscard]] ezSimdQuatd operator*(const ezSimdQuatd& q2) const; // [tested]
 
-  bool operator==(const ezSimdQuatd& q2) const;                    // [tested]
-  bool operator!=(const ezSimdQuatd& q2) const;                    // [tested]
+  bool operator==(const ezSimdQuatd& q2) const;                     // [tested]
+  bool operator!=(const ezSimdQuatd& q2) const;                     // [tested]
 
 public:
   ezSimdVec4d m_v;

@@ -8,8 +8,6 @@ EZ_ALWAYS_INLINE ezSimdDouble::ezSimdDouble()
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   m_v = _mm256_set1_pd(ezMath::NaN<double>());
 #endif
-
-
 }
 
 EZ_ALWAYS_INLINE ezSimdDouble::ezSimdDouble(float f)

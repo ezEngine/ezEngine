@@ -259,7 +259,7 @@ private:
                                                                                                                                              \
 public:                                                                                                                                      \
   /*                                                                                                                                     \ \ \
-  /// Unfortunately this has to be called manually from within dynamic plugins during core engine shutdown.                       \ \ \
+  /// Unfortunately this has to be called manually from within dynamic plugins during core engine shutdown.                       \ \        \
   ///                                                                                                                                    \ \ \
   /// Without this, the dynamic plugin might still be referenced by the core engine during later shutdown phases and will crash, because \ \ \
   /// memory and code is still referenced, that is already unloaded.                                                                     \ \ \
@@ -267,12 +267,12 @@ public:                                                                         
   static void CleanupDynamicPluginReferences();                                                                                              \
                                                                                                                                              \
   /*                                                                                                                                     \ \ \
-  /// Returns a typed resource handle to this resource                                                                            \ \ \
+  /// Returns a typed resource handle to this resource                                                                            \ \        \
   */                                                                                                                                         \
   ezTypedResourceHandle<SELF> GetResourceHandle() const;                                                                                     \
                                                                                                                                              \
   /*                                                                                                                                     \ \ \
-  /// Sets the fallback resource that can be used while this resource is not yet loaded.                                          \ \ \
+  /// Sets the fallback resource that can be used while this resource is not yet loaded.                                          \ \        \
   ///                                                                                                                                    \ \ \
   /// By default there is no fallback resource, so all resource will block the application when requested for the first time.            \ \ \
   */                                                                                                                                         \
