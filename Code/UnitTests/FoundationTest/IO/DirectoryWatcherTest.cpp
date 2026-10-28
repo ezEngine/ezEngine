@@ -12,7 +12,7 @@ namespace DirectoryWatcherTestHelpers
 
   struct ExpectedEvent
   {
-    ~ExpectedEvent() {}; // NOLINT: To make it non-pod
+    ~ExpectedEvent(){}; // NOLINT: To make it non-pod
 
     const char* path;
     ezDirectoryWatcherAction action;
@@ -475,7 +475,7 @@ void DirectoryWatcherTest()
                           sTestRootPath,
                           ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes |
                             ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories)
-        .Succeeded());
+                   .Succeeded());
 
     CreateDirectory("New Folder");
 
@@ -511,7 +511,7 @@ void DirectoryWatcherTest()
                           sTestRootPath,
                           ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes |
                             ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories)
-        .Succeeded());
+                   .Succeeded());
 
     CreateDirectory("New Folder");
     Rename("New Folder", "sub");
@@ -547,7 +547,7 @@ void DirectoryWatcherTest()
                           sTestRootPath,
                           ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes |
                             ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories)
-        .Succeeded());
+                   .Succeeded());
 
     CreateDirectory("New Folder/subsub");
     Rename("New Folder", "sub");
@@ -583,7 +583,7 @@ void DirectoryWatcherTest()
                           sTestRootPath,
                           ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes |
                             ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories)
-        .Succeeded());
+                   .Succeeded());
 
     CreateDirectory("sub2/subsub2");
     CreateFile("sub2/file1");
@@ -628,7 +628,7 @@ void DirectoryWatcherTest()
                           sTestRootPath,
                           ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes |
                             ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories)
-        .Succeeded());
+                   .Succeeded());
 
     CreateDirectory("sub2/subsub2");
     CreateFile("sub2/file1");
@@ -675,7 +675,7 @@ void DirectoryWatcherTest()
                           sTestRootPath,
                           ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes |
                             ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Renames)
-        .Succeeded());
+                   .Succeeded());
 
     CreateFile("file2.txt");
 
@@ -721,7 +721,7 @@ void DirectoryWatcherTest()
                               watchPath,
                               ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes |
                                 ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Renames)
-        .Succeeded());
+                   .Succeeded());
 
     watchPath = sTestRootPath;
     watchPath.AppendPath("watch2");
@@ -729,7 +729,7 @@ void DirectoryWatcherTest()
                               watchPath,
                               ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes |
                                 ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Renames)
-        .Succeeded());
+                   .Succeeded());
 
     watchPath = sTestRootPath;
     watchPath.AppendPath("watch3");
@@ -737,7 +737,7 @@ void DirectoryWatcherTest()
                               watchPath,
                               ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes |
                                 ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Renames)
-        .Succeeded());
+                   .Succeeded());
 
     CreateFile("watch1/file2.txt");
 

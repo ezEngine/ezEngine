@@ -489,7 +489,7 @@ void ezSceneAction::Execute(const ezVariant& value)
       const ezInt32 iCamIdx = (int)m_Type - (int)ActionType::CreateLevelCamera0;
 
       if (auto pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
-        pView == nullptr || pView->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+          pView == nullptr || pView->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
       {
         m_pSceneDocument->ShowDocumentStatus("Note: Level cameras cannot be created in orthographic views.");
         return;

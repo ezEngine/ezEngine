@@ -531,7 +531,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter_EarlyOut)
         js.EndAll(); // three objects still open
       },
       result)
-        .Succeeded());
+                   .Succeeded());
 
     ezVariant outer;
     EZ_TEST_BOOL(result.TryGetValue("outer", outer));
@@ -556,7 +556,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter_EarlyOut)
         js.WriteInt32(1);
         js.WriteInt32(2);
         js.EndAll(); }, result)
-        .Succeeded());
+                   .Succeeded());
 
     ezVariant arr;
     EZ_TEST_BOOL(result.TryGetValue("arr", arr));
@@ -572,7 +572,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter_EarlyOut)
         js.BeginObject();
         js.BeginVariable("var"); // nothing written for it
         js.EndAll(); }, result)
-        .Succeeded());
+                   .Succeeded());
 
     // The member has to exist, because an object member without any value is not representable.
     EZ_TEST_BOOL(result.Contains("var"));
@@ -587,7 +587,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter_EarlyOut)
         js.AddVariableInt32("var", 42);
         js.EndObject();
         js.EndAll(); }, result)
-        .Succeeded());
+                   .Succeeded());
 
     ezVariant var;
     EZ_TEST_BOOL(result.TryGetValue("var", var));
@@ -629,7 +629,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter_EarlyOut)
         js.AddVariableString("named", "tab\there\nnewline");
         js.AddVariableString("backslash", "a\\b\x01");
         js.EndObject(); }, result)
-        .Succeeded());
+                   .Succeeded());
 
     ezVariant value;
 
@@ -660,7 +660,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter_EarlyOut)
         js.AddVariableVariant("vec4u", ezVariant(ezVec4U32(1, 2, 3, 4)));
         js.AddVariableVariant("transform", ezVariant(ezTransform(ezVec3(1, 2, 3))));
         js.EndObject(); }, result)
-        .Succeeded());
+                   .Succeeded());
 
     ezVariant value;
 
