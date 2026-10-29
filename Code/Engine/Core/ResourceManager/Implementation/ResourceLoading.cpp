@@ -46,6 +46,14 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
       if (RemoveFromLoadingQueue(pResource).Succeeded())
       {
         AddToLoadingQueue(pResource, bHighestPriority);
+
+        // A data load task blocking on another resource (e.g. a resource loader acquiring a dependency) occupies the only active
+        // data load task. Without launching another one, nothing would ever load the requested resource.
+        if (ezTaskSystem::GetCurrentThreadWorkerType() == ezWorkerThreadType::FileAccess)
+        {
+          ezResourceManager::s_pState->m_bAllowLaunchDataLoadTask = true;
+          RunWorkerTask();
+        }
       }
     }
 
