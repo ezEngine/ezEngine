@@ -51,7 +51,7 @@
     <item>
      <spacer>
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Orientation::Vertical</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -71,7 +71,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="SpinBoxTransX">
+       <widget class="ezQtDoubleSpinBox" name="SpinBoxTransX">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -95,7 +95,7 @@
          <string/>
         </property>
         <property name="arrowType">
-         <enum>Qt::LeftArrow</enum>
+         <enum>Qt::ArrowType::LeftArrow</enum>
         </property>
        </widget>
       </item>
@@ -111,7 +111,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="SpinBoxTransY">
+       <widget class="ezQtDoubleSpinBox" name="SpinBoxTransY">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -135,7 +135,7 @@
          <string/>
         </property>
         <property name="arrowType">
-         <enum>Qt::LeftArrow</enum>
+         <enum>Qt::ArrowType::LeftArrow</enum>
         </property>
        </widget>
       </item>
@@ -151,7 +151,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="SpinBoxTransZ">
+       <widget class="ezQtDoubleSpinBox" name="SpinBoxTransZ">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -175,7 +175,7 @@
          <string/>
         </property>
         <property name="arrowType">
-         <enum>Qt::LeftArrow</enum>
+         <enum>Qt::ArrowType::LeftArrow</enum>
         </property>
        </widget>
       </item>
@@ -184,7 +184,7 @@
     <item>
      <spacer>
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Orientation::Vertical</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -218,7 +218,7 @@
     <item>
      <spacer>
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Orientation::Vertical</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -238,7 +238,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="SpinBoxRotX">
+       <widget class="ezQtDoubleSpinBox" name="SpinBoxRotX">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -268,7 +268,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="SpinBoxRotY">
+       <widget class="ezQtDoubleSpinBox" name="SpinBoxRotY">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -298,7 +298,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="SpinBoxRotZ">
+       <widget class="ezQtDoubleSpinBox" name="SpinBoxRotZ">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -321,7 +321,7 @@
     <item>
      <spacer>
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Orientation::Vertical</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -358,7 +358,7 @@
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -394,7 +394,7 @@
     <item>
      <spacer name="spacer">
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Orientation::Vertical</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -407,7 +407,7 @@
     <item>
      <layout class="QGridLayout" name="gridLayout">
       <item row="1" column="1">
-       <widget class="QDoubleSpinBox" name="SpinBoxAngle">
+       <widget class="ezQtDoubleSpinBox" name="SpinBoxAngle">
         <property name="minimum">
          <double>-360.000000000000000</double>
         </property>
@@ -434,7 +434,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QDoubleSpinBox" name="SpinBoxStartAngle">
+       <widget class="ezQtDoubleSpinBox" name="SpinBoxStartAngle">
         <property name="maximum">
          <double>360.000000000000000</double>
         </property>
@@ -451,7 +451,7 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QDoubleSpinBox" name="SpinBoxRadius">
+       <widget class="ezQtDoubleSpinBox" name="SpinBoxRadius">
         <property name="maximum">
          <double>999.000000000000000</double>
         </property>
@@ -485,12 +485,18 @@
      </widget>
     </item>
     <item>
-     <widget class="QSpinBox" name="spinBoxCopies">
+     <widget class="ezQtDoubleSpinBox" name="spinBoxCopies">
+      <property name="decimals">
+       <number>0</number>
+      </property>
       <property name="minimum">
-       <number>1</number>
+       <double>1.000000000000000</double>
       </property>
       <property name="maximum">
-       <number>999</number>
+       <double>999.000000000000000</double>
+      </property>
+      <property name="singleStep">
+       <double>1.000000000000000</double>
       </property>
      </widget>
     </item>
@@ -504,7 +510,7 @@
     <item>
      <spacer>
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Orientation::Vertical</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -538,7 +544,7 @@
     <item>
      <spacer>
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Orientation::Vertical</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -558,7 +564,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="SpinBoxRotX_2">
+       <widget class="ezQtDoubleSpinBox" name="SpinBoxRotX_2">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -588,7 +594,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="SpinBoxRotY_2">
+       <widget class="ezQtDoubleSpinBox" name="SpinBoxRotY_2">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -618,7 +624,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="SpinBoxRotZ_2">
+       <widget class="ezQtDoubleSpinBox" name="SpinBoxRotZ_2">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -641,7 +647,7 @@
     <item>
      <spacer>
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Orientation::Vertical</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -675,7 +681,7 @@
     <item>
      <spacer>
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Orientation::Vertical</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -695,7 +701,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="SpinBoxTransX_2">
+       <widget class="ezQtDoubleSpinBox" name="SpinBoxTransX_2">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -703,7 +709,7 @@
          </sizepolicy>
         </property>
         <property name="minimum">
-         <double>-999.000000000000000</double>
+         <double>0.000000000000000</double>
         </property>
         <property name="maximum">
          <double>999.000000000000000</double>
@@ -725,7 +731,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="SpinBoxTransY_2">
+       <widget class="ezQtDoubleSpinBox" name="SpinBoxTransY_2">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -733,7 +739,7 @@
          </sizepolicy>
         </property>
         <property name="minimum">
-         <double>-999.000000000000000</double>
+         <double>0.000000000000000</double>
         </property>
         <property name="maximum">
          <double>999.000000000000000</double>
@@ -755,7 +761,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="SpinBoxTransZ_2">
+       <widget class="ezQtDoubleSpinBox" name="SpinBoxTransZ_2">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -763,7 +769,7 @@
          </sizepolicy>
         </property>
         <property name="minimum">
-         <double>-999.000000000000000</double>
+         <double>0.000000000000000</double>
         </property>
         <property name="maximum">
          <double>999.000000000000000</double>
@@ -778,7 +784,7 @@
     <item>
      <spacer>
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Orientation::Vertical</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -800,10 +806,17 @@
     </rect>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Reset</set>
+    <set>QDialogButtonBox::StandardButton::Apply|QDialogButtonBox::StandardButton::Reset</set>
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ezQtDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header location="global">GuiFoundation/Widgets/DoubleSpinBox.moc.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>spinBoxCopies</tabstop>
   <tabstop>CheckBoxGroupCopies</tabstop>

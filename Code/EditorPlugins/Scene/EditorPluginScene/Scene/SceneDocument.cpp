@@ -3,6 +3,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <EditorFramework/Object/ObjectPropertyPath.h>
 #include <EditorFramework/Preferences/QuadViewPreferences.h>
 #include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
@@ -239,52 +240,9 @@ void ezSceneDocument::DuplicateSpecial()
   if (GetSelectionManager()->IsSelectionEmpty())
     return;
 
-  ezQtDuplicateDlg dlg(nullptr);
-  if (dlg.exec() == QDialog::Rejected)
-    return;
-
-  ezMap<ezUuid, ezUuid> parents;
-
-  ezAbstractObjectGraph graph;
-  CopySelectedObjects(graph, &parents);
-
-  ezStringBuilder temp, tmp1, tmp2;
-  for (auto it = parents.GetIterator(); it.IsValid(); ++it)
-  {
-    temp.AppendFormat("{0}={1};", ezConversionUtils::ToString(it.Key(), tmp1), ezConversionUtils::ToString(it.Value(), tmp2));
-  }
-
-  // Serialize to string
-  ezContiguousMemoryStreamStorage streamStorage;
-  ezMemoryStreamWriter memoryWriter(&streamStorage);
-
-  ezAbstractGraphDdlSerializer::Write(memoryWriter, &graph);
-  memoryWriter.WriteBytes("\0", 1).IgnoreResult(); // null terminate
-
-  ezDuplicateObjectsCommand cmd;
-  cmd.m_sGraphTextFormat = (const char*)streamStorage.GetData();
-  cmd.m_sParentNodes = temp;
-  cmd.m_uiNumberOfCopies = dlg.s_uiNumberOfCopies;
-  cmd.m_vAccumulativeTranslation = dlg.s_vTranslationStep;
-  cmd.m_vAccumulativeRotation = dlg.s_vRotationStep;
-  cmd.m_vRandomRotation = dlg.s_vRandomRotation;
-  cmd.m_vRandomTranslation = dlg.s_vRandomTranslation;
-  cmd.m_bGroupDuplicates = dlg.s_bGroupCopies;
-  cmd.m_iRevolveAxis = dlg.s_iRevolveAxis;
-  cmd.m_fRevolveRadius = dlg.s_fRevolveRadius;
-  cmd.m_RevolveStartAngle = ezAngle::MakeFromDegree(dlg.s_iRevolveStartAngle);
-  cmd.m_RevolveAngleStep = ezAngle::MakeFromDegree(dlg.s_iRevolveAngleStep);
-
-  auto history = GetCommandHistory();
-
-  history->StartTransaction("Duplicate Special");
-
-  if (history->AddCommand(cmd).Failed())
-    history->CancelTransaction();
-  else
-    history->FinishTransaction();
+  ezQtDuplicateDlg dlg(nullptr, this);
+  dlg.exec();
 }
-
 
 void ezSceneDocument::DeltaTransform()
 {
@@ -293,6 +251,81 @@ void ezSceneDocument::DeltaTransform()
 
   ezQtDeltaTransformDlg dlg(nullptr, this);
   dlg.exec();
+}
+
+void ezSceneDocument::QueryObjectBounds(ezArrayPtr<const ezDocumentObject* const> objects, ezDynamicArray<ezBoundingBox>& out_bounds) const
+{
+  out_bounds.Clear();
+  out_bounds.SetCount(objects.GetCount(), ezBoundingBox::MakeInvalid());
+
+  if (objects.IsEmpty())
+    return;
+
+  ezQueryObjectBoundsMsgToEngine msg;
+  for (const ezDocumentObject* pObject : objects)
+  {
+    msg.m_ObjectGuids.PushBack(pObject->GetGuid());
+  }
+
+  if (!SendMessageToEngine(&msg))
+    return;
+
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&](ezProcessMessage* pMsg) -> bool
+  {
+    const ezQueryObjectBoundsResultMsgToEditor* pResult = ezDynamicCast<const ezQueryObjectBoundsResultMsgToEditor*>(pMsg);
+
+    for (ezUInt32 i = 0; i < ezMath::Min(objects.GetCount(), pResult->m_BoundsMin.GetCount()); ++i)
+    {
+      // not MakeFromMinMax(), that asserts on the invalid boxes that are sent for objects without bounds
+      out_bounds[i].m_vMin = pResult->m_BoundsMin[i];
+      out_bounds[i].m_vMax = pResult->m_BoundsMax[i];
+    }
+
+    return true;
+  };
+
+  ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezQueryObjectBoundsResultMsgToEditor::GetStaticRTTI(), ezTime::MakeFromSeconds(5), &callback).IgnoreResult();
+}
+
+void ezSceneDocument::ShowTransformPreview(ezArrayPtr<const ezTransform> globalTransforms, ezArrayPtr<const ezBoundingBox> localBounds) const
+{
+  EZ_ASSERT_DEV(localBounds.GetCount() == globalTransforms.GetCount(), "Number of bounds and transforms must match");
+
+  ezClearIndicatorsMsgToEngine msgClear;
+  SendMessageToEngine(&msgClear);
+
+  if (globalTransforms.IsEmpty())
+    return;
+
+  ezAddIndicatorsMsgToEngine msgBoxes;
+  msgBoxes.m_sType = "Box";
+  msgBoxes.m_Color = ezColorScheme::LightUI(ezColorScheme::Pink);
+
+
+
+  ezAddIndicatorsMsgToEngine msgArrows;
+  msgArrows.m_sType = "Arrow";
+  msgArrows.m_Color = ezColorScheme::LightUI(ezColorScheme::Pink);
+
+  for (ezUInt32 i = 0; i < globalTransforms.GetCount(); ++i)
+  {
+    const ezBoundingBox& bounds = localBounds[i];
+    if (bounds.IsValid())
+    {
+      // the box indicator covers -1 to +1, so scale it to the half extents and move it to the center of the bounds
+      msgBoxes.m_Transforms.PushBack(globalTransforms[i] * ezTransform(bounds.GetCenter(), ezQuat::MakeIdentity(), bounds.GetHalfExtents()));
+    }
+    else
+    {
+      msgArrows.m_Transforms.PushBack(globalTransforms[i]);
+    }
+  }
+
+  if (!msgBoxes.m_Transforms.IsEmpty())
+    SendMessageToEngine(&msgBoxes);
+
+  if (!msgArrows.m_Transforms.IsEmpty())
+    SendMessageToEngine(&msgArrows);
 }
 
 void ezSceneDocument::SnapObjectToCamera()

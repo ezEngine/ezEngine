@@ -24,6 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDuplicateObjectsCommand, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("RevolveAngleStep", m_RevolveAngleStep),
     EZ_MEMBER_PROPERTY("RevolveRadius", m_fRevolveRadius),
     EZ_MEMBER_PROPERTY("InsertIndex", m_iInsertIndex),
+    EZ_MEMBER_PROPERTY("RandomSeed", m_uiRandomSeed),
   }
   EZ_END_PROPERTIES;
 }
@@ -76,25 +77,12 @@ ezStatus ezDuplicateObjectsCommand::DoInternal(bool bRedo)
         CreateOneDuplicate(graph, ToBePasted[copies]);
       }
 
-      ezRandomGauss rngRotX, rngRotY, rngRotZ, rngTransX, rngTransY, rngTransZ;
-
-      if (m_vRandomRotation.x > 0)
-        rngRotX.Initialize((ezUInt64)ezTime::Now().GetNanoseconds(), (ezUInt32)(m_vRandomRotation.x));
-      if (m_vRandomRotation.y > 0)
-        rngRotY.Initialize((ezUInt64)ezTime::Now().GetNanoseconds() + 1, (ezUInt32)(m_vRandomRotation.y));
-      if (m_vRandomRotation.z > 0)
-        rngRotZ.Initialize((ezUInt64)ezTime::Now().GetNanoseconds() + 2, (ezUInt32)(m_vRandomRotation.z));
-
-      if (m_vRandomTranslation.x > 0)
-        rngTransX.Initialize((ezUInt64)ezTime::Now().GetNanoseconds() + 3, (ezUInt32)(m_vRandomTranslation.x * 100));
-      if (m_vRandomTranslation.y > 0)
-        rngTransY.Initialize((ezUInt64)ezTime::Now().GetNanoseconds() + 4, (ezUInt32)(m_vRandomTranslation.y * 100));
-      if (m_vRandomTranslation.z > 0)
-        rngTransZ.Initialize((ezUInt64)ezTime::Now().GetNanoseconds() + 5, (ezUInt32)(m_vRandomTranslation.z * 100));
+      ezTempHybridArray<CopyOffset, 8> offsets;
+      ComputeCopyOffsets(offsets);
 
       for (ezUInt32 copies = 0; copies < m_uiNumberOfCopies; ++copies)
       {
-        AdjustObjectPositions(ToBePasted[copies], copies, rngRotX, rngRotY, rngRotZ, rngTransX, rngTransY, rngTransZ);
+        AdjustObjectPositions(ToBePasted[copies], offsets[copies]);
       }
     }
 
@@ -120,14 +108,17 @@ void ezDuplicateObjectsCommand::SetAsSelection()
 {
   if (!m_DuplicatedObjects.IsEmpty())
   {
-    m_DuplicatedObjects.Sort([](const auto& lhs, const auto& rhs)
+    // m_DuplicatedObjects must stay in creation order, because redo re-adds the objects at their recorded indices,
+    // which are only valid when they are inserted in the same order again
+    ezTempHybridArray<DuplicatedObject, 4> sorted = m_DuplicatedObjects;
+    sorted.Sort([](const auto& lhs, const auto& rhs)
       { return lhs.m_uiSelectionOrder < rhs.m_uiSelectionOrder; });
 
     auto pSelMan = m_pDocument->GetSelectionManager();
 
     ezDeque<const ezDocumentObject*> NewSelection = m_OriginalSelection;
 
-    for (const DuplicatedObject& pi : m_DuplicatedObjects)
+    for (const DuplicatedObject& pi : sorted)
     {
       NewSelection.PushBack(pi.m_pObject);
     }
@@ -234,68 +225,102 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
 }
 
 
-void ezDuplicateObjectsCommand::AdjustObjectPositions(const ezArrayPtr<ezDocument::PasteInfo>& duplicates, ezUInt32 uiNumDuplicate, ezRandomGauss& rngRotX, ezRandomGauss& rngRotY, ezRandomGauss& rngRotZ, ezRandomGauss& rngTransX, ezRandomGauss& rngTransY, ezRandomGauss& rngTransZ)
+void ezDuplicateObjectsCommand::ComputeCopyOffsets(ezDynamicArray<CopyOffset>& out_offsets) const
 {
-  ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_pDocument);
+  out_offsets.Clear();
+  out_offsets.Reserve(m_uiNumberOfCopies);
 
-  const float fStep = uiNumDuplicate;
+  const ezUInt64 uiSeed = m_uiRandomSeed != 0 ? m_uiRandomSeed : (ezUInt64)ezTime::Now().GetNanoseconds();
 
-  ezVec3 vRandT(0.0f);
-  ezVec3 vRandR(0.0f);
+  ezRandomGauss rngRotX, rngRotY, rngRotZ, rngTransX, rngTransY, rngTransZ;
 
-  if (m_vRandomRotation.x != 0)
-    vRandR.x = rngRotX.SignedValue();
-  if (m_vRandomRotation.y != 0)
-    vRandR.y = rngRotY.SignedValue();
-  if (m_vRandomRotation.z != 0)
-    vRandR.z = rngRotZ.SignedValue();
+  // SignedValue() returns values in [-max + 1; max - 1] and Initialize() requires max >= 2,
+  // so the range is extended by one to include the requested value, and tiny values still produce some variation
+  auto GetMaxValue = [](float fRange) -> ezUInt32
+  { return ezMath::Max((ezUInt32)ezMath::Round(fRange), 1u) + 1; };
 
-  if (m_vRandomTranslation.x != 0)
-    vRandT.x = rngTransX.SignedValue() / 100.0f;
-  if (m_vRandomTranslation.y != 0)
-    vRandT.y = rngTransY.SignedValue() / 100.0f;
-  if (m_vRandomTranslation.z != 0)
-    vRandT.z = rngTransZ.SignedValue() / 100.0f;
+  if (m_vRandomRotation.x > 0)
+    rngRotX.Initialize(uiSeed, GetMaxValue(m_vRandomRotation.x));
+  if (m_vRandomRotation.y > 0)
+    rngRotY.Initialize(uiSeed + 1, GetMaxValue(m_vRandomRotation.y));
+  if (m_vRandomRotation.z > 0)
+    rngRotZ.Initialize(uiSeed + 2, GetMaxValue(m_vRandomRotation.z));
 
-  ezVec3 vPosOffset(0.0f);
+  if (m_vRandomTranslation.x > 0)
+    rngTransX.Initialize(uiSeed + 3, GetMaxValue(m_vRandomTranslation.x * 100));
+  if (m_vRandomTranslation.y > 0)
+    rngTransY.Initialize(uiSeed + 4, GetMaxValue(m_vRandomTranslation.y * 100));
+  if (m_vRandomTranslation.z > 0)
+    rngTransZ.Initialize(uiSeed + 5, GetMaxValue(m_vRandomTranslation.z * 100));
 
-  if (m_iRevolveAxis > 0 && m_fRevolveRadius != 0.0f && m_RevolveAngleStep != ezAngle())
+  for (ezUInt32 uiNumDuplicate = 0; uiNumDuplicate < m_uiNumberOfCopies; ++uiNumDuplicate)
   {
-    ezVec3 vRevolveAxis(0.0f);
-    ezAngle revolve = m_RevolveStartAngle;
+    const float fStep = (float)uiNumDuplicate;
 
-    switch (m_iRevolveAxis)
+    ezVec3 vRandT(0.0f);
+    ezVec3 vRandR(0.0f);
+
+    if (m_vRandomRotation.x > 0)
+      vRandR.x = (float)rngRotX.SignedValue();
+    if (m_vRandomRotation.y > 0)
+      vRandR.y = (float)rngRotY.SignedValue();
+    if (m_vRandomRotation.z > 0)
+      vRandR.z = (float)rngRotZ.SignedValue();
+
+    if (m_vRandomTranslation.x > 0)
+      vRandT.x = rngTransX.SignedValue() / 100.0f;
+    if (m_vRandomTranslation.y > 0)
+      vRandT.y = rngTransY.SignedValue() / 100.0f;
+    if (m_vRandomTranslation.z > 0)
+      vRandT.z = rngTransZ.SignedValue() / 100.0f;
+
+    ezVec3 vPosOffset(0.0f);
+
+    if (m_iRevolveAxis > 0 && m_fRevolveRadius != 0.0f && m_RevolveAngleStep != ezAngle())
     {
-      case 1:
-        vRevolveAxis.Set(1, 0, 0);
-        vPosOffset.Set(0, 0, m_fRevolveRadius);
-        break;
-      case 2:
-        vRevolveAxis.Set(0, 1, 0);
-        vPosOffset.Set(m_fRevolveRadius, 0, 0);
-        break;
-      case 3:
-        vRevolveAxis.Set(0, 0, 1);
-        vPosOffset.Set(0, m_fRevolveRadius, 0);
-        break;
+      ezVec3 vRevolveAxis(0.0f);
+      ezAngle revolve = m_RevolveStartAngle;
+
+      switch (m_iRevolveAxis)
+      {
+        case 1:
+          vRevolveAxis.Set(1, 0, 0);
+          vPosOffset.Set(0, 0, m_fRevolveRadius);
+          break;
+        case 2:
+          vRevolveAxis.Set(0, 1, 0);
+          vPosOffset.Set(m_fRevolveRadius, 0, 0);
+          break;
+        case 3:
+          vRevolveAxis.Set(0, 0, 1);
+          vPosOffset.Set(0, m_fRevolveRadius, 0);
+          break;
+      }
+
+      revolve += fStep * m_RevolveAngleStep;
+
+      ezMat3 mRevolve = ezMat3::MakeAxisRotation(vRevolveAxis, revolve);
+
+      vPosOffset = mRevolve * vPosOffset;
     }
 
-    revolve += fStep * m_RevolveAngleStep;
-
-    ezMat3 mRevolve = ezMat3::MakeAxisRotation(vRevolveAxis, revolve);
-
-    vPosOffset = mRevolve * vPosOffset;
+    CopyOffset& offset = out_offsets.ExpandAndGetRef();
+    offset.m_vPositionOffset = vPosOffset + (1.0f + fStep) * m_vAccumulativeTranslation + vRandT;
+    offset.m_qRotation = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.x + vRandR.x), ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.y + vRandR.y), ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.z + vRandR.z));
   }
+}
 
-  ezQuat qRot = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.x + vRandR.x), ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.y + vRandR.y), ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.z + vRandR.z));
+void ezDuplicateObjectsCommand::AdjustObjectPositions(const ezArrayPtr<ezDocument::PasteInfo>& duplicates, const CopyOffset& offset)
+{
+  ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_pDocument);
 
   for (const auto& pi : duplicates)
   {
     ezTransform tGlobal = pScene->GetGlobalTransform(pi.m_pObject);
 
     tGlobal.m_vScale.Set(1.0f);
-    tGlobal.m_vPosition += vPosOffset + (1.0f + fStep) * m_vAccumulativeTranslation + vRandT;
-    tGlobal.m_qRotation = qRot * tGlobal.m_qRotation;
+    tGlobal.m_vPosition += offset.m_vPositionOffset;
+    tGlobal.m_qRotation = offset.m_qRotation * tGlobal.m_qRotation;
 
     /// \todo Christopher: Modifying the position through a command after creating the object seems to destroy the undo-ability of this
     /// operation Duplicating multiple objects (with some translation) and then undoing that will crash the editor process
@@ -308,6 +333,28 @@ ezStatus ezDuplicateObjectsCommand::UndoInternal(bool bFireEvents)
 {
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
   ezDocument* pDocument = GetDocument();
+
+  // The duplicates are usually selected. Removing a selected object sends a selection event for each object, which is slow for many
+  // duplicates, so deselect all of them at once first.
+  {
+    ezHashSet<const ezDocumentObject*> duplicates;
+    for (const auto& po : m_DuplicatedObjects)
+    {
+      duplicates.Insert(po.m_pObject);
+    }
+
+    ezDeque<const ezDocumentObject*> newSelection;
+    for (const ezDocumentObject* pObject : pDocument->GetSelectionManager()->GetSelection())
+    {
+      if (!duplicates.Contains(pObject))
+        newSelection.PushBack(pObject);
+    }
+
+    if (newSelection.GetCount() != pDocument->GetSelectionManager()->GetSelection().GetCount())
+    {
+      pDocument->GetSelectionManager()->SetSelection(newSelection);
+    }
+  }
 
   for (auto& po : m_DuplicatedObjects)
   {

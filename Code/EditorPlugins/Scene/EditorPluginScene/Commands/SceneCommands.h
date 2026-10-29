@@ -34,6 +34,21 @@ public:                        // Properties
   /// A value of -1 (the default) appends to the end of the parent's children list.
   ezInt32 m_iInsertIndex = -1;
 
+  /// Seed for the random translation and rotation. If zero, the current time is used.
+  ezUInt64 m_uiRandomSeed = 0;
+
+  struct CopyOffset
+  {
+    ezVec3 m_vPositionOffset;
+    ezQuat m_qRotation;
+  };
+
+  /// Computes how each of the m_uiNumberOfCopies copies is placed.
+  ///
+  /// A copy gets the global position of its original plus m_vPositionOffset and the global rotation of its original pre-multiplied by m_qRotation.
+  /// With a non-zero m_uiRandomSeed the result is deterministic, which ezQtDuplicateDlg uses to preview the duplicates.
+  void ComputeCopyOffsets(ezDynamicArray<CopyOffset>& out_offsets) const;
+
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
 
@@ -42,7 +57,7 @@ private:
   void DeserializeGraph(ezAbstractObjectGraph& graph);
 
   void CreateOneDuplicate(ezAbstractObjectGraph& graph, ezDynamicArray<ezDocument::PasteInfo>& out_toBePasted);
-  void AdjustObjectPositions(const ezArrayPtr<ezDocument::PasteInfo>& duplicates, ezUInt32 uiNumDuplicate, ezRandomGauss& rngRotX, ezRandomGauss& rngRotY, ezRandomGauss& rngRotZ, ezRandomGauss& rngTransX, ezRandomGauss& rngTransY, ezRandomGauss& rngTransZ);
+  void AdjustObjectPositions(const ezArrayPtr<ezDocument::PasteInfo>& duplicates, const CopyOffset& offset);
 
   virtual ezStatus UndoInternal(bool bFireEvents) override;
   virtual void CleanupInternal(CommandState state) override;

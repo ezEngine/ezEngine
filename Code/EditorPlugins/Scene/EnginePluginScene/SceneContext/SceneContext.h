@@ -103,6 +103,7 @@ private:
   void UpdateInvisibleLayerTags();
   void InsertSelectedChildren(const ezGameObject* pObject);
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
+  void HandleQueryObjectBoundsMsg(const ezQueryObjectBoundsMsgToEngine* pMsg);
   void OnSimulationEnabled();
   void OnSimulationDisabled();
   void OnPlayTheGameModeStarted(ezStringView sStartPosition, const ezTransform& startPositionOffset);
@@ -144,4 +145,25 @@ private:
   ezDynamicArray<TagGameObject> m_ObjectsToTag;
 
   static ezWorld* s_pWorldLinkedWithGameState;
+
+  ///////////////////////////////////////
+  // Indicators
+
+  struct Indicator
+  {
+    enum class Type
+    {
+      Arrow,
+      Box,
+    };
+
+    Type m_Type = Type::Arrow;
+    ezTransform m_Transform;
+    ezColor m_Color = ezColor::White;
+  };
+
+  ezDynamicArray<Indicator> m_Indicators;
+
+  void DrawIndicators(const ezViewHandle& hView);
+  void HandleIndicatorMessage(const ezAddIndicatorsMsgToEngine* pMsg);
 };
