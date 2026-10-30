@@ -25,6 +25,7 @@ CullMode = CullMode_None
 Texture2DArray DepthTexture BIND_GROUP(BG_RENDER_PASS);
 Texture2DArray LowResDepthTexture BIND_GROUP(BG_RENDER_PASS);
 SamplerState DepthSampler BIND_GROUP(BG_RENDER_PASS);
+SamplerState LowResDepthSampler BIND_GROUP(BG_RENDER_PASS);
 
 Texture2D NoiseTexture BIND_GROUP(BG_RENDER_PASS);
 
@@ -33,11 +34,7 @@ Texture2D NoiseTexture BIND_GROUP(BG_RENDER_PASS);
 
 float SampleDepth(float2 texCoords)
 {
-  // We can't use the DepthSampler here as that one clamps to a border color in linear depth space.
-  if (any(texCoords < 0.0f) || any(texCoords >= 1.0f))
-    return ConvertLinearDepthToDeviceDepth(FadeOutEnd);
-
-  return DepthTexture.SampleLevel(PointClampSampler, float3(texCoords, s_ActiveCameraEyeIndex), 0).r;
+  return ezSampleLevel_PointClampBorder(DepthTexture, DepthSampler, texCoords, s_ActiveCameraEyeIndex, 0, float4(0, 0, 0, 0)).r;
 }
 
 float SampleLowResDepth(float2 texCoords, float mipLevel)
@@ -46,7 +43,7 @@ float SampleLowResDepth(float2 texCoords, float mipLevel)
   return ConvertDeviceDepthToLinearDepth(SampleDepth(texCoords));
 #else
   texCoords = texCoords * TexCoordsScale;
-  return ezSampleLevel_PointClampBorder(LowResDepthTexture, DepthSampler, texCoords, s_ActiveCameraEyeIndex, mipLevel, FadeOutEnd.xxxx).r;
+  return ezSampleLevel_PointClampBorder(LowResDepthTexture, LowResDepthSampler, texCoords, s_ActiveCameraEyeIndex, mipLevel, FadeOutEnd.xxxx).r;
 #endif
 }
 
@@ -218,4 +215,3 @@ float4 main(PS_IN Input) : SV_Target
 
   return float4(occlusion, linearCenterDepth, 0, 1);
 }
-

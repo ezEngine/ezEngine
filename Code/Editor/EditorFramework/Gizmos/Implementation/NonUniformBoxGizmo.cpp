@@ -301,7 +301,7 @@ ezResult ezNonUniformBoxGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScre
   out_Result = m_vStartPosition;
 
   ezVec3 vPos, vRayDir;
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, ezVec3(iScreenPosX, iScreenPosY, 1), vPos, &vRayDir).Failed())
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, ezVec3(iScreenPosX, iScreenPosY, ezGraphicsUtils::GetNearPlaneDeviceDepth()), vPos, &vRayDir).Failed())
     return EZ_FAILURE;
 
   const ezVec3 vDir = m_pCamera->GetDirForwards();

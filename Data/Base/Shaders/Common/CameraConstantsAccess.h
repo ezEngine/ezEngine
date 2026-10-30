@@ -59,24 +59,26 @@ float GetFarPlaneDeviceDepth()
   return 0.0f;
 }
 
-bool IsDeviceDepthCloser(float lhs, float rhs)
+/// Returns whether deviceDepth is strictly closer to the camera than referenceDeviceDepth.
+bool IsDeviceDepthCloser(float deviceDepth, float referenceDeviceDepth)
 {
-  return lhs > rhs;
+  return deviceDepth > referenceDeviceDepth;
 }
 
-bool IsDeviceDepthFarther(float lhs, float rhs)
+/// Returns whether deviceDepth is strictly farther from the camera than referenceDeviceDepth.
+bool IsDeviceDepthFarther(float deviceDepth, float referenceDeviceDepth)
 {
-  return lhs < rhs;
+  return deviceDepth < referenceDeviceDepth;
 }
 
-float SelectClosestDeviceDepth(float lhs, float rhs)
+float SelectClosestDeviceDepth(float leftDeviceDepth, float rightDeviceDepth)
 {
-  return max(lhs, rhs);
+  return max(leftDeviceDepth, rightDeviceDepth);
 }
 
-float SelectFarthestDeviceDepth(float lhs, float rhs)
+float SelectFarthestDeviceDepth(float leftDeviceDepth, float rightDeviceDepth)
 {
-  return min(lhs, rhs);
+  return min(leftDeviceDepth, rightDeviceDepth);
 }
 
 /// Reconstructs a camera-space position from NDC XY in [-1, +1] and device depth.

@@ -58,7 +58,7 @@ struct EZ_RENDERERCORE_DLL ezViewData
     ezVec3 vScreenPos;
     vScreenPos.x = fNormalizedScreenPosX;
     vScreenPos.y = fNormalizedScreenPosY;
-    vScreenPos.z = 1.0f;
+    vScreenPos.z = ezGraphicsUtils::GetNearPlaneDeviceDepth();
 
     return ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InverseViewProjectionMatrix[static_cast<int>(eye)], vScreenPos, out_vRayStartPos, &out_vRayDir);
   }
@@ -74,7 +74,7 @@ struct EZ_RENDERERCORE_DLL ezViewData
   /// Calculates the world-space position that the given normalized screen-space coordinate maps to
   EZ_ALWAYS_INLINE ezResult ComputeWorldSpacePos(float fNormalizedScreenPosX, float fNormalizedScreenPosY, ezVec3& out_vWorldPos, ezCameraEye eye = ezCameraEye::Left) const
   {
-    return ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InverseViewProjectionMatrix[static_cast<int>(eye)], ezVec3(fNormalizedScreenPosX, fNormalizedScreenPosY, 1.0f), out_vWorldPos);
+    return ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InverseViewProjectionMatrix[static_cast<int>(eye)], ezVec3(fNormalizedScreenPosX, fNormalizedScreenPosY, ezGraphicsUtils::GetNearPlaneDeviceDepth()), out_vWorldPos);
   }
 
   /// Converts a screen-space position from pixel coordinates to normalized coordinates.

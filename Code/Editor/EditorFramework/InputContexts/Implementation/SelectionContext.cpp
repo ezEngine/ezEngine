@@ -77,7 +77,7 @@ ezEditorInput ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
     if (m_bPressedSpace && !m_PickObjectOverride.IsValid())
     {
       m_uiMarqueeID += 23;
-      m_vMarqueeStartPos.Set(e->pos().x(), e->pos().y(), 0.99f);
+      m_vMarqueeStartPos.Set(e->pos().x(), e->pos().y(), ezGraphicsUtils::GetNearPlaneDeviceDepth() - 0.01f);
 
       // no modifier -> add, CTRL -> remove
       m_Mode = e->modifiers().testFlag(Qt::ControlModifier) ? Mode::MarqueeRemove : Mode::MarqueeAdd;
@@ -231,7 +231,7 @@ void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
   }
 
   // Multiply mouse positions by devicePixelRatio
-  const ezVec3 vMousePos(e->pos().x(), e->pos().y(), 0.99f);
+  const ezVec3 vMousePos(e->pos().x(), e->pos().y(), ezGraphicsUtils::GetNearPlaneDeviceDepth() - 0.01f);
   const ezVec3 vScreenSpacePos0(vMousePos.x, vMousePos.y, vMousePos.z);
   const ezVec3 vScreenSpacePos1(m_vMarqueeStartPos.x, m_vMarqueeStartPos.y, m_vMarqueeStartPos.z);
 

@@ -4,6 +4,18 @@
 
 namespace ezGraphicsUtils
 {
+  /// Device depth of the physical near plane in the engine's inverse-depth convention.
+  constexpr float GetNearPlaneDeviceDepth()
+  {
+    return 1.0f;
+  }
+
+  /// Device depth of the physical far plane in the engine's inverse-depth convention. Also used as the default depth clear value.
+  constexpr float GetFarPlaneDeviceDepth()
+  {
+    return 0.0f;
+  }
+
   /// Converts a screen-space position from pixel coordinates to normalized coordinates.
   EZ_FOUNDATION_DLL void ConvertScreenPixelPosToNormalizedPos(const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, ezVec3& inout_vPixelPos);
 

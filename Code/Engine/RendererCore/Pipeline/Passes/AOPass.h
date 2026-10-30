@@ -52,7 +52,8 @@ protected:
 
   ezTexture2DResourceHandle m_hNoiseTexture;
 
-  ezGALSamplerStateHandle m_hSSAOSamplerState;
+  ezGALSamplerStateHandle m_hLowResDepthSamplerState;
+  ezGALSamplerStateHandle m_hDepthSamplerState;
 
   ezShaderResourceHandle m_hDownscaleShader;
   ezShaderResourceHandle m_hSSAOShader;

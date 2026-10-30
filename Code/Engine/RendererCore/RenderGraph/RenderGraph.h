@@ -177,7 +177,7 @@ private:
 
   struct DepthStencilTargetClearInfo
   {
-    float fDepthClear = 0.0f;
+    float fDepthClear = ezGraphicsUtils::GetFarPlaneDeviceDepth();
     ezUInt8 uiStencilClear = 0;
   };
 

@@ -3,6 +3,7 @@
 #include <Foundation/Algorithm/HashableStruct.h>
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Size.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
@@ -79,7 +80,7 @@ public:
 
   /// Sets the clear depth value.
   /// Note that you first must have called SetDepthStencilTarget to be able to set the clear depth value.
-  ezGALRenderingSetup& SetClearDepth(float fDepthClear = 0.0f);
+  ezGALRenderingSetup& SetClearDepth(float fDepthClear = ezGraphicsUtils::GetFarPlaneDeviceDepth());
 
   /// Sets the clear depth value.
   /// Note that you first must have called SetDepthStencilTarget to be able to set the clear depth value.
@@ -112,7 +113,7 @@ public:
 
 protected:
   ezUInt8 m_uiClearStencil = 0;
-  float m_fClearDepth = 0.0f;
+  float m_fClearDepth = ezGraphicsUtils::GetFarPlaneDeviceDepth();
   ezColor m_ClearColor[EZ_GAL_MAX_RENDERTARGET_COUNT] = {ezColor(0, 0, 0, 0)};
 
   ezGALRenderPassDescriptor m_RenderPass;

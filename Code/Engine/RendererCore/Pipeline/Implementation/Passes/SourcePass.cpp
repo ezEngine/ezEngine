@@ -19,7 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 6, ezRTTIDefaultAllocator<ezSource
     EZ_ENUM_MEMBER_PROPERTY("MSAA_Mode", ezGALMSAASampleCount, m_MsaaMode),
     EZ_MEMBER_PROPERTY("UAV", m_bUAV),
     EZ_MEMBER_PROPERTY("ClearColor", m_ClearColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_MEMBER_PROPERTY("ClearDepth", m_fClearDepth)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_MEMBER_PROPERTY("ClearDepth", m_fClearDepth)->AddAttributes(new ezDefaultValueAttribute(ezGraphicsUtils::GetFarPlaneDeviceDepth()), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("Clear", m_bClear),
     EZ_MEMBER_PROPERTY("ApplyRenderScale", m_bApplyRenderScale),
   }
