@@ -240,6 +240,9 @@ void ezParticleWorldModule::WorldClear()
   m_ParticleSystems.Clear();
   m_ParticleEffectsFreeList.Clear();
   m_ParticleSystemFreeList.Clear();
+
+  EZ_LOCK(m_SharedDataMutex);
+  m_SharedData.Clear();
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_WorldModule_ParticleWorldModule);

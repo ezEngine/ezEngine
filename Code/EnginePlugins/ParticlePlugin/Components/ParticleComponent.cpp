@@ -10,6 +10,7 @@
 #include <ParticlePlugin/Components/ParticleFinisherComponent.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
 
@@ -90,6 +91,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 5, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgSetColorParameter, OnMsgSetColorParameter),
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
+    EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnMsgAnimationPoseUpdated),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_FUNCTIONS
@@ -585,6 +587,11 @@ void ezParticleComponent::UpdatePfxTransformAndBounds()
 {
   m_EffectController.SetTransform(GetPfxTransform(), GetOwner()->GetLinearVelocity());
   m_EffectController.CombineSystemBoundingVolumes();
+}
+
+void ezParticleComponent::OnMsgAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
+{
+  m_EffectController.ForwardOwnerMessage(msg);
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleComponent);

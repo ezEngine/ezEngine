@@ -93,6 +93,16 @@ void ezParticleEffectController::SetOwnerObject(ezGameObjectHandle hOwner) const
   }
 }
 
+void ezParticleEffectController::ForwardOwnerMessage(const ezMessage& msg) const
+{
+  ezParticleEffectInstance* pEffect = GetInstance();
+
+  if (pEffect && m_pSharedInstanceOwner == nullptr)
+  {
+    pEffect->OnOwnerMessage(msg);
+  }
+}
+
 void ezParticleEffectController::CombineSystemBoundingVolumes()
 {
   if (ezParticleEffectInstance* pEffect = GetInstance())

@@ -45,13 +45,14 @@ public:
   ///
   /// Called before pre-simulating and before any particles are emitted, possibly several times per frame and from a task.
   /// As long as any initializer returns false, the system's emitters are not updated, so spawning is postponed (including bursts and start delays).
-  /// Used by initializers that need data from the world, which they only get in ezParticleModule::UpdateFromWorld().
-  virtual bool IsReadyToSpawn() const { return true; }
+  /// Used by initializers that need data from the world, which they only get in ezParticleModule::UpdateFromWorld(),
+  /// or resources which may still be streaming in. Not const, so that an initializer can pick up such data here.
+  virtual bool PrepareToSpawn() { return true; }
 
   /// Scales the spawn counts of the emitters (and the max particle count) of the owning system, for values that are only known per instance.
   ///
   /// In contrast to ezParticleInitializerFactory::GetSpawnCountMultiplier() this may depend on data that only becomes available at runtime,
-  /// e.g. the size of a spawn area. Only queried once IsReadyToSpawn() returned true.
+  /// e.g. the size of a spawn area or the surface area of the owner mesh. Only queried once PrepareToSpawn() returned true.
   /// If the value differs from the one the system currently uses, the effect gets reconfigured in the next frame, nothing is spawned until then.
   /// If that changes the max particle count, the system is recreated, which resets it. So this should only change rarely, ideally once.
   /// The value is reduced, with a warning, if it would raise the max particle count of the system above 20000.

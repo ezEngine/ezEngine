@@ -16,6 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeLightFactory, 1, ezRTTIDefaultAllo
   {
     EZ_MEMBER_PROPERTY("SizeFactor", m_fSizeFactor)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.0f, 1000.0f)),
     EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, 100000.0f)),
+    EZ_MEMBER_PROPERTY("ScaleIntensityByAlpha", m_bScaleIntensityByAlpha),
     EZ_MEMBER_PROPERTY("Percentage", m_uiPercentage)->AddAttributes(new ezDefaultValueAttribute(50), new ezClampValueAttribute(1, 100)),
     EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
     EZ_MEMBER_PROPERTY("IntensityScaleParam", m_sIntensityParameter),
@@ -52,6 +53,7 @@ void ezParticleTypeLightFactory::CopyTypeProperties(ezParticleType* pObject, boo
   pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
   pType->m_sIntensityParameter = ezTempHashedString(m_sIntensityParameter.GetData());
   pType->m_sSizeScaleParameter = ezTempHashedString(m_sSizeScaleParameter.GetData());
+  pType->m_bScaleIntensityByAlpha = m_bScaleIntensityByAlpha;
 }
 
 enum class TypeLightVersion
@@ -59,6 +61,7 @@ enum class TypeLightVersion
   Version_0 = 0,
   Version_1,
   Version_2, // added tint color and intensity parameter
+  Version_3, // added scale intensity by alpha
 
   // insert new version numbers above
   Version_Count,
@@ -78,6 +81,9 @@ void ezParticleTypeLightFactory::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_sTintColorParameter;
   inout_stream << m_sIntensityParameter;
   inout_stream << m_sSizeScaleParameter;
+
+  // Version 3
+  inout_stream << m_bScaleIntensityByAlpha;
 }
 
 void ezParticleTypeLightFactory::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
@@ -96,6 +102,11 @@ void ezParticleTypeLightFactory::Load(ezStreamReader& inout_stream, const ezPart
     inout_stream >> m_sTintColorParameter;
     inout_stream >> m_sIntensityParameter;
     inout_stream >> m_sSizeScaleParameter;
+  }
+
+  if (uiVersion >= 3)
+  {
+    inout_stream >> m_bScaleIntensityByAlpha;
   }
 }
 
@@ -174,8 +185,10 @@ void ezParticleTypeLight::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
     auto pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezPointLightRenderData>(nullptr);
 
     pRenderData->m_vGlobalPosition = transform * pPosition[i].GetAsVec3();
-    pRenderData->m_LightColor = tintColor * pColor[i].ToLinearFloat();
-    pRenderData->m_fIntensity = intensity;
+    const ezColor color = tintColor * pColor[i].ToLinearFloat();
+
+    pRenderData->m_LightColor = color;
+    pRenderData->m_fIntensity = m_bScaleIntensityByAlpha ? intensity * ezMath::Max(0.0f, color.a) : intensity;
     pRenderData->m_fSpecularMultiplier = 1.0f;
     pRenderData->m_fRadius = 0.0f;
     pRenderData->m_fRange = ezMath::Max(0.01f, pSize[i] * sizeFactor);

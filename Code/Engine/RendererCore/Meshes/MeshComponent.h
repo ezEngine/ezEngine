@@ -21,4 +21,5 @@ public:
 
   /// Extracts the render geometry for export etc.
   void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const; // [ msg handler ]
+  void OnMsgQueryMesh(ezMsgQueryMesh& ref_msg) const;             // [ msg handler ]
 };

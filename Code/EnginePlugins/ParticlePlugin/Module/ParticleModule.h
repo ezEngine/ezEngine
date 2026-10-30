@@ -27,6 +27,7 @@ public:
     m_pOwnerSystem = pOwner;
     m_StreamBinding.Clear();
     m_bUpdateFromWorld = false;
+    m_bReceiveOwnerMessages = false;
 
     OnReset();
   }
@@ -45,7 +46,7 @@ public:
   /// Cached modules can be retrieved via ezParticleWorldModule::GetCachedWorldModule().
   virtual void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) {}
 
-  /// Gives the module access to the world, for modules that need data from other objects, e.g. a spawn area.
+  /// Gives the module access to the world, for modules that need data from other objects, e.g. a spawn area or a mesh to spawn particles on.
   ///
   /// Only called once the module called RequestUpdateFromWorld().
   /// Called on the main thread once per frame in the PostTransform phase, after the particle update tasks have finished and before the next update.
@@ -55,11 +56,22 @@ public:
   /// It is invalid for shared effects and for effects that were started without a particle component.
   virtual void UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject) {}
 
+  /// Receives messages that the owner object of the effect forwards, see ezParticleEffectInstance::OnOwnerMessage().
+  ///
+  /// Only called once the module called RequestOwnerMessages().
+  /// Messages may arrive during the 'Async' world update phase, while the particle update tasks are running, including the one of this module.
+  /// Therefore the data must not be used right away, but stored as pending and made current in UpdateFromWorld().
+  virtual void OnOwnerMessage(const ezMessage& msg) {}
+
   bool GetUpdateFromWorld() const { return m_bUpdateFromWorld; }
+  bool GetReceiveOwnerMessages() const { return m_bReceiveOwnerMessages; }
 
 protected:
   /// Enables calls to UpdateFromWorld(). Reset() disables it again, so this is typically called in OnFinalize().
   void RequestUpdateFromWorld() { m_bUpdateFromWorld = true; }
+
+  /// Enables calls to OnOwnerMessage(). Reset() disables it again, so this is typically called in OnFinalize().
+  void RequestOwnerMessages() { m_bReceiveOwnerMessages = true; }
 
   /// Called by Reset() to perform custom cleanup
   virtual void OnReset() {}
@@ -81,4 +93,5 @@ private:
   ezParticleSystemInstance* m_pOwnerSystem;
   ezParticleStreamBinding m_StreamBinding;
   bool m_bUpdateFromWorld = false;
+  bool m_bReceiveOwnerMessages = false;
 };

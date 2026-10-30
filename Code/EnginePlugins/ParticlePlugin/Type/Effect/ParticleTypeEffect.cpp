@@ -179,7 +179,8 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
       // TODO: pass through velocity
       pEffect->SetVisibleIf(GetOwnerEffect());
 
-      // so that the modules of the spawned effect can use the owner as well
+      // so that the modules of the spawned effect can use the owner as well, e.g. its mesh
+      // owner messages (e.g. animation poses) are not forwarded to spawned effects
       pEffect->SetOwnerObject(GetOwnerEffect()->GetOwnerObject());
       pEffect->SetTransformForNextFrame(t, ezVec3::MakeZero());
 

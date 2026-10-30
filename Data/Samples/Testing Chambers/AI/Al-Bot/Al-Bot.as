@@ -33,6 +33,8 @@ class Bot : ezAngelScriptClass
     private ezVec3 _vStatusTextPos;
     private int _iSearchAttempt = 0;
     private ezTime _lastIdleAction;
+    private ezTime _deathTime;
+    private bool _disintegrateStarted = false;
 
     void DeactivateGO(ezStringView object)
     {
@@ -107,7 +109,26 @@ class Bot : ezAngelScriptClass
     void EnterState_Dead()
     {
         _botState = BotState::Dead;
+        _deathTime = GetWorld().GetClock().GetAccumulatedTime();
         DeactivateAll();
+    }
+
+    void UpdateState_Dead()
+    {
+        if (_disintegrateStarted)
+            return;
+
+        // give the death animation / ragdoll some time, before the body disintegrates
+        if (GetWorld().GetClock().GetAccumulatedTime() - _deathTime < ezTime::Seconds(0.1))
+            return;
+
+        _disintegrateStarted = true;
+
+        ezParticleComponent@ particleComp;
+        if (GetOwner().TryGetComponentOfBaseType(@particleComp))
+        {
+            particleComp.StartEffect();
+        }
     }
 
     void EnterState_Searching(ezAiNavigationComponent@ navComp, ezLocalBlackboardComponent@ bbComp)
@@ -416,7 +437,10 @@ class Bot : ezAngelScriptClass
     void Update() 
     {
         if (_botState == BotState::Dead)
+        {
+            UpdateState_Dead();
             return;
+        }
 
         ezLocalBlackboardComponent@ bbComp;
         if (!GetOwner().TryGetComponentOfBaseType(@bbComp))

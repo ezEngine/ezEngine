@@ -136,6 +136,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
 void ezParticleSystemInstance::Finalize()
 {
   m_WorldUpdateModules.Clear();
+  m_OwnerMessageModules.Clear();
 
   auto finalize = [&](ezParticleModule* pModule)
   {
@@ -144,6 +145,11 @@ void ezParticleSystemInstance::Finalize()
     if (pModule->GetUpdateFromWorld())
     {
       m_WorldUpdateModules.PushBack(pModule);
+    }
+
+    if (pModule->GetReceiveOwnerMessages())
+    {
+      m_OwnerMessageModules.PushBack(pModule);
     }
   };
 
@@ -181,13 +187,21 @@ void ezParticleSystemInstance::UpdateModulesFromWorld(const ezWorld& world, ezGa
   }
 }
 
-bool ezParticleSystemInstance::IsReadyToSpawn()
+bool ezParticleSystemInstance::PrepareToSpawn()
 {
+  bool bReady = true;
+
+  // no early out, so that all initializers can start loading their resources
   for (auto pInitializer : m_Initializers)
   {
-    if (!pInitializer->IsReadyToSpawn())
-      return false;
+    if (!pInitializer->PrepareToSpawn())
+    {
+      bReady = false;
+    }
   }
+
+  if (!bReady)
+    return false;
 
   if (!m_bInitializerSpawnCountMultiplierChecked)
   {
@@ -219,6 +233,14 @@ void ezParticleSystemInstance::SetSpawnCountMultiplier(float fMultiplier, float 
   m_fInitializerSpawnCountMultiplier = fInitializerMultiplier;
   m_fRequiredInitializerSpawnCountMultiplier = fInitializerMultiplier;
   m_bInitializerSpawnCountMultiplierChecked = bInitializerMultiplierChecked;
+}
+
+void ezParticleSystemInstance::OnOwnerMessage(const ezMessage& msg)
+{
+  for (ezParticleModule* pModule : m_OwnerMessageModules)
+  {
+    pModule->OnOwnerMessage(msg);
+  }
 }
 
 void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDescriptor* pTemplate)
@@ -426,6 +448,7 @@ void ezParticleSystemInstance::Destruct()
   m_Finalizers.Clear();
   m_Types.Clear();
   m_WorldUpdateModules.Clear();
+  m_OwnerMessageModules.Clear();
 
   m_StreamInfo.Clear();
 }
@@ -436,7 +459,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
 
   ezUInt32 uiSpawnedParticles = 0;
 
-  const bool bInitializersReady = IsReadyToSpawn();
+  const bool bInitializersReady = PrepareToSpawn();
 
   if (m_bEmitterEnabled && bInitializersReady)
   {

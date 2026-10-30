@@ -81,7 +81,10 @@ public:
   void OnMsgSetColor(ezMsgSetColor& ref_msg);           // [ msg handler ]
   void OnMsgSetCustomData(ezMsgSetCustomData& ref_msg); // [ msg handler ]
 
-  void RetrievePose(ezDynamicArray<ezMat4>& out_modelTransforms, ezTransform& out_rootTransform, const ezSkeleton& skeleton);
+  /// Computes the model space transforms of the pose that the mesh is currently rendered with, e.g. to continue from it.
+  ///
+  /// out_modelTransforms is empty, if the mesh has no pose (yet).
+  void RetrievePose(ezDynamicArray<ezMat4>& out_modelTransforms, ezTransform& out_rootTransform, const ezSkeleton& skeleton) const;
 
 protected:
   void UpdateSelectedLod(const ezView& view) const;
@@ -100,6 +103,7 @@ protected:
 protected:
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);     // [ msg handler ]
   void OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg); // [ msg handler ]
+  void OnQueryMesh(ezMsgQueryMesh& msg) const;                     // [ msg handler ]
 
   void InitializeAnimationPose();
 

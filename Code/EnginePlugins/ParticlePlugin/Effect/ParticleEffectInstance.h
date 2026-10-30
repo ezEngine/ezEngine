@@ -3,6 +3,7 @@
 #include <Core/World/Declarations.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Math/Transform.h>
+#include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Types/SharedPtr.h>
 
@@ -70,10 +71,16 @@ public:
 
   /// Sets the object that this effect is attached to, typically by the particle component right after creating the effect.
   ///
-  /// Modules get it in ezParticleModule::UpdateFromWorld(), e.g. to look for a spawn area.
+  /// Modules get it in ezParticleModule::UpdateFromWorld(), e.g. to look for a spawn area or a mesh to spawn particles on.
   /// Invalid for effects that aren't attached to an object, such as shared effects.
   void SetOwnerObject(ezGameObjectHandle hOwner) { m_hOwnerObject = hOwner; }
   ezGameObjectHandle GetOwnerObject() const { return m_hOwnerObject; }
+
+  /// Passes a message that the owner object received on to all modules that called ezParticleModule::RequestOwnerMessages().
+  ///
+  /// Typically called by the particle component for the message types that it forwards (e.g. ezMsgAnimationPoseUpdated).
+  /// May be called while the effect is being updated, see ezParticleModule::OnOwnerMessage().
+  void OnOwnerMessage(const ezMessage& msg);
 
   /// @name Transform Related
   /// @{
@@ -90,6 +97,12 @@ public:
 
   /// Returns the transform of the main or shared instance.
   const ezTransform& GetTransform() const { return m_Transform; }
+
+  /// Returns the transform that the next simulation step uses.
+  ///
+  /// Differs from GetTransform() between SetTransformForNextFrame() and the start of the next update, e.g. for effects spawned by other effects.
+  /// Modules that compute data relative to the effect in ezParticleModule::UpdateFromWorld() have to use this one.
+  const ezTransform& GetTransformForNextFrame() const { return m_TransformForNextFrame; }
 
   /// For the renderer to know whether the instance transform has to be applied to each particle position.
   bool NeedsToApplyTransform() const { return m_bSimulateInLocalSpace || m_bIsSharedEffect; }
@@ -257,4 +270,7 @@ private:
   ezStaticArray<ezParticleEvent, 8> m_EventQueue;
 
   ezGameObjectHandle m_hOwnerObject;
+
+  /// The update task destroys finished particle systems, while OnOwnerMessage() may be called at the same time.
+  ezMutex m_SystemsMutex;
 };

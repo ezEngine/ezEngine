@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
 
@@ -8,6 +9,30 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCpuMeshResource, 1, ezRTTIDefaultAllocator<ezC
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezCpuMeshResource);
+
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, CpuMeshResource)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+  "Foundation",
+  "Core"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORESYSTEMS_STARTUP
+  {
+    ezMeshResourceDescriptor desc;
+    ezCpuMeshResourceHandle hFallback = ezResourceManager::CreateResource<ezCpuMeshResource>("Fallback CPU Mesh", std::move(desc), "Empty CPU mesh for loading and missing meshes");
+
+    ezResourceManager::SetResourceTypeLoadingFallback<ezCpuMeshResource>(hFallback);
+    ezResourceManager::SetResourceTypeMissingFallback<ezCpuMeshResource>(hFallback);
+  }
+
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+    ezResourceManager::SetResourceTypeLoadingFallback<ezCpuMeshResource>(ezCpuMeshResourceHandle());
+    ezResourceManager::SetResourceTypeMissingFallback<ezCpuMeshResource>(ezCpuMeshResourceHandle());
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ezCpuMeshResource::ezCpuMeshResource()

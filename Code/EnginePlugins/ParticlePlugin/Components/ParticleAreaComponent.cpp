@@ -205,7 +205,7 @@ const ezParticleAreaComponent* ezParticleAreaReference::Update(const ezWorld& wo
   if (!world.TryGetComponent(m_hArea, pArea) || !pArea->IsActiveAndInitialized())
     return nullptr;
 
-  m_Transform = ezTransform::MakeLocalTransform(effect.GetTransform(), pArea->GetOwner()->GetGlobalTransform());
+  m_Transform = ezTransform::MakeLocalTransform(effect.GetTransformForNextFrame(), pArea->GetOwner()->GetGlobalTransform());
   return pArea;
 }
 

@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13538917938739035806,5388555642691984166}}
-		u4 %Hash{18343169613069576325}
+		u4 %Hash{18037756646631154252}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{539284960665380185,1283550099581856954}}
@@ -31,6 +31,7 @@ o
 		{
 			s{"{ 222ea0e0-32a8-42c5-a593-36d6f39a5d5a }"}
 			s{"{ 379c47b4-8960-4393-9809-c9e236b336e0 }"}
+			s{"{ 496e8f18-1527-4cf9-8521-5a14e9e5864d }"}
 			s{"{ 85177a57-3848-421e-aaa3-9e46759a843a }"}
 			s{"{ aa1fc14c-cf99-4ae1-a9e6-f1fe042695c9 }"}
 			s{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
@@ -219,6 +220,26 @@ o
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{0}
 		s %SpawnDirection{"ezBasisAxis::PositiveX"}
+	}
+}
+o
+{
+	Uuid %id{u4{1999568013354840962,5284038710210710336}}
+	s %t{"ezParticleComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		s %Effect{"{ 496e8f18-1527-4cf9-8521-5a14e9e5864d }"}
+		b %IgnoreOwnerRotation{0}
+		Time %MinRestartDelay{d{0}}
+		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
+		VarDict %Parameters{}
+		u4 %RandomSeed{0}
+		Time %RestartDelayRange{d{0}}
+		s %SharedInstanceName{""}
+		b %SpawnAtStart{0}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
 	}
 }
 o
@@ -587,6 +608,7 @@ o
 			Uuid{u4{5283958606300642490,5915202906958380206}}
 			Uuid{u4{13136517275728641206,5213741414263546115}}
 			Uuid{u4{18350615177617177506,5342945181308171912}}
+			Uuid{u4{1999568013354840962,5284038710210710336}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}

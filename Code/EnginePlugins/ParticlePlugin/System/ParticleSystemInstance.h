@@ -10,6 +10,7 @@
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
 struct ezMsgExtractRenderData;
+class ezMessage;
 class ezParticleModule;
 
 /// A particle system stores all data for one 'layer' of a running particle effect
@@ -78,7 +79,7 @@ public:
   /// Sets the multiplier that the emitters use for their spawn counts. Only has an effect on the next ConfigureFromTemplate().
   ///
   /// fInitializerMultiplier is the part of fMultiplier that comes from ezParticleInitializer::GetSpawnCountMultiplier().
-  /// If bInitializerMultiplierChecked is true, the initializers are not asked again, see IsReadyToSpawn().
+  /// If bInitializerMultiplierChecked is true, the initializers are not asked again, see PrepareToSpawn().
   void SetSpawnCountMultiplier(float fMultiplier, float fInitializerMultiplier, bool bInitializerMultiplierChecked);
 
   /// The product of ezParticleInitializer::GetSpawnCountMultiplier() of all initializers, once they were ready.
@@ -88,13 +89,16 @@ public:
   /// Calls ezParticleModule::UpdateFromWorld() on all modules that requested it.
   void UpdateModulesFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject);
 
-  /// Returns false as long as any initializer isn't ready yet, see ezParticleInitializer::IsReadyToSpawn(). Until then no particles are emitted.
+  /// Calls ezParticleModule::OnOwnerMessage() on all modules that requested it.
+  void OnOwnerMessage(const ezMessage& msg);
+
+  /// Returns false as long as any initializer isn't ready yet, see ezParticleInitializer::PrepareToSpawn(). Until then no particles are emitted.
   ///
   /// Also returns false, if the initializers require a different spawn count multiplier than the system currently uses, see
   /// ezParticleInitializer::GetSpawnCountMultiplier(). The effect is then reconfigured in the next frame.
   /// This is only checked once, the first time all initializers are ready. A system that gets recreated for this keeps that state, otherwise
   /// a multiplier that keeps changing (e.g. with an animated scale) would recreate the system over and over.
-  bool IsReadyToSpawn();
+  bool PrepareToSpawn();
 
 private:
   bool IsEmitterConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
@@ -111,8 +115,9 @@ private:
   ezSmallArray<ezParticleFinalizer*, 3> m_Finalizers;
   ezSmallArray<ezParticleType*, 1> m_Types;
 
-  // modules that requested UpdateFromWorld(), collected in Finalize()
+  // collected in Finalize()
   ezSmallArray<ezParticleModule*, 1> m_WorldUpdateModules;
+  ezSmallArray<ezParticleModule*, 1> m_OwnerMessageModules;
 
   bool m_bVisible = true; // typically used in editor to hide a system
   bool m_bEmitterEnabled = true;

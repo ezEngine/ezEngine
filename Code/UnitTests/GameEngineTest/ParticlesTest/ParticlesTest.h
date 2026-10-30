@@ -78,6 +78,7 @@ private:
     Lighting,
     Attractors,
     Fog,
+    MeshPositionInitializer,
     WindBehavior,
     ParticleAreas,
   };

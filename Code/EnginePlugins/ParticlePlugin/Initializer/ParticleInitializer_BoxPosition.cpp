@@ -176,7 +176,7 @@ void ezParticleInitializer_BoxPosition::UpdateFromWorld(const ezWorld& world, ez
   m_vSize = vAreaSize;
 }
 
-bool ezParticleInitializer_BoxPosition::IsReadyToSpawn() const
+bool ezParticleInitializer_BoxPosition::PrepareToSpawn()
 {
   return !m_bUseSpawnArea || m_Area.IsReady(*GetOwnerEffect());
 }

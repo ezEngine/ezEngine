@@ -7,6 +7,10 @@
 /// Unlike regular ezMeshResource which stores data on the GPU, this resource keeps
 /// the mesh descriptor in CPU memory. Used for scenarios requiring CPU access to
 /// mesh data such as collision detection, raycasting, or procedural mesh generation.
+///
+/// An empty mesh is registered as the loading and missing fallback for this type.
+/// So with ezResourceAcquireMode::AllowLoadingFallback, acquiring doesn't block, but the descriptor may be empty.
+/// Check the acquire result for ezResourceAcquireResult::Final before relying on the mesh data.
 class EZ_RENDERERCORE_DLL ezCpuMeshResource : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCpuMeshResource, ezResource);

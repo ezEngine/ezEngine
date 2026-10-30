@@ -19,7 +19,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 3, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry)
+    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
+    EZ_MESSAGE_HANDLER(ezMsgQueryMesh, OnMsgQueryMesh),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -46,6 +47,14 @@ void ezMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const
   }
 
   ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), ezResourceManager::LoadResource<ezCpuMeshResource>(GetMesh().GetResourceID()));
+}
+
+void ezMeshComponent::OnMsgQueryMesh(ezMsgQueryMesh& ref_msg) const
+{
+  if (!ref_msg.m_hMesh.IsValid())
+  {
+    ref_msg.m_hMesh = GetMesh();
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
