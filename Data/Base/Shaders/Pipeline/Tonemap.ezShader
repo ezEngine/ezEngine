@@ -4,7 +4,6 @@ ALL
 [PERMUTATIONS]
 
 CAMERA_MODE
-LUT_MODE
 
 [RENDERSTATE]
 
@@ -76,12 +75,8 @@ Texture2D NoiseTexture;
 Texture2DArray SceneColorTexture;
 Texture2DArray BloomTexture;
 
-#if LUT_MODE == LUT_MODE_ONE
-  Texture3D Lut1Texture;
-#elif LUT_MODE == LUT_MODE_TWO
-  Texture3D Lut1Texture;
-  Texture3D Lut2Texture;
-#endif
+Texture3D Lut1Texture;
+Texture3D Lut2Texture;
 
 float3 ScreenSpaceDither( float2 texCoords )
 {
@@ -103,10 +98,6 @@ float4 main(PS_IN Input) : SV_Target
 
   float3 bloom = BloomTexture.SampleLevel(LinearClampSampler, float3(Input.TexCoord0.xy, s_ActiveCameraEyeIndex), 0.0).rgb;
   sceneColor += bloom;
-
-  // Vignetting
-  float3 vignetting = VignettingTexture.SampleLevel(LinearClampSampler, Input.TexCoord0.xy, 0.0).rgb;
-  sceneColor *= vignetting;
 
   // Ensure all values passed to tonemapping are non-negative
   sceneColor = max(sceneColor, 0.0);
@@ -137,17 +128,15 @@ float4 main(PS_IN Input) : SV_Target
   float3 color = saturate(tonemappedColor);
   
   // Color grading with LUTs if enabled
-  #if LUT_MODE != LUT_MODE_NONE
-
+  if (NumLUTs > 0)
+  {
     color = lerp(color, Lut1Texture.Sample(LinearClampSampler, color), Lut1Strength);
 
-    #if LUT_MODE == LUT_MODE_TWO
-
+    if (NumLUTs > 1)
+    {
       color = lerp(color, Lut2Texture.Sample(LinearClampSampler, color), Lut2Strength);
-
-    #endif
-
-  #endif
+    }
+  }
 
   // Color correction
   float luminance = GetLuminance(color);
@@ -158,6 +147,10 @@ float4 main(PS_IN Input) : SV_Target
 
   color = saturate(lerp(luminance.xxx, color, Saturation));
   color = AdjustContrast(color);
+
+  // Vignetting
+  float3 vignetting = VignettingTexture.SampleLevel(LinearClampSampler, Input.TexCoord0.xy, 0.0).rgb;
+  color *= vignetting;
 
   // Cheap approx convert to sRGB before dither
   color = sqrt(color);

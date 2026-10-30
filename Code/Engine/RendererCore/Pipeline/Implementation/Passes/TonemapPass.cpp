@@ -150,6 +150,7 @@ ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCame
         constants->Lut1Strength = lutStrengths[0];
         constants->Lut2Strength = lutStrengths[1];
 
+        constants->NumLUTs = numLUTs;
         constants->TonemapMode = m_Mode != ezTonemapMode::None ? m_Mode.GetValue() : ezTonemapMode::Linear;
         constants->WhitePoint = m_fWhitePoint;
         constants->TonemapNormalization = CalculateTonemapNormalization(m_Mode);
@@ -191,12 +192,12 @@ ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCame
         bindGroup.BindTexture("BloomTexture", m_hBlackTexture, ezResourceAcquireMode::BlockTillLoaded);
       }
 
-      ezTempHashedString sLUTModeValues[3] = {"LUT_MODE_NONE", "LUT_MODE_ONE", "LUT_MODE_TWO"};
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LUT_MODE", sLUTModeValues[numLUTs]);
-
       renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
-      VisualizeCurve(renderViewContext);
+      if (m_bVisualizeCurve)
+      {
+        VisualizeCurve(renderViewContext);
+      }
     });
 
   return EZ_SUCCESS;
@@ -336,9 +337,6 @@ float ezTonemapPass::CalculateTonemapNormalization(ezTonemapMode::Enum mode) con
 
 void ezTonemapPass::VisualizeCurve(const ezRenderViewContext& renderViewContext) const
 {
-  if (!m_bVisualizeCurve)
-    return;
-
   ezStringBuilder sb;
 
   const ezVec2 vViewportSize = renderViewContext.m_pViewData->m_ViewPortRect.GetExtents();
@@ -350,7 +348,7 @@ void ezTonemapPass::VisualizeCurve(const ezRenderViewContext& renderViewContext)
   // Draw a background rectangle
   {
     const ezRectFloat backgroundRect(vTopLeft, vBottomRight - vTopLeft);
-    ezDebugRenderer::Draw2DRectangle(*renderViewContext.m_pViewDebugContext, backgroundRect, 1.0f, ezColor(0.0f, 0.0f, 0.0f, 0.9f));
+    ezDebugRenderer::Draw2DRectangle(*renderViewContext.m_pViewDebugContext, backgroundRect, ezGraphicsUtils::GetNearPlaneDeviceDepth(), ezColor(0.0f, 0.0f, 0.0f, 0.9f));
   }
 
   // Axis lines and labels
@@ -415,7 +413,6 @@ void ezTonemapPass::VisualizeCurve(const ezRenderViewContext& renderViewContext)
         case ezTonemapMode::Filmic:
           return HableFunction(x, m_fFilmicToe, m_fFilmicLinearStrength, m_fFilmicLinearAngle, m_fFilmicShoulder) * fNormalization;
         case ezTonemapMode::ACES:
-          // The ACES input and output matrices preserve gray values, so they can be skipped for the curve.
           return ACESFunction(x, m_fAcesToe, m_fAcesSlope, m_fAcesShoulder) * fNormalization;
         default:
           return 0.0f;
@@ -449,8 +446,7 @@ void ezTonemapPass::VisualizeCurve(const ezRenderViewContext& renderViewContext)
   // Plot the comparison curve
   if (m_CompareCurve != ezTonemapMode::None)
   {
-    ezReflectionUtils::EnumerationToString(m_CompareCurve, sb, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
-    sb.Prepend("Compare: ");
+    sb.SetFormat("Compare: {}", ezArgEnum(m_CompareCurve));
     ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, sb, ezVec2I32(int((vTopLeft.x + vBottomRight.x) * 0.5f), int(vTopLeft.y)), ezColor::Lime, uiTextSize, ezDebugTextHAlign::Left, ezDebugTextVAlign::Bottom);
 
     PlotCurve(m_CompareCurve, ezColor::Lime);
@@ -458,8 +454,7 @@ void ezTonemapPass::VisualizeCurve(const ezRenderViewContext& renderViewContext)
 
   // Plot the active curve
   {
-    ezReflectionUtils::EnumerationToString(m_Mode, sb, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
-    sb.Prepend("Active: ");
+    sb.SetFormat("Active: {}", ezArgEnum(m_Mode));
     ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, sb, ezVec2I32(int(vTopLeft.x), int(vTopLeft.y)), ezColor::Red, uiTextSize, ezDebugTextHAlign::Left, ezDebugTextVAlign::Bottom);
 
     PlotCurve(m_Mode, ezColor::Red);

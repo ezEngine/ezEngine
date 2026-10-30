@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{8356037211178534933}
+		u4 %Hash{11658713336089404115}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -10447,7 +10447,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %DefaultValue{0x9A99993E}
+		f %DefaultValue{0x9A99193E}
 		Time %InterpolationDuration{d{0x0000000000000040}}
 		HashedString %Name{s{"TonemapPass.MoodStrength"}}
 	}

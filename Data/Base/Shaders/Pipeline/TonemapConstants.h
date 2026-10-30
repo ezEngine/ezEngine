@@ -21,6 +21,7 @@ CONSTANT_BUFFER(ezTonemapConstants, 3)
   FLOAT1(Lut2Strength);
   FLOAT4(ContrastParams);
 
+  INT1(NumLUTs);
   INT1(TonemapMode);
   FLOAT1(WhitePoint);
   FLOAT1(TonemapNormalization); // Derived on the CPU from the tonemap mode and white point
@@ -84,14 +85,14 @@ COLOR_TYPE ACESFunction(COLOR_TYPE x, float toe, float slope, float shoulder)
   const float toeScale = 1 + blackClip - toe;
   const float shoulderScale = 1 + whiteClip - shoulder;
 
-  const float inMatch = 0.18;
+  const float inMatchLog10 = log10(0.18);
   const float outMatch = 0.18;
 
   float toeCutoff;
   if (toe > 0.8)
   {
     // 0.18 will be on straight segment
-    toeCutoff = (1 - toe - outMatch) / slope + log10(inMatch);
+    toeCutoff = (1 - toe - outMatch) / slope + inMatchLog10;
   }
   else
   {
@@ -99,23 +100,23 @@ COLOR_TYPE ACESFunction(COLOR_TYPE x, float toe, float slope, float shoulder)
 
     // Solve for toeCutoff such that input of inMatch gives output of outMatch.
     const float bt = (outMatch + blackClip) / toeScale - 1;
-    toeCutoff = log10(inMatch) - 0.5 * log((1 + bt) / (1 - bt)) * (toeScale / slope);
+    toeCutoff = inMatchLog10 - 0.5 * log((1 + bt) / (1 - bt)) * (toeScale / slope);
   }
 
-  float StraightMatch = (1 - toe) / slope - toeCutoff;
-  float ShoulderMatch = shoulder / slope - StraightMatch;
+  float straightCutoff = (1 - toe) / slope - toeCutoff;
+  float shoulderCutoff = shoulder / slope - straightCutoff;
 
   COLOR_TYPE logColor = log10(x * 0.7);
-  COLOR_TYPE StraightColor = slope * (logColor + StraightMatch);
+  COLOR_TYPE StraightColor = slope * (logColor + straightCutoff);
 
   COLOR_TYPE toeColor = (-blackClip) + (2 * toeScale) / (1 + exp((-2 * slope / toeScale) * (logColor - toeCutoff)));
-  COLOR_TYPE shoulderColor = (1 + whiteClip) - (2 * shoulderScale) / (1 + exp((2 * slope / shoulderScale) * (logColor - ShoulderMatch)));
+  COLOR_TYPE shoulderColor = (1 + whiteClip) - (2 * shoulderScale) / (1 + exp((2 * slope / shoulderScale) * (logColor - shoulderCutoff)));
 
   toeColor = logColor < toeCutoff ? toeColor : StraightColor;
-  shoulderColor = logColor > ShoulderMatch ? shoulderColor : StraightColor;
+  shoulderColor = logColor > shoulderCutoff ? shoulderColor : StraightColor;
 
-  COLOR_TYPE t = saturate((logColor - toeCutoff) / (ShoulderMatch - toeCutoff));
-  t = ShoulderMatch < toeCutoff ? 1 - t : t;
+  COLOR_TYPE t = saturate((logColor - toeCutoff) / (shoulderCutoff - toeCutoff));
+  t = shoulderCutoff < toeCutoff ? 1 - t : t;
   t = (3 - 2 * t) * t * t;
   COLOR_TYPE toneColor = lerp(toeColor, shoulderColor, t);
 #endif
