@@ -43,7 +43,31 @@ public:
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
+  void SetFilmicToe(float fToe);                                            // [ property ]
+  float GetFilmicToe() const { return m_fFilmicToe; }                       // [ property ]
+
+  void SetFilmicLinearStrength(float fStrength);                            // [ property ]
+  float GetFilmicLinearStrength() const { return m_fFilmicLinearStrength; } // [ property ]
+
+  void SetFilmicLinearAngle(float fAngle);                                  // [ property ]
+  float GetFilmicLinearAngle() const { return m_fFilmicLinearAngle; }       // [ property ]
+
+  void SetFilmicShoulder(float fShoulder);                                  // [ property ]
+  float GetFilmicShoulder() const { return m_fFilmicShoulder; }             // [ property ]
+
+  void SetAcesToe(float fToe);                                              // [ property ]
+  float GetAcesToe() const { return m_fAcesToe; }                           // [ property ]
+
+  void SetAcesSlope(float fSlope);                                          // [ property ]
+  float GetAcesSlope() const { return m_fAcesSlope; }                       // [ property ]
+
+  void SetAcesShoulder(float fShoulder);                                    // [ property ]
+  float GetAcesShoulder() const { return m_fAcesShoulder; }                 // [ property ]
+
 protected:
+  float CalculateTonemapNormalization(ezTonemapMode::Enum mode) const;
+  void VisualizeCurve(const ezRenderViewContext& renderViewContext) const;
+
   ezRenderPipelineNodeInputPin m_PinColorInput;                             ///< HDR color input to tonemap.
   ezRenderPipelineNodeInputPin m_PinBloomInput;                             ///< Optional bloom texture to add.
   ezRenderPipelineNodeOutputPin m_PinOutput;                                ///< LDR output after tonemapping.
