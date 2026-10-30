@@ -43,7 +43,7 @@ bool ezSelectionManager::RecursiveRemoveFromSelection(const ezDocumentObject* pO
 
   for (const ezDocumentObject* pChild : pObject->GetChildren())
   {
-    bRemoved = bRemoved || RecursiveRemoveFromSelection(pChild);
+    bRemoved |= RecursiveRemoveFromSelection(pChild);
   }
   return bRemoved;
 }

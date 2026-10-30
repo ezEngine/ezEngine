@@ -30,6 +30,8 @@ ezQtDeltaTransformDlg::ezQtDeltaTransformDlg(QWidget* pParent, ezSceneDocument* 
 {
   m_pSceneDocument = pSceneDoc;
 
+  QueryObjectBounds();
+
   setupUi(this);
 
   {
@@ -59,6 +61,14 @@ ezQtDeltaTransformDlg::ezQtDeltaTransformDlg(QWidget* pParent, ezSceneDocument* 
   ComboSpace->setCurrentIndex(s_Space);
 
   ButtonUndo->setEnabled(m_uiActionsApplied > 0 && m_pSceneDocument->GetCommandHistory()->CanUndo());
+
+  PickNewRandomSeed();
+  UpdatePreview();
+}
+
+ezQtDeltaTransformDlg::~ezQtDeltaTransformDlg()
+{
+  m_pSceneDocument->ShowTransformPreview({}, {});
 }
 
 void ezQtDeltaTransformDlg::on_ComboMode_currentIndexChanged(int index)
@@ -68,11 +78,13 @@ void ezQtDeltaTransformDlg::on_ComboMode_currentIndexChanged(int index)
   s_Mode = (Mode)index;
 
   UpdateUI();
+  UpdatePreview();
 }
 
 void ezQtDeltaTransformDlg::on_ComboSpace_currentIndexChanged(int index)
 {
   s_Space = (Space)index;
+  UpdatePreview();
 }
 
 void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
@@ -195,7 +207,34 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
   }
 
 
+  ezHybridArray<NewTransform, 64> newTransforms;
+  const ezUInt8 uiTransformationChanges = ComputeNewTransforms(newTransforms);
+
+  if (newTransforms.IsEmpty())
+    return;
+
   auto history = m_pSceneDocument->GetCommandHistory();
+  history->StartTransaction(sAction.GetData());
+
+  for (const NewTransform& nt : newTransforms)
+  {
+    m_pSceneDocument->SetGlobalTransform(nt.m_pObject, nt.m_Transform, uiTransformationChanges);
+  }
+
+  history->FinishTransaction();
+
+  ++m_uiActionsApplied;
+  ButtonUndo->setEnabled(m_uiActionsApplied > 0 && m_pSceneDocument->GetCommandHistory()->CanUndo());
+
+  // the random modes should produce a different result for the next application
+  PickNewRandomSeed();
+  UpdatePreview();
+}
+
+ezUInt8 ezQtDeltaTransformDlg::ComputeNewTransforms(ezDynamicArray<NewTransform>& out_NewTransforms) const
+{
+  out_NewTransforms.Clear();
+
   auto selman = m_pSceneDocument->GetSelectionManager();
 
   ezTempHybridArray<ezSelectionEntry, 64> selection;
@@ -203,7 +242,9 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
   const ezDocumentObject* pCurObj = selman->GetCurrentObject();
 
   if (selection.IsEmpty() || pCurObj == nullptr)
-    return;
+    return 0;
+
+  ezUInt8 uiTransformationChanges = 0;
 
   Space space = (Space)ComboSpace->currentIndex();
 
@@ -218,13 +259,13 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
     tReference.m_qRotation.SetIdentity();
   }
 
-  history->StartTransaction(sAction.GetData());
-
   ezRandom rng;
-  rng.InitializeFromCurrentTime();
+  rng.Initialize(m_uiRandomSeed);
 
-  for (const ezSelectionEntry& entry : selection)
+  for (ezUInt32 uiSelectionIndex = 0; uiSelectionIndex < selection.GetCount(); ++uiSelectionIndex)
   {
+    const ezSelectionEntry& entry = selection[uiSelectionIndex];
+
     if (!entry.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
       continue;
 
@@ -319,7 +360,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       case Mode::Translate:
       case Mode::TranslateDeviation:
         trans.m_vPosition += tReference.m_qRotation * vTranslate;
-        m_pSceneDocument->SetGlobalTransform(entry.m_pObject, trans, TransformationChanges::Translation);
+        uiTransformationChanges = TransformationChanges::Translation;
         break;
 
       case Mode::RotateX:
@@ -330,7 +371,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
         trans.m_qRotation.Normalize();
-        m_pSceneDocument->SetGlobalTransform(entry.m_pObject, trans, TransformationChanges::Translation | TransformationChanges::Rotation);
+        uiTransformationChanges = TransformationChanges::Translation | TransformationChanges::Rotation;
         break;
 
       case Mode::RotateY:
@@ -341,7 +382,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
         trans.m_qRotation.Normalize();
-        m_pSceneDocument->SetGlobalTransform(entry.m_pObject, trans, TransformationChanges::Translation | TransformationChanges::Rotation);
+        uiTransformationChanges = TransformationChanges::Translation | TransformationChanges::Rotation;
         break;
 
       case Mode::RotateZ:
@@ -352,19 +393,19 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
         trans.m_qRotation.Normalize();
-        m_pSceneDocument->SetGlobalTransform(entry.m_pObject, trans, TransformationChanges::Translation | TransformationChanges::Rotation);
+        uiTransformationChanges = TransformationChanges::Translation | TransformationChanges::Rotation;
         break;
 
       case Mode::Scale:
       case Mode::ScaleDeviation:
         trans.m_vScale = trans.m_vScale.CompMul(vScale);
-        m_pSceneDocument->SetGlobalTransform(entry.m_pObject, trans, TransformationChanges::Scale);
+        uiTransformationChanges = TransformationChanges::Scale;
         break;
 
       case Mode::UniformScale:
       case Mode::UniformScaleDeviation:
         trans.m_vScale *= fUniformScale;
-        m_pSceneDocument->SetGlobalTransform(entry.m_pObject, trans, TransformationChanges::Scale);
+        uiTransformationChanges = TransformationChanges::Scale;
 
         break;
 
@@ -386,7 +427,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
         localTrans.m_vPosition = qDeviation * qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
         trans.m_qRotation.Normalize();
-        m_pSceneDocument->SetGlobalTransform(entry.m_pObject, trans, TransformationChanges::Translation | TransformationChanges::Rotation);
+        uiTransformationChanges = TransformationChanges::Translation | TransformationChanges::Rotation;
 
         break;
       }
@@ -394,12 +435,55 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       default:
         break;
     }
+
+    auto& nt = out_NewTransforms.ExpandAndGetRef();
+    nt.m_pObject = entry.m_pObject;
+    nt.m_uiSelectionIndex = uiSelectionIndex;
+    nt.m_Transform = trans;
   }
 
-  history->FinishTransaction();
+  return uiTransformationChanges;
+}
 
-  ++m_uiActionsApplied;
-  ButtonUndo->setEnabled(m_uiActionsApplied > 0 && m_pSceneDocument->GetCommandHistory()->CanUndo());
+void ezQtDeltaTransformDlg::UpdatePreview()
+{
+  ezTempHybridArray<NewTransform, 64> newTransforms;
+  ComputeNewTransforms(newTransforms);
+
+  ezTempHybridArray<ezTransform, 64> transforms;
+  ezTempHybridArray<ezBoundingBox, 64> bounds;
+
+  for (const NewTransform& nt : newTransforms)
+  {
+    transforms.PushBack(nt.m_Transform);
+    bounds.PushBack(m_ObjectBounds[nt.m_uiSelectionIndex]);
+  }
+
+  m_pSceneDocument->ShowTransformPreview(transforms, bounds);
+}
+
+void ezQtDeltaTransformDlg::QueryObjectBounds()
+{
+  ezTempHybridArray<ezSelectionEntry, 64> selection;
+  m_pSceneDocument->GetSelectionManager()->GetTopLevelSelection(selection);
+
+  ezTempHybridArray<const ezDocumentObject*, 64> objects;
+  for (const ezSelectionEntry& entry : selection)
+  {
+    objects.PushBack(entry.m_pObject);
+  }
+
+  // if this fails, the preview shows arrows instead of boxes
+  m_pSceneDocument->QueryObjectBounds(objects, m_ObjectBounds);
+}
+
+void ezQtDeltaTransformDlg::PickNewRandomSeed()
+{
+  ezRandom rng;
+  rng.InitializeFromCurrentTime();
+
+  // ezRandom must not be initialized with zero
+  m_uiRandomSeed = ezMath::Max(rng.UInt(), 1u);
 }
 
 void ezQtDeltaTransformDlg::on_ButtonUndo_clicked()
@@ -413,6 +497,8 @@ void ezQtDeltaTransformDlg::on_ButtonUndo_clicked()
   }
 
   ButtonUndo->setEnabled(m_uiActionsApplied > 0 && m_pSceneDocument->GetCommandHistory()->CanUndo());
+
+  UpdatePreview();
 }
 
 void ezQtDeltaTransformDlg::QueryUI()
@@ -508,6 +594,14 @@ void ezQtDeltaTransformDlg::UpdateUI()
 
   CheckBoxSnapping->setVisible(true);
   CheckBoxSnapping->setChecked(s_bUseCurrentSnapSettings);
+
+  {
+    // right-click resets a spin box to its default value, which should be the value that doesn't change anything
+    const bool bIsScale = s_Mode == Mode::Scale || s_Mode == Mode::ScaleDeviation || s_Mode == Mode::UniformScale || s_Mode == Mode::UniformScaleDeviation;
+    Value1->setDefaultValue(bIsScale ? 1.0 : 0.0);
+    Value2->setDefaultValue(bIsScale ? 1.0 : 0.0);
+    Value3->setDefaultValue(bIsScale ? 1.0 : 0.0);
+  }
 
   switch (s_Mode)
   {
@@ -735,6 +829,8 @@ void ezQtDeltaTransformDlg::on_Value1_valueChanged(double value)
     default:
       break;
   }
+
+  UpdatePreview();
 }
 
 void ezQtDeltaTransformDlg::on_Value2_valueChanged(double value)
@@ -760,6 +856,8 @@ void ezQtDeltaTransformDlg::on_Value2_valueChanged(double value)
     default:
       break;
   }
+
+  UpdatePreview();
 }
 
 void ezQtDeltaTransformDlg::on_Value3_valueChanged(double value)
@@ -785,9 +883,12 @@ void ezQtDeltaTransformDlg::on_Value3_valueChanged(double value)
     default:
       break;
   }
+
+  UpdatePreview();
 }
 
 void ezQtDeltaTransformDlg::on_CheckBoxSnapping_stateChanged(int state)
 {
   s_bUseCurrentSnapSettings = (state != 0);
+  UpdatePreview();
 }

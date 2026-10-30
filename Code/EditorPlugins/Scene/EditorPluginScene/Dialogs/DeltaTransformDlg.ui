@@ -142,7 +142,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="Value1">
+      <widget class="ezQtDoubleSpinBox" name="Value1">
        <property name="decimals">
         <number>3</number>
        </property>
@@ -165,7 +165,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="Value2">
+      <widget class="ezQtDoubleSpinBox" name="Value2">
        <property name="decimals">
         <number>3</number>
        </property>
@@ -185,7 +185,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="Value3">
+      <widget class="ezQtDoubleSpinBox" name="Value3">
        <property name="decimals">
         <number>3</number>
        </property>
@@ -271,6 +271,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ezQtDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header location="global">GuiFoundation/Widgets/DoubleSpinBox.moc.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>ComboMode</tabstop>
   <tabstop>ComboSpace</tabstop>

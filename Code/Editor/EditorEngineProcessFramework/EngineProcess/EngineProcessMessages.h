@@ -141,7 +141,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDynamicStringEnumMsgToEditor : publi
 
 public:
   ezString m_sEnumName;
-  ezHybridArray<ezString, 8> m_EnumValues;
+  ezSmallArray<ezString, 8> m_EnumValues;
 };
 
 ///////////////////////////////////// ezEditorEngineDocumentMsg /////////////////////////////////////
@@ -332,7 +332,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezCreateThumbnailMsgToEngine : public 
 public:
   ezUInt16 m_uiWidth = 0;
   ezUInt16 m_uiHeight = 0;
-  ezHybridArray<ezString, 1> m_ViewExcludeTags;
+  ezSmallArray<ezString, 1> m_ViewExcludeTags;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezCreateThumbnailMsgToEditor : public ezEditorEngineDocumentMsg
@@ -388,7 +388,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewMarqueePickingResultMsgToEditor 
   EZ_ADD_DYNAMIC_REFLECTION(ezViewMarqueePickingResultMsgToEditor, ezEditorEngineViewMsg);
 
 public:
-  ezDynamicArray<ezUuid> m_ObjectGuids;
+  ezSmallArray<ezUuid, 4> m_ObjectGuids;
   ezUInt8 m_uiWhatToDo; // 0 == select, 1 == add, 2 == remove
   ezUInt32 m_uiActionIdentifier;
 };
@@ -590,7 +590,7 @@ public:
     ezString m_sDisplayName;
   };
 
-  ezDynamicArray<Result> m_Results;
+  ezSmallArray<Result, 8> m_Results;
 };
 
 /// Send by the editor scene document to all other editor documents, to gather on which objects debug visualization should be enabled during
@@ -600,7 +600,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGatherObjectsForDebugVisMsgInterDoc 
   EZ_ADD_DYNAMIC_REFLECTION(ezGatherObjectsForDebugVisMsgInterDoc, ezReflectedClass);
 
 public:
-  ezDynamicArray<ezUuid> m_Objects;
+  ezSmallArray<ezUuid, 8> m_Objects;
 };
 
 /// Send by the editor scene document to the runtime scene document, to tell it about the poll results (see ezGatherObjectsForDebugVisMsgInterDoc).
@@ -610,4 +610,49 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezObjectsForDebugVisMsgToEngine : publ
 
 public:
   ezDataBuffer m_Objects;
+};
+
+/// Removes all indicators that were previously added to a scene document through ezAddIndicatorsMsgToEngine.
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezClearIndicatorsMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezClearIndicatorsMsgToEngine, ezEditorEngineDocumentMsg);
+};
+
+/// Adds indicators that are drawn in all views of a scene document, until ezClearIndicatorsMsgToEngine is sent.
+///
+/// Used to preview the result of an operation, for example where objects would end up after a transformation.
+/// Adds one indicator per entry in m_Transforms, all with the same shape and color.
+/// m_sType selects the shape: "Arrow" is an arrow along the X axis, "Box" is a wireframe box from -1 to +1. Other types are ignored.
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezAddIndicatorsMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezAddIndicatorsMsgToEngine, ezEditorEngineDocumentMsg);
+
+public:
+  ezString m_sType;
+  ezColor m_Color;
+  ezSmallArray<ezTransform, 4> m_Transforms;
+};
+
+/// Asks the scene context for the bounds of the given objects, including their children.
+///
+/// Answered with ezQueryObjectBoundsResultMsgToEditor.
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezQueryObjectBoundsMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezQueryObjectBoundsMsgToEngine, ezEditorEngineDocumentMsg);
+
+public:
+  ezSmallArray<ezUuid, 4> m_ObjectGuids;
+};
+
+/// Response to ezQueryObjectBoundsMsgToEngine.
+///
+/// Contains one box per requested object, in the same order. Each box is in the local space of its object, without the object's own scale.
+/// For objects that are unknown or have no bounds, min is larger than max (ezBoundingBox::IsValid() returns false).
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezQueryObjectBoundsResultMsgToEditor : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezQueryObjectBoundsResultMsgToEditor, ezEditorEngineDocumentMsg);
+
+public:
+  ezSmallArray<ezVec3, 4> m_BoundsMin;
+  ezSmallArray<ezVec3, 4> m_BoundsMax;
 };

@@ -49,6 +49,43 @@ void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSph
   }
 }
 
+static bool HasUninitializedComponents(const ezGameObject* pObj)
+{
+  for (const ezComponent* pComponent : pObj->GetComponents())
+  {
+    if (pComponent->IsActive() && !pComponent->IsActiveAndInitialized())
+      return true;
+  }
+
+  for (auto it = pObj->GetChildren(); it.IsValid(); ++it)
+  {
+    if (HasUninitializedComponents(it))
+      return true;
+  }
+
+  return false;
+}
+
+static void ComputeLocalHierarchyBounds(ezGameObject* pObj, const ezTransform& rootInv, ezBoundingBox& ref_bounds)
+{
+  // objects that were just created have not computed their local bounds yet, that would only happen during the next world update
+  pObj->UpdateLocalBounds();
+  pObj->UpdateGlobalTransformAndBounds();
+  const ezBoundingBoxSphere b = pObj->GetLocalBounds();
+
+  if (b.IsValid())
+  {
+    ezBoundingBox box = b.GetBox();
+    box.TransformFromOrigin((rootInv * pObj->GetGlobalTransform()).GetAsMat4());
+    ref_bounds.ExpandToInclude(box);
+  }
+
+  for (auto it = pObj->GetChildren(); it.IsValid(); ++it)
+  {
+    ComputeLocalHierarchyBounds(it, rootInv, ref_bounds);
+  }
+}
+
 void ezSceneContext::DrawSelectionBounds(const ezViewHandle& hView)
 {
   if (!m_bRenderSelectionBoxes)
@@ -203,6 +240,24 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     return;
   }
 
+  if (const ezQueryObjectBoundsMsgToEngine* msg = ezDynamicCast<const ezQueryObjectBoundsMsgToEngine*>(pMsg))
+  {
+    HandleQueryObjectBoundsMsg(msg);
+    return;
+  }
+
+  if (pMsg->IsInstanceOf<ezClearIndicatorsMsgToEngine>())
+  {
+    m_Indicators.Clear();
+    return;
+  }
+
+  if (const ezAddIndicatorsMsgToEngine* msg = ezDynamicCast<const ezAddIndicatorsMsgToEngine*>(pMsg))
+  {
+    HandleIndicatorMessage(msg);
+    return;
+  }
+
   if (pMsg->IsInstanceOf<ezViewRedrawMsgToEngine>())
   {
     HandleViewRedrawMsg(static_cast<const ezViewRedrawMsgToEngine*>(pMsg));
@@ -252,7 +307,10 @@ void ezSceneContext::HandleViewRedrawMsg(const ezViewRedrawMsgToEngine* pMsg)
 
   auto pDocView = GetViewContext(pMsg->m_uiViewID);
   if (pDocView)
+  {
     DrawSelectionBounds(pDocView->GetViewHandle());
+    DrawIndicators(pDocView->GetViewHandle());
+  }
 
   AnswerObjectStatePullRequest(pMsg);
   UpdateInvisibleLayerTags();
@@ -324,6 +382,47 @@ void ezSceneContext::AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine*
   SendProcessMessage(&m_PushObjectStateMsg);
 
   m_PushObjectStateMsg.m_ObjectStates.Clear();
+}
+
+void ezSceneContext::HandleQueryObjectBoundsMsg(const ezQueryObjectBoundsMsgToEngine* pMsg)
+{
+  ezQueryObjectBoundsResultMsgToEditor res;
+  res.m_DocumentGuid = pMsg->m_DocumentGuid;
+  res.m_BoundsMin.Reserve(pMsg->m_ObjectGuids.GetCount());
+  res.m_BoundsMax.Reserve(pMsg->m_ObjectGuids.GetCount());
+
+  {
+    EZ_LOCK(m_pWorld->GetWriteMarker());
+
+    // Components of objects that were just created (e.g. by a duplicate) are only initialized during the next world update and until then
+    // they discard ezMsgUpdateLocalBounds. The editor blocks while it waits for the answer, so it doesn't request that frame either.
+    for (const ezUuid& guid : pMsg->m_ObjectGuids)
+    {
+      ezGameObject* pObj;
+      if (m_pWorld->TryGetObject(GetActiveContext().m_GameObjectMap.GetHandle(guid), pObj) && HasUninitializedComponents(pObj))
+      {
+        m_pWorld->Update();
+        break;
+      }
+    }
+
+    for (const ezUuid& guid : pMsg->m_ObjectGuids)
+    {
+      ezBoundingBox bounds = ezBoundingBox::MakeInvalid();
+
+      ezGameObject* pObj;
+      if (m_pWorld->TryGetObject(GetActiveContext().m_GameObjectMap.GetHandle(guid), pObj))
+      {
+        pObj->UpdateGlobalTransformAndBounds();
+        ComputeLocalHierarchyBounds(pObj, pObj->GetGlobalTransform().GetInverse(), bounds);
+      }
+
+      res.m_BoundsMin.PushBack(bounds.m_vMin);
+      res.m_BoundsMax.PushBack(bounds.m_vMax);
+    }
+  }
+
+  SendProcessMessage(&res);
 }
 
 void ezSceneContext::HandleActiveLayerChangedMsg(const ezActiveLayerChangedMsgToEngine* pMsg)
@@ -1304,5 +1403,53 @@ void ezSceneContext::HandleSyncChildOrderMsg(const ezSyncChildOrderMsgToEngine* 
       pFunc->Execute(pComponent, params, ret);
       break;
     }
+  }
+}
+
+void ezSceneContext::DrawIndicators(const ezViewHandle& hView)
+{
+  for (const auto& ind : m_Indicators)
+  {
+    switch (ind.m_Type)
+    {
+      case Indicator::Type::Arrow:
+      {
+        ezDebugRenderer::DrawArrow(hView, 1.0f, ind.m_Color, ind.m_Transform);
+      }
+      break;
+      case Indicator::Type::Box:
+      {
+        ezDebugRenderer::DrawLineBox(hView, ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(1.0f)), ind.m_Color, ind.m_Transform);
+      }
+      break;
+    }
+  }
+}
+
+void ezSceneContext::HandleIndicatorMessage(const ezAddIndicatorsMsgToEngine* pMsg)
+{
+  Indicator::Type type;
+
+  if (pMsg->m_sType.IsEqual_NoCase("arrow"))
+  {
+    type = Indicator::Type::Arrow;
+  }
+  else if (pMsg->m_sType.IsEqual_NoCase("box"))
+  {
+    type = Indicator::Type::Box;
+  }
+  else
+  {
+    return;
+  }
+
+  m_Indicators.Reserve(m_Indicators.GetCount() + pMsg->m_Transforms.GetCount());
+
+  for (const ezTransform& transform : pMsg->m_Transforms)
+  {
+    auto& ind = m_Indicators.ExpandAndGetRef();
+    ind.m_Type = type;
+    ind.m_Color = pMsg->m_Color;
+    ind.m_Transform = transform;
   }
 }

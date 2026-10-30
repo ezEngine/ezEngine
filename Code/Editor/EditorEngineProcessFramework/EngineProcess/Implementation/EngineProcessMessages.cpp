@@ -608,3 +608,38 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectsForDebugVisMsgToEngine, 1, ezRTTIDefaul
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClearIndicatorsMsgToEngine, 1, ezRTTIDefaultAllocator<ezClearIndicatorsMsgToEngine>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAddIndicatorsMsgToEngine, 1, ezRTTIDefaultAllocator<ezAddIndicatorsMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Type", m_sType),
+    EZ_MEMBER_PROPERTY("Color", m_Color),
+    EZ_ARRAY_MEMBER_PROPERTY("Transforms", m_Transforms),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQueryObjectBoundsMsgToEngine, 1, ezRTTIDefaultAllocator<ezQueryObjectBoundsMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ARRAY_MEMBER_PROPERTY("Objects", m_ObjectGuids),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQueryObjectBoundsResultMsgToEditor, 1, ezRTTIDefaultAllocator<ezQueryObjectBoundsResultMsgToEditor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ARRAY_MEMBER_PROPERTY("BoundsMin", m_BoundsMin),
+    EZ_ARRAY_MEMBER_PROPERTY("BoundsMax", m_BoundsMax),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;

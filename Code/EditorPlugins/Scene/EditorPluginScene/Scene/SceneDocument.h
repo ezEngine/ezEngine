@@ -57,6 +57,20 @@ public:
   /// Opens the 'Delta Transform' dialog.
   void DeltaTransform();
 
+  /// Asks the engine process for the bounds of the given objects, including their children.
+  ///
+  /// out_bounds[i] is the box of objects[i]. The boxes are in the local space of each object, without the object's own scale, so applying
+  /// the object's global transform to a box places it in the world. Objects without bounds get an invalid box (ezBoundingBox::IsValid()
+  /// returns false), which is also what all objects get if the engine process doesn't answer.
+  /// Blocks until the engine process answers, so this shouldn't be called often.
+  void QueryObjectBounds(ezArrayPtr<const ezDocumentObject* const> objects, ezDynamicArray<ezBoundingBox>& out_bounds) const;
+
+  /// Replaces the indicators in all views with one indicator per entry in globalTransforms.
+  ///
+  /// localBounds[i] (see QueryObjectBounds()) is shown as a box placed at globalTransforms[i]. Invalid bounds are shown as an arrow instead.
+  /// Pass empty arrays to only remove the indicators.
+  void ShowTransformPreview(ezArrayPtr<const ezTransform> globalTransforms, ezArrayPtr<const ezBoundingBox> localBounds) const;
+
 
   /// Moves all selected objects to the editor camera position
   void SnapObjectToCamera();
