@@ -77,6 +77,6 @@ protected:
   mutable ezRenderData::Category m_RenderCategory;
   mutable ezInstanceDataOffset m_InstanceDataOffset;
   mutable ezUInt8 m_uiNumSubMeshes = 0;
-  mutable ezDynamicArray<ezMaterialResourceHandle> m_CachedSubMeshMaterials;
+  mutable ezSmallArray<ezMaterialResourceHandle, 1> m_CachedSubMeshMaterials;
   bool m_bMaterialOverride = false;
 };

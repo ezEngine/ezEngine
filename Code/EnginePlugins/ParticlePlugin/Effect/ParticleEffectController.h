@@ -24,6 +24,9 @@ public:
 
   void SetTransform(const ezTransform& t, const ezVec3& vParticleStartVelocity) const;
 
+  /// See ezParticleEffectInstance::SetOwnerObject(). Ignored for shared effect instances, since they have no single owner.
+  void SetOwnerObject(ezGameObjectHandle hOwner) const;
+
   void CombineSystemBoundingVolumes();
 
   void Tick(const ezTime& diff) const;
@@ -35,9 +38,6 @@ public:
   /// Returns the bounding volume of the effect.
   /// The volume is in the local space of the effect.
   void GetBoundingVolume(ezBoundingBoxSphere& ref_volume) const;
-
-  void UpdateWindSamples(ezTime diff);
-  void FindNearbyAttractors(ezTime diff);
 
   /// Ensures that the effect is considered to be 'visible', which affects the update rate.
   void ForceVisible();

@@ -59,6 +59,7 @@ void ezGameEngineTestParticles::SetupSubTests()
 
   AddSubTest("Lighting", SubTests::Lighting);
   AddSubTest("Fog", SubTests::Fog);
+  AddSubTest("WindBehavior", SubTests::WindBehavior);
 }
 
 ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
@@ -111,6 +112,11 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
   else if (iIdentifier == SubTests::Fog)
   {
     m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Fog.ezBinScene");
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::WindBehavior)
+  {
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/WindBehavior.ezBinScene");
     return EZ_SUCCESS;
   }
   else

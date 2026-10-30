@@ -3,24 +3,10 @@
 #include <Core/World/Declarations.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Math/Transform.h>
-#include <Foundation/SimdMath/SimdVec4i.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Types/SharedPtr.h>
 
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
-
-/// Pre-computed data for one attractor, written by the main thread and consumed by particle tasks.
-struct ezParticleAttractorData
-{
-  EZ_DECLARE_POD_TYPE();
-
-  ezVec3 m_vPosition;
-  float m_fStrength;
-  float m_fRadius;
-  float m_fMinDistance;
-  float m_fKillDistance;
-};
-
 
 class ezParticleEffectInstance;
 
@@ -76,29 +62,17 @@ public:
 
   ezUInt64 GetRandomSeed() const { return m_uiRandomSeed; }
 
-  void RequestWindSamples();
-  void UpdateWindSamples(ezTime diff);
-
-  /// Called by a behavior to signal that this effect needs attractor sampling each frame.
-  ///
-  /// \a uiMaxAttractors limits how many of the closest attractors are tracked.
-  void RequestAttractorSamples(ezUInt8 uiMaxAttractors);
-
-  /// Refreshes the nearby attractor list and reads live properties.
-  ///
-  /// Must be called from the main thread before particle tasks are dispatched. The spatial
-  /// query (which attractors exist) is repeated ~once per second; position and properties
-  /// are resolved from stored handles every frame so moving attractors stay accurate.
-  void FindNearbyAttractors(ezTime diff);
-
-  /// Returns the pre-computed attractor data, valid for use on worker threads during the current frame.
-  ///
-  /// Reads from the slot opposite to the one currently being written by the main thread,
-  /// matching the double-buffer scheme used by the wind sampling system.
-  ezArrayPtr<const ezParticleAttractorData> GetAttractorData() const;
+  /// The resolution of the grid on which wind behaviors sample the wind, see ezParticleBehavior_Wind.
+  ezVec3U32 GetNumWindSamples() const { return m_vNumWindSamples; }
 
   /// Returns the number of currently active particles across all systems.
   ezUInt64 GetNumActiveParticles() const;
+
+  /// Sets the object that this effect is attached to, typically by the particle component right after creating the effect.
+  ///
+  /// Invalid for effects that aren't attached to an object, such as shared effects.
+  void SetOwnerObject(ezGameObjectHandle hOwner) { m_hOwnerObject = hOwner; }
+  ezGameObjectHandle GetOwnerObject() const { return m_hOwnerObject; }
 
   /// @name Transform Related
   /// @{
@@ -119,11 +93,6 @@ public:
   /// For the renderer to know whether the instance transform has to be applied to each particle position.
   bool NeedsToApplyTransform() const { return m_bSimulateInLocalSpace || m_bIsSharedEffect; }
 
-  /// Returns the wind at the given position.
-  ///
-  /// Returns a zero vector, if no wind value is available (invalid index).
-  ezSimdVec4f GetWindAt(const ezSimdVec4f& vPosition) const;
-
 private:
   void PassTransformToSystems();
 
@@ -133,21 +102,7 @@ private:
   ezVec3 m_vVelocity;
   ezVec3 m_vVelocityForNextFrame;
 
-  struct WindSampleGrid
-  {
-    ezSimdVec4f m_vMinPos;
-    ezSimdVec4f m_vMaxPos;
-    ezSimdVec4f m_vInvCellSize;
-    ezSmallArray<ezSimdVec4f, 16, ezAlignedAllocatorWrapper> m_Samples;
-  };
-
-  ezVec4I32 m_vNumWindSamples; // not unsigned so it can be loaded directly to a SIMD register, w contains total num samples
-  mutable ezUniquePtr<WindSampleGrid> m_WindSampleGrids[2];
-
-  ezUInt8 m_uiAttractorSearchTimer = 0;
-  ezUInt8 m_uiMaxAttractors = 0;
-  ezSmallArray<ezComponentHandle, 1> m_AttractorHandles;
-  ezSmallArray<ezParticleAttractorData, 1> m_AttractorData[2];
+  ezVec3U32 m_vNumWindSamples;
 
   /// @}
   /// @name Updates
@@ -214,6 +169,10 @@ public:
   /// The volume is in the local space of the effect.
   void GetBoundingVolume(ezBoundingBoxSphere& ref_volume) const;
 
+  /// Returns the bounding volume in the space that the particles are simulated in, i.e. world space,
+  /// unless the effect is simulated in local space. May be invalid, if there are no particles.
+  const ezBoundingBoxSphere& GetSimulationSpaceBoundingVolume() const { return m_BoundingVolume; }
+
 private:
   void CombineSystemBoundingVolumes();
 
@@ -265,6 +224,9 @@ private:
   void ClearParticleSystem(ezUInt32 index);
   void ProcessEventQueues();
 
+  /// Called by the world module in the PostTransform phase, see ezParticleModule::UpdateFromWorld().
+  void UpdateModulesFromWorld();
+
   // for deterministic randomness
   ezRandom m_Random;
 
@@ -287,4 +249,6 @@ private:
   ezSharedPtr<ezTask> m_pTask;
 
   ezStaticArray<ezParticleEvent, 16> m_EventQueue;
+
+  ezGameObjectHandle m_hOwnerObject;
 };

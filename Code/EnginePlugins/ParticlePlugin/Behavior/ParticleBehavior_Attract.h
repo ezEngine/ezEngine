@@ -7,9 +7,8 @@
 /// Can modify velocity (physically correct acceleration) or position directly (snapping).
 /// MinDistance prevents singularity at the attractor center.
 ///
-/// When \a Target is set to \a Attractors, the behavior queries the spatial system for nearby
-/// ezParticleAttractorComponents and applies each one's contribution per particle. The attractor
-/// list is refreshed roughly once per second for performance.
+/// The behavior queries the spatial system for nearby ezParticleAttractorComponents and applies each one's contribution per particle.
+/// The attractor list is refreshed roughly once per second for performance, the attractor positions and properties are read every frame.
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Attract final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Attract, ezParticleBehaviorFactory);
@@ -38,8 +37,10 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Attract final : public ezParticle
 public:
   float m_fInfluence = 5.0f;
   bool m_bAffectVelocity = true;
-
   ezUInt8 m_uiMaxAttractors = 1;
+
+  virtual void OnFinalize() override;
+  virtual void UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject) override;
 
 protected:
   virtual void CreateRequiredStreams() override;
@@ -47,4 +48,20 @@ protected:
 
   ezProcessingStream* m_pStreamPosition = nullptr;
   ezProcessingStream* m_pStreamVelocity = nullptr;
+
+  /// Data of one attractor, written in UpdateFromWorld() and read during the particle update.
+  struct AttractorData
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezVec3 m_vPosition;
+    float m_fStrength;
+    float m_fRadius;
+    float m_fMinDistance;
+    float m_fKillDistance;
+  };
+
+  ezUInt8 m_uiAttractorSearchTimer = 0;
+  ezSmallArray<ezComponentHandle, 1> m_AttractorHandles;
+  ezSmallArray<AttractorData, 1> m_Attractors;
 };

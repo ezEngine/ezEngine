@@ -234,6 +234,7 @@ bool ezParticleComponent::StartEffect()
 
     m_EffectController.Create(m_hEffectResource, pModule, m_uiRandomSeed, m_sSharedInstanceName, this, m_FloatParams, m_ColorParams);
 
+    m_EffectController.SetOwnerObject(GetOwner()->GetHandle());
     UpdatePfxTransformAndBounds();
 
     m_bFloatParamsChanged = false;
@@ -431,10 +432,6 @@ void ezParticleComponent::Update()
         m_EffectController.SetParameter(e.m_sName, e.m_Value);
       }
     }
-
-    const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
-    m_EffectController.UpdateWindSamples(tDiff);
-    m_EffectController.FindNearbyAttractors(tDiff);
   }
   else
   {

@@ -83,6 +83,16 @@ void ezParticleEffectController::SetTransform(const ezTransform& t, const ezVec3
   }
 }
 
+void ezParticleEffectController::SetOwnerObject(ezGameObjectHandle hOwner) const
+{
+  ezParticleEffectInstance* pEffect = GetInstance();
+
+  if (pEffect && m_pSharedInstanceOwner == nullptr)
+  {
+    pEffect->SetOwnerObject(hOwner);
+  }
+}
+
 void ezParticleEffectController::CombineSystemBoundingVolumes()
 {
   if (ezParticleEffectInstance* pEffect = GetInstance())
@@ -128,22 +138,6 @@ void ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& ref_volu
   if (ezParticleEffectInstance* pEffect = GetInstance())
   {
     pEffect->GetBoundingVolume(ref_volume);
-  }
-}
-
-void ezParticleEffectController::UpdateWindSamples(ezTime diff)
-{
-  if (ezParticleEffectInstance* pEffect = GetInstance())
-  {
-    pEffect->UpdateWindSamples(diff);
-  }
-}
-
-void ezParticleEffectController::FindNearbyAttractors(ezTime diff)
-{
-  if (ezParticleEffectInstance* pEffect = GetInstance())
-  {
-    pEffect->FindNearbyAttractors(diff);
   }
 }
 

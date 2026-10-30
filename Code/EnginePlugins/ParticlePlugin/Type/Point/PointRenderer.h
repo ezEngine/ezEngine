@@ -31,8 +31,7 @@ public:
   ~ezParticlePointRenderer();
 
   virtual void GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const override;
-  virtual void RenderBatch(
-    const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
+  virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:
   static const ezUInt32 s_uiParticlesPerBatch = 1024;
