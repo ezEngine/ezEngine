@@ -150,6 +150,7 @@ ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCame
         constants->Lut1Strength = lutStrengths[0];
         constants->Lut2Strength = lutStrengths[1];
 
+        constants->NumLUTs = numLUTs;
         constants->TonemapMode = m_Mode != ezTonemapMode::None ? m_Mode.GetValue() : ezTonemapMode::Linear;
         constants->WhitePoint = m_fWhitePoint;
         constants->TonemapNormalization = CalculateTonemapNormalization(m_Mode);
@@ -190,9 +191,6 @@ ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCame
       {
         bindGroup.BindTexture("BloomTexture", m_hBlackTexture, ezResourceAcquireMode::BlockTillLoaded);
       }
-
-      ezTempHashedString sLUTModeValues[3] = {"LUT_MODE_NONE", "LUT_MODE_ONE", "LUT_MODE_TWO"};
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LUT_MODE", sLUTModeValues[numLUTs]);
 
       renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
