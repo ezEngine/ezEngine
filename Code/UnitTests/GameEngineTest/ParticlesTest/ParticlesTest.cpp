@@ -60,6 +60,7 @@ void ezGameEngineTestParticles::SetupSubTests()
   AddSubTest("Lighting", SubTests::Lighting);
   AddSubTest("Fog", SubTests::Fog);
   AddSubTest("WindBehavior", SubTests::WindBehavior);
+  AddSubTest("ParticleAreas", SubTests::ParticleAreas);
 }
 
 ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
@@ -119,6 +120,11 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
     m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/WindBehavior.ezBinScene");
     return EZ_SUCCESS;
   }
+  else if (iIdentifier == SubTests::ParticleAreas)
+  {
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/ParticleAreas.ezBinScene");
+    return EZ_SUCCESS;
+  }
   else
   {
     const char* szEffects[] = {
@@ -159,6 +165,28 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
 ezTestAppRun ezGameEngineTestParticles::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
   ++m_iFrame;
+
+  if (iIdentifier == SubTests::ParticleAreas && m_iFrame == 30)
+  {
+    // all effects use a single burst, the areas scale the spawn counts relative to the size of the initializer shapes
+    m_pOwnApplication->CheckParticleCount("BoxArea", 2000);      // 1x1 rectangle -> 2x1 area
+    m_pOwnApplication->CheckParticleCount("SphereArea", 2000);   // surface, radius 0.5 -> 1
+    m_pOwnApplication->CheckParticleCount("CylinderArea", 6000); // radius 0.3 -> 0.6, height 1 -> 1.5
+    m_pOwnApplication->CheckParticleCount("Child1", 1000);       // 1x1 rectangle -> 1x2 area with 'SpawnScale' 0.5
+    m_pOwnApplication->CheckParticleCount("Child2", 1000);
+    m_pOwnApplication->CheckParticleCount("Mixed", 1125);        // box and sphere area on the same object, surface, radius 0.5 -> 0.75
+    m_pOwnApplication->CheckParticleCount("MixedBox", 4000);     // child of 'Mixed', 1x1 rectangle -> 2x2 area
+    m_pOwnApplication->CheckParticleCount("Clamped", 20000);     // 1x1 rectangle -> 200x200 area, would be 40 million without the limit
+
+    // 'UseSpawnArea' is off, so the area on the object is ignored. This effect spawns over time, so compare it with the same effect without an area.
+    const ezUInt64 uiFlagOffReference = m_pOwnApplication->GetParticleCount("FlagOffReference");
+    EZ_TEST_BOOL(uiFlagOffReference > 0);
+    m_pOwnApplication->CheckParticleCount("FlagOff", uiFlagOffReference);
+
+    // the area is twice as large relative to the effect, its scale must not affect the position offset of 1 along Z
+    m_pOwnApplication->CheckParticleCount("Offset", 4000);
+    EZ_TEST_VEC3(m_pOwnApplication->GetParticleBoundsCenter("Offset"), ezVec3(0, 0, 1), 0.1f);
+  }
 
   return m_pOwnApplication->ExecParticleSubTest(m_iFrame);
 }
@@ -231,6 +259,51 @@ void ezGameEngineTestApplication_Particles::SetupParticleSubTest(const char* szF
     pEffect->SetParticleEffectFile(szFile);
     pEffect->m_uiRandomSeed = 42;
   }
+}
+
+ezParticleComponent* ezGameEngineTestApplication_Particles::FindParticleComponent(ezStringView sObjectName)
+{
+  ezParticleComponentManager* pManager = m_pWorld->GetComponentManager<ezParticleComponentManager>();
+  if (!EZ_TEST_BOOL(pManager != nullptr))
+    return nullptr;
+
+  for (auto it = pManager->GetComponents(); it.IsValid(); ++it)
+  {
+    if (it->GetOwner()->GetName() == sObjectName)
+    {
+      return it;
+    }
+  }
+
+  EZ_TEST_FAILURE("Object not found", "No particle component on an object named '%s'", ezString(sObjectName).GetData());
+  return nullptr;
+}
+
+ezUInt64 ezGameEngineTestApplication_Particles::GetParticleCount(ezStringView sObjectName)
+{
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  ezParticleComponent* pComponent = FindParticleComponent(sObjectName);
+  return pComponent != nullptr ? pComponent->m_EffectController.GetNumActiveParticles() : 0;
+}
+
+ezVec3 ezGameEngineTestApplication_Particles::GetParticleBoundsCenter(ezStringView sObjectName)
+{
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
+
+  if (ezParticleComponent* pComponent = FindParticleComponent(sObjectName))
+  {
+    pComponent->m_EffectController.GetBoundingVolume(bounds);
+  }
+
+  return bounds.m_vCenter;
+}
+
+void ezGameEngineTestApplication_Particles::CheckParticleCount(ezStringView sObjectName, ezUInt64 uiExpectedCount)
+{
+  EZ_TEST_INT_MSG((ezInt64)GetParticleCount(sObjectName), (ezInt64)uiExpectedCount, "Object '%s'", ezString(sObjectName).GetData());
 }
 
 ezTestAppRun ezGameEngineTestApplication_Particles::ExecParticleSubTest(ezInt32 iCurFrame)

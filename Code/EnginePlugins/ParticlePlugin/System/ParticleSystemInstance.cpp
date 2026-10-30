@@ -181,6 +181,46 @@ void ezParticleSystemInstance::UpdateModulesFromWorld(const ezWorld& world, ezGa
   }
 }
 
+bool ezParticleSystemInstance::IsReadyToSpawn()
+{
+  for (auto pInitializer : m_Initializers)
+  {
+    if (!pInitializer->IsReadyToSpawn())
+      return false;
+  }
+
+  if (!m_bInitializerSpawnCountMultiplierChecked)
+  {
+    m_bInitializerSpawnCountMultiplierChecked = true;
+
+    float fMultiplier = 1.0f;
+    for (auto pInitializer : m_Initializers)
+    {
+      fMultiplier *= pInitializer->GetSpawnCountMultiplier();
+    }
+
+    fMultiplier = ezMath::Max(0.0f, fMultiplier);
+
+    if (ezMath::Abs(fMultiplier - m_fInitializerSpawnCountMultiplier) > 0.001f * ezMath::Max(fMultiplier, m_fInitializerSpawnCountMultiplier))
+    {
+      // the emitters copy their spawn counts during configuration and the max particle count may change as well
+      m_fRequiredInitializerSpawnCountMultiplier = fMultiplier;
+      GetOwnerWorldModule()->QueueEffectReconfigure(m_pOwnerEffect);
+    }
+  }
+
+  // waiting for the reconfigure, see SetSpawnCountMultiplier()
+  return m_fRequiredInitializerSpawnCountMultiplier == m_fInitializerSpawnCountMultiplier;
+}
+
+void ezParticleSystemInstance::SetSpawnCountMultiplier(float fMultiplier, float fInitializerMultiplier, bool bInitializerMultiplierChecked)
+{
+  m_fSpawnCountMultiplier = fMultiplier;
+  m_fInitializerSpawnCountMultiplier = fInitializerMultiplier;
+  m_fRequiredInitializerSpawnCountMultiplier = fInitializerMultiplier;
+  m_bInitializerSpawnCountMultiplierChecked = bInitializerMultiplierChecked;
+}
+
 void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDescriptor* pTemplate)
 {
   // all spawners get cleared, so clear this as well
@@ -369,6 +409,9 @@ void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorl
   m_bVisible = true;
   m_pWorld = pWorld;
   m_fSpawnCountMultiplier = fSpawnCountMultiplier;
+  m_fInitializerSpawnCountMultiplier = 1.0f;
+  m_fRequiredInitializerSpawnCountMultiplier = 1.0f;
+  m_bInitializerSpawnCountMultiplierChecked = false;
 
   m_StreamInfo.Clear();
   m_StreamGroup.SetSize(uiMaxParticles);
@@ -393,7 +436,9 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
 
   ezUInt32 uiSpawnedParticles = 0;
 
-  if (m_bEmitterEnabled)
+  const bool bInitializersReady = IsReadyToSpawn();
+
+  if (m_bEmitterEnabled && bInitializersReady)
   {
     // if all emitters are finished, we deactivate this on the whole system
     bool bAllEmittersInactive = true;
@@ -425,6 +470,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
   bool bHasReactingEmitters = false;
 
   // always check reactive emitters, as long as there are particles alive, they might produce more
+  if (bInitializersReady)
   {
     for (auto pEmitter : m_Emitters)
     {

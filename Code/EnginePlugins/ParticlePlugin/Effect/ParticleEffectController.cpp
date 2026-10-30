@@ -107,6 +107,12 @@ void ezParticleEffectController::Tick(const ezTime& diff) const
 
   if (pEffect)
   {
+    // this bypasses the world module, which otherwise passes the world data to the modules, without it initializers would never be ready to spawn
+    if (pEffect->m_bModulesNeedWorldUpdate)
+    {
+      pEffect->UpdateModulesFromWorld();
+    }
+
     pEffect->PreSimulate();
     pEffect->Update(diff);
   }

@@ -70,6 +70,7 @@ public:
 
   /// Sets the object that this effect is attached to, typically by the particle component right after creating the effect.
   ///
+  /// Modules get it in ezParticleModule::UpdateFromWorld(), e.g. to look for a spawn area.
   /// Invalid for effects that aren't attached to an object, such as shared effects.
   void SetOwnerObject(ezGameObjectHandle hOwner) { m_hOwnerObject = hOwner; }
   ezGameObjectHandle GetOwnerObject() const { return m_hOwnerObject; }
@@ -225,6 +226,7 @@ private:
   void ProcessEventQueues();
 
   /// Called by the world module in the PostTransform phase, see ezParticleModule::UpdateFromWorld().
+  /// After the effect was (re-)configured, it is additionally called before the next update, see m_bModulesNeedWorldUpdate.
   void UpdateModulesFromWorld();
 
   // for deterministic randomness
@@ -235,6 +237,10 @@ private:
   bool m_bEmitterEnabled = true;
   bool m_bSimulateInLocalSpace = false;
   bool m_bIsFinishing = false;
+
+  /// Set by Reconfigure(), which resets the modules. Modules that need data from the world (e.g. a spawn area) only get it in
+  /// UpdateModulesFromWorld(), so without an extra call before the next update, they would start spawning one frame late.
+  bool m_bModulesNeedWorldUpdate = false;
   ezUInt8 m_uiReviveTimeout = 3;
   ezInt8 m_iMinSimStepsToDo = 0;
   float m_fApplyInstanceVelocity = 0;

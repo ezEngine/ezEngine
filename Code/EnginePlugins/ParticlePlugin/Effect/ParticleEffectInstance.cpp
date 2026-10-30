@@ -79,6 +79,8 @@ void ezParticleEffectInstance::Destruct()
 
 void ezParticleEffectInstance::UpdateModulesFromWorld()
 {
+  m_bModulesNeedWorldUpdate = false;
+
   for (ezParticleSystemInstance* pSystem : m_ParticleSystems)
   {
     if (pSystem != nullptr)
@@ -175,6 +177,14 @@ void ezParticleEffectInstance::PreSimulate()
 {
   if (m_PreSimulateDuration.GetSeconds() == 0.0)
     return;
+
+  // Initializers may wait for data from the world (e.g. a spawn area).
+  // Pre-simulating before that would not spawn anything, so postpone it. Until then the regular update doesn't spawn anything either.
+  for (ezParticleSystemInstance* pSystem : m_ParticleSystems)
+  {
+    if (pSystem != nullptr && !pSystem->IsReadyToSpawn())
+      return;
+  }
 
   PassTransformToSystems();
 
@@ -342,8 +352,12 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
     EZ_DECLARE_POD_TYPE();
 
     float m_fMultiplier = 1.0f;
+    float m_fInitializerMultiplier = 1.0f;
+    bool m_bInitializerMultiplierChecked = false;
     ezUInt32 m_uiCount = 0;
   };
+
+  constexpr float fMaxParticlesWithInitializerMultiplier = 20000.0f;
 
   ezTempHybridArray<MulCount, 8> systemMaxParticles;
   {
@@ -371,7 +385,24 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
         fMultiplier *= pInitializer->GetSpawnCountMultiplier(this);
       }
 
+      // known only once the initializers of an existing instance were ready, e.g. the size of a spawn area
+      float fInitializerMultiplier = m_ParticleSystems[i] ? m_ParticleSystems[i]->GetRequiredInitializerSpawnCountMultiplier() : 1.0f;
+
+      // These multipliers can get arbitrarily large, as they depend on level content instead of the effect.
+      // Only limits what they add, effects that were authored with more particles keep their count.
+      const float fMaxParticlesFromAsset = uiMaxParticles * ezMath::Max(0.0f, fMultiplier);
+      if (fInitializerMultiplier > 1.0f && fMaxParticlesFromAsset * fInitializerMultiplier > fMaxParticlesWithInitializerMultiplier)
+      {
+        const float fLimited = ezMath::Max(1.0f, fMaxParticlesWithInitializerMultiplier / fMaxParticlesFromAsset);
+        ezLog::Warning("Particle effect '{}' would need {} particles for its spawn area, limited to {}.", m_hResource.GetResourceID(), (ezUInt64)(fMaxParticlesFromAsset * fInitializerMultiplier), (ezUInt64)(fMaxParticlesFromAsset * fLimited));
+        fInitializerMultiplier = fLimited;
+      }
+
+      fMultiplier *= fInitializerMultiplier;
+
       systemMaxParticles[i].m_fMultiplier = ezMath::Max(0.0f, fMultiplier);
+      systemMaxParticles[i].m_fInitializerMultiplier = fInitializerMultiplier;
+      systemMaxParticles[i].m_bInitializerMultiplierChecked = m_ParticleSystems[i] && m_ParticleSystems[i]->IsInitializerSpawnCountMultiplierChecked();
       systemMaxParticles[i].m_uiCount = (ezUInt32)(uiMaxParticles * systemMaxParticles[i].m_fMultiplier);
     }
   }
@@ -402,11 +433,14 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
 
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
+    m_ParticleSystems[i]->SetSpawnCountMultiplier(systemMaxParticles[i].m_fMultiplier, systemMaxParticles[i].m_fInitializerMultiplier, systemMaxParticles[i].m_bInitializerMultiplierChecked);
     m_ParticleSystems[i]->ConfigureFromTemplate(systems[i]);
     m_ParticleSystems[i]->SetTransform(m_Transform, vStartVelocity);
     m_ParticleSystems[i]->SetEmitterEnabled(m_bEmitterEnabled);
     m_ParticleSystems[i]->Finalize();
   }
+
+  m_bModulesNeedWorldUpdate = true;
 
   // recreate event reactions
   {

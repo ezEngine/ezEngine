@@ -127,12 +127,32 @@ bool ezParticleWorldModule::TryGetEffectInstance(const ezParticleEffectHandle& h
   return bResult;
 }
 
+void ezParticleWorldModule::QueueEffectReconfigure(ezParticleEffectInstance* pEffect)
+{
+  EZ_LOCK(m_Mutex);
+
+  if (!m_EffectsToReconfigure.Contains(pEffect))
+  {
+    m_EffectsToReconfigure.PushBack(pEffect);
+  }
+}
+
 void ezParticleWorldModule::UpdateEffects(const ezWorldModule::UpdateContext& context)
 {
   EZ_LOCK(m_Mutex);
 
   DestroyFinishedEffects();
   ReconfigureEffects();
+
+  // effects that were created or reconfigured since the last PostTransform phase haven't seen the world yet
+  // this is the main thread and no update tasks are running, so the modules can read the world here as well
+  for (ezUInt32 i = 0; i < m_ParticleEffects.GetCount(); ++i)
+  {
+    if (m_ParticleEffects[i].m_bModulesNeedWorldUpdate && !m_ParticleEffects[i].GetHandle().IsInvalidated())
+    {
+      m_ParticleEffects[i].UpdateModulesFromWorld();
+    }
+  }
 
   m_EffectUpdateTaskGroup = ezTaskSystem::CreateTaskGroup(ezTaskPriority::LateThisFrame);
 

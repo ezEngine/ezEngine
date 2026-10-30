@@ -75,8 +75,26 @@ public:
 
   float GetSpawnCountMultiplier() const { return m_fSpawnCountMultiplier; }
 
+  /// Sets the multiplier that the emitters use for their spawn counts. Only has an effect on the next ConfigureFromTemplate().
+  ///
+  /// fInitializerMultiplier is the part of fMultiplier that comes from ezParticleInitializer::GetSpawnCountMultiplier().
+  /// If bInitializerMultiplierChecked is true, the initializers are not asked again, see IsReadyToSpawn().
+  void SetSpawnCountMultiplier(float fMultiplier, float fInitializerMultiplier, bool bInitializerMultiplierChecked);
+
+  /// The product of ezParticleInitializer::GetSpawnCountMultiplier() of all initializers, once they were ready.
+  float GetRequiredInitializerSpawnCountMultiplier() const { return m_fRequiredInitializerSpawnCountMultiplier; }
+  bool IsInitializerSpawnCountMultiplierChecked() const { return m_bInitializerSpawnCountMultiplierChecked; }
+
   /// Calls ezParticleModule::UpdateFromWorld() on all modules that requested it.
   void UpdateModulesFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject);
+
+  /// Returns false as long as any initializer isn't ready yet, see ezParticleInitializer::IsReadyToSpawn(). Until then no particles are emitted.
+  ///
+  /// Also returns false, if the initializers require a different spawn count multiplier than the system currently uses, see
+  /// ezParticleInitializer::GetSpawnCountMultiplier(). The effect is then reconfigured in the next frame.
+  /// This is only checked once, the first time all initializers are ready. A system that gets recreated for this keeps that state, otherwise
+  /// a multiplier that keeps changing (e.g. with an animated scale) would recreate the system over and over.
+  bool IsReadyToSpawn();
 
 private:
   bool IsEmitterConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
@@ -103,6 +121,9 @@ private:
   ezTransform m_Transform;
   ezVec3 m_vParticleStartVelocity;
   float m_fSpawnCountMultiplier = 1.0f;
+  float m_fInitializerSpawnCountMultiplier = 1.0f;         // the part of m_fSpawnCountMultiplier that comes from the initializers
+  float m_fRequiredInitializerSpawnCountMultiplier = 1.0f; // what the initializers want, applied by the next reconfigure of the effect
+  bool m_bInitializerSpawnCountMultiplierChecked = false;
 
   ezProcessingStreamGroup m_StreamGroup;
 

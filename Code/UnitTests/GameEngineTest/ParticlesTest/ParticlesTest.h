@@ -13,7 +13,19 @@ public:
   void SetupParticleSubTest(const char* szFile);
   ezTestAppRun ExecParticleSubTest(ezInt32 iCurFrame);
 
+  /// Returns the number of particles of the effect on the object with the given name. Reports a test failure if there is no such object.
+  ezUInt64 GetParticleCount(ezStringView sObjectName);
+
+  /// Returns the center of the bounding volume of the effect on the object with the given name, in the local space of the effect.
+  ezVec3 GetParticleBoundsCenter(ezStringView sObjectName);
+
+  /// Checks the number of particles of the effect on the object with the given name.
+  void CheckParticleCount(ezStringView sObjectName, ezUInt64 uiExpectedCount);
+
   ezUInt32 m_uiImageCompareThreshold = 110;
+
+private:
+  class ezParticleComponent* FindParticleComponent(ezStringView sObjectName);
 };
 
 class ezGameEngineTestParticles : public ezGameEngineTest
@@ -67,6 +79,7 @@ private:
     Attractors,
     Fog,
     WindBehavior,
+    ParticleAreas,
   };
 
   virtual void SetupSubTests() override;

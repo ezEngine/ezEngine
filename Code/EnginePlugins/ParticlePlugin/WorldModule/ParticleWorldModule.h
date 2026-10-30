@@ -40,6 +40,9 @@ public:
   bool TryGetEffectInstance(const ezParticleEffectHandle& hEffect, ezParticleEffectInstance*& out_pEffect);
   bool TryGetEffectInstance(const ezParticleEffectHandle& hEffect, const ezParticleEffectInstance*& out_pEffect) const;
 
+  /// The effect is reconfigured at the start of the next update, before the simulation tasks run. Thread-safe.
+  void QueueEffectReconfigure(ezParticleEffectInstance* pEffect);
+
   /// Extracts render data for the given effect.
   void ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, ezMsgExtractRenderData& ref_msg, const ezTransform& systemTransform) const;
 

@@ -146,7 +146,7 @@ void ezParticleWorldModule::ResourceEventHandler(const ezResourceEvent& e)
     {
       if (m_ParticleEffects[i].GetResource() == hResource)
       {
-        m_EffectsToReconfigure.PushBack(&m_ParticleEffects[i]);
+        QueueEffectReconfigure(&m_ParticleEffects[i]);
       }
     }
   }
@@ -233,6 +233,7 @@ void ezParticleWorldModule::WorldClear()
 
   m_FinishingEffects.Clear();
   m_NeedFinisherComponent.Clear();
+  m_EffectsToReconfigure.Clear();
 
   m_ActiveEffects.Clear();
   m_ParticleEffects.Clear();

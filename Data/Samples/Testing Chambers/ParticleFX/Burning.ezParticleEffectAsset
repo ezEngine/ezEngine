@@ -21,7 +21,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16772099186370536615,4693632490394832941}}
-		u4 %Hash{8006582537367404050}
+		u4 %Hash{4655144532208325686}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{11783829793760135817,1455315850247424741}}
@@ -123,7 +123,7 @@ o
 	u3 %v{2}
 	p
 	{
-		b %OnSurface{0}
+		b %OnSurface{1}
 		Vec3 %PositionOffset{f{0,0,0}}
 		f %Radius{0xCDCCCC3D}
 		s %ScaleRadiusParam{""}
@@ -133,6 +133,7 @@ o
 			f %Variance{0}
 			f %Value{0}
 		}
+		b %UseSpawnArea{1}
 	}
 }
 o
@@ -245,7 +246,7 @@ o
 	u3 %v{2}
 	p
 	{
-		b %OnSurface{0}
+		b %OnSurface{1}
 		Vec3 %PositionOffset{f{0,0,0}}
 		f %Radius{0x9A99193E}
 		s %ScaleRadiusParam{""}
@@ -255,6 +256,7 @@ o
 			f %Variance{0}
 			f %Value{0}
 		}
+		b %UseSpawnArea{1}
 	}
 }
 o
