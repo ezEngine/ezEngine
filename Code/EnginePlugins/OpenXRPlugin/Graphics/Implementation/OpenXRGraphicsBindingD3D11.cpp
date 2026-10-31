@@ -200,6 +200,8 @@ ezGALResourceFormat::Enum ezOpenXRGraphicsBindingD3D11::ConvertTextureFormat(int
       return ezGALResourceFormat::D16;
     case DXGI_FORMAT_D24_UNORM_S8_UINT:
       return ezGALResourceFormat::D24S8;
+    case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
+      return ezGALResourceFormat::DFloatS8;
     default:
       ezImageFormat::Enum imageFormat = ezImageFormatMappings::FromDxgiFormat(static_cast<ezUInt32>(format));
       ezGALResourceFormat::Enum galFormat = ezTextureUtils::ImageFormatToGalFormat(imageFormat, false);

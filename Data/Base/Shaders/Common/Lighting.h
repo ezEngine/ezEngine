@@ -244,7 +244,7 @@ float CalculateShadowTerm(float3 worldPosition, float3 vertexNormal, float3 ligh
     uint cascadeIndex = 0;
     while (cascadeIndex < lastCascadeIndex)
     {
-      if (all(abs(shadowPosition.xy) < threshold.xx) && IsDeviceDepthCloser(shadowPosition.z, GetNearPlaneDeviceDepth() - threshold.y))
+      if (all(abs(shadowPosition.xy) < threshold.xx) && abs(shadowPosition.z - GetNearPlaneDeviceDepth()) < threshold.y)
         break;
 
       float4 cascadeScale = shadowDataBuffer[GET_CASCADE_SCALE_INDEX(shadowDataOffset, cascadeIndex)];

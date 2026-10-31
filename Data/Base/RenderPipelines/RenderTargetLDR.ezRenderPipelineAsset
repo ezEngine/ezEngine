@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9340082855766888863,4792825339744186213}}
-		u4 %Hash{14327316829825070350}
+		u4 %Hash{9672299458587962214}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14867461655592677225,10199251745799147924}}
@@ -268,19 +268,19 @@ o
 {
 	Uuid %id{u4{17468437186822461850,5437837372954499738}}
 	s %t{"ezSourcePass"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %ApplyRenderScale{0}
 		s %Channels{"ezRequiredTextureChannels::Channels_2"}
 		b %Clear{1}
 		Color %ClearColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		f %ClearDepth{0x0000803F}
+		f %ClearDepth{0}
 		s %MSAA_Mode{"ezGALMSAASampleCount::None"}
 		s %Name{"DepthStencil"}
 		Vec2 %Node::Pos{f{0xC099CB43,0x6AB4ED43}}
 		Uuid %Output{u4{9559375821426009877,9124962636108765151}}
-		s %Precision{"ezRequiredTexturePrecision::Bits_24"}
+		s %Precision{"ezRequiredTexturePrecision::Bits_32"}
 		s %Type{"ezRequiredTextureType::Depth"}
 		b %UAV{0}
 	}
@@ -328,14 +328,14 @@ o
 {
 	Uuid %id{u4{6728452850495430079,5725267199525040572}}
 	s %t{"ezSourcePass"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %ApplyRenderScale{0}
 		s %Channels{"ezRequiredTextureChannels::Channels_4"}
 		b %Clear{1}
 		Color %ClearColor{f{0xC11AE13E,0x79C4F23B,0xF3A5CB3E,0x0000803F}}
-		f %ClearDepth{0x0000803F}
+		f %ClearDepth{0}
 		s %MSAA_Mode{"ezGALMSAASampleCount::None"}
 		s %Name{"ColorSource"}
 		Vec2 %Node::Pos{f{0xC1B31D44,0x49BDB343}}
@@ -703,7 +703,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSourcePass"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o

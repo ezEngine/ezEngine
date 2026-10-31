@@ -251,7 +251,8 @@ ezEnum<ezGALResourceFormat> ezSourcePass::FindFormat(ezEnum<ezRequiredTextureTyp
   static constexpr TextureFormat depthTextures[] = {
     {ezRequiredTextureChannels::Channels_1, ezRequiredTexturePrecision::Bits_16, ezGALResourceFormat::D16},
     {ezRequiredTextureChannels::Channels_1, ezRequiredTexturePrecision::Bits_32, ezGALResourceFormat::DFloat},
-    {ezRequiredTextureChannels::Channels_2, ezRequiredTexturePrecision::Bits_24, ezGALResourceFormat::D24S8}};
+    {ezRequiredTextureChannels::Channels_2, ezRequiredTexturePrecision::Bits_24, ezGALResourceFormat::D24S8},
+    {ezRequiredTextureChannels::Channels_2, ezRequiredTexturePrecision::Bits_32, ezGALResourceFormat::DFloatS8}};
 
   ezArrayPtr<const TextureFormat> formats;
   switch (type)

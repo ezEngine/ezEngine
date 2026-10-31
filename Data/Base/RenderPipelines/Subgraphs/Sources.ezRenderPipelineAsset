@@ -48,7 +48,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13402376117965220229,5184864152543981533}}
-		u4 %Hash{5335376749221263009}
+		u4 %Hash{9362467301888297965}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4443043577158737579,5033797096481581252}}
@@ -87,17 +87,17 @@ o
 {
 	Uuid %id{u4{13920362932814371243,1311357051618505214}}
 	s %t{"ezSourcePass"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %ApplyRenderScale{1}
 		s %Channels{"ezRequiredTextureChannels::Channels_4"}
 		b %Clear{1}
 		Color %ClearColor{f{0x10D7233B,0xC111CA3C,0xCDCC4C3D,0x0000803F}}
-		f %ClearDepth{0x0000803F}
+		f %ClearDepth{0}
 		s %MSAA_Mode{"ezGALMSAASampleCount::None"}
-		s %Name{"ColorSource"}
-		Vec2 %Node::Pos{f{0x421DC4C3,0xB66DFBC2}}
+		s %Name{"ColorSource0"}
+		Vec2 %Node::Pos{f{0x92B6C3C3,0xF5D2F9C2}}
 		Uuid %Output{u4{10279606360445563060,6426934618774367829}}
 		s %Precision{"ezRequiredTexturePrecision::Bits_16"}
 		s %Type{"ezRequiredTextureType::Float"}
@@ -418,17 +418,17 @@ o
 {
 	Uuid %id{u4{12222178486817276489,9845957102045222058}}
 	s %t{"ezSourcePass"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %ApplyRenderScale{1}
 		s %Channels{"ezRequiredTextureChannels::Channels_4"}
 		b %Clear{1}
 		Color %ClearColor{f{0x10D7233B,0xC111CA3C,0xCDCC4C3D,0x0000803F}}
-		f %ClearDepth{0x0000803F}
+		f %ClearDepth{0}
 		s %MSAA_Mode{"ezGALMSAASampleCount::FourSamples"}
-		s %Name{"ColorSource"}
-		Vec2 %Node::Pos{f{0x2598C0C3,0xE5EF2442}}
+		s %Name{"ColorSource2"}
+		Vec2 %Node::Pos{f{0xD5FEC0C3,0x66252842}}
 		Uuid %Output{u4{8873239696474922865,7423811440097369620}}
 		s %Precision{"ezRequiredTexturePrecision::Bits_16"}
 		s %Type{"ezRequiredTextureType::Float"}
@@ -479,19 +479,19 @@ o
 {
 	Uuid %id{u4{18025345389053483296,10453133079200032276}}
 	s %t{"ezSourcePass"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %ApplyRenderScale{1}
 		s %Channels{"ezRequiredTextureChannels::Channels_2"}
 		b %Clear{1}
 		Color %ClearColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		f %ClearDepth{0x0000803F}
+		f %ClearDepth{0}
 		s %MSAA_Mode{"ezGALMSAASampleCount::None"}
-		s %Name{"DepthStencil"}
-		Vec2 %Node::Pos{f{0x7B14BEC3,0xB35A6E43}}
+		s %Name{"DepthStencil0"}
+		Vec2 %Node::Pos{f{0x7B14BEC3,0x74F56F43}}
 		Uuid %Output{u4{14886664578115662936,17760821128698613666}}
-		s %Precision{"ezRequiredTexturePrecision::Bits_24"}
+		s %Precision{"ezRequiredTexturePrecision::Bits_32"}
 		s %Type{"ezRequiredTextureType::Depth"}
 		b %UAV{0}
 	}
@@ -528,17 +528,17 @@ o
 {
 	Uuid %id{u4{644469523599717636,14628822782210416026}}
 	s %t{"ezSourcePass"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %ApplyRenderScale{1}
 		s %Channels{"ezRequiredTextureChannels::Channels_4"}
 		b %Clear{1}
 		Color %ClearColor{f{0x10D7233B,0xC111CA3C,0xCDCC4C3D,0x0000803F}}
-		f %ClearDepth{0x0000803F}
+		f %ClearDepth{0}
 		s %MSAA_Mode{"ezGALMSAASampleCount::TwoSamples"}
-		s %Name{"ColorSource"}
-		Vec2 %Node::Pos{f{0x109BC2C3,0x5BDE18C2}}
+		s %Name{"ColorSource1"}
+		Vec2 %Node::Pos{f{0x109BC2C3,0xDAA815C2}}
 		Uuid %Output{u4{9467324041159385432,8903910470006921460}}
 		s %Precision{"ezRequiredTexturePrecision::Bits_16"}
 		s %Type{"ezRequiredTextureType::Float"}
@@ -549,17 +549,17 @@ o
 {
 	Uuid %id{u4{3335478395065618181,14752611248000702841}}
 	s %t{"ezSourcePass"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %ApplyRenderScale{1}
 		s %Channels{"ezRequiredTextureChannels::Channels_4"}
 		b %Clear{1}
 		Color %ClearColor{f{0x10D7233B,0xC111CA3C,0xCDCC4C3D,0x0000803F}}
-		f %ClearDepth{0x0000803F}
+		f %ClearDepth{0}
 		s %MSAA_Mode{"ezGALMSAASampleCount::EightSamples"}
-		s %Name{"ColorSource"}
-		Vec2 %Node::Pos{f{0x6817C0C3,0xDC67F742}}
+		s %Name{"ColorSource3"}
+		Vec2 %Node::Pos{f{0x6817C0C3,0x1E38FC42}}
 		Uuid %Output{u4{6943259542992795019,12026434702976946244}}
 		s %Precision{"ezRequiredTexturePrecision::Bits_16"}
 		s %Type{"ezRequiredTextureType::Float"}
@@ -577,19 +577,19 @@ o
 {
 	Uuid %id{u4{4193297272996262341,15810702709034553724}}
 	s %t{"ezSourcePass"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %ApplyRenderScale{1}
 		s %Channels{"ezRequiredTextureChannels::Channels_2"}
 		b %Clear{1}
 		Color %ClearColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		f %ClearDepth{0x0000803F}
+		f %ClearDepth{0}
 		s %MSAA_Mode{"ezGALMSAASampleCount::TwoSamples"}
-		s %Name{"DepthStencil"}
+		s %Name{"DepthStencil1"}
 		Vec2 %Node::Pos{f{0xC093BDC3,0x406CA243}}
 		Uuid %Output{u4{4642891603799970615,11293961267043879413}}
-		s %Precision{"ezRequiredTexturePrecision::Bits_24"}
+		s %Precision{"ezRequiredTexturePrecision::Bits_32"}
 		s %Type{"ezRequiredTextureType::Depth"}
 		b %UAV{0}
 	}
@@ -598,19 +598,19 @@ o
 {
 	Uuid %id{u4{8776255850485704113,16033509312100909172}}
 	s %t{"ezSourcePass"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %ApplyRenderScale{1}
 		s %Channels{"ezRequiredTextureChannels::Channels_2"}
 		b %Clear{1}
 		Color %ClearColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		f %ClearDepth{0x0000803F}
+		f %ClearDepth{0}
 		s %MSAA_Mode{"ezGALMSAASampleCount::FourSamples"}
-		s %Name{"DepthStencil"}
-		Vec2 %Node::Pos{f{0x4992BCC3,0xE32BCE43}}
+		s %Name{"DepthStencil2"}
+		Vec2 %Node::Pos{f{0x4992BCC3,0x43F9CE43}}
 		Uuid %Output{u4{4869947564072237792,6827474904268850449}}
-		s %Precision{"ezRequiredTexturePrecision::Bits_24"}
+		s %Precision{"ezRequiredTexturePrecision::Bits_32"}
 		s %Type{"ezRequiredTextureType::Depth"}
 		b %UAV{0}
 	}
@@ -619,19 +619,19 @@ o
 {
 	Uuid %id{u4{5842584853324223437,16147055853250000659}}
 	s %t{"ezSourcePass"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %ApplyRenderScale{1}
 		s %Channels{"ezRequiredTextureChannels::Channels_2"}
 		b %Clear{1}
 		Color %ClearColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		f %ClearDepth{0x0000803F}
+		f %ClearDepth{0}
 		s %MSAA_Mode{"ezGALMSAASampleCount::EightSamples"}
-		s %Name{"DepthStencil"}
+		s %Name{"DepthStencil3"}
 		Vec2 %Node::Pos{f{0x0413BDC3,0xCA6AF943}}
 		Uuid %Output{u4{5398149191471327342,16451946898055333434}}
-		s %Precision{"ezRequiredTexturePrecision::Bits_24"}
+		s %Precision{"ezRequiredTexturePrecision::Bits_32"}
 		s %Type{"ezRequiredTextureType::Depth"}
 		b %UAV{0}
 	}
@@ -841,7 +841,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSourcePass"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o

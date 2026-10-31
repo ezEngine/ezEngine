@@ -109,7 +109,7 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
 {
   vk::ImageSubresourceRange range;
   range.aspectMask = ezGALResourceFormat::IsDepthFormat(format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
-  if (format == ezGALResourceFormat::D24S8)
+  if (ezGALResourceFormat::IsStencilFormat(format))
   {
     range.aspectMask |= vk::ImageAspectFlagBits::eStencil;
   }

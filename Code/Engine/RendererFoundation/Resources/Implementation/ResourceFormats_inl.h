@@ -14,13 +14,13 @@ EZ_ALWAYS_INLINE ezUInt8 ezGALResourceFormat::GetChannelCount(ezGALResourceForma
 // static
 EZ_FORCE_INLINE bool ezGALResourceFormat::IsDepthFormat(ezGALResourceFormat::Enum format)
 {
-  return format == DFloat || format == D16 || format == D24S8;
+  return format == DFloat || format == D16 || format == D24S8 || format == DFloatS8;
 }
 
 // static
 EZ_FORCE_INLINE bool ezGALResourceFormat::IsStencilFormat(Enum format)
 {
-  return format == D24S8;
+  return format == D24S8 || format == DFloatS8;
 }
 
 // static

@@ -2139,6 +2139,10 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
   depthFormat = SelectDepthFormat({vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint, vk::Format::eD16Unorm});
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::DFloat, ezGALFormatLookupEntryVulkan(depthFormat).R(SelectStorageFormat(depthFormat)));
 
+  // Select biggest depth stencil format.
+  depthFormat = SelectDepthFormat({vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint, vk::Format::eD16UnormS8Uint});
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::DFloatS8, ezGALFormatLookupEntryVulkan(depthFormat).R(SelectStorageFormat(depthFormat)));
+
   vk::Format BC1_Formats[] = {vk::Format::eBc1RgbaUnormBlock, vk::Format::eBc1RgbaSrgbBlock};
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC1, ezGALFormatLookupEntryVulkan(vk::Format::eBc1RgbaUnormBlock, BC1_Formats));
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC1sRGB, ezGALFormatLookupEntryVulkan(vk::Format::eBc1RgbaSrgbBlock, BC1_Formats));
