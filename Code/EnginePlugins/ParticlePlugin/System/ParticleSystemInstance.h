@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/World/Declarations.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
@@ -9,6 +10,7 @@
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
 struct ezMsgExtractRenderData;
+class ezParticleModule;
 
 /// A particle system stores all data for one 'layer' of a running particle effect
 class EZ_PARTICLEPLUGIN_DLL ezParticleSystemInstance
@@ -73,6 +75,9 @@ public:
 
   float GetSpawnCountMultiplier() const { return m_fSpawnCountMultiplier; }
 
+  /// Calls ezParticleModule::UpdateFromWorld() on all modules that requested it.
+  void UpdateModulesFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject);
+
 private:
   bool IsEmitterConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
   bool IsInitializerConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
@@ -87,6 +92,9 @@ private:
   ezSmallArray<ezParticleBehavior*, 6> m_Behaviors;
   ezSmallArray<ezParticleFinalizer*, 2> m_Finalizers;
   ezSmallArray<ezParticleType*, 2> m_Types;
+
+  // modules that requested UpdateFromWorld(), collected in Finalize()
+  ezSmallArray<ezParticleModule*, 1> m_WorldUpdateModules;
 
   bool m_bVisible; // typically used in editor to hide a system
   bool m_bEmitterEnabled;

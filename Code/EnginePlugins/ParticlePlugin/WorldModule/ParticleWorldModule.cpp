@@ -90,6 +90,15 @@ void ezParticleWorldModule::EnsureUpdatesFinished(const ezWorldModule::UpdateCon
       pManager->UpdatePfxTransformsAndBounds();
     }
 
+    // after the effect transforms were updated, so that modules can compute positions relative to the effect
+    for (ezUInt32 i = 0; i < m_ParticleEffects.GetCount(); ++i)
+    {
+      if (!m_ParticleEffects[i].GetHandle().IsInvalidated())
+      {
+        m_ParticleEffects[i].UpdateModulesFromWorld();
+      }
+    }
+
     if (ezParticleFinisherComponentManager* pManager = GetWorld()->GetComponentManager<ezParticleFinisherComponentManager>())
     {
       pManager->UpdateBounds();

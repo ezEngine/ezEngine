@@ -194,6 +194,10 @@ void ezParticleWorldModule::ReconfigureEffects()
 
   for (auto pEffect : m_EffectsToReconfigure)
   {
+    // may have been destroyed in the meantime
+    if (pEffect->GetHandle().IsInvalidated())
+      continue;
+
     pEffect->Reconfigure(false, ezArrayPtr<ezParticleEffectFloatParam>(), ezArrayPtr<ezParticleEffectColorParam>());
   }
 

@@ -26,6 +26,7 @@ public:
   {
     m_pOwnerSystem = pOwner;
     m_StreamBinding.Clear();
+    m_bUpdateFromWorld = false;
 
     OnReset();
   }
@@ -44,7 +45,20 @@ public:
   /// Cached modules can be retrieved via ezParticleWorldModule::GetCachedWorldModule().
   virtual void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) {}
 
+  /// Gives the module access to the world, for modules that need data from other objects.
+  ///
+  /// Only called once the module called RequestUpdateFromWorld().
+  /// Called on the main thread once per frame in the PostTransform phase, after the particle update tasks have finished and before the next update.
+  /// Data written here can therefore be read during the next update without further synchronization.
+  /// hOwnerObject is the object that the effect is attached to (see ezParticleEffectInstance::SetOwnerObject()).
+  virtual void UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject) {}
+
+  bool GetUpdateFromWorld() const { return m_bUpdateFromWorld; }
+
 protected:
+  /// Enables calls to UpdateFromWorld(). Reset() disables it again, so this is typically called in OnFinalize().
+  void RequestUpdateFromWorld() { m_bUpdateFromWorld = true; }
+
   /// Called by Reset() to perform custom cleanup
   virtual void OnReset() {}
 
@@ -64,4 +78,5 @@ protected:
 private:
   ezParticleSystemInstance* m_pOwnerSystem;
   ezParticleStreamBinding m_StreamBinding;
+  bool m_bUpdateFromWorld = false;
 };

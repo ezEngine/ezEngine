@@ -135,29 +135,49 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
 
 void ezParticleSystemInstance::Finalize()
 {
+  m_WorldUpdateModules.Clear();
+
+  auto finalize = [&](ezParticleModule* pModule)
+  {
+    pModule->OnFinalize();
+
+    if (pModule->GetUpdateFromWorld())
+    {
+      m_WorldUpdateModules.PushBack(pModule);
+    }
+  };
+
   for (auto& pEmitter : m_Emitters)
   {
-    pEmitter->OnFinalize();
+    finalize(pEmitter);
   }
 
   for (auto& pInitializer : m_Initializers)
   {
-    pInitializer->OnFinalize();
+    finalize(pInitializer);
   }
 
   for (auto& pBehavior : m_Behaviors)
   {
-    pBehavior->OnFinalize();
+    finalize(pBehavior);
   }
 
   for (auto& pFinalizer : m_Finalizers)
   {
-    pFinalizer->OnFinalize();
+    finalize(pFinalizer);
   }
 
   for (auto& pType : m_Types)
   {
-    pType->OnFinalize();
+    finalize(pType);
+  }
+}
+
+void ezParticleSystemInstance::UpdateModulesFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject)
+{
+  for (ezParticleModule* pModule : m_WorldUpdateModules)
+  {
+    pModule->UpdateFromWorld(world, hOwnerObject);
   }
 }
 
@@ -362,6 +382,7 @@ void ezParticleSystemInstance::Destruct()
   m_Behaviors.Clear();
   m_Finalizers.Clear();
   m_Types.Clear();
+  m_WorldUpdateModules.Clear();
 
   m_StreamInfo.Clear();
 }

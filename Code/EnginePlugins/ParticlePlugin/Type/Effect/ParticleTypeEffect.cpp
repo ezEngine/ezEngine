@@ -178,6 +178,9 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
 
       // TODO: pass through velocity
       pEffect->SetVisibleIf(GetOwnerEffect());
+
+      // so that the modules of the spawned effect can use the owner as well
+      pEffect->SetOwnerObject(GetOwnerEffect()->GetOwnerObject());
       pEffect->SetTransformForNextFrame(t, ezVec3::MakeZero());
 
       ezBoundingBoxSphere bounds;

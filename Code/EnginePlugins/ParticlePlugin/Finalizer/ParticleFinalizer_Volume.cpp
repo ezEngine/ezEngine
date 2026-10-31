@@ -65,8 +65,9 @@ void ezParticleFinalizer_Volume::Process(ezUInt64 uiNumElements)
     ezSimdVec4f vMax;
     vMax.SetZero();
 
+    // only full blocks, the data after the active elements is stale
     constexpr ezUInt32 uiElementsPerLoop = 4;
-    for (ezUInt64 i = 0; i < uiNumElements; i += uiElementsPerLoop)
+    for (ezUInt64 i = 0; i + uiElementsPerLoop <= uiNumElements; i += uiElementsPerLoop)
     {
       const float x = pSize[i + 0];
       const float y = pSize[i + 1];

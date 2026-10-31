@@ -1,9 +1,12 @@
 #include <ParticlePlugin/ParticlePluginPCH.h>
 
+#include <Core/World/SpatialSystem.h>
+#include <Core/World/World.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Attract.h>
+#include <ParticlePlugin/Components/ParticleAttractorComponent.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
@@ -15,7 +18,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Attract, 1, ezRTTIDefa
   {
     EZ_MEMBER_PROPERTY("Influence", m_fInfluence)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("AffectVelocity", m_bAffectVelocity)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("MaxAttractors", m_uiMaxAttractors)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 8)),
+    EZ_MEMBER_PROPERTY("MaxAttractors", m_uiMaxAttractors)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 4)),
   }
   EZ_END_PROPERTIES;
 }
@@ -75,8 +78,95 @@ void ezParticleBehavior_Attract::CreateRequiredStreams()
   {
     CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
   }
+}
 
-  GetOwnerEffect()->RequestAttractorSamples(m_uiMaxAttractors);
+void ezParticleBehavior_Attract::OnFinalize()
+{
+  RequestUpdateFromWorld();
+
+  // search right away in the first UpdateFromWorld()
+  m_uiAttractorSearchTimer = 0;
+}
+
+void ezParticleBehavior_Attract::UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject)
+{
+  const ezParticleEffectInstance* pEffect = GetOwnerEffect();
+
+  // Refresh which attractors are nearby roughly once per second.
+  if (m_uiAttractorSearchTimer == 0)
+  {
+    m_uiAttractorSearchTimer = 90;
+    m_AttractorHandles.Clear();
+
+    if (const ezSpatialSystem* pSpatialSystem = world.GetSpatialSystem())
+    {
+      const ezSpatialData::Category category = ezParticleAttractorComponent::GetSpatialCategory();
+
+      ezBoundingBoxSphere effectBounds;
+      pEffect->GetBoundingVolume(effectBounds);
+
+      const ezVec3 worldCenter = pEffect->GetTransform().TransformPosition(effectBounds.m_vCenter);
+      const float fSearchRadius = ezMath::Max(0.0f, effectBounds.m_fSphereRadius);
+
+      ezSpatialSystem::QueryParams queryParams;
+      queryParams.m_uiCategoryBitmask = category.GetBitmask();
+
+      struct SortEntry
+      {
+        EZ_DECLARE_POD_TYPE();
+        float fDistSqr;
+        ezComponentHandle hComponent;
+      };
+
+      ezTempHybridArray<SortEntry, 8> candidates;
+
+      pSpatialSystem->FindObjectsInSphere(
+        ezBoundingSphere::MakeFromCenterAndRadius(worldCenter, fSearchRadius),
+        queryParams,
+        [&](ezGameObject* pObject) -> ezVisitorExecution::Enum
+        {
+          ezParticleAttractorComponent* pAttractor = nullptr;
+          if (pObject->TryGetComponentOfBaseType(pAttractor))
+          {
+            SortEntry entry;
+            entry.hComponent = pAttractor->GetHandle();
+            entry.fDistSqr = (pObject->GetGlobalPosition() - worldCenter).GetLengthSquared();
+            candidates.PushBack(entry);
+          }
+          return ezVisitorExecution::Continue;
+        });
+
+      candidates.Sort([](const SortEntry& a, const SortEntry& b)
+        { return a.fDistSqr < b.fDistSqr; });
+
+      // older assets may still contain larger values than the property allows now
+      const ezUInt32 uiCount = ezMath::Min<ezUInt32>(candidates.GetCount(), ezMath::Min<ezUInt8>(m_uiMaxAttractors, 4));
+      for (ezUInt32 i = 0; i < uiCount; ++i)
+      {
+        m_AttractorHandles.PushBack(candidates[i].hComponent);
+      }
+    }
+  }
+  else
+  {
+    m_uiAttractorSearchTimer--;
+  }
+
+  // Every frame: resolve the handles and read the current position and properties.
+  m_Attractors.Clear();
+  for (const ezComponentHandle& hComponent : m_AttractorHandles)
+  {
+    const ezParticleAttractorComponent* pAttractor = nullptr;
+    if (world.TryGetComponent(hComponent, pAttractor))
+    {
+      AttractorData& data = m_Attractors.ExpandAndGetRef();
+      data.m_vPosition = pAttractor->GetOwner()->GetGlobalPosition();
+      data.m_fStrength = pAttractor->m_fStrength;
+      data.m_fRadius = pAttractor->m_fRadius;
+      data.m_fMinDistance = pAttractor->m_fMinDistance;
+      data.m_fKillDistance = pAttractor->m_fKillDistance;
+    }
+  }
 }
 
 void ezParticleBehavior_Attract::Process(ezUInt64 uiNumElements)
@@ -87,15 +177,15 @@ void ezParticleBehavior_Attract::Process(ezUInt64 uiNumElements)
   if (tDiff <= 0.0f)
     return;
 
-  // Attractor data is pre-computed every frame by FindNearbyAttractors() on the main thread.
-  const ezArrayPtr<const ezParticleAttractorData> attractors = GetOwnerEffect()->GetAttractorData();
+  // written by UpdateFromWorld() on the main thread
+  const ezArrayPtr<const AttractorData> attractors = m_Attractors;
 
   if (attractors.IsEmpty())
     return;
 
   if (m_bAffectVelocity)
   {
-    for (const ezParticleAttractorData& a : attractors)
+    for (const AttractorData& a : attractors)
     {
       const ezSimdVec4f vAttractorPos = ezSimdConversion::ToVec3(a.m_vPosition);
       const ezSimdFloat fMaxDistSqr = a.m_fRadius * a.m_fRadius;
@@ -141,7 +231,7 @@ void ezParticleBehavior_Attract::Process(ezUInt64 uiNumElements)
   }
   else
   {
-    for (const ezParticleAttractorData& a : attractors)
+    for (const AttractorData& a : attractors)
     {
       const ezSimdVec4f vAttractorPos = ezSimdConversion::ToVec3(a.m_vPosition);
       const ezSimdFloat fMaxDistSqr = a.m_fRadius * a.m_fRadius;

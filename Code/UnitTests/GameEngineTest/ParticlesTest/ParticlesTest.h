@@ -66,6 +66,7 @@ private:
     Lighting,
     Attractors,
     Fog,
+    WindBehavior,
   };
 
   virtual void SetupSubTests() override;
