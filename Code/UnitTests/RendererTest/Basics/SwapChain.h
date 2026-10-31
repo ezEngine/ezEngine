@@ -15,6 +15,7 @@ private:
     ST_D16,
     ST_D24S8,
     ST_D32,
+    ST_D32S8,
     ST_VSync,
     ST_ResizeWindow,
   };
@@ -25,6 +26,7 @@ private:
     AddSubTest("Depth D16", SubTests::ST_D16);
     AddSubTest("Depth D24S8", SubTests::ST_D24S8);
     AddSubTest("Depth D32", SubTests::ST_D32);
+    AddSubTest("Depth D32S8", SubTests::ST_D32S8);
     AddSubTest("VSync", SubTests::ST_VSync);
     AddSubTest("Resize Window", SubTests::ST_ResizeWindow);
   }
@@ -50,6 +52,7 @@ private:
       case SubTests::ST_D16:
       case SubTests::ST_D24S8:
       case SubTests::ST_D32:
+      case SubTests::ST_D32S8:
       case SubTests::ST_VSync:
         return BasicRenderLoop(iIdentifier, uiInvocationCount);
       default:

@@ -63,6 +63,7 @@ void ezRendererTestReadback::SetupSubTests()
       case ezGALResourceFormat::RGB10A2UInt:           // no ezImage support
       case ezGALResourceFormat::RGB10A2UIntNormalized: // no ezImage support
       case ezGALResourceFormat::D24S8:                 // no stencil readback implemented in Vulkan
+      case ezGALResourceFormat::DFloatS8:              // no stencil readback implemented in Vulkan
         break;
 
       default:

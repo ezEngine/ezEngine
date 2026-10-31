@@ -335,6 +335,12 @@ void ezEngineProcessViewContext::SetViewProperties(ezView* pView)
   // by default this stuff is disabled, derived classes can enable it
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Renderer-ShowSelection1"), false);
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorShapeIconsExtractor.Active"), false);
+
+  // Set clear color of editor views to gray
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource0.ClearColor"), ezColorGammaUB(40, 40, 40));
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource1.ClearColor"), ezColorGammaUB(40, 40, 40));
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource2.ClearColor"), ezColorGammaUB(40, 40, 40));
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource3.ClearColor"), ezColorGammaUB(40, 40, 40));
 }
 
 ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultEditorRenderPipeline()

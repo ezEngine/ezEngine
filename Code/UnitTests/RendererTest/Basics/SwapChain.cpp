@@ -77,6 +77,9 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
       case SubTests::ST_D24S8:
         texDesc.m_Format = ezGALResourceFormat::D24S8;
         break;
+      case SubTests::ST_D32S8:
+        texDesc.m_Format = ezGALResourceFormat::DFloatS8;
+        break;
       default:
       case SubTests::ST_D32:
         texDesc.m_Format = ezGALResourceFormat::DFloat;

@@ -4,6 +4,18 @@
 
 namespace ezGraphicsUtils
 {
+  /// Device depth of the physical near plane in the engine's inverse-depth convention.
+  constexpr float GetNearPlaneDeviceDepth()
+  {
+    return 1.0f;
+  }
+
+  /// Device depth of the physical far plane in the engine's inverse-depth convention. Also used as the default depth clear value.
+  constexpr float GetFarPlaneDeviceDepth()
+  {
+    return 0.0f;
+  }
+
   /// Converts a screen-space position from pixel coordinates to normalized coordinates.
   EZ_FOUNDATION_DLL void ConvertScreenPixelPosToNormalizedPos(const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, ezVec3& inout_vPixelPos);
 
@@ -21,8 +33,7 @@ namespace ezGraphicsUtils
   /// \note The function reports EZ_SUCCESS, when the point could be projected, however, that does not mean that the point actually lies
   /// within the viewport, it might still be outside the viewport.
   ///
-  /// out_vScreenPos.z is the depth of the point in [0;1] range. The z value is always 'normalized' to this range
-  /// (as long as the DepthRange parameter is correct), to make it easier to make subsequent code platform independent.
+  /// out_vScreenPos.z is the matrix's device depth, normalized from depthRange to [0;1]. With an inverse-depth matrix, 1 is the physical near plane and 0 the far plane. Points outside the frustum can produce depths outside [0;1], including points behind the camera. Test camera-space Z separately when deciding whether a point is in front of the camera.
   EZ_FOUNDATION_DLL ezResult ConvertWorldPosToScreenPos(const ezMat4& mModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY,
     const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vPoint, ezVec3& out_vScreenPos,
     ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
@@ -38,20 +49,14 @@ namespace ezGraphicsUtils
   /// \param DepthRange
   ///   The depth range that is used by this projection matrix. \see ezClipSpaceDepthRange
   ///
-  /// Returns EZ_FAILURE when the screen coordinate could not be converted to a world position,
-  /// which should generally not be possible as long as the coordinate is actually inside the viewport.
+  /// Returns EZ_FAILURE when the screen coordinate could not be converted to a world position, which should generally not be possible as long as the coordinate is actually inside the viewport.
   ///
-  /// Optionally this function also computes the direction vector through the world space position, that should be used for picking
-  /// operations. Note that for perspective cameras this is the same as the direction from the camera position to the computed point,
-  /// but for orthographic cameras it is not (it's simply the forward vector of the camera).
-  /// This function handles both cases properly.
+  /// Optionally this function also computes the direction vector through the world space position, that should be used for picking operations. Note that for perspective cameras this is the same as the direction from the camera position to the computed point, but for orthographic cameras it is not (it's simply the forward vector of the camera).
+  /// Computing the direction requires an inverse-depth projection matrix. Without out_pDirection, either depth direction works. A depth that unprojects to infinity (such as 0 with an infinite far plane) returns EZ_FAILURE.
   ///
-  /// The z value of vScreenPixelPos is always expected to be in [0; 1] range (meaning 0 is at the near plane, 1 at the far plane),
-  /// even on platforms that use [-1; +1] range for clip-space z values. The DepthRange parameter needs to be correct to handle this case
-  /// properly.
+  /// The z value of vScreenPixelPos is device depth in [0; 1] (with inverse depth, 1 is near and 0 is far), even on platforms that use [-1; +1] range for clip-space z values. The DepthRange parameter needs to be correct to handle this case properly.
   ///
-  /// vScreenPixelPos is expected to be in range [viewport x/y; viewport width/height]. There is an overload below that takes just a normalized value
-  /// in range [0; 1].
+  /// vScreenPixelPos is expected to be in range [viewport x/y; viewport width/height]. There is an overload below that takes just a normalized value in range [0; 1].
   EZ_FOUNDATION_DLL ezResult ConvertScreenPosToWorldPos(const ezMat4& mInverseModelViewProjection, const ezUInt32 uiViewportX,
     const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPixelPos, ezVec3& out_vPoint,
     ezVec3* out_pDirection = nullptr, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
@@ -115,6 +120,7 @@ namespace ezGraphicsUtils
   /// Along left/right, up/down this makes it easy to create a regular grid of planes.
   /// Along near/far creating planes at regular intervals will result in planes in world-space that represent
   /// the same amount of depth-precision.
+  /// NearToFar requires an inverse-depth projection matrix: factor 0 selects the physical near plane and 1 the far plane.
   ///
   /// \param dir Specifies which planes to interpolate.
   /// \param fLerpFactor The interpolation coefficient (usually in the interval [0;1]).
@@ -123,22 +129,26 @@ namespace ezGraphicsUtils
 
   /// Creates a perspective projection matrix with Left = -fViewWidth/2, Right = +fViewWidth/2, Bottom = -fViewHeight/2, Top =
   /// +fViewHeight/2.
+  /// Pass physical far as fNearZ and physical near as fFarZ for inverse depth. View dimensions are measured at the physical near plane.
   EZ_FOUNDATION_DLL ezMat4 CreatePerspectiveProjectionMatrix(float fViewWidth, float fViewHeight, float fNearZ, float fFarZ,
     ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// Creates a perspective projection matrix.
+  /// Pass physical far as fNearZ and physical near as fFarZ for inverse depth. Bounds are measured at the physical near plane.
   EZ_FOUNDATION_DLL ezMat4 CreatePerspectiveProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ,
     ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// Creates a perspective projection matrix.
+  /// Pass physical far as fNearZ and physical near as fFarZ for inverse depth.
   /// \param fFieldOfViewX    Horizontal field of view.
   EZ_FOUNDATION_DLL ezMat4 CreatePerspectiveProjectionMatrixFromFovX(ezAngle fieldOfViewX, float fAspectRatioWidthDivHeight, float fNearZ,
     float fFarZ, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// Creates a perspective projection matrix.
+  /// Pass physical far as fNearZ and physical near as fFarZ for inverse depth.
   /// \param fFieldOfViewY    Vertical field of view.
   EZ_FOUNDATION_DLL ezMat4 CreatePerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, float fAspectRatioWidthDivHeight, float fNearZ,
     float fFarZ, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
@@ -146,11 +156,13 @@ namespace ezGraphicsUtils
 
   /// Creates an orthographic projection matrix with Left = -fViewWidth/2, Right = +fViewWidth/2, Bottom = -fViewHeight/2, Top =
   /// +fViewHeight/2.
+  /// Pass physical far as fNearZ and physical near as fFarZ for inverse depth. Both distances must be finite.
   EZ_FOUNDATION_DLL ezMat4 CreateOrthographicProjectionMatrix(float fViewWidth, float fViewHeight, float fNearZ, float fFarZ,
     ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// Creates an orthographic projection matrix.
+  /// Pass physical far as fNearZ and physical near as fFarZ for inverse depth. Both distances must be finite.
   EZ_FOUNDATION_DLL ezMat4 CreateOrthographicProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ,
     ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]

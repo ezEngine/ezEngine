@@ -343,6 +343,7 @@ ezImageFormat::Enum ezTextureUtils::GalFormatToImageFormat(ezGALResourceFormat::
     case ezGALResourceFormat::RGB10A2UInt:
     case ezGALResourceFormat::RGB10A2UIntNormalized:
     case ezGALResourceFormat::D24S8:
+    case ezGALResourceFormat::DFloatS8:
     default:
     {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)

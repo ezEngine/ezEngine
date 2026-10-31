@@ -8,7 +8,7 @@ CAMERA_MODE = CAMERA_MODE_MONO
 [RENDERSTATE]
 
 DepthTest = false
-DepthTestFunc = CompareFunc_Less
+DepthTestFunc = CompareFunc_Greater
 DepthWrite = false
 CullMode = CullMode_None
 

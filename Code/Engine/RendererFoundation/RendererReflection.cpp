@@ -53,6 +53,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALResourceFormat, 1)
     EZ_ENUM_CONSTANT(ezGALResourceFormat::AUByteNormalized),
     EZ_ENUM_CONSTANT(ezGALResourceFormat::D16),
     EZ_ENUM_CONSTANT(ezGALResourceFormat::D24S8),
+    EZ_ENUM_CONSTANT(ezGALResourceFormat::DFloatS8),
     EZ_ENUM_CONSTANT(ezGALResourceFormat::BC1),
     EZ_ENUM_CONSTANT(ezGALResourceFormat::BC1sRGB),
     EZ_ENUM_CONSTANT(ezGALResourceFormat::BC2),

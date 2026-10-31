@@ -3,6 +3,7 @@
 #include <Foundation/Algorithm/HashableStruct.h>
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Size.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
@@ -48,7 +49,7 @@ struct ezGALFrameBufferDescriptor : public ezHashableStruct<ezGALFrameBufferDesc
 
 /// This class sets up the render targets for a graphics pipeline, used by ezRenderContext::BeginRendering or ezGALCommandEncoder::BeginRendering.
 ///
-/// The usage pattern is very strict to prevent creating invalid render target configs: SetColorTarget must be called starting at uiIndex 0 before you can call it with index 1 and so fourth. To call any of the SetClear* functions, you first must have called the corresponding SetColorTarget or SetDepthStencilTarget functions. All clear methods have reasonable default values (color: black, depth: 1.0, stencil: 0). SetColorTarget and SetDepthStencilTarget can be called multiple times as long as the format of the view remains identical to the previously assigned one. Thus, while not very expensive, it is still a good idea to cache these objects and only swap out the textures when they are not fixed, e.g. when using the ezGPUResourcePool.
+/// The usage pattern is very strict to prevent creating invalid render target configs: SetColorTarget must be called starting at uiIndex 0 before you can call it with index 1 and so fourth. To call any of the SetClear* functions, you first must have called the corresponding SetColorTarget or SetDepthStencilTarget functions. All clear methods have reasonable default values (color: black, depth: 0.0, stencil: 0). SetColorTarget and SetDepthStencilTarget can be called multiple times as long as the format of the view remains identical to the previously assigned one. Thus, while not very expensive, it is still a good idea to cache these objects and only swap out the textures when they are not fixed, e.g. when using the ezGPUResourcePool.
 /// The class produces a ezGALRenderPassDescriptor and a ezGALFrameBufferDescriptor that can be retrieved via GetRenderPass and GetFrameBuffer respectively.
 ///
 /// Example usage:
@@ -79,7 +80,7 @@ public:
 
   /// Sets the clear depth value.
   /// Note that you first must have called SetDepthStencilTarget to be able to set the clear depth value.
-  ezGALRenderingSetup& SetClearDepth(float fDepthClear = 1.0f);
+  ezGALRenderingSetup& SetClearDepth(float fDepthClear = ezGraphicsUtils::GetFarPlaneDeviceDepth());
 
   /// Sets the clear depth value.
   /// Note that you first must have called SetDepthStencilTarget to be able to set the clear depth value.
@@ -112,7 +113,7 @@ public:
 
 protected:
   ezUInt8 m_uiClearStencil = 0;
-  float m_fClearDepth = 1.0f;
+  float m_fClearDepth = ezGraphicsUtils::GetFarPlaneDeviceDepth();
   ezColor m_ClearColor[EZ_GAL_MAX_RENDERTARGET_COUNT] = {ezColor(0, 0, 0, 0)};
 
   ezGALRenderPassDescriptor m_RenderPass;

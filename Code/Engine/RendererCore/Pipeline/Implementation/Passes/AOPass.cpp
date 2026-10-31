@@ -60,7 +60,8 @@ ezAOPass::ezAOPass()
 
 ezAOPass::~ezAOPass()
 {
-  ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSSAOSamplerState);
+  ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hLowResDepthSamplerState);
+  ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hDepthSamplerState);
 
   ezRenderContext::DeleteConstantBufferStorage(m_hDownscaleConstantBuffer);
   ezRenderContext::DeleteConstantBufferStorage(m_hSSAOConstantBuffer);
@@ -174,7 +175,7 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
           renderViewContext.m_pRenderContext->BindShader(m_hDownscaleShader);
 
           bindGroup.BindTexture("DepthTexture", ctx.ResolveTexture(hInputView), range);
-          bindGroup.BindSampler("DepthSampler", m_hSSAOSamplerState);
+          bindGroup.BindSampler("DepthSampler", i == 0 ? m_hDepthSamplerState : m_hLowResDepthSamplerState);
 
           renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
@@ -216,7 +217,8 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
         bindGroupRenderPass.BindBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
         bindGroupRenderPass.BindTexture("DepthTexture", ctx.ResolveTexture(hDepthInput));
         bindGroupRenderPass.BindTexture("LowResDepthTexture", ctx.ResolveTexture(m_hHzbTexture));
-        bindGroupRenderPass.BindSampler("DepthSampler", m_hSSAOSamplerState);
+        bindGroupRenderPass.BindSampler("DepthSampler", m_hDepthSamplerState);
+        bindGroupRenderPass.BindSampler("LowResDepthSampler", m_hLowResDepthSamplerState);
         bindGroupRenderPass.BindTexture("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
 
         renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
@@ -297,7 +299,7 @@ void ezAOPass::SetFadeOutEnd(float fEnd)
 
   m_fFadeOutEnd = ezMath::Max(fEnd, m_fFadeOutStart);
 
-  ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSSAOSamplerState);
+  ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hLowResDepthSamplerState);
 }
 
 float ezAOPass::GetFadeOutEnd() const
@@ -307,18 +309,26 @@ float ezAOPass::GetFadeOutEnd() const
 
 void ezAOPass::CreateSamplerState()
 {
-  if (m_hSSAOSamplerState.IsInvalidated())
+  ezGALSamplerStateCreationDescription desc;
+  desc.m_MinFilter = ezGALTextureFilterMode::Point;
+  desc.m_MagFilter = ezGALTextureFilterMode::Point;
+  desc.m_MipFilter = ezGALTextureFilterMode::Point;
+  desc.m_AddressU = ezImageAddressMode::ClampBorder;
+  desc.m_AddressV = ezImageAddressMode::ClampBorder;
+  desc.m_AddressW = ezImageAddressMode::ClampBorder;
+
+  if (m_hLowResDepthSamplerState.IsInvalidated())
   {
-    ezGALSamplerStateCreationDescription desc;
-    desc.m_MinFilter = ezGALTextureFilterMode::Point;
-    desc.m_MagFilter = ezGALTextureFilterMode::Point;
-    desc.m_MipFilter = ezGALTextureFilterMode::Point;
-    desc.m_AddressU = ezImageAddressMode::ClampBorder;
-    desc.m_AddressV = ezImageAddressMode::ClampBorder;
-    desc.m_AddressW = ezImageAddressMode::ClampBorder;
     desc.m_BorderColor = ezColor::White * m_fFadeOutEnd;
 
-    m_hSSAOSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(desc);
+    m_hLowResDepthSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(desc);
+  }
+
+  if (m_hDepthSamplerState.IsInvalidated())
+  {
+    desc.m_BorderColor = ezColor::White * ezGraphicsUtils::GetFarPlaneDeviceDepth();
+
+    m_hDepthSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(desc);
   }
 }
 

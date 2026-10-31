@@ -54,6 +54,7 @@ ezGALResourceFormat::RByteNormalized;R Byte Normalized
 ezGALResourceFormat::AUByteNormalized;A UByte Normalized
 ezGALResourceFormat::D16;Depth 16
 ezGALResourceFormat::D24S8;Depth 24 Stencil 8
+ezGALResourceFormat::DFloatS8;Depth Float Stencil 8
 ezGALResourceFormat::BC1;BC1
 ezGALResourceFormat::BC1sRGB;BC1 sRGB
 ezGALResourceFormat::BC2;BC2

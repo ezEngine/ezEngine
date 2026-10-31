@@ -70,6 +70,7 @@ const ezUInt8 ezGALResourceFormat::s_BitsPerElement[ezGALResourceFormat::ENUM_CO
 
   16, // D16
   32, // D24S8
+  64, // DFloatS8
 
   // For compressed formats see: http://msdn.microsoft.com/en-us/library/windows/desktop/hh308955%28v=vs.85%29.aspx
 
@@ -159,6 +160,7 @@ const ezUInt8 ezGALResourceFormat::s_ChannelCount[ezGALResourceFormat::ENUM_COUN
 
   1, // D16
   2, // D24S8
+  2, // DFloatS8
 
   // For compressed formats see: http://msdn.microsoft.com/en-us/library/windows/desktop/hh308955%28v=vs.85%29.aspx
 
@@ -195,6 +197,7 @@ bool ezGALResourceFormat::IsFloatFormat(ezGALResourceFormat::Enum format)
     case ezGALResourceFormat::RG11B10Float:
     case ezGALResourceFormat::RGHalf:
     case ezGALResourceFormat::DFloat:
+    case ezGALResourceFormat::DFloatS8:
     case ezGALResourceFormat::RFloat:
     case ezGALResourceFormat::RHalf:
     case ezGALResourceFormat::BC6UFloat:

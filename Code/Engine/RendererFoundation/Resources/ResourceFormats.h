@@ -80,6 +80,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
 
     D16,
     D24S8,
+    DFloatS8, ///< 32-bit float depth with 8-bit stencil. Typically uses 64 bits per texel.
 
     BC1,
     BC1sRGB,

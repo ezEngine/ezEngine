@@ -1831,7 +1831,7 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
     for (auto& textLine : pData->m_textLines3D)
     {
       ezVec3 screenPos;
-      if (renderViewContext.m_pViewData->ComputeScreenSpacePos(textLine.m_position, screenPos).Succeeded() && screenPos.z > 0.0f)
+      if (renderViewContext.m_pViewData->ComputeScreenSpacePos(textLine.m_position, screenPos).Succeeded() && screenPos.z > 0.0f && screenPos.z < 1.0f)
       {
         renderViewContext.m_pViewData->ConvertScreenNormalizedPosToScaledPixelPos(screenPos);
 

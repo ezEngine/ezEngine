@@ -208,6 +208,15 @@ void ezSceneViewContext::SetViewProperties(ezView* pView)
 {
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Renderer-ShowSelection1"), m_pSceneContext->GetRenderSelectionOverlay());
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorShapeIconsExtractor.Active"), m_pSceneContext->GetRenderShapeIcons());
+
+  // Set clear color of prefab views to gray. Scenes stay the default dark blue to match the engine default.
+  if (m_pSceneContext->GetDocumentType() == "Prefab")
+  {
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource0.ClearColor"), ezColorGammaUB(40, 40, 40));
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource1.ClearColor"), ezColorGammaUB(40, 40, 40));
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource2.ClearColor"), ezColorGammaUB(40, 40, 40));
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource3.ClearColor"), ezColorGammaUB(40, 40, 40));
+  }
 }
 
 ezViewHandle ezSceneViewContext::CreateView()

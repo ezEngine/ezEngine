@@ -9,7 +9,7 @@ CAMERA_MODE
 [RENDERSTATE]
 
 DepthTest = false
-DepthTestFunc = CompareFunc_Less
+DepthTestFunc = CompareFunc_Greater
 DepthWrite = false
 CullMode = CullMode_None
 
@@ -38,7 +38,7 @@ float4 main(PS_IN input) : SV_Target
 
 
   float centerDepth = DepthBuffer.Sample(PointClampSampler, float3(input.TexCoord0, s_ActiveCameraEyeIndex)).r;
-  float centerLinearDepth = LinearizeZBufferDepth(centerDepth);
+  float centerLinearDepth = ConvertDeviceDepthToLinearDepth(centerDepth);
   float totalSSAO = SSAOGatherOutput.Sample(PointClampSampler, float3(input.TexCoord0, s_ActiveCameraEyeIndex)).r;
   float totalWeight = 1.0f;
 
@@ -57,7 +57,7 @@ float4 main(PS_IN input) : SV_Target
 
   [unroll] for(int i=0; i<8; ++i)
   {
-    float depth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, float3(texcoords[i], s_ActiveCameraEyeIndex)).r);
+    float depth = ConvertDeviceDepthToLinearDepth(DepthBuffer.Sample(PointClampSampler, float3(texcoords[i], s_ActiveCameraEyeIndex)).r);
     if (abs(centerLinearDepth - depth) < DepthCutoffDistance)
     {
       totalSSAO += SSAOGatherOutput.Sample(PointClampSampler, float3(texcoords[i], s_ActiveCameraEyeIndex)).r;
@@ -82,15 +82,15 @@ float4 main(PS_IN input) : SV_Target
   };
 
   float2 normalizedCoords = input.TexCoord0 * 2.0f - 1.0f;
-  float3 centerPos = FastScreenCoordToViewSpaceLinear(normalizedCoords, centerLinearDepth);
-  float3 viewSpaceNormal = ReconstructViewSpaceNormal(normalizedCoords, centerDepth, depthCross[0], depthCross[1], depthCross[2], depthCross[3]);
+  float3 centerPos = ReconstructPerspectiveCameraPositionFromLinearDepth(normalizedCoords, centerLinearDepth);
+  float3 viewSpaceNormal = ReconstructCameraNormalFromDeviceDepth(normalizedCoords, centerDepth, depthCross[0], depthCross[1], depthCross[2], depthCross[3]);
   
   // Compute contribution of the cross samples.
   [unroll] for(int i=0; i<4; ++i)
   {
-    float sampleLinearDepth = LinearizeZBufferDepth(depthCross[i]);
+    float sampleLinearDepth = ConvertDeviceDepthToLinearDepth(depthCross[i]);
     float2 normalizedCoords = texcoords[i] * 2.0f - 1.0f;
-    float3 samplePos = FastScreenCoordToViewSpaceLinear(normalizedCoords, sampleLinearDepth);
+    float3 samplePos = ReconstructPerspectiveCameraPositionFromLinearDepth(normalizedCoords, sampleLinearDepth);
   
     float weight = ComputeNormalWeight(viewSpaceNormal, centerPos, samplePos, DepthCutoffDistance);
     totalSSAO += SSAOGatherOutput.Sample(PointClampSampler, float3(texcoords[i], s_ActiveCameraEyeIndex)).r * weight;
@@ -108,9 +108,9 @@ float4 main(PS_IN input) : SV_Target
   
   [unroll] for(int j=0; j<4; ++j)
   {
-    float sampleLinearDepth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, float3(texcoordsDiag[j], s_ActiveCameraEyeIndex)).r);
+    float sampleLinearDepth = ConvertDeviceDepthToLinearDepth(DepthBuffer.Sample(PointClampSampler, float3(texcoordsDiag[j], s_ActiveCameraEyeIndex)).r);
     float2 normalizedCoords = texcoordsDiag[j] * 2.0f - 1.0f;
-    float3 samplePos = FastScreenCoordToViewSpaceLinear(normalizedCoords, sampleLinearDepth);
+    float3 samplePos = ReconstructPerspectiveCameraPositionFromLinearDepth(normalizedCoords, sampleLinearDepth);
   
     float weight = ComputeNormalWeight(viewSpaceNormal, centerPos, samplePos, DepthCutoffDistance);
     totalSSAO += SSAOGatherOutput.Sample(PointClampSampler, float3(texcoordsDiag[j], s_ActiveCameraEyeIndex)).r * weight;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Math/Color.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 #include <RendererCore/RenderGraph/Declarations.h>
 #include <RendererCore/RenderGraph/RenderGraphContext.h>
 #include <RendererFoundation/Descriptors/Enumerations.h>
@@ -73,7 +74,7 @@ public:
     bool bReadOnly = false);
 
   /// Sets the clear depth value and switches the depth load op to `Clear`. SetDepthStencilTarget must have been called first.
-  ezRenderGraphPassBuilder& SetClearDepth(float fDepthClear = 1.0f);
+  ezRenderGraphPassBuilder& SetClearDepth(float fDepthClear = ezGraphicsUtils::GetFarPlaneDeviceDepth());
 
   /// Sets the clear stencil value and switches the stencil load op to `Clear`. SetDepthStencilTarget must have been called first.
   ezRenderGraphPassBuilder& SetClearStencil(ezUInt8 uiStencilClear = 0);
