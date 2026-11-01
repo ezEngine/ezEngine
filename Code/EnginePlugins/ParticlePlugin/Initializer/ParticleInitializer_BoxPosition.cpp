@@ -142,20 +142,38 @@ void ezParticleInitializer_BoxPosition::OnFinalize()
 void ezParticleInitializer_BoxPosition::OnReset()
 {
   m_Area.Reset();
-  m_bUseArea = false;
 }
 
 void ezParticleInitializer_BoxPosition::UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject)
 {
   const ezParticleBoxAreaComponent* pArea = m_Area.Update<ezParticleBoxAreaComponent>(world, *GetOwnerEffect());
 
-  m_bUseArea = pArea != nullptr;
+  // if the area is gone, the last values stay in use, the spawn counts were scaled for them
+  if (pArea == nullptr)
+    return;
 
-  if (pArea)
+  const ezVec3 vAreaSize = pArea->m_vSize.CompMul(m_vSizeScale);
+
+  if (!m_Area.IsAreaUsed())
   {
-    m_vAreaSize = pArea->m_vSize.CompMul(m_vSizeScale);
-    m_fAreaSpawnScale = pArea->m_fSpawnScale;
+    // the scale of the area relative to the effect, the scale of the effect itself applies to both shapes
+    const ezVec3 vAreaScale = m_Area.GetTransform().m_vScale.Abs();
+
+    float fMultiplier = pArea->m_fSpawnScale;
+
+    // m_vSize is still the size of the initializer here
+    for (ezUInt32 i = 0; i < 3; ++i)
+    {
+      if (m_vSize.GetData()[i] != 0.0f)
+      {
+        fMultiplier *= vAreaSize.GetData()[i] * vAreaScale.GetData()[i] / ezMath::Abs(m_vSize.GetData()[i]);
+      }
+    }
+
+    m_Area.UseArea(fMultiplier);
   }
+
+  m_vSize = vAreaSize;
 }
 
 bool ezParticleInitializer_BoxPosition::IsReadyToSpawn() const
@@ -165,23 +183,7 @@ bool ezParticleInitializer_BoxPosition::IsReadyToSpawn() const
 
 float ezParticleInitializer_BoxPosition::GetSpawnCountMultiplier() const
 {
-  if (!m_bUseArea)
-    return 1.0f;
-
-  // the scale of the area relative to the effect, the scale of the effect itself applies to both shapes
-  const ezVec3 vAreaScale = m_Area.GetTransform().m_vScale.Abs();
-
-  float fMultiplier = m_fAreaSpawnScale;
-
-  for (ezUInt32 i = 0; i < 3; ++i)
-  {
-    if (m_vSize.GetData()[i] != 0.0f)
-    {
-      fMultiplier *= m_vAreaSize.GetData()[i] * vAreaScale.GetData()[i] / ezMath::Abs(m_vSize.GetData()[i]);
-    }
-  }
-
-  return fMultiplier;
+  return m_Area.GetSpawnCountMultiplier();
 }
 
 void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
@@ -192,12 +194,11 @@ void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex
 
   ezRandom& rng = GetRNG();
 
-  // the area replaces the size, the position offset is already part of the area transform
-  const ezTransform trans = m_bUseArea ? GetOwnerSystem()->GetTransform() * m_Area.GetTransformWithOffset(m_vPositionOffset) : GetOwnerSystem()->GetTransform();
-  const ezVec3 vOffset = m_bUseArea ? ezVec3::MakeZero() : m_vPositionOffset;
-  const ezVec3 vSize = m_bUseArea ? m_vAreaSize : m_vSize;
+  // the position offset is already part of the area transform
+  const ezTransform trans = m_Area.IsAreaUsed() ? GetOwnerSystem()->GetTransform() * m_Area.GetTransformWithOffset(m_vPositionOffset) : GetOwnerSystem()->GetTransform();
+  const ezVec3 vOffset = m_Area.IsAreaUsed() ? ezVec3::MakeZero() : m_vPositionOffset;
 
-  if (vSize.IsZero())
+  if (m_vSize.IsZero())
   {
     ezSimdVec4f pos = ezSimdConversion::ToVec4((trans * vOffset).GetAsVec4(0));
 
@@ -216,9 +217,9 @@ void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      p0[0] = (float)(rng.DoubleMinMax(-vSize.x, vSize.x) * 0.5) + vOffset.x;
-      p0[1] = (float)(rng.DoubleMinMax(-vSize.y, vSize.y) * 0.5) + vOffset.y;
-      p0[2] = (float)(rng.DoubleMinMax(-vSize.z, vSize.z) * 0.5) + vOffset.z;
+      p0[0] = (float)(rng.DoubleMinMax(-m_vSize.x, m_vSize.x) * 0.5) + vOffset.x;
+      p0[1] = (float)(rng.DoubleMinMax(-m_vSize.y, m_vSize.y) * 0.5) + vOffset.y;
+      p0[2] = (float)(rng.DoubleMinMax(-m_vSize.z, m_vSize.z) * 0.5) + vOffset.z;
 
       pos.Load<4>(p0);
 

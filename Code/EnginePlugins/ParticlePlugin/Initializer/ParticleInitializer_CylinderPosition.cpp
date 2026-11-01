@@ -176,21 +176,50 @@ void ezParticleInitializer_CylinderPosition::OnFinalize()
 void ezParticleInitializer_CylinderPosition::OnReset()
 {
   m_Area.Reset();
-  m_bUseArea = false;
 }
 
 void ezParticleInitializer_CylinderPosition::UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject)
 {
   const ezParticleCylinderAreaComponent* pArea = m_Area.Update<ezParticleCylinderAreaComponent>(world, *GetOwnerEffect());
 
-  m_bUseArea = pArea != nullptr;
+  // if the area is gone, the last values stay in use, the spawn counts were scaled for them
+  if (pArea == nullptr)
+    return;
 
-  if (pArea)
+  const float fAreaRadius = ezMath::Max(pArea->m_fRadius * m_fRadiusScale, 0.01f); // prevent 0 radius
+  const float fAreaHeight = ezMath::Max(pArea->m_fHeight * m_fHeightScale, 0.0f);
+
+  if (!m_Area.IsAreaUsed())
   {
-    m_fAreaRadius = ezMath::Max(pArea->m_fRadius * m_fRadiusScale, 0.01f); // prevent 0 radius
-    m_fAreaHeight = ezMath::Max(pArea->m_fHeight * m_fHeightScale, 0.0f);
-    m_fAreaSpawnScale = pArea->m_fSpawnScale;
+    // the scale of the area relative to the effect, the scale of the effect itself applies to both shapes
+    // with non-uniform scale, the circumference is approximated
+    const ezVec3 vAreaScale = m_Area.GetTransform().m_vScale.Abs();
+
+    // m_fRadius and m_fHeight are still the sizes of the initializer here
+    const float fRadiusRatio = fAreaRadius / m_fRadius;
+
+    float fMultiplier = pArea->m_fSpawnScale;
+
+    if (m_bSpawnOnSurface)
+    {
+      fMultiplier *= fRadiusRatio * ezMath::Sqrt(vAreaScale.x * vAreaScale.y);
+    }
+    else
+    {
+      fMultiplier *= fRadiusRatio * fRadiusRatio * vAreaScale.x * vAreaScale.y;
+    }
+
+    // with a height of zero, particles spawn in a disc or on a ring
+    if (m_fHeight > 0.0f)
+    {
+      fMultiplier *= fAreaHeight * vAreaScale.z / m_fHeight;
+    }
+
+    m_Area.UseArea(fMultiplier);
   }
+
+  m_fRadius = fAreaRadius;
+  m_fHeight = fAreaHeight;
 }
 
 bool ezParticleInitializer_CylinderPosition::IsReadyToSpawn() const
@@ -200,32 +229,7 @@ bool ezParticleInitializer_CylinderPosition::IsReadyToSpawn() const
 
 float ezParticleInitializer_CylinderPosition::GetSpawnCountMultiplier() const
 {
-  if (!m_bUseArea)
-    return 1.0f;
-
-  // the scale of the area relative to the effect, the scale of the effect itself applies to both shapes
-  // with non-uniform scale, the circumference is approximated
-  const ezVec3 vAreaScale = m_Area.GetTransform().m_vScale.Abs();
-  const float fRadiusRatio = m_fAreaRadius / m_fRadius;
-
-  float fMultiplier = m_fAreaSpawnScale;
-
-  if (m_bSpawnOnSurface)
-  {
-    fMultiplier *= fRadiusRatio * ezMath::Sqrt(vAreaScale.x * vAreaScale.y);
-  }
-  else
-  {
-    fMultiplier *= fRadiusRatio * fRadiusRatio * vAreaScale.x * vAreaScale.y;
-  }
-
-  // with a height of zero, particles spawn in a disc or on a ring
-  if (m_fHeight > 0.0f)
-  {
-    fMultiplier *= m_fAreaHeight * vAreaScale.z / m_fHeight;
-  }
-
-  return fMultiplier;
+  return m_Area.GetSpawnCountMultiplier();
 }
 
 void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
@@ -241,14 +245,12 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
 
   ezRandom& rng = GetRNG();
 
-  // the area replaces the radius and the height, the position offset is already part of the area transform
-  const ezTransform trans = m_bUseArea ? GetOwnerSystem()->GetTransform() * m_Area.GetTransformWithOffset(m_vPositionOffset) : GetOwnerSystem()->GetTransform();
-  const ezVec3 vOffset = m_bUseArea ? ezVec3::MakeZero() : m_vPositionOffset;
-  const float fRadius = m_bUseArea ? m_fAreaRadius : m_fRadius;
-  const float fHeight = m_bUseArea ? m_fAreaHeight : m_fHeight;
+  // the position offset is already part of the area transform
+  const ezTransform trans = m_Area.IsAreaUsed() ? GetOwnerSystem()->GetTransform() * m_Area.GetTransformWithOffset(m_vPositionOffset) : GetOwnerSystem()->GetTransform();
+  const ezVec3 vOffset = m_Area.IsAreaUsed() ? ezVec3::MakeZero() : m_vPositionOffset;
 
-  const float fRadiusSqr = fRadius * fRadius;
-  const float fHalfHeight = fHeight * 0.5f;
+  const float fRadiusSqr = m_fRadius * m_fRadius;
+  const float fHalfHeight = m_fHeight * 0.5f;
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
@@ -258,8 +260,8 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
 
     do
     {
-      pos.x = (float)rng.DoubleMinMax(-fRadius, fRadius);
-      pos.y = (float)rng.DoubleMinMax(-fRadius, fRadius);
+      pos.x = (float)rng.DoubleMinMax(-m_fRadius, m_fRadius);
+      pos.y = (float)rng.DoubleMinMax(-m_fRadius, m_fRadius);
 
       len = pos.GetLengthSquared();
     } while (len > fRadiusSqr ||
@@ -273,9 +275,9 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
     }
 
     if (m_bSpawnOnSurface)
-      pos = normalPos * fRadius;
+      pos = normalPos * m_fRadius;
 
-    if (fHeight > 0)
+    if (m_fHeight > 0)
     {
       pos.z = (float)rng.DoubleMinMax(-fHalfHeight, fHalfHeight);
     }

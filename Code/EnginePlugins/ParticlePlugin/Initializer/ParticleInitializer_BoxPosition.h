@@ -40,9 +40,9 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_BoxPosition final : public ezP
 
 public:
   ezVec3 m_vPositionOffset;
-  ezVec3 m_vSize;
-  bool m_bUseSpawnArea = false;
+  ezVec3 m_vSize;      ///< The size of the initializer, replaced by the size of the area, once there is one.
   ezVec3 m_vSizeScale; ///< Scales the size of the area, from the scale parameters. Zero for axes on which the initializer is flat.
+  bool m_bUseSpawnArea = false;
 
   virtual void CreateRequiredStreams() override;
   virtual bool IsReadyToSpawn() const override;
@@ -54,11 +54,8 @@ protected:
   virtual void OnReset() override;
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamPosition;
+  ezProcessingStream* m_pStreamPosition = nullptr;
 
   // written in UpdateFromWorld()
   ezParticleAreaReference m_Area;
-  bool m_bUseArea = false;
-  ezVec3 m_vAreaSize = ezVec3::MakeZero(); ///< Size of the area, including m_vSizeScale.
-  float m_fAreaSpawnScale = 1.0f;
 };

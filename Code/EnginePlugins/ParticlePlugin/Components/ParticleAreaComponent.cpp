@@ -167,6 +167,8 @@ void ezParticleAreaReference::Reset()
   m_bSearched = false;
   m_hArea.Invalidate();
   m_Transform.SetIdentity();
+  m_fSpawnCountMultiplier = 1.0f;
+  m_bAreaUsed = false;
 }
 
 bool ezParticleAreaReference::IsReady(const ezParticleEffectInstance& effect) const

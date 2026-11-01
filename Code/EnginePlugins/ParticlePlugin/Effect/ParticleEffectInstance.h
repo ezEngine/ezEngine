@@ -54,7 +54,7 @@ public:
 
   const ezParticleEffectResourceHandle& GetResource() const { return m_hResource; }
 
-  const ezHybridArray<ezParticleSystemInstance*, 4>& GetParticleSystems() const { return m_ParticleSystems; }
+  const ezSmallArray<ezParticleSystemInstance*, 4>& GetParticleSystems() const { return m_ParticleSystems; }
 
   void AddParticleEvent(const ezParticleEvent& pe);
 
@@ -214,8 +214,8 @@ private:
     ezColor m_Value;
   };
 
-  ezHybridArray<FloatParameter, 2> m_FloatParameters;
-  ezHybridArray<ColorParameter, 2> m_ColorParameters;
+  ezSmallArray<FloatParameter, 2> m_FloatParameters;
+  ezSmallArray<ColorParameter, 2> m_ColorParameters;
 
   /// @}
 
@@ -249,12 +249,12 @@ private:
 
   ezParticleWorldModule* m_pOwnerModule = nullptr;
   ezWorld* m_pWorld = nullptr;
-  ezHybridArray<ezParticleSystemInstance*, 4> m_ParticleSystems;
-  ezHybridArray<ezParticleEventReaction*, 4> m_EventReactions;
+  ezSmallArray<ezParticleSystemInstance*, 4> m_ParticleSystems;
+  ezSmallArray<ezParticleEventReaction*, 4> m_EventReactions;
 
   ezSharedPtr<ezTask> m_pTask;
 
-  ezStaticArray<ezParticleEvent, 16> m_EventQueue;
+  ezStaticArray<ezParticleEvent, 8> m_EventQueue;
 
   ezGameObjectHandle m_hOwnerObject;
 };

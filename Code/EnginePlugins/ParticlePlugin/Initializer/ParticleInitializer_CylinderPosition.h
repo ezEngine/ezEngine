@@ -35,10 +35,10 @@ public:
   float m_fHeight;                  ///< Cylinder height
   bool m_bSpawnOnSurface;           ///< If true, spawn only on cylinder surface
   bool m_bSetVelocity;              ///< If true, set velocity pointing outward from axis
+  bool m_bUseSpawnArea = false;     ///< If true, an area component on the owner object or its parents replaces the shape. Should stay off for effects that are spawned by other effects.
   ezVarianceTypeFloat m_Speed;      ///< Speed value when setting velocity
   ezString m_sScaleRadiusParameter; ///< Optional parameter name to scale radius
   ezString m_sScaleHeightParameter; ///< Optional parameter name to scale height
-  bool m_bUseSpawnArea = false;     ///< If true, an area component on the owner object or its parents replaces the shape. Should stay off for effects that are spawned by other effects.
 };
 
 
@@ -48,14 +48,14 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_CylinderPosition final : publi
 
 public:
   ezVec3 m_vPositionOffset;
-  float m_fRadius;
-  float m_fHeight;
-  bool m_bSpawnOnSurface;
-  bool m_bSetVelocity;
-  ezVarianceTypeFloat m_Speed;
-  bool m_bUseSpawnArea = false;
+  float m_fRadius;             ///< The radius of the initializer, replaced by the radius of the area, once there is one.
+  float m_fHeight;             ///< The height of the initializer, replaced by the height of the area, once there is one.
   float m_fRadiusScale = 1.0f; ///< Scales the radius of the area, from the scale parameter.
   float m_fHeightScale = 1.0f; ///< Scales the height of the area, from the scale parameter. Zero if the initializer is flat.
+  ezVarianceTypeFloat m_Speed;
+  bool m_bSpawnOnSurface;
+  bool m_bSetVelocity;
+  bool m_bUseSpawnArea = false;
 
   virtual bool IsReadyToSpawn() const override;
   virtual float GetSpawnCountMultiplier() const override;
@@ -67,13 +67,9 @@ protected:
   virtual void OnReset() override;
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamPosition;
-  ezProcessingStream* m_pStreamVelocity;
+  ezProcessingStream* m_pStreamPosition = nullptr;
+  ezProcessingStream* m_pStreamVelocity = nullptr;
 
   // written in UpdateFromWorld()
   ezParticleAreaReference m_Area;
-  bool m_bUseArea = false;
-  float m_fAreaRadius = 1.0f; ///< Radius of the area, including m_fRadiusScale.
-  float m_fAreaHeight = 0.0f; ///< Height of the area, including m_fHeightScale.
-  float m_fAreaSpawnScale = 1.0f;
 };

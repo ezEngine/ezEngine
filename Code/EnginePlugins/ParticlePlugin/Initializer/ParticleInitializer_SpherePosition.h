@@ -33,9 +33,9 @@ public:
   float m_fRadius;                  ///< Sphere radius
   bool m_bSpawnOnSurface;           ///< If true, spawn only on sphere surface
   bool m_bSetVelocity;              ///< If true, set velocity pointing outward from center
+  bool m_bUseSpawnArea = false;     ///< If true, an area component on the owner object or its parents replaces the shape. Should stay off for effects that are spawned by other effects.
   ezVarianceTypeFloat m_Speed;      ///< Speed value when setting velocity
   ezString m_sScaleRadiusParameter; ///< Optional parameter name to scale radius
-  bool m_bUseSpawnArea = false;     ///< If true, an area component on the owner object or its parents replaces the shape. Should stay off for effects that are spawned by other effects.
 };
 
 
@@ -45,12 +45,12 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_SpherePosition final : public 
 
 public:
   ezVec3 m_vPositionOffset;
-  float m_fRadius;
-  bool m_bSpawnOnSurface;
-  bool m_bSetVelocity;
-  ezVarianceTypeFloat m_Speed;
-  bool m_bUseSpawnArea = false;
+  float m_fRadius = 1.0f;      ///< The radius of the initializer, replaced by the radius of the area, once there is one.
   float m_fRadiusScale = 1.0f; ///< Scales the radius of the area, from the scale parameter.
+  ezVarianceTypeFloat m_Speed;
+  bool m_bSpawnOnSurface = false;
+  bool m_bSetVelocity = false;
+  bool m_bUseSpawnArea = false;
 
   virtual void CreateRequiredStreams() override;
   virtual bool IsReadyToSpawn() const override;
@@ -62,12 +62,9 @@ protected:
   virtual void OnReset() override;
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamPosition;
-  ezProcessingStream* m_pStreamVelocity;
-
   // written in UpdateFromWorld()
   ezParticleAreaReference m_Area;
-  bool m_bUseArea = false;
-  float m_fAreaRadius = 1.0f; ///< Radius of the area, including m_fRadiusScale.
-  float m_fAreaSpawnScale = 1.0f;
+
+  ezProcessingStream* m_pStreamPosition = nullptr;
+  ezProcessingStream* m_pStreamVelocity = nullptr;
 };

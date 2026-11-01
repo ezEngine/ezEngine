@@ -155,7 +155,20 @@ public:
   /// Whether it is known if there is an area, which is the case after the first Update() and for effects without an owner object.
   bool IsReady(const ezParticleEffectInstance& effect) const;
 
-  /// Transforms from the space of the area into the space of the effect. Only valid while Update() returns an area.
+  /// Whether the initializer switched to the area since the last Reset(), see UseArea(). Stays true if the area is gone afterwards.
+  bool IsAreaUsed() const { return m_bAreaUsed; }
+
+  /// Called by the initializer when it replaces its shape with the area.
+  void UseArea(float fSpawnCountMultiplier)
+  {
+    m_bAreaUsed = true;
+    m_fSpawnCountMultiplier = fSpawnCountMultiplier;
+  }
+
+  /// The value passed to UseArea(), otherwise 1.
+  float GetSpawnCountMultiplier() const { return m_fSpawnCountMultiplier; }
+
+  /// Transforms from the space of the area into the space of the effect. Keeps the last value, once Update() doesn't return an area anymore.
   const ezTransform& GetTransform() const { return m_Transform; }
 
   /// Same as GetTransform(), but moved by the given position offset, which is in the space of the effect.
@@ -171,7 +184,9 @@ public:
 private:
   const ezParticleAreaComponent* Update(const ezWorld& world, const ezParticleEffectInstance& effect, const ezRTTI* pAreaType);
 
-  bool m_bSearched = false;
   ezComponentHandle m_hArea;
   ezTransform m_Transform = ezTransform::MakeIdentity();
+  float m_fSpawnCountMultiplier = 1.0f;
+  bool m_bSearched = false;
+  bool m_bAreaUsed = false;
 };

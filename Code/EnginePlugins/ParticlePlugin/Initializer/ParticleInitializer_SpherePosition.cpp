@@ -174,20 +174,39 @@ void ezParticleInitializer_SpherePosition::OnFinalize()
 void ezParticleInitializer_SpherePosition::OnReset()
 {
   m_Area.Reset();
-  m_bUseArea = false;
 }
 
 void ezParticleInitializer_SpherePosition::UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject)
 {
   const ezParticleSphereAreaComponent* pArea = m_Area.Update<ezParticleSphereAreaComponent>(world, *GetOwnerEffect());
 
-  m_bUseArea = pArea != nullptr;
+  // if the area is gone, the last values stay in use, the spawn counts were scaled for them
+  if (pArea == nullptr)
+    return;
 
-  if (pArea)
+  const float fAreaRadius = ezMath::Max(pArea->m_fRadius * m_fRadiusScale, 0.01f); // prevent 0 radius
+
+  if (!m_Area.IsAreaUsed())
   {
-    m_fAreaRadius = ezMath::Max(pArea->m_fRadius * m_fRadiusScale, 0.01f); // prevent 0 radius
-    m_fAreaSpawnScale = pArea->m_fSpawnScale;
+    // the scale of the area relative to the effect, the scale of the effect itself applies to both shapes
+    // with non-uniform scale, the surface area is approximated
+    const ezVec3 vAreaScale = m_Area.GetTransform().m_vScale.Abs();
+    const float fVolumeScale = vAreaScale.x * vAreaScale.y * vAreaScale.z;
+
+    // m_fRadius is still the radius of the initializer here
+    const float fRadiusRatio = fAreaRadius / m_fRadius;
+
+    if (m_bSpawnOnSurface)
+    {
+      m_Area.UseArea(pArea->m_fSpawnScale * fRadiusRatio * fRadiusRatio * ezMath::Pow(fVolumeScale, 2.0f / 3.0f));
+    }
+    else
+    {
+      m_Area.UseArea(pArea->m_fSpawnScale * fRadiusRatio * fRadiusRatio * fRadiusRatio * fVolumeScale);
+    }
   }
+
+  m_fRadius = fAreaRadius;
 }
 
 bool ezParticleInitializer_SpherePosition::IsReadyToSpawn() const
@@ -197,23 +216,7 @@ bool ezParticleInitializer_SpherePosition::IsReadyToSpawn() const
 
 float ezParticleInitializer_SpherePosition::GetSpawnCountMultiplier() const
 {
-  if (!m_bUseArea)
-    return 1.0f;
-
-  // the scale of the area relative to the effect, the scale of the effect itself applies to both shapes
-  // with non-uniform scale, the surface area is approximated
-  const ezVec3 vAreaScale = m_Area.GetTransform().m_vScale.Abs();
-  const float fVolumeScale = vAreaScale.x * vAreaScale.y * vAreaScale.z;
-  const float fRadiusRatio = m_fAreaRadius / m_fRadius;
-
-  if (m_bSpawnOnSurface)
-  {
-    return m_fAreaSpawnScale * fRadiusRatio * fRadiusRatio * ezMath::Pow(fVolumeScale, 2.0f / 3.0f);
-  }
-  else
-  {
-    return m_fAreaSpawnScale * fRadiusRatio * fRadiusRatio * fRadiusRatio * fVolumeScale;
-  }
+  return m_Area.GetSpawnCountMultiplier();
 }
 
 void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
@@ -229,14 +232,13 @@ void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIn
 
   ezRandom& rng = GetRNG();
 
-  // the area replaces the radius, the position offset is already part of the area transform
-  const ezTransform trans = m_bUseArea ? GetOwnerSystem()->GetTransform() * m_Area.GetTransformWithOffset(m_vPositionOffset) : GetOwnerSystem()->GetTransform();
-  const ezVec3 vOffset = m_bUseArea ? ezVec3::MakeZero() : m_vPositionOffset;
-  const float fRadius = m_bUseArea ? m_fAreaRadius : m_fRadius;
+  // the position offset is already part of the area transform
+  const ezTransform trans = m_Area.IsAreaUsed() ? GetOwnerSystem()->GetTransform() * m_Area.GetTransformWithOffset(m_vPositionOffset) : GetOwnerSystem()->GetTransform();
+  const ezVec3 vOffset = m_Area.IsAreaUsed() ? ezVec3::MakeZero() : m_vPositionOffset;
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
-    ezVec3 pos = ezVec3::MakeRandomPointInSphere(rng) * fRadius;
+    ezVec3 pos = ezVec3::MakeRandomPointInSphere(rng) * m_fRadius;
     ezVec3 normalPos = pos;
 
     if (m_bSpawnOnSurface || m_bSetVelocity)
@@ -245,7 +247,7 @@ void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIn
     }
 
     if (m_bSpawnOnSurface)
-      pos = normalPos * fRadius;
+      pos = normalPos * m_fRadius;
 
     pos += vOffset;
 
