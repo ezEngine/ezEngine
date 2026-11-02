@@ -54,7 +54,7 @@ public:
 
   const ezParticleEffectResourceHandle& GetResource() const { return m_hResource; }
 
-  const ezHybridArray<ezParticleSystemInstance*, 4>& GetParticleSystems() const { return m_ParticleSystems; }
+  const ezSmallArray<ezParticleSystemInstance*, 4>& GetParticleSystems() const { return m_ParticleSystems; }
 
   void AddParticleEvent(const ezParticleEvent& pe);
 
@@ -70,6 +70,7 @@ public:
 
   /// Sets the object that this effect is attached to, typically by the particle component right after creating the effect.
   ///
+  /// Modules get it in ezParticleModule::UpdateFromWorld(), e.g. to look for a spawn area.
   /// Invalid for effects that aren't attached to an object, such as shared effects.
   void SetOwnerObject(ezGameObjectHandle hOwner) { m_hOwnerObject = hOwner; }
   ezGameObjectHandle GetOwnerObject() const { return m_hOwnerObject; }
@@ -213,8 +214,8 @@ private:
     ezColor m_Value;
   };
 
-  ezHybridArray<FloatParameter, 2> m_FloatParameters;
-  ezHybridArray<ColorParameter, 2> m_ColorParameters;
+  ezSmallArray<FloatParameter, 2> m_FloatParameters;
+  ezSmallArray<ColorParameter, 2> m_ColorParameters;
 
   /// @}
 
@@ -225,6 +226,7 @@ private:
   void ProcessEventQueues();
 
   /// Called by the world module in the PostTransform phase, see ezParticleModule::UpdateFromWorld().
+  /// After the effect was (re-)configured, it is additionally called before the next update, see m_bModulesNeedWorldUpdate.
   void UpdateModulesFromWorld();
 
   // for deterministic randomness
@@ -235,6 +237,10 @@ private:
   bool m_bEmitterEnabled = true;
   bool m_bSimulateInLocalSpace = false;
   bool m_bIsFinishing = false;
+
+  /// Set by Reconfigure(), which resets the modules. Modules that need data from the world (e.g. a spawn area) only get it in
+  /// UpdateModulesFromWorld(), so without an extra call before the next update, they would start spawning one frame late.
+  bool m_bModulesNeedWorldUpdate = false;
   ezUInt8 m_uiReviveTimeout = 3;
   ezInt8 m_iMinSimStepsToDo = 0;
   float m_fApplyInstanceVelocity = 0;
@@ -243,12 +249,12 @@ private:
 
   ezParticleWorldModule* m_pOwnerModule = nullptr;
   ezWorld* m_pWorld = nullptr;
-  ezHybridArray<ezParticleSystemInstance*, 4> m_ParticleSystems;
-  ezHybridArray<ezParticleEventReaction*, 4> m_EventReactions;
+  ezSmallArray<ezParticleSystemInstance*, 4> m_ParticleSystems;
+  ezSmallArray<ezParticleEventReaction*, 4> m_EventReactions;
 
   ezSharedPtr<ezTask> m_pTask;
 
-  ezStaticArray<ezParticleEvent, 16> m_EventQueue;
+  ezStaticArray<ezParticleEvent, 8> m_EventQueue;
 
   ezGameObjectHandle m_hOwnerObject;
 };

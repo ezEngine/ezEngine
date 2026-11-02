@@ -75,8 +75,26 @@ public:
 
   float GetSpawnCountMultiplier() const { return m_fSpawnCountMultiplier; }
 
+  /// Sets the multiplier that the emitters use for their spawn counts. Only has an effect on the next ConfigureFromTemplate().
+  ///
+  /// fInitializerMultiplier is the part of fMultiplier that comes from ezParticleInitializer::GetSpawnCountMultiplier().
+  /// If bInitializerMultiplierChecked is true, the initializers are not asked again, see IsReadyToSpawn().
+  void SetSpawnCountMultiplier(float fMultiplier, float fInitializerMultiplier, bool bInitializerMultiplierChecked);
+
+  /// The product of ezParticleInitializer::GetSpawnCountMultiplier() of all initializers, once they were ready.
+  float GetRequiredInitializerSpawnCountMultiplier() const { return m_fRequiredInitializerSpawnCountMultiplier; }
+  bool IsInitializerSpawnCountMultiplierChecked() const { return m_bInitializerSpawnCountMultiplierChecked; }
+
   /// Calls ezParticleModule::UpdateFromWorld() on all modules that requested it.
   void UpdateModulesFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject);
+
+  /// Returns false as long as any initializer isn't ready yet, see ezParticleInitializer::IsReadyToSpawn(). Until then no particles are emitted.
+  ///
+  /// Also returns false, if the initializers require a different spawn count multiplier than the system currently uses, see
+  /// ezParticleInitializer::GetSpawnCountMultiplier(). The effect is then reconfigured in the next frame.
+  /// This is only checked once, the first time all initializers are ready. A system that gets recreated for this keeps that state, otherwise
+  /// a multiplier that keeps changing (e.g. with an animated scale) would recreate the system over and over.
+  bool IsReadyToSpawn();
 
 private:
   bool IsEmitterConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
@@ -87,22 +105,25 @@ private:
 
   void CreateStreamZeroInitializers();
 
-  ezSmallArray<ezParticleEmitter*, 2> m_Emitters;
-  ezSmallArray<ezParticleInitializer*, 6> m_Initializers;
-  ezSmallArray<ezParticleBehavior*, 6> m_Behaviors;
-  ezSmallArray<ezParticleFinalizer*, 2> m_Finalizers;
-  ezSmallArray<ezParticleType*, 2> m_Types;
+  ezSmallArray<ezParticleEmitter*, 1> m_Emitters;
+  ezSmallArray<ezParticleInitializer*, 5> m_Initializers;
+  ezSmallArray<ezParticleBehavior*, 5> m_Behaviors;
+  ezSmallArray<ezParticleFinalizer*, 3> m_Finalizers;
+  ezSmallArray<ezParticleType*, 1> m_Types;
 
   // modules that requested UpdateFromWorld(), collected in Finalize()
   ezSmallArray<ezParticleModule*, 1> m_WorldUpdateModules;
 
-  bool m_bVisible; // typically used in editor to hide a system
-  bool m_bEmitterEnabled;
-  ezParticleEffectInstance* m_pOwnerEffect;
+  bool m_bVisible = true; // typically used in editor to hide a system
+  bool m_bEmitterEnabled = true;
+  bool m_bInitializerSpawnCountMultiplierChecked = false;
+  ezParticleEffectInstance* m_pOwnerEffect = nullptr;
   ezWorld* m_pWorld;
   ezTransform m_Transform;
   ezVec3 m_vParticleStartVelocity;
   float m_fSpawnCountMultiplier = 1.0f;
+  float m_fInitializerSpawnCountMultiplier = 1.0f;         // the part of m_fSpawnCountMultiplier that comes from the initializers
+  float m_fRequiredInitializerSpawnCountMultiplier = 1.0f; // what the initializers want, applied by the next reconfigure of the effect
 
   ezProcessingStreamGroup m_StreamGroup;
 
@@ -114,7 +135,7 @@ private:
     ezProcessingStreamProcessor* m_pDefaultInitializer = nullptr;
   };
 
-  ezSmallArray<StreamInfo, 16> m_StreamInfo;
+  ezSmallArray<StreamInfo, 8> m_StreamInfo;
 
   // culling data
   ezBoundingBoxSphere m_BoundingVolume;

@@ -29,6 +29,11 @@ public:
 
   void CombineSystemBoundingVolumes();
 
+  /// Updates the effect directly on the calling thread, independent of the world update. Requires write access to the world.
+  ///
+  /// Used to step an effect while the world doesn't simulate, e.g. for thumbnails.
+  /// A reconfiguration requested by an initializer (see ezParticleInitializer::GetSpawnCountMultiplier()) is only applied by the next
+  /// world update. Until then such an effect doesn't spawn anything.
   void Tick(const ezTime& diff) const;
 
   void ExtractRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& systemTransform) const;

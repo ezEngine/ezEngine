@@ -6,6 +6,9 @@ Particle Effect;Particle Effect;;https://ezengine.net/pages/docs/effects/particl
 
 ezParticleComponent;Particle;;https://ezengine.net/pages/docs/effects/particle-effects/particle-effect-component.html
 ezParticleAttractorComponent;Particle Attractor;;https://ezengine.net/pages/docs/effects/particle-effects/particle-attractor-component.html
+ezParticleBoxAreaComponent;Particle Box Area
+ezParticleSphereAreaComponent;Particle Sphere Area
+ezParticleCylinderAreaComponent;Particle Cylinder Area
 
 # UI
 

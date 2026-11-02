@@ -20,6 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_SpherePosition, 2, 
     EZ_MEMBER_PROPERTY("SetVelocity", m_bSetVelocity),
     EZ_MEMBER_PROPERTY("Speed", m_Speed),
     EZ_MEMBER_PROPERTY("ScaleRadiusParam", m_sScaleRadiusParameter),
+    EZ_MEMBER_PROPERTY("UseSpawnArea", m_bUseSpawnArea),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -58,6 +59,8 @@ void ezParticleInitializerFactory_SpherePosition::CopyInitializerProperties(ezPa
   pInitializer->m_bSetVelocity = m_bSetVelocity;
   pInitializer->m_Speed = m_Speed;
   pInitializer->m_vPositionOffset = m_vPositionOffset;
+  pInitializer->m_bUseSpawnArea = m_bUseSpawnArea;
+  pInitializer->m_fRadiusScale = fScale;
 }
 
 float ezParticleInitializerFactory_SpherePosition::GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const
@@ -92,7 +95,7 @@ float ezParticleInitializerFactory_SpherePosition::GetSpawnCountMultiplier(const
 
 void ezParticleInitializerFactory_SpherePosition::Save(ezStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 3;
+  const ezUInt8 uiVersion = 4;
   inout_stream << uiVersion;
 
   inout_stream << m_fRadius;
@@ -106,6 +109,9 @@ void ezParticleInitializerFactory_SpherePosition::Save(ezStreamWriter& inout_str
 
   // version 3
   inout_stream << m_sScaleRadiusParameter;
+
+  // version 4
+  inout_stream << m_bUseSpawnArea;
 }
 
 void ezParticleInitializerFactory_SpherePosition::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
@@ -127,6 +133,11 @@ void ezParticleInitializerFactory_SpherePosition::Load(ezStreamReader& inout_str
   if (uiVersion >= 3)
   {
     inout_stream >> m_sScaleRadiusParameter;
+  }
+
+  if (uiVersion >= 4)
+  {
+    inout_stream >> m_bUseSpawnArea;
   }
 }
 
@@ -152,6 +163,62 @@ void ezParticleInitializer_SpherePosition::CreateRequiredStreams()
   }
 }
 
+void ezParticleInitializer_SpherePosition::OnFinalize()
+{
+  if (m_bUseSpawnArea)
+  {
+    RequestUpdateFromWorld();
+  }
+}
+
+void ezParticleInitializer_SpherePosition::OnReset()
+{
+  m_Area.Reset();
+}
+
+void ezParticleInitializer_SpherePosition::UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject)
+{
+  const ezParticleSphereAreaComponent* pArea = m_Area.Update<ezParticleSphereAreaComponent>(world, *GetOwnerEffect());
+
+  // if the area is gone, the last values stay in use, the spawn counts were scaled for them
+  if (pArea == nullptr)
+    return;
+
+  const float fAreaRadius = ezMath::Max(pArea->m_fRadius * m_fRadiusScale, 0.01f); // prevent 0 radius
+
+  if (!m_Area.IsAreaUsed())
+  {
+    // the scale of the area relative to the effect, the scale of the effect itself applies to both shapes
+    // with non-uniform scale, the surface area is approximated
+    const ezVec3 vAreaScale = m_Area.GetTransform().m_vScale.Abs();
+    const float fVolumeScale = vAreaScale.x * vAreaScale.y * vAreaScale.z;
+
+    // m_fRadius is still the radius of the initializer here
+    const float fRadiusRatio = fAreaRadius / m_fRadius;
+
+    if (m_bSpawnOnSurface)
+    {
+      m_Area.UseArea(pArea->m_fSpawnScale * fRadiusRatio * fRadiusRatio * ezMath::Pow(fVolumeScale, 2.0f / 3.0f));
+    }
+    else
+    {
+      m_Area.UseArea(pArea->m_fSpawnScale * fRadiusRatio * fRadiusRatio * fRadiusRatio * fVolumeScale);
+    }
+  }
+
+  m_fRadius = fAreaRadius;
+}
+
+bool ezParticleInitializer_SpherePosition::IsReadyToSpawn() const
+{
+  return !m_bUseSpawnArea || m_Area.IsReady(*GetOwnerEffect());
+}
+
+float ezParticleInitializer_SpherePosition::GetSpawnCountMultiplier() const
+{
+  return m_Area.GetSpawnCountMultiplier();
+}
+
 void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
   EZ_PROFILE_SCOPE("PFX: Sphere Position");
@@ -165,7 +232,9 @@ void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIn
 
   ezRandom& rng = GetRNG();
 
-  const ezTransform trans = GetOwnerSystem()->GetTransform();
+  // the position offset is already part of the area transform
+  const ezTransform trans = m_Area.IsAreaUsed() ? GetOwnerSystem()->GetTransform() * m_Area.GetTransformWithOffset(m_vPositionOffset) : GetOwnerSystem()->GetTransform();
+  const ezVec3 vOffset = m_Area.IsAreaUsed() ? ezVec3::MakeZero() : m_vPositionOffset;
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
@@ -180,7 +249,7 @@ void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIn
     if (m_bSpawnOnSurface)
       pos = normalPos * m_fRadius;
 
-    pos += m_vPositionOffset;
+    pos += vOffset;
 
     if (m_bSetVelocity)
     {

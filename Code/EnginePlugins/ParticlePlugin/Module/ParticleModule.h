@@ -45,12 +45,14 @@ public:
   /// Cached modules can be retrieved via ezParticleWorldModule::GetCachedWorldModule().
   virtual void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) {}
 
-  /// Gives the module access to the world, for modules that need data from other objects.
+  /// Gives the module access to the world, for modules that need data from other objects, e.g. a spawn area.
   ///
   /// Only called once the module called RequestUpdateFromWorld().
   /// Called on the main thread once per frame in the PostTransform phase, after the particle update tasks have finished and before the next update.
+  /// After the effect was created or reconfigured, it is additionally called once before its first update, so the data is available right away.
   /// Data written here can therefore be read during the next update without further synchronization.
   /// hOwnerObject is the object that the effect is attached to (see ezParticleEffectInstance::SetOwnerObject()).
+  /// It is invalid for shared effects and for effects that were started without a particle component.
   virtual void UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject) {}
 
   bool GetUpdateFromWorld() const { return m_bUpdateFromWorld; }
