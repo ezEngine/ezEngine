@@ -57,6 +57,50 @@ float3 TonemapACES(float3 color)
   return color_tonemapped * TonemapNormalization;
 }
 
+// This is an approximation and simplification of EaryChow's AgX implementation that is used by Blender.
+// This code is based off of the script that generates the AgX_Base_sRGB.cube LUT that Blender uses.
+// Source: https://github.com/EaryChow/AgX_LUT_Gen/blob/main/AgXBasesRGB.py
+// Colorspace transformation source: https://www.colour-science.org:8010/apps/rgb_colourspace_transformation_matrix
+float3 TonemapAgX(float3 color)
+{
+  // Combined Rec. 709 to Rec. 2020 and Blender AgX inset matrices:
+  const float3x3 rec709_to_rec2020_agx_inset_matrix =
+  {
+    {0.544814746488245, 0.373787398372697, 0.0813978551390581},
+    {0.140416948464053, 0.754137554567394, 0.105445496968552},
+    {0.0888104196149096, 0.178871756420858, 0.732317823964232}
+  };
+
+  // Combined inverse AgX outset matrix and Rec. 2020 to Rec. 709 matrices.
+  const float3x3 agx_outset_rec2020_to_rec709_matrix =
+  {
+    { 1.96488741169489, -0.855988495690215, -0.108898916004672},
+    {-0.299313364904742,  1.32639796461980, -0.0270845997150571},
+    {-0.164352742528393, -0.238183969428088,  1.40253671195648}
+  };
+
+  const float output_max_value = 1.0; // SDR always has an output_max_value of 1.0
+
+  // Apply inset matrix.
+  color = mul(rec709_to_rec2020_agx_inset_matrix, color);
+
+  // Use the allenwp tonemapping curve to match the Blender AgX curve while
+  // providing stability across all variable dyanimc range (SDR, HDR, EDR).
+  color = AllenwpCurve(color, AwpContrast, AwpToeA, AwpSlope, AwpW);
+
+  // Clipping to output_max_value is required to address a cyan colour that occurs
+  // with very bright inputs.
+  color = min(output_max_value, color);
+
+  // Apply outset to make the result more chroma-laden and then go back to Rec. 709.
+  color = mul(agx_outset_rec2020_to_rec709_matrix, color);
+
+  // Blender's lusRGB.compensate_low_side is too complex for this shader, so
+  // simply return the color, even if it has negative components. These negative
+  // components may be useful for subsequent color adjustments.
+  return color;
+}
+
 float3 AdjustContrast(float3 x)
 {
   float3 x2 = x*x;
@@ -122,7 +166,7 @@ float4 main(PS_IN Input) : SV_Target
   }
   else if (TonemapMode == TONEMAPMODE_AGX)
   {
-    
+    tonemappedColor = TonemapAgX(sceneColor);
   }
 
   float3 color = saturate(tonemappedColor);

@@ -20,7 +20,7 @@ struct ezTonemapMode
     ACES,
     AgX,
 
-    Default = Filmic
+    Default = AgX
   };
 };
 
@@ -64,8 +64,12 @@ public:
   void SetAcesShoulder(float fShoulder);                                    // [ property ]
   float GetAcesShoulder() const { return m_fAcesShoulder; }                 // [ property ]
 
+  void SetAgXContrast(float fContrast);                                     // [ property ]
+  float GetAgXContrast() const { return m_fAgXContrast; }                   // [ property ]
+
 protected:
   float CalculateTonemapNormalization(ezTonemapMode::Enum mode) const;
+  void CalculateAwpConstants(float& out_AwpToeA, float& out_AwpSlope, float& out_AwpW) const;
   void VisualizeCurve(const ezRenderViewContext& renderViewContext) const;
 
   ezRenderPipelineNodeInputPin m_PinColorInput;                             ///< HDR color input to tonemap.
@@ -103,6 +107,8 @@ protected:
   float m_fAcesToe = 0.55f;                                                 ///< Toe strength for the ACES tonemap curve.
   float m_fAcesSlope = 0.71f;                                               ///< Slope for the ACES tonemap curve.
   float m_fAcesShoulder = 0.47f;                                            ///< Shoulder strength for the ACES tonemap curve.
+
+  float m_fAgXContrast = 1.5f;                                              ///< Contrast for the AgX tonemap curve.
 
   ezConstantBufferStorageHandle m_hConstantBuffer;                          ///< Constant buffer for tonemap parameters.
   ezShaderResourceHandle m_hShader;                                         ///< Tonemap shader.

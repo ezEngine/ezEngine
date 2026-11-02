@@ -22,7 +22,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10020561646119184533,5683177833828958675}}
-		u4 %Hash{14265694426779006039}
+		u4 %Hash{13635503136682098873}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{1999365951044699738,15951038646261752741}}
@@ -319,9 +319,10 @@ o
 		f %AcesShoulder{0xD7A3F03E}
 		f %AcesSlope{0x8FC2353F}
 		f %AcesToe{0xCDCC0C3F}
+		f %AgXContrast{0x0000C03F}
 		Uuid %Bloom{u4{8102476945910101606,17954155698102522458}}
 		Uuid %Color{u4{9014048666505654944,1100737762973851873}}
-		s %CompareCurve{"ezTonemapMode::Filmic"}
+		s %CompareCurve{"ezTonemapMode::None"}
 		f %Contrast{0}
 		f %FilmicLinearAngle{0xCDCCCC3D}
 		f %FilmicLinearStrength{0x3333B33E}
@@ -331,7 +332,7 @@ o
 		f %LUT1Strength{0}
 		s %LUT2{""}
 		f %LUT2Strength{0}
-		s %Mode{"ezTonemapMode::ACES"}
+		s %Mode{"ezTonemapMode::AgX"}
 		Color %MoodColor{f{0x0000803F,0x71A5C03E,0,0x0000803F}}
 		f %MoodStrength{0}
 		s %Name{"TonemapPass"}
@@ -339,7 +340,7 @@ o
 		Uuid %Output{u4{5003149436786757650,9026808316053870738}}
 		f %Saturation{0x0000803F}
 		s %VignettingTexture{"{ 3edf10b3-36d2-434f-9683-c653909abe7e }"}
-		b %VisualizeCurve{1}
+		b %VisualizeCurve{0}
 		f %WhitePoint{0x33333341}
 	}
 }
