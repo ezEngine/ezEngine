@@ -67,6 +67,9 @@ public:
   void SetAgXContrast(float fContrast);                                     // [ property ]
   float GetAgXContrast() const { return m_fAgXContrast; }                   // [ property ]
 
+  void SetAgXMidGrey(float fMidGrey);                                       // [ property ]
+  float GetAgXMidGrey() const { return m_fAgXMidGrey; }                     // [ property ]
+
 protected:
   float CalculateTonemapNormalization(ezTonemapMode::Enum mode) const;
   void CalculateAwpConstants(float& out_AwpToeA, float& out_AwpSlope, float& out_AwpW) const;
@@ -109,6 +112,7 @@ protected:
   float m_fAcesShoulder = 0.47f;                                            ///< Shoulder strength for the ACES tonemap curve.
 
   float m_fAgXContrast = 1.5f;                                              ///< Contrast for the AgX tonemap curve.
+  float m_fAgXMidGrey = 0.18f;                                              ///< Mid-grey value for the AgX tonemap curve.
 
   ezConstantBufferStorageHandle m_hConstantBuffer;                          ///< Constant buffer for tonemap parameters.
   ezShaderResourceHandle m_hShader;                                         ///< Tonemap shader.

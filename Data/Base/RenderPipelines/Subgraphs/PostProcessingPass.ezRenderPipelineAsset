@@ -22,7 +22,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10020561646119184533,5683177833828958675}}
-		u4 %Hash{13635503136682098873}
+		u4 %Hash{4829312294833722195}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{1999365951044699738,15951038646261752741}}
@@ -320,6 +320,7 @@ o
 		f %AcesSlope{0x8FC2353F}
 		f %AcesToe{0xCDCC0C3F}
 		f %AgXContrast{0x0000C03F}
+		f %AgXMidGrey{0xEC51383E}
 		Uuid %Bloom{u4{8102476945910101606,17954155698102522458}}
 		Uuid %Color{u4{9014048666505654944,1100737762973851873}}
 		s %CompareCurve{"ezTonemapMode::None"}

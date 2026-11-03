@@ -35,10 +35,11 @@ CONSTANT_BUFFER(ezTonemapConstants, 3)
   FLOAT1(AcesSlope);
   FLOAT1(AcesShoulder);
 
-  FLOAT1(AwpContrast);
-  FLOAT1(AwpToeA);
-  FLOAT1(AwpSlope);
-  FLOAT1(AwpW);
+  FLOAT1(AgXContrast);
+  FLOAT1(AgXMidGrey);
+  FLOAT1(AgXToeA);
+  FLOAT1(AgXSlope);
+  FLOAT1(AgXW);
 };
 
 #if EZ_ENABLED(PLATFORM_SHADER)
@@ -135,7 +136,7 @@ COLOR_TYPE ACESFunction(COLOR_TYPE x, float toe, float slope, float shoulder)
 // allenwp tonemapping curve; developed for use in the Godot game engine.
 // Source and details: https://allenwp.com/blog/2025/05/29/allenwp-tonemapping-curve/
 // Input must be a non-negative linear scene value.
-COLOR_TYPE AllenwpCurve(COLOR_TYPE x, float awp_contrast, float awp_toe_a, float awp_slope, float awp_w)
+COLOR_TYPE AllenwpCurve(COLOR_TYPE x, float awp_contrast, float awp_outCrossover, float awp_toe_a, float awp_slope, float awp_w)
 {
   // EZ mod: Exposure tweak
   x *= 0.8;
@@ -143,23 +144,23 @@ COLOR_TYPE AllenwpCurve(COLOR_TYPE x, float awp_contrast, float awp_toe_a, float
   const float output_max_value = 1.0f; // SDR always has an output_max_value of 1.0
 
   // 18% "middle gray" is perceptually 50% of the brightness of reference white.
-  const float awp_crossover_point = 0.18f;
+  const float inCrossover = 0.18f;
 
   // When output_max_value and/or awp_crossover_point are no longer constant,
   // awp_shoulder_max can be calculated on the CPU and passed in as tonemap_e.
-  const float awp_shoulder_max = output_max_value - awp_crossover_point;
+  const float awp_shoulder_max = output_max_value - awp_outCrossover;
 
   // Reinhard-like shoulder:
-  COLOR_TYPE s = x - awp_crossover_point;
+  COLOR_TYPE s = x - inCrossover;
   COLOR_TYPE slope_s = awp_slope * s;
   s = slope_s * (1.0f + s / awp_w) / (1.0f + (slope_s / awp_shoulder_max));
-  s += awp_crossover_point;
+  s += awp_outCrossover;
 
   // Sigmoid power function toe:
   COLOR_TYPE t = pow(x, awp_contrast);
   t = t / (t + awp_toe_a);
 
-  return x < awp_crossover_point ? t : s;
+  return x < inCrossover ? t : s;
 }
 
 

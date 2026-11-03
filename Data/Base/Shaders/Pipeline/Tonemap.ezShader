@@ -86,7 +86,7 @@ float3 TonemapAgX(float3 color)
 
   // Use the allenwp tonemapping curve to match the Blender AgX curve while
   // providing stability across all variable dyanimc range (SDR, HDR, EDR).
-  color = AllenwpCurve(color, AwpContrast, AwpToeA, AwpSlope, AwpW);
+  color = AllenwpCurve(color, AgXContrast, AgXMidGrey, AgXToeA, AgXSlope, AgXW);
 
   // Clipping to output_max_value is required to address a cyan colour that occurs
   // with very bright inputs.
