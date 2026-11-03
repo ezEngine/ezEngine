@@ -342,7 +342,7 @@ void ezEngineProcessViewContext::SetViewProperties(ezView* pView)
 
 void ezEngineProcessViewContext::SetClearColor(ezView* pView, const ezColorGammaUB& color)
 {
-  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource0.ClearColor"), color);  
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource0.ClearColor"), color);
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource1.ClearColor"), color);
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource2.ClearColor"), color);
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource3.ClearColor"), color);
