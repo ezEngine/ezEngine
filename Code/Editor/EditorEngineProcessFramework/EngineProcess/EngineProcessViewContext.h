@@ -82,6 +82,7 @@ protected:
 
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg);
   virtual void SetViewProperties(ezView* pView);
+  virtual void SetClearColor(ezView* pView, const ezColorGammaUB& color);
 
   /// Returns the handle to the default render pipeline.
   virtual ezRenderPipelineResourceHandle CreateDefaultEditorRenderPipeline();

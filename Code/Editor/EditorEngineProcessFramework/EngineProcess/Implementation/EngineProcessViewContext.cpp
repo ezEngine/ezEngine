@@ -337,10 +337,15 @@ void ezEngineProcessViewContext::SetViewProperties(ezView* pView)
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorShapeIconsExtractor.Active"), false);
 
   // Set clear color of editor views to gray
-  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource0.ClearColor"), ezColorGammaUB(40, 40, 40));
-  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource1.ClearColor"), ezColorGammaUB(40, 40, 40));
-  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource2.ClearColor"), ezColorGammaUB(40, 40, 40));
-  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource3.ClearColor"), ezColorGammaUB(40, 40, 40));
+  SetClearColor(pView, ezColorGammaUB(40, 40, 40));
+}
+
+void ezEngineProcessViewContext::SetClearColor(ezView* pView, const ezColorGammaUB& color)
+{
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource0.ClearColor"), color);  
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource1.ClearColor"), color);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource2.ClearColor"), color);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ColorSource3.ClearColor"), color);
 }
 
 ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultEditorRenderPipeline()
@@ -355,6 +360,7 @@ ezView* ezEngineProcessViewContext::CreateDefaultView(ezStringView sName)
   pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
   pView->SetBlackboard(ezBlackboard::Create(sName));
+  SetViewProperties(pView);
 
   pView->SetRenderPipelineResource(CreateDefaultEditorRenderPipeline());
 

@@ -18,11 +18,13 @@ ezTextureViewContext::~ezTextureViewContext() = default;
 ezViewHandle ezTextureViewContext::CreateView()
 {
   ezView* pView = CreateDefaultView("Texture Editor - View");
-  pView->SetRenderPipelineResource(CreateDefaultEditorRenderPipeline());
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Editor-PostProcessing"), false);
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Renderer-DepthPrePass"), false);
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Rendering.Pipeline.SSAO"), 0);
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("Rendering.Pipeline.SSS"), false);
+
+  // Use an even darker gray for the clear color of texture views since we don't have post processing enabled which would tone down the color otherwise.
+  SetClearColor(pView, ezColorGammaUB(19, 19, 19));
 
   return pView->GetHandle();
 }
