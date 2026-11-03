@@ -3,6 +3,7 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Threading/Lock.h>
 #include <Foundation/Time/Clock.h>
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
@@ -77,6 +78,19 @@ void ezParticleEffectInstance::Destruct()
   m_EventQueue.Clear();
 }
 
+void ezParticleEffectInstance::OnOwnerMessage(const ezMessage& msg)
+{
+  EZ_LOCK(m_SystemsMutex);
+
+  for (ezParticleSystemInstance* pSystem : m_ParticleSystems)
+  {
+    if (pSystem != nullptr)
+    {
+      pSystem->OnOwnerMessage(msg);
+    }
+  }
+}
+
 void ezParticleEffectInstance::UpdateModulesFromWorld()
 {
   m_bModulesNeedWorldUpdate = false;
@@ -128,10 +142,15 @@ bool ezParticleEffectInstance::HasActiveParticles() const
 
 void ezParticleEffectInstance::ClearParticleSystem(ezUInt32 index)
 {
-  if (m_ParticleSystems[index])
+  if (ezParticleSystemInstance* pSystem = m_ParticleSystems[index])
   {
-    m_pOwnerModule->DestroySystemInstance(m_ParticleSystems[index]);
-    m_ParticleSystems[index] = nullptr;
+    {
+      // only the pointer is protected, destroying the system locks the world module mutex, nesting the locks could deadlock
+      EZ_LOCK(m_SystemsMutex);
+      m_ParticleSystems[index] = nullptr;
+    }
+
+    m_pOwnerModule->DestroySystemInstance(pSystem);
   }
 }
 
@@ -178,11 +197,11 @@ void ezParticleEffectInstance::PreSimulate()
   if (m_PreSimulateDuration.GetSeconds() == 0.0)
     return;
 
-  // Initializers may wait for data from the world (e.g. a spawn area).
+  // Initializers may wait for data from the world (e.g. a spawn area) or for resources that are still loading (e.g. the mesh initializer).
   // Pre-simulating before that would not spawn anything, so postpone it. Until then the regular update doesn't spawn anything either.
   for (ezParticleSystemInstance* pSystem : m_ParticleSystems)
   {
-    if (pSystem != nullptr && !pSystem->IsReadyToSpawn())
+    if (pSystem != nullptr && !pSystem->PrepareToSpawn())
       return;
   }
 
@@ -285,10 +304,8 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
   const auto& desc = pResource->GetDescriptor().m_Effect;
   const auto& systems = desc.GetParticleSystems();
 
-  m_Transform.SetIdentity();
-  m_TransformForNextFrame.SetIdentity();
-  m_vVelocity.SetZero();
-  m_vVelocityForNextFrame.SetZero();
+  // A reconfigured effect keeps its transform, nobody would set it again before the next update.
+  // Modules compute data relative to it right after this, particles simulated in local space would otherwise end up in the wrong place.
   m_fApplyInstanceVelocity = desc.m_fApplyInstanceVelocity;
   m_bSimulateInLocalSpace = desc.m_bSimulateInLocalSpace;
   m_InvisibleUpdateRate = desc.m_InvisibleUpdateRate;
@@ -385,7 +402,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
         fMultiplier *= pInitializer->GetSpawnCountMultiplier(this);
       }
 
-      // known only once the initializers of an existing instance were ready, e.g. the size of a spawn area
+      // known only once the initializers of an existing instance were ready, e.g. the size of a spawn area or the area of the owner mesh
       float fInitializerMultiplier = m_ParticleSystems[i] ? m_ParticleSystems[i]->GetRequiredInitializerSpawnCountMultiplier() : 1.0f;
 
       // These multipliers can get arbitrarily large, as they depend on level content instead of the effect.
@@ -435,7 +452,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
   {
     m_ParticleSystems[i]->SetSpawnCountMultiplier(systemMaxParticles[i].m_fMultiplier, systemMaxParticles[i].m_fInitializerMultiplier, systemMaxParticles[i].m_bInitializerMultiplierChecked);
     m_ParticleSystems[i]->ConfigureFromTemplate(systems[i]);
-    m_ParticleSystems[i]->SetTransform(m_Transform, vStartVelocity);
+    m_ParticleSystems[i]->SetTransform(m_bSimulateInLocalSpace ? ezTransform::MakeIdentity() : m_Transform, vStartVelocity);
     m_ParticleSystems[i]->SetEmitterEnabled(m_bEmitterEnabled);
     m_ParticleSystems[i]->Finalize();
   }

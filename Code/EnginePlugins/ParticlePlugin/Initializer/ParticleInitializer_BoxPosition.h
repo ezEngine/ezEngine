@@ -45,7 +45,7 @@ public:
   bool m_bUseSpawnArea = false;
 
   virtual void CreateRequiredStreams() override;
-  virtual bool IsReadyToSpawn() const override;
+  virtual bool PrepareToSpawn() override;
   virtual float GetSpawnCountMultiplier() const override;
   virtual void OnFinalize() override;
   virtual void UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject) override;

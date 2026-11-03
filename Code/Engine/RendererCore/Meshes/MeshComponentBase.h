@@ -51,6 +51,21 @@ public:
 #endif
 };
 
+/// Mesh components answer this message with the mesh they render.
+///
+/// Used by components that want to work with the geometry of a nearby mesh, for example a particle effect that spawns particles on its surface.
+/// Send it directly to a single game object, not recursively. The first component that answers wins, others leave m_hMesh untouched.
+/// The mesh is in the local space of the game object that answered.
+/// Components with multiple LODs may answer with a lower detail mesh, as long as it represents the same shape.
+/// Skinned mesh components answer with their mesh as well, but its vertex positions are in the rest pose.
+/// To match the animated pose, the receiver has to apply the skinning itself, e.g. by listening to ezMsgAnimationPoseUpdated.
+struct EZ_RENDERERCORE_DLL ezMsgQueryMesh : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgQueryMesh, ezMessage);
+
+  ezMeshResourceHandle m_hMesh;
+};
+
 /// This message is used to replace the material on a mesh.
 struct EZ_RENDERERCORE_DLL ezMsgSetMeshMaterial : public ezMessage
 {

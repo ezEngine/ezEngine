@@ -37,11 +37,20 @@ public:
   /// This does not actually the effect, it first stops it from emitting and destroys it once all particles have actually died of old age.
   void DestroyEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, const void* pSharedInstanceOwner);
 
+  /// Thread-safe. The returned pointer stays valid until the next PreAsync update, effects are only destroyed there.
   bool TryGetEffectInstance(const ezParticleEffectHandle& hEffect, ezParticleEffectInstance*& out_pEffect);
   bool TryGetEffectInstance(const ezParticleEffectHandle& hEffect, const ezParticleEffectInstance*& out_pEffect) const;
 
   /// The effect is reconfigured at the start of the next update, before the simulation tasks run. Thread-safe.
   void QueueEffectReconfigure(ezParticleEffectInstance* pEffect);
+
+  /// Returns data that is shared between all particle effects in this world, e.g. data that a module computes from a resource.
+  ///
+  /// If there is no data for sKey yet, createFunc is called to create it. Thread-safe, but createFunc is called while a lock is held,
+  /// so it blocks other callers until it is done.
+  /// The key has to contain everything that the data depends on, e.g. the resource change counter for data computed from a resource.
+  /// Data that is only referenced by the cache anymore is released after a short time, so that it can be reused, e.g. when an effect restarts.
+  ezSharedPtr<ezRefCounted> GetOrCreateSharedData(ezStringView sKey, ezDelegate<ezSharedPtr<ezRefCounted>()> createFunc);
 
   /// Extracts render data for the given effect.
   void ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, ezMsgExtractRenderData& ref_msg, const ezTransform& systemTransform) const;
@@ -80,6 +89,7 @@ private:
 
   void ConfigureParticleStreamFactories();
   void ClearParticleStreamFactories();
+  void ReleaseUnusedSharedData();
 
   mutable ezMutex m_Mutex;
   ezDeque<ezParticleEffectInstance> m_ParticleEffects;
@@ -94,4 +104,13 @@ private:
   ezTaskGroupID m_EffectUpdateTaskGroup;
   ezMap<ezString, ezParticleStreamFactory*> m_StreamFactories;
   ezHashTable<const ezRTTI*, ezWorldModule*> m_WorldModuleCache;
+
+  struct SharedData
+  {
+    ezSharedPtr<ezRefCounted> m_pData;
+    ezTime m_LastUsed;
+  };
+
+  ezMutex m_SharedDataMutex;
+  ezHashTable<ezString, SharedData> m_SharedData;
 };

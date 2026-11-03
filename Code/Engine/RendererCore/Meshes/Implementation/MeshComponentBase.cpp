@@ -10,6 +10,10 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgQueryMesh);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgQueryMesh, 1, ezRTTIDefaultAllocator<ezMsgQueryMesh>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetMeshMaterial);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetMeshMaterial, 1, ezRTTIDefaultAllocator<ezMsgSetMeshMaterial>)
 {

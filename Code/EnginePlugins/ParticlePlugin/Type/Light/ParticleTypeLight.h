@@ -26,6 +26,7 @@ public:
   ezHashedString m_sTintColorParameter;
   ezHashedString m_sIntensityParameter;
   ezHashedString m_sSizeScaleParameter;
+  bool m_bScaleIntensityByAlpha = false; ///< If true, the particle alpha (e.g. from a color gradient) scales the light intensity. Otherwise lights ignore alpha.
 };
 
 /// Renders particles as dynamic point lights.
@@ -46,6 +47,7 @@ public:
   ezTempHashedString m_sTintColorParameter;
   ezTempHashedString m_sIntensityParameter;
   ezTempHashedString m_sSizeScaleParameter;
+  bool m_bScaleIntensityByAlpha = false;
 
   virtual float GetMaxParticleRadius(float fParticleSize) const override { return 0.5f * fParticleSize * m_fSizeFactor; }
 

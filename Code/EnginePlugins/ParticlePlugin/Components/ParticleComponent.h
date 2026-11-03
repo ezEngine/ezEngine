@@ -18,6 +18,7 @@ struct ezMsgSetPlaying;
 struct ezMsgInterruptPlaying;
 struct ezMsgSetFloatParameter;
 struct ezMsgSetColorParameter;
+struct ezMsgAnimationPoseUpdated;
 
 using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
 
@@ -148,6 +149,9 @@ protected:
 
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
+
+  /// Forwarded to the effect, for modules that use the animated pose of the owner mesh, see ezParticleModule::OnOwnerMessage().
+  void OnMsgAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg); // [ msg handler ]
 
   ezParticleEffectResourceHandle m_hEffectResource;
 

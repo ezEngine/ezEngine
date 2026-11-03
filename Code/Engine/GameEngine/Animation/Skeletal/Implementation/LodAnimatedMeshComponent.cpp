@@ -55,6 +55,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezLodAnimatedMeshComponent, 2, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgSetCustomData, OnMsgSetCustomData),
     EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
     EZ_MESSAGE_HANDLER(ezMsgQueryAnimationSkeleton, OnQueryAnimationSkeleton),
+    EZ_MESSAGE_HANDLER(ezMsgQueryMesh, OnQueryMesh),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -289,7 +290,7 @@ void ezLodAnimatedMeshComponent::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)
   InvalidateCachedRenderData();
 }
 
-void ezLodAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTransforms, ezTransform& out_rootTransform, const ezSkeleton& skeleton)
+void ezLodAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTransforms, ezTransform& out_rootTransform, const ezSkeleton& skeleton) const
 {
   out_modelTransforms.Clear();
 
@@ -307,6 +308,9 @@ void ezLodAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelT
 
   const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones = pMesh->m_Bones;
   auto boneTransforms = m_SkinningState.GetBoneTransformsForReading();
+
+  if (boneTransforms.IsEmpty())
+    return;
 
   out_modelTransforms.SetCount(skeleton.GetJointCount(), ezMat4::MakeIdentity());
 
@@ -423,6 +427,23 @@ void ezLodAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdate
   {
     m_MaxBounds = poseBounds;
     TriggerLocalBoundsUpdate();
+  }
+}
+
+void ezLodAnimatedMeshComponent::OnQueryMesh(ezMsgQueryMesh& msg) const
+{
+  if (msg.m_hMesh.IsValid())
+    return;
+
+  // All LODs represent the same shape, so prefer the second highest detail LOD, which has fewer triangles to process.
+  // The lowest LODs are not used, since they may be too coarse to match the outline.
+  if (m_Meshes.GetCount() >= 2 && m_Meshes[1].m_hMesh.IsValid())
+  {
+    msg.m_hMesh = m_Meshes[1].m_hMesh;
+  }
+  else if (!m_Meshes.IsEmpty())
+  {
+    msg.m_hMesh = m_Meshes[0].m_hMesh;
   }
 }
 

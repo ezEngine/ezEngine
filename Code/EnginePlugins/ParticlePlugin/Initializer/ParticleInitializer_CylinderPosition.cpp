@@ -222,7 +222,7 @@ void ezParticleInitializer_CylinderPosition::UpdateFromWorld(const ezWorld& worl
   m_fHeight = fAreaHeight;
 }
 
-bool ezParticleInitializer_CylinderPosition::IsReadyToSpawn() const
+bool ezParticleInitializer_CylinderPosition::PrepareToSpawn()
 {
   return !m_bUseSpawnArea || m_Area.IsReady(*GetOwnerEffect());
 }

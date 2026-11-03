@@ -51,6 +51,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezLodMeshComponent, 2, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
     EZ_MESSAGE_HANDLER(ezMsgSetCustomData, OnMsgSetCustomData),
     EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
+    EZ_MESSAGE_HANDLER(ezMsgQueryMesh, OnMsgQueryMesh),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -219,6 +220,23 @@ void ezLodMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) con
 
     ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), ezResourceManager::LoadResource<ezCpuMeshResource>(hMesh.GetResourceID()));
     return;
+  }
+}
+
+void ezLodMeshComponent::OnMsgQueryMesh(ezMsgQueryMesh& ref_msg) const
+{
+  if (ref_msg.m_hMesh.IsValid())
+    return;
+
+  // All LODs represent the same shape, so prefer the second highest detail LOD, which has fewer triangles to process.
+  // The lowest LODs are not used, since they may be too coarse to match the outline.
+  if (m_Meshes.GetCount() >= 2 && m_Meshes[1].m_hMesh.IsValid())
+  {
+    ref_msg.m_hMesh = m_Meshes[1].m_hMesh;
+  }
+  else if (!m_Meshes.IsEmpty())
+  {
+    ref_msg.m_hMesh = m_Meshes[0].m_hMesh;
   }
 }
 

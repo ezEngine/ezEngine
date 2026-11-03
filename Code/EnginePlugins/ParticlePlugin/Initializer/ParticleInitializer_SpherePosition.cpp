@@ -209,7 +209,7 @@ void ezParticleInitializer_SpherePosition::UpdateFromWorld(const ezWorld& world,
   m_fRadius = fAreaRadius;
 }
 
-bool ezParticleInitializer_SpherePosition::IsReadyToSpawn() const
+bool ezParticleInitializer_SpherePosition::PrepareToSpawn()
 {
   return !m_bUseSpawnArea || m_Area.IsReady(*GetOwnerEffect());
 }

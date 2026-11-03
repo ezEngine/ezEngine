@@ -37,6 +37,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Static);
   {
     EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
     EZ_MESSAGE_HANDLER(ezMsgQueryAnimationSkeleton, OnQueryAnimationSkeleton),
+    EZ_MESSAGE_HANDLER(ezMsgQueryMesh, OnQueryMesh),
     EZ_MESSAGE_HANDLER(ezMsgCustomInstanceDataOffsetChanged, OnMsgCustomInstanceDataOffsetChanged),
   }
   EZ_END_MESSAGEHANDLERS;
@@ -179,7 +180,7 @@ ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData(const ezRenderDataMa
   return pRenderData;
 }
 
-void ezAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTransforms, ezTransform& out_rootTransform, const ezSkeleton& skeleton)
+void ezAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTransforms, ezTransform& out_rootTransform, const ezSkeleton& skeleton) const
 {
   out_modelTransforms.Clear();
 
@@ -192,6 +193,9 @@ void ezAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTran
 
   const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones = pMesh->m_Bones;
   auto boneTransforms = m_SkinningState.GetBoneTransformsForReading();
+
+  if (boneTransforms.IsEmpty())
+    return;
 
   out_modelTransforms.SetCount(skeleton.GetJointCount(), ezMat4::MakeIdentity());
 
@@ -242,6 +246,14 @@ void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkelet
     {
       msg.m_hSkeleton = pMesh->m_hDefaultSkeleton;
     }
+  }
+}
+
+void ezAnimatedMeshComponent::OnQueryMesh(ezMsgQueryMesh& msg) const
+{
+  if (!msg.m_hMesh.IsValid())
+  {
+    msg.m_hMesh = m_hMesh;
   }
 }
 

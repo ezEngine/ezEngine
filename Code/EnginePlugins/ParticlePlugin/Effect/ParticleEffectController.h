@@ -27,6 +27,9 @@ public:
   /// See ezParticleEffectInstance::SetOwnerObject(). Ignored for shared effect instances, since they have no single owner.
   void SetOwnerObject(ezGameObjectHandle hOwner) const;
 
+  /// See ezParticleEffectInstance::OnOwnerMessage(). Ignored for shared effect instances.
+  void ForwardOwnerMessage(const ezMessage& msg) const;
+
   void CombineSystemBoundingVolumes();
 
   /// Updates the effect directly on the calling thread, independent of the world update. Requires write access to the world.

@@ -4,6 +4,8 @@
 #include <EnginePluginParticle/ParticleAsset/ParticleContext.h>
 #include <EnginePluginParticle/ParticleAsset/ParticleView.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer_MeshPosition.h>
+#include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 
 // clang-format off
@@ -75,6 +77,18 @@ void ezParticleContext::OnInitialize()
     m_hParticle = ezResourceManager::LoadResource<ezParticleEffectResource>(sParticleGuid);
 
     m_pComponent->SetParticleEffect(m_hParticle);
+  }
+
+  // Spawn Mesh, set in UpdatePreviewMesh(), at the same transform as the effect
+  {
+    ezGameObjectDesc obj;
+    ezGameObject* pObj;
+    obj.m_sName.Assign("ParticlePreviewMesh");
+    pWorld->CreateObject(obj, pObj);
+
+    ezMeshComponent* pMesh;
+    m_hPreviewMeshComponent = ezMeshComponent::CreateComponent(pObj, pMesh);
+    m_uiPreviewMeshEffectChangeCounter = 0xFFFFFFFF;
   }
 
   const char* szMeshName = "ParticlePreviewBackgroundMesh";
@@ -317,6 +331,53 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
 
   pParticleViewContext->PositionThumbnailCamera(m_ThumbnailBoundingVolume);
   return true;
+}
+
+void ezParticleContext::UpdateDocumentContext()
+{
+  UpdatePreviewMesh();
+
+  SUPER::UpdateDocumentContext();
+}
+
+void ezParticleContext::UpdatePreviewMesh()
+{
+  ezResourceLock<ezParticleEffectResource> pEffect(m_hParticle, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+  if (pEffect.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return;
+
+  // the effect resource is reloaded whenever the asset gets transformed
+  if (pEffect->GetCurrentResourceChangeCounter() == m_uiPreviewMeshEffectChangeCounter)
+    return;
+
+  m_uiPreviewMeshEffectChangeCounter = pEffect->GetCurrentResourceChangeCounter();
+
+  ezMeshResourceHandle hMesh;
+
+  for (const ezParticleSystemDescriptor* pSystem : pEffect->GetDescriptor().m_Effect.GetParticleSystems())
+  {
+    for (const ezParticleInitializerFactory* pFactory : pSystem->GetInitializerFactories())
+    {
+      const ezParticleInitializerFactory_MeshPosition* pMeshPos = ezDynamicCast<const ezParticleInitializerFactory_MeshPosition*>(pFactory);
+
+      if (pMeshPos != nullptr && !pMeshPos->m_sMesh.IsEmpty())
+      {
+        hMesh = ezResourceManager::LoadResource<ezMeshResource>(pMeshPos->m_sMesh);
+        break;
+      }
+    }
+
+    if (hMesh.IsValid())
+      break;
+  }
+
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  ezMeshComponent* pMesh;
+  if (m_pWorld->TryGetComponent(m_hPreviewMeshComponent, pMesh))
+  {
+    pMesh->SetMesh(hMesh);
+  }
 }
 
 void ezParticleContext::RestartEffect()

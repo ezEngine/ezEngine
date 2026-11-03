@@ -79,6 +79,7 @@ public:
   /// exporting the scene, where the close-up detail is not useful. Only answers a request for render
   /// geometry; collision geometry is expected to come from a dedicated collider component.
   void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const; // [ msg handler ]
+  void OnMsgQueryMesh(ezMsgQueryMesh& ref_msg) const;             // [ msg handler ]
 
 protected:
   void UpdateSelectedLod(const ezView& view) const;

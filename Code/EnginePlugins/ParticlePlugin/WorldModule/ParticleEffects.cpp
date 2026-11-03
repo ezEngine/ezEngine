@@ -116,11 +116,14 @@ void ezParticleWorldModule::DestroyEffectInstance(const ezParticleEffectHandle& 
 
 bool ezParticleWorldModule::TryGetEffectInstance(const ezParticleEffectHandle& hEffect, ezParticleEffectInstance*& out_pEffect)
 {
+  // called during Async (owner messages) and from the effect update tasks, while other threads may create effects
+  EZ_LOCK(m_Mutex);
   return m_ActiveEffects.TryGetValue(hEffect.GetInternalID(), out_pEffect);
 }
 
 bool ezParticleWorldModule::TryGetEffectInstance(const ezParticleEffectHandle& hEffect, const ezParticleEffectInstance*& out_pEffect) const
 {
+  EZ_LOCK(m_Mutex);
   ezParticleEffectInstance* pEffect = nullptr;
   bool bResult = m_ActiveEffects.TryGetValue(hEffect.GetInternalID(), pEffect);
   out_pEffect = pEffect;
@@ -137,12 +140,53 @@ void ezParticleWorldModule::QueueEffectReconfigure(ezParticleEffectInstance* pEf
   }
 }
 
+ezSharedPtr<ezRefCounted> ezParticleWorldModule::GetOrCreateSharedData(ezStringView sKey, ezDelegate<ezSharedPtr<ezRefCounted>()> createFunc)
+{
+  EZ_LOCK(m_SharedDataMutex);
+
+  bool bExisted = false;
+  SharedData& data = m_SharedData.FindOrAdd(sKey, &bExisted);
+
+  if (!bExisted)
+  {
+    data.m_pData = createFunc();
+  }
+
+  data.m_LastUsed = ezTime::Now();
+  return data.m_pData;
+}
+
+void ezParticleWorldModule::ReleaseUnusedSharedData()
+{
+  EZ_LOCK(m_SharedDataMutex);
+
+  const ezTime tNow = ezTime::Now();
+
+  for (auto it = m_SharedData.GetIterator(); it.IsValid();)
+  {
+    SharedData& data = it.Value();
+
+    if (data.m_pData != nullptr && data.m_pData->GetRefCount() > 1)
+    {
+      data.m_LastUsed = tNow;
+    }
+    else if (tNow - data.m_LastUsed > ezTime::MakeFromSeconds(2))
+    {
+      it = m_SharedData.Remove(it);
+      continue;
+    }
+
+    ++it;
+  }
+}
+
 void ezParticleWorldModule::UpdateEffects(const ezWorldModule::UpdateContext& context)
 {
   EZ_LOCK(m_Mutex);
 
   DestroyFinishedEffects();
   ReconfigureEffects();
+  ReleaseUnusedSharedData();
 
   // effects that were created or reconfigured since the last PostTransform phase haven't seen the world yet
   // this is the main thread and no update tasks are running, so the modules can read the world here as well

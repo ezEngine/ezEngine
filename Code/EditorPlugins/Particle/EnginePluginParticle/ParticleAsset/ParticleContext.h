@@ -26,13 +26,20 @@ protected:
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
   virtual void OnThumbnailViewContextRequested() override;
   virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
+  virtual void UpdateDocumentContext() override;
 
   void RestartEffect();
   void SetAutoRestartEffect(bool loop);
+
+  /// Shows the first mesh that a mesh position initializer of the effect references, so that one can see where the particles spawn.
+  /// Owner meshes ('UseOwnerMesh') can't be shown, the preview has no owner mesh.
+  void UpdatePreviewMesh();
 
 private:
   ezBoundingBoxSphere m_ThumbnailBoundingVolume;
   ezParticleEffectResourceHandle m_hParticle;
   ezMeshResourceHandle m_hPreviewMeshResource;
   ezParticleComponent* m_pComponent = nullptr;
+  ezComponentHandle m_hPreviewMeshComponent;
+  ezUInt32 m_uiPreviewMeshEffectChangeCounter = 0xFFFFFFFF; ///< Resource change counter of the effect when the preview mesh was set.
 };
