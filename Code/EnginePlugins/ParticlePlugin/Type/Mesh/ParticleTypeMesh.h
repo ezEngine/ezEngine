@@ -19,7 +19,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTypeMesh final : public ezParticleType
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeMesh, ezParticleType);
 
 public:
-
   virtual void Save(ezStreamWriter& inout_stream) const override;
   virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
 
