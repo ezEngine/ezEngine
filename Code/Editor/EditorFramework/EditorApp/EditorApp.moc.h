@@ -313,7 +313,12 @@ private:
   void SetupAndShowSplashScreen();
   void CloseSplashScreen();
 
-  void OpenDemoDocument();
+  /// Used when opening a project did not result in any open document, so that the user always ends up with something to work on.
+  ///
+  /// Only considers scenes called 'Main' inside the project directory. 'Scenes/Main.ezScene' takes precedence.
+  /// If there is none, 'Scenes/Main.ezScene' is created, which writes a new file into the project.
+  /// In unattended mode nothing is created and no document gets opened in that case.
+  void OpenOrCreateMainScene();
 
   ezResult AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConfig::PluginConfig>& order, const ezPluginBundleSet& bundles, const ezString& start, bool bEditor, bool bEditorEngine, bool bRuntime) const;
 

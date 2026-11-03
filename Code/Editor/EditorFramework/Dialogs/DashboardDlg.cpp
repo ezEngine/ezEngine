@@ -250,7 +250,15 @@ void ezQtDashboardDlg::on_LoadLastProject_stateChanged(int)
 {
   if (ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>())
   {
+    // this also gets called when the dialog initializes the checkbox
+    if (pPreferences->m_bLoadLastProjectAtStartup == LoadLastProject->isChecked())
+      return;
+
     pPreferences->m_bLoadLastProjectAtStartup = LoadLastProject->isChecked();
+
+    // Without a project there is no later save, because that only happens through ezToolsProject::SaveProjectState().
+    // Opening a project from here may also close this editor instance and start a new one, which reads the value from disk.
+    ezPreferences::SaveApplicationPreferences();
   }
 }
 

@@ -973,24 +973,64 @@ void ezQtEditorApp::ReloadEngineResources()
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
 
-void ezQtEditorApp::OpenDemoDocument()
+void ezQtEditorApp::OpenOrCreateMainScene()
 {
-  auto* pCurator = ezAssetCurator::GetSingleton();
-  auto assets = pCurator->GetKnownAssets();
+  const ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList;
+  const ezString sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
 
-  ezStringBuilder sBestDoc;
+  ezStringBuilder sMainScene(sProjectDir, "/Scenes/Main.ezScene");
 
-  for (auto it = assets->GetIterator(); it.IsValid(); ++it)
+  if (ezOSFile::ExistsFile(sMainScene))
   {
-    if (it.Value()->m_Path.GetDataDirRelativePath().GetFileName().IsEqual_NoCase("Main"))
+    OpenDocument(sMainScene, flags);
+    return;
+  }
+
+  // Not every project keeps it in 'Scenes'. Prefer the one closest to the project root and sort
+  // alphabetically after that, so that the result doesn't depend on the order of the asset table.
+  ezStringBuilder sProjectDirPrefix(sProjectDir, "/");
+  sMainScene.Clear();
+
+  {
+    auto assets = ezAssetCurator::GetSingleton()->GetKnownAssets();
+
+    for (auto it = assets->GetIterator(); it.IsValid(); ++it)
     {
-      sBestDoc = it.Value()->m_Path.GetAbsolutePath();
-      break;
+      const ezStringView sPath = it.Value()->m_Path.GetAbsolutePath();
+
+      if (!sPath.GetFileName().IsEqual_NoCase("Main") || !sPath.GetFileExtension().IsEqual_NoCase("ezScene") || !sPath.StartsWith_NoCase(sProjectDirPrefix))
+        continue;
+
+      if (sMainScene.IsEmpty() || sPath.GetElementCount() < sMainScene.GetElementCount() || (sPath.GetElementCount() == sMainScene.GetElementCount() && sPath.Compare(sMainScene) < 0))
+      {
+        sMainScene = sPath;
+      }
     }
   }
 
-  if (!sBestDoc.IsEmpty())
+  if (!sMainScene.IsEmpty())
   {
-    SlotQueuedOpenDocument(sBestDoc.GetData(), nullptr);
+    OpenDocument(sMainScene, flags);
+    return;
+  }
+
+  // an automated session should only have the changes that it asked for
+  if (IsInUnattendedMode())
+    return;
+
+  sMainScene.Set(sProjectDir, "/Scenes/Main.ezScene");
+
+  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
+  if (ezDocumentManager::FindDocumentTypeFromPath(sMainScene, true, pTypeDesc).Failed())
+  {
+    ezLog::Warning("Can't create '{}', the scene plugin is not loaded.", sMainScene);
+    return;
+  }
+
+  ezToolsProject::GetSingleton()->CreateSubFolder("Scenes");
+
+  if (CreateDocument(sMainScene, flags) != nullptr)
+  {
+    ezLog::Info("The project has no main scene, created '{}'.", sMainScene);
   }
 }

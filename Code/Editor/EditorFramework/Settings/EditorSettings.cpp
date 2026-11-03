@@ -13,7 +13,9 @@
 void ezQtEditorApp::SaveRecentFiles()
 {
   EZ_PROFILE_SCOPE("SaveRecentFiles");
-  if (m_StartupFlags.IsAnySet(StartupFlags::Headless | StartupFlags::UnitTest | StartupFlags::Background))
+
+  // only editors that were launched by the user should affect what the user sees as recently used
+  if (m_StartupFlags.IsAnySet(StartupFlags::Headless | StartupFlags::UnitTest | StartupFlags::Background | StartupFlags::Unattended))
     return;
 
   m_RecentProjects.Save(":appdata/Settings/RecentProjects.txt");
@@ -34,6 +36,10 @@ void ezQtEditorApp::LoadRecentFiles()
 
 void ezQtEditorApp::SaveOpenDocumentsList()
 {
+  // these get restored the next time the project is opened, which must not be decided by an automated session
+  if (m_StartupFlags.IsAnySet(StartupFlags::Headless | StartupFlags::UnitTest | StartupFlags::Background | StartupFlags::Unattended))
+    return;
+
   const ezDynamicArray<ezQtDocumentWindow*>& windows = ezQtDocumentWindow::GetAllDocumentWindows();
 
   if (windows.IsEmpty())

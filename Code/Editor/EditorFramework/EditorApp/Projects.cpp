@@ -212,6 +212,8 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
   if (m_StartupFlags.AreNoneSet(StartupFlags::SafeMode | StartupFlags::Headless))
   {
     ezStringBuilder sAbsPath;
+    const ezBitflags<ezDocumentFlags> openFlags = ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList;
+    bool bOpenedAnyDocument = false;
 
     if (!m_DocumentsToOpen.IsEmpty())
     {
@@ -221,7 +223,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
 
         if (MakeDataDirectoryRelativePathAbsolute(sAbsPath))
         {
-          SlotQueuedOpenDocument(sAbsPath.GetData(), nullptr);
+          bOpenedAnyDocument |= OpenDocument(sAbsPath, openFlags) != nullptr;
         }
         else
         {
@@ -245,13 +247,14 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
         //    break;
 
         // range.BeginNextStep(doc.m_File);
-        SlotQueuedOpenDocument(doc.m_File.GetData(), nullptr);
+        bOpenedAnyDocument |= OpenDocument(doc.m_File, openFlags) != nullptr;
       }
+    }
 
-      if (allDocs.GetFileList().IsEmpty())
-      {
-        OpenDemoDocument();
-      }
+    // this includes '-dashboard', which only skips restoring the previous session
+    if (!bOpenedAnyDocument)
+    {
+      OpenOrCreateMainScene();
     }
 
     // Show the window maximized when opening a project
