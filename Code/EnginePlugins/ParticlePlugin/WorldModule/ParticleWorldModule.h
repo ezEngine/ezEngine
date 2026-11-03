@@ -3,6 +3,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/Containers/IdTable.h>
+#include <Foundation/Strings/HashedString.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
@@ -12,7 +13,6 @@ class ezParticleEffectInstance;
 struct ezResourceEvent;
 class ezTaskGroupID;
 class ezParticleStream;
-class ezParticleStreamFactory;
 
 /// This world module stores all particle effect data that is active in a given ezWorld instance
 ///
@@ -58,9 +58,10 @@ public:
   ezParticleSystemInstance* CreateSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect, float fSpawnMultiplier);
   void DestroySystemInstance(ezParticleSystemInstance* pInstance);
 
-  ezParticleStream* CreateStreamDefaultInitializer(ezParticleSystemInstance* pOwner, const char* szFullStreamName) const;
+  /// Returns the default initializer for the stream with the given name, or nullptr if there is none.
+  const ezParticleStream* GetParticleStream(ezTempHashedString sStreamName) const;
 
-  /// Can be called at any time (e.g. during ezParticleBehaviorFactory::CopyBehaviorProperties()) to query a previously cached world module,
+  /// Can be called at any time (e.g. during ezParticleModule::OnFinalize()) to query a previously cached world module,
   /// even if that happens on a thread which would not be allowed to query this from the ezWorld at that time.
   ezWorldModule* GetCachedWorldModule(const ezRTTI* pRtti) const;
 
@@ -87,8 +88,8 @@ private:
   ezParticleEffectHandle InternalCreateSharedEffectInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner);
   ezParticleEffectHandle InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
 
-  void ConfigureParticleStreamFactories();
-  void ClearParticleStreamFactories();
+  void ConfigureParticleStreams();
+  void ClearParticleStreams();
   void ReleaseUnusedSharedData();
 
   mutable ezMutex m_Mutex;
@@ -102,7 +103,7 @@ private:
   ezDeque<ezParticleSystemInstance> m_ParticleSystems;
   ezDynamicArray<ezParticleSystemInstance*> m_ParticleSystemFreeList;
   ezTaskGroupID m_EffectUpdateTaskGroup;
-  ezMap<ezString, ezParticleStreamFactory*> m_StreamFactories;
+  ezHashTable<ezTempHashedString, ezParticleStream*> m_ParticleStreams;
   ezHashTable<const ezRTTI*, ezWorldModule*> m_WorldModuleCache;
 
   struct SharedData

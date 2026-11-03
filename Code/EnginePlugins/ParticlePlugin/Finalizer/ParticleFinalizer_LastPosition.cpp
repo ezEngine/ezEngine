@@ -7,26 +7,9 @@
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_LastPosition.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizerFactory_LastPosition, 1, ezRTTIDefaultAllocator<ezParticleFinalizerFactory_LastPosition>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizer_LastPosition, 1, ezRTTIDefaultAllocator<ezParticleFinalizer_LastPosition>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
-
-ezParticleFinalizerFactory_LastPosition::ezParticleFinalizerFactory_LastPosition() = default;
-
-const ezRTTI* ezParticleFinalizerFactory_LastPosition::GetFinalizerType() const
-{
-  return ezGetStaticRTTI<ezParticleFinalizer_LastPosition>();
-}
-
-void ezParticleFinalizerFactory_LastPosition::CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const
-{
-  ezParticleFinalizer_LastPosition* pFinalizer = static_cast<ezParticleFinalizer_LastPosition*>(pObject);
-}
-
-//////////////////////////////////////////////////////////////////////////
 
 ezParticleFinalizer_LastPosition::ezParticleFinalizer_LastPosition()
 {
@@ -34,20 +17,28 @@ ezParticleFinalizer_LastPosition::ezParticleFinalizer_LastPosition()
   m_fPriority = -499.0f;
 }
 
-ezParticleFinalizer_LastPosition::~ezParticleFinalizer_LastPosition() = default;
-
-void ezParticleFinalizer_LastPosition::CreateRequiredStreams()
+bool ezParticleFinalizer_LastPosition::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("LastPosition", ezProcessingStream::DataType::Float3, &m_pStreamLastPosition, false);
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleFinalizer_LastPosition::Process(ezUInt64 uiNumElements)
+void ezParticleFinalizer_LastPosition::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sLastPosition, ezProcessingStream::DataType::Float3, &data.m_pStreamLastPosition, false);
+}
+
+void ezParticleFinalizer_LastPosition::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
 {
   EZ_PROFILE_SCOPE("PFX: LastPosition");
 
-  ezProcessingStreamIterator<ezVec4> itPosition(m_pStreamPosition, uiNumElements, 0);
-  ezProcessingStreamIterator<ezVec3> itLastPosition(m_pStreamLastPosition, uiNumElements, 0);
+  const InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ezProcessingStreamIterator<ezVec4> itPosition(data.m_pStreamPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<ezVec3> itLastPosition(data.m_pStreamLastPosition, uiNumElements, 0);
 
   while (!itPosition.HasReachedEnd())
   {

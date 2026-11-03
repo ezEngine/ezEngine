@@ -23,7 +23,7 @@ class ezParticleEffectInstance;
 /// The initializer still decides how the
 /// shape is used, e.g. spawning only on the surface, or only in a flat part of the area for sizes of zero.
 /// The spawn counts of the effect are scaled by how much larger the area is than the shape of the initializer, so the initializer
-/// defines the particle density. The scaling is limited, see ezParticleInitializer::GetSpawnCountMultiplier().
+/// defines the particle density. The scaling is limited, see ezParticleInitializer::GetInstanceSpawnCountMultiplier().
 ///
 /// The transform and the sizes are read every frame. The spawn count scale is only determined once, when the effect starts,
 /// so later changes of the sizes or of 'SpawnScale' don't change how many particles spawn.

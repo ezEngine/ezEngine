@@ -22,36 +22,30 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleSphereOutOfBoundsMo
 ///
 /// Particles outside the radius are either killed or pushed back to the sphere surface.
 /// The center is relative to the effect's world position.
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_BoundsSphere final : public ezParticleBehaviorFactory
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_BoundsSphere, ezParticleBehaviorFactory);
-
-public:
-  ezParticleBehaviorFactory_BoundsSphere();
-
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
-
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
-
-  ezVec3 m_vCenterOffset = ezVec3::MakeZero();
-  float m_fRadius = 3.0f;
-  ezEnum<ezParticleSphereOutOfBoundsMode> m_OutOfBoundsMode;
-};
-
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_BoundsSphere final : public ezParticleBehavior
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_BoundsSphere, ezParticleBehavior);
 
 public:
+  ezParticleBehavior_BoundsSphere();
+
+
+  virtual void Save(ezStreamWriter& inout_stream) const override;
+  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void CreateRequiredStreams(const ezParticleModuleContext& ctx) const override;
+  virtual void Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const override;
+
   ezVec3 m_vCenterOffset = ezVec3::MakeZero();
   float m_fRadius = 3.0f;
   ezEnum<ezParticleSphereOutOfBoundsMode> m_OutOfBoundsMode;
 
-protected:
-  virtual void CreateRequiredStreams() override;
-  virtual void Process(ezUInt64 uiNumElements) override;
+private:
+  struct InstanceData
+  {
+    EZ_DECLARE_POD_TYPE();
 
-  ezProcessingStream* m_pStreamPosition = nullptr;
+    ezProcessingStream* m_pStreamPosition;
+  };
 };

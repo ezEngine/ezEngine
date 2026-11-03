@@ -7,7 +7,7 @@
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_ColorGradient, 3, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_ColorGradient>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_ColorGradient, 3, ezRTTIDefaultAllocator<ezParticleBehavior_ColorGradient>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -22,31 +22,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_ColorGradient, 3, ezRT
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_ColorGradient, 1, ezRTTIDefaultAllocator<ezParticleBehavior_ColorGradient>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-const ezRTTI* ezParticleBehaviorFactory_ColorGradient::GetBehaviorType() const
-{
-  return ezGetStaticRTTI<ezParticleBehavior_ColorGradient>();
-}
-
-void ezParticleBehaviorFactory_ColorGradient::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
-{
-  ezParticleBehavior_ColorGradient* pBehavior = static_cast<ezParticleBehavior_ColorGradient*>(pObject);
-
-  pBehavior->m_pGradient = &m_Gradient;
-  pBehavior->m_GradientMode = m_GradientMode;
-  pBehavior->m_fMaxSpeed = m_fMaxSpeed;
-  pBehavior->m_TintColor = m_TintColor;
-  pBehavior->m_bApplyAlpha = m_bApplyAlpha;
-
-  // the gradient resource may not be specified yet, so defer evaluation until an element is created
-  pBehavior->m_InitColor = ezColor::RebeccaPurple;
-}
-
-void ezParticleBehaviorFactory_ColorGradient::Save(ezStreamWriter& inout_stream) const
+void ezParticleBehavior_ColorGradient::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 6;
   inout_stream << uiVersion;
@@ -67,7 +45,7 @@ void ezParticleBehaviorFactory_ColorGradient::Save(ezStreamWriter& inout_stream)
   m_Gradient.Save(inout_stream);
 }
 
-void ezParticleBehaviorFactory_ColorGradient::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleBehavior_ColorGradient::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -116,55 +94,73 @@ void ezParticleBehaviorFactory_ColorGradient::Load(ezStreamReader& inout_stream,
   }
 }
 
-void ezParticleBehavior_ColorGradient::CreateRequiredStreams()
+bool ezParticleBehavior_ColorGradient::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  m_pStreamColor = nullptr;
-  m_pStreamVelocity = nullptr;
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
 
-  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
+void ezParticleBehavior_ColorGradient::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  data.m_pStreamColor = nullptr;
+  data.m_pStreamVelocity = nullptr;
+
+  ctx.CreateStream(ezParticleStreamNames::s_sColor, ezProcessingStream::DataType::Half4, &data.m_pStreamColor, false);
 
   if (m_GradientMode == ezParticleColorGradientMode::Age)
   {
-    CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sLifeTime, ezProcessingStream::DataType::Half2, &data.m_pStreamLifeTime, false);
   }
   else if (m_GradientMode == ezParticleColorGradientMode::Speed)
   {
-    CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sVelocity, ezProcessingStream::DataType::Half4, &data.m_pStreamVelocity, false);
   }
 }
 
-void ezParticleBehavior_ColorGradient::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleBehavior_ColorGradient::OnFinalize(const ezParticleModuleContext& ctx) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  // the gradient resource may not be specified yet, so defer evaluation until an element is created
+  data.m_InitColor = ezColor::RebeccaPurple;
+}
+
+void ezParticleBehavior_ColorGradient::InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Color Gradient Init");
 
   // query the init color from the gradient
-  if (m_InitColor == ezColor::RebeccaPurple)
+  if (data.m_InitColor == ezColor::RebeccaPurple)
   {
-    m_InitColor = m_TintColor;
+    data.m_InitColor = m_TintColor;
 
-    if (m_pGradient != nullptr && !m_pGradient->IsEmpty())
+    if (!m_Gradient.IsEmpty())
     {
       ezColor rgba;
-      m_pGradient->EvaluateColor(0, rgba);
+      m_Gradient.EvaluateColor(0, rgba);
 
       float fIntensity = 1.0f;
-      m_pGradient->EvaluateIntensity(0, fIntensity);
+      m_Gradient.EvaluateIntensity(0, fIntensity);
       rgba.ScaleRGB(fIntensity);
 
       if (m_bApplyAlpha)
       {
         ezUInt8 alpha;
-        m_pGradient->EvaluateAlpha(0, alpha);
+        m_Gradient.EvaluateAlpha(0, alpha);
         rgba.a = ezMath::ColorByteToFloat(alpha);
       }
 
-      m_InitColor = m_TintColor * rgba;
+      data.m_InitColor = m_TintColor * rgba;
     }
   }
 
-  const ezColorLinear16f initCol16 = m_InitColor;
+  const ezColorLinear16f initCol16 = data.m_InitColor;
 
-  ezProcessingStreamIterator<ezColorLinear16f> itColor(m_pStreamColor, uiNumElements, uiStartIndex);
+  ezProcessingStreamIterator<ezColorLinear16f> itColor(data.m_pStreamColor, uiNumElements, uiStartIndex);
   while (!itColor.HasReachedEnd())
   {
     itColor.Current() = initCol16;
@@ -172,32 +168,34 @@ void ezParticleBehavior_ColorGradient::InitializeElements(ezUInt64 uiStartIndex,
   }
 }
 
-void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
+void ezParticleBehavior_ColorGradient::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
 {
-  if (!GetOwnerEffect()->IsVisible())
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  if (!ctx.GetEffect()->IsVisible())
   {
     // When invisible, don't update at all. Set the interval to 1 so that once
     // the effect becomes visible, all particles get fully updated on the next frame.
-    m_uiCurrentUpdateInterval = 1;
-    m_uiFirstToUpdate = 0;
+    data.m_uiCurrentUpdateInterval = 1;
+    data.m_uiFirstToUpdate = 0;
     return;
   }
 
-  if (m_pGradient == nullptr || m_pGradient->IsEmpty())
+  if (m_Gradient.IsEmpty())
     return;
 
   EZ_PROFILE_SCOPE("PFX: Color Gradient");
 
-  ezProcessingStreamIterator<ezColorLinear16f> itColor(m_pStreamColor, uiNumElements, 0);
+  ezProcessingStreamIterator<ezColorLinear16f> itColor(data.m_pStreamColor, uiNumElements, 0);
 
   // Staggered update: skip to the first particle to update this frame
-  itColor.Advance(m_uiFirstToUpdate);
+  itColor.Advance(data.m_uiFirstToUpdate);
 
   if (m_GradientMode == ezParticleColorGradientMode::Age)
   {
-    ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
+    ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(data.m_pStreamLifeTime, uiNumElements, 0);
 
-    itLifeTime.Advance(m_uiFirstToUpdate);
+    itLifeTime.Advance(data.m_uiFirstToUpdate);
 
     while (!itLifeTime.HasReachedEnd())
     {
@@ -207,16 +205,16 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
         const float posx = 1.0f - fLifeTimeFraction;
 
         ezColor rgba;
-        m_pGradient->EvaluateColor(posx, rgba);
+        m_Gradient.EvaluateColor(posx, rgba);
 
         float fIntensity = 1.0f;
-        m_pGradient->EvaluateIntensity(posx, fIntensity);
+        m_Gradient.EvaluateIntensity(posx, fIntensity);
         rgba.ScaleRGB(fIntensity);
 
         if (m_bApplyAlpha)
         {
           ezUInt8 alpha = 0;
-          m_pGradient->EvaluateAlpha(posx, alpha);
+          m_Gradient.EvaluateAlpha(posx, alpha);
           rgba.a = ezMath::ColorByteToFloat(alpha);
         }
         else
@@ -228,15 +226,15 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
       }
 
       // Staggered update: skip to the next particle to update
-      itLifeTime.Advance(m_uiCurrentUpdateInterval);
-      itColor.Advance(m_uiCurrentUpdateInterval);
+      itLifeTime.Advance(data.m_uiCurrentUpdateInterval);
+      itColor.Advance(data.m_uiCurrentUpdateInterval);
     }
   }
   else if (m_GradientMode == ezParticleColorGradientMode::Speed)
   {
-    ezProcessingStreamIterator<const ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
+    ezProcessingStreamIterator<const ezFloat16Vec4> itVelocity(data.m_pStreamVelocity, uiNumElements, 0);
 
-    itVelocity.Advance(m_uiFirstToUpdate);
+    itVelocity.Advance(data.m_uiFirstToUpdate);
 
     while (!itVelocity.HasReachedEnd())
     {
@@ -247,16 +245,16 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
         const float posx = fSpeed / m_fMaxSpeed; // no need to clamp the range, the color lookup will already do that
 
         ezColor rgba;
-        m_pGradient->EvaluateColor(posx, rgba);
+        m_Gradient.EvaluateColor(posx, rgba);
 
         float fIntensity = 1.0f;
-        m_pGradient->EvaluateIntensity(posx, fIntensity);
+        m_Gradient.EvaluateIntensity(posx, fIntensity);
         rgba.ScaleRGB(fIntensity);
 
         if (m_bApplyAlpha)
         {
           ezUInt8 alpha = 0;
-          m_pGradient->EvaluateAlpha(posx, alpha);
+          m_Gradient.EvaluateAlpha(posx, alpha);
           rgba.a = ezMath::ColorByteToFloat(alpha);
         }
         else
@@ -268,21 +266,21 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
       }
 
       // Staggered update: skip to the next particle to update
-      itVelocity.Advance(m_uiCurrentUpdateInterval);
-      itColor.Advance(m_uiCurrentUpdateInterval);
+      itVelocity.Advance(data.m_uiCurrentUpdateInterval);
+      itColor.Advance(data.m_uiCurrentUpdateInterval);
     }
   }
 
   // Advance to the next starting index for the next frame
-  ++m_uiFirstToUpdate;
-  if (m_uiFirstToUpdate >= m_uiCurrentUpdateInterval)
-    m_uiFirstToUpdate = 0;
+  ++data.m_uiFirstToUpdate;
+  if (data.m_uiFirstToUpdate >= data.m_uiCurrentUpdateInterval)
+    data.m_uiFirstToUpdate = 0;
 
   /// \todo Use level of detail to reduce the update interval further
   /// up close, with a high interval, animations appear choppy, especially when fading stuff out at the end
 
   // reset the update interval to the default
-  m_uiCurrentUpdateInterval = 2;
+  data.m_uiCurrentUpdateInterval = 2;
 }
 
 

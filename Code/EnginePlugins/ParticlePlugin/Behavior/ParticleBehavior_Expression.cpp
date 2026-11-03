@@ -25,7 +25,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezParticleExpressionInput, ezNoBase, 1, ezRTTIDef
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Expression, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Expression>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Expression, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Expression>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -38,9 +38,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Expression, 1, ezRTTID
   }
   EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Expression, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Expression>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -64,35 +61,26 @@ static ezHashedString s_sOutDiscard = ezMakeHashedString("outDiscard");
 
 //////////////////////////////////////////////////////////////////////////
 
-ezParticleBehaviorFactory_Expression::ezParticleBehaviorFactory_Expression() = default;
-
-const ezRTTI* ezParticleBehaviorFactory_Expression::GetBehaviorType() const
+ezParticleBehavior_Expression::ezParticleBehavior_Expression()
 {
-  return ezGetStaticRTTI<ezParticleBehavior_Expression>();
+  // execute last
+  m_fPriority = 1000.0f;
 }
 
-void ezParticleBehaviorFactory_Expression::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
+ezParticleBehavior_Expression::InstanceData::InstanceData()
 {
-  ezParticleBehavior_Expression* pBehavior = static_cast<ezParticleBehavior_Expression*>(pObject);
-
-  pBehavior->m_bUsesDiscard = m_bUsesDiscard;
-  pBehavior->m_InputStreams = m_InputStreams;
-  pBehavior->m_OutputStreams = m_OutputStreams;
-  pBehavior->m_pByteCode = GetByteCode();
-  pBehavior->m_pCurveSamples = m_CurveSamples.IsEmpty() ? nullptr : &m_CurveSamples;
-  pBehavior->m_pFloatParamNames = m_FloatParamNames.IsEmpty() ? nullptr : &m_FloatParamNames;
-  pBehavior->m_pColorParamNames = m_ColorParamNames.IsEmpty() ? nullptr : &m_ColorParamNames;
+  m_VM.RegisterFunction(ezExtendedExpressionFunctions::s_SampleCurveFunc);
 }
 
-void ezParticleBehaviorFactory_Expression::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
+void ezParticleBehavior_Expression::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
   if (m_OutputStreams.IsSet(ezParticleStreamMask::Velocity))
   {
-    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizer_ApplyVelocity>());
   }
 }
 
-void ezParticleBehaviorFactory_Expression::Save(ezStreamWriter& inout_stream) const
+void ezParticleBehavior_Expression::Save(ezStreamWriter& inout_stream) const
 {
   inout_stream.WriteVersion(1);
 
@@ -110,7 +98,7 @@ void ezParticleBehaviorFactory_Expression::Save(ezStreamWriter& inout_stream) co
   }
 }
 
-void ezParticleBehaviorFactory_Expression::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleBehavior_Expression::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   const auto version = inout_stream.ReadVersion(1);
 
@@ -132,7 +120,7 @@ void ezParticleBehaviorFactory_Expression::Load(ezStreamReader& inout_stream, co
   BuildCurveSamples();
 }
 
-void ezParticleBehaviorFactory_Expression::CompileExpression(const ezParticleEffectDescriptor& ownerEffectDescriptor)
+void ezParticleBehavior_Expression::CompileExpression(const ezParticleEffectDescriptor& ownerEffectDescriptor)
 {
   if (m_sCompiledExpression == m_sExpression)
     return;
@@ -268,7 +256,7 @@ void ezParticleBehaviorFactory_Expression::CompileExpression(const ezParticleEff
   m_bBytecodeValid = true;
 }
 
-void ezParticleBehaviorFactory_Expression::BuildCurveSamples()
+void ezParticleBehavior_Expression::BuildCurveSamples()
 {
   m_CurveSamples.SetCount(m_Inputs.GetCount());
 
@@ -321,64 +309,76 @@ void ezParticleBehaviorFactory_Expression::BuildCurveSamples()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezParticleBehavior_Expression::ezParticleBehavior_Expression()
+bool ezParticleBehavior_Expression::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  // execute last
-  m_fPriority = 1000.0f;
-
-  m_VM.RegisterFunction(ezExtendedExpressionFunctions::s_SampleCurveFunc);
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleBehavior_Expression::CreateRequiredStreams()
+void ezParticleBehavior_Expression::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  data.m_pStreamPosition = nullptr;
+  data.m_pStreamVelocity = nullptr;
+  data.m_pStreamSize = nullptr;
+  data.m_pStreamColor = nullptr;
+  data.m_pStreamLifeTime = nullptr;
+  data.m_pStreamRotationSpeed = nullptr;
+
   if (m_InputStreams.IsSet(ezParticleStreamMask::Position) || m_OutputStreams.IsSet(ezParticleStreamMask::Position))
   {
-    CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
   }
 
   if (m_InputStreams.IsSet(ezParticleStreamMask::Velocity) || m_OutputStreams.IsSet(ezParticleStreamMask::Velocity))
   {
-    CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sVelocity, ezProcessingStream::DataType::Half4, &data.m_pStreamVelocity, false);
   }
 
   if (m_InputStreams.IsSet(ezParticleStreamMask::Size) || m_OutputStreams.IsSet(ezParticleStreamMask::Size))
   {
-    CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sSize, ezProcessingStream::DataType::Half, &data.m_pStreamSize, false);
   }
 
   if (m_InputStreams.IsSet(ezParticleStreamMask::Color) || m_OutputStreams.IsSet(ezParticleStreamMask::Color))
   {
-    CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sColor, ezProcessingStream::DataType::Half4, &data.m_pStreamColor, false);
   }
 
   if (m_InputStreams.IsSet(ezParticleStreamMask::Rotation) || m_OutputStreams.IsSet(ezParticleStreamMask::Rotation))
   {
-    CreateStream("RotationSpeed", ezProcessingStream::DataType::Half, &m_pStreamRotationSpeed, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sRotationSpeed, ezProcessingStream::DataType::Half, &data.m_pStreamRotationSpeed, false);
   }
 
   if (m_InputStreams.IsSet(ezParticleStreamMask::LifeTime) || m_OutputStreams.IsSet(ezParticleStreamMask::LifeTime) || m_bUsesDiscard)
   {
-    CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sLifeTime, ezProcessingStream::DataType::Half2, &data.m_pStreamLifeTime, false);
   }
 }
 
-void ezParticleBehavior_Expression::QueryOptionalStreams()
+void ezParticleBehavior_Expression::OnFinalize(const ezParticleModuleContext& ctx) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  data.m_bExecutionFailed = false;
 }
 
-void ezParticleBehavior_Expression::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleBehavior_Expression::InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const
 {
-  UpdateElements(uiStartIndex, uiNumElements);
+  UpdateElements(ctx, uiStartIndex, uiNumElements);
 }
 
-void ezParticleBehavior_Expression::Process(ezUInt64 uiNumElements)
+void ezParticleBehavior_Expression::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
 {
-  UpdateElements(0, uiNumElements);
+  UpdateElements(ctx, 0, uiNumElements);
 }
 
-void ezParticleBehavior_Expression::UpdateElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleBehavior_Expression::UpdateElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const
 {
-  if (m_pByteCode == nullptr || uiNumElements == 0)
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  if (GetByteCode() == nullptr || data.m_bExecutionFailed || uiNumElements == 0)
     return;
 
   EZ_PROFILE_SCOPE("PFX: Expression");
@@ -397,53 +397,51 @@ void ezParticleBehavior_Expression::UpdateElements(ezUInt64 uiStartIndex, ezUInt
 
   // Fetch current effect parameter values. These buffers must outlive the VM execute call.
   ezHybridArray<float, 4> floatParamValues;
-  if (m_pFloatParamNames != nullptr)
   {
-    floatParamValues.SetCount(m_pFloatParamNames->GetCount());
-    for (ezUInt32 i = 0; i < m_pFloatParamNames->GetCount(); ++i)
+    floatParamValues.SetCount(m_FloatParamNames.GetCount());
+    for (ezUInt32 i = 0; i < m_FloatParamNames.GetCount(); ++i)
     {
-      floatParamValues[i] = GetOwnerEffect()->GetFloatParameter(ezTempHashedString((*m_pFloatParamNames)[i]), 0.0f);
+      floatParamValues[i] = ctx.GetEffect()->GetFloatParameter(m_FloatParamNames[i], 0.0f);
     }
   }
 
   ezHybridArray<ezColor, 2> colorParamValues;
-  if (m_pColorParamNames != nullptr)
   {
-    colorParamValues.SetCount(m_pColorParamNames->GetCount());
-    for (ezUInt32 i = 0; i < m_pColorParamNames->GetCount(); ++i)
+    colorParamValues.SetCount(m_ColorParamNames.GetCount());
+    for (ezUInt32 i = 0; i < m_ColorParamNames.GetCount(); ++i)
     {
-      colorParamValues[i] = GetOwnerEffect()->GetColorParameter(ezTempHashedString((*m_pColorParamNames)[i]), ezColor::White);
+      colorParamValues[i] = ctx.GetEffect()->GetColorParameter(m_ColorParamNames[i], ezColor::White);
     }
   }
 
   ezTempHybridArray<ezProcessingStream, 8> vmInputs;
-  const float fTimeDiff = static_cast<float>(m_TimeDiff.GetSeconds());
+  const float fTimeDiff = static_cast<float>(ctx.GetTimeDiff().GetSeconds());
 
   {
     if (m_InputStreams.IsSet(ezParticleStreamMask::Position))
     {
-      vmInputs.PushBack(OffsetStream(s_sInPos, *m_pStreamPosition));
+      vmInputs.PushBack(OffsetStream(s_sInPos, *data.m_pStreamPosition));
     }
 
     if (m_InputStreams.IsSet(ezParticleStreamMask::Velocity))
     {
-      vmInputs.PushBack(OffsetStream(s_sInVel, *m_pStreamVelocity));
+      vmInputs.PushBack(OffsetStream(s_sInVel, *data.m_pStreamVelocity));
     }
     if (m_InputStreams.IsSet(ezParticleStreamMask::Size))
     {
-      vmInputs.PushBack(OffsetStream(s_sInSize, *m_pStreamSize));
+      vmInputs.PushBack(OffsetStream(s_sInSize, *data.m_pStreamSize));
     }
     if (m_InputStreams.IsSet(ezParticleStreamMask::Color))
     {
-      vmInputs.PushBack(OffsetStream(s_sInColor, *m_pStreamColor));
+      vmInputs.PushBack(OffsetStream(s_sInColor, *data.m_pStreamColor));
     }
     if (m_InputStreams.IsSet(ezParticleStreamMask::LifeTime))
     {
-      vmInputs.PushBack(OffsetStream(s_sInLifeTime, *m_pStreamLifeTime));
+      vmInputs.PushBack(OffsetStream(s_sInLifeTime, *data.m_pStreamLifeTime));
     }
     if (m_InputStreams.IsSet(ezParticleStreamMask::Rotation))
     {
-      vmInputs.PushBack(OffsetStream(s_sInRotSpeed, *m_pStreamRotationSpeed));
+      vmInputs.PushBack(OffsetStream(s_sInRotSpeed, *data.m_pStreamRotationSpeed));
     }
 
     vmInputs.PushBack(ezProcessingStream(s_sTimeDiff,
@@ -452,14 +450,14 @@ void ezParticleBehavior_Expression::UpdateElements(ezUInt64 uiStartIndex, ezUInt
 
     for (ezUInt32 i = 0; i < floatParamValues.GetCount(); ++i)
     {
-      vmInputs.PushBack(ezProcessingStream((*m_pFloatParamNames)[i],
+      vmInputs.PushBack(ezProcessingStream(m_FloatParamNames[i],
         ezArrayPtr<ezUInt8>(reinterpret_cast<ezUInt8*>(&floatParamValues[i]), sizeof(float)),
         ezProcessingStream::DataType::Float, /*uiStride*/ 0));
     }
 
     for (ezUInt32 i = 0; i < colorParamValues.GetCount(); ++i)
     {
-      vmInputs.PushBack(ezProcessingStream((*m_pColorParamNames)[i],
+      vmInputs.PushBack(ezProcessingStream(m_ColorParamNames[i],
         ezArrayPtr<ezUInt8>(reinterpret_cast<ezUInt8*>(&colorParamValues[i]), sizeof(ezColor)),
         ezProcessingStream::DataType::Float4, /*uiStride*/ 0));
     }
@@ -470,28 +468,28 @@ void ezParticleBehavior_Expression::UpdateElements(ezUInt64 uiStartIndex, ezUInt
   {
     if (m_OutputStreams.IsSet(ezParticleStreamMask::Position))
     {
-      vmOutputs.PushBack(OffsetStream(s_sOutPos, *m_pStreamPosition));
+      vmOutputs.PushBack(OffsetStream(s_sOutPos, *data.m_pStreamPosition));
     }
 
     if (m_OutputStreams.IsSet(ezParticleStreamMask::Velocity))
     {
-      vmOutputs.PushBack(OffsetStream(s_sOutVel, *m_pStreamVelocity));
+      vmOutputs.PushBack(OffsetStream(s_sOutVel, *data.m_pStreamVelocity));
     }
     if (m_OutputStreams.IsSet(ezParticleStreamMask::Size))
     {
-      vmOutputs.PushBack(OffsetStream(s_sOutSize, *m_pStreamSize));
+      vmOutputs.PushBack(OffsetStream(s_sOutSize, *data.m_pStreamSize));
     }
     if (m_OutputStreams.IsSet(ezParticleStreamMask::Color))
     {
-      vmOutputs.PushBack(OffsetStream(s_sOutColor, *m_pStreamColor));
+      vmOutputs.PushBack(OffsetStream(s_sOutColor, *data.m_pStreamColor));
     }
     if (m_OutputStreams.IsSet(ezParticleStreamMask::LifeTime))
     {
-      vmOutputs.PushBack(OffsetStream(s_sOutLifeTime, *m_pStreamLifeTime));
+      vmOutputs.PushBack(OffsetStream(s_sOutLifeTime, *data.m_pStreamLifeTime));
     }
     if (m_OutputStreams.IsSet(ezParticleStreamMask::Rotation))
     {
-      vmOutputs.PushBack(OffsetStream(s_sOutRotSpeed, *m_pStreamRotationSpeed));
+      vmOutputs.PushBack(OffsetStream(s_sOutRotSpeed, *data.m_pStreamRotationSpeed));
     }
     if (m_bUsesDiscard)
     {
@@ -502,30 +500,30 @@ void ezParticleBehavior_Expression::UpdateElements(ezUInt64 uiStartIndex, ezUInt
 
   const ezUInt32 uiCount = static_cast<ezUInt32>(uiNumElements);
 
-  // Build global data for curve lookups (pointers into factory-owned sample arrays).
+  // Build global data for curve lookups (pointers into the sample arrays of the module).
   ezExpression::GlobalData globalData;
-  if (m_pCurveSamples != nullptr && !m_pCurveSamples->IsEmpty())
+  if (!m_CurveSamples.IsEmpty())
   {
     ezVariantArray curves;
-    curves.SetCount(m_pCurveSamples->GetCount());
-    for (ezUInt32 i = 0; i < m_pCurveSamples->GetCount(); ++i)
+    curves.SetCount(m_CurveSamples.GetCount());
+    for (ezUInt32 i = 0; i < m_CurveSamples.GetCount(); ++i)
     {
-      curves[i] = ezVariant(const_cast<ezSampledCurve1D*>(&(*m_pCurveSamples)[i]));
+      curves[i] = ezVariant(const_cast<ezSampledCurve1D*>(&m_CurveSamples[i]));
     }
     globalData.Insert(ezMakeHashedString("Curves"), curves);
   }
 
-  if (m_VM.Execute(*m_pByteCode, vmInputs, vmOutputs, uiCount, globalData).Failed())
+  if (data.m_VM.Execute(*GetByteCode(), vmInputs, vmOutputs, uiCount, globalData).Failed())
   {
     ezLog::Warning("Particle Expression: Failed to execute expression");
-    m_pByteCode = nullptr;
+    data.m_bExecutionFailed = true;
     return;
   }
 
-  if (m_bUsesDiscard && m_pStreamLifeTime != nullptr)
+  if (m_bUsesDiscard && data.m_pStreamLifeTime != nullptr)
   {
     const ezUInt8* pDiscardData = s_DiscardBuffer.GetData();
-    ezFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezFloat16Vec2>() + uiStartIndex;
+    ezFloat16Vec2* pLifeTime = data.m_pStreamLifeTime->GetWritableData<ezFloat16Vec2>() + uiStartIndex;
 
     for (ezUInt32 i = 0; i < uiCount; ++i)
     {

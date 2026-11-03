@@ -3,15 +3,16 @@
 #include <Core/Physics/SurfaceResourceDescriptor.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
+#include <Foundation/Memory/InstanceDataAllocator.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/VarianceTypes.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-class ezParticleEmitterFactory;
-class ezParticleBehaviorFactory;
-class ezParticleInitializerFactory;
-class ezParticleTypeFactory;
-class ezParticleFinalizerFactory;
+class ezParticleEmitter;
+class ezParticleBehavior;
+class ezParticleInitializer;
+class ezParticleType;
+class ezParticleFinalizer;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleSystemDescriptor final : public ezReflectedClass
 {
@@ -24,34 +25,37 @@ public:
   //////////////////////////////////////////////////////////////////////////
   /// Properties
 
-  const ezHybridArray<ezParticleEmitterFactory*, 1>& GetEmitterFactories() const { return m_EmitterFactories; }
+  const ezHybridArray<ezParticleEmitter*, 1>& GetEmitters() const { return m_Emitters; }
 
-  void AddInitializerFactory(ezParticleInitializerFactory* pFactory) { m_InitializerFactories.PushBack(pFactory); }
-  void RemoveInitializerFactory(ezParticleInitializerFactory* pFactory) { m_InitializerFactories.RemoveAndCopy(pFactory); }
-  const ezHybridArray<ezParticleInitializerFactory*, 4>& GetInitializerFactories() const { return m_InitializerFactories; }
+  void AddInitializer(ezParticleInitializer* pModule) { m_Initializers.PushBack(pModule); }
+  void RemoveInitializer(ezParticleInitializer* pModule) { m_Initializers.RemoveAndCopy(pModule); }
+  const ezHybridArray<ezParticleInitializer*, 4>& GetInitializers() const { return m_Initializers; }
 
-  void AddBehaviorFactory(ezParticleBehaviorFactory* pFactory) { m_BehaviorFactories.PushBack(pFactory); }
-  void RemoveBehaviorFactory(ezParticleBehaviorFactory* pFactory) { m_BehaviorFactories.RemoveAndCopy(pFactory); }
-  const ezHybridArray<ezParticleBehaviorFactory*, 4>& GetBehaviorFactories() const { return m_BehaviorFactories; }
+  void AddBehavior(ezParticleBehavior* pModule) { m_Behaviors.PushBack(pModule); }
+  void RemoveBehavior(ezParticleBehavior* pModule) { m_Behaviors.RemoveAndCopy(pModule); }
+  const ezHybridArray<ezParticleBehavior*, 4>& GetBehaviors() const { return m_Behaviors; }
 
-  void AddTypeFactory(ezParticleTypeFactory* pFactory) { m_TypeFactories.PushBack(pFactory); }
-  void RemoveTypeFactory(ezParticleTypeFactory* pFactory) { m_TypeFactories.RemoveAndCopy(pFactory); }
-  const ezHybridArray<ezParticleTypeFactory*, 2>& GetTypeFactories() const { return m_TypeFactories; }
+  void AddType(ezParticleType* pModule) { m_Types.PushBack(pModule); }
+  void RemoveType(ezParticleType* pModule) { m_Types.RemoveAndCopy(pModule); }
+  const ezHybridArray<ezParticleType*, 2>& GetTypes() const { return m_Types; }
 
-  const ezHybridArray<ezParticleFinalizerFactory*, 2>& GetFinalizerFactories() const { return m_FinalizerFactories; }
+  const ezHybridArray<ezParticleFinalizer*, 2>& GetFinalizers() const { return m_Finalizers; }
 
   ezTime GetAvgLifetime() const;
 
   bool m_bVisible;
 
   ezVarianceTypeTime m_LifeTime;
-  ezString m_sOnDeathEvent;
-  ezString m_sLifeScaleParameter;
+  ezHashedString m_sOnDeathEvent;
+  ezHashedString m_sLifeScaleParameter;
 
   //////////////////////////////////////////////////////////////////////////
 
   void Save(ezStreamWriter& inout_stream) const;
   void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor);
+
+  /// Describes the instance data of all modules. Only valid after Load().
+  const ezInstanceDataAllocator& GetInstanceDataAllocator() const { return m_InstanceDataAllocator; }
 
 private:
   void ClearEmitters();
@@ -60,11 +64,13 @@ private:
   void ClearTypes();
   void ClearFinalizers();
   void SetupDefaultProcessors();
+  void SetupInstanceData();
 
   ezString m_sName;
-  ezHybridArray<ezParticleEmitterFactory*, 1> m_EmitterFactories;
-  ezHybridArray<ezParticleInitializerFactory*, 4> m_InitializerFactories;
-  ezHybridArray<ezParticleBehaviorFactory*, 4> m_BehaviorFactories;
-  ezHybridArray<ezParticleFinalizerFactory*, 2> m_FinalizerFactories;
-  ezHybridArray<ezParticleTypeFactory*, 2> m_TypeFactories;
+  ezHybridArray<ezParticleEmitter*, 1> m_Emitters;
+  ezHybridArray<ezParticleInitializer*, 4> m_Initializers;
+  ezHybridArray<ezParticleBehavior*, 4> m_Behaviors;
+  ezHybridArray<ezParticleFinalizer*, 2> m_Finalizers;
+  ezHybridArray<ezParticleType*, 2> m_Types;
+  ezInstanceDataAllocator m_InstanceDataAllocator;
 };

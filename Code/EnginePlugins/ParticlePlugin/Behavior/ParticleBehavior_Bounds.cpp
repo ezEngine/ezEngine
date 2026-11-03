@@ -10,7 +10,7 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Bounds, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Bounds>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Bounds, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Bounds>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -26,26 +26,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Bounds, 1, ezRTTIDefau
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Bounds, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Bounds>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleBehaviorFactory_Bounds::ezParticleBehaviorFactory_Bounds() = default;
-
-const ezRTTI* ezParticleBehaviorFactory_Bounds::GetBehaviorType() const
-{
-  return ezGetStaticRTTI<ezParticleBehavior_Bounds>();
-}
-
-void ezParticleBehaviorFactory_Bounds::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
-{
-  ezParticleBehavior_Bounds* pBehavior = static_cast<ezParticleBehavior_Bounds*>(pObject);
-
-  pBehavior->m_vPositionOffset = m_vPositionOffset;
-  pBehavior->m_vBoxExtents = m_vBoxExtents;
-  pBehavior->m_OutOfBoundsMode = m_OutOfBoundsMode;
-}
+ezParticleBehavior_Bounds::ezParticleBehavior_Bounds() = default;
 
 enum class BehaviorBoundsVersion
 {
@@ -57,7 +40,7 @@ enum class BehaviorBoundsVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleBehaviorFactory_Bounds::Save(ezStreamWriter& inout_stream) const
+void ezParticleBehavior_Bounds::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)BehaviorBoundsVersion::Version_Current;
   inout_stream << uiVersion;
@@ -69,7 +52,7 @@ void ezParticleBehaviorFactory_Bounds::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_OutOfBoundsMode;
 }
 
-void ezParticleBehaviorFactory_Bounds::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleBehavior_Bounds::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -85,21 +68,33 @@ void ezParticleBehaviorFactory_Bounds::Load(ezStreamReader& inout_stream, const 
   }
 }
 
-void ezParticleBehavior_Bounds::CreateRequiredStreams()
+bool ezParticleBehavior_Bounds::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleBehavior_Bounds::QueryOptionalStreams()
+void ezParticleBehavior_Bounds::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
-  m_pStreamLastPosition = GetOwnerSystem()->QueryStream("LastPosition", ezProcessingStream::DataType::Float3);
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
 }
 
-void ezParticleBehavior_Bounds::Process(ezUInt64 uiNumElements)
+void ezParticleBehavior_Bounds::QueryOptionalStreams(const ezParticleModuleContext& ctx) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  data.m_pStreamLastPosition = ctx.m_pSystem->QueryStream(ezParticleStreamNames::s_sLastPosition, ezProcessingStream::DataType::Float3);
+}
+
+void ezParticleBehavior_Bounds::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Bounds");
 
-  const ezSimdTransform trans = ezSimdConversion::ToTransform(GetOwnerSystem()->GetTransform());
+  const ezSimdTransform trans = ezSimdConversion::ToTransform(ctx.m_pSystem->GetTransform());
   const ezSimdTransform invTrans = trans.GetInverse();
 
   const ezSimdVec4f boxCenter = ezSimdConversion::ToVec3(m_vPositionOffset);
@@ -107,15 +102,15 @@ void ezParticleBehavior_Bounds::Process(ezUInt64 uiNumElements)
   const ezSimdVec4f halfExtPos = ezSimdConversion::ToVec3(m_vBoxExtents) * 0.5f;
   const ezSimdVec4f halfExtNeg = -halfExtPos;
 
-  ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<ezSimdVec4f> itPosition(data.m_pStreamPosition, uiNumElements, 0);
 
   if (m_OutOfBoundsMode == ezParticleOutOfBoundsMode::Teleport)
   {
     ezVec3* pLastPosition = nullptr;
 
-    if (m_pStreamLastPosition)
+    if (data.m_pStreamLastPosition)
     {
-      pLastPosition = m_pStreamLastPosition->GetWritableData<ezVec3>();
+      pLastPosition = data.m_pStreamLastPosition->GetWritableData<ezVec3>();
     }
 
     while (!itPosition.HasReachedEnd())
@@ -133,7 +128,7 @@ void ezParticleBehavior_Bounds::Process(ezUInt64 uiNumElements)
       localPosNew += boxCenter;
       const ezSimdVec4f globalPosNew = trans.TransformPosition(localPosNew);
 
-      if (m_pStreamLastPosition)
+      if (data.m_pStreamLastPosition)
       {
         const ezSimdVec4f posDiff = globalPosNew - globalPosCur;
         *pLastPosition += ezSimdConversion::ToVec3(posDiff);
@@ -155,7 +150,7 @@ void ezParticleBehavior_Bounds::Process(ezUInt64 uiNumElements)
 
       if ((localPosCur > halfExtPos).AnySet() || (localPosCur < halfExtNeg).AnySet())
       {
-        m_pStreamGroup->RemoveElement(idx);
+        ctx.m_pSystem->RemoveParticle(idx);
       }
 
       ++idx;

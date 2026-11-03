@@ -4,40 +4,33 @@
 #include <ParticlePlugin/Type/Point/PointRenderer.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-/// Factory for creating point particle types.
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypePointFactory final : public ezParticleTypeFactory
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypePointFactory, ezParticleTypeFactory);
-
-public:
-  virtual const ezRTTI* GetTypeType() const override;
-  virtual void CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const override;
-
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
-};
-
 /// Renders particles as single-pixel points.
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypePoint final : public ezParticleType
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypePoint, ezParticleType);
 
 public:
-  ezParticleTypePoint() = default;
 
-  virtual void CreateRequiredStreams() override;
+  virtual void Save(ezStreamWriter& inout_stream) const override;
+  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void CreateRequiredStreams(const ezParticleModuleContext& ctx) const override;
+  virtual void ExtractTypeRenderData(const ezParticleModuleContext& ctx, ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
 
   /// Point particles have no radius for culling purposes.
-  virtual float GetMaxParticleRadius(float fParticleSize) const override { return 0.0f; }
+  virtual float GetMaxParticleRadius(const ezParticleModuleContext& ctx, float fParticleSize) const override { return 0.0f; }
 
-protected:
-  virtual void Process(ezUInt64 uiNumElements) override {}
+private:
+  struct InstanceData
+  {
+    EZ_DECLARE_POD_TYPE();
 
-  ezProcessingStream* m_pStreamPosition;
-  ezProcessingStream* m_pStreamColor;
+    ezProcessingStream* m_pStreamPosition;
+    ezProcessingStream* m_pStreamColor;
 
-  mutable ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
-  mutable ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
+    ezUInt64 m_uiLastExtractedFrame;
+    ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
+    ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
+  };
 };

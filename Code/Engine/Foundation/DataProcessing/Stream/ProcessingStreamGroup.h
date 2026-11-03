@@ -45,7 +45,10 @@ public:
 
   /// Adds a stream with the given name to the stream group. Adding a stream two times with the same name will return nullptr for the second
   /// attempt to signal an error.
-  ezProcessingStream* AddStream(ezStringView sName, ezProcessingStream::DataType type);
+  ///
+  /// The returned pointer stays valid until the stream is removed or Clear() is called, also when the group gets resized.
+  /// A pointer to the stream's data doesn't stay valid across a resize.
+  ezProcessingStream* AddStream(const ezHashedString& sName, ezProcessingStream::DataType type);
 
   /// Removes the stream with the given name, if it exists.
   void RemoveStreamByName(ezTempHashedString sName);

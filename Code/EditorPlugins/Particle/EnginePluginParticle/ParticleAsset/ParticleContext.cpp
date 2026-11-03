@@ -354,11 +354,13 @@ void ezParticleContext::UpdatePreviewMesh()
 
   ezMeshResourceHandle hMesh;
 
-  for (const ezParticleSystemDescriptor* pSystem : pEffect->GetDescriptor().m_Effect.GetParticleSystems())
+  const ezSharedPtr<const ezParticleEffectResourceDescriptor> pDescriptor = pEffect->GetDescriptor();
+
+  for (const ezParticleSystemDescriptor* pSystem : pDescriptor->m_Effect.GetParticleSystems())
   {
-    for (const ezParticleInitializerFactory* pFactory : pSystem->GetInitializerFactories())
+    for (const ezParticleInitializer* pInitializer : pSystem->GetInitializers())
     {
-      const ezParticleInitializerFactory_MeshPosition* pMeshPos = ezDynamicCast<const ezParticleInitializerFactory_MeshPosition*>(pFactory);
+      const ezParticleInitializer_MeshPosition* pMeshPos = ezDynamicCast<const ezParticleInitializer_MeshPosition*>(pInitializer);
 
       if (pMeshPos != nullptr && !pMeshPos->m_sMesh.IsEmpty())
       {

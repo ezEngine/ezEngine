@@ -6,29 +6,6 @@
 class ezView;
 class ezExtractedRenderData;
 
-/// Factory for creating light particle types.
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeLightFactory final : public ezParticleTypeFactory
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeLightFactory, ezParticleTypeFactory);
-
-public:
-  ezParticleTypeLightFactory();
-
-  virtual const ezRTTI* GetTypeType() const override;
-  virtual void CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const override;
-
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
-
-  float m_fSizeFactor;
-  float m_fIntensity;
-  ezUInt32 m_uiPercentage;
-  ezHashedString m_sTintColorParameter;
-  ezHashedString m_sIntensityParameter;
-  ezHashedString m_sSizeScaleParameter;
-  bool m_bScaleIntensityByAlpha = false; ///< If true, the particle alpha (e.g. from a color gradient) scales the light intensity. Otherwise lights ignore alpha.
-};
-
 /// Renders particles as dynamic point lights.
 ///
 /// Each particle creates a point light with range based on particle size.
@@ -39,25 +16,34 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTypeLight final : public ezParticleType
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeLight, ezParticleType);
 
 public:
-  virtual void CreateRequiredStreams() override;
+  ezParticleTypeLight();
+
+
+  virtual void Save(ezStreamWriter& inout_stream) const override;
+  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void CreateRequiredStreams(const ezParticleModuleContext& ctx) const override;
+  virtual void ExtractTypeRenderData(const ezParticleModuleContext& ctx, ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
+
+  virtual float GetMaxParticleRadius(const ezParticleModuleContext& ctx, float fParticleSize) const override { return 0.5f * fParticleSize * m_fSizeFactor; }
 
   float m_fSizeFactor;
   float m_fIntensity;
   ezUInt32 m_uiPercentage;
-  ezTempHashedString m_sTintColorParameter;
-  ezTempHashedString m_sIntensityParameter;
-  ezTempHashedString m_sSizeScaleParameter;
-  bool m_bScaleIntensityByAlpha = false;
+  ezHashedString m_sTintColorParameter;
+  ezHashedString m_sIntensityParameter;
+  ezHashedString m_sSizeScaleParameter;
+  bool m_bScaleIntensityByAlpha = false; ///< If true, the particle alpha (e.g. from a color gradient) scales the light intensity. Otherwise lights ignore alpha.
 
-  virtual float GetMaxParticleRadius(float fParticleSize) const override { return 0.5f * fParticleSize * m_fSizeFactor; }
+private:
+  struct InstanceData
+  {
+    EZ_DECLARE_POD_TYPE();
 
-  virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
-
-protected:
-  virtual void Process(ezUInt64 uiNumElements) override {}
-
-  ezProcessingStream* m_pStreamPosition;
-  ezProcessingStream* m_pStreamSize;
-  ezProcessingStream* m_pStreamColor;
-  ezProcessingStream* m_pStreamOnOff;
+    ezProcessingStream* m_pStreamPosition;
+    ezProcessingStream* m_pStreamSize;
+    ezProcessingStream* m_pStreamColor;
+    ezProcessingStream* m_pStreamOnOff;
+  };
 };

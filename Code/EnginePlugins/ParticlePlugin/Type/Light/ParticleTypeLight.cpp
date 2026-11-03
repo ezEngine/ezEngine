@@ -10,7 +10,7 @@
 #include <RendererCore/Pipeline/View.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeLightFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeLightFactory>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeLight, 1, ezRTTIDefaultAllocator<ezParticleTypeLight>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -25,36 +25,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeLightFactory, 1, ezRTTIDefaultAllo
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeLight, 1, ezRTTIDefaultAllocator<ezParticleTypeLight>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleTypeLightFactory::ezParticleTypeLightFactory()
+ezParticleTypeLight::ezParticleTypeLight()
 {
   m_fSizeFactor = 5.0f;
   m_fIntensity = 10.0f;
   m_uiPercentage = 50;
 }
 
-
-const ezRTTI* ezParticleTypeLightFactory::GetTypeType() const
-{
-  return ezGetStaticRTTI<ezParticleTypeLight>();
-}
-
-void ezParticleTypeLightFactory::CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const
-{
-  ezParticleTypeLight* pType = static_cast<ezParticleTypeLight*>(pObject);
-
-  pType->m_fSizeFactor = m_fSizeFactor;
-  pType->m_fIntensity = m_fIntensity;
-  pType->m_uiPercentage = m_uiPercentage;
-  pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
-  pType->m_sIntensityParameter = ezTempHashedString(m_sIntensityParameter.GetData());
-  pType->m_sSizeScaleParameter = ezTempHashedString(m_sSizeScaleParameter.GetData());
-  pType->m_bScaleIntensityByAlpha = m_bScaleIntensityByAlpha;
-}
 
 enum class TypeLightVersion
 {
@@ -68,7 +47,7 @@ enum class TypeLightVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleTypeLightFactory::Save(ezStreamWriter& inout_stream) const
+void ezParticleTypeLight::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)TypeLightVersion::Version_Current;
   inout_stream << uiVersion;
@@ -86,7 +65,7 @@ void ezParticleTypeLightFactory::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_bScaleIntensityByAlpha;
 }
 
-void ezParticleTypeLightFactory::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleTypeLight::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -110,58 +89,68 @@ void ezParticleTypeLightFactory::Load(ezStreamReader& inout_stream, const ezPart
   }
 }
 
-void ezParticleTypeLight::CreateRequiredStreams()
+bool ezParticleTypeLight::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  m_pStreamOnOff = nullptr;
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
 
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
-  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
+void ezParticleTypeLight::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  data.m_pStreamOnOff = nullptr;
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sSize, ezProcessingStream::DataType::Half, &data.m_pStreamSize, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sColor, ezProcessingStream::DataType::Half4, &data.m_pStreamColor, false);
 
   if (m_uiPercentage < 100)
   {
-    CreateStream("OnOff", ezProcessingStream::DataType::Byte, &m_pStreamOnOff, false); /// \todo Initialize (instead of during extraction)
+    ctx.CreateStream(ezParticleStreamNames::s_sOnOff, ezProcessingStream::DataType::Byte, &data.m_pStreamOnOff, false); /// \todo Initialize (instead of during extraction)
   }
 }
 
 
-void ezParticleTypeLight::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
+void ezParticleTypeLight::ExtractTypeRenderData(const ezParticleModuleContext& ctx, ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Light");
 
-  const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
-  const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
-  const ezColorLinear16f* pColor = m_pStreamColor->GetData<ezColorLinear16f>();
+  const ezVec4* pPosition = data.m_pStreamPosition->GetData<ezVec4>();
+  const ezFloat16* pSize = data.m_pStreamSize->GetData<ezFloat16>();
+  const ezColorLinear16f* pColor = data.m_pStreamColor->GetData<ezColorLinear16f>();
 
   if (pPosition == nullptr || pSize == nullptr || pColor == nullptr)
     return;
 
   ezInt8* pOnOff = nullptr;
 
-  if (m_pStreamOnOff)
+  if (data.m_pStreamOnOff)
   {
-    pOnOff = m_pStreamOnOff->GetWritableData<ezInt8>();
+    pOnOff = data.m_pStreamOnOff->GetWritableData<ezInt8>();
 
     if (pOnOff == nullptr)
       return;
   }
 
-  ezRandom& rng = GetRNG();
+  ezRandom& rng = ctx.GetRNG();
 
-  const ezUInt32 uiNumParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
+  const ezUInt32 uiNumParticles = (ezUInt32)ctx.m_pSystem->GetNumActiveParticles();
 
   const ezUInt32 uiBatchId = 1; // no shadows
 
-  const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
-  const float intensityScale = GetOwnerEffect()->GetFloatParameter(m_sIntensityParameter, 1.0f);
-  const float sizeScale = GetOwnerEffect()->GetFloatParameter(m_sSizeScaleParameter, 1.0f);
+  const ezColor tintColor = ctx.GetEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
+  const float intensityScale = ctx.GetEffect()->GetFloatParameter(m_sIntensityParameter, 1.0f);
+  const float sizeScale = ctx.GetEffect()->GetFloatParameter(m_sSizeScaleParameter, 1.0f);
 
   const float sizeFactor = m_fSizeFactor * sizeScale;
   const float intensity = intensityScale * m_fIntensity;
 
   ezTransform transform;
 
-  if (this->GetOwnerEffect()->IsSimulatedInLocalSpace())
+  if (ctx.GetEffect()->IsSimulatedInLocalSpace())
     transform = instanceTransform;
   else
     transform.SetIdentity();

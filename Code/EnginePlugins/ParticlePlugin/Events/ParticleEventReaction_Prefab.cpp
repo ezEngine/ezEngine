@@ -8,7 +8,7 @@
 #include <ParticlePlugin/Events/ParticleEventReaction_Prefab.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReactionFactory_Prefab, 1, ezRTTIDefaultAllocator<ezParticleEventReactionFactory_Prefab>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReaction_Prefab, 1, ezRTTIDefaultAllocator<ezParticleEventReaction_Prefab>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -18,12 +18,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReactionFactory_Prefab, 1, ezRTTI
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReaction_Prefab, 1, ezRTTIDefaultAllocator<ezParticleEventReaction_Prefab>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleEventReactionFactory_Prefab::ezParticleEventReactionFactory_Prefab() = default;
+ezParticleEventReaction_Prefab::ezParticleEventReaction_Prefab() = default;
 
 enum class ReactionPrefabVersion
 {
@@ -36,7 +33,7 @@ enum class ReactionPrefabVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleEventReactionFactory_Prefab::Save(ezStreamWriter& inout_stream) const
+void ezParticleEventReaction_Prefab::Save(ezStreamWriter& inout_stream) const
 {
   SUPER::Save(inout_stream);
 
@@ -50,7 +47,7 @@ void ezParticleEventReactionFactory_Prefab::Save(ezStreamWriter& inout_stream) c
   inout_stream << m_Alignment;
 }
 
-void ezParticleEventReactionFactory_Prefab::Load(ezStreamReader& inout_stream)
+void ezParticleEventReaction_Prefab::Load(ezStreamReader& inout_stream)
 {
   SUPER::Load(inout_stream);
 
@@ -74,26 +71,9 @@ void ezParticleEventReactionFactory_Prefab::Load(ezStreamReader& inout_stream)
 }
 
 
-const ezRTTI* ezParticleEventReactionFactory_Prefab::GetEventReactionType() const
-{
-  return ezGetStaticRTTI<ezParticleEventReaction_Prefab>();
-}
-
-
-void ezParticleEventReactionFactory_Prefab::CopyReactionProperties(ezParticleEventReaction* pObject, bool bFirstTime) const
-{
-  ezParticleEventReaction_Prefab* pReaction = static_cast<ezParticleEventReaction_Prefab*>(pObject);
-
-  pReaction->m_hPrefab = m_hPrefab;
-  pReaction->m_Alignment = m_Alignment;
-}
-
 //////////////////////////////////////////////////////////////////////////
 
-ezParticleEventReaction_Prefab::ezParticleEventReaction_Prefab() = default;
-ezParticleEventReaction_Prefab::~ezParticleEventReaction_Prefab() = default;
-
-void ezParticleEventReaction_Prefab::ProcessEvent(const ezParticleEvent& e)
+void ezParticleEventReaction_Prefab::ProcessEvent(ezParticleEffectInstance* pOwner, const ezParticleEvent& e) const
 {
   if (!m_hPrefab.IsValid())
     return;
@@ -132,7 +112,7 @@ void ezParticleEventReaction_Prefab::ProcessEvent(const ezParticleEvent& e)
   }
 
   // rotate the prefab randomly along its main axis (the X axis)
-  ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromRadian((float)m_pOwnerEffect->GetRNG().DoubleZeroToOneInclusive() * ezMath::Pi<float>() * 2.0f));
+  ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromRadian((float)pOwner->GetRNG().DoubleZeroToOneInclusive() * ezMath::Pi<float>() * 2.0f));
 
   vAlignDir.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
 
@@ -143,7 +123,7 @@ void ezParticleEventReaction_Prefab::ProcessEvent(const ezParticleEvent& e)
 
   ezPrefabInstantiationOptions options;
 
-  pPrefab->InstantiatePrefab(*m_pOwnerEffect->GetWorld(), trans, options);
+  pPrefab->InstantiatePrefab(*pOwner->GetWorld(), trans, options);
 }
 
 

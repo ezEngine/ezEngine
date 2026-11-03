@@ -8,16 +8,18 @@
 /// Behavior that modifies particle alpha over their lifetime using a curve
 ///
 /// The curve is sampled based on the particle's normalized lifetime (0-1).
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Opacity final : public ezParticleBehaviorFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Opacity final : public ezParticleBehavior
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Opacity, ezParticleBehaviorFactory);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Opacity, ezParticleBehavior);
 
 public:
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
 
   virtual void Save(ezStreamWriter& inout_stream) const override;
   virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void CreateRequiredStreams(const ezParticleModuleContext& ctx) const override;
+  virtual void Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const override;
 
   // ************************************* PROPERTIES ***********************************
 
@@ -25,23 +27,15 @@ public:
   ezSingleCurveData m_Curve;
   ezCurve1DResourceHandle m_hSharedCurve;
   mutable ezCurve1D m_RuntimeCurve;
-};
 
+private:
+  struct InstanceData
+  {
+    EZ_DECLARE_POD_TYPE();
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Opacity final : public ezParticleBehavior
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Opacity, ezParticleBehavior);
-
-public:
-  const ezCurve1D* m_pCurve = nullptr;
-
-  virtual void CreateRequiredStreams() override;
-
-protected:
-  virtual void Process(ezUInt64 uiNumElements) override;
-
-  ezProcessingStream* m_pStreamLifeTime = nullptr;
-  ezProcessingStream* m_pStreamColor = nullptr;
-  ezUInt8 m_uiFirstToUpdate = 0;
-  ezUInt8 m_uiCurrentUpdateInterval = 2;
+    ezProcessingStream* m_pStreamLifeTime = nullptr;
+    ezProcessingStream* m_pStreamColor = nullptr;
+    ezUInt8 m_uiFirstToUpdate = 0;
+    ezUInt8 m_uiCurrentUpdateInterval = 2;
+  };
 };

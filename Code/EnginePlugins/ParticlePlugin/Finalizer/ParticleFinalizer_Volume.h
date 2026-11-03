@@ -1,23 +1,6 @@
 #pragma once
 
-#include <Foundation/Types/VarianceTypes.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer.h>
-
-class ezPhysicsWorldModuleInterface;
-
-/// Factory for volume finalizers.
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_Volume final : public ezParticleFinalizerFactory
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizerFactory_Volume, ezParticleFinalizerFactory);
-
-public:
-  ezParticleFinalizerFactory_Volume();
-  ~ezParticleFinalizerFactory_Volume();
-
-  virtual const ezRTTI* GetFinalizerType() const override;
-  virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const override;
-};
-
 
 /// Computes the bounding volume for the entire particle system.
 ///
@@ -32,12 +15,17 @@ public:
   ezParticleFinalizer_Volume();
   ~ezParticleFinalizer_Volume();
 
-  virtual void CreateRequiredStreams() override;
-  virtual void QueryOptionalStreams() override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void CreateRequiredStreams(const ezParticleModuleContext& ctx) const override;
+  virtual void QueryOptionalStreams(const ezParticleModuleContext& ctx) const override;
+  virtual void Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const override;
 
-protected:
-  virtual void Process(ezUInt64 uiNumElements) override;
+private:
+  struct InstanceData
+  {
+    EZ_DECLARE_POD_TYPE();
 
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  const ezProcessingStream* m_pStreamSize = nullptr;
+    ezProcessingStream* m_pStreamPosition;
+    const ezProcessingStream* m_pStreamSize;
+  };
 };

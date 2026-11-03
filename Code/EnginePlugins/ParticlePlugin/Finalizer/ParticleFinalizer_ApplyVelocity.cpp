@@ -8,24 +8,9 @@
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizerFactory_ApplyVelocity, 1, ezRTTIDefaultAllocator<ezParticleFinalizerFactory_ApplyVelocity>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizer_ApplyVelocity, 1, ezRTTIDefaultAllocator<ezParticleFinalizer_ApplyVelocity>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
-
-ezParticleFinalizerFactory_ApplyVelocity::ezParticleFinalizerFactory_ApplyVelocity() = default;
-
-const ezRTTI* ezParticleFinalizerFactory_ApplyVelocity::GetFinalizerType() const
-{
-  return ezGetStaticRTTI<ezParticleFinalizer_ApplyVelocity>();
-}
-
-void ezParticleFinalizerFactory_ApplyVelocity::CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const
-{
-  ezParticleFinalizer_ApplyVelocity* pFinalizer = static_cast<ezParticleFinalizer_ApplyVelocity*>(pObject);
-}
 
 ezParticleFinalizer_ApplyVelocity::ezParticleFinalizer_ApplyVelocity()
 {
@@ -33,22 +18,30 @@ ezParticleFinalizer_ApplyVelocity::ezParticleFinalizer_ApplyVelocity()
   m_fPriority = 525.0f;
 }
 
-ezParticleFinalizer_ApplyVelocity::~ezParticleFinalizer_ApplyVelocity() = default;
-
-void ezParticleFinalizer_ApplyVelocity::CreateRequiredStreams()
+bool ezParticleFinalizer_ApplyVelocity::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleFinalizer_ApplyVelocity::Process(ezUInt64 uiNumElements)
+void ezParticleFinalizer_ApplyVelocity::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sVelocity, ezProcessingStream::DataType::Half4, &data.m_pStreamVelocity, false);
+}
+
+void ezParticleFinalizer_ApplyVelocity::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
 {
   EZ_PROFILE_SCOPE("PFX: ApplyVelocity");
 
-  const float tDiff = (float)m_TimeDiff.GetSeconds();
+  const InstanceData& data = ctx.GetInstanceData<InstanceData>();
 
-  ezProcessingStreamIterator<ezVec4> itPosition(m_pStreamPosition, uiNumElements, 0);
-  ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
+  const float tDiff = (float)ctx.GetTimeDiff().GetSeconds();
+
+  ezProcessingStreamIterator<ezVec4> itPosition(data.m_pStreamPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(data.m_pStreamVelocity, uiNumElements, 0);
 
   while (!itPosition.HasReachedEnd())
   {

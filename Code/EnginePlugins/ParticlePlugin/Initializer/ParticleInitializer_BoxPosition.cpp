@@ -8,7 +8,7 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_BoxPosition, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_BoxPosition>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_BoxPosition, 1, ezRTTIDefaultAllocator<ezParticleInitializer_BoxPosition>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -27,46 +27,19 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_BoxPosition, 1, ezR
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_BoxPosition, 1, ezRTTIDefaultAllocator<ezParticleInitializer_BoxPosition>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleInitializerFactory_BoxPosition::ezParticleInitializerFactory_BoxPosition()
+ezParticleInitializer_BoxPosition::ezParticleInitializer_BoxPosition()
 {
   m_vPositionOffset.SetZero();
   m_vSize.Set(0, 0, 0);
 }
 
-const ezRTTI* ezParticleInitializerFactory_BoxPosition::GetInitializerType() const
+float ezParticleInitializer_BoxPosition::GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const
 {
-  return ezGetStaticRTTI<ezParticleInitializer_BoxPosition>();
-}
-
-void ezParticleInitializerFactory_BoxPosition::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
-{
-  ezParticleInitializer_BoxPosition* pInitializer = static_cast<ezParticleInitializer_BoxPosition*>(pInitializer0);
-
-  const float fScaleX = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleXParameter.GetData()), 1.0f);
-  const float fScaleY = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleYParameter.GetData()), 1.0f);
-  const float fScaleZ = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleZParameter.GetData()), 1.0f);
-
-  ezVec3 vSize = m_vSize;
-  vSize.x *= fScaleX;
-  vSize.y *= fScaleY;
-  vSize.z *= fScaleZ;
-
-  pInitializer->m_vPositionOffset = m_vPositionOffset;
-  pInitializer->m_bUseSpawnArea = m_bUseSpawnArea;
-  pInitializer->m_vSize = vSize;
-  pInitializer->m_vSizeScale.Set(m_vSize.x != 0.0f ? fScaleX : 0.0f, m_vSize.y != 0.0f ? fScaleY : 0.0f, m_vSize.z != 0.0f ? fScaleZ : 0.0f);
-}
-
-float ezParticleInitializerFactory_BoxPosition::GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const
-{
-  const float fScaleX = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleXParameter.GetData()), 1.0f);
-  const float fScaleY = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleYParameter.GetData()), 1.0f);
-  const float fScaleZ = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleZParameter.GetData()), 1.0f);
+  const float fScaleX = pEffect->GetFloatParameter(m_sScaleXParameter, 1.0f);
+  const float fScaleY = pEffect->GetFloatParameter(m_sScaleYParameter, 1.0f);
+  const float fScaleZ = pEffect->GetFloatParameter(m_sScaleZParameter, 1.0f);
 
   float fSpawnMultiplier = 1.0f;
 
@@ -82,7 +55,7 @@ float ezParticleInitializerFactory_BoxPosition::GetSpawnCountMultiplier(const ez
   return fSpawnMultiplier;
 }
 
-void ezParticleInitializerFactory_BoxPosition::Save(ezStreamWriter& inout_stream) const
+void ezParticleInitializer_BoxPosition::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 4;
   inout_stream << uiVersion;
@@ -101,7 +74,7 @@ void ezParticleInitializerFactory_BoxPosition::Save(ezStreamWriter& inout_stream
   inout_stream << m_bUseSpawnArea;
 }
 
-void ezParticleInitializerFactory_BoxPosition::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleInitializer_BoxPosition::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -126,79 +99,95 @@ void ezParticleInitializerFactory_BoxPosition::Load(ezStreamReader& inout_stream
   }
 }
 
-void ezParticleInitializer_BoxPosition::CreateRequiredStreams()
+bool ezParticleInitializer_BoxPosition::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, true);
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleInitializer_BoxPosition::OnFinalize()
+void ezParticleInitializer_BoxPosition::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
-  if (m_bUseSpawnArea)
-  {
-    RequestUpdateFromWorld();
-  }
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, true);
 }
 
-void ezParticleInitializer_BoxPosition::OnReset()
+void ezParticleInitializer_BoxPosition::OnFinalize(const ezParticleModuleContext& ctx) const
 {
-  m_Area.Reset();
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  const float fScaleX = ctx.GetEffect()->GetFloatParameter(m_sScaleXParameter, 1.0f);
+  const float fScaleY = ctx.GetEffect()->GetFloatParameter(m_sScaleYParameter, 1.0f);
+  const float fScaleZ = ctx.GetEffect()->GetFloatParameter(m_sScaleZParameter, 1.0f);
+
+  data.m_vSize.Set(m_vSize.x * fScaleX, m_vSize.y * fScaleY, m_vSize.z * fScaleZ);
+  data.m_vSizeScale.Set(m_vSize.x != 0.0f ? fScaleX : 0.0f, m_vSize.y != 0.0f ? fScaleY : 0.0f, m_vSize.z != 0.0f ? fScaleZ : 0.0f);
+  data.m_Area.Reset();
 }
 
-void ezParticleInitializer_BoxPosition::UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject)
+void ezParticleInitializer_BoxPosition::UpdateFromWorld(const ezParticleModuleContext& ctx, const ezWorld& world, ezGameObjectHandle hOwnerObject) const
 {
-  const ezParticleBoxAreaComponent* pArea = m_Area.Update<ezParticleBoxAreaComponent>(world, *GetOwnerEffect());
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  const ezParticleBoxAreaComponent* pArea = data.m_Area.Update<ezParticleBoxAreaComponent>(world, *ctx.GetEffect());
 
   // if the area is gone, the last values stay in use, the spawn counts were scaled for them
   if (pArea == nullptr)
     return;
 
-  const ezVec3 vAreaSize = pArea->m_vSize.CompMul(m_vSizeScale);
+  const ezVec3 vAreaSize = pArea->m_vSize.CompMul(data.m_vSizeScale);
 
-  if (!m_Area.IsAreaUsed())
+  if (!data.m_Area.IsAreaUsed())
   {
     // the scale of the area relative to the effect, the scale of the effect itself applies to both shapes
-    const ezVec3 vAreaScale = m_Area.GetTransform().m_vScale.Abs();
+    const ezVec3 vAreaScale = data.m_Area.GetTransform().m_vScale.Abs();
 
     float fMultiplier = pArea->m_fSpawnScale;
 
-    // m_vSize is still the size of the initializer here
+    // data.m_vSize is still the size of the initializer here
     for (ezUInt32 i = 0; i < 3; ++i)
     {
-      if (m_vSize.GetData()[i] != 0.0f)
+      if (data.m_vSize.GetData()[i] != 0.0f)
       {
-        fMultiplier *= vAreaSize.GetData()[i] * vAreaScale.GetData()[i] / ezMath::Abs(m_vSize.GetData()[i]);
+        fMultiplier *= vAreaSize.GetData()[i] * vAreaScale.GetData()[i] / ezMath::Abs(data.m_vSize.GetData()[i]);
       }
     }
 
-    m_Area.UseArea(fMultiplier);
+    data.m_Area.UseArea(fMultiplier);
   }
 
-  m_vSize = vAreaSize;
+  data.m_vSize = vAreaSize;
 }
 
-bool ezParticleInitializer_BoxPosition::PrepareToSpawn()
+bool ezParticleInitializer_BoxPosition::PrepareToSpawn(const ezParticleModuleContext& ctx) const
 {
-  return !m_bUseSpawnArea || m_Area.IsReady(*GetOwnerEffect());
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  return !m_bUseSpawnArea || data.m_Area.IsReady(*ctx.GetEffect());
 }
 
-float ezParticleInitializer_BoxPosition::GetSpawnCountMultiplier() const
+float ezParticleInitializer_BoxPosition::GetInstanceSpawnCountMultiplier(const ezParticleModuleContext& ctx) const
 {
-  return m_Area.GetSpawnCountMultiplier();
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  return data.m_Area.GetSpawnCountMultiplier();
 }
 
-void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleInitializer_BoxPosition::InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Box Position");
 
-  ezSimdVec4f* pPosition = m_pStreamPosition->GetWritableData<ezSimdVec4f>();
+  ezSimdVec4f* pPosition = data.m_pStreamPosition->GetWritableData<ezSimdVec4f>();
 
-  ezRandom& rng = GetRNG();
+  ezRandom& rng = ctx.GetRNG();
 
   // the position offset is already part of the area transform
-  const ezTransform trans = m_Area.IsAreaUsed() ? GetOwnerSystem()->GetTransform() * m_Area.GetTransformWithOffset(m_vPositionOffset) : GetOwnerSystem()->GetTransform();
-  const ezVec3 vOffset = m_Area.IsAreaUsed() ? ezVec3::MakeZero() : m_vPositionOffset;
+  const ezTransform trans = data.m_Area.IsAreaUsed() ? ctx.m_pSystem->GetTransform() * data.m_Area.GetTransformWithOffset(m_vPositionOffset) : ctx.m_pSystem->GetTransform();
+  const ezVec3 vOffset = data.m_Area.IsAreaUsed() ? ezVec3::MakeZero() : m_vPositionOffset;
 
-  if (m_vSize.IsZero())
+  if (data.m_vSize.IsZero())
   {
     ezSimdVec4f pos = ezSimdConversion::ToVec4((trans * vOffset).GetAsVec4(0));
 
@@ -217,9 +206,9 @@ void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      p0[0] = (float)(rng.DoubleMinMax(-m_vSize.x, m_vSize.x) * 0.5) + vOffset.x;
-      p0[1] = (float)(rng.DoubleMinMax(-m_vSize.y, m_vSize.y) * 0.5) + vOffset.y;
-      p0[2] = (float)(rng.DoubleMinMax(-m_vSize.z, m_vSize.z) * 0.5) + vOffset.z;
+      p0[0] = (float)(rng.DoubleMinMax(-data.m_vSize.x, data.m_vSize.x) * 0.5) + vOffset.x;
+      p0[1] = (float)(rng.DoubleMinMax(-data.m_vSize.y, data.m_vSize.y) * 0.5) + vOffset.y;
+      p0[2] = (float)(rng.DoubleMinMax(-data.m_vSize.z, data.m_vSize.z) * 0.5) + vOffset.z;
 
       pos.Load<4>(p0);
 

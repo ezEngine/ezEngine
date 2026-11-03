@@ -9,36 +9,29 @@ using ezCurve1DResourceHandle = ezTypedResourceHandle<class ezCurve1DResource>;
 /// Initializer that sets random particle rotation speeds
 ///
 /// Optionally also sets a random starting rotation angle.
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomRotationSpeed final : public ezParticleInitializerFactory
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_RandomRotationSpeed, ezParticleInitializerFactory);
-
-public:
-  virtual const ezRTTI* GetInitializerType() const override;
-  virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const override;
-
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
-
-  bool m_bRandomStartAngle = false;
-  ezVarianceTypeAngle m_RotationSpeed;
-};
-
-
 class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomRotationSpeed final : public ezParticleInitializer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_RandomRotationSpeed, ezParticleInitializer);
 
 public:
+
+  virtual void Save(ezStreamWriter& inout_stream) const override;
+  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void CreateRequiredStreams(const ezParticleModuleContext& ctx) const override;
+  virtual void InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const override;
+
   bool m_bRandomStartAngle = false;
   ezVarianceTypeAngle m_RotationSpeed;
 
-  virtual void CreateRequiredStreams() override;
+private:
+  struct InstanceData
+  {
+    EZ_DECLARE_POD_TYPE();
 
-protected:
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
-
-  bool m_bPositiveSign = false;
-  ezProcessingStream* m_pStreamRotationSpeed = nullptr;
-  ezProcessingStream* m_pStreamRotationOffset = nullptr;
+    bool m_bPositiveSign;
+    ezProcessingStream* m_pStreamRotationSpeed;
+    ezProcessingStream* m_pStreamRotationOffset;
+  };
 };

@@ -13,9 +13,22 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezParticleEffectResource);
 ezParticleEffectResource::ezParticleEffectResource()
   : ezResource(DoUpdate::OnAnyThread, 1)
 {
+  m_pDesc = EZ_DEFAULT_NEW(ezParticleEffectResourceDescriptor);
 }
 
 ezParticleEffectResource::~ezParticleEffectResource() = default;
+
+const ezSharedPtr<const ezParticleEffectResourceDescriptor>& ezParticleEffectResource::GetDescriptor() const
+{
+  EZ_LOCK(m_DescMutex);
+  return m_pDesc;
+}
+
+void ezParticleEffectResource::SetDescriptor(const ezSharedPtr<const ezParticleEffectResourceDescriptor>& pDesc)
+{
+  EZ_LOCK(m_DescMutex);
+  m_pDesc = pDesc;
+}
 
 ezResourceLoadDesc ezParticleEffectResource::UnloadData(Unload WhatToUnload)
 {
@@ -49,7 +62,9 @@ ezResourceLoadDesc ezParticleEffectResource::UpdateContent(ezStreamReader* Strea
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
-  m_Desc.Load(*Stream);
+  ezSharedPtr<ezParticleEffectResourceDescriptor> pDesc = EZ_DEFAULT_NEW(ezParticleEffectResourceDescriptor);
+  pDesc->Load(*Stream);
+  SetDescriptor(pDesc);
 
   return res;
 }
@@ -63,7 +78,9 @@ void ezParticleEffectResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage
 
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezParticleEffectResource, ezParticleEffectResourceDescriptor)
 {
-  m_Desc = descriptor;
+  ezSharedPtr<ezParticleEffectResourceDescriptor> pDesc = EZ_DEFAULT_NEW(ezParticleEffectResourceDescriptor);
+  *pDesc = descriptor;
+  SetDescriptor(pDesc);
 
   ezResourceLoadDesc res;
   res.m_State = ezResourceState::Loaded;

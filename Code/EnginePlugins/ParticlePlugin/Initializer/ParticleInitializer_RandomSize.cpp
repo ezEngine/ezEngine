@@ -11,7 +11,7 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomSize, 3, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomSize>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_RandomSize, 3, ezRTTIDefaultAllocator<ezParticleInitializer_RandomSize>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -22,26 +22,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomSize, 3, ezRT
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_RandomSize, 1, ezRTTIDefaultAllocator<ezParticleInitializer_RandomSize>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-const ezRTTI* ezParticleInitializerFactory_RandomSize::GetInitializerType() const
-{
-  return ezGetStaticRTTI<ezParticleInitializer_RandomSize>();
-}
-
-void ezParticleInitializerFactory_RandomSize::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
-{
-  ezParticleInitializer_RandomSize* pInitializer = static_cast<ezParticleInitializer_RandomSize*>(pInitializer0);
-
-  pInitializer->m_hCurve = m_hCurve;
-  pInitializer->m_Size = m_Size;
-  pInitializer->m_sSizeScaleParameter = m_sSizeScaleParameter;
-}
-
-void ezParticleInitializerFactory_RandomSize::Save(ezStreamWriter& inout_stream) const
+void ezParticleInitializer_RandomSize::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 3;
   inout_stream << uiVersion;
@@ -52,7 +35,7 @@ void ezParticleInitializerFactory_RandomSize::Save(ezStreamWriter& inout_stream)
   inout_stream << m_sSizeScaleParameter;
 }
 
-void ezParticleInitializerFactory_RandomSize::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleInitializer_RandomSize::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -67,20 +50,30 @@ void ezParticleInitializerFactory_RandomSize::Load(ezStreamReader& inout_stream,
   }
 }
 
-void ezParticleInitializer_RandomSize::CreateRequiredStreams()
+bool ezParticleInitializer_RandomSize::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, true);
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleInitializer_RandomSize::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleInitializer_RandomSize::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sSize, ezProcessingStream::DataType::Half, &data.m_pStreamSize, true);
+}
+
+void ezParticleInitializer_RandomSize::InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Random Size");
 
-  ezFloat16* pSize = m_pStreamSize->GetWritableData<ezFloat16>();
+  ezFloat16* pSize = data.m_pStreamSize->GetWritableData<ezFloat16>();
 
-  ezRandom& rng = GetRNG();
+  ezRandom& rng = ctx.GetRNG();
 
-  const float fSizeScale = ezMath::Max(GetOwnerEffect()->GetFloatParameter(m_sSizeScaleParameter, 1.0f), 0.0f);
+  const float fSizeScale = ezMath::Max(ctx.GetEffect()->GetFloatParameter(m_sSizeScaleParameter, 1.0f), 0.0f);
 
   if (!m_hCurve.IsValid())
   {
@@ -126,10 +119,10 @@ void ezParticleInitializer_RandomSize::InitializeElements(ezUInt64 uiStartIndex,
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezParticleInitializerFactory_RandomSize_1_2 : public ezGraphPatch
+class ezParticleInitializer_RandomSize_1_2 : public ezGraphPatch
 {
 public:
-  ezParticleInitializerFactory_RandomSize_1_2()
+  ezParticleInitializer_RandomSize_1_2()
     : ezGraphPatch("ezParticleInitializerFactory_RandomSize", 2)
   {
   }
@@ -140,6 +133,6 @@ public:
   }
 };
 
-ezParticleInitializerFactory_RandomSize_1_2 g_ezParticleInitializerFactory_RandomSize_1_2;
+ezParticleInitializer_RandomSize_1_2 g_ezParticleInitializer_RandomSize_1_2;
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_RandomSize);

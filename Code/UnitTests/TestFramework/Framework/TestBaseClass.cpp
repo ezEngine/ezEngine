@@ -1,5 +1,6 @@
 #include <TestFramework/TestFrameworkPCH.h>
 
+#include <Foundation/Time/Clock.h>
 #include <TestFramework/Framework/TestFramework.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezTestBaseClass);
@@ -97,6 +98,15 @@ void ezTestBaseClass::DoTestDeInitialization()
 
 ezResult ezTestBaseClass::DoSubTestInitialization(ezInt32 iIdentifier)
 {
+  // Shaders read the global clock, e.g. for dithering. A fixed time step that restarts for every sub-test
+  // makes rendered images independent of the frame timing and of the tests that ran before.
+  // The clock doesn't exist yet in test executables that haven't started the base systems.
+  if (ezClock* pGlobalClock = ezClock::GetGlobalClock())
+  {
+    pGlobalClock->SetFixedTimeStep(ezTime::MakeFromSeconds(1.0 / 30.0));
+    pGlobalClock->Reset(false);
+  }
+
   try
   {
     if (InitializeSubTest(iIdentifier) == EZ_FAILURE)

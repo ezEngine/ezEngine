@@ -10,7 +10,7 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Flies, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Flies>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Flies, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Flies>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -22,32 +22,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Flies, 1, ezRTTIDefaul
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Flies, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Flies>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleBehaviorFactory_Flies::ezParticleBehaviorFactory_Flies() = default;
-ezParticleBehaviorFactory_Flies::~ezParticleBehaviorFactory_Flies() = default;
+ezParticleBehavior_Flies::ezParticleBehavior_Flies() = default;
+ezParticleBehavior_Flies::~ezParticleBehavior_Flies() = default;
 
-const ezRTTI* ezParticleBehaviorFactory_Flies::GetBehaviorType() const
+void ezParticleBehavior_Flies::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
-  return ezGetStaticRTTI<ezParticleBehavior_Flies>();
-}
-
-void ezParticleBehaviorFactory_Flies::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
-{
-  ezParticleBehavior_Flies* pBehavior = static_cast<ezParticleBehavior_Flies*>(pObject);
-
-  pBehavior->m_fSpeed = m_fSpeed;
-  pBehavior->m_fPathLength = m_fPathLength;
-  pBehavior->m_fMaxEmitterDistance = m_fMaxEmitterDistance;
-  pBehavior->m_MaxSteeringAngle = m_MaxSteeringAngle;
-}
-
-void ezParticleBehaviorFactory_Flies::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
-{
-  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizer_ApplyVelocity>());
 }
 
 enum class BehaviorFliesVersion
@@ -60,7 +42,7 @@ enum class BehaviorFliesVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleBehaviorFactory_Flies::Save(ezStreamWriter& inout_stream) const
+void ezParticleBehavior_Flies::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)BehaviorFliesVersion::Version_Current;
   inout_stream << uiVersion;
@@ -71,7 +53,7 @@ void ezParticleBehaviorFactory_Flies::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_MaxSteeringAngle;
 }
 
-void ezParticleBehaviorFactory_Flies::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleBehavior_Flies::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -84,31 +66,41 @@ void ezParticleBehaviorFactory_Flies::Load(ezStreamReader& inout_stream, const e
   inout_stream >> m_MaxSteeringAngle;
 }
 
-void ezParticleBehavior_Flies::CreateRequiredStreams()
+bool ezParticleBehavior_Flies::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
-
-  m_TimeToChangeDir = ezTime::MakeZero();
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
+void ezParticleBehavior_Flies::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sVelocity, ezProcessingStream::DataType::Half4, &data.m_pStreamVelocity, false);
+
+  data.m_TimeToChangeDir = ezTime::MakeZero();
+}
+
+void ezParticleBehavior_Flies::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Flies");
 
-  const ezTime tCur = GetOwnerEffect()->GetTotalEffectLifeTime();
-  const bool bChangeDirection = tCur >= m_TimeToChangeDir;
+  const ezTime tCur = ctx.GetEffect()->GetTotalEffectLifeTime();
+  const bool bChangeDirection = tCur >= data.m_TimeToChangeDir;
 
   if (!bChangeDirection)
     return;
 
-  m_TimeToChangeDir = tCur + ezTime::MakeFromSeconds(m_fPathLength / m_fSpeed);
+  data.m_TimeToChangeDir = tCur + ezTime::MakeFromSeconds(m_fPathLength / m_fSpeed);
 
-  const ezVec3 vEmitterPos = GetOwnerSystem()->GetTransform().m_vPosition;
+  const ezVec3 vEmitterPos = ctx.m_pSystem->GetTransform().m_vPosition;
   const float fMaxDistanceToEmitterSquared = ezMath::Square(m_fMaxEmitterDistance);
 
-  ezProcessingStreamIterator<ezVec4> itPosition(m_pStreamPosition, uiNumElements, 0);
-  ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
+  ezProcessingStreamIterator<ezVec4> itPosition(data.m_pStreamPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(data.m_pStreamVelocity, uiNumElements, 0);
 
   ezQuat qRot;
 
@@ -140,7 +132,7 @@ void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
     }
     else
     {
-      const ezVec3 newDir = ezVec3::MakeRandomDeviation(GetRNG(), m_MaxSteeringAngle, vDir);
+      const ezVec3 newDir = ezVec3::MakeRandomDeviation(ctx.GetRNG(), m_MaxSteeringAngle, vDir);
 
       itVelocity.Current() = ezVec4(newDir.x, newDir.y, newDir.z, m_fSpeed);
     }

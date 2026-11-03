@@ -15,7 +15,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Raycast, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Raycast>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Raycast, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Raycast>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -30,35 +30,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Raycast, 1, ezRTTIDefa
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Raycast, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Raycast>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleRaycastHitReaction, 1)
   EZ_ENUM_CONSTANTS(ezParticleRaycastHitReaction::Bounce, ezParticleRaycastHitReaction::Die, ezParticleRaycastHitReaction::Stop)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-ezParticleBehaviorFactory_Raycast::ezParticleBehaviorFactory_Raycast() = default;
-ezParticleBehaviorFactory_Raycast::~ezParticleBehaviorFactory_Raycast() = default;
-
-const ezRTTI* ezParticleBehaviorFactory_Raycast::GetBehaviorType() const
-{
-  return ezGetStaticRTTI<ezParticleBehavior_Raycast>();
-}
-
-void ezParticleBehaviorFactory_Raycast::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
-{
-  ezParticleBehavior_Raycast* pBehavior = static_cast<ezParticleBehavior_Raycast*>(pObject);
-
-  pBehavior->m_Reaction = m_Reaction;
-  pBehavior->m_uiCollisionLayer = m_uiCollisionLayer;
-  pBehavior->m_sOnCollideEvent = ezTempHashedString(m_sOnCollideEvent.GetData());
-  pBehavior->m_fBounceFactor = m_fBounceFactor;
-  pBehavior->m_fSlideFactor = m_fSlideFactor;
-  pBehavior->m_fSizeFactor = m_fSizeFactor;
-
-  pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
-}
+ezParticleBehavior_Raycast::~ezParticleBehavior_Raycast() = default;
 
 enum class BehaviorRaycastVersion
 {
@@ -74,7 +51,7 @@ enum class BehaviorRaycastVersion
 };
 
 
-void ezParticleBehaviorFactory_Raycast::Save(ezStreamWriter& inout_stream) const
+void ezParticleBehavior_Raycast::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)BehaviorRaycastVersion::Version_Current;
   inout_stream << uiVersion;
@@ -87,7 +64,7 @@ void ezParticleBehaviorFactory_Raycast::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_fSizeFactor;
 }
 
-void ezParticleBehaviorFactory_Raycast::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleBehavior_Raycast::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -113,13 +90,19 @@ void ezParticleBehaviorFactory_Raycast::Load(ezStreamReader& inout_stream, const
   }
 }
 
-void ezParticleBehaviorFactory_Raycast::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
+void ezParticleBehavior_Raycast::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
-  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
-  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_LastPosition>());
+  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizer_ApplyVelocity>());
+  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizer_LastPosition>());
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+bool ezParticleBehavior_Raycast::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+{
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
 
 ezParticleBehavior_Raycast::ezParticleBehavior_Raycast()
 {
@@ -127,30 +110,43 @@ ezParticleBehavior_Raycast::ezParticleBehavior_Raycast()
   m_fPriority = 526.0f;
 }
 
-void ezParticleBehavior_Raycast::CreateRequiredStreams()
+void ezParticleBehavior_Raycast::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("LastPosition", ezProcessingStream::DataType::Float3, &m_pStreamLastPosition, false);
-  CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sLastPosition, ezProcessingStream::DataType::Float3, &data.m_pStreamLastPosition, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sVelocity, ezProcessingStream::DataType::Half4, &data.m_pStreamVelocity, false);
 }
 
-void ezParticleBehavior_Raycast::QueryOptionalStreams()
+void ezParticleBehavior_Raycast::QueryOptionalStreams(const ezParticleModuleContext& ctx) const
 {
-  m_pStreamSize = GetOwnerSystem()->QueryStream("Size", ezProcessingStream::DataType::Half);
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  data.m_pStreamSize = ctx.m_pSystem->QueryStream(ezParticleStreamNames::s_sSize, ezProcessingStream::DataType::Half);
 }
 
-void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
+void ezParticleBehavior_Raycast::OnFinalize(const ezParticleModuleContext& ctx) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  data.m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)ctx.m_pSystem->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
+}
+
+void ezParticleBehavior_Raycast::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Raycast");
 
-  const float tDiff = (float)m_TimeDiff.GetSeconds();
+  const float tDiff = (float)ctx.GetTimeDiff().GetSeconds();
 
-  ezProcessingStreamIterator<ezVec4> itPosition(m_pStreamPosition, uiNumElements, 0);
-  ezProcessingStreamIterator<const ezVec3> itLastPosition(m_pStreamLastPosition, uiNumElements, 0);
-  ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
+  ezProcessingStreamIterator<ezVec4> itPosition(data.m_pStreamPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<const ezVec3> itLastPosition(data.m_pStreamLastPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(data.m_pStreamVelocity, uiNumElements, 0);
 
   ezFloat16 fDummySize = 0.0f;
-  const ezFloat16* pSize = m_pStreamSize != nullptr ? m_pStreamSize->GetData<ezFloat16>() : &fDummySize;
+  const ezFloat16* pSize = data.m_pStreamSize != nullptr ? data.m_pStreamSize->GetData<ezFloat16>() : &fDummySize;
 
   ezPhysicsCastResult hitResult;
 
@@ -174,7 +170,7 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
         ezPhysicsQueryParameters query(m_uiCollisionLayer);
         query.m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
 
-        if (m_pPhysicsModule != nullptr && m_pPhysicsModule->Raycast(hitResult, vLastPos, vDirection, fMaxLen + fSize, query))
+        if (data.m_pPhysicsModule != nullptr && data.m_pPhysicsModule->Raycast(hitResult, vLastPos, vDirection, fMaxLen + fSize, query))
         {
           hitResult.m_vPosition -= vDirection * fSize;
           const float fRemainingLen = (vCurPos - hitResult.m_vPosition).GetLength();
@@ -206,7 +202,7 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
           else if (m_Reaction == ezParticleRaycastHitReaction::Die)
           {
             /// \todo Get current element index from iterator ?
-            m_pStreamGroup->RemoveElement(i);
+            ctx.m_pSystem->RemoveParticle(i);
           }
           else if (m_Reaction == ezParticleRaycastHitReaction::Stop)
           {
@@ -222,13 +218,13 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
             e.m_vNormal = hitResult.m_vNormal;
             e.m_vDirection = vDirection;
 
-            GetOwnerEffect()->AddParticleEvent(e);
+            ctx.GetEffect()->AddParticleEvent(e);
           }
         }
 
         if constexpr (false)
         {
-          ezDebugRenderer::DrawLineSphere(m_pPhysicsModule->GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(itPosition.Current().GetAsVec3(), fSize), ezColor::Red);
+          ezDebugRenderer::DrawLineSphere(data.m_pPhysicsModule->GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(itPosition.Current().GetAsVec3(), fSize), ezColor::Red);
         }
       }
     }
@@ -237,14 +233,14 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
     itLastPosition.Advance();
     itVelocity.Advance();
 
-    if (m_pStreamSize != nullptr)
+    if (data.m_pStreamSize != nullptr)
       ++pSize;
 
     ++i;
   }
 }
 
-void ezParticleBehavior_Raycast::RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule)
+void ezParticleBehavior_Raycast::RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) const
 {
   pParticleModule->CacheWorldModule<ezPhysicsWorldModuleInterface>();
 }

@@ -10,7 +10,7 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_PullAlong, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_PullAlong>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_PullAlong, 1, ezRTTIDefaultAllocator<ezParticleBehavior_PullAlong>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -19,24 +19,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_PullAlong, 1, ezRTTIDe
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_PullAlong, 1, ezRTTIDefaultAllocator<ezParticleBehavior_PullAlong>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleBehaviorFactory_PullAlong::ezParticleBehaviorFactory_PullAlong() = default;
-
-const ezRTTI* ezParticleBehaviorFactory_PullAlong::GetBehaviorType() const
-{
-  return ezGetStaticRTTI<ezParticleBehavior_PullAlong>();
-}
-
-void ezParticleBehaviorFactory_PullAlong::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
-{
-  ezParticleBehavior_PullAlong* pBehavior = static_cast<ezParticleBehavior_PullAlong*>(pObject);
-
-  pBehavior->m_fStrength = ezMath::Clamp(m_fStrength, 0.0f, 1.0f);
-}
+ezParticleBehavior_PullAlong::ezParticleBehavior_PullAlong() = default;
 
 enum class BehaviorPullAlongVersion
 {
@@ -47,7 +32,7 @@ enum class BehaviorPullAlongVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleBehaviorFactory_PullAlong::Save(ezStreamWriter& inout_stream) const
+void ezParticleBehavior_PullAlong::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)BehaviorPullAlongVersion::Version_Current;
   inout_stream << uiVersion;
@@ -55,7 +40,7 @@ void ezParticleBehaviorFactory_PullAlong::Save(ezStreamWriter& inout_stream) con
   inout_stream << m_fStrength;
 }
 
-void ezParticleBehaviorFactory_PullAlong::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleBehavior_PullAlong::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -65,24 +50,48 @@ void ezParticleBehaviorFactory_PullAlong::Load(ezStreamReader& inout_stream, con
   inout_stream >> m_fStrength;
 }
 
-void ezParticleBehavior_PullAlong::CreateRequiredStreams()
+bool ezParticleBehavior_PullAlong::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  m_bFirstTime = true;
-  m_vApplyPull.SetZero();
-
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleBehavior_PullAlong::Process(ezUInt64 uiNumElements)
+void ezParticleBehavior_PullAlong::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  data.m_bFirstTime = true;
+  data.m_vApplyPull.SetZero();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
+}
+
+void ezParticleBehavior_PullAlong::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: PullAlong");
 
-  if (m_vApplyPull.IsZero())
+  const ezVec3 vPos = ctx.m_pSystem->GetTransform().m_vPosition;
+
+  if (!data.m_bFirstTime)
+  {
+    data.m_vApplyPull = (vPos - data.m_vLastEmitterPosition) * ezMath::Clamp(m_fStrength, 0.0f, 1.0f);
+  }
+  else
+  {
+    data.m_bFirstTime = false;
+    data.m_vApplyPull.SetZero();
+  }
+
+  data.m_vLastEmitterPosition = vPos;
+
+  if (data.m_vApplyPull.IsZero())
     return;
 
-  ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<ezSimdVec4f> itPosition(data.m_pStreamPosition, uiNumElements, 0);
   ezSimdVec4f pull;
-  pull.Load<3>(&m_vApplyPull.x);
+  pull.Load<3>(&data.m_vApplyPull.x);
 
   while (!itPosition.HasReachedEnd())
   {
@@ -90,23 +99,6 @@ void ezParticleBehavior_PullAlong::Process(ezUInt64 uiNumElements)
 
     itPosition.Advance();
   }
-}
-
-void ezParticleBehavior_PullAlong::StepParticleSystem(const ezTime& tDiff, ezUInt32 uiNumNewParticles)
-{
-  const ezVec3 vPos = GetOwnerSystem()->GetTransform().m_vPosition;
-
-  if (!m_bFirstTime)
-  {
-    m_vApplyPull = (vPos - m_vLastEmitterPosition) * m_fStrength;
-  }
-  else
-  {
-    m_bFirstTime = false;
-    m_vApplyPull.SetZero();
-  }
-
-  m_vLastEmitterPosition = vPos;
 }
 
 

@@ -7,7 +7,7 @@
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Opacity, 2, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Opacity>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Opacity, 2, ezRTTIDefaultAllocator<ezParticleBehavior_Opacity>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -18,24 +18,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Opacity, 2, ezRTTIDefa
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Opacity, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Opacity>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-const ezRTTI* ezParticleBehaviorFactory_Opacity::GetBehaviorType() const
-{
-  return ezGetStaticRTTI<ezParticleBehavior_Opacity>();
-}
-
-void ezParticleBehaviorFactory_Opacity::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
-{
-  ezParticleBehavior_Opacity* pBehavior = static_cast<ezParticleBehavior_Opacity*>(pObject);
-
-  pBehavior->m_pCurve = &m_RuntimeCurve;
-}
-
-void ezParticleBehaviorFactory_Opacity::Save(ezStreamWriter& inout_stream) const
+void ezParticleBehavior_Opacity::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 1;
   inout_stream << uiVersion;
@@ -48,7 +33,7 @@ void ezParticleBehaviorFactory_Opacity::Save(ezStreamWriter& inout_stream) const
   m_RuntimeCurve.Save(inout_stream);
 }
 
-void ezParticleBehaviorFactory_Opacity::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleBehavior_Opacity::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -70,41 +55,51 @@ void ezParticleBehaviorFactory_Opacity::Load(ezStreamReader& inout_stream, const
   }
 }
 
-void ezParticleBehavior_Opacity::CreateRequiredStreams()
+bool ezParticleBehavior_Opacity::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
-  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleBehavior_Opacity::Process(ezUInt64 uiNumElements)
+void ezParticleBehavior_Opacity::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
-  if (!GetOwnerEffect()->IsVisible())
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sLifeTime, ezProcessingStream::DataType::Half2, &data.m_pStreamLifeTime, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sColor, ezProcessingStream::DataType::Half4, &data.m_pStreamColor, false);
+}
+
+void ezParticleBehavior_Opacity::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  if (!ctx.GetEffect()->IsVisible())
   {
     // When invisible, don't update at all. Set the interval to 1 so that once
     // the effect becomes visible, all particles get fully updated on the next frame.
-    m_uiCurrentUpdateInterval = 1;
-    m_uiFirstToUpdate = 0;
+    data.m_uiCurrentUpdateInterval = 1;
+    data.m_uiFirstToUpdate = 0;
     return;
   }
 
-  if (m_pCurve == nullptr || m_pCurve->IsEmpty())
+  if (m_RuntimeCurve.IsEmpty())
     return;
 
   EZ_PROFILE_SCOPE("PFX: Opacity");
 
-  ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
-  ezProcessingStreamIterator<ezColorLinear16f> itColor(m_pStreamColor, uiNumElements, 0);
+  ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(data.m_pStreamLifeTime, uiNumElements, 0);
+  ezProcessingStreamIterator<ezColorLinear16f> itColor(data.m_pStreamColor, uiNumElements, 0);
 
   double fMinX, fMaxX;
-  m_pCurve->QueryExtents(fMinX, fMaxX);
+  m_RuntimeCurve.QueryExtents(fMinX, fMaxX);
 
   // make sure the curve has a length of at least 1
   fMinX = ezMath::Min(fMinX, 0.0);
   fMaxX = ezMath::Max(fMaxX, 1.0);
 
   // skip the first n particles
-  itLifeTime.Advance(m_uiFirstToUpdate);
-  itColor.Advance(m_uiFirstToUpdate);
+  itLifeTime.Advance(data.m_uiFirstToUpdate);
+  itColor.Advance(data.m_uiFirstToUpdate);
 
   while (!itLifeTime.HasReachedEnd())
   {
@@ -112,26 +107,26 @@ void ezParticleBehavior_Opacity::Process(ezUInt64 uiNumElements)
     const float fInvParticleAge = itLifeTime.Current().x * itLifeTime.Current().y;
 
     const double evalPos = ezMath::Lerp(fMaxX, fMinX, fInvParticleAge);
-    const float fOpacity = (float)m_pCurve->Evaluate(evalPos);
+    const float fOpacity = (float)m_RuntimeCurve.Evaluate(evalPos);
 
     itColor.Current().a = ezMath::Clamp(fOpacity, 0.0f, 1.0f);
 
     // skip the next n items
     // this is to reduce the number of particles that need to be fully evaluated,
     // since sampling the curve is expensive
-    itLifeTime.Advance(m_uiCurrentUpdateInterval);
-    itColor.Advance(m_uiCurrentUpdateInterval);
+    itLifeTime.Advance(data.m_uiCurrentUpdateInterval);
+    itColor.Advance(data.m_uiCurrentUpdateInterval);
   }
 
   // adjust which index is the first to update
   {
-    ++m_uiFirstToUpdate;
-    if (m_uiFirstToUpdate >= m_uiCurrentUpdateInterval)
-      m_uiFirstToUpdate = 0;
+    ++data.m_uiFirstToUpdate;
+    if (data.m_uiFirstToUpdate >= data.m_uiCurrentUpdateInterval)
+      data.m_uiFirstToUpdate = 0;
   }
 
   // reset the update interval to the default
-  m_uiCurrentUpdateInterval = 2;
+  data.m_uiCurrentUpdateInterval = 2;
 }
 
 

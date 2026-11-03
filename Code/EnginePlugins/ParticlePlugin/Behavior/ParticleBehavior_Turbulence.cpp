@@ -9,7 +9,7 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Turbulence, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Turbulence>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Turbulence, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Turbulence>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -22,38 +22,19 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Turbulence, 1, ezRTTID
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Turbulence, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Turbulence>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleBehaviorFactory_Turbulence::ezParticleBehaviorFactory_Turbulence() = default;
+ezParticleBehavior_Turbulence::ezParticleBehavior_Turbulence() = default;
 
-const ezRTTI* ezParticleBehaviorFactory_Turbulence::GetBehaviorType() const
-{
-  return ezGetStaticRTTI<ezParticleBehavior_Turbulence>();
-}
-
-void ezParticleBehaviorFactory_Turbulence::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
-{
-  ezParticleBehavior_Turbulence* pBehavior = static_cast<ezParticleBehavior_Turbulence*>(pObject);
-
-  pBehavior->m_fStrength = m_fStrength;
-  pBehavior->m_fFrequency = m_fFrequency;
-  pBehavior->m_vScrollSpeed = m_vScrollSpeed;
-  pBehavior->m_uiOctaves = m_uiOctaves;
-  pBehavior->m_bAffectVelocity = m_bAffectVelocity;
-}
-
-void ezParticleBehaviorFactory_Turbulence::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
+void ezParticleBehavior_Turbulence::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
   if (m_bAffectVelocity)
   {
-    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizer_ApplyVelocity>());
   }
 }
 
-void ezParticleBehaviorFactory_Turbulence::Save(ezStreamWriter& inout_stream) const
+void ezParticleBehavior_Turbulence::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 1;
   inout_stream << uiVersion;
@@ -65,7 +46,7 @@ void ezParticleBehaviorFactory_Turbulence::Save(ezStreamWriter& inout_stream) co
   inout_stream << m_bAffectVelocity;
 }
 
-void ezParticleBehaviorFactory_Turbulence::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleBehavior_Turbulence::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -79,40 +60,52 @@ void ezParticleBehaviorFactory_Turbulence::Load(ezStreamReader& inout_stream, co
   inout_stream >> m_bAffectVelocity;
 }
 
-void ezParticleBehavior_Turbulence::OnFinalize()
+bool ezParticleBehavior_Turbulence::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  m_Noise.Initialize(GetOwnerEffect()->GetRNG());
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleBehavior_Turbulence::CreateRequiredStreams()
+void ezParticleBehavior_Turbulence::OnFinalize(const ezParticleModuleContext& ctx) const
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  data.m_Noise.Initialize(ctx.GetRNG());
+}
+
+void ezParticleBehavior_Turbulence::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
 
   if (m_bAffectVelocity)
   {
-    CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sVelocity, ezProcessingStream::DataType::Half4, &data.m_pStreamVelocity, false);
   }
 }
 
-void ezParticleBehavior_Turbulence::Process(ezUInt64 uiNumElements)
+void ezParticleBehavior_Turbulence::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: NoiseForce");
 
-  const float tDiff = m_TimeDiff.AsFloatInSeconds();
+  const float tDiff = ctx.GetTimeDiff().AsFloatInSeconds();
   if (tDiff <= 0.0f)
     return;
 
-  m_TotalTime += m_TimeDiff;
+  data.m_TotalTime += ctx.GetTimeDiff();
 
   const float freq = m_fFrequency;
-  const ezVec3 scroll = m_vScrollSpeed * m_TotalTime.AsFloatInSeconds();
+  const ezVec3 scroll = m_vScrollSpeed * data.m_TotalTime.AsFloatInSeconds();
 
   // Small offsets for curl noise approximation: sample noise at 3 different offsets
   // to get uncorrelated X, Y, Z force components
   const float kOffset1 = 31.416f;
   const float kOffset2 = 67.123f;
 
-  ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<ezSimdVec4f> itPosition(data.m_pStreamPosition, uiNumElements, 0);
 
   const ezSimdVec4f constHalf(0.5f);
   const ezSimdVec4f constMul(2.0f * m_fStrength * tDiff);
@@ -123,7 +116,7 @@ void ezParticleBehavior_Turbulence::Process(ezUInt64 uiNumElements)
 
   if (m_bAffectVelocity)
   {
-    ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
+    ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(data.m_pStreamVelocity, uiNumElements, 0);
 
     while (!itPosition.HasReachedEnd())
     {
@@ -137,7 +130,7 @@ void ezParticleBehavior_Turbulence::Process(ezUInt64 uiNumElements)
 
       // Sample noise at 3 offset positions for curl-noise approximation
       // Each component uses a different spatial offset to get uncorrelated values
-      const ezSimdVec4f noise = m_Noise.NoiseZeroToOne(ezSimdVec4f(sx, sx + kOffset1, sx + kOffset2, 0), ezSimdVec4f(sy, sy + kOffset1, sy + kOffset2, 0), ezSimdVec4f(sz, sz + kOffset1, sz + kOffset2, 0), m_uiOctaves);
+      const ezSimdVec4f noise = data.m_Noise.NoiseZeroToOne(ezSimdVec4f(sx, sx + kOffset1, sx + kOffset2, 0), ezSimdVec4f(sy, sy + kOffset1, sy + kOffset2, 0), ezSimdVec4f(sz, sz + kOffset1, sz + kOffset2, 0), m_uiOctaves);
 
       // Map [0,1] -> [-1,1]; velocity is stored as (dirX, dirY, dirZ, speed)
       const ezSimdVec4f forceSimd = (noise - constHalf).CompMul(constMul);
@@ -170,7 +163,7 @@ void ezParticleBehavior_Turbulence::Process(ezUInt64 uiNumElements)
       const float sy = sPos.GetComponent<1>();
       const float sz = sPos.GetComponent<2>();
 
-      const ezSimdVec4f noise = m_Noise.NoiseZeroToOne(ezSimdVec4f(sx, sx + kOffset1, sx + kOffset2, 0), ezSimdVec4f(sy, sy + kOffset1, sy + kOffset2, 0), ezSimdVec4f(sz, sz + kOffset1, sz + kOffset2, 0), m_uiOctaves);
+      const ezSimdVec4f noise = data.m_Noise.NoiseZeroToOne(ezSimdVec4f(sx, sx + kOffset1, sx + kOffset2, 0), ezSimdVec4f(sy, sy + kOffset1, sy + kOffset2, 0), ezSimdVec4f(sz, sz + kOffset1, sz + kOffset2, 0), m_uiOctaves);
 
       const ezSimdVec4f offset = (noise - constHalf).CompMul(constMul);
 

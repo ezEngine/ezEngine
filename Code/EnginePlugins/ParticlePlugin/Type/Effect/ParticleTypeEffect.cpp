@@ -7,7 +7,7 @@
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeEffectFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeEffectFactory>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeEffect, 1, ezRTTIDefaultAllocator<ezParticleTypeEffect>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -17,33 +17,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeEffectFactory, 1, ezRTTIDefaultAll
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeEffect, 1, ezRTTIDefaultAllocator<ezParticleTypeEffect>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleTypeEffectFactory::ezParticleTypeEffectFactory() = default;
-ezParticleTypeEffectFactory::~ezParticleTypeEffectFactory() = default;
-
-const ezRTTI* ezParticleTypeEffectFactory::GetTypeType() const
-{
-  return ezGetStaticRTTI<ezParticleTypeEffect>();
-}
-
-void ezParticleTypeEffectFactory::CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const
-{
-  ezParticleTypeEffect* pType = static_cast<ezParticleTypeEffect*>(pObject);
-
-  pType->m_hEffect = m_hEffect;
-
-  // pType->m_sSharedInstanceName = m_sSharedInstanceName;
-
-
-  if (bFirstTime)
-  {
-    pType->GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeEffect::OnParticleDeath, pType));
-  }
-}
+ezParticleTypeEffect::ezParticleTypeEffect() = default;
+ezParticleTypeEffect::~ezParticleTypeEffect() = default;
 
 enum class TypeEffectVersion
 {
@@ -56,7 +33,7 @@ enum class TypeEffectVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleTypeEffectFactory::Save(ezStreamWriter& inout_stream) const
+void ezParticleTypeEffect::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)TypeEffectVersion::Version_Current;
   inout_stream << uiVersion;
@@ -68,7 +45,7 @@ void ezParticleTypeEffectFactory::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_sSharedInstanceName;
 }
 
-void ezParticleTypeEffectFactory::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleTypeEffect::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -92,36 +69,34 @@ void ezParticleTypeEffectFactory::Load(ezStreamReader& inout_stream, const ezPar
 }
 
 
-ezParticleTypeEffect::ezParticleTypeEffect() = default;
-
-ezParticleTypeEffect::~ezParticleTypeEffect()
+bool ezParticleTypeEffect::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  if (m_pStreamPosition != nullptr)
-  {
-    GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeEffect::OnParticleDeath, this));
-
-    ClearEffects(true);
-  }
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleTypeEffect::CreateRequiredStreams()
+void ezParticleTypeEffect::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("EffectID", ezProcessingStream::DataType::Int, &m_pStreamEffectID, false);
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sEffectID, ezProcessingStream::DataType::Int, &data.m_pStreamEffectID, false);
 }
 
-void ezParticleTypeEffect::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
+void ezParticleTypeEffect::ExtractTypeRenderData(const ezParticleModuleContext& ctx, ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Effect");
 
-  const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
+  const ezUInt32 numParticles = (ezUInt32)ctx.m_pSystem->GetNumActiveParticles();
 
   if (numParticles == 0)
     return;
 
-  const ezUInt32* pEffectID = m_pStreamEffectID->GetData<ezUInt32>();
+  const ezUInt32* pEffectID = data.m_pStreamEffectID->GetData<ezUInt32>();
 
-  const ezParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
+  const ezParticleWorldModule* pWorldModule = ctx.GetEffect()->GetOwnerWorldModule();
 
   for (ezUInt32 i = 0; i < numParticles; ++i)
   {
@@ -135,26 +110,33 @@ void ezParticleTypeEffect::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg
   }
 }
 
-void ezParticleTypeEffect::OnReset()
+void ezParticleTypeEffect::OnFinalize(const ezParticleModuleContext& ctx) const
 {
-  ClearEffects(true);
+  ClearEffects(ctx, true);
 }
 
-void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
+void ezParticleTypeEffect::OnDeinitialize(const ezParticleModuleContext& ctx) const
 {
+  ClearEffects(ctx, true);
+}
+
+void ezParticleTypeEffect::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Effect");
 
   if (!m_hEffect.IsValid())
     return;
 
-  const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
-  ezUInt32* pEffectID = m_pStreamEffectID->GetWritableData<ezUInt32>();
+  const ezVec4* pPosition = data.m_pStreamPosition->GetData<ezVec4>();
+  ezUInt32* pEffectID = data.m_pStreamEffectID->GetWritableData<ezUInt32>();
 
-  ezParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
+  ezParticleWorldModule* pWorldModule = ctx.GetEffect()->GetOwnerWorldModule();
 
-  m_fMaxEffectRadius = 0.0f;
+  data.m_fMaxEffectRadius = 0.0f;
 
-  const ezUInt64 uiRandomSeed = GetOwnerEffect()->GetRandomSeed();
+  const ezUInt64 uiRandomSeed = ctx.GetEffect()->GetRandomSeed();
 
   for (ezUInt32 i = 0; i < uiNumElements; ++i)
   {
@@ -177,43 +159,47 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
       t.m_vPosition = pPosition[i].GetAsVec3();
 
       // TODO: pass through velocity
-      pEffect->SetVisibleIf(GetOwnerEffect());
+      pEffect->SetVisibleIf(ctx.GetEffect());
 
       // so that the modules of the spawned effect can use the owner as well, e.g. its mesh
       // owner messages (e.g. animation poses) are not forwarded to spawned effects
-      pEffect->SetOwnerObject(GetOwnerEffect()->GetOwnerObject());
+      pEffect->SetOwnerObject(ctx.GetEffect()->GetOwnerObject());
       pEffect->SetTransformForNextFrame(t, ezVec3::MakeZero());
 
       ezBoundingBoxSphere bounds;
       pEffect->GetBoundingVolume(bounds);
 
-      m_fMaxEffectRadius = ezMath::Max(m_fMaxEffectRadius, bounds.m_fSphereRadius);
+      data.m_fMaxEffectRadius = ezMath::Max(data.m_fMaxEffectRadius, bounds.m_fSphereRadius);
     }
   }
 }
 
-void ezParticleTypeEffect::OnParticleDeath(const ezStreamGroupElementRemovedEvent& e)
+void ezParticleTypeEffect::OnParticleDeath(const ezParticleModuleContext& ctx, ezUInt64 uiElementIndex) const
 {
-  ezParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
 
-  const ezUInt32* pEffectID = m_pStreamEffectID->GetData<ezUInt32>();
+  ezParticleWorldModule* pWorldModule = ctx.GetEffect()->GetOwnerWorldModule();
 
-  ezParticleEffectHandle hInstance = ezParticleEffectHandle(ezParticleEffectId(pEffectID[e.m_uiElementIndex]));
+  const ezUInt32* pEffectID = data.m_pStreamEffectID->GetData<ezUInt32>();
+
+  ezParticleEffectHandle hInstance = ezParticleEffectHandle(ezParticleEffectId(pEffectID[uiElementIndex]));
 
   pWorldModule->DestroyEffectInstance(hInstance, false, nullptr);
 }
 
-void ezParticleTypeEffect::ClearEffects(bool bInterruptImmediately)
+void ezParticleTypeEffect::ClearEffects(const ezParticleModuleContext& ctx, bool bInterruptImmediately)
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   // delete all effects that are still in the processing group
 
-  ezParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
-  const ezUInt64 uiNumParticles = GetOwnerSystem()->GetNumActiveParticles();
+  ezParticleWorldModule* pWorldModule = ctx.GetEffect()->GetOwnerWorldModule();
+  const ezUInt64 uiNumParticles = ctx.m_pSystem->GetNumActiveParticles();
 
-  if (uiNumParticles == 0 || m_pStreamEffectID == nullptr)
+  if (uiNumParticles == 0 || data.m_pStreamEffectID == nullptr)
     return;
 
-  ezUInt32* pEffectID = m_pStreamEffectID->GetWritableData<ezUInt32>();
+  ezUInt32* pEffectID = data.m_pStreamEffectID->GetWritableData<ezUInt32>();
 
   for (ezUInt32 elemIdx = 0; elemIdx < uiNumParticles; ++elemIdx)
   {

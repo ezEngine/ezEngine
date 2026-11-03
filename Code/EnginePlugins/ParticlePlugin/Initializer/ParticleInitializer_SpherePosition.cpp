@@ -10,7 +10,7 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_SpherePosition, 2, ezRTTIDefaultAllocator<ezParticleInitializerFactory_SpherePosition>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_SpherePosition, 2, ezRTTIDefaultAllocator<ezParticleInitializer_SpherePosition>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -30,12 +30,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_SpherePosition, 2, 
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_SpherePosition, 1, ezRTTIDefaultAllocator<ezParticleInitializer_SpherePosition>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleInitializerFactory_SpherePosition::ezParticleInitializerFactory_SpherePosition()
+ezParticleInitializer_SpherePosition::ezParticleInitializer_SpherePosition()
 {
   m_fRadius = 0.25f;
   m_vPositionOffset.SetZero();
@@ -43,29 +40,9 @@ ezParticleInitializerFactory_SpherePosition::ezParticleInitializerFactory_Sphere
   m_bSetVelocity = false;
 }
 
-const ezRTTI* ezParticleInitializerFactory_SpherePosition::GetInitializerType() const
+float ezParticleInitializer_SpherePosition::GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const
 {
-  return ezGetStaticRTTI<ezParticleInitializer_SpherePosition>();
-}
-
-void ezParticleInitializerFactory_SpherePosition::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
-{
-  ezParticleInitializer_SpherePosition* pInitializer = static_cast<ezParticleInitializer_SpherePosition*>(pInitializer0);
-
-  const float fScale = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleRadiusParameter.GetData()), 1.0f);
-
-  pInitializer->m_fRadius = ezMath::Max(m_fRadius * fScale, 0.01f); // prevent 0 radius
-  pInitializer->m_bSpawnOnSurface = m_bSpawnOnSurface;
-  pInitializer->m_bSetVelocity = m_bSetVelocity;
-  pInitializer->m_Speed = m_Speed;
-  pInitializer->m_vPositionOffset = m_vPositionOffset;
-  pInitializer->m_bUseSpawnArea = m_bUseSpawnArea;
-  pInitializer->m_fRadiusScale = fScale;
-}
-
-float ezParticleInitializerFactory_SpherePosition::GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const
-{
-  const float fScale = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleRadiusParameter.GetData()), 1.0f);
+  const float fScale = pEffect->GetFloatParameter(m_sScaleRadiusParameter, 1.0f);
 
   if (m_fRadius != 0.0f && fScale != 1.0f)
   {
@@ -93,7 +70,7 @@ float ezParticleInitializerFactory_SpherePosition::GetSpawnCountMultiplier(const
   return 1.0f;
 }
 
-void ezParticleInitializerFactory_SpherePosition::Save(ezStreamWriter& inout_stream) const
+void ezParticleInitializer_SpherePosition::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 4;
   inout_stream << uiVersion;
@@ -114,7 +91,7 @@ void ezParticleInitializerFactory_SpherePosition::Save(ezStreamWriter& inout_str
   inout_stream << m_bUseSpawnArea;
 }
 
-void ezParticleInitializerFactory_SpherePosition::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleInitializer_SpherePosition::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -141,104 +118,118 @@ void ezParticleInitializerFactory_SpherePosition::Load(ezStreamReader& inout_str
   }
 }
 
-void ezParticleInitializerFactory_SpherePosition::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
+void ezParticleInitializer_SpherePosition::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
   if (m_bSetVelocity)
   {
-    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizer_ApplyVelocity>());
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezParticleInitializer_SpherePosition::CreateRequiredStreams()
+bool ezParticleInitializer_SpherePosition::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, true);
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
 
-  m_pStreamVelocity = nullptr;
+void ezParticleInitializer_SpherePosition::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, true);
+
+  data.m_pStreamVelocity = nullptr;
 
   if (m_bSetVelocity)
   {
-    CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, true);
+    ctx.CreateStream(ezParticleStreamNames::s_sVelocity, ezProcessingStream::DataType::Half4, &data.m_pStreamVelocity, true);
   }
 }
 
-void ezParticleInitializer_SpherePosition::OnFinalize()
+void ezParticleInitializer_SpherePosition::OnFinalize(const ezParticleModuleContext& ctx) const
 {
-  if (m_bUseSpawnArea)
-  {
-    RequestUpdateFromWorld();
-  }
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  const float fScale = ctx.GetEffect()->GetFloatParameter(m_sScaleRadiusParameter, 1.0f);
+
+  data.m_fRadius = ezMath::Max(m_fRadius * fScale, 0.01f); // prevent 0 radius
+  data.m_fRadiusScale = fScale;
+  data.m_Area.Reset();
 }
 
-void ezParticleInitializer_SpherePosition::OnReset()
+void ezParticleInitializer_SpherePosition::UpdateFromWorld(const ezParticleModuleContext& ctx, const ezWorld& world, ezGameObjectHandle hOwnerObject) const
 {
-  m_Area.Reset();
-}
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
 
-void ezParticleInitializer_SpherePosition::UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject)
-{
-  const ezParticleSphereAreaComponent* pArea = m_Area.Update<ezParticleSphereAreaComponent>(world, *GetOwnerEffect());
+  const ezParticleSphereAreaComponent* pArea = data.m_Area.Update<ezParticleSphereAreaComponent>(world, *ctx.GetEffect());
 
   // if the area is gone, the last values stay in use, the spawn counts were scaled for them
   if (pArea == nullptr)
     return;
 
-  const float fAreaRadius = ezMath::Max(pArea->m_fRadius * m_fRadiusScale, 0.01f); // prevent 0 radius
+  const float fAreaRadius = ezMath::Max(pArea->m_fRadius * data.m_fRadiusScale, 0.01f); // prevent 0 radius
 
-  if (!m_Area.IsAreaUsed())
+  if (!data.m_Area.IsAreaUsed())
   {
     // the scale of the area relative to the effect, the scale of the effect itself applies to both shapes
     // with non-uniform scale, the surface area is approximated
-    const ezVec3 vAreaScale = m_Area.GetTransform().m_vScale.Abs();
+    const ezVec3 vAreaScale = data.m_Area.GetTransform().m_vScale.Abs();
     const float fVolumeScale = vAreaScale.x * vAreaScale.y * vAreaScale.z;
 
-    // m_fRadius is still the radius of the initializer here
-    const float fRadiusRatio = fAreaRadius / m_fRadius;
+    // data.m_fRadius is still the radius of the initializer here
+    const float fRadiusRatio = fAreaRadius / data.m_fRadius;
 
     if (m_bSpawnOnSurface)
     {
-      m_Area.UseArea(pArea->m_fSpawnScale * fRadiusRatio * fRadiusRatio * ezMath::Pow(fVolumeScale, 2.0f / 3.0f));
+      data.m_Area.UseArea(pArea->m_fSpawnScale * fRadiusRatio * fRadiusRatio * ezMath::Pow(fVolumeScale, 2.0f / 3.0f));
     }
     else
     {
-      m_Area.UseArea(pArea->m_fSpawnScale * fRadiusRatio * fRadiusRatio * fRadiusRatio * fVolumeScale);
+      data.m_Area.UseArea(pArea->m_fSpawnScale * fRadiusRatio * fRadiusRatio * fRadiusRatio * fVolumeScale);
     }
   }
 
-  m_fRadius = fAreaRadius;
+  data.m_fRadius = fAreaRadius;
 }
 
-bool ezParticleInitializer_SpherePosition::PrepareToSpawn()
+bool ezParticleInitializer_SpherePosition::PrepareToSpawn(const ezParticleModuleContext& ctx) const
 {
-  return !m_bUseSpawnArea || m_Area.IsReady(*GetOwnerEffect());
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  return !m_bUseSpawnArea || data.m_Area.IsReady(*ctx.GetEffect());
 }
 
-float ezParticleInitializer_SpherePosition::GetSpawnCountMultiplier() const
+float ezParticleInitializer_SpherePosition::GetInstanceSpawnCountMultiplier(const ezParticleModuleContext& ctx) const
 {
-  return m_Area.GetSpawnCountMultiplier();
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  return data.m_Area.GetSpawnCountMultiplier();
 }
 
-void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleInitializer_SpherePosition::InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Sphere Position");
 
-  const ezVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
+  const ezVec3 startVel = ctx.m_pSystem->GetParticleStartVelocity();
   const float fStartSpeed = startVel.GetLength();
   const ezVec3 startDir = fStartSpeed > 0.0f ? startVel / fStartSpeed : ezVec3(0, 0, 1);
 
-  ezVec4* pPosition = m_pStreamPosition->GetWritableData<ezVec4>();
-  ezFloat16Vec4* pVelocity = m_bSetVelocity ? m_pStreamVelocity->GetWritableData<ezFloat16Vec4>() : nullptr;
+  ezVec4* pPosition = data.m_pStreamPosition->GetWritableData<ezVec4>();
+  ezFloat16Vec4* pVelocity = m_bSetVelocity ? data.m_pStreamVelocity->GetWritableData<ezFloat16Vec4>() : nullptr;
 
-  ezRandom& rng = GetRNG();
+  ezRandom& rng = ctx.GetRNG();
 
   // the position offset is already part of the area transform
-  const ezTransform trans = m_Area.IsAreaUsed() ? GetOwnerSystem()->GetTransform() * m_Area.GetTransformWithOffset(m_vPositionOffset) : GetOwnerSystem()->GetTransform();
-  const ezVec3 vOffset = m_Area.IsAreaUsed() ? ezVec3::MakeZero() : m_vPositionOffset;
+  const ezTransform trans = data.m_Area.IsAreaUsed() ? ctx.m_pSystem->GetTransform() * data.m_Area.GetTransformWithOffset(m_vPositionOffset) : ctx.m_pSystem->GetTransform();
+  const ezVec3 vOffset = data.m_Area.IsAreaUsed() ? ezVec3::MakeZero() : m_vPositionOffset;
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
-    ezVec3 pos = ezVec3::MakeRandomPointInSphere(rng) * m_fRadius;
+    ezVec3 pos = ezVec3::MakeRandomPointInSphere(rng) * data.m_fRadius;
     ezVec3 normalPos = pos;
 
     if (m_bSpawnOnSurface || m_bSetVelocity)
@@ -247,7 +238,7 @@ void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIn
     }
 
     if (m_bSpawnOnSurface)
-      pos = normalPos * m_fRadius;
+      pos = normalPos * data.m_fRadius;
 
     pos += vOffset;
 
@@ -268,10 +259,10 @@ void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIn
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezParticleInitializerFactory_SpherePosition_1_2 : public ezGraphPatch
+class ezParticleInitializer_SpherePosition_1_2 : public ezGraphPatch
 {
 public:
-  ezParticleInitializerFactory_SpherePosition_1_2()
+  ezParticleInitializer_SpherePosition_1_2()
     : ezGraphPatch("ezParticleInitializerFactory_SpherePosition", 2)
   {
   }
@@ -282,6 +273,6 @@ public:
   }
 };
 
-ezParticleInitializerFactory_SpherePosition_1_2 g_ezParticleInitializerFactory_SpherePosition_1_2;
+ezParticleInitializer_SpherePosition_1_2 g_ezParticleInitializer_SpherePosition_1_2;
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_SpherePosition);

@@ -1,41 +1,19 @@
 #pragma once
 
-#include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <ParticlePlugin/Module/ParticleModule.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-class ezProcessingStream;
-class ezParticleSystemInstance;
-class ezParticleBehavior;
-
 /// Base class for all particle behaviors
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory : public ezReflectedClass
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory, ezReflectedClass);
-
-public:
-  virtual const ezRTTI* GetBehaviorType() const = 0;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const = 0;
-
-  ezParticleBehavior* CreateBehavior(ezParticleSystemInstance* pOwner) const;
-
-  virtual void Save(ezStreamWriter& inout_stream) const = 0;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) = 0;
-
-  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const {}
-};
-
+///
+/// Behaviors update all active particles every simulation step. They run after the initializers and before the finalizers.
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior : public ezParticleModule
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior, ezParticleModule);
 
-  friend class ezParticleSystemInstance;
+public:
+  virtual void Save(ezStreamWriter& inout_stream) const = 0;
+  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) = 0;
 
-protected:
-  ezParticleBehavior();
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
-  virtual void StepParticleSystem(const ezTime& tDiff, ezUInt32 uiNumNewParticles) { m_TimeDiff = tDiff; }
-
-  ezTime m_TimeDiff;
+  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const {}
 };

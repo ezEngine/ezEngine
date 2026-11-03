@@ -2,7 +2,6 @@
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/World/World.h>
-#include <Foundation/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
 #include <Foundation/Profiling/Profiling.h>
@@ -11,96 +10,78 @@
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
-#include <ParticlePlugin/Streams/ParticleStream.h>
+#include <ParticlePlugin/Module/ParticleModule.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <ParticlePlugin/Type/ParticleType.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
+namespace
+{
+  EZ_ALWAYS_INLINE const ezParticleEmitter* GetEmitter(const ezParticleModuleInstance& module)
+  {
+    return static_cast<const ezParticleEmitter*>(module.m_pModule);
+  }
+
+  EZ_ALWAYS_INLINE const ezParticleType* GetType(const ezParticleModuleInstance& module)
+  {
+    return static_cast<const ezParticleType*>(module.m_pModule);
+  }
+
+  EZ_ALWAYS_INLINE const ezParticleInitializer* GetInitializer(const ezParticleModuleInstance& module)
+  {
+    return static_cast<const ezParticleInitializer*>(module.m_pModule);
+  }
+
+  template <typename INSTANCES, typename MODULES>
+  bool AreModuleTypesEqual(const INSTANCES& instances, const MODULES& modules)
+  {
+    if (modules.GetCount() != instances.GetCount())
+      return false;
+
+    for (ezUInt32 i = 0; i < modules.GetCount(); ++i)
+    {
+      if (modules[i]->GetDynamicRTTI() != instances[i].m_pModule->GetDynamicRTTI())
+        return false;
+    }
+
+    return true;
+  }
+} // namespace
+
+template <typename FUNC>
+void ezParticleSystemInstance::ForEachModule(FUNC func)
+{
+  for (ezParticleModuleInstance& module : m_Emitters)
+  {
+    func(module);
+  }
+
+  for (ezParticleModuleInstance& module : m_Initializers)
+  {
+    func(module);
+  }
+
+  for (ezParticleModuleInstance& module : m_Behaviors)
+  {
+    func(module);
+  }
+
+  for (ezParticleModuleInstance& module : m_Finalizers)
+  {
+    func(module);
+  }
+
+  for (ezParticleModuleInstance& module : m_Types)
+  {
+    func(module);
+  }
+}
+
 bool ezParticleSystemInstance::HasActiveParticles() const
 {
   return m_StreamGroup.GetNumActiveElements() > 0;
-}
-
-bool ezParticleSystemInstance::IsEmitterConfigEqual(const ezParticleSystemDescriptor* pTemplate) const
-{
-  const auto& factories = pTemplate->GetEmitterFactories();
-
-  if (factories.GetCount() != m_Emitters.GetCount())
-    return false;
-
-  for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-  {
-    if (factories[i]->GetEmitterType() != m_Emitters[i]->GetDynamicRTTI())
-      return false;
-  }
-
-  return true;
-}
-
-bool ezParticleSystemInstance::IsInitializerConfigEqual(const ezParticleSystemDescriptor* pTemplate) const
-{
-  const auto& factories = pTemplate->GetInitializerFactories();
-
-  if (factories.GetCount() != m_Initializers.GetCount())
-    return false;
-
-  for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-  {
-    if (factories[i]->GetInitializerType() != m_Initializers[i]->GetDynamicRTTI())
-      return false;
-  }
-
-  return true;
-}
-
-bool ezParticleSystemInstance::IsBehaviorConfigEqual(const ezParticleSystemDescriptor* pTemplate) const
-{
-  const auto& factories = pTemplate->GetBehaviorFactories();
-
-  if (factories.GetCount() != m_Behaviors.GetCount())
-    return false;
-
-  for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-  {
-    if (factories[i]->GetBehaviorType() != m_Behaviors[i]->GetDynamicRTTI())
-      return false;
-  }
-
-  return true;
-}
-
-bool ezParticleSystemInstance::IsTypeConfigEqual(const ezParticleSystemDescriptor* pTemplate) const
-{
-  const auto& factories = pTemplate->GetTypeFactories();
-
-  if (factories.GetCount() != m_Types.GetCount())
-    return false;
-
-  for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-  {
-    if (factories[i]->GetTypeType() != m_Types[i]->GetDynamicRTTI())
-      return false;
-  }
-
-  return true;
-}
-
-bool ezParticleSystemInstance::IsFinalizerConfigEqual(const ezParticleSystemDescriptor* pTemplate) const
-{
-  const auto& factories = pTemplate->GetFinalizerFactories();
-
-  if (factories.GetCount() != m_Finalizers.GetCount())
-    return false;
-
-  for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-  {
-    if (factories[i]->GetFinalizerType() != m_Finalizers[i]->GetDynamicRTTI())
-      return false;
-  }
-
-  return true;
 }
 
 void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescriptor* pTemplate)
@@ -113,7 +94,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
     info.m_bInUse = false;
   }
 
-  const bool allProcessorsEqual = IsEmitterConfigEqual(pTemplate) && IsInitializerConfigEqual(pTemplate) && IsBehaviorConfigEqual(pTemplate) && IsTypeConfigEqual(pTemplate) && IsFinalizerConfigEqual(pTemplate);
+  const bool allProcessorsEqual = AreModuleTypesEqual(m_Emitters, pTemplate->GetEmitters()) && AreModuleTypesEqual(m_Initializers, pTemplate->GetInitializers()) && AreModuleTypesEqual(m_Behaviors, pTemplate->GetBehaviors()) && AreModuleTypesEqual(m_Types, pTemplate->GetTypes()) && AreModuleTypesEqual(m_Finalizers, pTemplate->GetFinalizers());
 
   if (!allProcessorsEqual)
   {
@@ -126,10 +107,11 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
     ReinitializeStreamProcessors(pTemplate);
   }
 
-  SetupOptionalStreams();
-
   // setup stream initializers for all streams that have none yet
-  CreateStreamZeroInitializers();
+  // this also removes the streams that are not in use anymore, so it has to happen before the modules query for optional streams
+  CreateStreamDefaultInitializers();
+
+  SetupOptionalStreams();
 }
 
 
@@ -137,53 +119,33 @@ void ezParticleSystemInstance::Finalize()
 {
   m_WorldUpdateModules.Clear();
   m_OwnerMessageModules.Clear();
+  m_ParticleDeathModules.Clear();
 
-  auto finalize = [&](ezParticleModule* pModule)
-  {
-    pModule->OnFinalize();
-
-    if (pModule->GetUpdateFromWorld())
+  ForEachModule([&](ezParticleModuleInstance& module)
     {
-      m_WorldUpdateModules.PushBack(pModule);
-    }
+      module.m_pModule->OnFinalize(module.m_Context);
 
-    if (pModule->GetReceiveOwnerMessages())
-    {
-      m_OwnerMessageModules.PushBack(pModule);
-    }
-  };
+      if (module.m_pModule->GetUpdateFromWorld())
+      {
+        m_WorldUpdateModules.PushBack(&module);
+      }
 
-  for (auto& pEmitter : m_Emitters)
-  {
-    finalize(pEmitter);
-  }
+      if (module.m_pModule->GetReceiveOwnerMessages())
+      {
+        m_OwnerMessageModules.PushBack(&module);
+      }
 
-  for (auto& pInitializer : m_Initializers)
-  {
-    finalize(pInitializer);
-  }
-
-  for (auto& pBehavior : m_Behaviors)
-  {
-    finalize(pBehavior);
-  }
-
-  for (auto& pFinalizer : m_Finalizers)
-  {
-    finalize(pFinalizer);
-  }
-
-  for (auto& pType : m_Types)
-  {
-    finalize(pType);
-  }
+      if (module.m_pModule->GetReceiveParticleDeath())
+      {
+        m_ParticleDeathModules.PushBack(&module);
+      } });
 }
 
 void ezParticleSystemInstance::UpdateModulesFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject)
 {
-  for (ezParticleModule* pModule : m_WorldUpdateModules)
+  for (ezParticleModuleInstance* pInstance : m_WorldUpdateModules)
   {
-    pModule->UpdateFromWorld(world, hOwnerObject);
+    pInstance->m_pModule->UpdateFromWorld(pInstance->m_Context, world, hOwnerObject);
   }
 }
 
@@ -192,9 +154,9 @@ bool ezParticleSystemInstance::PrepareToSpawn()
   bool bReady = true;
 
   // no early out, so that all initializers can start loading their resources
-  for (auto pInitializer : m_Initializers)
+  for (const ezParticleModuleInstance& initializer : m_Initializers)
   {
-    if (!pInitializer->PrepareToSpawn())
+    if (!GetInitializer(initializer)->PrepareToSpawn(initializer.m_Context))
     {
       bReady = false;
     }
@@ -208,9 +170,9 @@ bool ezParticleSystemInstance::PrepareToSpawn()
     m_bInitializerSpawnCountMultiplierChecked = true;
 
     float fMultiplier = 1.0f;
-    for (auto pInitializer : m_Initializers)
+    for (const ezParticleModuleInstance& initializer : m_Initializers)
     {
-      fMultiplier *= pInitializer->GetSpawnCountMultiplier();
+      fMultiplier *= GetInitializer(initializer)->GetInstanceSpawnCountMultiplier(initializer.m_Context);
     }
 
     fMultiplier = ezMath::Max(0.0f, fMultiplier);
@@ -237,115 +199,98 @@ void ezParticleSystemInstance::SetSpawnCountMultiplier(float fMultiplier, float 
 
 void ezParticleSystemInstance::OnOwnerMessage(const ezMessage& msg)
 {
-  for (ezParticleModule* pModule : m_OwnerMessageModules)
+  for (ezParticleModuleInstance* pInstance : m_OwnerMessageModules)
   {
-    pModule->OnOwnerMessage(msg);
+    pInstance->m_pModule->OnOwnerMessage(pInstance->m_Context, msg);
+  }
+}
+
+void ezParticleSystemInstance::CreateModuleInstanceData(const ezParticleSystemDescriptor* pTemplate)
+{
+  const ezInstanceDataAllocator& allocator = pTemplate->GetInstanceDataAllocator();
+
+  if (allocator.GetTotalDataSize() == 0)
+  {
+    m_InstanceData.Clear();
+  }
+  else
+  {
+    // keeps the allocation, if a system from the free list needs the same size again
+    m_InstanceData.SetCountUninitialized(allocator.GetTotalDataSize());
+    m_InstanceData.ZeroFill();
+  }
+
+  allocator.Construct(m_InstanceData.GetByteBlobPtr());
+  m_pInstanceDataTemplate = pTemplate;
+}
+
+void ezParticleSystemInstance::DestroyModuleInstanceData()
+{
+  if (m_pInstanceDataTemplate == nullptr)
+    return;
+
+  ForEachModule([](ezParticleModuleInstance& module)
+    { module.m_pModule->OnDeinitialize(module.m_Context); });
+
+  m_pInstanceDataTemplate->GetInstanceDataAllocator().Destruct(m_InstanceData.GetByteBlobPtr());
+  m_pInstanceDataTemplate = nullptr;
+}
+
+void ezParticleSystemInstance::OnElementRemoved(const ezStreamGroupElementRemovedEvent& e)
+{
+  for (ezParticleModuleInstance* pInstance : m_ParticleDeathModules)
+  {
+    pInstance->m_pModule->OnParticleDeath(pInstance->m_Context, e.m_uiElementIndex);
   }
 }
 
 void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDescriptor* pTemplate)
 {
-  // all spawners get cleared, so clear this as well
-  // this has to be done before any streams get created
-  // for (auto& info : m_StreamInfo)
-  //{
-  //  info.m_pZeroInitializer = nullptr;
-  //}
-
+  // the modules may need the streams for this, so it has to happen before the stream group gets cleared
+  DestroyModuleInstanceData();
+  CreateModuleInstanceData(pTemplate);
 
   const ezUInt64 uiMaxParticles = m_StreamGroup.GetNumElements();
   m_StreamGroup.Clear();
+  m_pModuleProcessor = nullptr;
   m_StreamGroup.SetSize(uiMaxParticles);
   m_StreamInfo.Clear();
 
-  // emitters
+  auto createModules = [&](auto& ref_modules, const auto& modules)
   {
-    m_Emitters.Clear();
+    ref_modules.Clear();
 
-    for (const auto pFactory : pTemplate->GetEmitterFactories())
+    for (const auto pModule : modules)
     {
-      ezParticleEmitter* pEmitter = pFactory->CreateEmitter(this);
-      m_StreamGroup.AddProcessor(pEmitter);
-      m_Emitters.PushBack(pEmitter);
+      ezParticleModuleInstance& module = ref_modules.ExpandAndGetRef();
+      module.m_pModule = pModule;
+      module.m_Context.m_pSystem = this;
+      module.m_Context.m_pInstanceData = ezInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), pModule->GetInstanceDataOffset());
+
+      pModule->CreateRequiredStreams(module.m_Context);
     }
-  }
+  };
 
-  // initializers
-  {
-    m_Initializers.Clear();
+  createModules(m_Emitters, pTemplate->GetEmitters());
+  createModules(m_Initializers, pTemplate->GetInitializers());
+  createModules(m_Behaviors, pTemplate->GetBehaviors());
+  createModules(m_Finalizers, pTemplate->GetFinalizers());
+  createModules(m_Types, pTemplate->GetTypes());
 
-    for (const auto pFactory : pTemplate->GetInitializerFactories())
-    {
-      ezParticleInitializer* pInitializer = pFactory->CreateInitializer(this);
-      m_StreamGroup.AddProcessor(pInitializer);
-      m_Initializers.PushBack(pInitializer);
-    }
-  }
+  ezHybridArray<const ezParticleModuleInstance*, 16> instances;
+  ForEachModule([&](ezParticleModuleInstance& module)
+    { instances.PushBack(&module); });
 
-  // behaviors
-  {
-    m_Behaviors.Clear();
-
-    for (const auto pFactory : pTemplate->GetBehaviorFactories())
-    {
-      ezParticleBehavior* pBehavior = pFactory->CreateBehavior(this);
-      m_StreamGroup.AddProcessor(pBehavior);
-      m_Behaviors.PushBack(pBehavior);
-    }
-  }
-
-  // finalizers
-  {
-    m_Finalizers.Clear();
-
-    for (const auto pFactory : pTemplate->GetFinalizerFactories())
-    {
-      ezParticleFinalizer* pFinalizer = pFactory->CreateFinalizer(this);
-      m_StreamGroup.AddProcessor(pFinalizer);
-      m_Finalizers.PushBack(pFinalizer);
-    }
-  }
-
-  // types
-  {
-    m_Types.Clear();
-
-    for (const auto pFactory : pTemplate->GetTypeFactories())
-    {
-      ezParticleType* pType = pFactory->CreateType(this);
-      m_StreamGroup.AddProcessor(pType);
-      m_Types.PushBack(pType);
-    }
-  }
+  m_pModuleProcessor = ezGetStaticRTTI<ezParticleModuleProcessor>()->GetAllocator()->Allocate<ezParticleModuleProcessor>();
+  m_pModuleProcessor->SetModules(this, instances);
+  m_StreamGroup.AddProcessor(m_pModuleProcessor);
 }
 
 
 void ezParticleSystemInstance::SetupOptionalStreams()
 {
-  for (auto& pEmitter : m_Emitters)
-  {
-    pEmitter->QueryOptionalStreams();
-  }
-
-  for (auto& pInitializer : m_Initializers)
-  {
-    pInitializer->QueryOptionalStreams();
-  }
-
-  for (auto& pBehavior : m_Behaviors)
-  {
-    pBehavior->QueryOptionalStreams();
-  }
-
-  for (auto& pFinalizer : m_Finalizers)
-  {
-    pFinalizer->QueryOptionalStreams();
-  }
-
-  for (auto& pType : m_Types)
-  {
-    pType->QueryOptionalStreams();
-  }
+  ForEachModule([](ezParticleModuleInstance& module)
+    { module.m_pModule->QueryOptionalStreams(module.m_Context); });
 }
 
 void ezParticleSystemInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity)
@@ -356,70 +301,35 @@ void ezParticleSystemInstance::SetTransform(const ezTransform& transform, const 
 
 void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSystemDescriptor* pTemplate)
 {
-  // emitters
+  // all modules have the same type, so the instance data stays valid, even if these are new modules after a resource reload
+  EZ_ASSERT_DEBUG(m_pInstanceDataTemplate->GetInstanceDataAllocator().GetTotalDataSize() == pTemplate->GetInstanceDataAllocator().GetTotalDataSize(), "Instance data layout must only depend on the module types");
+  m_pInstanceDataTemplate = pTemplate;
+
+  auto reinitializeModules = [](auto& ref_modules, const auto& modules)
   {
-    const auto& factories = pTemplate->GetEmitterFactories();
-
-    for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < modules.GetCount(); ++i)
     {
-      m_Emitters[i]->Reset(this);
-      factories[i]->CopyEmitterProperties(m_Emitters[i], false);
-      m_Emitters[i]->CreateRequiredStreams();
+      ref_modules[i].m_pModule = modules[i];
+      modules[i]->CreateRequiredStreams(ref_modules[i].m_Context);
     }
-  }
+  };
 
-  // initializers
-  {
-    const auto& factories = pTemplate->GetInitializerFactories();
-
-    for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-    {
-      m_Initializers[i]->Reset(this);
-      factories[i]->CopyInitializerProperties(m_Initializers[i], false);
-      m_Initializers[i]->CreateRequiredStreams();
-    }
-  }
-
-  // behaviors
-  {
-    const auto& factories = pTemplate->GetBehaviorFactories();
-
-    for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-    {
-      m_Behaviors[i]->Reset(this);
-      factories[i]->CopyBehaviorProperties(m_Behaviors[i], false);
-      m_Behaviors[i]->CreateRequiredStreams();
-    }
-  }
-
-  // finalizers
-  {
-    const auto& factories = pTemplate->GetFinalizerFactories();
-
-    for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-    {
-      m_Finalizers[i]->Reset(this);
-      factories[i]->CopyFinalizerProperties(m_Finalizers[i], false);
-      m_Finalizers[i]->CreateRequiredStreams();
-    }
-  }
-
-  // types
-  {
-    const auto& factories = pTemplate->GetTypeFactories();
-
-    for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-    {
-      m_Types[i]->Reset(this);
-      factories[i]->CopyTypeProperties(m_Types[i], false);
-      m_Types[i]->CreateRequiredStreams();
-    }
-  }
+  reinitializeModules(m_Emitters, pTemplate->GetEmitters());
+  reinitializeModules(m_Initializers, pTemplate->GetInitializers());
+  reinitializeModules(m_Behaviors, pTemplate->GetBehaviors());
+  reinitializeModules(m_Finalizers, pTemplate->GetFinalizers());
+  reinitializeModules(m_Types, pTemplate->GetTypes());
 }
 
 ezParticleSystemInstance::ezParticleSystemInstance()
 {
   m_BoundingVolume = ezBoundingBoxSphere::MakeInvalid();
+  m_StreamGroup.m_ElementRemovedEvent.AddEventHandler(ezMakeDelegate(&ezParticleSystemInstance::OnElementRemoved, this));
+}
+
+ezParticleSystemInstance::~ezParticleSystemInstance()
+{
+  m_StreamGroup.m_ElementRemovedEvent.RemoveEventHandler(ezMakeDelegate(&ezParticleSystemInstance::OnElementRemoved, this));
 }
 
 void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect, float fSpawnCountMultiplier)
@@ -441,7 +351,10 @@ void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorl
 
 void ezParticleSystemInstance::Destruct()
 {
+  DestroyModuleInstanceData();
+
   m_StreamGroup.Clear();
+  m_pModuleProcessor = nullptr;
   m_Emitters.Clear();
   m_Initializers.Clear();
   m_Behaviors.Clear();
@@ -449,6 +362,7 @@ void ezParticleSystemInstance::Destruct()
   m_Types.Clear();
   m_WorldUpdateModules.Clear();
   m_OwnerMessageModules.Clear();
+  m_ParticleDeathModules.Clear();
 
   m_StreamInfo.Clear();
 }
@@ -457,7 +371,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
 {
   EZ_PROFILE_SCOPE("PFX: System Update");
 
-  ezUInt32 uiSpawnedParticles = 0;
+  m_UpdateTimeDiff = diff;
 
   const bool bInitializersReady = PrepareToSpawn();
 
@@ -466,18 +380,17 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
     // if all emitters are finished, we deactivate this on the whole system
     bool bAllEmittersInactive = true;
 
-    for (auto pEmitter : m_Emitters)
+    for (const ezParticleModuleInstance& emitter : m_Emitters)
     {
-      if (pEmitter->IsFinished() == ezParticleEmitterState::Active)
+      if (GetEmitter(emitter)->IsFinished(emitter.m_Context) == ezParticleEmitterState::Active)
       {
         bAllEmittersInactive = false;
-        const ezUInt32 uiSpawn = pEmitter->ComputeSpawnCount(diff);
+        const ezUInt32 uiSpawn = GetEmitter(emitter)->ComputeSpawnCount(emitter.m_Context, diff);
 
         if (uiSpawn > 0)
         {
           EZ_PROFILE_SCOPE("PFX: System Emit");
           m_StreamGroup.InitializeElements(uiSpawn);
-          uiSpawnedParticles += uiSpawn;
         }
       }
     }
@@ -495,45 +408,20 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
   // always check reactive emitters, as long as there are particles alive, they might produce more
   if (bInitializersReady)
   {
-    for (auto pEmitter : m_Emitters)
+    for (const ezParticleModuleInstance& emitter : m_Emitters)
     {
-      if (pEmitter->IsFinished() == ezParticleEmitterState::OnlyReacting)
+      if (GetEmitter(emitter)->IsFinished(emitter.m_Context) == ezParticleEmitterState::OnlyReacting)
       {
         bHasReactingEmitters = true;
 
-        const ezUInt32 uiSpawn = pEmitter->ComputeSpawnCount(diff);
+        const ezUInt32 uiSpawn = GetEmitter(emitter)->ComputeSpawnCount(emitter.m_Context, diff);
 
         if (uiSpawn > 0)
         {
           EZ_PROFILE_SCOPE("PFX: System Emit (React)");
           m_StreamGroup.InitializeElements(uiSpawn);
-          uiSpawnedParticles += uiSpawn;
         }
       }
-    }
-  }
-
-  {
-    EZ_PROFILE_SCOPE("PFX: System Step Behaviors");
-    for (auto pBehavior : m_Behaviors)
-    {
-      pBehavior->StepParticleSystem(diff, uiSpawnedParticles);
-    }
-  }
-
-  {
-    EZ_PROFILE_SCOPE("PFX: System Step Finalizers");
-    for (auto pFinalizer : m_Finalizers)
-    {
-      pFinalizer->StepParticleSystem(diff, uiSpawnedParticles);
-    }
-  }
-
-  {
-    EZ_PROFILE_SCOPE("PFX: System Step Types");
-    for (auto pType : m_Types)
-    {
-      pType->StepParticleSystem(diff, uiSpawnedParticles);
     }
   }
 
@@ -557,22 +445,19 @@ ezProcessingStream* ezParticleSystemInstance::QueryStream(ezTempHashedString sNa
   return m_StreamGroup.GetStreamByName(sName);
 }
 
-void ezParticleSystemInstance::CreateStream(ezStringView sName, ezProcessingStream::DataType type, ezProcessingStream** pStream, ezParticleStreamBinding& inout_binding, bool bWillInitializeElements)
+void ezParticleSystemInstance::CreateStream(const ezHashedString& sName, ezProcessingStream::DataType type, ezProcessingStream** pStream, bool bWillInitializeElements)
 {
   EZ_ASSERT_DEV(pStream != nullptr, "The pointer to the stream pointer must not be null");
 
   StreamInfo* pInfo = nullptr;
 
-  ezHashedString sNameHashed;
-  sNameHashed.Assign(sName);
-
-  ezProcessingStream* pSubStream = m_StreamGroup.GetStreamByName(sNameHashed);
+  ezProcessingStream* pSubStream = m_StreamGroup.GetStreamByName(sName);
   if (pSubStream == nullptr)
   {
     pSubStream = m_StreamGroup.AddStream(sName, type);
 
     pInfo = &m_StreamInfo.ExpandAndGetRef();
-    pInfo->m_sName = sNameHashed;
+    pInfo->m_sName = sName;
   }
   else
   {
@@ -580,7 +465,7 @@ void ezParticleSystemInstance::CreateStream(ezStringView sName, ezProcessingStre
 
     for (auto& info : m_StreamInfo)
     {
-      if (info.m_sName == sNameHashed)
+      if (info.m_sName == sName)
       {
         pInfo = &info;
         break;
@@ -596,24 +481,18 @@ void ezParticleSystemInstance::CreateStream(ezStringView sName, ezProcessingStre
 
   EZ_ASSERT_DEV(pSubStream != nullptr, "Stream creation failed ('{0}')", sName);
   *pStream = pSubStream;
-
-  {
-    auto& bind = inout_binding.m_Bindings.ExpandAndGetRef();
-    bind.m_ppStream = pStream;
-    bind.m_sName = sNameHashed;
-  }
 }
 
-void ezParticleSystemInstance::CreateStreamZeroInitializers()
+void ezParticleSystemInstance::CreateStreamDefaultInitializers()
 {
   for (ezUInt32 i = 0; i < m_StreamInfo.GetCount();)
   {
     auto& info = m_StreamInfo[i];
 
-    if ((!info.m_bInUse || info.m_bGetsInitialized) && info.m_pDefaultInitializer)
+    if ((!info.m_bInUse || info.m_bGetsInitialized) && info.m_bHasDefaultInitializer)
     {
-      m_StreamGroup.RemoveProcessor(info.m_pDefaultInitializer);
-      info.m_pDefaultInitializer = nullptr;
+      m_pModuleProcessor->RemoveStreamInitializer(m_StreamGroup.GetStreamByName(info.m_sName));
+      info.m_bHasDefaultInitializer = false;
     }
 
     if (!info.m_bInUse)
@@ -634,46 +513,26 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
 
     EZ_ASSERT_DEV(info.m_bInUse, "Invalid state");
 
-    if (info.m_pDefaultInitializer == nullptr)
+    if (!info.m_bHasDefaultInitializer)
     {
-      ezParticleStream* pStream = GetOwnerWorldModule()->CreateStreamDefaultInitializer(this, info.m_sName);
+      const ezParticleStream* pParticleStream = GetOwnerWorldModule()->GetParticleStream(info.m_sName);
 
-      if (pStream == nullptr)
+      if (pParticleStream == nullptr)
       {
         ezLog::Warning("Particle stream '{0}' is zero-initialized.", info.m_sName);
-
-        ezProcessingStreamSpawnerZeroInitialized* pZeroInit = EZ_DEFAULT_NEW(ezProcessingStreamSpawnerZeroInitialized);
-        pZeroInit->SetStreamName(info.m_sName);
-
-        info.m_pDefaultInitializer = pZeroInit;
-      }
-      else
-      {
-        // ezLog::Debug("Particle stream '{0}' is default-initialized.", info.m_sName);
-        info.m_pDefaultInitializer = pStream;
       }
 
-      m_StreamGroup.AddProcessor(info.m_pDefaultInitializer);
+      m_pModuleProcessor->AddStreamInitializer(pParticleStream, m_StreamGroup.GetStreamByName(info.m_sName));
+      info.m_bHasDefaultInitializer = true;
     }
-  }
-}
-
-void ezParticleStreamBinding::UpdateBindings(const ezProcessingStreamGroup* pGroup) const
-{
-  for (const auto& bind : m_Bindings)
-  {
-    ezProcessingStream* pStream = pGroup->GetStreamByName(bind.m_sName);
-    EZ_ASSERT_DEV(pStream != nullptr, "Stream binding '{0}' is invalid now", bind.m_sName);
-
-    *bind.m_ppStream = pStream;
   }
 }
 
 void ezParticleSystemInstance::ProcessEventQueue(ezParticleEventQueue queue)
 {
-  for (auto pEmitter : m_Emitters)
+  for (const ezParticleModuleInstance& emitter : m_Emitters)
   {
-    pEmitter->ProcessEventQueue(queue);
+    GetEmitter(emitter)->ProcessEventQueue(emitter.m_Context, queue);
   }
 }
 
@@ -684,20 +543,10 @@ ezParticleWorldModule* ezParticleSystemInstance::GetOwnerWorldModule() const
 
 void ezParticleSystemInstance::ExtractSystemRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
 {
-  for (auto pType : m_Types)
+  for (const ezParticleModuleInstance& type : m_Types)
   {
-    pType->ExtractTypeRenderData(ref_msg, instanceTransform);
+    GetType(type)->ExtractTypeRenderData(type.m_Context, ref_msg, instanceTransform);
   }
-}
-
-void ezParticleSystemInstance::AddParticleDeathEventHandler(ParticleDeathHandler handler)
-{
-  m_StreamGroup.m_ElementRemovedEvent.AddEventHandler(handler);
-}
-
-void ezParticleSystemInstance::RemoveParticleDeathEventHandler(ParticleDeathHandler handler)
-{
-  m_StreamGroup.m_ElementRemovedEvent.RemoveEventHandler(handler);
 }
 
 void ezParticleSystemInstance::SetBoundingVolume(const ezBoundingBoxSphere& volume, float fMaxParticleSize)
@@ -705,9 +554,9 @@ void ezParticleSystemInstance::SetBoundingVolume(const ezBoundingBoxSphere& volu
   m_BoundingVolume = volume;
 
   float fExpand = 0;
-  for (const auto pType : m_Types)
+  for (const ezParticleModuleInstance& type : m_Types)
   {
-    fExpand = ezMath::Max(fExpand, pType->GetMaxParticleRadius(fMaxParticleSize));
+    fExpand = ezMath::Max(fExpand, GetType(type)->GetMaxParticleRadius(type.m_Context, fMaxParticleSize));
   }
 
   m_BoundingVolume.m_vBoxHalfExtents += ezVec3(fExpand);
@@ -716,9 +565,9 @@ void ezParticleSystemInstance::SetBoundingVolume(const ezBoundingBoxSphere& volu
 
 bool ezParticleSystemInstance::IsContinuous() const
 {
-  for (const ezParticleEmitter* pEmitter : m_Emitters)
+  for (const ezParticleModuleInstance& emitter : m_Emitters)
   {
-    if (pEmitter->IsContinuous())
+    if (GetEmitter(emitter)->IsContinuous())
       return true;
   }
 

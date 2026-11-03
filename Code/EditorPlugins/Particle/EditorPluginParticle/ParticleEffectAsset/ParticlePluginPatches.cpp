@@ -3,10 +3,10 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezParticleBehaviorFactory_SizeCurvePatch_1_2 : public ezGraphPatch
+class ezParticleBehavior_SizeCurvePatch_1_2 : public ezGraphPatch
 {
 public:
-  ezParticleBehaviorFactory_SizeCurvePatch_1_2()
+  ezParticleBehavior_SizeCurvePatch_1_2()
     : ezGraphPatch("ezParticleBehaviorFactory_SizeCurve", 2)
   {
   }
@@ -23,15 +23,15 @@ public:
   }
 };
 
-ezParticleBehaviorFactory_SizeCurvePatch_1_2 g_ezParticleBehaviorFactory_SizeCurvePatch_1_2;
+ezParticleBehavior_SizeCurvePatch_1_2 g_ezParticleBehavior_SizeCurvePatch_1_2;
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Migrates wind influence and rise speed from Velocity behavior to new Wind and Move behaviors
-class ezParticleBehaviorFactory_Velocity_1_2 : public ezGraphPatch
+class ezParticleBehavior_Velocity_1_2 : public ezGraphPatch
 {
 public:
-  ezParticleBehaviorFactory_Velocity_1_2()
+  ezParticleBehavior_Velocity_1_2()
     : ezGraphPatch("ezParticleBehaviorFactory_Velocity", 2)
   {
   }
@@ -90,7 +90,7 @@ public:
     if (fWindInfluence > 0.0f)
     {
       ezUuid windBehaviorGuid = ezUuid::MakeUuid();
-      ezAbstractObjectNode* pWindNode = pGraph->AddNode(windBehaviorGuid, "ezParticleBehaviorFactory_Wind", 1);
+      ezAbstractObjectNode* pWindNode = pGraph->AddNode(windBehaviorGuid, "ezParticleBehavior_Wind", 1);
       pWindNode->AddProperty("WindInfluence", fWindInfluence);
       behaviors.PushBack(windBehaviorGuid);
     }
@@ -99,7 +99,7 @@ public:
     if (fRiseSpeed != 0.0f)
     {
       ezUuid moveBehaviorGuid = ezUuid::MakeUuid();
-      ezAbstractObjectNode* pMoveNode = pGraph->AddNode(moveBehaviorGuid, "ezParticleBehaviorFactory_Move", 1);
+      ezAbstractObjectNode* pMoveNode = pGraph->AddNode(moveBehaviorGuid, "ezParticleBehavior_Move", 1);
 
       // Set Z-axis movement to constant mode with the rise speed value
       pMoveNode->AddProperty("MoveZ_Mode", (ezInt32)0); // ezMovementMode::Constant = 0
@@ -113,15 +113,15 @@ public:
   }
 };
 
-ezParticleBehaviorFactory_Velocity_1_2 g_ezParticleBehaviorFactory_Velocity_1_2;
+ezParticleBehavior_Velocity_1_2 g_ezParticleBehavior_Velocity_1_2;
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Migrates ColorGradient behavior from old hGradient to new GradientSource system
-class ezParticleBehaviorFactory_ColorGradient_2_3 : public ezGraphPatch
+class ezParticleBehavior_ColorGradient_2_3 : public ezGraphPatch
 {
 public:
-  ezParticleBehaviorFactory_ColorGradient_2_3()
+  ezParticleBehavior_ColorGradient_2_3()
     : ezGraphPatch("ezParticleBehaviorFactory_ColorGradient", 3)
   {
   }
@@ -146,15 +146,15 @@ public:
   }
 };
 
-ezParticleBehaviorFactory_ColorGradient_2_3 g_ezParticleBehaviorFactory_ColorGradient_2_3;
+ezParticleBehavior_ColorGradient_2_3 g_ezParticleBehavior_ColorGradient_2_3;
 
 //////////////////////////////////////////////////////////////////////////
 
 /// Migrates RandomColor initializer from old hGradient to new GradientSource system
-class ezParticleInitializerFactory_RandomColor_2_3 : public ezGraphPatch
+class ezParticleInitializer_RandomColor_2_3 : public ezGraphPatch
 {
 public:
-  ezParticleInitializerFactory_RandomColor_2_3()
+  ezParticleInitializer_RandomColor_2_3()
     : ezGraphPatch("ezParticleInitializerFactory_RandomColor", 3)
   {
   }
@@ -179,4 +179,70 @@ public:
   }
 };
 
-ezParticleInitializerFactory_RandomColor_2_3 g_ezParticleInitializerFactory_RandomColor_2_3;
+ezParticleInitializer_RandomColor_2_3 g_ezParticleInitializer_RandomColor_2_3;
+
+//////////////////////////////////////////////////////////////////////////
+
+/// The particle module classes used to be called factories, when there was an additional class for the instance of each module.
+class ezParticleModuleRenamePatch : public ezGraphPatch
+{
+public:
+  ezParticleModuleRenamePatch(const char* szOldName, const char* szNewName, ezUInt32 uiCurrentVersion)
+    : ezGraphPatch(szOldName, uiCurrentVersion + 1)
+    , m_szNewName(szNewName)
+    , m_uiCurrentVersion(uiCurrentVersion)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    ref_context.RenameClass(m_szNewName, m_uiCurrentVersion);
+  }
+
+private:
+  const char* m_szNewName;
+  ezUInt32 m_uiCurrentVersion;
+};
+
+static ezParticleModuleRenamePatch g_ParticleModuleRenamePatches[] = {
+  {"ezParticleBehaviorFactory_Attract", "ezParticleBehavior_Attract", 1},
+  {"ezParticleBehaviorFactory_Bounds", "ezParticleBehavior_Bounds", 1},
+  {"ezParticleBehaviorFactory_BoundsSphere", "ezParticleBehavior_BoundsSphere", 1},
+  {"ezParticleBehaviorFactory_ColorGradient", "ezParticleBehavior_ColorGradient", 3},
+  {"ezParticleBehaviorFactory_Expression", "ezParticleBehavior_Expression", 1},
+  {"ezParticleBehaviorFactory_FadeOut", "ezParticleBehavior_FadeOut", 1},
+  {"ezParticleBehaviorFactory_Flies", "ezParticleBehavior_Flies", 1},
+  {"ezParticleBehaviorFactory_Gravity", "ezParticleBehavior_Gravity", 1},
+  {"ezParticleBehaviorFactory_Move", "ezParticleBehavior_Move", 1},
+  {"ezParticleBehaviorFactory_Opacity", "ezParticleBehavior_Opacity", 2},
+  {"ezParticleBehaviorFactory_PullAlong", "ezParticleBehavior_PullAlong", 1},
+  {"ezParticleBehaviorFactory_Raycast", "ezParticleBehavior_Raycast", 1},
+  {"ezParticleBehaviorFactory_SizeCurve", "ezParticleBehavior_SizeCurve", 2},
+  {"ezParticleBehaviorFactory_Turbulence", "ezParticleBehavior_Turbulence", 1},
+  {"ezParticleBehaviorFactory_Velocity", "ezParticleBehavior_Velocity", 2},
+  {"ezParticleBehaviorFactory_Wind", "ezParticleBehavior_Wind", 1},
+  {"ezParticleEmitterFactory_Burst", "ezParticleEmitter_Burst", 1},
+  {"ezParticleEmitterFactory_Continuous", "ezParticleEmitter_Continuous", 1},
+  {"ezParticleEmitterFactory_Distance", "ezParticleEmitter_Distance", 1},
+  {"ezParticleEmitterFactory_OnEvent", "ezParticleEmitter_OnEvent", 1},
+  {"ezParticleEventReactionFactory_Effect", "ezParticleEventReaction_Effect", 1},
+  {"ezParticleEventReactionFactory_Prefab", "ezParticleEventReaction_Prefab", 1},
+  {"ezParticleFinalizerFactory_Age", "ezParticleFinalizer_Age", 1},
+  {"ezParticleFinalizerFactory_ApplyVelocity", "ezParticleFinalizer_ApplyVelocity", 1},
+  {"ezParticleFinalizerFactory_LastPosition", "ezParticleFinalizer_LastPosition", 1},
+  {"ezParticleFinalizerFactory_Volume", "ezParticleFinalizer_Volume", 1},
+  {"ezParticleInitializerFactory_BoxPosition", "ezParticleInitializer_BoxPosition", 1},
+  {"ezParticleInitializerFactory_CylinderPosition", "ezParticleInitializer_CylinderPosition", 2},
+  {"ezParticleInitializerFactory_MeshPosition", "ezParticleInitializer_MeshPosition", 1},
+  {"ezParticleInitializerFactory_RandomColor", "ezParticleInitializer_RandomColor", 3},
+  {"ezParticleInitializerFactory_RandomRotationSpeed", "ezParticleInitializer_RandomRotationSpeed", 2},
+  {"ezParticleInitializerFactory_RandomSize", "ezParticleInitializer_RandomSize", 3},
+  {"ezParticleInitializerFactory_SpherePosition", "ezParticleInitializer_SpherePosition", 2},
+  {"ezParticleInitializerFactory_VelocityCone", "ezParticleInitializer_VelocityCone", 2},
+  {"ezParticleTypeEffectFactory", "ezParticleTypeEffect", 1},
+  {"ezParticleTypeLightFactory", "ezParticleTypeLight", 1},
+  {"ezParticleTypeMeshFactory", "ezParticleTypeMesh", 1},
+  {"ezParticleTypePointFactory", "ezParticleTypePoint", 1},
+  {"ezParticleTypeQuadFactory", "ezParticleTypeQuad", 2},
+  {"ezParticleTypeTrailFactory", "ezParticleTypeTrail", 1},
+};

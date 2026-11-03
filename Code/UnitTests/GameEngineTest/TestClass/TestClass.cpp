@@ -129,6 +129,7 @@ ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)
   m_pWorld->Clear();
   m_pWorld->GetRandomNumberGenerator().Initialize(42); // reset the RNG
   m_pWorld->GetClock().Reset(false);                   // reset the world clock
+  ezClock::GetGlobalClock()->Reset(false);             // shaders use this, e.g. for dithering, so images must not depend on previous tests
 
   ezFileReader file;
 
@@ -181,6 +182,7 @@ void ezGameEngineTestApplication::AfterCoreSystemsStartup()
 
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
   m_pWorld->GetClock().SetFixedTimeStep(ezTime::MakeFromSeconds(1.0 / 30.0));
+  ezClock::GetGlobalClock()->SetFixedTimeStep(ezTime::MakeFromSeconds(1.0 / 30.0));
   // Disable VSync. Tests run at a fixed time step so this makes tests much faster without changing the outcome.
   ezGameApplication::cvar_AppVSync = false;
 

@@ -10,7 +10,7 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_VelocityCone, 2, ezRTTIDefaultAllocator<ezParticleInitializerFactory_VelocityCone>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_VelocityCone, 2, ezRTTIDefaultAllocator<ezParticleInitializer_VelocityCone>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -26,31 +26,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_VelocityCone, 2, ez
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_VelocityCone, 1, ezRTTIDefaultAllocator<ezParticleInitializer_VelocityCone>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleInitializerFactory_VelocityCone::ezParticleInitializerFactory_VelocityCone()
+ezParticleInitializer_VelocityCone::ezParticleInitializer_VelocityCone()
 {
   m_Angle = ezAngle::MakeFromDegree(45);
 }
 
-const ezRTTI* ezParticleInitializerFactory_VelocityCone::GetInitializerType() const
-{
-  return ezGetStaticRTTI<ezParticleInitializer_VelocityCone>();
-}
-
-void ezParticleInitializerFactory_VelocityCone::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
-{
-  ezParticleInitializer_VelocityCone* pInitializer = static_cast<ezParticleInitializer_VelocityCone*>(pInitializer0);
-
-  pInitializer->m_Angle = ezMath::Clamp(m_Angle, ezAngle::MakeFromDegree(1), ezAngle::MakeFromDegree(89));
-  pInitializer->m_Speed = m_Speed;
-  pInitializer->m_sSpeedScaleParameter = ezTempHashedString(m_sSpeedScaleParameter.GetData());
-}
-
-void ezParticleInitializerFactory_VelocityCone::Save(ezStreamWriter& inout_stream) const
+void ezParticleInitializer_VelocityCone::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 2;
   inout_stream << uiVersion;
@@ -64,7 +47,7 @@ void ezParticleInitializerFactory_VelocityCone::Save(ezStreamWriter& inout_strea
   inout_stream << m_sSpeedScaleParameter;
 }
 
-void ezParticleInitializerFactory_VelocityCone::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleInitializer_VelocityCone::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -79,35 +62,47 @@ void ezParticleInitializerFactory_VelocityCone::Load(ezStreamReader& inout_strea
   }
 }
 
-void ezParticleInitializerFactory_VelocityCone::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
+void ezParticleInitializer_VelocityCone::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
-  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizer_ApplyVelocity>());
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezParticleInitializer_VelocityCone::CreateRequiredStreams()
+bool ezParticleInitializer_VelocityCone::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, true);
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleInitializer_VelocityCone::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sVelocity, ezProcessingStream::DataType::Half4, &data.m_pStreamVelocity, true);
+}
+
+void ezParticleInitializer_VelocityCone::InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Velocity Cone");
 
-  const ezVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
+  const ezVec3 startVel = ctx.m_pSystem->GetParticleStartVelocity();
 
-  ezFloat16Vec4* pVelocity = m_pStreamVelocity->GetWritableData<ezFloat16Vec4>();
+  ezFloat16Vec4* pVelocity = data.m_pStreamVelocity->GetWritableData<ezFloat16Vec4>();
 
-  ezRandom& rng = GetRNG();
+  ezRandom& rng = ctx.GetRNG();
 
-  const float fSpeedScale = ezMath::Max(GetOwnerEffect()->GetFloatParameter(m_sSpeedScaleParameter, 1.0f), 0.0f);
+  const float fSpeedScale = ezMath::Max(ctx.GetEffect()->GetFloatParameter(m_sSpeedScaleParameter, 1.0f), 0.0f);
 
-  // const float dist = 1.0f / ezMath::Tan(m_Angle);
+  const ezAngle angle = ezMath::Clamp(m_Angle, ezAngle::MakeFromDegree(1), ezAngle::MakeFromDegree(89));
+
+  // const float dist = 1.0f / ezMath::Tan(angle);
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
-    const ezVec3 dir = ezVec3::MakeRandomDeviationZ(rng, m_Angle);
+    const ezVec3 dir = ezVec3::MakeRandomDeviationZ(rng, angle);
     // dir.z = 0;
     // float len = 0.0f;
 
@@ -126,7 +121,7 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
 
     const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance) * fSpeedScale;
 
-    const ezVec3 vel = startVel + GetOwnerSystem()->GetTransform().m_qRotation * dir * fSpeed;
+    const ezVec3 vel = startVel + ctx.m_pSystem->GetTransform().m_qRotation * dir * fSpeed;
     const float fVelLength = vel.GetLength();
     const ezVec3 velDir = fVelLength > 0.0f ? vel / fVelLength : ezVec3(0, 0, 1);
 
@@ -136,10 +131,10 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezParticleInitializerFactory_VelocityCone_1_2 : public ezGraphPatch
+class ezParticleInitializer_VelocityCone_1_2 : public ezGraphPatch
 {
 public:
-  ezParticleInitializerFactory_VelocityCone_1_2()
+  ezParticleInitializer_VelocityCone_1_2()
     : ezGraphPatch("ezParticleInitializerFactory_VelocityCone", 2)
   {
   }
@@ -150,6 +145,6 @@ public:
   }
 };
 
-ezParticleInitializerFactory_VelocityCone_1_2 g_ezParticleInitializerFactory_VelocityCone_1_2;
+ezParticleInitializer_VelocityCone_1_2 g_ezParticleInitializer_VelocityCone_1_2;
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_VelocityCone);

@@ -11,12 +11,7 @@
 
 class ezWorld;
 class ezParticleSystemDescriptor;
-class ezParticleEventReactionFactory;
 class ezParticleEventReaction;
-class ezParticleEmitter;
-class ezParticleInitializer;
-class ezParticleBehavior;
-class ezParticleType;
 class ezProcessingStreamGroup;
 class ezProcessingStream;
 class ezRandom;
@@ -27,8 +22,11 @@ class ezParticleEffectInstance;
 class ezParticleSystemInstance;
 class ezRenderViewContext;
 class ezRenderPipelinePass;
+class ezParticleModule;
+class ezParticleModuleProcessor;
+class ezParticleStream;
+struct ezParticleEffectResourceDescriptor;
 class ezParticleFinalizer;
-class ezParticleFinalizerFactory;
 
 using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
 
@@ -41,6 +39,26 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEffectHandle
 };
 
 
+/// Names of the particle streams that are used by the modules.
+///
+/// Modules create their streams every time a system is configured. Creating an ezHashedString from a string requires a mutex, so the names are predefined.
+struct EZ_PARTICLEPLUGIN_DLL ezParticleStreamNames
+{
+  static const ezHashedString s_sAxis;
+  static const ezHashedString s_sColor;
+  static const ezHashedString s_sEffectID;
+  static const ezHashedString s_sLastPosition;
+  static const ezHashedString s_sLifeTime;
+  static const ezHashedString s_sOnOff;
+  static const ezHashedString s_sPosition;
+  static const ezHashedString s_sRotationOffset;
+  static const ezHashedString s_sRotationSpeed;
+  static const ezHashedString s_sSize;
+  static const ezHashedString s_sTrailData;
+  static const ezHashedString s_sVariation;
+  static const ezHashedString s_sVelocity;
+};
+
 /// Current state of a particle system
 struct EZ_PARTICLEPLUGIN_DLL ezParticleSystemState
 {
@@ -51,24 +69,6 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleSystemState
     OnlyReacting,     ///< Only reacting to events, otherwise finished
     Inactive,         ///< System is inactive
   };
-};
-
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamBinding
-{
-public:
-  void UpdateBindings(const ezProcessingStreamGroup* pGroup) const;
-  void Clear() { m_Bindings.Clear(); }
-
-private:
-  friend class ezParticleSystemInstance;
-
-  struct Binding
-  {
-    ezHashedString m_sName;
-    ezProcessingStream** m_ppStream;
-  };
-
-  ezSmallArray<Binding, 4> m_Bindings;
 };
 
 //////////////////////////////////////////////////////////////////////////

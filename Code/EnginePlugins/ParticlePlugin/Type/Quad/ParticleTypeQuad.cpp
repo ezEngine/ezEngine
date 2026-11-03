@@ -22,7 +22,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezQuadParticleOrientation, 2)
   EZ_ENUM_CONSTANTS(ezQuadParticleOrientation::FixedAxis_EmitterDir, ezQuadParticleOrientation::FixedAxis_ParticleDir)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeQuadFactory, 2, ezRTTIDefaultAllocator<ezParticleTypeQuadFactory>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeQuad, 2, ezRTTIDefaultAllocator<ezParticleTypeQuad>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -47,46 +47,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeQuadFactory, 2, ezRTTIDefaultAlloc
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeQuad, 1, ezRTTIDefaultAllocator<ezParticleTypeQuad>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
-
-const ezRTTI* ezParticleTypeQuadFactory::GetTypeType() const
-{
-  return ezGetStaticRTTI<ezParticleTypeQuad>();
-}
-
-void ezParticleTypeQuadFactory::CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const
-{
-  ezParticleTypeQuad* pType = static_cast<ezParticleTypeQuad*>(pObject);
-
-  pType->m_Orientation = m_Orientation;
-  pType->m_MaxDeviation = m_MaxDeviation;
-  pType->m_hTexture.Invalidate();
-  pType->m_RenderMode = m_RenderMode;
-  pType->m_uiNumSpritesX = m_uiNumSpritesX;
-  pType->m_uiNumSpritesY = m_uiNumSpritesY;
-  pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
-  pType->m_TextureAtlasType = m_TextureAtlasType;
-  pType->m_TextureAtlasOrientation = m_TextureAtlasOrientation;
-  pType->m_fStretch = m_fStretch;
-  pType->m_LightingMode = m_LightingMode;
-  pType->m_fNormalCurvature = m_fNormalCurvature;
-  pType->m_fLightDirectionality = m_fLightDirectionality;
-  pType->m_fGeometryProximityFadeOut = m_fGeometryProximityFadeOut;
-  pType->m_fCameraProximityFadeOut = m_fCameraProximityFadeOut;
-  pType->m_hCustomMaterial.Invalidate();
-
-  if (m_bUseCustomMaterial)
-  {
-    pType->m_hCustomMaterial = m_hCustomMaterial;
-  }
-  else
-  {
-    pType->m_hTexture = m_hTexture;
-  }
-}
 
 enum class TypeQuadVersion
 {
@@ -106,7 +67,7 @@ enum class TypeQuadVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleTypeQuadFactory::Save(ezStreamWriter& inout_stream) const
+void ezParticleTypeQuad::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)TypeQuadVersion::Version_Current;
   inout_stream << uiVersion;
@@ -145,7 +106,7 @@ void ezParticleTypeQuadFactory::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_TextureAtlasOrientation;
 }
 
-void ezParticleTypeQuadFactory::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleTypeQuad::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -212,9 +173,12 @@ void ezParticleTypeQuadFactory::Load(ezStreamReader& inout_stream, const ezParti
     inout_stream >> m_TextureAtlasOrientation;
   }
 
-  if (m_bUseCustomMaterial && !m_sCustomMaterial.IsEmpty())
+  if (m_bUseCustomMaterial)
   {
-    m_hCustomMaterial = ezResourceManager::LoadResource<ezMaterialResource>(m_sCustomMaterial);
+    if (!m_sCustomMaterial.IsEmpty())
+    {
+      m_hCustomMaterial = ezResourceManager::LoadResource<ezMaterialResource>(m_sCustomMaterial);
+    }
   }
   else if (!m_sTexture.IsEmpty())
   {
@@ -222,43 +186,48 @@ void ezParticleTypeQuadFactory::Load(ezStreamReader& inout_stream, const ezParti
   }
 }
 
-void ezParticleTypeQuadFactory::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
+void ezParticleTypeQuad::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
   if (m_Orientation == ezQuadParticleOrientation::FixedAxis_ParticleDir)
   {
-    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_LastPosition>());
+    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizer_LastPosition>());
   }
 }
 
-ezParticleTypeQuad::ezParticleTypeQuad() = default;
-ezParticleTypeQuad::~ezParticleTypeQuad() = default;
-
-void ezParticleTypeQuad::CreateRequiredStreams()
+bool ezParticleTypeQuad::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
-  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
-  CreateStream("RotationSpeed", ezProcessingStream::DataType::Half, &m_pStreamRotationSpeed, false);
-  CreateStream("RotationOffset", ezProcessingStream::DataType::Half, &m_pStreamRotationOffset, false);
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
 
-  m_pStreamAxis = nullptr;
-  m_pStreamVariation = nullptr;
-  m_pStreamLastPosition = nullptr;
+void ezParticleTypeQuad::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sLifeTime, ezProcessingStream::DataType::Half2, &data.m_pStreamLifeTime, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sSize, ezProcessingStream::DataType::Half, &data.m_pStreamSize, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sColor, ezProcessingStream::DataType::Half4, &data.m_pStreamColor, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sRotationSpeed, ezProcessingStream::DataType::Half, &data.m_pStreamRotationSpeed, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sRotationOffset, ezProcessingStream::DataType::Half, &data.m_pStreamRotationOffset, false);
+
+  data.m_pStreamAxis = nullptr;
+  data.m_pStreamVariation = nullptr;
+  data.m_pStreamLastPosition = nullptr;
 
   if (m_Orientation == ezQuadParticleOrientation::Fixed_RandomDir || m_Orientation == ezQuadParticleOrientation::Fixed_EmitterDir || m_Orientation == ezQuadParticleOrientation::Fixed_WorldUp)
   {
-    CreateStream("Axis", ezProcessingStream::DataType::Float3, &m_pStreamAxis, true);
+    ctx.CreateStream(ezParticleStreamNames::s_sAxis, ezProcessingStream::DataType::Float3, &data.m_pStreamAxis, true);
   }
 
   if (m_TextureAtlasType == ezParticleTextureAtlasType::RandomVariations || m_TextureAtlasType == ezParticleTextureAtlasType::RandomYAnimatedX || m_TextureAtlasType == ezParticleTextureAtlasType::RandomXAnimatedY)
   {
-    CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sVariation, ezProcessingStream::DataType::Int, &data.m_pStreamVariation, false);
   }
 
   if (m_Orientation == ezQuadParticleOrientation::FixedAxis_ParticleDir)
   {
-    CreateStream("LastPosition", ezProcessingStream::DataType::Float3, &m_pStreamLastPosition, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sLastPosition, ezProcessingStream::DataType::Float3, &data.m_pStreamLastPosition, false);
   }
 }
 
@@ -269,22 +238,24 @@ struct sodComparer
   EZ_ALWAYS_INLINE bool Equal(const ezParticleTypeQuad::sod& a, const ezParticleTypeQuad::sod& b) const { return a.dist == b.dist; }
 };
 
-void ezParticleTypeQuad::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
+void ezParticleTypeQuad::ExtractTypeRenderData(const ezParticleModuleContext& ctx, ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   if ((!m_hTexture.IsValid() && !m_hCustomMaterial))
     return;
 
-  const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
+  const ezUInt32 numParticles = (ezUInt32)ctx.m_pSystem->GetNumActiveParticles();
   if (numParticles == 0)
     return;
 
   const bool bNeedsSorting = (m_RenderMode == ezParticleTypeRenderMode::Blended) || (m_RenderMode == ezParticleTypeRenderMode::BlendedForeground) || (m_RenderMode == ezParticleTypeRenderMode::BlendedBackground);
 
   // don't copy the data multiple times in the same frame, if the effect is instanced
-  if ((m_uiLastExtractedFrame != ezRenderWorld::GetFrameCounter())
+  if ((data.m_uiLastExtractedFrame != ezRenderWorld::GetFrameCounter())
     /*&& !bNeedsSorting*/) // TODO: in theory every shared instance has to sort the Quads, in practice this maybe should be an option
   {
-    m_uiLastExtractedFrame = ezRenderWorld::GetFrameCounter();
+    data.m_uiLastExtractedFrame = ezRenderWorld::GetFrameCounter();
 
     if (bNeedsSorting)
     {
@@ -294,7 +265,7 @@ void ezParticleTypeQuad::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, 
       sorted.SetCountUninitialized(numParticles);
 
       const ezVec3 vCameraPos = ref_msg.m_pView->GetCullingCamera()->GetCenterPosition();
-      const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
+      const ezVec4* pPosition = data.m_pStreamPosition->GetData<ezVec4>();
 
       for (ezUInt32 p = 0; p < numParticles; ++p)
       {
@@ -304,15 +275,15 @@ void ezParticleTypeQuad::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, 
 
       sorted.Sort(sodComparer());
 
-      CreateExtractedData(&sorted);
+      CreateExtractedData(ctx, &sorted);
     }
     else
     {
-      CreateExtractedData(nullptr);
+      CreateExtractedData(ctx, nullptr);
     }
   }
 
-  AddParticleRenderData(ref_msg, instanceTransform);
+  AddParticleRenderData(ctx, ref_msg, instanceTransform);
 }
 
 EZ_ALWAYS_INLINE ezUInt32 noRedirect(ezUInt32 uiIdx, const ezHybridArray<ezParticleTypeQuad::sod, 64>* pSorted)
@@ -325,59 +296,61 @@ EZ_ALWAYS_INLINE ezUInt32 sortedRedirect(ezUInt32 uiIdx, const ezHybridArray<ezP
   return (*pSorted)[uiIdx].index;
 }
 
-void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSorted) const
+void ezParticleTypeQuad::CreateExtractedData(const ezParticleModuleContext& ctx, const ezHybridArray<sod, 64>* pSorted) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   auto redirect = (pSorted != nullptr) ? sortedRedirect : noRedirect;
 
-  const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
+  const ezUInt32 numParticles = (ezUInt32)ctx.m_pSystem->GetNumActiveParticles();
 
   const bool bNeedsBillboardData = m_Orientation == ezQuadParticleOrientation::Billboard;
   const bool bNeedsTangentData = !bNeedsBillboardData;
 
-  const ezVec3 vEmitterPos = GetOwnerSystem()->GetTransform().m_vPosition;
-  const ezVec3 vEmitterDir = GetOwnerSystem()->GetTransform().m_qRotation * ezVec3(0, 0, 1); // Z axis
+  const ezVec3 vEmitterPos = ctx.m_pSystem->GetTransform().m_vPosition;
+  const ezVec3 vEmitterDir = ctx.m_pSystem->GetTransform().m_qRotation * ezVec3(0, 0, 1); // Z axis
   const ezVec3 vEmitterDirOrtho = vEmitterDir.GetOrthogonalVector();
 
-  const ezTime tCur = GetOwnerEffect()->GetTotalEffectLifeTime();
-  const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
+  const ezTime tCur = ctx.GetEffect()->GetTotalEffectLifeTime();
+  const ezColor tintColor = ctx.GetEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
 
-  const ezFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetData<ezFloat16Vec2>();
-  const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
-  const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
-  const ezColorLinear16f* pColor = m_pStreamColor->GetData<ezColorLinear16f>();
-  const ezFloat16* pRotationSpeed = m_pStreamRotationSpeed->GetData<ezFloat16>();
-  const ezFloat16* pRotationOffset = m_pStreamRotationOffset->GetData<ezFloat16>();
-  const ezVec3* pAxis = m_pStreamAxis ? m_pStreamAxis->GetData<ezVec3>() : nullptr;
-  const ezUInt32* pVariation = m_pStreamVariation ? m_pStreamVariation->GetData<ezUInt32>() : nullptr;
-  const ezVec3* pLastPosition = m_pStreamLastPosition ? m_pStreamLastPosition->GetData<ezVec3>() : nullptr;
+  const ezFloat16Vec2* pLifeTime = data.m_pStreamLifeTime->GetData<ezFloat16Vec2>();
+  const ezVec4* pPosition = data.m_pStreamPosition->GetData<ezVec4>();
+  const ezFloat16* pSize = data.m_pStreamSize->GetData<ezFloat16>();
+  const ezColorLinear16f* pColor = data.m_pStreamColor->GetData<ezColorLinear16f>();
+  const ezFloat16* pRotationSpeed = data.m_pStreamRotationSpeed->GetData<ezFloat16>();
+  const ezFloat16* pRotationOffset = data.m_pStreamRotationOffset->GetData<ezFloat16>();
+  const ezVec3* pAxis = data.m_pStreamAxis ? data.m_pStreamAxis->GetData<ezVec3>() : nullptr;
+  const ezUInt32* pVariation = data.m_pStreamVariation ? data.m_pStreamVariation->GetData<ezUInt32>() : nullptr;
+  const ezVec3* pLastPosition = data.m_pStreamLastPosition ? data.m_pStreamLastPosition->GetData<ezVec3>() : nullptr;
 
   // this will automatically be deallocated at the end of the frame
-  m_BaseParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData, numParticles);
+  data.m_BaseParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData, numParticles);
 
-  AllocateParticleData(numParticles, bNeedsBillboardData, bNeedsTangentData);
+  AllocateParticleData(data, numParticles, bNeedsBillboardData, bNeedsTangentData);
 
   auto SetBaseData = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
   {
-    m_BaseParticleData[uiDstIdx].Size = pSize[uiSrcIdx];
-    m_BaseParticleData[uiDstIdx].Color = pColor[uiSrcIdx].ToLinearFloat() * tintColor;
-    m_BaseParticleData[uiDstIdx].Life = pLifeTime[uiSrcIdx].x * pLifeTime[uiSrcIdx].y;
-    m_BaseParticleData[uiDstIdx].Variation = (pVariation != nullptr) ? pVariation[uiSrcIdx] : 0;
+    data.m_BaseParticleData[uiDstIdx].Size = pSize[uiSrcIdx];
+    data.m_BaseParticleData[uiDstIdx].Color = pColor[uiSrcIdx].ToLinearFloat() * tintColor;
+    data.m_BaseParticleData[uiDstIdx].Life = pLifeTime[uiSrcIdx].x * pLifeTime[uiSrcIdx].y;
+    data.m_BaseParticleData[uiDstIdx].Variation = (pVariation != nullptr) ? pVariation[uiSrcIdx] : 0;
   };
 
   auto SetBillboardData = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
   {
-    m_BillboardParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
-    m_BillboardParticleData[uiDstIdx].RotationOffset = pRotationOffset[uiSrcIdx];
-    m_BillboardParticleData[uiDstIdx].RotationSpeed = pRotationSpeed[uiSrcIdx];
+    data.m_BillboardParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
+    data.m_BillboardParticleData[uiDstIdx].RotationOffset = pRotationOffset[uiSrcIdx];
+    data.m_BillboardParticleData[uiDstIdx].RotationSpeed = pRotationSpeed[uiSrcIdx];
   };
 
   auto SetTangentDataEmitterDir = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
   {
     ezMat3 mRotation = ezMat3::MakeAxisRotation(vEmitterDir, ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[uiSrcIdx]) + pRotationOffset[uiSrcIdx]));
 
-    m_TangentParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
-    m_TangentParticleData[uiDstIdx].TangentX = mRotation * vEmitterDirOrtho;
-    m_TangentParticleData[uiDstIdx].TangentZ = vEmitterDir;
+    data.m_TangentParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
+    data.m_TangentParticleData[uiDstIdx].TangentX = mRotation * vEmitterDirOrtho;
+    data.m_TangentParticleData[uiDstIdx].TangentZ = vEmitterDir;
   };
 
   auto SetTangentDataEmitterDirOrtho = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
@@ -388,9 +361,9 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
 
     ezMat3 mRotation = ezMat3::MakeAxisRotation(vOrthoDir, ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[uiSrcIdx]) + pRotationOffset[uiSrcIdx]));
 
-    m_TangentParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
-    m_TangentParticleData[uiDstIdx].TangentX = vOrthoDir;
-    m_TangentParticleData[uiDstIdx].TangentZ = mRotation * vEmitterDir;
+    data.m_TangentParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
+    data.m_TangentParticleData[uiDstIdx].TangentX = vOrthoDir;
+    data.m_TangentParticleData[uiDstIdx].TangentZ = mRotation * vEmitterDir;
   };
 
   auto SetTangentDataFromAxis = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
@@ -405,16 +378,16 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
 
     const ezVec3 vTangentX = mRotation * vTangentStart;
 
-    m_TangentParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
-    m_TangentParticleData[uiDstIdx].TangentX = vTangentX;
-    m_TangentParticleData[uiDstIdx].TangentZ = vTangentX.CrossRH(vNormal);
+    data.m_TangentParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
+    data.m_TangentParticleData[uiDstIdx].TangentX = vTangentX;
+    data.m_TangentParticleData[uiDstIdx].TangentZ = vTangentX.CrossRH(vNormal);
   };
 
   auto SetTangentDataAligned_Emitter = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
   {
-    m_TangentParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
-    m_TangentParticleData[uiDstIdx].TangentX = vEmitterDir;
-    m_TangentParticleData[uiDstIdx].TangentZ.x = m_fStretch;
+    data.m_TangentParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
+    data.m_TangentParticleData[uiDstIdx].TangentX = vEmitterDir;
+    data.m_TangentParticleData[uiDstIdx].TangentZ.x = m_fStretch;
   };
 
   auto SetTangentDataAligned_ParticleDir = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
@@ -422,9 +395,9 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
     const ezVec3 vCurPos = pPosition[uiSrcIdx].GetAsVec3();
     const ezVec3 vLastPos = pLastPosition[uiSrcIdx];
     const ezVec3 vDir = vCurPos - vLastPos;
-    m_TangentParticleData[uiDstIdx].Position = vCurPos;
-    m_TangentParticleData[uiDstIdx].TangentX = vDir;
-    m_TangentParticleData[uiDstIdx].TangentZ.x = m_fStretch;
+    data.m_TangentParticleData[uiDstIdx].Position = vCurPos;
+    data.m_TangentParticleData[uiDstIdx].TangentX = vDir;
+    data.m_TangentParticleData[uiDstIdx].TangentZ.x = m_fStretch;
   };
 
   for (ezUInt32 p = 0; p < numParticles; ++p)
@@ -485,8 +458,10 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
   }
 }
 
-void ezParticleTypeQuad::AddParticleRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const
+void ezParticleTypeQuad::AddParticleRenderData(const ezParticleModuleContext& ctx, ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezParticleQuadRenderData>(nullptr);
 
   if (m_hCustomMaterial.IsValid())
@@ -500,13 +475,13 @@ void ezParticleTypeQuad::AddParticleRenderData(ezMsgExtractRenderData& msg, cons
 
   pRenderData->m_vGlobalPosition = instanceTransform.m_vPosition;
 
-  pRenderData->m_GlobalTransform = GetOwnerEffect()->NeedsToApplyTransform() ? instanceTransform : ezTransform::MakeIdentity();
-  pRenderData->m_TotalEffectLifeTime = GetOwnerEffect()->GetTotalEffectLifeTime();
+  pRenderData->m_GlobalTransform = ctx.GetEffect()->NeedsToApplyTransform() ? instanceTransform : ezTransform::MakeIdentity();
+  pRenderData->m_TotalEffectLifeTime = ctx.GetEffect()->GetTotalEffectLifeTime();
   pRenderData->m_RenderMode = m_RenderMode;
   pRenderData->m_hTexture = m_hTexture;
-  pRenderData->m_BaseParticleData = m_BaseParticleData;
-  pRenderData->m_BillboardParticleData = m_BillboardParticleData;
-  pRenderData->m_TangentParticleData = m_TangentParticleData;
+  pRenderData->m_BaseParticleData = data.m_BaseParticleData;
+  pRenderData->m_BillboardParticleData = data.m_BillboardParticleData;
+  pRenderData->m_TangentParticleData = data.m_TangentParticleData;
   pRenderData->m_uiNumVariationsX = 1;
   pRenderData->m_uiNumVariationsY = 1;
   pRenderData->m_uiNumFlipbookAnimationsX = 1;
@@ -566,12 +541,14 @@ void ezParticleTypeQuad::AddParticleRenderData(ezMsgExtractRenderData& msg, cons
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent, ezRenderData::Caching::Never);
 }
 
-void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleTypeQuad::InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const
 {
-  if (m_pStreamAxis != nullptr)
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  if (data.m_pStreamAxis != nullptr)
   {
-    ezVec3* pAxis = m_pStreamAxis->GetWritableData<ezVec3>();
-    ezRandom& rng = GetRNG();
+    ezVec3* pAxis = data.m_pStreamAxis->GetWritableData<ezVec3>();
+    ezRandom& rng = ctx.GetRNG();
 
     if (m_Orientation == ezQuadParticleOrientation::Fixed_RandomDir)
     {
@@ -592,12 +569,12 @@ void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNu
 
       if (m_Orientation == ezQuadParticleOrientation::Fixed_EmitterDir)
       {
-        vNormal = GetOwnerSystem()->GetTransform().m_qRotation * ezVec3(0, 0, 1); // Z axis
+        vNormal = ctx.m_pSystem->GetTransform().m_qRotation * ezVec3(0, 0, 1); // Z axis
       }
       else if (m_Orientation == ezQuadParticleOrientation::Fixed_WorldUp)
       {
         ezCoordinateSystem coord;
-        GetOwnerSystem()->GetWorld()->GetCoordinateSystem(GetOwnerSystem()->GetTransform().m_vPosition, coord);
+        ctx.m_pSystem->GetWorld()->GetCoordinateSystem(ctx.m_pSystem->GetTransform().m_vPosition, coord);
 
         vNormal = coord.m_vUpDir;
       }
@@ -627,18 +604,18 @@ void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNu
   }
 }
 
-void ezParticleTypeQuad::AllocateParticleData(const ezUInt32 numParticles, const bool bNeedsBillboardData, const bool bNeedsTangentData) const
+void ezParticleTypeQuad::AllocateParticleData(InstanceData& data, const ezUInt32 numParticles, const bool bNeedsBillboardData, const bool bNeedsTangentData)
 {
-  m_BillboardParticleData = nullptr;
+  data.m_BillboardParticleData = nullptr;
   if (bNeedsBillboardData)
   {
-    m_BillboardParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBillboardQuadParticleShaderData, numParticles);
+    data.m_BillboardParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBillboardQuadParticleShaderData, numParticles);
   }
 
-  m_TangentParticleData = nullptr;
+  data.m_TangentParticleData = nullptr;
   if (bNeedsTangentData)
   {
-    m_TangentParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTangentQuadParticleShaderData, numParticles);
+    data.m_TangentParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTangentQuadParticleShaderData, numParticles);
   }
 }
 
@@ -674,10 +651,10 @@ ezQuadParticleOrientationPatch_1_2 g_ezQuadParticleOrientationPatch_1_2;
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezParticleTypeQuadFactory_1_2 final : public ezGraphPatch
+class ezParticleTypeQuad_1_2 final : public ezGraphPatch
 {
 public:
-  ezParticleTypeQuadFactory_1_2()
+  ezParticleTypeQuad_1_2()
     : ezGraphPatch("ezParticleTypeQuadFactory", 2)
   {
   }
@@ -707,7 +684,7 @@ public:
   }
 };
 
-ezParticleTypeQuadFactory_1_2 g_ezParticleTypeQuadFactory_1_2;
+ezParticleTypeQuad_1_2 g_ezParticleTypeQuad_1_2;
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Quad_ParticleTypeQuad);

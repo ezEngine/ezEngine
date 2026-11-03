@@ -1,80 +1,59 @@
 #include <ParticlePlugin/ParticlePluginPCH.h>
 
-#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Memory/MemoryUtils.h>
 #include <ParticlePlugin/Streams/ParticleStream.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStreamFactory, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStream, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleStreamFactory::ezParticleStreamFactory(const char* szStreamName, ezProcessingStream::DataType dataType, const ezRTTI* pStreamTypeToCreate)
+const ezHashedString ezParticleStreamNames::s_sAxis = ezMakeHashedString("Axis");
+const ezHashedString ezParticleStreamNames::s_sColor = ezMakeHashedString("Color");
+const ezHashedString ezParticleStreamNames::s_sEffectID = ezMakeHashedString("EffectID");
+const ezHashedString ezParticleStreamNames::s_sLastPosition = ezMakeHashedString("LastPosition");
+const ezHashedString ezParticleStreamNames::s_sLifeTime = ezMakeHashedString("LifeTime");
+const ezHashedString ezParticleStreamNames::s_sOnOff = ezMakeHashedString("OnOff");
+const ezHashedString ezParticleStreamNames::s_sPosition = ezMakeHashedString("Position");
+const ezHashedString ezParticleStreamNames::s_sRotationOffset = ezMakeHashedString("RotationOffset");
+const ezHashedString ezParticleStreamNames::s_sRotationSpeed = ezMakeHashedString("RotationSpeed");
+const ezHashedString ezParticleStreamNames::s_sSize = ezMakeHashedString("Size");
+const ezHashedString ezParticleStreamNames::s_sTrailData = ezMakeHashedString("TrailData");
+const ezHashedString ezParticleStreamNames::s_sVariation = ezMakeHashedString("Variation");
+const ezHashedString ezParticleStreamNames::s_sVelocity = ezMakeHashedString("Velocity");
+
+ezParticleStream::ezParticleStream(ezTempHashedString sStreamName, ezProcessingStream::DataType dataType)
 {
-  m_szStreamName = szStreamName;
+  m_sStreamName = sStreamName;
   m_DataType = dataType;
-  m_pStreamTypeToCreate = pStreamTypeToCreate;
 }
 
-const ezRTTI* ezParticleStreamFactory::GetParticleStreamType() const
-{
-  return m_pStreamTypeToCreate;
-}
-
-ezProcessingStream::DataType ezParticleStreamFactory::GetStreamDataType() const
+ezProcessingStream::DataType ezParticleStream::GetStreamDataType() const
 {
   return m_DataType;
 }
 
-const char* ezParticleStreamFactory::GetStreamName() const
+ezTempHashedString ezParticleStream::GetStreamName() const
 {
-  return m_szStreamName;
+  return m_sStreamName;
 }
 
-ezParticleStream* ezParticleStreamFactory::CreateParticleStream(ezParticleSystemInstance* pOwner) const
+void ezParticleStream::InitializeElements(ezParticleSystemInstance* pSystem, ezProcessingStream* pStream, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const
 {
-  const ezRTTI* pRtti = GetParticleStreamType();
-  EZ_ASSERT_DEBUG(pRtti->IsDerivedFrom<ezParticleStream>(), "Particle stream factory does not create a valid stream type");
-
-  ezParticleStream* pStream = pRtti->GetAllocator()->Allocate<ezParticleStream>();
-
-  pOwner->CreateStream(GetStreamName(), GetStreamDataType(), &pStream->m_pStream, pStream->m_StreamBinding, true);
-  pStream->Initialize(pOwner);
-
-  return pStream;
+  ZeroFillElements(pStream, uiStartIndex, uiNumElements);
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-ezParticleStream::ezParticleStream()
+void ezParticleStream::ZeroFillElements(ezProcessingStream* pStream, ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  // make sure default stream initializers are run very first
-  m_fPriority = -1000.0f;
-}
-
-ezResult ezParticleStream::UpdateStreamBindings()
-{
-  m_StreamBinding.UpdateBindings(m_pStreamGroup);
-  return EZ_SUCCESS;
-}
-
-void ezParticleStream::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
-{
-  const ezUInt64 uiElementSize = m_pStream->GetElementSize();
-  const ezUInt64 uiElementStride = m_pStream->GetElementStride();
+  const ezUInt64 uiElementSize = pStream->GetElementSize();
+  const ezUInt64 uiElementStride = pStream->GetElementStride();
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
     ezMemoryUtils::ZeroFill<ezUInt8>(
-      static_cast<ezUInt8*>(ezMemoryUtils::AddByteOffset(m_pStream->GetWritableData(), static_cast<ptrdiff_t>(i * uiElementStride))),
+      static_cast<ezUInt8*>(ezMemoryUtils::AddByteOffset(pStream->GetWritableData(), static_cast<ptrdiff_t>(i * uiElementStride))),
       static_cast<size_t>(uiElementSize));
   }
 }
-
-
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Streams_ParticleStream);

@@ -7,21 +7,17 @@
 
 using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 
-/// Factory for creating prefab spawn reactions.
-///
-/// Configures reactions that instantiate a prefab at the event location.
-class EZ_PARTICLEPLUGIN_DLL ezParticleEventReactionFactory_Prefab final : public ezParticleEventReactionFactory
+/// Reaction that spawns a prefab at the location of the event.
+class EZ_PARTICLEPLUGIN_DLL ezParticleEventReaction_Prefab final : public ezParticleEventReaction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEventReactionFactory_Prefab, ezParticleEventReactionFactory);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEventReaction_Prefab, ezParticleEventReaction);
 
 public:
-  ezParticleEventReactionFactory_Prefab();
-
-  virtual const ezRTTI* GetEventReactionType() const override;
-  virtual void CopyReactionProperties(ezParticleEventReaction* pObject, bool bFirstTime) const override;
+  ezParticleEventReaction_Prefab();
 
   virtual void Save(ezStreamWriter& inout_stream) const override;
   virtual void Load(ezStreamReader& inout_stream) override;
+  virtual void ProcessEvent(ezParticleEffectInstance* pOwner, const ezParticleEvent& e) const override;
 
   ezString m_sPrefab;
   ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
@@ -38,25 +34,4 @@ public:
 
 private:
   // ezSharedPtr<ezParticlePrefabParameters> m_Parameters;
-};
-
-/// Event reaction that instantiates a prefab.
-///
-/// When triggered, spawns the configured prefab at the event's position and orientation.
-/// The prefab can be aligned according to the event's direction and normal vectors.
-class EZ_PARTICLEPLUGIN_DLL ezParticleEventReaction_Prefab final : public ezParticleEventReaction
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEventReaction_Prefab, ezParticleEventReaction);
-
-public:
-  ezParticleEventReaction_Prefab();
-  ~ezParticleEventReaction_Prefab();
-
-  ezPrefabResourceHandle m_hPrefab;
-  ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
-
-  // ezSharedPtr<ezParticlePrefabParameters> m_Parameters;
-
-protected:
-  virtual void ProcessEvent(const ezParticleEvent& e) override;
 };

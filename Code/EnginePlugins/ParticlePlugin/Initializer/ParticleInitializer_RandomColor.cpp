@@ -9,7 +9,7 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomColor, 3, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomColor>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_RandomColor, 3, ezRTTIDefaultAllocator<ezParticleInitializer_RandomColor>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -22,26 +22,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomColor, 3, ezR
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_RandomColor, 1, ezRTTIDefaultAllocator<ezParticleInitializer_RandomColor>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-const ezRTTI* ezParticleInitializerFactory_RandomColor::GetInitializerType() const
-{
-  return ezGetStaticRTTI<ezParticleInitializer_RandomColor>();
-}
-
-void ezParticleInitializerFactory_RandomColor::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
-{
-  ezParticleInitializer_RandomColor* pInitializer = static_cast<ezParticleInitializer_RandomColor*>(pInitializer0);
-
-  pInitializer->m_pGradient = &m_Gradient;
-  pInitializer->m_Color1 = m_Color1;
-  pInitializer->m_Color2 = m_Color2;
-}
-
-void ezParticleInitializerFactory_RandomColor::Save(ezStreamWriter& inout_stream) const
+void ezParticleInitializer_RandomColor::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 2;
   inout_stream << uiVersion;
@@ -53,7 +36,7 @@ void ezParticleInitializerFactory_RandomColor::Save(ezStreamWriter& inout_stream
   m_Gradient.Save(inout_stream);
 }
 
-void ezParticleInitializerFactory_RandomColor::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleInitializer_RandomColor::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -90,20 +73,30 @@ void ezParticleInitializerFactory_RandomColor::Load(ezStreamReader& inout_stream
 }
 
 
-void ezParticleInitializer_RandomColor::CreateRequiredStreams()
+bool ezParticleInitializer_RandomColor::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, true);
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleInitializer_RandomColor::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleInitializer_RandomColor::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sColor, ezProcessingStream::DataType::Half4, &data.m_pStreamColor, true);
+}
+
+void ezParticleInitializer_RandomColor::InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Random Color");
 
-  ezColorLinear16f* pColor = m_pStreamColor->GetWritableData<ezColorLinear16f>();
+  ezColorLinear16f* pColor = data.m_pStreamColor->GetWritableData<ezColorLinear16f>();
 
-  ezRandom& rng = GetRNG();
+  ezRandom& rng = ctx.GetRNG();
 
-  if (m_pGradient == nullptr || m_pGradient->IsEmpty())
+  if (m_Gradient.IsEmpty())
   {
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
@@ -120,7 +113,7 @@ void ezParticleInitializer_RandomColor::InitializeElements(ezUInt64 uiStartIndex
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      m_pGradient->Evaluate(rng.DoubleZeroToOneInclusive(), color, intensity);
+      m_Gradient.Evaluate(rng.DoubleZeroToOneInclusive(), color, intensity);
 
       ezColor result = color;
       result.ScaleRGB(intensity);

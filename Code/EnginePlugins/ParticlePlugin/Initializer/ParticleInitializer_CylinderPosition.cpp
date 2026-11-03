@@ -10,7 +10,7 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_CylinderPosition, 2, ezRTTIDefaultAllocator<ezParticleInitializerFactory_CylinderPosition>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_CylinderPosition, 2, ezRTTIDefaultAllocator<ezParticleInitializer_CylinderPosition>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -32,12 +32,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_CylinderPosition, 2
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_CylinderPosition, 1, ezRTTIDefaultAllocator<ezParticleInitializer_CylinderPosition>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleInitializerFactory_CylinderPosition::ezParticleInitializerFactory_CylinderPosition()
+ezParticleInitializer_CylinderPosition::ezParticleInitializer_CylinderPosition()
 {
   m_vPositionOffset.SetZero();
   m_fRadius = 0.25f;
@@ -46,33 +43,10 @@ ezParticleInitializerFactory_CylinderPosition::ezParticleInitializerFactory_Cyli
   m_bSetVelocity = false;
 }
 
-const ezRTTI* ezParticleInitializerFactory_CylinderPosition::GetInitializerType() const
+float ezParticleInitializer_CylinderPosition::GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const
 {
-  return ezGetStaticRTTI<ezParticleInitializer_CylinderPosition>();
-}
-
-void ezParticleInitializerFactory_CylinderPosition::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
-{
-  ezParticleInitializer_CylinderPosition* pInitializer = static_cast<ezParticleInitializer_CylinderPosition*>(pInitializer0);
-
-  const float fScaleRadius = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleRadiusParameter.GetData()), 1.0f);
-  const float fScaleHeight = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleHeightParameter.GetData()), 1.0f);
-
-  pInitializer->m_vPositionOffset = m_vPositionOffset;
-  pInitializer->m_bUseSpawnArea = m_bUseSpawnArea;
-  pInitializer->m_fRadius = ezMath::Max(m_fRadius * fScaleRadius, 0.01f); // prevent 0 radius
-  pInitializer->m_fHeight = ezMath::Max(m_fHeight * fScaleHeight, 0.0f);
-  pInitializer->m_bSpawnOnSurface = m_bSpawnOnSurface;
-  pInitializer->m_bSetVelocity = m_bSetVelocity;
-  pInitializer->m_Speed = m_Speed;
-  pInitializer->m_fRadiusScale = fScaleRadius;
-  pInitializer->m_fHeightScale = m_fHeight > 0.0f ? fScaleHeight : 0.0f;
-}
-
-float ezParticleInitializerFactory_CylinderPosition::GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const
-{
-  const float fScaleRadius = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleRadiusParameter.GetData()), 1.0f);
-  const float fScaleHeight = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleHeightParameter.GetData()), 1.0f);
+  const float fScaleRadius = pEffect->GetFloatParameter(m_sScaleRadiusParameter, 1.0f);
+  const float fScaleHeight = pEffect->GetFloatParameter(m_sScaleHeightParameter, 1.0f);
 
   if (m_bSpawnOnSurface)
   {
@@ -91,7 +65,7 @@ float ezParticleInitializerFactory_CylinderPosition::GetSpawnCountMultiplier(con
   }
 }
 
-void ezParticleInitializerFactory_CylinderPosition::Save(ezStreamWriter& inout_stream) const
+void ezParticleInitializer_CylinderPosition::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 4;
   inout_stream << uiVersion;
@@ -114,7 +88,7 @@ void ezParticleInitializerFactory_CylinderPosition::Save(ezStreamWriter& inout_s
   inout_stream << m_bUseSpawnArea;
 }
 
-void ezParticleInitializerFactory_CylinderPosition::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleInitializer_CylinderPosition::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -143,60 +117,71 @@ void ezParticleInitializerFactory_CylinderPosition::Load(ezStreamReader& inout_s
   }
 }
 
-void ezParticleInitializerFactory_CylinderPosition::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
+void ezParticleInitializer_CylinderPosition::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
   if (m_bSetVelocity)
   {
-    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizer_ApplyVelocity>());
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezParticleInitializer_CylinderPosition::CreateRequiredStreams()
+bool ezParticleInitializer_CylinderPosition::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, true);
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
 
-  m_pStreamVelocity = nullptr;
+void ezParticleInitializer_CylinderPosition::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, true);
+
+  data.m_pStreamVelocity = nullptr;
 
   if (m_bSetVelocity)
   {
-    CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, true);
+    ctx.CreateStream(ezParticleStreamNames::s_sVelocity, ezProcessingStream::DataType::Half4, &data.m_pStreamVelocity, true);
   }
 }
 
-void ezParticleInitializer_CylinderPosition::OnFinalize()
+void ezParticleInitializer_CylinderPosition::OnFinalize(const ezParticleModuleContext& ctx) const
 {
-  if (m_bUseSpawnArea)
-  {
-    RequestUpdateFromWorld();
-  }
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  const float fScaleRadius = ctx.GetEffect()->GetFloatParameter(m_sScaleRadiusParameter, 1.0f);
+  const float fScaleHeight = ctx.GetEffect()->GetFloatParameter(m_sScaleHeightParameter, 1.0f);
+
+  data.m_fRadius = ezMath::Max(m_fRadius * fScaleRadius, 0.01f); // prevent 0 radius
+  data.m_fHeight = ezMath::Max(m_fHeight * fScaleHeight, 0.0f);
+  data.m_fRadiusScale = fScaleRadius;
+  data.m_fHeightScale = m_fHeight > 0.0f ? fScaleHeight : 0.0f;
+  data.m_Area.Reset();
 }
 
-void ezParticleInitializer_CylinderPosition::OnReset()
+void ezParticleInitializer_CylinderPosition::UpdateFromWorld(const ezParticleModuleContext& ctx, const ezWorld& world, ezGameObjectHandle hOwnerObject) const
 {
-  m_Area.Reset();
-}
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
 
-void ezParticleInitializer_CylinderPosition::UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject)
-{
-  const ezParticleCylinderAreaComponent* pArea = m_Area.Update<ezParticleCylinderAreaComponent>(world, *GetOwnerEffect());
+  const ezParticleCylinderAreaComponent* pArea = data.m_Area.Update<ezParticleCylinderAreaComponent>(world, *ctx.GetEffect());
 
   // if the area is gone, the last values stay in use, the spawn counts were scaled for them
   if (pArea == nullptr)
     return;
 
-  const float fAreaRadius = ezMath::Max(pArea->m_fRadius * m_fRadiusScale, 0.01f); // prevent 0 radius
-  const float fAreaHeight = ezMath::Max(pArea->m_fHeight * m_fHeightScale, 0.0f);
+  const float fAreaRadius = ezMath::Max(pArea->m_fRadius * data.m_fRadiusScale, 0.01f); // prevent 0 radius
+  const float fAreaHeight = ezMath::Max(pArea->m_fHeight * data.m_fHeightScale, 0.0f);
 
-  if (!m_Area.IsAreaUsed())
+  if (!data.m_Area.IsAreaUsed())
   {
     // the scale of the area relative to the effect, the scale of the effect itself applies to both shapes
     // with non-uniform scale, the circumference is approximated
-    const ezVec3 vAreaScale = m_Area.GetTransform().m_vScale.Abs();
+    const ezVec3 vAreaScale = data.m_Area.GetTransform().m_vScale.Abs();
 
-    // m_fRadius and m_fHeight are still the sizes of the initializer here
-    const float fRadiusRatio = fAreaRadius / m_fRadius;
+    // data.m_fRadius and data.m_fHeight are still the sizes of the initializer here
+    const float fRadiusRatio = fAreaRadius / data.m_fRadius;
 
     float fMultiplier = pArea->m_fSpawnScale;
 
@@ -210,47 +195,53 @@ void ezParticleInitializer_CylinderPosition::UpdateFromWorld(const ezWorld& worl
     }
 
     // with a height of zero, particles spawn in a disc or on a ring
-    if (m_fHeight > 0.0f)
+    if (data.m_fHeight > 0.0f)
     {
-      fMultiplier *= fAreaHeight * vAreaScale.z / m_fHeight;
+      fMultiplier *= fAreaHeight * vAreaScale.z / data.m_fHeight;
     }
 
-    m_Area.UseArea(fMultiplier);
+    data.m_Area.UseArea(fMultiplier);
   }
 
-  m_fRadius = fAreaRadius;
-  m_fHeight = fAreaHeight;
+  data.m_fRadius = fAreaRadius;
+  data.m_fHeight = fAreaHeight;
 }
 
-bool ezParticleInitializer_CylinderPosition::PrepareToSpawn()
+bool ezParticleInitializer_CylinderPosition::PrepareToSpawn(const ezParticleModuleContext& ctx) const
 {
-  return !m_bUseSpawnArea || m_Area.IsReady(*GetOwnerEffect());
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  return !m_bUseSpawnArea || data.m_Area.IsReady(*ctx.GetEffect());
 }
 
-float ezParticleInitializer_CylinderPosition::GetSpawnCountMultiplier() const
+float ezParticleInitializer_CylinderPosition::GetInstanceSpawnCountMultiplier(const ezParticleModuleContext& ctx) const
 {
-  return m_Area.GetSpawnCountMultiplier();
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  return data.m_Area.GetSpawnCountMultiplier();
 }
 
-void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleInitializer_CylinderPosition::InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Cylinder Position");
 
-  const ezVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
+  const ezVec3 startVel = ctx.m_pSystem->GetParticleStartVelocity();
   const float fStartSpeed = startVel.GetLength();
   const ezVec3 startDir = fStartSpeed > 0.0f ? startVel / fStartSpeed : ezVec3(0, 0, 1);
 
-  ezVec4* pPosition = m_pStreamPosition->GetWritableData<ezVec4>();
-  ezFloat16Vec4* pVelocity = m_bSetVelocity ? m_pStreamVelocity->GetWritableData<ezFloat16Vec4>() : nullptr;
+  ezVec4* pPosition = data.m_pStreamPosition->GetWritableData<ezVec4>();
+  ezFloat16Vec4* pVelocity = m_bSetVelocity ? data.m_pStreamVelocity->GetWritableData<ezFloat16Vec4>() : nullptr;
 
-  ezRandom& rng = GetRNG();
+  ezRandom& rng = ctx.GetRNG();
 
   // the position offset is already part of the area transform
-  const ezTransform trans = m_Area.IsAreaUsed() ? GetOwnerSystem()->GetTransform() * m_Area.GetTransformWithOffset(m_vPositionOffset) : GetOwnerSystem()->GetTransform();
-  const ezVec3 vOffset = m_Area.IsAreaUsed() ? ezVec3::MakeZero() : m_vPositionOffset;
+  const ezTransform trans = data.m_Area.IsAreaUsed() ? ctx.m_pSystem->GetTransform() * data.m_Area.GetTransformWithOffset(m_vPositionOffset) : ctx.m_pSystem->GetTransform();
+  const ezVec3 vOffset = data.m_Area.IsAreaUsed() ? ezVec3::MakeZero() : m_vPositionOffset;
 
-  const float fRadiusSqr = m_fRadius * m_fRadius;
-  const float fHalfHeight = m_fHeight * 0.5f;
+  const float fRadiusSqr = data.m_fRadius * data.m_fRadius;
+  const float fHalfHeight = data.m_fHeight * 0.5f;
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
@@ -260,8 +251,8 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
 
     do
     {
-      pos.x = (float)rng.DoubleMinMax(-m_fRadius, m_fRadius);
-      pos.y = (float)rng.DoubleMinMax(-m_fRadius, m_fRadius);
+      pos.x = (float)rng.DoubleMinMax(-data.m_fRadius, data.m_fRadius);
+      pos.y = (float)rng.DoubleMinMax(-data.m_fRadius, data.m_fRadius);
 
       len = pos.GetLengthSquared();
     } while (len > fRadiusSqr ||
@@ -275,9 +266,9 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
     }
 
     if (m_bSpawnOnSurface)
-      pos = normalPos * m_fRadius;
+      pos = normalPos * data.m_fRadius;
 
-    if (m_fHeight > 0)
+    if (data.m_fHeight > 0)
     {
       pos.z = (float)rng.DoubleMinMax(-fHalfHeight, fHalfHeight);
     }
@@ -301,10 +292,10 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezParticleInitializerFactory_CylinderPosition_1_2 : public ezGraphPatch
+class ezParticleInitializer_CylinderPosition_1_2 : public ezGraphPatch
 {
 public:
-  ezParticleInitializerFactory_CylinderPosition_1_2()
+  ezParticleInitializer_CylinderPosition_1_2()
     : ezGraphPatch("ezParticleInitializerFactory_CylinderPosition", 2)
   {
   }
@@ -315,6 +306,6 @@ public:
   }
 };
 
-ezParticleInitializerFactory_CylinderPosition_1_2 g_ezParticleInitializerFactory_CylinderPosition_1_2;
+ezParticleInitializer_CylinderPosition_1_2 g_ezParticleInitializer_CylinderPosition_1_2;
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_CylinderPosition);
