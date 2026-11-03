@@ -26,7 +26,7 @@ public:
   virtual void OnFinalize(const ezParticleModuleContext& ctx) const override;
   virtual bool IsContinuous() const override { return true; }
   virtual ezParticleEmitterState IsFinished(const ezParticleModuleContext& ctx) const override;
-  virtual ezUInt32 ComputeSpawnCount(const ezParticleModuleContext& ctx, const ezTime& tDiff) const override;
+  virtual ezUInt32 ComputeSpawnCount(const ezParticleModuleContext& ctx, const ezTime& diff) const override;
 
 public:
   ezTime m_StartDelay;                   ///< Delay before emission starts

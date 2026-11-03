@@ -29,7 +29,7 @@ public:
   virtual bool IsContinuous() const { return false; }
 
   /// Called once per update. Must return how many new particles to spawn.
-  virtual ezUInt32 ComputeSpawnCount(const ezParticleModuleContext& ctx, const ezTime& tDiff) const = 0;
+  virtual ezUInt32 ComputeSpawnCount(const ezParticleModuleContext& ctx, const ezTime& diff) const = 0;
 
   /// Called before ComputeSpawnCount(). Returns whether the emitter will spawn more particles.
   virtual ezParticleEmitterState IsFinished(const ezParticleModuleContext& ctx) const = 0;

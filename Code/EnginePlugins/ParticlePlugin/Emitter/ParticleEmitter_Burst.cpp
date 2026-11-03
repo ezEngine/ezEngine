@@ -113,7 +113,7 @@ ezParticleEmitterState ezParticleEmitter_Burst::IsFinished(const ezParticleModul
   return (ctx.GetInstanceData<InstanceData>().m_uiSpawnCountLeft == 0) ? ezParticleEmitterState::Finished : ezParticleEmitterState::Active;
 }
 
-ezUInt32 ezParticleEmitter_Burst::ComputeSpawnCount(const ezParticleModuleContext& ctx, const ezTime& tDiff) const
+ezUInt32 ezParticleEmitter_Burst::ComputeSpawnCount(const ezParticleModuleContext& ctx, const ezTime& diff) const
 {
   EZ_PROFILE_SCOPE("PFX: Burst - Spawn Count ");
 
@@ -122,7 +122,7 @@ ezUInt32 ezParticleEmitter_Burst::ComputeSpawnCount(const ezParticleModuleContex
   // delay before the emitter becomes active
   if (data.m_StartDelay.IsPositive())
   {
-    data.m_StartDelay -= tDiff;
+    data.m_StartDelay -= diff;
     return 0;
   }
 
@@ -135,7 +135,7 @@ ezUInt32 ezParticleEmitter_Burst::ComputeSpawnCount(const ezParticleModuleContex
   }
   else
   {
-    data.m_fSpawnAccu += (float)tDiff.GetSeconds() * data.m_fSpawnPerSecond;
+    data.m_fSpawnAccu += (float)diff.GetSeconds() * data.m_fSpawnPerSecond;
     uiSpawn = (ezUInt32)data.m_fSpawnAccu;
     uiSpawn = ezMath::Min(uiSpawn, data.m_uiSpawnCountLeft);
 

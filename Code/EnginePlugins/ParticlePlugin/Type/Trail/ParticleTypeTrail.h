@@ -69,8 +69,8 @@ private:
   struct InstanceData
   {
     ezUInt16 GetIndexForTrailPoints();
-    const ezVec4* GetTrailPointsPositions(ezUInt32 index) const;
-    ezVec4* GetTrailPointsPositions(ezUInt32 index);
+    const ezVec4* GetTrailPointsPositions(ezUInt32 uiIndex) const;
+    ezVec4* GetTrailPointsPositions(ezUInt32 uiIndex);
 
     ezProcessingStream* m_pStreamLifeTime = nullptr;
     ezProcessingStream* m_pStreamPosition = nullptr;

@@ -91,7 +91,7 @@ ezParticleEmitterState ezParticleEmitter_Distance::IsFinished(const ezParticleMo
   return ezParticleEmitterState::Active;
 }
 
-ezUInt32 ezParticleEmitter_Distance::ComputeSpawnCount(const ezParticleModuleContext& ctx, const ezTime& tDiff) const
+ezUInt32 ezParticleEmitter_Distance::ComputeSpawnCount(const ezParticleModuleContext& ctx, const ezTime& diff) const
 {
   InstanceData& data = ctx.GetInstanceData<InstanceData>();
 

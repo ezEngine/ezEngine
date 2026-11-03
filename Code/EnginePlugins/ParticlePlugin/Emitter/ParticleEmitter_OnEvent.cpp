@@ -89,7 +89,7 @@ ezParticleEmitterState ezParticleEmitter_OnEvent::IsFinished(const ezParticleMod
   return ezParticleEmitterState::OnlyReacting;
 }
 
-ezUInt32 ezParticleEmitter_OnEvent::ComputeSpawnCount(const ezParticleModuleContext& ctx, const ezTime& tDiff) const
+ezUInt32 ezParticleEmitter_OnEvent::ComputeSpawnCount(const ezParticleModuleContext& ctx, const ezTime& diff) const
 {
   InstanceData& data = ctx.GetInstanceData<InstanceData>();
 

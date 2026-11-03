@@ -429,43 +429,43 @@ ezUInt16 ezParticleTypeTrail::InstanceData::GetIndexForTrailPoints()
   return res;
 }
 
-ezVec4* ezParticleTypeTrail::InstanceData::GetTrailPointsPositions(ezUInt32 index)
+ezVec4* ezParticleTypeTrail::InstanceData::GetTrailPointsPositions(ezUInt32 uiIndex)
 {
   // if (m_uiMaxPoints > 32)
   {
-    return &m_TrailPoints64[index].Positions[0];
+    return &m_TrailPoints64[uiIndex].Positions[0];
   }
   // else if (m_uiMaxPoints > 16)
   //{
-  //  return &m_TrailPoints32[index].Positions[0];
+  //  return &m_TrailPoints32[uiIndex].Positions[0];
   //}
   // else if (m_uiMaxPoints > 8)
   //{
-  //  return &m_TrailPoints16[index].Positions[0];
+  //  return &m_TrailPoints16[uiIndex].Positions[0];
   //}
   // else
   //{
-  //  return &m_TrailPoints8[index].Positions[0];
+  //  return &m_TrailPoints8[uiIndex].Positions[0];
   //}
 }
 
-const ezVec4* ezParticleTypeTrail::InstanceData::GetTrailPointsPositions(ezUInt32 index) const
+const ezVec4* ezParticleTypeTrail::InstanceData::GetTrailPointsPositions(ezUInt32 uiIndex) const
 {
   // if (m_uiMaxPoints > 32)
   {
-    return &m_TrailPoints64[index].Positions[0];
+    return &m_TrailPoints64[uiIndex].Positions[0];
   }
   // else if (m_uiMaxPoints > 16)
   //{
-  //  return &m_TrailPoints32[index].Positions[0];
+  //  return &m_TrailPoints32[uiIndex].Positions[0];
   //}
   // else if (m_uiMaxPoints > 8)
   //{
-  //  return &m_TrailPoints16[index].Positions[0];
+  //  return &m_TrailPoints16[uiIndex].Positions[0];
   //}
   // else
   //{
-  //  return &m_TrailPoints8[index].Positions[0];
+  //  return &m_TrailPoints8[uiIndex].Positions[0];
   //}
 }
 

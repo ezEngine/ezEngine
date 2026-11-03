@@ -24,7 +24,7 @@ public:
 
   virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
   virtual ezParticleEmitterState IsFinished(const ezParticleModuleContext& ctx) const override;
-  virtual ezUInt32 ComputeSpawnCount(const ezParticleModuleContext& ctx, const ezTime& tDiff) const override;
+  virtual ezUInt32 ComputeSpawnCount(const ezParticleModuleContext& ctx, const ezTime& diff) const override;
   virtual void ProcessEventQueue(const ezParticleModuleContext& ctx, ezParticleEventQueue queue) const override;
 
   ezHashedString m_sEventName;          ///< Name of the event that triggers emission

@@ -293,7 +293,7 @@ inline const ezTime& ezParticleModuleContext::GetTimeDiff() const
   return m_pSystem->GetUpdateTimeDiff();
 }
 
-inline void ezParticleModuleContext::CreateStream(const ezHashedString& sName, ezProcessingStream::DataType type, ezProcessingStream** ppStream, bool bWillInitializeElements) const
+inline void ezParticleModuleContext::CreateStream(const ezHashedString& sName, ezProcessingStream::DataType type, ezProcessingStream** pStream, bool bWillInitializeElements) const
 {
-  m_pSystem->CreateStream(sName, type, ppStream, bWillInitializeElements);
+  m_pSystem->CreateStream(sName, type, pStream, bWillInitializeElements);
 }

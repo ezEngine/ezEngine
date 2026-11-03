@@ -33,8 +33,8 @@ struct ezParticleModuleContext
   /// The time step of the current particle system update.
   const ezTime& GetTimeDiff() const;
 
-  /// Gets or creates the stream and stores it in *ppStream, which should point into the instance data.
-  void CreateStream(const ezHashedString& sName, ezProcessingStream::DataType type, ezProcessingStream** ppStream, bool bWillInitializeElements) const;
+  /// Gets or creates the stream and stores it in *pStream, which should point into the instance data.
+  void CreateStream(const ezHashedString& sName, ezProcessingStream::DataType type, ezProcessingStream** pStream, bool bWillInitializeElements) const;
 };
 
 /// One module of a running particle system.
