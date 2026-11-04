@@ -38,12 +38,13 @@ void ezMcpProjectTool::GetSupportedTools(ezDynamicArray<ezMcpToolDesc>& out_tool
                        "This runs for a long time: transforming the assets of a project that was never transformed takes many "
                        "minutes, during which the editor answers nothing else. Use a generous timeout - 30 minutes rather than "
                        "30 seconds - and see app_ping for telling a slow export apart from a hung editor. The export log is "
-                       "returned and also written to 'ExportLog.txt' in the target directory.";
+                       "returned, it is not written to the target directory. If the project has a post-export script "
+                       "('Editor/PostExport.<ext>'), it runs on the exported files and fails the export when it returns a non-zero exit code.";
   exp.m_sInputSchema = R"({"type":"object","properties":{)"
                        R"("targetDirectory":{"type":"string","description":"Absolute path of the directory to export into. It is deleted and recreated. Must not be inside the project directory."},)"
                        R"("compileCppPlugin":{"type":"boolean","description":"Build the project's C++ plugin first, so the exported binaries match the current code. Default true. Has no effect on a project without C++ code."},)"
                        R"("transformAssets":{"type":"boolean","description":"Transform all assets first. Default true. With this off, assets modified since the last transform are exported in their old state, and assets never transformed for the active profile are missing entirely."},)"
-                       R"("createLaunchScripts":{"type":"boolean","description":"Write .bat files for starting the exported project. Default true."}},)"
+                       R"("runPostExportScript":{"type":"boolean","description":"Run the project's post-export script ('Editor/PostExport.<ext>') on the exported files. Default true. Has no effect on a project without such a script."}},)"
                        R"("required":["targetDirectory"]})";
 }
 
@@ -185,10 +186,10 @@ void ezMcpProjectTool::ExecuteProjectExport(const ezVariantDictionary& arguments
   ezProjectExportOptions options;
   options.m_bCompileCppPlugin = ezMcpJson::GetBool(arguments, "compileCppPlugin", true);
   options.m_bTransformAssets = ezMcpJson::GetBool(arguments, "transformAssets", true);
-  options.m_bCreateLaunchScripts = ezMcpJson::GetBool(arguments, "createLaunchScripts", true);
+  options.m_bRunPostExportScript = ezMcpJson::GetBool(arguments, "runPostExportScript", true);
 
-  ezStringBuilder sLog;
-  const ezStatus status = ezProjectExport::ExportProjectComplete(sTargetDir, options, &sLog);
+  ezProjectExportReport report;
+  const ezStatus status = ezProjectExport::ExportProjectComplete(sTargetDir, options, &report);
 
   ezMcpJsonWriter writer;
   writer.BeginObject();
@@ -201,9 +202,14 @@ void ezMcpProjectTool::ExecuteProjectExport(const ezVariantDictionary& arguments
     writer.AddVariableString("error", status.GetMessageString());
   }
 
+  writer.AddVariableUInt32("numErrors", report.m_uiNumErrors);
+  writer.AddVariableUInt32("numWarnings", report.m_uiNumWarnings);
+  writer.AddVariableUInt32("numFiles", report.m_uiNumFiles);
+  writer.AddVariableUInt64("totalBytes", report.m_uiTotalBytes);
+
   // The whole log, not a summary: it is the only record of what was written and which assets failed, and
   // an export that "succeeded" can still have skipped things that only show up here.
-  writer.AddVariableString("log", sLog);
+  writer.AddVariableString("log", report.m_sLog);
 
   writer.EndObject();
 

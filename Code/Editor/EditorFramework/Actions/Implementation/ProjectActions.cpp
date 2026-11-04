@@ -450,7 +450,7 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
       SetIconPath(":/EditorFramework/Icons/Tag.svg");
       break;
     case ezProjectAction::ButtonType::ExportProject:
-      // TODO: SetIconPath(":/EditorFramework/Icons/Tag.svg");
+      SetIconPath(":/EditorFramework/Icons/Export.svg");
       break;
     case ezProjectAction::ButtonType::Shortcuts:
       SetIconPath(":/GuiFoundation/Icons/Shortcuts.svg");

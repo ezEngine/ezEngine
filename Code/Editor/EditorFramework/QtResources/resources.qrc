@@ -103,6 +103,7 @@
     <file>Icons/Snap1x.svg</file>
     <file>Icons/Snap2x.svg</file>
     <file>Icons/Snap4x.svg</file>
+    <file>Icons/Export.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
     <file>ezDragToPositionGizmoEditTool.svg</file>
