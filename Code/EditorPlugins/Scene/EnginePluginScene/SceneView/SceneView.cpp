@@ -104,7 +104,10 @@ bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds
       {
         m_Camera.LookAt(pCamComp->GetOwner()->GetGlobalPosition(), pCamComp->GetOwner()->GetGlobalPosition() + pCamComp->GetOwner()->GetGlobalDirForwards(), pCamComp->GetOwner()->GetGlobalDirUp());
 
-        m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 70.0f, 0.1f, 100.0f);
+        const ezEnum<ezCameraMode> mode = pCamComp->GetCameraMode();
+        const bool bOrtho = mode == ezCameraMode::OrthoFixedWidth || mode == ezCameraMode::OrthoFixedHeight;
+
+        m_Camera.SetCameraMode(mode, bOrtho ? pCamComp->GetOrthoDimension() : pCamComp->GetFieldOfView(), pCamComp->GetNearPlane(), pCamComp->GetFarPlane());
 
         m_CullingCamera = m_Camera;
         return true;
