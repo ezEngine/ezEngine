@@ -1,0 +1,110 @@
+<rml>
+
+  <head>
+    <title>Asteroids HUD</title>
+    <style>
+      body, div {
+        display: block;
+      }
+
+      body {
+        width: 100%;
+        height: 100%;
+        font-family: LatoLatin;
+        font-weight: bold;
+        color: #e8f4ff;
+        pointer-events: none;
+      }
+
+      .corner {
+        position: absolute;
+        top: 16dp;
+        font-size: 18dp;
+        color: #9db8d0;
+      }
+
+      .corner .value {
+        display: block;
+        font-size: 38dp;
+        color: #ffffff;
+      }
+
+      #score { left: 28dp; }
+      #wave { left: 50%; width: 200dp; margin-left: -100dp; text-align: center; }
+      #best { right: 28dp; text-align: right; }
+
+      #lives {
+        position: absolute;
+        left: 28dp;
+        top: 92dp;
+      }
+
+      .life {
+        display: inline-block;
+        width: 16dp;
+        height: 26dp;
+        margin-right: 7dp;
+        background-color: #58a6ff;
+        border-radius: 6dp;
+      }
+
+      #center {
+        position: absolute;
+        top: 34%;
+        width: 100%;
+        text-align: center;
+      }
+
+      .title {
+        display: block;
+        font-size: 96dp;
+        color: #ffffff;
+      }
+
+      .banner {
+        display: block;
+        font-size: 56dp;
+        color: #ffd27a;
+      }
+
+      .hint {
+        display: block;
+        margin-top: 16dp;
+        font-size: 24dp;
+        color: #c8dcf0;
+      }
+
+      .controls {
+        display: block;
+        margin-top: 28dp;
+        font-size: 18dp;
+        font-weight: normal;
+        color: #9db8d0;
+      }
+    </style>
+  </head>
+
+  <body data-model="AsteroidsHud">
+    <div class="corner" id="score">SCORE<span class="value">{{Score}}</span></div>
+    <div class="corner" id="wave" data-if="Wave > 0">WAVE<span class="value">{{Wave}}</span></div>
+    <div class="corner" id="best">BEST<span class="value">{{HighScore}}</span></div>
+
+    <div id="lives">
+      <div class="life" data-if="Lives > 0"></div>
+      <div class="life" data-if="Lives > 1"></div>
+      <div class="life" data-if="Lives > 2"></div>
+      <div class="life" data-if="Lives > 3"></div>
+      <div class="life" data-if="Lives > 4"></div>
+    </div>
+
+    <div id="center">
+      <span class="title" data-if="Phase == 'Title'">ASTEROIDS</span>
+      <span class="banner" data-if="Phase == 'WaveCleared'">Wave {{Wave}} cleared</span>
+      <span class="banner" data-if="Phase == 'GameOver'">GAME OVER</span>
+      <span class="hint" data-if="Phase == 'Title'">Press SPACE or A to start</span>
+      <span class="hint" data-if="Phase == 'Respawning'">Press SPACE or A to respawn</span>
+      <span class="hint" data-if="Phase == 'GameOver'">Press SPACE or A to play again</span>
+      <span class="controls" data-if="Phase == 'Title'">A / D or arrow keys: turn &nbsp;&nbsp; W or up: thrust &nbsp;&nbsp; SPACE: fire<br />Controller: left stick to turn, right trigger for thrust, A to fire</span>
+    </div>
+  </body>
+</rml>

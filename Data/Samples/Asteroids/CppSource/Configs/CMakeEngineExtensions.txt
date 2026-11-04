@@ -3,5 +3,7 @@
 
 # Link against selected engine plugins
 target_link_libraries(${PROJECT_NAME} PRIVATE
+  MiniAudioPlugin
   ParticlePlugin
+  RmlUiPlugin
 )

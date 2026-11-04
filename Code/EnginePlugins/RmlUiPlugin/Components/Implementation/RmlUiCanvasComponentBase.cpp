@@ -192,7 +192,7 @@ ezUInt32 ezRmlUiCanvasComponentBase::AddDataBinding(ezUniquePtr<ezRmlUiDataBindi
 
   for (ezUInt32 i = 0; i < m_DataBindings.GetCount(); ++i)
   {
-    if (pDataBinding == nullptr)
+    if (m_DataBindings[i] == nullptr)
     {
       m_DataBindings[i] = std::move(pDataBinding);
       return i;
@@ -261,7 +261,10 @@ ezRmlUiContext* ezRmlUiCanvasComponentBase::GetOrCreateRmlContext()
 
   for (auto& pDataBinding : m_DataBindings)
   {
-    pDataBinding->Initialize(*m_pContext).IgnoreResult();
+    if (pDataBinding != nullptr)
+    {
+      pDataBinding->Initialize(*m_pContext).IgnoreResult();
+    }
   }
 
   m_pContext->LoadDocumentFromResource(m_hResource).IgnoreResult();

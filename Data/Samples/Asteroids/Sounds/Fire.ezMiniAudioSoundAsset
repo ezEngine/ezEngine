@@ -1,0 +1,122 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{17219956870661239461,5228047111532875956}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"MiniAudioSound"}
+		VarArray %Dependencies
+		{
+			s{"Sounds/Fire.wav"}
+		}
+		Uuid %DocumentID{u4{17219956870661239461,5228047111532875956}}
+		u4 %Hash{17435272824139660845}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %PackageDeps{}
+		VarArray %References
+		{
+			s{"Sounds/Fire.wav"}
+		}
+		s %Tags{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{17061984802731327126,5538941620487374913}}
+	s %t{"ezMiniAudioSoundAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		f %DopplerFactor{0}
+		VarArray %Files
+		{
+			s{"Sounds/Fire.wav"}
+		}
+		s %Group{"Effects"}
+		b %IsPositional{0}
+		b %Loop{0}
+		f %MaxRandomPitch{0x0000803F}
+		f %MaxRandomVolume{0x0000803F}
+		f %MinRandomPitch{0x0000803F}
+		f %MinRandomVolume{0x0000803F}
+		f %Rolloff{0x0000803F}
+		f %SoundSize{0xCDCCCC3D}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{17061984802731327126,5538941620487374913}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13165658205004362924,16796352703697934182}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginMiniAudio"}
+		VarArray %Properties{}
+		s %TypeName{"ezMiniAudioSoundAssetProperties"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}
