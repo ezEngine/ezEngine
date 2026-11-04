@@ -9,9 +9,45 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/System/EnvironmentVariableUtils.h>
+#include <Foundation/System/Process.h>
+#include <Foundation/Threading/Lock.h>
+#include <Foundation/Threading/Mutex.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/Utilities/Progress.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 #include <ToolsFoundation/Utilities/PathPatternFilter.h>
+
+namespace
+{
+  class ExportLogCollector : public ezLogSystemToBuffer
+  {
+  public:
+    virtual void HandleLogMessage(const ezLoggingEventData& le) override
+    {
+      ezLogSystemToBuffer::HandleLogMessage(le);
+
+      switch (le.m_EventType)
+      {
+        case ezLogMsgType::ErrorMsg:
+          ++m_uiNumErrors;
+          m_sProblems.Append("Error: ", le.m_sText, "\n");
+          break;
+        case ezLogMsgType::SeriousWarningMsg:
+        case ezLogMsgType::WarningMsg:
+          ++m_uiNumWarnings;
+          m_sProblems.Append("Warning: ", le.m_sText, "\n");
+          break;
+        default:
+          break;
+      }
+    }
+
+    ezStringBuilder m_sProblems;
+    ezUInt32 m_uiNumErrors = 0;
+    ezUInt32 m_uiNumWarnings = 0;
+  };
+} // namespace
 
 ezResult ezProjectExport::ClearTargetFolder(const char* szAbsFolderPath)
 {
@@ -493,7 +529,157 @@ void ezProjectExport::AddPackageDependenciesToFileList(DirectoryMapping& ref_fil
   }
 }
 
-ezStatus ezProjectExport::ExportProjectComplete(ezStringView sTargetDirectory, const ezProjectExportOptions& options, ezStringBuilder* out_pLog)
+ezStatus ezProjectExport::FindPostExportScript(ezString& out_sScriptFile)
+{
+  out_sScriptFile.Clear();
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  const char* extensions[] = {"py", "ps1"};
+#else
+  const char* extensions[] = {"sh", "py", "ps1"};
+#endif
+
+  ezStringBuilder sScriptFile;
+
+  for (const char* szExtension : extensions)
+  {
+    sScriptFile.Set(ezToolsProject::GetSingleton()->GetProjectDirectory(), "/Editor/PostExport.", szExtension);
+    sScriptFile.MakeCleanPath();
+
+    if (!ezOSFile::ExistsFile(sScriptFile))
+      continue;
+
+    if (!out_sScriptFile.IsEmpty())
+    {
+      return ezStatus(ezFmt("There are multiple post-export scripts: '{}' and '{}'. Only one may exist per platform.", out_sScriptFile, sScriptFile));
+    }
+
+    out_sScriptFile = sScriptFile;
+  }
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezResult ezProjectExport::RunPostExportScript(ezStringView sScriptFile, ezStringView sTargetDirectory)
+{
+  ezProgressRange progress("Running post-export script", 1, false);
+  progress.BeginNextStep(ezPathUtils::GetFileNameAndExtension(sScriptFile));
+
+  ezStringBuilder sScript = sScriptFile;
+  sScript.MakePathSeparatorsNative();
+
+  ezStringBuilder sTargetDir = sTargetDirectory;
+  sTargetDir.MakePathSeparatorsNative();
+
+  ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  sProjectDir.MakePathSeparatorsNative();
+
+  ezProcessOptions po;
+  po.m_sWorkingDirectory = sTargetDir;
+
+  const ezStringView sExtension = ezPathUtils::GetFileExtension(sScript);
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  if (sExtension.IsEqual_NoCase("ps1"))
+  {
+    po.m_sProcess = "powershell.exe";
+    po.m_Arguments.PushBack("-NoProfile");
+    po.m_Arguments.PushBack("-NonInteractive");
+    po.m_Arguments.PushBack("-ExecutionPolicy");
+    po.m_Arguments.PushBack("Bypass");
+    po.m_Arguments.PushBack("-File");
+  }
+  else if (sExtension.IsEqual_NoCase("py"))
+  {
+    po.m_sProcess = "python";
+  }
+#else
+  if (sExtension.IsEqual_NoCase("ps1"))
+  {
+    po.m_sProcess = "pwsh";
+    po.m_Arguments.PushBack("-NoProfile");
+    po.m_Arguments.PushBack("-NonInteractive");
+    po.m_Arguments.PushBack("-File");
+  }
+  else if (sExtension.IsEqual_NoCase("py"))
+  {
+    po.m_sProcess = "python3";
+  }
+  else
+  {
+    po.m_sProcess = "bash";
+  }
+#endif
+
+  po.m_Arguments.PushBack(sScript);
+
+  struct OutputLine
+  {
+    ezString m_sText;
+    bool m_bIsError = false;
+  };
+
+  // The callbacks run on separate threads, where a log message wouldn't end up in the thread-local export log.
+  ezMutex outputMutex;
+  ezDynamicArray<OutputLine> output;
+
+  auto AddLine = [&](ezStringView sLine, bool bIsError)
+  {
+    ezStringBuilder sText = sLine;
+    sText.Trim("\r\n");
+
+    if (sText.IsEmpty())
+      return;
+
+    EZ_LOCK(outputMutex);
+    auto& line = output.ExpandAndGetRef();
+    line.m_sText = sText;
+    line.m_bIsError = bIsError;
+  };
+
+  po.m_onStdOut = [&](ezStringView sLine)
+  { AddLine(sLine, false); };
+  po.m_onStdError = [&](ezStringView sLine)
+  { AddLine(sLine, true); };
+
+  ezLog::Info("Running post-export script '{}'", sScript);
+
+  // ezProcessOptions can't specify the environment of the process, it inherits the one from this process
+  ezEnvironmentVariableUtils::SetValueString("EZ_EXPORT_DIR", sTargetDir).IgnoreResult();
+  ezEnvironmentVariableUtils::SetValueString("EZ_PROJECT_DIR", sProjectDir).IgnoreResult();
+  ezEnvironmentVariableUtils::SetValueString("EZ_ASSET_PROFILE", ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName()).IgnoreResult();
+
+  ezInt32 iExitCode = 0;
+  const ezResult launchResult = ezProcess::Execute(po, &iExitCode);
+
+  ezEnvironmentVariableUtils::UnsetVariable("EZ_EXPORT_DIR").IgnoreResult();
+  ezEnvironmentVariableUtils::UnsetVariable("EZ_PROJECT_DIR").IgnoreResult();
+  ezEnvironmentVariableUtils::UnsetVariable("EZ_ASSET_PROFILE").IgnoreResult();
+
+  for (const OutputLine& line : output)
+  {
+    if (line.m_bIsError)
+      ezLog::Warning("{}", line.m_sText);
+    else
+      ezLog::Info("{}", line.m_sText);
+  }
+
+  if (launchResult.Failed())
+  {
+    ezLog::Error("Failed to start '{}' for the post-export script.", po.m_sProcess);
+    return EZ_FAILURE;
+  }
+
+  if (iExitCode != 0)
+  {
+    ezLog::Error("The post-export script failed with exit code {}.", iExitCode);
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezStatus ezProjectExport::ExportProjectComplete(ezStringView sTargetDirectory, const ezProjectExportOptions& options, ezProjectExportReport* out_pReport)
 {
   if (sTargetDirectory.IsEmpty())
     return ezStatus("No target directory given.");
@@ -503,13 +689,22 @@ ezStatus ezProjectExport::ExportProjectComplete(ezStringView sTargetDirectory, c
 
   const ezString sTargetDir = sTargetDirectory;
 
-  ezLogSystemToBuffer logBuffer;
+  ExportLogCollector logCollector;
   ezStatus result = ezStatus(EZ_SUCCESS);
+  ezUInt32 uiNumFiles = 0;
+  ezUInt64 uiTotalBytes = 0;
 
   {
-    ezLogSystemScope logScope(&logBuffer);
+    ezLogSystemScope logScope(out_pReport != nullptr ? static_cast<ezLogInterface*>(&logCollector) : ezLog::GetThreadLocalLogSystem());
 
-    if (options.m_bCompileCppPlugin)
+    // checked first, so that an invalid setup is reported before anything was built or deleted
+    ezString sPostExportScript;
+    if (options.m_bRunPostExportScript)
+    {
+      result = FindPostExportScript(sPostExportScript);
+    }
+
+    if (result.Succeeded() && options.m_bCompileCppPlugin)
     {
       // Does nothing if the project has no C++ code at all. Failing here would leave the export with
       // binaries that don't match the code, so it is not something to continue past.
@@ -531,40 +726,48 @@ ezStatus ezProjectExport::ExportProjectComplete(ezStringView sTargetDirectory, c
 
     if (result.Succeeded())
     {
-      if (ezProjectExport::ExportProject(sTargetDir, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), ezQtEditorApp::GetSingleton()->GetFileSystemConfig(), options.m_bCreateLaunchScripts).Failed())
+      if (ezProjectExport::ExportProject(sTargetDir, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), ezQtEditorApp::GetSingleton()->GetFileSystemConfig()).Failed())
       {
         result = ezStatus("Project export failed.");
       }
     }
+
+    if (result.Succeeded() && !sPostExportScript.IsEmpty())
+    {
+      if (RunPostExportScript(sPostExportScript, sTargetDir).Failed())
+      {
+        result = ezStatus("The post-export script failed. The exported files are still in the target directory.");
+      }
+    }
+
+    // done after the post-export script, which may have removed or added files
+    if (result.Succeeded())
+    {
+      ezFileSystemIterator it;
+      for (it.StartSearch(sTargetDir, ezFileSystemIteratorFlags::ReportFilesRecursive); it.IsValid(); it.Next())
+      {
+        ++uiNumFiles;
+        uiTotalBytes += it.GetStats().m_uiFileSize;
+      }
+
+      ezLog::Success("Exported {} files, {}.", uiNumFiles, ezArgFileSize(uiTotalBytes));
+    }
   }
 
-  if (out_pLog != nullptr)
+  if (out_pReport != nullptr)
   {
-    *out_pLog = logBuffer.m_sBuffer;
-  }
-
-  // Written last, and only when the directory is there: a failure early on means ExportProject() never
-  // got as far as creating it, and an otherwise empty folder containing just a log would look like a
-  // half finished export.
-  if (ezOSFile::ExistsDirectory(sTargetDir))
-  {
-    ezStringBuilder sLogFile(sTargetDir, "/ExportLog.txt");
-
-    ezOSFile file;
-    if (file.Open(sLogFile, ezFileOpenMode::Write).Succeeded())
-    {
-      file.Write(logBuffer.m_sBuffer.GetData(), logBuffer.m_sBuffer.GetElementCount()).IgnoreResult();
-    }
-    else
-    {
-      ezLog::Warning("Failed to write the export log '{}'.", sLogFile);
-    }
+    out_pReport->m_sLog = logCollector.m_sBuffer;
+    out_pReport->m_sProblems = logCollector.m_sProblems;
+    out_pReport->m_uiNumErrors = logCollector.m_uiNumErrors;
+    out_pReport->m_uiNumWarnings = logCollector.m_uiNumWarnings;
+    out_pReport->m_uiNumFiles = uiNumFiles;
+    out_pReport->m_uiTotalBytes = uiTotalBytes;
   }
 
   return result;
 }
 
-ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezPlatformProfile* pPlatformProfile, const ezApplicationFileSystemConfig& dataDirs, bool bCreateLaunchScripts)
+ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezPlatformProfile* pPlatformProfile, const ezApplicationFileSystemConfig& dataDirs)
 {
   ezProgressRange mainProgress("Export Project", 7, true);
   mainProgress.SetStepWeighting(0, 0.05f); // Preparing output folder
@@ -699,10 +902,7 @@ ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezP
   {
     mainProgress.BeginNextStep("Finishing up");
 
-    if (bCreateLaunchScripts)
-    {
-      EZ_SUCCEED_OR_RETURN(ezProjectExport::CreateLaunchConfig(sceneFiles, szTargetDirectory, sCustomGameExecutable));
-    }
+    EZ_SUCCEED_OR_RETURN(ezProjectExport::CreateLaunchConfig(sceneFiles, szTargetDirectory, sCustomGameExecutable));
   }
 
   return EZ_SUCCESS;

@@ -26,8 +26,8 @@
    <string>Project Export</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/EditorPluginScene/Icons/SceneExport.svg</normaloff>:/EditorPluginScene/Icons/SceneExport.svg</iconset>
+   <iconset resource="../QtResources/resources.qrc">
+    <normaloff>:/EditorFramework/Icons/Export.svg</normaloff>:/EditorFramework/Icons/Export.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -66,54 +66,25 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="CreateLaunchScripts">
-     <property name="toolTip">
-      <string>Writes .bat files to the output folder for launching the exported project.</string>
-     </property>
+    <widget class="QCheckBox" name="RunPostExportScript">
      <property name="text">
-      <string>Create Launch Scripts</string>
+      <string>Run Post-Export Script</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="OpenOutputFolder">
-     <property name="toolTip">
-      <string>Opens the output folder in the file browser, once the export finished successfully.</string>
-     </property>
-     <property name="text">
-      <string>Open Output Folder</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Export Log:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPlainTextEdit" name="ExportLog">
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOn</enum>
-     </property>
-     <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOn</enum>
-     </property>
-     <property name="lineWrapMode">
-      <enum>QPlainTextEdit::NoWrap</enum>
-     </property>
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <spacer name="horizontalSpacer">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Export Log:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -124,9 +95,106 @@
       </spacer>
      </item>
      <item>
+      <widget class="QCheckBox" name="ProblemsOnly">
+       <property name="toolTip">
+        <string>Only shows the errors and warnings of the last export. Saving the log always writes all of it.</string>
+       </property>
+       <property name="text">
+        <string>Errors and Warnings Only</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QPlainTextEdit" name="ExportLog">
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+     </property>
+     <property name="lineWrapMode">
+      <enum>QPlainTextEdit::LineWrapMode::NoWrap</enum>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="HelpButton">
+       <property name="toolTip">
+        <string>Opens the documentation about project export in the web browser.</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
+         <normaloff>:/GuiFoundation/Icons/Help.svg</normaloff>:/GuiFoundation/Icons/Help.svg</iconset>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="SaveLogButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Writes the log of the last export to a file. Available after an export.</string>
+       </property>
+       <property name="text">
+        <string>&amp;Save Export Log</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="OpenFolderButton">
+       <property name="toolTip">
+        <string>Opens the destination folder in the file browser. Only available when the folder exists.</string>
+       </property>
+       <property name="text">
+        <string>&amp;Open Folder</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
+         <normaloff>:/GuiFoundation/Icons/OpenFolder.svg</normaloff>:/GuiFoundation/Icons/OpenFolder.svg</iconset>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="ExportProjectButton">
        <property name="text">
         <string>&amp;Export Project</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../QtResources/resources.qrc">
+         <normaloff>:/EditorFramework/Icons/Export.svg</normaloff>:/EditorFramework/Icons/Export.svg</iconset>
        </property>
        <property name="shortcut">
         <string>Alt+E</string>
@@ -140,7 +208,6 @@
  <resources>
   <include location="../QtResources/resources.qrc"/>
   <include location="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc"/>
-  <include location="../QtResources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

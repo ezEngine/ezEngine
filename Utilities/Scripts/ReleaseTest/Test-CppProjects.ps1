@@ -278,11 +278,6 @@ if (-not $SkipExport -and -not $Only)
 			throw "Exit code $($result.ExitCode) ($(Get-ProcessorExitCodeText $result.ExitCode)), see '$($result.LogFile)'."
 		}
 
-		if (-not (Test-Path (Join-Path $exportDir "ExportLog.txt")))
-		{
-			throw "No 'ExportLog.txt' in '$exportDir'."
-		}
-
 		# the MCP plugin bundle declares no runtime plugins, so an exported game must not contain it
 		$pluginConfigs = @(Get-ChildItem $exportDir -Filter "Plugins.ddl" -Recurse -File -ErrorAction SilentlyContinue)
 		$withMcp = @($pluginConfigs | Select-String -SimpleMatch -Pattern "McpPlugin" -List)

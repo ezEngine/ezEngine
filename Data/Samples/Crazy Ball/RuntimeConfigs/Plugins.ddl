@@ -15,6 +15,11 @@ Plugin
 }
 Plugin
 {
+	string %Path{"ezRmlUiPlugin"}
+	bool %LoadCopy{false}
+}
+Plugin
+{
 	string %Path{"ezVisualScriptPlugin"}
 	bool %LoadCopy{false}
 }

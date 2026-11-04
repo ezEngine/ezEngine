@@ -29,8 +29,22 @@ struct EZ_EDITORFRAMEWORK_DLL ezProjectExportOptions
   /// from the export entirely.
   bool m_bTransformAssets = true;
 
-  /// See ezProjectExport::ExportProject().
-  bool m_bCreateLaunchScripts = true;
+  /// Run the project's post-export script, see ezProjectExport::FindPostExportScript(). Has no effect on a
+  /// project without such a script. When disabled, multiple scripts for this platform aren't an error either.
+  bool m_bRunPostExportScript = true;
+};
+
+/// What ezProjectExport::ExportProjectComplete() hands back to a caller that presents the result itself.
+struct ezProjectExportReport
+{
+  ezString m_sLog;              ///< Everything that the export logged.
+  ezString m_sProblems;         ///< Only the errors and warnings from m_sLog.
+
+  ezUInt32 m_uiNumErrors = 0;   ///< Can be non-zero for a successful export, for instance when a single file couldn't be copied.
+  ezUInt32 m_uiNumWarnings = 0; ///< Includes serious warnings.
+
+  ezUInt32 m_uiNumFiles = 0;    ///< Number of files in the target directory. Only set when the export succeeded.
+  ezUInt64 m_uiTotalBytes = 0;  ///< Size of all files in the target directory. Only set when the export succeeded.
 };
 
 struct EZ_EDITORFRAMEWORK_DLL ezProjectExport
@@ -41,19 +55,38 @@ struct EZ_EDITORFRAMEWORK_DLL ezProjectExport
   /// asset profile and the editor's data directory configuration. The target directory is *cleared*
   /// first - see ExportProject().
   ///
-  /// Everything that the export logs is captured and written to 'ExportLog.txt' in the target directory,
-  /// and returned through out_pLog when that is not null. That means it does not show up in the editor's
-  /// log window, so the returned status is the only indication of failure a caller gets without reading
-  /// the log.
-  static ezStatus ExportProjectComplete(ezStringView sTargetDirectory, const ezProjectExportOptions& options, ezStringBuilder* out_pLog = nullptr);
+  /// If out_pReport is not null, everything that the export logs is captured and returned through it. In that
+  /// case it does not show up in the editor's log window, so the returned status and the report are the only
+  /// indication of problems a caller gets. If out_pReport is null, the messages go to the regular log.
+  ///
+  /// A returned success doesn't mean that there were no problems, see ezProjectExportReport::m_uiNumErrors.
+  ///
+  /// If the project has a post-export script (see FindPostExportScript()), it is executed after a successful
+  /// ExportProject(). This blocks until the script finishes and can't be canceled. If the script can't be started
+  /// or returns a non-zero exit code, the export fails, but the exported files stay in the target directory.
+  /// The script's stdout is logged as info, stderr as warnings, both only after the script has finished.
+  static ezStatus ExportProjectComplete(ezStringView sTargetDirectory, const ezProjectExportOptions& options, ezProjectExportReport* out_pReport = nullptr);
+
+  /// Finds the script that the active project wants to run on the exported files, for instance to remove files.
+  ///
+  /// The script is ':project/Editor/PostExport.<ext>', which isn't exported itself, because of the default data
+  /// export filter. The supported extensions are 'ps1', 'py' and 'bat' on Windows, and 'sh', 'py' and 'ps1' elsewhere.
+  /// A script with another extension is ignored, so a project can have one script per platform.
+  ///
+  /// The script runs with the target directory as its working directory and gets the environment variables
+  /// EZ_EXPORT_DIR, EZ_PROJECT_DIR and EZ_ASSET_PROFILE.
+  ///
+  /// out_sScriptFile is set to the absolute path, or to an empty string if there is no script. It is an error if
+  /// there are multiple scripts for this platform, since it wouldn't be clear which one is meant.
+  static ezStatus FindPostExportScript(ezString& out_sScriptFile);
 
 
   /// Exports the project to szTargetDirectory.
   ///
-  /// If bCreateLaunchScripts is true, .bat files for launching the exported project are written to the target
-  /// directory. If the project has a custom game executable (see FindCustomGameExecutable()), a single script for
-  /// that executable is created, otherwise one script per exported scene, which launches the scene in ezPlayer.
-  static ezResult ExportProject(const char* szTargetDirectory, const ezPlatformProfile* pPlatformProfile, const ezApplicationFileSystemConfig& dataDirs, bool bCreateLaunchScripts = true);
+  /// .bat files for launching the exported project are written to the target directory. If the project has a
+  /// custom game executable (see FindCustomGameExecutable()), a single script for that executable is created,
+  /// otherwise one script per exported scene, which launches the scene in ezPlayer.
+  static ezResult ExportProject(const char* szTargetDirectory, const ezPlatformProfile* pPlatformProfile, const ezApplicationFileSystemConfig& dataDirs);
 
   /// Returns the file name of the project's own game executable, or an empty string if there is none.
   ///
@@ -86,4 +119,5 @@ private:
   static ezResult CreateLaunchConfig(const ezDynamicArray<ezString>& sceneFiles, const char* szTargetDirectory, ezStringView sCustomGameExecutable);
   static ezResult GatherGeneratedAssetFiles(ezSet<ezString>& out_Files, const char* szProjectDirectory);
   static void AddPackageDependenciesToFileList(DirectoryMapping& ref_fileList);
+  static ezResult RunPostExportScript(ezStringView sScriptFile, ezStringView sTargetDirectory);
 };

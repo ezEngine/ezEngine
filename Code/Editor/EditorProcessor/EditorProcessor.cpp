@@ -42,8 +42,7 @@ tell apart from a clean run.\n\
 ezCommandLineOptionPath opt_Export("_EditorProcessor", "-export", "If specified, the project is exported to the given (absolute) directory.\n\
 \n\
 The target directory is deleted first. The C++ project is built and all assets are transformed beforehand,\n\
-the latter unless -transform already did so in the same run. An 'ExportLog.txt' is written into the target\n\
-directory.\n\
+the latter unless -transform already did so in the same run.\n\
 \n\
 Example:\n\
   -export \"C:/Temp/MyGame\"\n\
