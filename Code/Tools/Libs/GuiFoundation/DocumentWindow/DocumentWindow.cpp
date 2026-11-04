@@ -526,7 +526,15 @@ void ezQtDocumentWindow::SlotRestoreDocumentLayout()
 
   if (!state.isEmpty())
   {
-    m_pDockManager->restoreState(state);
+    if (!m_pDockManager->restoreState(state) && !m_pDockManager->isRestoringState())
+    {
+      // The saved layout doesn't fit this window anymore, for example because a central widget was added.
+      // The default layout won't differ from the baseline, so nothing would replace this state and it would fail again every time.
+      settings.beginGroup("DocumentWindowLayouts");
+      settings.remove(szTypeName);
+      settings.endGroup();
+    }
+
     OnAfterDocumentLayoutRestored();
   }
 

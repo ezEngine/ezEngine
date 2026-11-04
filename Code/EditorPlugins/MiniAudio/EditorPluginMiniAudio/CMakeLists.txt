@@ -16,4 +16,5 @@ target_link_libraries(${PROJECT_NAME}
   EditorFramework
   GameEngine
   MiniAudioPlugin
+  MiniAudio
 )
