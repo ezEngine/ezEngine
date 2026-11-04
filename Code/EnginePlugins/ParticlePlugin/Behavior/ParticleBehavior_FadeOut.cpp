@@ -7,7 +7,7 @@
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_FadeOut, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_FadeOut>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_FadeOut, 1, ezRTTIDefaultAllocator<ezParticleBehavior_FadeOut>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -17,25 +17,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_FadeOut, 1, ezRTTIDefa
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_FadeOut, 1, ezRTTIDefaultAllocator<ezParticleBehavior_FadeOut>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-const ezRTTI* ezParticleBehaviorFactory_FadeOut::GetBehaviorType() const
-{
-  return ezGetStaticRTTI<ezParticleBehavior_FadeOut>();
-}
-
-void ezParticleBehaviorFactory_FadeOut::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
-{
-  ezParticleBehavior_FadeOut* pBehavior = static_cast<ezParticleBehavior_FadeOut*>(pObject);
-
-  pBehavior->m_fStartAlpha = m_fStartAlpha;
-  pBehavior->m_fExponent = m_fExponent;
-}
-
-void ezParticleBehaviorFactory_FadeOut::Save(ezStreamWriter& inout_stream) const
+void ezParticleBehavior_FadeOut::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 1;
   inout_stream << uiVersion;
@@ -44,7 +28,7 @@ void ezParticleBehaviorFactory_FadeOut::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_fExponent;
 }
 
-void ezParticleBehaviorFactory_FadeOut::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleBehavior_FadeOut::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -53,31 +37,41 @@ void ezParticleBehaviorFactory_FadeOut::Load(ezStreamReader& inout_stream, const
   inout_stream >> m_fExponent;
 }
 
-void ezParticleBehavior_FadeOut::CreateRequiredStreams()
+bool ezParticleBehavior_FadeOut::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
-  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
+void ezParticleBehavior_FadeOut::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
-  if (!GetOwnerEffect()->IsVisible())
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sLifeTime, ezProcessingStream::DataType::Half2, &data.m_pStreamLifeTime, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sColor, ezProcessingStream::DataType::Half4, &data.m_pStreamColor, false);
+}
+
+void ezParticleBehavior_FadeOut::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  if (!ctx.GetEffect()->IsVisible())
   {
     // When invisible, don't update at all. Set the interval to 1 so that once
     // the effect becomes visible, all particles get fully updated on the next frame.
-    m_uiCurrentUpdateInterval = 1;
-    m_uiFirstToUpdate = 0;
+    data.m_uiCurrentUpdateInterval = 1;
+    data.m_uiFirstToUpdate = 0;
     return;
   }
 
   EZ_PROFILE_SCOPE("PFX: Fade Out");
 
-  ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
-  ezProcessingStreamIterator<ezColorLinear16f> itColor(m_pStreamColor, uiNumElements, 0);
+  ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(data.m_pStreamLifeTime, uiNumElements, 0);
+  ezProcessingStreamIterator<ezColorLinear16f> itColor(data.m_pStreamColor, uiNumElements, 0);
 
   // skip the first n particles
-  itLifeTime.Advance(m_uiFirstToUpdate);
-  itColor.Advance(m_uiFirstToUpdate);
+  itLifeTime.Advance(data.m_uiFirstToUpdate);
+  itColor.Advance(data.m_uiFirstToUpdate);
 
   if (m_fStartAlpha <= 1.0f)
   {
@@ -88,8 +82,8 @@ void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
 
       // skip the next n items
       // this is to reduce the number of particles that need to be fully evaluated
-      itLifeTime.Advance(m_uiCurrentUpdateInterval);
-      itColor.Advance(m_uiCurrentUpdateInterval);
+      itLifeTime.Advance(data.m_uiCurrentUpdateInterval);
+      itColor.Advance(data.m_uiCurrentUpdateInterval);
     }
   }
   else
@@ -102,23 +96,23 @@ void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
 
       // skip the next n items
       // this is to reduce the number of particles that need to be fully evaluated
-      itLifeTime.Advance(m_uiCurrentUpdateInterval);
-      itColor.Advance(m_uiCurrentUpdateInterval);
+      itLifeTime.Advance(data.m_uiCurrentUpdateInterval);
+      itColor.Advance(data.m_uiCurrentUpdateInterval);
     }
   }
 
   // adjust which index is the first to update
   {
-    ++m_uiFirstToUpdate;
-    if (m_uiFirstToUpdate >= m_uiCurrentUpdateInterval)
-      m_uiFirstToUpdate = 0;
+    ++data.m_uiFirstToUpdate;
+    if (data.m_uiFirstToUpdate >= data.m_uiCurrentUpdateInterval)
+      data.m_uiFirstToUpdate = 0;
   }
 
   /// \todo Use level of detail to reduce the update interval further
   /// up close, with a high interval, animations appear choppy, especially when fading stuff out at the end
 
   // reset the update interval to the default
-  m_uiCurrentUpdateInterval = 2;
+  data.m_uiCurrentUpdateInterval = 2;
 }
 
 

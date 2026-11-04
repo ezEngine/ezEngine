@@ -14,7 +14,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleSphereOutOfBoundsMode, 1)
   EZ_ENUM_CONSTANT(ezParticleSphereOutOfBoundsMode::Constrain),
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_BoundsSphere, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_BoundsSphere>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_BoundsSphere, 1, ezRTTIDefaultAllocator<ezParticleBehavior_BoundsSphere>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -30,28 +30,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_BoundsSphere, 1, ezRTT
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_BoundsSphere, 1, ezRTTIDefaultAllocator<ezParticleBehavior_BoundsSphere>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleBehaviorFactory_BoundsSphere::ezParticleBehaviorFactory_BoundsSphere() = default;
+ezParticleBehavior_BoundsSphere::ezParticleBehavior_BoundsSphere() = default;
 
-const ezRTTI* ezParticleBehaviorFactory_BoundsSphere::GetBehaviorType() const
-{
-  return ezGetStaticRTTI<ezParticleBehavior_BoundsSphere>();
-}
-
-void ezParticleBehaviorFactory_BoundsSphere::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
-{
-  ezParticleBehavior_BoundsSphere* pBehavior = static_cast<ezParticleBehavior_BoundsSphere*>(pObject);
-
-  pBehavior->m_vCenterOffset = m_vCenterOffset;
-  pBehavior->m_fRadius = m_fRadius;
-  pBehavior->m_OutOfBoundsMode = m_OutOfBoundsMode;
-}
-
-void ezParticleBehaviorFactory_BoundsSphere::Save(ezStreamWriter& inout_stream) const
+void ezParticleBehavior_BoundsSphere::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 1;
   inout_stream << uiVersion;
@@ -61,7 +44,7 @@ void ezParticleBehaviorFactory_BoundsSphere::Save(ezStreamWriter& inout_stream) 
   inout_stream << m_OutOfBoundsMode;
 }
 
-void ezParticleBehaviorFactory_BoundsSphere::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleBehavior_BoundsSphere::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -73,20 +56,30 @@ void ezParticleBehaviorFactory_BoundsSphere::Load(ezStreamReader& inout_stream, 
   inout_stream >> m_OutOfBoundsMode;
 }
 
-void ezParticleBehavior_BoundsSphere::CreateRequiredStreams()
+bool ezParticleBehavior_BoundsSphere::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleBehavior_BoundsSphere::Process(ezUInt64 uiNumElements)
+void ezParticleBehavior_BoundsSphere::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
+}
+
+void ezParticleBehavior_BoundsSphere::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: BoundsSphere");
 
-  const ezSimdTransform trans = ezSimdConversion::ToTransform(GetOwnerSystem()->GetTransform());
+  const ezSimdTransform trans = ezSimdConversion::ToTransform(ctx.m_pSystem->GetTransform());
   const ezSimdVec4f center = trans.TransformPosition(ezSimdConversion::ToVec3(m_vCenterOffset));
   const float fRadiusSqr = m_fRadius * m_fRadius;
 
-  ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<ezSimdVec4f> itPosition(data.m_pStreamPosition, uiNumElements, 0);
 
   if (m_OutOfBoundsMode == ezParticleSphereOutOfBoundsMode::Kill)
   {
@@ -100,7 +93,7 @@ void ezParticleBehavior_BoundsSphere::Process(ezUInt64 uiNumElements)
 
       if (distSqr > fRadiusSqr)
       {
-        m_pStreamGroup->RemoveElement(idx);
+        ctx.m_pSystem->RemoveParticle(idx);
       }
 
       ++idx;

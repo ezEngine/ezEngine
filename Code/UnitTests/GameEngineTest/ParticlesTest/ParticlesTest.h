@@ -13,6 +13,9 @@ public:
   void SetupParticleSubTest(const char* szFile);
   ezTestAppRun ExecParticleSubTest(ezInt32 iCurFrame);
 
+  /// Reloads the effect resource while the effect is running and checks that the effect switches over to the new content and keeps its particles.
+  ezTestAppRun ExecResourceReloadSubTest(ezInt32 iCurFrame, const char* szEffect);
+
   /// Returns the number of particles of the effect on the object with the given name. Reports a test failure if there is no such object.
   ezUInt64 GetParticleCount(ezStringView sObjectName);
 
@@ -26,6 +29,9 @@ public:
 
 private:
   class ezParticleComponent* FindParticleComponent(ezStringView sObjectName);
+
+  ezSharedPtr<const struct ezParticleEffectResourceDescriptor> m_pReloadedDescriptor;
+  ezUInt64 m_uiParticlesBeforeReload = 0;
 };
 
 class ezGameEngineTestParticles : public ezGameEngineTest
@@ -81,6 +87,7 @@ private:
     MeshPositionInitializer,
     WindBehavior,
     ParticleAreas,
+    ResourceReload,
   };
 
   virtual void SetupSubTests() override;

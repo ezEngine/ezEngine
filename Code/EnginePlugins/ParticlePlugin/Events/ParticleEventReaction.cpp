@@ -3,7 +3,7 @@
 #include <ParticlePlugin/Events/ParticleEventReaction.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReactionFactory, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReaction, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -13,25 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReactionFactory, 1, ezRTTINoAlloc
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReaction, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 // clang-format on
-
-ezParticleEventReaction* ezParticleEventReactionFactory::CreateEventReaction(ezParticleEffectInstance* pOwner) const
-{
-  const ezRTTI* pRtti = GetEventReactionType();
-
-  ezParticleEventReaction* pReaction = pRtti->GetAllocator()->Allocate<ezParticleEventReaction>();
-  pReaction->Reset(pOwner);
-  pReaction->m_sEventName = ezTempHashedString(m_sEventType.GetData());
-  pReaction->m_uiProbability = m_uiProbability;
-
-  CopyReactionProperties(pReaction, true);
-
-  return pReaction;
-}
 
 enum class ReactionVersion
 {
@@ -44,7 +26,7 @@ enum class ReactionVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleEventReactionFactory::Save(ezStreamWriter& inout_stream) const
+void ezParticleEventReaction::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)ReactionVersion::Version_Current;
   inout_stream << uiVersion;
@@ -57,7 +39,7 @@ void ezParticleEventReactionFactory::Save(ezStreamWriter& inout_stream) const
 }
 
 
-void ezParticleEventReactionFactory::Load(ezStreamReader& inout_stream)
+void ezParticleEventReaction::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -71,16 +53,6 @@ void ezParticleEventReactionFactory::Load(ezStreamReader& inout_stream)
   {
     inout_stream >> m_uiProbability;
   }
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-ezParticleEventReaction::ezParticleEventReaction() = default;
-ezParticleEventReaction::~ezParticleEventReaction() = default;
-
-void ezParticleEventReaction::Reset(ezParticleEffectInstance* pOwner)
-{
-  m_pOwnerEffect = pOwner;
 }
 
 

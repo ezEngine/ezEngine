@@ -1,69 +1,36 @@
 #pragma once
 
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/HashedString.h>
 #include <ParticlePlugin/Declarations.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-class ezParticleStream;
 class ezParticleSystemInstance;
 
-/// Base class for all particle stream factories
+/// Base class for the default initializers of particle streams.
 ///
-/// Stream factories are responsible for creating and configuring particle streams.
-/// Each factory specifies the stream name, data type, and the actual stream class to instantiate.
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory : public ezReflectedClass
+/// Each one specifies the stream name and data type, and how to initialize the stream for new particles,
+/// in case no module takes care of that. It is used for all particle systems of a world, so it has no state per system.
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream, ezReflectedClass);
 
 public:
-  ezParticleStreamFactory(const char* szStreamName, ezProcessingStream::DataType dataType, const ezRTTI* pStreamTypeToCreate);
+  ezParticleStream(ezTempHashedString sStreamName, ezProcessingStream::DataType dataType);
 
-  const ezRTTI* GetParticleStreamType() const;
   ezProcessingStream::DataType GetStreamDataType() const;
-  const char* GetStreamName() const;
+  ezTempHashedString GetStreamName() const;
 
-  /// Creates and initializes a new particle stream instance for the given particle system.
-  ezParticleStream* CreateParticleStream(ezParticleSystemInstance* pOwner) const;
-
-private:
-  const char* m_szStreamName = nullptr;
-  ezProcessingStream::DataType m_DataType = ezProcessingStream::DataType::Float;
-  const ezRTTI* m_pStreamTypeToCreate = nullptr;
-};
-
-/// Base class for all particle streams
-///
-/// Particle streams store per-particle data like position, velocity, color, or size.
-/// Each stream type provides initialization logic for new particles.
-/// Streams run with high priority (-1000) to ensure they initialize data before other processors.
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream : public ezProcessingStreamProcessor
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream, ezProcessingStreamProcessor);
-
-  friend class ezParticleSystemInstance;
-  friend class ezParticleStreamFactory;
-
-protected:
-  ezParticleStream();
-
-  /// Called once during stream creation to set up any necessary references or state.
-  virtual void Initialize(ezParticleSystemInstance* pOwner) {}
-
-  virtual ezResult UpdateStreamBindings() final override;
-
-  /// Particle streams do not process existing elements, they only initialize new ones.
-  virtual void Process(ezUInt64 uiNumElements) final override {}
-
-  /// The default implementation initializes all data with zero.
+  /// Initializes the elements in the range [uiStartIndex, uiStartIndex + uiNumElements) for new particles.
   ///
-  /// Override this to provide custom initialization for new particles.
-  /// The implementation should initialize elements in the range [uiStartIndex, uiStartIndex + uiNumElements).
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  /// The default implementation initializes all data with zero.
+  virtual void InitializeElements(ezParticleSystemInstance* pSystem, ezProcessingStream* pStream, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const;
 
-  ezProcessingStream* m_pStream; ///< The underlying data stream managed by this particle stream
+  /// Writes zero to all bytes of the given elements.
+  static void ZeroFillElements(ezProcessingStream* pStream, ezUInt64 uiStartIndex, ezUInt64 uiNumElements);
 
 private:
-  ezParticleStreamBinding m_StreamBinding;
+  ezTempHashedString m_sStreamName;
+  ezProcessingStream::DataType m_DataType = ezProcessingStream::DataType::Float;
 };

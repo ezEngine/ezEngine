@@ -29,23 +29,27 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleExpressionInput);
 /// and outPos, outVel, outColor, outSize, outRotSpeed, outLifeTime, outDiscard.
 /// The global variable timeDiff provides the frame delta time.
 ///
-/// Curve inputs defined on the factory can be sampled via sampleCurve(index, at),
+/// Curve inputs defined on the behavior can be sampled via sampleCurve(index, at),
 /// where index is the 0-based position in the Inputs array and at is the lookup position.
 ///
 /// Uses the ezExpressionVM for SIMD-batched evaluation.
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Expression final : public ezParticleBehaviorFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Expression final : public ezParticleBehavior
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Expression, ezParticleBehaviorFactory);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Expression, ezParticleBehavior);
 
 public:
-  ezParticleBehaviorFactory_Expression();
+  ezParticleBehavior_Expression();
 
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
   virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
 
   virtual void Save(ezStreamWriter& inout_stream) const override;
   virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void CreateRequiredStreams(const ezParticleModuleContext& ctx) const override;
+  virtual void OnFinalize(const ezParticleModuleContext& ctx) const override;
+  virtual void InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const override;
+  virtual void Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const override;
 
   ezString m_sExpression;
   ezHybridArray<ezParticleExpressionInput, 2> m_Inputs;
@@ -69,43 +73,23 @@ private:
   ezDynamicArray<ezSampledCurve1D> m_CurveSamples;
   ezDynamicArray<ezHashedString> m_FloatParamNames;
   ezDynamicArray<ezHashedString> m_ColorParamNames;
-};
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Expression final : public ezParticleBehavior
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Expression, ezParticleBehavior);
+private:
+  struct InstanceData
+  {
+    InstanceData();
 
-public:
-  ezParticleBehavior_Expression();
+    ezProcessingStream* m_pStreamPosition = nullptr;
+    ezProcessingStream* m_pStreamVelocity = nullptr;
+    ezProcessingStream* m_pStreamSize = nullptr;
+    ezProcessingStream* m_pStreamColor = nullptr;
+    ezProcessingStream* m_pStreamLifeTime = nullptr;
+    ezProcessingStream* m_pStreamRotationSpeed = nullptr;
 
-  bool m_bUsesDiscard = false;
-  ezBitflags<ezParticleStreamMask> m_InputStreams;
-  ezBitflags<ezParticleStreamMask> m_OutputStreams;
+    bool m_bExecutionFailed = false; ///< Set when the VM couldn't execute the byte code, to not try it again until the next reconfigure.
 
-  /// Points to the byte code owned by the factory. Null if the expression is invalid.
-  const ezExpressionByteCode* m_pByteCode = nullptr;
+    ezExpressionVM m_VM;
+  };
 
-  /// Points to the pre-sampled curve data owned by the factory. Null if there are no curve inputs.
-  const ezDynamicArray<ezSampledCurve1D>* m_pCurveSamples = nullptr;
-
-  /// Points to the effect parameter name lists owned by the factory. Null if no parameters are used.
-  const ezDynamicArray<ezHashedString>* m_pFloatParamNames = nullptr;
-  const ezDynamicArray<ezHashedString>* m_pColorParamNames = nullptr;
-
-protected:
-  virtual void CreateRequiredStreams() override;
-  virtual void QueryOptionalStreams() override;
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
-  virtual void Process(ezUInt64 uiNumElements) override;
-
-  void UpdateElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements);
-
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  ezProcessingStream* m_pStreamVelocity = nullptr;
-  ezProcessingStream* m_pStreamSize = nullptr;
-  ezProcessingStream* m_pStreamColor = nullptr;
-  ezProcessingStream* m_pStreamLifeTime = nullptr;
-  ezProcessingStream* m_pStreamRotationSpeed = nullptr;
-
-  ezExpressionVM m_VM;
+  void UpdateElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const;
 };

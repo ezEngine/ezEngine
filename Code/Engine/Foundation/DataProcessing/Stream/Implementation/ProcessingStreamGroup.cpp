@@ -70,15 +70,13 @@ void ezProcessingStreamGroup::ClearProcessors()
   m_Processors.Clear();
 }
 
-ezProcessingStream* ezProcessingStreamGroup::AddStream(ezStringView sName, ezProcessingStream::DataType type)
+ezProcessingStream* ezProcessingStreamGroup::AddStream(const ezHashedString& sName, ezProcessingStream::DataType type)
 {
   // Treat adding a stream two times as an error (return null)
-  if (GetStreamByName(ezTempHashedString(sName)))
+  if (GetStreamByName(sName))
     return nullptr;
 
-  ezHashedString sNameHashed;
-  sNameHashed.Assign(sName);
-  ezProcessingStream* pStream = EZ_DEFAULT_NEW(ezProcessingStream, sNameHashed, type, ezProcessingStream::GetDataTypeSize(type), 16);
+  ezProcessingStream* pStream = EZ_DEFAULT_NEW(ezProcessingStream, sName, type, ezProcessingStream::GetDataTypeSize(type), 16);
 
   m_DataStreams.PushBack(pStream);
 
@@ -128,7 +126,7 @@ void ezProcessingStreamGroup::SetSize(ezUInt64 uiNumElements)
 
   m_uiHighestNumActiveElements = 0;
 
-  // Stream processors etc. may have pointers to the stream data for some reason.
+  // The streams get resized in EnsureStreamAssignmentValid().
   m_bStreamAssignmentDirty = true;
 }
 
@@ -235,7 +233,7 @@ void ezProcessingStreamGroup::RunPendingDeletions()
 
 void ezProcessingStreamGroup::EnsureStreamAssignmentValid()
 {
-  // If any stream processors or streams were added we may need to inform them.
+  // If any stream processors or streams were added, the order and the stream sizes need to be updated.
   if (m_bStreamAssignmentDirty)
   {
     SortProcessorsByPriority();
@@ -244,11 +242,6 @@ void ezProcessingStreamGroup::EnsureStreamAssignmentValid()
     for (ezProcessingStream* Stream : m_DataStreams)
     {
       Stream->SetSize(m_uiNumElements);
-    }
-
-    for (ezProcessingStreamProcessor* pStreamProcessor : m_Processors)
-    {
-      pStreamProcessor->UpdateStreamBindings().IgnoreResult();
     }
 
     m_bStreamAssignmentDirty = false;

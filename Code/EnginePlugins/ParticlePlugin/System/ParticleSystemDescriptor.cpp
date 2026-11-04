@@ -3,6 +3,7 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
+#include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_Age.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_Volume.h>
@@ -21,10 +22,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleSystemDescriptor, 2, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("LifeTime", m_LifeTime)->AddAttributes(new ezDefaultValueAttribute(ezVarianceTypeTime(ezTime::MakeFromSeconds(2))), new ezClampValueAttribute(ezTime::MakeFromSeconds(0.0), ezVariant())),
     EZ_MEMBER_PROPERTY("LifeScaleParam", m_sLifeScaleParameter),
     EZ_MEMBER_PROPERTY("OnDeathEvent", m_sOnDeathEvent)->AddAttributes(new ezDynamicStringEnumAttribute("ParticleEventNamesEnum")),
-    EZ_ARRAY_MEMBER_PROPERTY("Emitters", m_EmitterFactories)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezMaxArraySizeAttribute(1)),
-    EZ_SET_ACCESSOR_PROPERTY("Initializers", GetInitializerFactories, AddInitializerFactory, RemoveInitializerFactory)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezPreventDuplicatesAttribute()),
-    EZ_SET_ACCESSOR_PROPERTY("Behaviors", GetBehaviorFactories, AddBehaviorFactory, RemoveBehaviorFactory)->AddFlags(ezPropertyFlags::PointerOwner),
-    EZ_SET_ACCESSOR_PROPERTY("Types", GetTypeFactories, AddTypeFactory, RemoveTypeFactory)->AddFlags(ezPropertyFlags::PointerOwner),
+    EZ_ARRAY_MEMBER_PROPERTY("Emitters", m_Emitters)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezMaxArraySizeAttribute(1)),
+    EZ_SET_ACCESSOR_PROPERTY("Initializers", GetInitializers, AddInitializer, RemoveInitializer)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezPreventDuplicatesAttribute()),
+    EZ_SET_ACCESSOR_PROPERTY("Behaviors", GetBehaviors, AddBehavior, RemoveBehavior)->AddFlags(ezPropertyFlags::PointerOwner),
+    EZ_SET_ACCESSOR_PROPERTY("Types", GetTypes, AddType, RemoveType)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES;
 }
@@ -47,103 +48,126 @@ ezParticleSystemDescriptor::~ezParticleSystemDescriptor()
 
 void ezParticleSystemDescriptor::ClearEmitters()
 {
-  for (auto pFactory : m_EmitterFactories)
+  for (auto pModule : m_Emitters)
   {
-    pFactory->GetDynamicRTTI()->GetAllocator()->Deallocate(pFactory);
+    pModule->GetDynamicRTTI()->GetAllocator()->Deallocate(pModule);
   }
 
-  m_EmitterFactories.Clear();
+  m_Emitters.Clear();
 }
 
 void ezParticleSystemDescriptor::ClearInitializers()
 {
-  for (auto pFactory : m_InitializerFactories)
+  for (auto pModule : m_Initializers)
   {
-    pFactory->GetDynamicRTTI()->GetAllocator()->Deallocate(pFactory);
+    pModule->GetDynamicRTTI()->GetAllocator()->Deallocate(pModule);
   }
 
-  m_InitializerFactories.Clear();
+  m_Initializers.Clear();
 }
 
 void ezParticleSystemDescriptor::ClearBehaviors()
 {
-  for (auto pFactory : m_BehaviorFactories)
+  for (auto pModule : m_Behaviors)
   {
-    pFactory->GetDynamicRTTI()->GetAllocator()->Deallocate(pFactory);
+    pModule->GetDynamicRTTI()->GetAllocator()->Deallocate(pModule);
   }
 
-  m_BehaviorFactories.Clear();
+  m_Behaviors.Clear();
 }
 
 void ezParticleSystemDescriptor::ClearTypes()
 {
-  for (auto pFactory : m_TypeFactories)
+  for (auto pModule : m_Types)
   {
-    pFactory->GetDynamicRTTI()->GetAllocator()->Deallocate(pFactory);
+    pModule->GetDynamicRTTI()->GetAllocator()->Deallocate(pModule);
   }
 
-  m_TypeFactories.Clear();
+  m_Types.Clear();
 }
 
 void ezParticleSystemDescriptor::ClearFinalizers()
 {
-  for (auto pFactory : m_FinalizerFactories)
+  for (auto pModule : m_Finalizers)
   {
-    pFactory->GetDynamicRTTI()->GetAllocator()->Deallocate(pFactory);
+    pModule->GetDynamicRTTI()->GetAllocator()->Deallocate(pModule);
   }
 
-  m_FinalizerFactories.Clear();
+  m_Finalizers.Clear();
 }
 
 void ezParticleSystemDescriptor::SetupDefaultProcessors()
 {
   // Age Behavior
   {
-    ezParticleFinalizerFactory_Age* pFactory =
-      ezParticleFinalizerFactory_Age::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleFinalizerFactory_Age>();
-    pFactory->m_LifeTime = m_LifeTime;
-    pFactory->m_sOnDeathEvent = m_sOnDeathEvent;
-    pFactory->m_sLifeScaleParameter = m_sLifeScaleParameter;
-    m_FinalizerFactories.PushBack(pFactory);
+    ezParticleFinalizer_Age* pModule =
+      ezParticleFinalizer_Age::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleFinalizer_Age>();
+    pModule->m_LifeTime = m_LifeTime;
+    pModule->m_sOnDeathEvent = m_sOnDeathEvent;
+    pModule->m_sLifeScaleParameter = m_sLifeScaleParameter;
+    m_Finalizers.PushBack(pModule);
   }
 
   // Bounding Volume Update Behavior
   {
-    ezParticleFinalizerFactory_Volume* pFactory =
-      ezParticleFinalizerFactory_Volume::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleFinalizerFactory_Volume>();
-    m_FinalizerFactories.PushBack(pFactory);
+    ezParticleFinalizer_Volume* pModule =
+      ezParticleFinalizer_Volume::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleFinalizer_Volume>();
+    m_Finalizers.PushBack(pModule);
   }
 
-  if (m_TypeFactories.IsEmpty())
+  if (m_Types.IsEmpty())
   {
-    ezParticleTypePointFactory* pFactory = ezParticleTypePointFactory::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleTypePointFactory>();
-    m_TypeFactories.PushBack(pFactory);
+    ezParticleTypePoint* pModule = ezParticleTypePoint::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleTypePoint>();
+    m_Types.PushBack(pModule);
   }
 
   ezSet<const ezRTTI*> finalizers;
-  for (const auto* pFactory : m_InitializerFactories)
+  for (const auto* pModule : m_Initializers)
   {
-    pFactory->QueryFinalizerDependencies(finalizers);
+    pModule->QueryFinalizerDependencies(finalizers);
   }
 
-  for (const auto* pFactory : m_BehaviorFactories)
+  for (const auto* pModule : m_Behaviors)
   {
-    pFactory->QueryFinalizerDependencies(finalizers);
+    pModule->QueryFinalizerDependencies(finalizers);
   }
 
-  for (const auto* pFactory : m_TypeFactories)
+  for (const auto* pModule : m_Types)
   {
-    pFactory->QueryFinalizerDependencies(finalizers);
+    pModule->QueryFinalizerDependencies(finalizers);
   }
 
   for (const ezRTTI* pRtti : finalizers)
   {
     EZ_ASSERT_DEBUG(
-      pRtti->IsDerivedFrom<ezParticleFinalizerFactory>(), "Invalid finalizer factory added as a dependency: '{0}'", pRtti->GetTypeName());
-    EZ_ASSERT_DEBUG(pRtti->GetAllocator()->CanAllocate(), "Finalizer factory cannot be allocated: '{0}'", pRtti->GetTypeName());
+      pRtti->IsDerivedFrom<ezParticleFinalizer>(), "Invalid finalizer added as a dependency: '{0}'", pRtti->GetTypeName());
+    EZ_ASSERT_DEBUG(pRtti->GetAllocator()->CanAllocate(), "Finalizer cannot be allocated: '{0}'", pRtti->GetTypeName());
 
-    m_FinalizerFactories.PushBack(pRtti->GetAllocator()->Allocate<ezParticleFinalizerFactory>());
+    m_Finalizers.PushBack(pRtti->GetAllocator()->Allocate<ezParticleFinalizer>());
   }
+}
+
+void ezParticleSystemDescriptor::SetupInstanceData()
+{
+  m_InstanceDataAllocator.ClearDescs();
+
+  auto addModules = [&](const auto& modules)
+  {
+    for (ezParticleModule* pModule : modules)
+    {
+      ezInstanceDataDesc desc;
+      if (pModule->GetInstanceDataDesc(desc))
+      {
+        pModule->m_uiInstanceDataOffset = m_InstanceDataAllocator.AddDesc(desc);
+      }
+    }
+  };
+
+  addModules(m_Emitters);
+  addModules(m_Initializers);
+  addModules(m_Behaviors);
+  addModules(m_Finalizers);
+  addModules(m_Types);
 }
 
 enum class ParticleSystemVersion
@@ -184,10 +208,10 @@ void ezParticleSystemDescriptor::Save(ezStreamWriter& inout_stream) const
 
   inout_stream << uiVersion;
 
-  const ezUInt32 uiNumEmitters = m_EmitterFactories.GetCount();
-  const ezUInt32 uiNumInitializers = m_InitializerFactories.GetCount();
-  const ezUInt32 uiNumBehaviors = m_BehaviorFactories.GetCount();
-  const ezUInt32 uiNumTypes = m_TypeFactories.GetCount();
+  const ezUInt32 uiNumEmitters = m_Emitters.GetCount();
+  const ezUInt32 uiNumInitializers = m_Initializers.GetCount();
+  const ezUInt32 uiNumBehaviors = m_Behaviors.GetCount();
+  const ezUInt32 uiNumTypes = m_Types.GetCount();
 
   ezUInt32 uiMaxParticles = 0;
   inout_stream << m_bVisible;
@@ -201,28 +225,28 @@ void ezParticleSystemDescriptor::Save(ezStreamWriter& inout_stream) const
   inout_stream << uiNumBehaviors;
   inout_stream << uiNumTypes;
 
-  for (auto pEmitter : m_EmitterFactories)
+  for (auto pEmitter : m_Emitters)
   {
     inout_stream << pEmitter->GetDynamicRTTI()->GetTypeName();
 
     pEmitter->Save(inout_stream);
   }
 
-  for (auto pInitializer : m_InitializerFactories)
+  for (auto pInitializer : m_Initializers)
   {
     inout_stream << pInitializer->GetDynamicRTTI()->GetTypeName();
 
     pInitializer->Save(inout_stream);
   }
 
-  for (auto pBehavior : m_BehaviorFactories)
+  for (auto pBehavior : m_Behaviors)
   {
     inout_stream << pBehavior->GetDynamicRTTI()->GetTypeName();
 
     pBehavior->Save(inout_stream);
   }
 
-  for (auto pType : m_TypeFactories)
+  for (auto pType : m_Types)
   {
     inout_stream << pType->GetDynamicRTTI()->GetTypeName();
 
@@ -286,68 +310,69 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& inout_stream, const ezPart
     inout_stream >> uiNumTypes;
   }
 
-  m_EmitterFactories.SetCountUninitialized(uiNumEmitters);
-  m_InitializerFactories.SetCountUninitialized(uiNumInitializers);
-  m_BehaviorFactories.SetCountUninitialized(uiNumBehaviors);
-  m_TypeFactories.SetCountUninitialized(uiNumTypes);
+  m_Emitters.SetCountUninitialized(uiNumEmitters);
+  m_Initializers.SetCountUninitialized(uiNumInitializers);
+  m_Behaviors.SetCountUninitialized(uiNumBehaviors);
+  m_Types.SetCountUninitialized(uiNumTypes);
 
   ezStringBuilder sType;
 
-  for (auto& pEmitter : m_EmitterFactories)
+  for (auto& pEmitter : m_Emitters)
   {
     inout_stream >> sType;
 
-    const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-    EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown emitter factory type '{0}'", sType);
+    const ezRTTI* pRtti = ezParticleEffectDescriptor::FindModuleType(sType);
+    EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown emitter type '{0}'", sType);
 
-    pEmitter = pRtti->GetAllocator()->Allocate<ezParticleEmitterFactory>();
+    pEmitter = pRtti->GetAllocator()->Allocate<ezParticleEmitter>();
 
     pEmitter->Load(inout_stream, ownerEffectDescriptor, *this);
   }
 
   if (uiVersion >= 2)
   {
-    for (auto& pInitializer : m_InitializerFactories)
+    for (auto& pInitializer : m_Initializers)
     {
       inout_stream >> sType;
 
-      const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-      EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown initializer factory type '{0}'", sType);
+      const ezRTTI* pRtti = ezParticleEffectDescriptor::FindModuleType(sType);
+      EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown initializer type '{0}'", sType);
 
-      pInitializer = pRtti->GetAllocator()->Allocate<ezParticleInitializerFactory>();
+      pInitializer = pRtti->GetAllocator()->Allocate<ezParticleInitializer>();
 
       pInitializer->Load(inout_stream, ownerEffectDescriptor, *this);
     }
   }
 
-  for (auto& pBehavior : m_BehaviorFactories)
+  for (auto& pBehavior : m_Behaviors)
   {
     inout_stream >> sType;
 
-    const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-    EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown behavior factory type '{0}'", sType);
+    const ezRTTI* pRtti = ezParticleEffectDescriptor::FindModuleType(sType);
+    EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown behavior type '{0}'", sType);
 
-    pBehavior = pRtti->GetAllocator()->Allocate<ezParticleBehaviorFactory>();
+    pBehavior = pRtti->GetAllocator()->Allocate<ezParticleBehavior>();
 
     pBehavior->Load(inout_stream, ownerEffectDescriptor, *this);
   }
 
   if (uiVersion >= 4)
   {
-    for (auto& pType : m_TypeFactories)
+    for (auto& pType : m_Types)
     {
       inout_stream >> sType;
 
-      const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-      EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown type factory type '{0}'", sType);
+      const ezRTTI* pRtti = ezParticleEffectDescriptor::FindModuleType(sType);
+      EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle type '{0}'", sType);
 
-      pType = pRtti->GetAllocator()->Allocate<ezParticleTypeFactory>();
+      pType = pRtti->GetAllocator()->Allocate<ezParticleType>();
 
       pType->Load(inout_stream, ownerEffectDescriptor, *this);
     }
   }
 
   SetupDefaultProcessors();
+  SetupInstanceData();
 }
 
 //////////////////////////////////////////////////////////////////////////

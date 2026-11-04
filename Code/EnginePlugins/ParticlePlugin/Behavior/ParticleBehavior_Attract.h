@@ -9,46 +9,32 @@
 ///
 /// The behavior queries the spatial system for nearby ezParticleAttractorComponents and applies each one's contribution per particle.
 /// The attractor list is refreshed roughly once per second for performance, the attractor positions and properties are read every frame.
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Attract final : public ezParticleBehaviorFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Attract final : public ezParticleBehavior
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Attract, ezParticleBehaviorFactory);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Attract, ezParticleBehavior);
 
 public:
-  ezParticleBehaviorFactory_Attract();
+  ezParticleBehavior_Attract();
 
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
   virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
 
   virtual void Save(ezStreamWriter& inout_stream) const override;
   virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void CreateRequiredStreams(const ezParticleModuleContext& ctx) const override;
+  virtual void OnFinalize(const ezParticleModuleContext& ctx) const override;
+  virtual bool GetUpdateFromWorld() const override { return true; }
+  virtual void UpdateFromWorld(const ezParticleModuleContext& ctx, const ezWorld& world, ezGameObjectHandle hOwnerObject) const override;
+  virtual void Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const override;
 
   float m_fInfluence = 5.0f;
   bool m_bAffectVelocity = true;
 
   /// Maximum number of nearby attractors to consider. Higher values are more expensive.
   ezUInt8 m_uiMaxAttractors = 1;
-};
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Attract final : public ezParticleBehavior
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Attract, ezParticleBehavior);
-
-public:
-  float m_fInfluence = 5.0f;
-  bool m_bAffectVelocity = true;
-  ezUInt8 m_uiMaxAttractors = 1;
-
-  virtual void OnFinalize() override;
-  virtual void UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject) override;
-
-protected:
-  virtual void CreateRequiredStreams() override;
-  virtual void Process(ezUInt64 uiNumElements) override;
-
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  ezProcessingStream* m_pStreamVelocity = nullptr;
-
+private:
   /// Data of one attractor, written in UpdateFromWorld() and read during the particle update.
   struct AttractorData
   {
@@ -61,7 +47,13 @@ protected:
     float m_fKillDistance;
   };
 
-  ezUInt8 m_uiAttractorSearchTimer = 0;
-  ezSmallArray<ezComponentHandle, 1> m_AttractorHandles;
-  ezSmallArray<AttractorData, 1> m_Attractors;
+  struct InstanceData
+  {
+    ezProcessingStream* m_pStreamPosition = nullptr;
+    ezProcessingStream* m_pStreamVelocity = nullptr;
+
+    ezUInt8 m_uiAttractorSearchTimer = 0;
+    ezSmallArray<ezComponentHandle, 1> m_AttractorHandles;
+    ezSmallArray<AttractorData, 1> m_Attractors;
+  };
 };

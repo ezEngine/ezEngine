@@ -13,7 +13,7 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeMeshFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeMeshFactory>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeMesh, 1, ezRTTIDefaultAllocator<ezParticleTypeMesh>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -25,28 +25,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeMeshFactory, 1, ezRTTIDefaultAlloc
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeMesh, 1, ezRTTIDefaultAllocator<ezParticleTypeMesh>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
-
-const ezRTTI* ezParticleTypeMeshFactory::GetTypeType() const
-{
-  return ezGetStaticRTTI<ezParticleTypeMesh>();
-}
-
-void ezParticleTypeMeshFactory::CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const
-{
-  ezParticleTypeMesh* pType = static_cast<ezParticleTypeMesh*>(pObject);
-
-  pType->m_hMesh = m_hMesh;
-  pType->m_hMaterial = m_hMaterial;
-  pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
-  pType->m_bMaterialOverride = !m_sMaterial.IsEmpty();
-  pType->m_fScale = m_fScale;
-
-  pType->m_pRenderDataManager = (ezRenderDataManager*)pType->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezRenderDataManager>());
-}
 
 enum class TypeMeshVersion
 {
@@ -60,7 +39,7 @@ enum class TypeMeshVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleTypeMeshFactory::Save(ezStreamWriter& inout_stream) const
+void ezParticleTypeMesh::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)TypeMeshVersion::Version_Current;
   inout_stream << uiVersion;
@@ -75,7 +54,7 @@ void ezParticleTypeMeshFactory::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_fScale;
 }
 
-void ezParticleTypeMeshFactory::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleTypeMesh::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -106,42 +85,58 @@ void ezParticleTypeMeshFactory::Load(ezStreamReader& inout_stream, const ezParti
   }
 }
 
-ezParticleTypeMesh::ezParticleTypeMesh() = default;
-
-ezParticleTypeMesh::~ezParticleTypeMesh()
+bool ezParticleTypeMesh::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  if (m_pRenderDataManager != nullptr)
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
+
+void ezParticleTypeMesh::OnDeinitialize(const ezParticleModuleContext& ctx) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  if (data.m_pRenderDataManager != nullptr)
   {
-    m_pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
+    data.m_pRenderDataManager->DeleteInstanceData(data.m_InstanceDataOffset);
   }
   else
   {
-    EZ_ASSERT_DEBUG(m_InstanceDataOffset.IsInvalidated(), "Implementation error");
+    EZ_ASSERT_DEBUG(data.m_InstanceDataOffset.IsInvalidated(), "Implementation error");
   }
 }
 
-void ezParticleTypeMesh::CreateRequiredStreams()
+void ezParticleTypeMesh::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
-  QueryMeshAndMaterialInfo();
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
 
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
-  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
-  CreateStream("RotationSpeed", ezProcessingStream::DataType::Half, &m_pStreamRotationSpeed, false);
-  CreateStream("RotationOffset", ezProcessingStream::DataType::Half, &m_pStreamRotationOffset, false);
-  CreateStream("Axis", ezProcessingStream::DataType::Float3, &m_pStreamAxis, true);
+  data.m_pRenderDataManager = (ezRenderDataManager*)ctx.m_pSystem->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezRenderDataManager>());
+  data.m_hMaterial = m_hMaterial;
+  data.m_pStreamVariation = nullptr;
 
-  if (m_uiNumSubMeshes > 1)
+  // during a reconfigure this may be a different mesh, which may not be loaded yet, so the extraction has to query it again
+  data.m_bRenderDataCached = false;
+  QueryMeshAndMaterialInfo(data);
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sSize, ezProcessingStream::DataType::Half, &data.m_pStreamSize, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sColor, ezProcessingStream::DataType::Half4, &data.m_pStreamColor, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sRotationSpeed, ezProcessingStream::DataType::Half, &data.m_pStreamRotationSpeed, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sRotationOffset, ezProcessingStream::DataType::Half, &data.m_pStreamRotationOffset, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sAxis, ezProcessingStream::DataType::Float3, &data.m_pStreamAxis, true);
+
+  if (data.m_uiNumSubMeshes > 1)
   {
     // only create this stream when necessary
-    CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sVariation, ezProcessingStream::DataType::Int, &data.m_pStreamVariation, false);
   }
 }
 
-void ezParticleTypeMesh::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleTypeMesh::InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const
 {
-  ezVec3* pAxis = m_pStreamAxis->GetWritableData<ezVec3>();
-  ezRandom& rng = GetRNG();
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ezVec3* pAxis = data.m_pStreamAxis->GetWritableData<ezVec3>();
+  ezRandom& rng = ctx.GetRNG();
 
   for (ezUInt32 i = 0; i < uiNumElements; ++i)
   {
@@ -151,14 +146,14 @@ void ezParticleTypeMesh::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNu
   }
 }
 
-bool ezParticleTypeMesh::QueryMeshAndMaterialInfo() const
+bool ezParticleTypeMesh::QueryMeshAndMaterialInfo(InstanceData& data) const
 {
   if (!m_hMesh.IsValid())
   {
-    m_bRenderDataCached = true;
-    m_hMaterial.Invalidate();
-    m_uiNumSubMeshes = 0;
-    m_CachedSubMeshMaterials.Clear();
+    data.m_bRenderDataCached = true;
+    data.m_hMaterial.Invalidate();
+    data.m_uiNumSubMeshes = 0;
+    data.m_CachedSubMeshMaterials.Clear();
     return true;
   }
 
@@ -166,108 +161,110 @@ bool ezParticleTypeMesh::QueryMeshAndMaterialInfo() const
   if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
     return false;
 
-  m_uiNumSubMeshes = static_cast<ezUInt8>(pMesh->GetSubMeshes().GetCount());
+  data.m_uiNumSubMeshes = static_cast<ezUInt8>(pMesh->GetSubMeshes().GetCount());
 
-  if (!m_hMaterial.IsValid() && !pMesh->GetMaterials().IsEmpty())
+  if (!data.m_hMaterial.IsValid() && !pMesh->GetMaterials().IsEmpty())
   {
     // When no material is specified, we'll use per-submesh materials during rendering
     // For now, use the first material to determine the render category
-    m_hMaterial = pMesh->GetMaterials()[0];
+    data.m_hMaterial = pMesh->GetMaterials()[0];
   }
 
   // Cache materials for each submesh to avoid locking the mesh resource during rendering
-  if (!m_bMaterialOverride && m_uiNumSubMeshes > 0)
+  if (m_sMaterial.IsEmpty() && data.m_uiNumSubMeshes > 0)
   {
     const auto& subMeshes = pMesh->GetSubMeshes();
     const auto& materials = pMesh->GetMaterials();
 
-    m_CachedSubMeshMaterials.SetCount(m_uiNumSubMeshes);
-    for (ezUInt32 i = 0; i < m_uiNumSubMeshes; ++i)
+    data.m_CachedSubMeshMaterials.SetCount(data.m_uiNumSubMeshes);
+    for (ezUInt32 i = 0; i < data.m_uiNumSubMeshes; ++i)
     {
       const ezUInt32 uiMaterialIdx = subMeshes[i].m_uiMaterialIndex;
       if (uiMaterialIdx < materials.GetCount() && materials[uiMaterialIdx].IsValid())
       {
-        m_CachedSubMeshMaterials[i] = materials[uiMaterialIdx];
+        data.m_CachedSubMeshMaterials[i] = materials[uiMaterialIdx];
       }
       else
       {
-        m_CachedSubMeshMaterials[i].Invalidate();
+        data.m_CachedSubMeshMaterials[i].Invalidate();
       }
     }
   }
   else
   {
-    m_CachedSubMeshMaterials.Clear();
+    data.m_CachedSubMeshMaterials.Clear();
   }
 
-  if (!m_hMaterial.IsValid())
+  if (!data.m_hMaterial.IsValid())
   {
-    m_bRenderDataCached = true;
+    data.m_bRenderDataCached = true;
     return true;
   }
 
-  ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+  ezResourceLock<ezMaterialResource> pMaterial(data.m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
   if (pMaterial.GetAcquireResult() != ezResourceAcquireResult::Final)
     return false;
 
-  m_RenderCategory = pMaterial->GetRenderDataCategory();
+  data.m_RenderCategory = pMaterial->GetRenderDataCategory();
 
-  m_bRenderDataCached = true;
+  data.m_bRenderDataCached = true;
   return true;
 }
 
-void ezParticleTypeMesh::RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule)
+void ezParticleTypeMesh::RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) const
 {
   pParticleModule->CacheWorldModule<ezRenderDataManager>();
 }
 
-void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
+void ezParticleTypeMesh::ExtractTypeRenderData(const ezParticleModuleContext& ctx, ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
 {
-  if (!m_bRenderDataCached)
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  if (!data.m_bRenderDataCached)
   {
     // check if we now know how to render this thing
-    if (!QueryMeshAndMaterialInfo())
+    if (!QueryMeshAndMaterialInfo(data))
       return;
   }
 
-  if (m_uiNumSubMeshes == 0 || !m_hMaterial.IsValid())
+  if (data.m_uiNumSubMeshes == 0 || !data.m_hMaterial.IsValid())
     return;
 
-  if (m_RenderCategory.m_uiValue == 0xFFFF)
+  if (data.m_RenderCategory.m_uiValue == 0xFFFF)
   {
-    m_bRenderDataCached = false;
+    data.m_bRenderDataCached = false;
     return;
   }
 
-  const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
+  const ezUInt32 numParticles = (ezUInt32)ctx.m_pSystem->GetNumActiveParticles();
 
   if (numParticles == 0)
     return;
 
   EZ_PROFILE_SCOPE("PFX: Mesh");
 
-  const ezTime tCur = GetOwnerEffect()->GetTotalEffectLifeTime();
-  const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
+  const ezTime tCur = ctx.GetEffect()->GetTotalEffectLifeTime();
+  const ezColor tintColor = ctx.GetEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
 
-  const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
-  const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
-  const ezColorLinear16f* pColor = m_pStreamColor->GetData<ezColorLinear16f>();
-  const ezFloat16* pRotationSpeed = m_pStreamRotationSpeed->GetData<ezFloat16>();
-  const ezFloat16* pRotationOffset = m_pStreamRotationOffset->GetData<ezFloat16>();
-  const ezVec3* pAxis = m_pStreamAxis->GetData<ezVec3>();
-  const ezInt32* pVariation = (m_pStreamVariation != nullptr) ? m_pStreamVariation->GetData<ezInt32>() : nullptr;
+  const ezVec4* pPosition = data.m_pStreamPosition->GetData<ezVec4>();
+  const ezFloat16* pSize = data.m_pStreamSize->GetData<ezFloat16>();
+  const ezColorLinear16f* pColor = data.m_pStreamColor->GetData<ezColorLinear16f>();
+  const ezFloat16* pRotationSpeed = data.m_pStreamRotationSpeed->GetData<ezFloat16>();
+  const ezFloat16* pRotationOffset = data.m_pStreamRotationOffset->GetData<ezFloat16>();
+  const ezVec3* pAxis = data.m_pStreamAxis->GetData<ezVec3>();
+  const ezInt32* pVariation = (data.m_pStreamVariation != nullptr) ? data.m_pStreamVariation->GetData<ezInt32>() : nullptr;
 
-  const bool bIsOpaque = m_RenderCategory == ezDefaultRenderDataCategories::LitOpaque ||
-                         m_RenderCategory == ezDefaultRenderDataCategories::LitMasked ||
-                         m_RenderCategory == ezDefaultRenderDataCategories::SimpleOpaque;
+  const bool bIsOpaque = data.m_RenderCategory == ezDefaultRenderDataCategories::LitOpaque ||
+                         data.m_RenderCategory == ezDefaultRenderDataCategories::LitMasked ||
+                         data.m_RenderCategory == ezDefaultRenderDataCategories::SimpleOpaque;
 
-  const ezUInt8 uiNumSubMeshes = m_uiNumSubMeshes;
+  const ezUInt8 uiNumSubMeshes = data.m_uiNumSubMeshes;
 
   {
     const bool bDynamic = true;
     ezGALDynamicBufferHandle hInstanceDataBuffer;
-    const ezUInt32 uiMaxNumParticles = (ezUInt32)GetOwnerSystem()->GetMaxParticles();
-    auto instanceData = ref_msg.m_pRenderDataManager->GetOrCreateInstanceData(nullptr, bDynamic, hInstanceDataBuffer, m_InstanceDataOffset, uiMaxNumParticles);
+    const ezUInt32 uiMaxNumParticles = (ezUInt32)ctx.m_pSystem->GetMaxParticles();
+    auto instanceData = ref_msg.m_pRenderDataManager->GetOrCreateInstanceData(nullptr, bDynamic, hInstanceDataBuffer, data.m_InstanceDataOffset, uiMaxNumParticles);
 
     // Opaque particles with a single submesh can be batched into one render data
     if (bIsOpaque && uiNumSubMeshes == 1)
@@ -285,15 +282,13 @@ void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, 
       }
 
       ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(nullptr);
-      pRenderData->m_vGlobalPosition = GetOwnerSystem()->GetTransform().m_vPosition;
-      pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, m_hMaterial, m_hMesh, 0, 0, numParticles);
+      pRenderData->m_vGlobalPosition = ctx.m_pSystem->GetTransform().m_vPosition;
+      pRenderData->Fill(data.m_InstanceDataOffset, hInstanceDataBuffer, data.m_hMaterial, m_hMesh, 0, 0, numParticles);
 
-      ref_msg.AddRenderData(pRenderData, m_RenderCategory, ezRenderData::Caching::Never);
+      ref_msg.AddRenderData(pRenderData, data.m_RenderCategory, ezRenderData::Caching::Never);
     }
     else
     {
-      EZ_ASSERT_DEBUG(pVariation != nullptr, "Variation stream should be set up");
-
       // Non-opaque particles or multiple submeshes require per-particle render data
       for (ezUInt32 p = 0; p < numParticles; ++p)
       {
@@ -307,23 +302,24 @@ void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, 
         ezRenderDataManager::FillPerInstanceData(instanceData[p], nullptr, trans, ezInvalidIndex, pColor[idx].ToLinearFloat() * tintColor);
 
         // Determine submesh index from variation
-        const ezUInt32 uiSubMeshIdx = static_cast<ezUInt32>(ezMath::Abs(pVariation[idx])) % uiNumSubMeshes;
+        // There is no variation stream for a single submesh, or if the mesh wasn't loaded yet when the streams were created.
+        const ezUInt32 uiSubMeshIdx = (pVariation != nullptr) ? static_cast<ezUInt32>(ezMath::Abs(pVariation[idx])) % uiNumSubMeshes : 0;
 
         // Determine material for this submesh
-        ezMaterialResourceHandle hMaterial = m_hMaterial;
-        if (!m_bMaterialOverride && uiSubMeshIdx < m_CachedSubMeshMaterials.GetCount())
+        ezMaterialResourceHandle hMaterial = data.m_hMaterial;
+        if (m_sMaterial.IsEmpty() && uiSubMeshIdx < data.m_CachedSubMeshMaterials.GetCount())
         {
-          hMaterial = m_CachedSubMeshMaterials[uiSubMeshIdx];
+          hMaterial = data.m_CachedSubMeshMaterials[uiSubMeshIdx];
         }
 
-        ezInstanceDataOffset perParticleOffset = m_InstanceDataOffset;
+        ezInstanceDataOffset perParticleOffset = data.m_InstanceDataOffset;
         perParticleOffset.m_uiOffset += p;
 
         ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(nullptr);
         pRenderData->m_vGlobalPosition = trans.m_vPosition;
         pRenderData->Fill(perParticleOffset, hInstanceDataBuffer, hMaterial, m_hMesh, 0, uiSubMeshIdx);
 
-        ref_msg.AddRenderData(pRenderData, m_RenderCategory, ezRenderData::Caching::Never);
+        ref_msg.AddRenderData(pRenderData, data.m_RenderCategory, ezRenderData::Caching::Never);
       }
     }
   }

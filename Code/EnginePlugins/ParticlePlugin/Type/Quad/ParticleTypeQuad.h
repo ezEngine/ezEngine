@@ -31,17 +31,34 @@ struct EZ_PARTICLEPLUGIN_DLL ezQuadParticleOrientation
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezQuadParticleOrientation);
 
-/// Factory for creating quad particle types.
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeQuadFactory final : public ezParticleTypeFactory
+/// Renders particles as camera-facing or oriented textured quads.
+///
+/// This is the most common particle type, rendering each particle as a textured
+/// quad. Quads can be billboarded to face the camera or oriented in various ways.
+/// Supports texture atlases for sprite animations and variations. Can be lit or
+/// fullbright. The stretch parameter allows elongating particles along their
+/// velocity direction for motion blur effects.
+class EZ_PARTICLEPLUGIN_DLL ezParticleTypeQuad final : public ezParticleType
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeQuadFactory, ezParticleTypeFactory);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeQuad, ezParticleType);
 
 public:
-  virtual const ezRTTI* GetTypeType() const override;
-  virtual void CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const override;
-
   virtual void Save(ezStreamWriter& inout_stream) const override;
   virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void CreateRequiredStreams(const ezParticleModuleContext& ctx) const override;
+  virtual void InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const override;
+  virtual void ExtractTypeRenderData(const ezParticleModuleContext& ctx, ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
+
+  /// Helper struct for depth sorting particles.
+  struct sod
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    float dist;     ///< Distance from camera
+    ezUInt32 index; ///< Particle index
+  };
 
   virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
 
@@ -67,74 +84,29 @@ public:
   float m_fLightDirectionality = 0.5f;
   float m_fGeometryProximityFadeOut = 0.1f;
   float m_fCameraProximityFadeOut = 0.5f;
-};
 
-/// Renders particles as camera-facing or oriented textured quads.
-///
-/// This is the most common particle type, rendering each particle as a textured
-/// quad. Quads can be billboarded to face the camera or oriented in various ways.
-/// Supports texture atlases for sprite animations and variations. Can be lit or
-/// fullbright. The stretch parameter allows elongating particles along their
-/// velocity direction for motion blur effects.
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeQuad final : public ezParticleType
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeQuad, ezParticleType);
-
-public:
-  ezParticleTypeQuad();
-  ~ezParticleTypeQuad();
-
-  virtual void CreateRequiredStreams() override;
-
-  ezTexture2DResourceHandle m_hTexture;
-  ezMaterialResourceHandle m_hCustomMaterial;
-  ezTempHashedString m_sTintColorParameter;
-
-  ezEnum<ezQuadParticleOrientation> m_Orientation;
-  ezEnum<ezParticleTypeRenderMode> m_RenderMode;
-  ezEnum<ezParticleLightingMode> m_LightingMode;
-  ezEnum<ezParticleTextureAtlasType> m_TextureAtlasType;
-  ezEnum<ezParticleTextureAtlasOrientation> m_TextureAtlasOrientation;
-  ezUInt8 m_uiNumSpritesX = 1;
-  ezUInt8 m_uiNumSpritesY = 1;
-
-  ezAngle m_MaxDeviation;
-  float m_fStretch = 1;
-  float m_fNormalCurvature = 0.5f;
-  float m_fLightDirectionality = 0.5f;
-  float m_fGeometryProximityFadeOut = 0.1f;
-  float m_fCameraProximityFadeOut = 0.5f;
-
-  virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
-
-  /// Helper struct for depth sorting particles.
-  struct sod
+private:
+  struct InstanceData
   {
     EZ_DECLARE_POD_TYPE();
 
-    float dist;     ///< Distance from camera
-    ezUInt32 index; ///< Particle index
+    ezProcessingStream* m_pStreamLifeTime;
+    ezProcessingStream* m_pStreamPosition;
+    ezProcessingStream* m_pStreamSize;
+    ezProcessingStream* m_pStreamColor;
+    ezProcessingStream* m_pStreamRotationSpeed;
+    ezProcessingStream* m_pStreamRotationOffset;
+    ezProcessingStream* m_pStreamAxis;
+    ezProcessingStream* m_pStreamVariation;
+    ezProcessingStream* m_pStreamLastPosition;
+
+    ezUInt64 m_uiLastExtractedFrame;
+    ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
+    ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
+    ezArrayPtr<ezTangentQuadParticleShaderData> m_TangentParticleData;
   };
 
-
-protected:
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
-  virtual void Process(ezUInt64 uiNumElements) override {}
-  void AllocateParticleData(const ezUInt32 numParticles, const bool bNeedsBillboardData, const bool bNeedsTangentData) const;
-  void AddParticleRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const;
-  void CreateExtractedData(const ezHybridArray<sod, 64>* pSorted) const;
-
-  ezProcessingStream* m_pStreamLifeTime = nullptr;
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  ezProcessingStream* m_pStreamSize = nullptr;
-  ezProcessingStream* m_pStreamColor = nullptr;
-  ezProcessingStream* m_pStreamRotationSpeed = nullptr;
-  ezProcessingStream* m_pStreamRotationOffset = nullptr;
-  ezProcessingStream* m_pStreamAxis = nullptr;
-  ezProcessingStream* m_pStreamVariation = nullptr;
-  ezProcessingStream* m_pStreamLastPosition = nullptr;
-
-  mutable ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
-  mutable ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
-  mutable ezArrayPtr<ezTangentQuadParticleShaderData> m_TangentParticleData;
+  static void AllocateParticleData(InstanceData& data, const ezUInt32 numParticles, const bool bNeedsBillboardData, const bool bNeedsTangentData);
+  void AddParticleRenderData(const ezParticleModuleContext& ctx, ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const;
+  void CreateExtractedData(const ezParticleModuleContext& ctx, const ezHybridArray<sod, 64>* pSorted) const;
 };

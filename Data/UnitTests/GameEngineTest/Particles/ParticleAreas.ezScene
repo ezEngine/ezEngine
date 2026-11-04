@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14053112600158684755,8675558921919445481}}
-		u4 %Hash{16153350661514128503}
+		u4 %Hash{12061941596372346239}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -672,7 +672,7 @@ o
 			Uuid{u4{17285968599739418114,1432368676440076858}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000020C2,0,0x0000A040}}
+		Vec3 %LocalPosition{f{0x00000CC3,0,0x0000A040}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -701,6 +701,7 @@ o
 	{
 		b %Active{1}
 		s %Effect{"{ 3375e44d-4ff1-2b91-34ed-05acca2cffd1 }"}
+		u4 %RandomSeed{8}
 	}
 }
 o
@@ -747,6 +748,7 @@ o
 	{
 		b %Active{1}
 		s %Effect{"{ e30bbbf2-9bda-45e0-8116-1ae8b998ce61 }"}
+		u4 %RandomSeed{9}
 	}
 }
 o
@@ -781,6 +783,7 @@ o
 	{
 		b %Active{1}
 		s %Effect{"{ e30bbbf2-9bda-45e0-8116-1ae8b998ce61 }"}
+		u4 %RandomSeed{10}
 	}
 }
 o
@@ -852,6 +855,7 @@ o
 	{
 		b %Active{1}
 		s %Effect{"{ 60f225e5-c50a-bbb2-02e7-1913373094c4 }"}
+		u4 %RandomSeed{11}
 	}
 }
 }

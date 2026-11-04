@@ -72,6 +72,7 @@ void ezParticleEffectInstance::Destruct()
   m_bIsSharedEffect = false;
   m_pWorld = nullptr;
   m_hResource.Invalidate();
+  m_pDescriptor.Clear();
   m_hEffectHandle.Invalidate();
   m_uiReviveTimeout = 5;
 
@@ -107,7 +108,6 @@ void ezParticleEffectInstance::UpdateModulesFromWorld()
 void ezParticleEffectInstance::Interrupt()
 {
   ClearParticleSystems();
-  ClearEventReactions();
   m_bEmitterEnabled = false;
 }
 
@@ -164,19 +164,6 @@ void ezParticleEffectInstance::ClearParticleSystems()
   m_ParticleSystems.Clear();
 }
 
-
-void ezParticleEffectInstance::ClearEventReactions()
-{
-  for (ezUInt32 i = 0; i < m_EventReactions.GetCount(); ++i)
-  {
-    if (m_EventReactions[i])
-    {
-      m_EventReactions[i]->GetDynamicRTTI()->GetAllocator()->Deallocate(m_EventReactions[i]);
-    }
-  }
-
-  m_EventReactions.Clear();
-}
 
 bool ezParticleEffectInstance::IsContinuous() const
 {
@@ -301,11 +288,13 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
 
   ezResourceLock<ezParticleEffectResource> pResource(m_hResource, ezResourceAcquireMode::BlockTillLoaded);
 
-  const auto& desc = pResource->GetDescriptor().m_Effect;
+  // the systems may still need the previous modules during the switch
+  ezSharedPtr<const ezParticleEffectResourceDescriptor> pPreviousDescriptor = m_pDescriptor;
+  m_pDescriptor = pResource->GetDescriptor();
+
+  const auto& desc = m_pDescriptor->m_Effect;
   const auto& systems = desc.GetParticleSystems();
 
-  // A reconfigured effect keeps its transform, nobody would set it again before the next update.
-  // Modules compute data relative to it right after this, particles simulated in local space would otherwise end up in the wrong place.
   m_fApplyInstanceVelocity = desc.m_fApplyInstanceVelocity;
   m_bSimulateInLocalSpace = desc.m_bSimulateInLocalSpace;
   m_InvisibleUpdateRate = desc.m_InvisibleUpdateRate;
@@ -382,7 +371,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
     for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
     {
       ezUInt32 uiMaxParticlesAbs = 0, uiMaxParticlesPerSec = 0;
-      for (const ezParticleEmitterFactory* pEmitter : systems[i]->GetEmitterFactories())
+      for (const ezParticleEmitter* pEmitter : systems[i]->GetEmitters())
       {
         ezUInt32 uiMaxParticlesAbs0 = 0, uiMaxParticlesPerSec0 = 0;
         pEmitter->QueryMaxParticleCount(uiMaxParticlesAbs0, uiMaxParticlesPerSec0);
@@ -397,7 +386,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
 
       float fMultiplier = 1.0f;
 
-      for (const ezParticleInitializerFactory* pInitializer : systems[i]->GetInitializerFactories())
+      for (const ezParticleInitializer* pInitializer : systems[i]->GetInitializers())
       {
         fMultiplier *= pInitializer->GetSpawnCountMultiplier(this);
       }
@@ -452,28 +441,15 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
   {
     m_ParticleSystems[i]->SetSpawnCountMultiplier(systemMaxParticles[i].m_fMultiplier, systemMaxParticles[i].m_fInitializerMultiplier, systemMaxParticles[i].m_bInitializerMultiplierChecked);
     m_ParticleSystems[i]->ConfigureFromTemplate(systems[i]);
+
+    // A reconfigured effect keeps its transform, nobody would set it again before the next update.
+    // Modules compute data relative to it in Finalize(), particles simulated in local space would otherwise end up in the wrong place.
     m_ParticleSystems[i]->SetTransform(m_bSimulateInLocalSpace ? ezTransform::MakeIdentity() : m_Transform, vStartVelocity);
     m_ParticleSystems[i]->SetEmitterEnabled(m_bEmitterEnabled);
     m_ParticleSystems[i]->Finalize();
   }
 
   m_bModulesNeedWorldUpdate = true;
-
-  // recreate event reactions
-  {
-    ClearEventReactions();
-
-    m_EventReactions.SetCount(desc.GetEventReactions().GetCount());
-
-    const auto& er = desc.GetEventReactions();
-    for (ezUInt32 i = 0; i < er.GetCount(); ++i)
-    {
-      if (m_EventReactions[i] == nullptr)
-      {
-        m_EventReactions[i] = er[i]->CreateEventReaction(this);
-      }
-    }
-  }
 }
 
 bool ezParticleEffectInstance::Update(const ezTime& diff)
@@ -703,6 +679,13 @@ void ezParticleEffectInstance::ProcessEventQueues()
   if (m_EventQueue.IsEmpty())
     return;
 
+  // after Interrupt() there are no systems anymore and the effect must not spawn anything
+  if (m_ParticleSystems.IsEmpty())
+  {
+    m_EventQueue.Clear();
+    return;
+  }
+
   EZ_PROFILE_SCOPE("PFX: Effect Event Queue");
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
@@ -712,18 +695,20 @@ void ezParticleEffectInstance::ProcessEventQueues()
     }
   }
 
+  const auto& reactions = m_pDescriptor->m_Effect.GetEventReactions();
+
   for (const ezParticleEvent& e : m_EventQueue)
   {
     ezUInt32 rnd = m_Random.UIntInRange(100);
 
-    for (ezParticleEventReaction* pReaction : m_EventReactions)
+    for (const ezParticleEventReaction* pReaction : reactions)
     {
-      if (pReaction->m_sEventName != e.m_EventType)
+      if (e.m_EventType != pReaction->m_sEventType)
         continue;
 
       if (pReaction->m_uiProbability > rnd)
       {
-        pReaction->ProcessEvent(e);
+        pReaction->ProcessEvent(this, e);
         break;
       }
 

@@ -18,7 +18,7 @@
 #include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 7, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 8, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -39,7 +39,7 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
     props["SimulateInLocalSpace"].m_Visibility = bShared ? ezPropertyUiState::Disabled : ezPropertyUiState::Default;
     props["ApplyOwnerVelocity"].m_Visibility = bShared ? ezPropertyUiState::Disabled : ezPropertyUiState::Default;
   }
-  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleTypeQuadFactory>())
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleTypeQuad>())
   {
     auto& props = *e.m_pPropertyStates;
 
@@ -74,7 +74,7 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
       props["LightDirectionality"].m_Visibility = ezPropertyUiState::Default;
     }
   }
-  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleTypeTrailFactory>())
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleTypeTrail>())
   {
     auto& props = *e.m_pPropertyStates;
 
@@ -100,7 +100,7 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
       props["LightDirectionality"].m_Visibility = ezPropertyUiState::Default;
     }
   }
-  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehaviorFactory_ColorGradient>())
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehavior_ColorGradient>())
   {
     auto& props = *e.m_pPropertyStates;
 
@@ -111,7 +111,7 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
     props["SharedGradient"].m_Visibility = (gradientSource == ezGradientSource::SharedGradient) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["GradientMaxSpeed"].m_Visibility = (mode == ezParticleColorGradientMode::Speed) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
-  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehaviorFactory_Opacity>())
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehavior_Opacity>())
   {
     auto& props = *e.m_pPropertyStates;
 
@@ -120,7 +120,7 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
     props["OpacityCurve"].m_Visibility = (curveSource == ezCurveSource::CustomCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["SharedOpacityCurve"].m_Visibility = (curveSource == ezCurveSource::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
-  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehaviorFactory_SizeCurve>())
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehavior_SizeCurve>())
   {
     auto& props = *e.m_pPropertyStates;
 
@@ -129,7 +129,7 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
     props["SizeCurve"].m_Visibility = (curveSource == ezCurveSource::CustomCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["SharedSizeCurve"].m_Visibility = (curveSource == ezCurveSource::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
-  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehaviorFactory_Velocity>())
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehavior_Velocity>())
   {
     auto& props = *e.m_pPropertyStates;
 
@@ -141,7 +141,7 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
     props["SpeedCurveOffset"].m_Visibility = (changeSpeedWith == ezVelocityChangeMode::CustomCurve || changeSpeedWith == ezVelocityChangeMode::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["SpeedCurveScale"].m_Visibility = (changeSpeedWith == ezVelocityChangeMode::CustomCurve || changeSpeedWith == ezVelocityChangeMode::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
-  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehaviorFactory_Move>())
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehavior_Move>())
   {
     auto& props = *e.m_pPropertyStates;
 
@@ -167,7 +167,7 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
     props["MoveZ_CurveOffset"].m_Visibility = (moveZ_Mode == ezMovementMode::CustomCurve || moveZ_Mode == ezMovementMode::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["MoveZ_CurveScale"].m_Visibility = (moveZ_Mode == ezMovementMode::CustomCurve || moveZ_Mode == ezMovementMode::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
-  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleInitializerFactory_CylinderPosition>())
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleInitializer_CylinderPosition>())
   {
     auto& props = *e.m_pPropertyStates;
 
@@ -175,7 +175,7 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
 
     props["Speed"].m_Visibility = bSetVelocity ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
-  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleInitializerFactory_SpherePosition>())
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleInitializer_SpherePosition>())
   {
     auto& props = *e.m_pPropertyStates;
 
@@ -183,7 +183,7 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
 
     props["Speed"].m_Visibility = bSetVelocity ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
-  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleInitializerFactory_RandomColor>())
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleInitializer_RandomColor>())
   {
     auto& props = *e.m_pPropertyStates;
 
@@ -296,9 +296,9 @@ void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
 
   for (const auto& system : desc->GetParticleSystems())
   {
-    for (const auto& type : system->GetTypeFactories())
+    for (const auto& type : system->GetTypes())
     {
-      if (auto* pType = ezDynamicCast<ezParticleTypeQuadFactory*>(type))
+      if (auto* pType = ezDynamicCast<ezParticleTypeQuad*>(type))
       {
         // remove unused dependencies
         if (pType->m_bUseCustomMaterial)
@@ -311,7 +311,7 @@ void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
         }
       }
 
-      if (auto* pType = ezDynamicCast<ezParticleTypeTrailFactory*>(type))
+      if (auto* pType = ezDynamicCast<ezParticleTypeTrail*>(type))
       {
         // remove unused dependencies
         if (pType->m_bUseCustomMaterial)

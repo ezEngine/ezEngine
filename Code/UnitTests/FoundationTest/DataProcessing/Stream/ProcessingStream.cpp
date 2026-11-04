@@ -1,13 +1,41 @@
 
 #include <FoundationTest/FoundationTestPCH.h>
 
-#include <Foundation/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
+#include <Foundation/Memory/MemoryUtils.h>
 #include <Foundation/Reflection/Reflection.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(DataProcessing);
+
+// Zero initializer
+
+class ZeroInitStreamProcessor : public ezProcessingStreamProcessor
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ZeroInitStreamProcessor, ezProcessingStreamProcessor);
+
+public:
+  void SetStream(ezProcessingStream* pStream) { m_pStream = pStream; }
+
+protected:
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override
+  {
+    for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+    {
+      ezMemoryUtils::ZeroFill<ezUInt8>(
+        static_cast<ezUInt8*>(ezMemoryUtils::AddByteOffset(m_pStream->GetWritableData(), static_cast<std::ptrdiff_t>(i * m_pStream->GetElementStride()))),
+        static_cast<size_t>(m_pStream->GetElementSize()));
+    }
+  }
+
+  virtual void Process(ezUInt64 uiNumElements) override {}
+
+  ezProcessingStream* m_pStream = nullptr;
+};
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ZeroInitStreamProcessor, 1, ezRTTIDefaultAllocator<ZeroInitStreamProcessor>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 // Add processor
 
@@ -16,20 +44,9 @@ class AddOneStreamProcessor : public ezProcessingStreamProcessor
   EZ_ADD_DYNAMIC_REFLECTION(AddOneStreamProcessor, ezProcessingStreamProcessor);
 
 public:
-  AddOneStreamProcessor()
-
-    = default;
-
-  void SetStreamName(ezHashedString sStreamName) { m_sStreamName = sStreamName; }
+  void SetStream(ezProcessingStream* pStream) { m_pStream = pStream; }
 
 protected:
-  virtual ezResult UpdateStreamBindings() override
-  {
-    m_pStream = m_pStreamGroup->GetStreamByName(m_sStreamName);
-
-    return m_pStream ? EZ_SUCCESS : EZ_FAILURE;
-  }
-
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
 
   virtual void Process(ezUInt64 uiNumElements) override
@@ -44,7 +61,6 @@ protected:
     }
   }
 
-  ezHashedString m_sStreamName;
   ezProcessingStream* m_pStream = nullptr;
 };
 
@@ -54,17 +70,17 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_CREATE_SIMPLE_TEST(DataProcessing, ProcessingStream)
 {
   ezProcessingStreamGroup Group;
-  ezProcessingStream* pStream1 = Group.AddStream("Stream1", ezProcessingStream::DataType::Float);
-  ezProcessingStream* pStream2 = Group.AddStream("Stream2", ezProcessingStream::DataType::Float3);
+  ezProcessingStream* pStream1 = Group.AddStream(ezMakeHashedString("Stream1"), ezProcessingStream::DataType::Float);
+  ezProcessingStream* pStream2 = Group.AddStream(ezMakeHashedString("Stream2"), ezProcessingStream::DataType::Float3);
 
   EZ_TEST_BOOL(pStream1 != nullptr);
   EZ_TEST_BOOL(pStream2 != nullptr);
 
-  ezProcessingStreamSpawnerZeroInitialized* pSpawner1 = EZ_DEFAULT_NEW(ezProcessingStreamSpawnerZeroInitialized);
-  ezProcessingStreamSpawnerZeroInitialized* pSpawner2 = EZ_DEFAULT_NEW(ezProcessingStreamSpawnerZeroInitialized);
+  ZeroInitStreamProcessor* pSpawner1 = EZ_DEFAULT_NEW(ZeroInitStreamProcessor);
+  ZeroInitStreamProcessor* pSpawner2 = EZ_DEFAULT_NEW(ZeroInitStreamProcessor);
 
-  pSpawner1->SetStreamName(pStream1->GetName());
-  pSpawner2->SetStreamName(pStream2->GetName());
+  pSpawner1->SetStream(pStream1);
+  pSpawner2->SetStream(pStream2);
 
   Group.AddProcessor(pSpawner1);
   Group.AddProcessor(pSpawner2);
@@ -128,7 +144,7 @@ EZ_CREATE_SIMPLE_TEST(DataProcessing, ProcessingStream)
   EZ_TEST_INT(Group.GetNumActiveElements(), 8);
 
   AddOneStreamProcessor* pProcessor1 = EZ_DEFAULT_NEW(AddOneStreamProcessor);
-  pProcessor1->SetStreamName(pStream1->GetName());
+  pProcessor1->SetStream(pStream1);
 
   Group.AddProcessor(pProcessor1);
 

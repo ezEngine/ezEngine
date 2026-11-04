@@ -12,7 +12,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Wind, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Wind>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Wind, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Wind>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -21,29 +21,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Wind, 1, ezRTTIDefault
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Wind, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Wind>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool cvar_ParticlesDebugWindSamples("Particles.DebugWindSamples", false, ezCVarFlags::Default, "Enables debug visualization for wind sampling on particle effects.");
 #endif
 
-ezParticleBehaviorFactory_Wind::ezParticleBehaviorFactory_Wind() = default;
-ezParticleBehaviorFactory_Wind::~ezParticleBehaviorFactory_Wind() = default;
-
-const ezRTTI* ezParticleBehaviorFactory_Wind::GetBehaviorType() const
-{
-  return ezGetStaticRTTI<ezParticleBehavior_Wind>();
-}
-
-void ezParticleBehaviorFactory_Wind::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
-{
-  ezParticleBehavior_Wind* pBehavior = static_cast<ezParticleBehavior_Wind*>(pObject);
-
-  pBehavior->m_fWindInfluence = m_fWindInfluence;
-}
+ezParticleBehavior_Wind::ezParticleBehavior_Wind() = default;
+ezParticleBehavior_Wind::~ezParticleBehavior_Wind() = default;
 
 enum class BehaviorWindVersion
 {
@@ -54,7 +39,7 @@ enum class BehaviorWindVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleBehaviorFactory_Wind::Save(ezStreamWriter& inout_stream) const
+void ezParticleBehavior_Wind::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)BehaviorWindVersion::Version_Current;
   inout_stream << uiVersion;
@@ -62,7 +47,7 @@ void ezParticleBehaviorFactory_Wind::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_fWindInfluence;
 }
 
-void ezParticleBehaviorFactory_Wind::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleBehavior_Wind::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -72,54 +57,61 @@ void ezParticleBehaviorFactory_Wind::Load(ezStreamReader& inout_stream, const ez
   inout_stream >> m_fWindInfluence;
 }
 
-ezParticleBehavior_Wind::ezParticleBehavior_Wind() = default;
-ezParticleBehavior_Wind::~ezParticleBehavior_Wind() = default;
-
-void ezParticleBehavior_Wind::CreateRequiredStreams()
+bool ezParticleBehavior_Wind::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleBehavior_Wind::OnFinalize()
+void ezParticleBehavior_Wind::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
+}
+
+void ezParticleBehavior_Wind::OnFinalize(const ezParticleModuleContext& ctx) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   if (m_fWindInfluence <= 0)
   {
-    m_pWindSampleGrid = nullptr;
+    data.m_pWindSampleGrid = nullptr;
     return;
   }
 
-  RequestUpdateFromWorld();
-
-  const ezVec3U32 numSamples = GetOwnerEffect()->GetNumWindSamples();
+  const ezVec3U32 numSamples = ctx.GetEffect()->GetNumWindSamples();
   const ezVec4I32 vNumSamples(numSamples.x, numSamples.y, numSamples.z, numSamples.x * numSamples.y * numSamples.z);
 
   // keep the sampled wind when the effect is only reconfigured, to not lose the smoothing
-  if (m_pWindSampleGrid != nullptr && m_vNumWindSamples == vNumSamples)
+  if (data.m_pWindSampleGrid != nullptr && data.m_vNumWindSamples == vNumSamples)
     return;
 
-  m_vNumWindSamples = vNumSamples;
+  data.m_vNumWindSamples = vNumSamples;
 
-  m_pWindSampleGrid = EZ_NEW(ezFoundation::GetAlignedAllocator(), WindSampleGrid);
-  m_pWindSampleGrid->m_vMinPos.Set(1000.0f);
-  m_pWindSampleGrid->m_vMaxPos.Set(-1000.0f);
-  m_pWindSampleGrid->m_vInvCellSize.SetZero();
-  m_pWindSampleGrid->m_Samples.SetCountUninitialized(m_vNumWindSamples.w);
-  ezMemoryUtils::ZeroFill(m_pWindSampleGrid->m_Samples.GetData(), m_vNumWindSamples.w);
+  data.m_pWindSampleGrid = EZ_NEW(ezFoundation::GetAlignedAllocator(), WindSampleGrid);
+  data.m_pWindSampleGrid->m_vMinPos.Set(1000.0f);
+  data.m_pWindSampleGrid->m_vMaxPos.Set(-1000.0f);
+  data.m_pWindSampleGrid->m_vInvCellSize.SetZero();
+  data.m_pWindSampleGrid->m_Samples.SetCountUninitialized(data.m_vNumWindSamples.w);
+  ezMemoryUtils::ZeroFill(data.m_pWindSampleGrid->m_Samples.GetData(), data.m_vNumWindSamples.w);
 }
 
-void ezParticleBehavior_Wind::UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject)
+void ezParticleBehavior_Wind::UpdateFromWorld(const ezParticleModuleContext& ctx, const ezWorld& world, ezGameObjectHandle hOwnerObject) const
 {
-  const ezBoundingBoxSphere& bounds = GetOwnerEffect()->GetSimulationSpaceBoundingVolume();
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
 
-  if (m_pWindSampleGrid == nullptr || !bounds.IsValid())
+  const ezBoundingBoxSphere& bounds = ctx.GetEffect()->GetSimulationSpaceBoundingVolume();
+
+  if (data.m_pWindSampleGrid == nullptr || !bounds.IsValid())
     return;
 
-  auto& grid = *m_pWindSampleGrid;
+  auto& grid = *data.m_pWindSampleGrid;
 
-  const ezUInt32 uiNumSamplesX = m_vNumWindSamples.x;
-  const ezUInt32 uiNumSamplesY = m_vNumWindSamples.y;
-  const ezUInt32 uiNumSamplesZ = m_vNumWindSamples.z;
-  const ezUInt32 uiTotalNumSamples = m_vNumWindSamples.w;
+  const ezUInt32 uiNumSamplesX = data.m_vNumWindSamples.x;
+  const ezUInt32 uiNumSamplesY = data.m_vNumWindSamples.y;
+  const ezUInt32 uiNumSamplesZ = data.m_vNumWindSamples.z;
+  const ezUInt32 uiTotalNumSamples = data.m_vNumWindSamples.w;
   EZ_ASSERT_DEBUG(grid.m_Samples.GetCount() == uiTotalNumSamples, "Invalid number of samples");
 
   const ezSimdVec4f interpolationFactor = ezSimdVec4f(1.0f - ezMath::Pow(0.1f, world.GetClock().GetTimeDiff().AsFloatInSeconds()));
@@ -186,32 +178,34 @@ void ezParticleBehavior_Wind::UpdateFromWorld(const ezWorld& world, ezGameObject
   }
 }
 
-void ezParticleBehavior_Wind::Process(ezUInt64 uiNumElements)
+void ezParticleBehavior_Wind::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Wind");
 
-  if (m_pWindSampleGrid == nullptr)
+  if (data.m_pWindSampleGrid == nullptr)
     return;
 
-  const float tDiff = (float)m_TimeDiff.GetSeconds();
+  const float tDiff = (float)ctx.GetTimeDiff().GetSeconds();
   const ezSimdFloat fWindFactor = m_fWindInfluence * tDiff;
 
-  ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<ezSimdVec4f> itPosition(data.m_pStreamPosition, uiNumElements, 0);
 
   while (!itPosition.HasReachedEnd())
   {
-    ezSimdVec4f windOffset = GetWindAt(itPosition.Current()) * fWindFactor;
+    ezSimdVec4f windOffset = GetWindAt(data, itPosition.Current()) * fWindFactor;
     itPosition.Current() += windOffset;
 
     itPosition.Advance();
   }
 }
 
-ezSimdVec4f ezParticleBehavior_Wind::GetWindAt(const ezSimdVec4f& vPosition) const
+ezSimdVec4f ezParticleBehavior_Wind::GetWindAt(const InstanceData& data, const ezSimdVec4f& vPosition)
 {
-  const auto& grid = *m_pWindSampleGrid;
+  const auto& grid = *data.m_pWindSampleGrid;
 
-  const ezUInt32 uiTotalNumSamples = m_vNumWindSamples.w;
+  const ezUInt32 uiTotalNumSamples = data.m_vNumWindSamples.w;
   EZ_ASSERT_DEBUG(grid.m_Samples.GetCount() == uiTotalNumSamples, "Invalid sample count");
 
   // Sample grid with trilinear interpolation
@@ -221,12 +215,12 @@ ezSimdVec4f ezParticleBehavior_Wind::GetWindAt(const ezSimdVec4f& vPosition) con
   const ezSimdVec4f gridSpacePosFloor = gridSpacePos.Floor();
   const ezSimdVec4f weights = gridSpacePos - gridSpacePosFloor;
 
-  const ezSimdVec4i maxIndices = ezSimdConversion::ToVec4i(m_vNumWindSamples) - ezSimdVec4i(1);
+  const ezSimdVec4i maxIndices = ezSimdConversion::ToVec4i(data.m_vNumWindSamples) - ezSimdVec4i(1);
   const ezSimdVec4i pos0 = ezSimdVec4i::Truncate(gridSpacePosFloor).CompMin(maxIndices);
   const ezSimdVec4i pos1 = (pos0 + ezSimdVec4i(1)).CompMin(maxIndices);
 
-  const ezInt32 xCount = m_vNumWindSamples.x;
-  const ezInt32 xyCount = xCount * m_vNumWindSamples.y;
+  const ezInt32 xCount = data.m_vNumWindSamples.x;
+  const ezInt32 xyCount = xCount * data.m_vNumWindSamples.y;
   const ezSimdVec4i cXcXYcXcXY = ezSimdVec4i(xCount, xyCount, xCount, xyCount);
   const ezSimdVec4i y0z0y1z1 = pos0.GetCombined<ezSwizzle::YZYZ>(pos1).CompMul(cXcXYcXcXY);
   const ezSimdVec4i y0y0y1y1 = y0z0y1z1.Get<ezSwizzle::XXZZ>();
@@ -267,7 +261,7 @@ ezSimdVec4f ezParticleBehavior_Wind::GetWindAt(const ezSimdVec4f& vPosition) con
   return res;
 }
 
-void ezParticleBehavior_Wind::RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule)
+void ezParticleBehavior_Wind::RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) const
 {
   pParticleModule->CacheWorldModule<ezWindWorldModuleInterface>();
 }

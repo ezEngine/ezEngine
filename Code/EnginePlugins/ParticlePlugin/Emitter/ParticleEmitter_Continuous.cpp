@@ -11,7 +11,7 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Continuous, 1, ezRTTIDefaultAllocator<ezParticleEmitterFactory_Continuous>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitter_Continuous, 1, ezRTTIDefaultAllocator<ezParticleEmitter_Continuous>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -27,12 +27,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Continuous, 1, ezRTTIDe
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitter_Continuous, 1, ezRTTIDefaultAllocator<ezParticleEmitter_Continuous>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleEmitterFactory_Continuous::ezParticleEmitterFactory_Continuous()
+ezParticleEmitter_Continuous::ezParticleEmitter_Continuous()
 {
   m_uiSpawnCountPerSec = 10;
   m_uiSpawnCountPerSecRange = 0;
@@ -41,27 +38,7 @@ ezParticleEmitterFactory_Continuous::ezParticleEmitterFactory_Continuous()
 }
 
 
-const ezRTTI* ezParticleEmitterFactory_Continuous::GetEmitterType() const
-{
-  return ezGetStaticRTTI<ezParticleEmitter_Continuous>();
-}
-
-void ezParticleEmitterFactory_Continuous::CopyEmitterProperties(ezParticleEmitter* pEmitter0, bool bFirstTime) const
-{
-  ezParticleEmitter_Continuous* pEmitter = static_cast<ezParticleEmitter_Continuous*>(pEmitter0);
-
-  pEmitter->m_StartDelay = m_StartDelay;
-
-  pEmitter->m_uiSpawnCountPerSec = (ezUInt32)(m_uiSpawnCountPerSec * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
-  pEmitter->m_uiSpawnCountPerSecRange = (ezUInt32)(m_uiSpawnCountPerSecRange * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
-
-  pEmitter->m_sSpawnCountScaleParameter = ezTempHashedString(m_sSpawnCountScaleParameter.GetData());
-
-  pEmitter->m_hCountCurve = m_hCountCurve;
-  pEmitter->m_CurveDuration = ezMath::Max(m_CurveDuration, ezTime::MakeFromSeconds(1.0));
-}
-
-void ezParticleEmitterFactory_Continuous::QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const
+void ezParticleEmitter_Continuous::QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const
 {
   out_uiMaxParticlesAbs = 0;
   out_uiMaxParticlesPerSecond = m_uiSpawnCountPerSec + (m_uiSpawnCountPerSecRange * 3 / 4); // don't be too pessimistic
@@ -85,7 +62,7 @@ enum class EmitterContinuousVersion
 };
 
 
-void ezParticleEmitterFactory_Continuous::Save(ezStreamWriter& inout_stream) const
+void ezParticleEmitter_Continuous::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)EmitterContinuousVersion::Version_Current;
   inout_stream << uiVersion;
@@ -105,7 +82,7 @@ void ezParticleEmitterFactory_Continuous::Save(ezStreamWriter& inout_stream) con
   inout_stream << m_sSpawnCountScaleParameter;
 }
 
-void ezParticleEmitterFactory_Continuous::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleEmitter_Continuous::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -145,37 +122,57 @@ void ezParticleEmitterFactory_Continuous::Load(ezStreamReader& inout_stream, con
   }
 }
 
-void ezParticleEmitter_Continuous::OnFinalize()
+bool ezParticleEmitter_Continuous::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  m_CountCurveTime = ezTime::MakeZero();
-  m_fCurSpawnPerSec = static_cast<float>(GetRNG().DoubleMinMax(m_uiSpawnCountPerSec, m_uiSpawnCountPerSec + m_uiSpawnCountPerSecRange));
-  m_TimeSinceRandom = ezTime::MakeZero();
-  m_fCurSpawnCounter = 1; // make sure to always spawn at least one particle right away in the first frame
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-ezParticleEmitterState ezParticleEmitter_Continuous::IsFinished()
+float ezParticleEmitter_Continuous::ComputeRandomSpawnPerSec(const ezParticleModuleContext& ctx) const
+{
+  const float fMultiplier = ctx.m_pSystem->GetSpawnCountMultiplier();
+  const ezUInt32 uiSpawnCountPerSec = (ezUInt32)(m_uiSpawnCountPerSec * fMultiplier);
+  const ezUInt32 uiSpawnCountPerSecRange = (ezUInt32)(m_uiSpawnCountPerSecRange * fMultiplier);
+
+  return static_cast<float>(ctx.GetRNG().DoubleMinMax(uiSpawnCountPerSec, uiSpawnCountPerSec + uiSpawnCountPerSecRange));
+}
+
+void ezParticleEmitter_Continuous::OnFinalize(const ezParticleModuleContext& ctx) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  data.m_StartDelay = m_StartDelay;
+  data.m_CountCurveTime = ezTime::MakeZero();
+  data.m_fCurSpawnPerSec = ComputeRandomSpawnPerSec(ctx);
+  data.m_TimeSinceRandom = ezTime::MakeZero();
+  data.m_fCurSpawnCounter = 1; // make sure to always spawn at least one particle right away in the first frame
+}
+
+ezParticleEmitterState ezParticleEmitter_Continuous::IsFinished(const ezParticleModuleContext& ctx) const
 {
   return ezParticleEmitterState::Active;
 }
 
-ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount(const ezTime& tDiff)
+ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount(const ezParticleModuleContext& ctx, const ezTime& diff) const
 {
   EZ_PROFILE_SCOPE("PFX: Continuous - Spawn Count ");
 
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   // delay before the emitter becomes active
-  if (m_StartDelay.IsPositive())
+  if (data.m_StartDelay.IsPositive())
   {
-    m_StartDelay -= tDiff;
+    data.m_StartDelay -= diff;
     return 0;
   }
 
-  m_TimeSinceRandom += tDiff;
-  m_CountCurveTime += tDiff;
+  data.m_TimeSinceRandom += diff;
+  data.m_CountCurveTime += diff;
 
-  if (m_TimeSinceRandom >= ezTime::MakeFromMilliseconds(200))
+  if (data.m_TimeSinceRandom >= ezTime::MakeFromMilliseconds(200))
   {
-    m_TimeSinceRandom = ezTime::MakeZero();
-    m_fCurSpawnPerSec = (float)GetRNG().DoubleMinMax(m_uiSpawnCountPerSec, m_uiSpawnCountPerSec + m_uiSpawnCountPerSecRange);
+    data.m_TimeSinceRandom = ezTime::MakeZero();
+    data.m_fCurSpawnPerSec = ComputeRandomSpawnPerSec(ctx);
   }
 
 
@@ -187,25 +184,27 @@ ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount(const ezTime& tDiff)
 
     if (!pCurve->GetDescriptor().m_Curves.IsEmpty())
     {
-      while (m_CountCurveTime > m_CurveDuration)
-        m_CountCurveTime -= m_CurveDuration;
+      const ezTime curveDuration = ezMath::Max(m_CurveDuration, ezTime::MakeFromSeconds(1.0));
+
+      while (data.m_CountCurveTime > curveDuration)
+        data.m_CountCurveTime -= curveDuration;
 
       const auto& curve = pCurve->GetDescriptor().m_Curves[0];
 
-      const double normPos = (float)(m_CountCurveTime.GetSeconds() / m_CurveDuration.GetSeconds());
+      const double normPos = (float)(data.m_CountCurveTime.GetSeconds() / curveDuration.GetSeconds());
       const double evalPos = curve.ConvertNormalizedPos(normPos);
 
       fSpawnFactor = (float)ezMath::Max(0.0, curve.Evaluate(evalPos));
     }
   }
 
-  const float spawnCountScale = ezMath::Max(GetOwnerEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f);
+  const float spawnCountScale = ezMath::Max(ctx.GetEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f);
   fSpawnFactor *= spawnCountScale;
 
-  m_fCurSpawnCounter += fSpawnFactor * m_fCurSpawnPerSec * (float)tDiff.GetSeconds();
+  data.m_fCurSpawnCounter += fSpawnFactor * data.m_fCurSpawnPerSec * (float)diff.GetSeconds();
 
-  const ezUInt32 uiSpawn = (ezUInt32)m_fCurSpawnCounter;
-  m_fCurSpawnCounter -= uiSpawn;
+  const ezUInt32 uiSpawn = (ezUInt32)data.m_fCurSpawnCounter;
+  data.m_fCurSpawnCounter -= uiSpawn;
 
   return uiSpawn;
 }

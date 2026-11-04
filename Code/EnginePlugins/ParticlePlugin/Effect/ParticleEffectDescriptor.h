@@ -16,10 +16,16 @@ public:
   void RemoveParticleSystem(ezParticleSystemDescriptor* pSystem) { m_ParticleSystems.RemoveAndCopy(pSystem); }
   const ezHybridArray<ezParticleSystemDescriptor*, 4>& GetParticleSystems() const { return m_ParticleSystems; }
 
-  void AddEventReaction(ezParticleEventReactionFactory* pSystem) { m_EventReactions.PushBack(pSystem); }
-  void RemoveEventReaction(ezParticleEventReactionFactory* pSystem) { m_EventReactions.RemoveAndCopy(pSystem); }
-  const ezHybridArray<ezParticleEventReactionFactory*, 4>& GetEventReactions() const { return m_EventReactions; }
+  void AddEventReaction(ezParticleEventReaction* pSystem) { m_EventReactions.PushBack(pSystem); }
+  void RemoveEventReaction(ezParticleEventReaction* pSystem) { m_EventReactions.RemoveAndCopy(pSystem); }
+  const ezHybridArray<ezParticleEventReaction*, 4>& GetEventReactions() const { return m_EventReactions; }
 
+
+  /// Finds a module type by the name stored in a transformed effect.
+  ///
+  /// Effects that were transformed before the module classes got renamed still contain the old names, which contained 'Factory'.
+  /// Returns nullptr for unknown types.
+  static const ezRTTI* FindModuleType(ezStringView sTypeName);
 
   void Save(ezStreamWriter& inout_stream) const;
   void Load(ezStreamReader& inout_stream);
@@ -38,5 +44,5 @@ public:
 
 private:
   ezHybridArray<ezParticleSystemDescriptor*, 4> m_ParticleSystems;
-  ezHybridArray<ezParticleEventReactionFactory*, 4> m_EventReactions;
+  ezHybridArray<ezParticleEventReaction*, 4> m_EventReactions;
 };

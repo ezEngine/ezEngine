@@ -27,59 +27,43 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleRaycastHitReaction)
 /// Raycasts from the particle's last position to its current position.
 /// On collision, particles can bounce, die, or stop.
 /// Optionally triggers an event on collision.
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Raycast final : public ezParticleBehaviorFactory
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Raycast, ezParticleBehaviorFactory);
-
-public:
-  ezParticleBehaviorFactory_Raycast();
-  ~ezParticleBehaviorFactory_Raycast();
-
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
-
-  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
-
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
-
-  ezEnum<ezParticleRaycastHitReaction> m_Reaction; ///< How particles react to collisions
-  ezUInt8 m_uiCollisionLayer = 0;                  ///< Physics collision layer to raycast against
-  ezString m_sOnCollideEvent;                      ///< Optional event name to raise on collision
-  float m_fBounceFactor = 0.5f;                    ///< Velocity multiplier when bouncing (energy loss)
-  float m_fSlideFactor = 0.5f;                     ///< How much particles slide along the surface
-  float m_fSizeFactor = 0.1f;                      ///< Multiplier for particle size used in raycast length
-};
-
-
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Raycast final : public ezParticleBehavior
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Raycast, ezParticleBehavior);
 
 public:
   ezParticleBehavior_Raycast();
+  ~ezParticleBehavior_Raycast();
 
-  virtual void CreateRequiredStreams() override;
-  virtual void QueryOptionalStreams() override;
 
-  ezEnum<ezParticleRaycastHitReaction> m_Reaction;
-  ezUInt8 m_uiCollisionLayer = 0;
-  ezTempHashedString m_sOnCollideEvent;
-  float m_fBounceFactor = 0.5f;
-  float m_fSlideFactor = 0.5f;
-  float m_fSizeFactor = 0.1f;
+  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
 
-protected:
-  friend class ezParticleBehaviorFactory_Raycast;
+  virtual void Save(ezStreamWriter& inout_stream) const override;
+  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
 
-  virtual void Process(ezUInt64 uiNumElements) override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void CreateRequiredStreams(const ezParticleModuleContext& ctx) const override;
+  virtual void QueryOptionalStreams(const ezParticleModuleContext& ctx) const override;
+  virtual void OnFinalize(const ezParticleModuleContext& ctx) const override;
+  virtual void Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const override;
+  virtual void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) const override;
 
-  void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) override;
+  ezEnum<ezParticleRaycastHitReaction> m_Reaction; ///< How particles react to collisions
+  ezUInt8 m_uiCollisionLayer = 0;                  ///< Physics collision layer to raycast against
+  ezHashedString m_sOnCollideEvent;                ///< Optional event name to raise on collision
+  float m_fBounceFactor = 0.5f;                    ///< Velocity multiplier when bouncing (energy loss)
+  float m_fSlideFactor = 0.5f;                     ///< How much particles slide along the surface
+  float m_fSizeFactor = 0.1f;                      ///< Multiplier for particle size used in raycast length
 
-  ezPhysicsWorldModuleInterface* m_pPhysicsModule;
+private:
+  struct InstanceData
+  {
+    EZ_DECLARE_POD_TYPE();
 
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  ezProcessingStream* m_pStreamLastPosition = nullptr;
-  ezProcessingStream* m_pStreamVelocity = nullptr;
-  const ezProcessingStream* m_pStreamSize = nullptr;
+    ezPhysicsWorldModuleInterface* m_pPhysicsModule;
+    ezProcessingStream* m_pStreamPosition;
+    ezProcessingStream* m_pStreamLastPosition;
+    ezProcessingStream* m_pStreamVelocity;
+    const ezProcessingStream* m_pStreamSize;
+  };
 };

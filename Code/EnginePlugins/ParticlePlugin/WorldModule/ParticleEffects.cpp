@@ -67,7 +67,7 @@ ezParticleEffectHandle ezParticleWorldModule::CreateEffectInstance(const ezParti
   if (!bIsShared)
   {
     ezResourceLock<ezParticleEffectResource> pResource(hResource, ezResourceAcquireMode::BlockTillLoaded);
-    bIsShared |= pResource->GetDescriptor().m_Effect.m_bAlwaysShared;
+    bIsShared |= pResource->GetDescriptor()->m_Effect.m_bAlwaysShared;
   }
 
   if (!bIsShared)

@@ -15,7 +15,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVelocityChangeMode, 1)
   EZ_ENUM_CONSTANT(ezVelocityChangeMode::Friction),
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Velocity, 2, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Velocity>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Velocity, 2, ezRTTIDefaultAllocator<ezParticleBehavior_Velocity>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -30,29 +30,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Velocity, 2, ezRTTIDef
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Velocity, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Velocity>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleBehaviorFactory_Velocity::ezParticleBehaviorFactory_Velocity() = default;
-ezParticleBehaviorFactory_Velocity::~ezParticleBehaviorFactory_Velocity() = default;
-
-const ezRTTI* ezParticleBehaviorFactory_Velocity::GetBehaviorType() const
-{
-  return ezGetStaticRTTI<ezParticleBehavior_Velocity>();
-}
-
-void ezParticleBehaviorFactory_Velocity::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
-{
-  ezParticleBehavior_Velocity* pBehavior = static_cast<ezParticleBehavior_Velocity*>(pObject);
-
-  pBehavior->m_fFriction = m_fFriction;
-  pBehavior->m_ChangeSpeedWith = m_ChangeSpeedWith;
-  pBehavior->m_fSpeedCurveOffset = m_fSpeedCurveOffset;
-  pBehavior->m_fSpeedCurveScale = m_fSpeedCurveScale;
-  pBehavior->m_pCurve = &m_RuntimeSpeedCurve;
-}
+ezParticleBehavior_Velocity::ezParticleBehavior_Velocity() = default;
+ezParticleBehavior_Velocity::~ezParticleBehavior_Velocity() = default;
 
 enum class BehaviorVelocityVersion
 {
@@ -69,7 +50,7 @@ enum class BehaviorVelocityVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleBehaviorFactory_Velocity::Save(ezStreamWriter& inout_stream) const
+void ezParticleBehavior_Velocity::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)BehaviorVelocityVersion::Version_Current;
   inout_stream << uiVersion;
@@ -87,7 +68,7 @@ void ezParticleBehaviorFactory_Velocity::Save(ezStreamWriter& inout_stream) cons
   m_RuntimeSpeedCurve.Save(inout_stream);
 }
 
-void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleBehavior_Velocity::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -131,49 +112,59 @@ void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& inout_stream, cons
   }
 }
 
-void ezParticleBehaviorFactory_Velocity::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
+void ezParticleBehavior_Velocity::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
-  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizer_ApplyVelocity>());
 }
 
-void ezParticleBehavior_Velocity::CreateRequiredStreams()
+bool ezParticleBehavior_Velocity::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
 
-  if ((m_ChangeSpeedWith == ezVelocityChangeMode::CustomCurve || m_ChangeSpeedWith == ezVelocityChangeMode::SharedCurve) && m_pCurve && !m_pCurve->IsEmpty())
+void ezParticleBehavior_Velocity::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sVelocity, ezProcessingStream::DataType::Half4, &data.m_pStreamVelocity, false);
+
+  data.m_pStreamLifeTime = nullptr;
+
+  if ((m_ChangeSpeedWith == ezVelocityChangeMode::CustomCurve || m_ChangeSpeedWith == ezVelocityChangeMode::SharedCurve) && !m_RuntimeSpeedCurve.IsEmpty())
   {
-    CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sLifeTime, ezProcessingStream::DataType::Half2, &data.m_pStreamLifeTime, false);
   }
 }
 
-void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
+void ezParticleBehavior_Velocity::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Velocity");
 
-  auto pOwner = GetOwnerEffect();
+  const float tDiff = (float)ctx.GetTimeDiff().GetSeconds();
 
-  const float tDiff = (float)m_TimeDiff.GetSeconds();
-
-  ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
+  ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(data.m_pStreamVelocity, uiNumElements, 0);
 
   // Handle curve-based speed changes
-  if ((m_ChangeSpeedWith == ezVelocityChangeMode::CustomCurve || m_ChangeSpeedWith == ezVelocityChangeMode::SharedCurve) && m_pStreamLifeTime)
+  if ((m_ChangeSpeedWith == ezVelocityChangeMode::CustomCurve || m_ChangeSpeedWith == ezVelocityChangeMode::SharedCurve) && data.m_pStreamLifeTime)
   {
     double fMinX, fMaxX;
-    m_pCurve->QueryExtents(fMinX, fMaxX);
+    m_RuntimeSpeedCurve.QueryExtents(fMinX, fMaxX);
 
     // make sure the curve has a length of at least 1
     fMinX = ezMath::Min(fMinX, 0.0);
     fMaxX = ezMath::Max(fMaxX, 1.0);
 
-    ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
+    ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(data.m_pStreamLifeTime, uiNumElements, 0);
 
     while (!itVelocity.HasReachedEnd())
     {
       const float fLifeTimeFraction = itLifeTime.Current().x * itLifeTime.Current().y;
 
       const double evalPos = ezMath::Lerp(fMaxX, fMinX, fLifeTimeFraction);
-      const float val = (float)m_pCurve->Evaluate(evalPos);
+      const float val = (float)m_RuntimeSpeedCurve.Evaluate(evalPos);
 
       ezVec4 vel = itVelocity.Current();
       vel.w = m_fSpeedCurveOffset + val * m_fSpeedCurveScale;
@@ -198,11 +189,6 @@ void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
       itVelocity.Advance();
     }
   }
-}
-
-void ezParticleBehavior_Velocity::RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule)
-{
-  pParticleModule->CacheWorldModule<ezPhysicsWorldModuleInterface>();
 }
 
 

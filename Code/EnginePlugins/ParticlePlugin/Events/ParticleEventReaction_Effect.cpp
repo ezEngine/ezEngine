@@ -8,7 +8,7 @@
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReactionFactory_Effect, 1, ezRTTIDefaultAllocator<ezParticleEventReactionFactory_Effect>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReaction_Effect, 1, ezRTTIDefaultAllocator<ezParticleEventReaction_Effect>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -19,12 +19,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReactionFactory_Effect, 1, ezRTTI
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReaction_Effect, 1, ezRTTIDefaultAllocator<ezParticleEventReaction_Effect>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleEventReactionFactory_Effect::ezParticleEventReactionFactory_Effect()
+ezParticleEventReaction_Effect::ezParticleEventReaction_Effect()
 {
   m_pParameters = EZ_DEFAULT_NEW(ezParticleEffectParameters);
 }
@@ -41,7 +38,7 @@ enum class ReactionEffectVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleEventReactionFactory_Effect::Save(ezStreamWriter& inout_stream) const
+void ezParticleEventReaction_Effect::Save(ezStreamWriter& inout_stream) const
 {
   SUPER::Save(inout_stream);
 
@@ -69,7 +66,7 @@ void ezParticleEventReactionFactory_Effect::Save(ezStreamWriter& inout_stream) c
   inout_stream << m_Alignment;
 }
 
-void ezParticleEventReactionFactory_Effect::Load(ezStreamReader& inout_stream)
+void ezParticleEventReaction_Effect::Load(ezStreamReader& inout_stream)
 {
   SUPER::Load(inout_stream);
 
@@ -116,23 +113,7 @@ void ezParticleEventReactionFactory_Effect::Load(ezStreamReader& inout_stream)
 }
 
 
-const ezRTTI* ezParticleEventReactionFactory_Effect::GetEventReactionType() const
-{
-  return ezGetStaticRTTI<ezParticleEventReaction_Effect>();
-}
-
-
-void ezParticleEventReactionFactory_Effect::CopyReactionProperties(ezParticleEventReaction* pObject, bool bFirstTime) const
-{
-  ezParticleEventReaction_Effect* pReaction = static_cast<ezParticleEventReaction_Effect*>(pObject);
-
-  pReaction->m_hEffect = m_hEffect;
-  pReaction->m_Alignment = m_Alignment;
-
-  pReaction->m_Parameters = m_pParameters;
-}
-
-const ezRangeView<const char*, ezUInt32> ezParticleEventReactionFactory_Effect::GetParameters() const
+const ezRangeView<const char*, ezUInt32> ezParticleEventReaction_Effect::GetParameters() const
 {
   return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32
     { return 0; },
@@ -148,7 +129,7 @@ const ezRangeView<const char*, ezUInt32> ezParticleEventReactionFactory_Effect::
     });
 }
 
-void ezParticleEventReactionFactory_Effect::SetParameter(const char* szKey, const ezVariant& var)
+void ezParticleEventReaction_Effect::SetParameter(const char* szKey, const ezVariant& var)
 {
   const ezTempHashedString th(szKey);
   if (var.CanConvertTo<float>())
@@ -198,7 +179,7 @@ void ezParticleEventReactionFactory_Effect::SetParameter(const char* szKey, cons
   }
 }
 
-void ezParticleEventReactionFactory_Effect::RemoveParameter(const char* szKey)
+void ezParticleEventReaction_Effect::RemoveParameter(const char* szKey)
 {
   const ezTempHashedString th(szKey);
 
@@ -221,7 +202,7 @@ void ezParticleEventReactionFactory_Effect::RemoveParameter(const char* szKey)
   }
 }
 
-bool ezParticleEventReactionFactory_Effect::GetParameter(const char* szKey, ezVariant& out_value) const
+bool ezParticleEventReaction_Effect::GetParameter(const char* szKey, ezVariant& out_value) const
 {
   const ezTempHashedString th(szKey);
 
@@ -246,10 +227,7 @@ bool ezParticleEventReactionFactory_Effect::GetParameter(const char* szKey, ezVa
 
 //////////////////////////////////////////////////////////////////////////
 
-ezParticleEventReaction_Effect::ezParticleEventReaction_Effect() = default;
-ezParticleEventReaction_Effect::~ezParticleEventReaction_Effect() = default;
-
-void ezParticleEventReaction_Effect::ProcessEvent(const ezParticleEvent& e)
+void ezParticleEventReaction_Effect::ProcessEvent(ezParticleEffectInstance* pOwner, const ezParticleEvent& e) const
 {
   if (!m_hEffect.IsValid())
     return;
@@ -293,27 +271,27 @@ void ezParticleEventReaction_Effect::ProcessEvent(const ezParticleEvent& e)
   }
 
   ezGameObject* pObject = nullptr;
-  m_pOwnerEffect->GetWorld()->CreateObject(god, pObject);
+  pOwner->GetWorld()->CreateObject(god, pObject);
 
   ezParticleComponent* pComponent = nullptr;
   ezParticleComponent::CreateComponent(pObject, pComponent);
 
-  pComponent->m_uiRandomSeed = m_pOwnerEffect->GetRandomSeed();
+  pComponent->m_uiRandomSeed = pOwner->GetRandomSeed();
 
   pComponent->m_bIfContinuousStopRightAway = true;
   pComponent->m_OnFinishedAction = ezOnComponentFinishedAction2::DeleteGameObject;
   pComponent->SetParticleEffect(m_hEffect);
 
-  if (!m_Parameters->m_FloatParams.IsEmpty())
+  if (!m_pParameters->m_FloatParams.IsEmpty())
   {
     pComponent->m_bFloatParamsChanged = true;
-    pComponent->m_FloatParams = m_Parameters->m_FloatParams;
+    pComponent->m_FloatParams = m_pParameters->m_FloatParams;
   }
 
-  if (!m_Parameters->m_ColorParams.IsEmpty())
+  if (!m_pParameters->m_ColorParams.IsEmpty())
   {
     pComponent->m_bColorParamsChanged = true;
-    pComponent->m_ColorParams = m_Parameters->m_ColorParams;
+    pComponent->m_ColorParams = m_pParameters->m_ColorParams;
   }
 }
 

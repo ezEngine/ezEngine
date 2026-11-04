@@ -10,60 +10,45 @@ using ezCurve1DResourceHandle = ezTypedResourceHandle<class ezCurve1DResource>;
 ///
 /// Spawn rate can be constant or modulated by a curve.
 /// Continues emitting until the effect is stopped.
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_Continuous final : public ezParticleEmitterFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter_Continuous final : public ezParticleEmitter
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitterFactory_Continuous, ezParticleEmitterFactory);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter_Continuous, ezParticleEmitter);
 
 public:
-  ezParticleEmitterFactory_Continuous();
+  ezParticleEmitter_Continuous();
 
-  virtual const ezRTTI* GetEmitterType() const override;
-  virtual void CopyEmitterProperties(ezParticleEmitter* pEmitter, bool bFirstTime) const override;
   virtual void QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const override;
 
   virtual void Save(ezStreamWriter& inout_stream) const override;
   virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void OnFinalize(const ezParticleModuleContext& ctx) const override;
+  virtual bool IsContinuous() const override { return true; }
+  virtual ezParticleEmitterState IsFinished(const ezParticleModuleContext& ctx) const override;
+  virtual ezUInt32 ComputeSpawnCount(const ezParticleModuleContext& ctx, const ezTime& diff) const override;
 
 public:
   ezTime m_StartDelay;                   ///< Delay before emission starts
 
   ezUInt32 m_uiSpawnCountPerSec;         ///< Base spawn rate per second
   ezUInt32 m_uiSpawnCountPerSecRange;    ///< Random range added to spawn rate
-  ezString m_sSpawnCountScaleParameter;  ///< Optional parameter to scale spawn rate
+  ezHashedString m_sSpawnCountScaleParameter; ///< Optional parameter to scale spawn rate
 
   ezCurve1DResourceHandle m_hCountCurve; ///< Optional curve to modulate spawn rate
   ezTime m_CurveDuration;                ///< Duration for curve evaluation
-};
 
+private:
+  struct InstanceData
+  {
+    EZ_DECLARE_POD_TYPE();
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter_Continuous final : public ezParticleEmitter
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter_Continuous, ezParticleEmitter);
+    ezTime m_StartDelay; ///< Counts down once, has no effect later on.
+    ezTime m_CountCurveTime;
+    ezTime m_TimeSinceRandom;
+    float m_fCurSpawnPerSec;
+    float m_fCurSpawnCounter;
+  };
 
-public:
-  ezTime m_StartDelay; // delay before the emitter becomes active, to sync with other systems, only used once, has no effect later on
-
-  ezUInt32 m_uiSpawnCountPerSec;
-  ezUInt32 m_uiSpawnCountPerSecRange;
-  ezTempHashedString m_sSpawnCountScaleParameter;
-
-  ezCurve1DResourceHandle m_hCountCurve;
-  ezTime m_CurveDuration;
-
-
-  virtual void CreateRequiredStreams() override {}
-
-protected:
-  virtual bool IsContinuous() const override { return true; }
-
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
-  virtual void OnFinalize() override;
-
-  virtual ezParticleEmitterState IsFinished() override;
-  virtual ezUInt32 ComputeSpawnCount(const ezTime& tDiff) override;
-
-  ezTime m_CountCurveTime;
-  ezTime m_TimeSinceRandom;
-  float m_fCurSpawnPerSec;
-  float m_fCurSpawnCounter;
+  float ComputeRandomSpawnPerSec(const ezParticleModuleContext& ctx) const;
 };

@@ -7,40 +7,32 @@ class ezPhysicsWorldModuleInterface;
 /// Behavior that restricts particles to a box volume
 ///
 /// Particles can be killed, teleported or bounced when leaving the box bounds.
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Bounds final : public ezParticleBehaviorFactory
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Bounds, ezParticleBehaviorFactory);
-
-public:
-  ezParticleBehaviorFactory_Bounds();
-
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
-
-  virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
-
-  ezVec3 m_vPositionOffset;
-  ezVec3 m_vBoxExtents;
-  ezEnum<ezParticleOutOfBoundsMode> m_OutOfBoundsMode;
-};
-
-
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Bounds final : public ezParticleBehavior
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Bounds, ezParticleBehavior);
 
 public:
+  ezParticleBehavior_Bounds();
+
+
+  virtual void Save(ezStreamWriter& inout_stream) const override;
+  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
+
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void CreateRequiredStreams(const ezParticleModuleContext& ctx) const override;
+  virtual void QueryOptionalStreams(const ezParticleModuleContext& ctx) const override;
+  virtual void Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const override;
+
   ezVec3 m_vPositionOffset;
   ezVec3 m_vBoxExtents;
   ezEnum<ezParticleOutOfBoundsMode> m_OutOfBoundsMode;
 
-protected:
-  virtual void Process(ezUInt64 uiNumElements) override;
+private:
+  struct InstanceData
+  {
+    EZ_DECLARE_POD_TYPE();
 
-  virtual void CreateRequiredStreams() override;
-  virtual void QueryOptionalStreams() override;
-
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  ezProcessingStream* m_pStreamLastPosition = nullptr;
+    ezProcessingStream* m_pStreamPosition;
+    ezProcessingStream* m_pStreamLastPosition;
+  };
 };

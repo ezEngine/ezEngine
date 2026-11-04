@@ -29,12 +29,12 @@ ezParticleWorldModule::ezParticleWorldModule(ezWorld* pWorld)
 
 ezParticleWorldModule::~ezParticleWorldModule()
 {
-  ClearParticleStreamFactories();
+  ClearParticleStreams();
 }
 
 void ezParticleWorldModule::Initialize()
 {
-  ConfigureParticleStreamFactories();
+  ConfigureParticleStreams();
 
   {
     auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezParticleWorldModule::UpdateEffects, this);
@@ -152,37 +152,35 @@ void ezParticleWorldModule::ResourceEventHandler(const ezResourceEvent& e)
   }
 }
 
-void ezParticleWorldModule::ConfigureParticleStreamFactories()
+void ezParticleWorldModule::ConfigureParticleStreams()
 {
-  ClearParticleStreamFactories();
+  ClearParticleStreams();
 
-  ezRTTI::ForEachDerivedType<ezParticleStreamFactory>(
+  ezRTTI::ForEachDerivedType<ezParticleStream>(
     [&](const ezRTTI* pRtti)
     {
-      ezParticleStreamFactory* pFactory = pRtti->GetAllocator()->Allocate<ezParticleStreamFactory>();
+      ezParticleStream* pStream = pRtti->GetAllocator()->Allocate<ezParticleStream>();
 
-      m_StreamFactories[pFactory->GetStreamName()] = pFactory;
+      m_ParticleStreams[pStream->GetStreamName()] = pStream;
     },
     ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 }
 
-void ezParticleWorldModule::ClearParticleStreamFactories()
+void ezParticleWorldModule::ClearParticleStreams()
 {
-  for (auto it : m_StreamFactories)
+  for (auto it : m_ParticleStreams)
   {
     it.Value()->GetDynamicRTTI()->GetAllocator()->Deallocate(it.Value());
   }
 
-  m_StreamFactories.Clear();
+  m_ParticleStreams.Clear();
 }
 
-ezParticleStream* ezParticleWorldModule::CreateStreamDefaultInitializer(ezParticleSystemInstance* pOwner, const char* szFullStreamName) const
+const ezParticleStream* ezParticleWorldModule::GetParticleStream(ezTempHashedString sStreamName) const
 {
-  auto it = m_StreamFactories.Find(szFullStreamName);
-  if (!it.IsValid())
-    return nullptr;
-
-  return it.Value()->CreateParticleStream(pOwner);
+  ezParticleStream* pStream = nullptr;
+  m_ParticleStreams.TryGetValue(sStreamName, pStream);
+  return pStream;
 }
 
 ezWorldModule* ezParticleWorldModule::GetCachedWorldModule(const ezRTTI* pRtti) const

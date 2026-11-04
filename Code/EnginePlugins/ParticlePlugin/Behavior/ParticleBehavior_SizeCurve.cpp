@@ -7,7 +7,7 @@
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_SizeCurve, 2, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_SizeCurve>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_SizeCurve, 2, ezRTTIDefaultAllocator<ezParticleBehavior_SizeCurve>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -20,26 +20,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_SizeCurve, 2, ezRTTIDe
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_SizeCurve, 1, ezRTTIDefaultAllocator<ezParticleBehavior_SizeCurve>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-const ezRTTI* ezParticleBehaviorFactory_SizeCurve::GetBehaviorType() const
-{
-  return ezGetStaticRTTI<ezParticleBehavior_SizeCurve>();
-}
-
-void ezParticleBehaviorFactory_SizeCurve::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
-{
-  ezParticleBehavior_SizeCurve* pBehavior = static_cast<ezParticleBehavior_SizeCurve*>(pObject);
-
-  pBehavior->m_fSizeCurveOffset = m_fSizeCurveOffset;
-  pBehavior->m_fSizeCurveScale = m_fSizeCurveScale;
-  pBehavior->m_pCurve = &m_RuntimeCurve;
-}
-
-void ezParticleBehaviorFactory_SizeCurve::Save(ezStreamWriter& inout_stream) const
+void ezParticleBehavior_SizeCurve::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 2;
   inout_stream << uiVersion;
@@ -54,7 +37,7 @@ void ezParticleBehaviorFactory_SizeCurve::Save(ezStreamWriter& inout_stream) con
   m_RuntimeCurve.Save(inout_stream);
 }
 
-void ezParticleBehaviorFactory_SizeCurve::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleBehavior_SizeCurve::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -95,16 +78,26 @@ void ezParticleBehaviorFactory_SizeCurve::Load(ezStreamReader& inout_stream, con
   }
 }
 
-void ezParticleBehavior_SizeCurve::CreateRequiredStreams()
+bool ezParticleBehavior_SizeCurve::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
-  CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
+
+void ezParticleBehavior_SizeCurve::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sLifeTime, ezProcessingStream::DataType::Half2, &data.m_pStreamLifeTime, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sSize, ezProcessingStream::DataType::Half, &data.m_pStreamSize, false);
 }
 
 
-void ezParticleBehavior_SizeCurve::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleBehavior_SizeCurve::InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const
 {
-  ezProcessingStreamIterator<ezFloat16> itSize(m_pStreamSize, uiNumElements, uiStartIndex);
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ezProcessingStreamIterator<ezFloat16> itSize(data.m_pStreamSize, uiNumElements, uiStartIndex);
   while (!itSize.HasReachedEnd())
   {
     itSize.Current() = m_fSizeCurveOffset;
@@ -112,38 +105,40 @@ void ezParticleBehavior_SizeCurve::InitializeElements(ezUInt64 uiStartIndex, ezU
   }
 }
 
-void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
+void ezParticleBehavior_SizeCurve::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
 {
-  if (!GetOwnerEffect()->IsVisible())
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  if (!ctx.GetEffect()->IsVisible())
   {
     // When the effect is not visible, drastically reduce the update frequency
     // to save CPU, but still update occasionally since size changes can affect
     // visibility culling.
-    m_uiCurrentUpdateInterval = 32;
+    data.m_uiCurrentUpdateInterval = 32;
   }
   else
   {
-    m_uiCurrentUpdateInterval = 2;
+    data.m_uiCurrentUpdateInterval = 2;
   }
 
-  if (m_pCurve == nullptr || m_pCurve->IsEmpty())
+  if (m_RuntimeCurve.IsEmpty())
     return;
 
   EZ_PROFILE_SCOPE("PFX: Size Curve");
 
-  ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
-  ezProcessingStreamIterator<ezFloat16> itSize(m_pStreamSize, uiNumElements, 0);
+  ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(data.m_pStreamLifeTime, uiNumElements, 0);
+  ezProcessingStreamIterator<ezFloat16> itSize(data.m_pStreamSize, uiNumElements, 0);
 
   double fMinX, fMaxX;
-  m_pCurve->QueryExtents(fMinX, fMaxX);
+  m_RuntimeCurve.QueryExtents(fMinX, fMaxX);
 
   // make sure the curve has a length of at least 1
   fMinX = ezMath::Min(fMinX, 0.0);
   fMaxX = ezMath::Max(fMaxX, 1.0);
 
   // skip the first n particles
-  itLifeTime.Advance(m_uiFirstToUpdate);
-  itSize.Advance(m_uiFirstToUpdate);
+  itLifeTime.Advance(data.m_uiFirstToUpdate);
+  itSize.Advance(data.m_uiFirstToUpdate);
 
   while (!itLifeTime.HasReachedEnd())
   {
@@ -152,7 +147,7 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
       const float fLifeTimeFraction = itLifeTime.Current().x * itLifeTime.Current().y;
 
       const double evalPos = ezMath::Lerp(fMaxX, fMinX, fLifeTimeFraction);
-      const float val = (float)m_pCurve->Evaluate(evalPos);
+      const float val = (float)m_RuntimeCurve.Evaluate(evalPos);
 
       itSize.Current() = m_fSizeCurveOffset + val * m_fSizeCurveScale;
     }
@@ -160,15 +155,15 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
     // skip the next n items
     // this is to reduce the number of particles that need to be fully evaluated,
     // since sampling the curve is expensive
-    itLifeTime.Advance(m_uiCurrentUpdateInterval);
-    itSize.Advance(m_uiCurrentUpdateInterval);
+    itLifeTime.Advance(data.m_uiCurrentUpdateInterval);
+    itSize.Advance(data.m_uiCurrentUpdateInterval);
   }
 
   // adjust which index is the first to update
   {
-    ++m_uiFirstToUpdate;
-    if (m_uiFirstToUpdate >= m_uiCurrentUpdateInterval)
-      m_uiFirstToUpdate = 0;
+    ++data.m_uiFirstToUpdate;
+    if (data.m_uiFirstToUpdate >= data.m_uiCurrentUpdateInterval)
+      data.m_uiFirstToUpdate = 0;
   }
 }
 

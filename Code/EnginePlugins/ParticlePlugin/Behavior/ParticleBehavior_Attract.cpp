@@ -12,7 +12,7 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Attract, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Attract>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Attract, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Attract>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -23,36 +23,19 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Attract, 1, ezRTTIDefa
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Attract, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Attract>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleBehaviorFactory_Attract::ezParticleBehaviorFactory_Attract() = default;
+ezParticleBehavior_Attract::ezParticleBehavior_Attract() = default;
 
-const ezRTTI* ezParticleBehaviorFactory_Attract::GetBehaviorType() const
-{
-  return ezGetStaticRTTI<ezParticleBehavior_Attract>();
-}
-
-void ezParticleBehaviorFactory_Attract::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
-{
-  ezParticleBehavior_Attract* pBehavior = static_cast<ezParticleBehavior_Attract*>(pObject);
-
-  pBehavior->m_fInfluence = m_fInfluence;
-  pBehavior->m_bAffectVelocity = m_bAffectVelocity;
-  pBehavior->m_uiMaxAttractors = m_uiMaxAttractors;
-}
-
-void ezParticleBehaviorFactory_Attract::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
+void ezParticleBehavior_Attract::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
   if (m_bAffectVelocity)
   {
-    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizer_ApplyVelocity>());
   }
 }
 
-void ezParticleBehaviorFactory_Attract::Save(ezStreamWriter& inout_stream) const
+void ezParticleBehavior_Attract::Save(ezStreamWriter& inout_stream) const
 {
   inout_stream.WriteVersion(1);
 
@@ -61,7 +44,7 @@ void ezParticleBehaviorFactory_Attract::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_uiMaxAttractors;
 }
 
-void ezParticleBehaviorFactory_Attract::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleBehavior_Attract::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   /*const auto version =*/inout_stream.ReadVersion(1);
 
@@ -70,33 +53,43 @@ void ezParticleBehaviorFactory_Attract::Load(ezStreamReader& inout_stream, const
   inout_stream >> m_uiMaxAttractors;
 }
 
-void ezParticleBehavior_Attract::CreateRequiredStreams()
+bool ezParticleBehavior_Attract::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
+
+void ezParticleBehavior_Attract::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
 
   if (m_bAffectVelocity)
   {
-    CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sVelocity, ezProcessingStream::DataType::Half4, &data.m_pStreamVelocity, false);
   }
 }
 
-void ezParticleBehavior_Attract::OnFinalize()
+void ezParticleBehavior_Attract::OnFinalize(const ezParticleModuleContext& ctx) const
 {
-  RequestUpdateFromWorld();
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
 
   // search right away in the first UpdateFromWorld()
-  m_uiAttractorSearchTimer = 0;
+  data.m_uiAttractorSearchTimer = 0;
 }
 
-void ezParticleBehavior_Attract::UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject)
+void ezParticleBehavior_Attract::UpdateFromWorld(const ezParticleModuleContext& ctx, const ezWorld& world, ezGameObjectHandle hOwnerObject) const
 {
-  const ezParticleEffectInstance* pEffect = GetOwnerEffect();
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  const ezParticleEffectInstance* pEffect = ctx.GetEffect();
 
   // Refresh which attractors are nearby roughly once per second.
-  if (m_uiAttractorSearchTimer == 0)
+  if (data.m_uiAttractorSearchTimer == 0)
   {
-    m_uiAttractorSearchTimer = 90;
-    m_AttractorHandles.Clear();
+    data.m_uiAttractorSearchTimer = 90;
+    data.m_AttractorHandles.Clear();
 
     if (const ezSpatialSystem* pSpatialSystem = world.GetSpatialSystem())
     {
@@ -143,42 +136,44 @@ void ezParticleBehavior_Attract::UpdateFromWorld(const ezWorld& world, ezGameObj
       const ezUInt32 uiCount = ezMath::Min<ezUInt32>(candidates.GetCount(), ezMath::Min<ezUInt8>(m_uiMaxAttractors, 4));
       for (ezUInt32 i = 0; i < uiCount; ++i)
       {
-        m_AttractorHandles.PushBack(candidates[i].hComponent);
+        data.m_AttractorHandles.PushBack(candidates[i].hComponent);
       }
     }
   }
   else
   {
-    m_uiAttractorSearchTimer--;
+    data.m_uiAttractorSearchTimer--;
   }
 
   // Every frame: resolve the handles and read the current position and properties.
-  m_Attractors.Clear();
-  for (const ezComponentHandle& hComponent : m_AttractorHandles)
+  data.m_Attractors.Clear();
+  for (const ezComponentHandle& hComponent : data.m_AttractorHandles)
   {
     const ezParticleAttractorComponent* pAttractor = nullptr;
     if (world.TryGetComponent(hComponent, pAttractor))
     {
-      AttractorData& data = m_Attractors.ExpandAndGetRef();
-      data.m_vPosition = pAttractor->GetOwner()->GetGlobalPosition();
-      data.m_fStrength = pAttractor->m_fStrength;
-      data.m_fRadius = pAttractor->m_fRadius;
-      data.m_fMinDistance = pAttractor->m_fMinDistance;
-      data.m_fKillDistance = pAttractor->m_fKillDistance;
+      AttractorData& attractor = data.m_Attractors.ExpandAndGetRef();
+      attractor.m_vPosition = pAttractor->GetOwner()->GetGlobalPosition();
+      attractor.m_fStrength = pAttractor->m_fStrength;
+      attractor.m_fRadius = pAttractor->m_fRadius;
+      attractor.m_fMinDistance = pAttractor->m_fMinDistance;
+      attractor.m_fKillDistance = pAttractor->m_fKillDistance;
     }
   }
 }
 
-void ezParticleBehavior_Attract::Process(ezUInt64 uiNumElements)
+void ezParticleBehavior_Attract::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: AttractToPosition");
 
-  const float tDiff = m_TimeDiff.AsFloatInSeconds();
+  const float tDiff = ctx.GetTimeDiff().AsFloatInSeconds();
   if (tDiff <= 0.0f)
     return;
 
   // written by UpdateFromWorld() on the main thread
-  const ezArrayPtr<const AttractorData> attractors = m_Attractors;
+  const ezArrayPtr<const AttractorData> attractors = data.m_Attractors;
 
   if (attractors.IsEmpty())
     return;
@@ -195,8 +190,8 @@ void ezParticleBehavior_Attract::Process(ezUInt64 uiNumElements)
       const ezSimdFloat fScaledStrength = a.m_fStrength * m_fInfluence * tDiff;
       const ezSimdFloat fKillDistSqr = a.m_fKillDistance * a.m_fKillDistance;
 
-      ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
-      ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
+      ezProcessingStreamIterator<ezSimdVec4f> itPosition(data.m_pStreamPosition, uiNumElements, 0);
+      ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(data.m_pStreamVelocity, uiNumElements, 0);
       ezUInt32 idx = 0;
 
       while (!itPosition.HasReachedEnd())
@@ -207,7 +202,7 @@ void ezParticleBehavior_Attract::Process(ezUInt64 uiNumElements)
 
         if (fDistSqr < fKillDistSqr)
         {
-          m_pStreamGroup->RemoveElement(idx);
+          ctx.m_pSystem->RemoveParticle(idx);
         }
         else if (fDistSqr < fMaxDistSqr && fDistSqr > fMinDistSqr)
         {
@@ -241,7 +236,7 @@ void ezParticleBehavior_Attract::Process(ezUInt64 uiNumElements)
       const ezSimdFloat fScaledStrength = a.m_fStrength * m_fInfluence * tDiff;
       const ezSimdFloat fKillDistSqr = a.m_fKillDistance * a.m_fKillDistance;
 
-      ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
+      ezProcessingStreamIterator<ezSimdVec4f> itPosition(data.m_pStreamPosition, uiNumElements, 0);
       ezUInt32 idx = 0;
 
       while (!itPosition.HasReachedEnd())
@@ -252,7 +247,7 @@ void ezParticleBehavior_Attract::Process(ezUInt64 uiNumElements)
 
         if (fDistSqr < fKillDistSqr)
         {
-          m_pStreamGroup->RemoveElement(idx);
+          ctx.m_pSystem->RemoveParticle(idx);
         }
         else if (fDistSqr < fMaxDistSqr && fDistSqr > fMinDistSqr)
         {

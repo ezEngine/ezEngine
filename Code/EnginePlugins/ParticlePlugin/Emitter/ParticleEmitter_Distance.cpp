@@ -7,7 +7,7 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Distance, 1, ezRTTIDefaultAllocator<ezParticleEmitterFactory_Distance>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitter_Distance, 1, ezRTTIDefaultAllocator<ezParticleEmitter_Distance>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -19,31 +19,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Distance, 1, ezRTTIDefa
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitter_Distance, 1, ezRTTIDefaultAllocator<ezParticleEmitter_Distance>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleEmitterFactory_Distance::ezParticleEmitterFactory_Distance() = default;
+ezParticleEmitter_Distance::ezParticleEmitter_Distance() = default;
 
-const ezRTTI* ezParticleEmitterFactory_Distance::GetEmitterType() const
-{
-  return ezGetStaticRTTI<ezParticleEmitter_Distance>();
-}
-
-void ezParticleEmitterFactory_Distance::CopyEmitterProperties(ezParticleEmitter* pEmitter0, bool bFirstTime) const
-{
-  ezParticleEmitter_Distance* pEmitter = static_cast<ezParticleEmitter_Distance*>(pEmitter0);
-
-  pEmitter->m_fDistanceThresholdSQR = ezMath::Square(m_fDistanceThreshold);
-
-  pEmitter->m_uiSpawnCountMin = (ezUInt32)(m_uiSpawnCountMin * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
-  pEmitter->m_uiSpawnCountRange = (ezUInt32)(m_uiSpawnCountRange * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
-
-  pEmitter->m_sSpawnCountScaleParameter = ezTempHashedString(m_sSpawnCountScaleParameter.GetData());
-}
-
-void ezParticleEmitterFactory_Distance::QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const
+void ezParticleEmitter_Distance::QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const
 {
   out_uiMaxParticlesAbs = 0;
   out_uiMaxParticlesPerSecond = (m_uiSpawnCountMin + m_uiSpawnCountRange) * 10; // assume that this won't fire more than 10 times per second
@@ -61,7 +41,7 @@ enum class EmitterDistanceVersion
 };
 
 
-void ezParticleEmitterFactory_Distance::Save(ezStreamWriter& inout_stream) const
+void ezParticleEmitter_Distance::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)EmitterDistanceVersion::Version_Current;
   inout_stream << uiVersion;
@@ -73,7 +53,7 @@ void ezParticleEmitterFactory_Distance::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_sSpawnCountScaleParameter;
 }
 
-void ezParticleEmitterFactory_Distance::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleEmitter_Distance::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -86,55 +66,60 @@ void ezParticleEmitterFactory_Distance::Load(ezStreamReader& inout_stream, const
   inout_stream >> m_sSpawnCountScaleParameter;
 }
 
-void ezParticleEmitter_Distance::CreateRequiredStreams() {}
-void ezParticleEmitter_Distance::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) {}
-
-bool ezParticleEmitter_Distance::IsContinuous() const
+bool ezParticleEmitter_Distance::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
+  out_desc.FillFromType<InstanceData>();
   return true;
 }
 
-void ezParticleEmitter_Distance::OnFinalize()
+void ezParticleEmitter_Distance::OnFinalize(const ezParticleModuleContext& ctx) const
 {
-  // do not use the System transform, because then this would not work with local space simulation
-  m_vLastSpawnPosition = GetOwnerEffect()->GetTransform().m_vPosition;
-  m_bFirstUpdate = true;
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
 
-  if (GetOwnerEffect()->IsSharedEffect())
+  // do not use the System transform, because then this would not work with local space simulation
+  data.m_vLastSpawnPosition = ctx.GetEffect()->GetTransform().m_vPosition;
+  data.m_bFirstUpdate = true;
+
+  if (ctx.GetEffect()->IsSharedEffect())
   {
     ezLog::Warning("Particle emitters of type 'Distance' do not work for shared particle effect instances.");
   }
 }
 
-ezParticleEmitterState ezParticleEmitter_Distance::IsFinished()
+ezParticleEmitterState ezParticleEmitter_Distance::IsFinished(const ezParticleModuleContext& ctx) const
 {
   return ezParticleEmitterState::Active;
 }
 
-ezUInt32 ezParticleEmitter_Distance::ComputeSpawnCount(const ezTime& tDiff)
+ezUInt32 ezParticleEmitter_Distance::ComputeSpawnCount(const ezParticleModuleContext& ctx, const ezTime& diff) const
 {
-  const ezVec3 vCurPos = GetOwnerEffect()->GetTransform().m_vPosition;
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
 
-  if ((m_vLastSpawnPosition - vCurPos).GetLengthSquared() < m_fDistanceThresholdSQR)
+  const ezVec3 vCurPos = ctx.GetEffect()->GetTransform().m_vPosition;
+
+  if ((data.m_vLastSpawnPosition - vCurPos).GetLengthSquared() < ezMath::Square(m_fDistanceThreshold))
     return 0;
 
-  m_vLastSpawnPosition = vCurPos;
+  data.m_vLastSpawnPosition = vCurPos;
 
-  if (m_bFirstUpdate)
+  if (data.m_bFirstUpdate)
   {
-    m_bFirstUpdate = false;
+    data.m_bFirstUpdate = false;
     return 0;
   }
 
   float fSpawnFactor = 1.0f;
 
-  const float spawnCountScale = ezMath::Max(GetOwnerEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f);
+  const float spawnCountScale = ezMath::Max(ctx.GetEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f);
   fSpawnFactor *= spawnCountScale;
 
-  ezUInt32 uiSpawn = m_uiSpawnCountMin;
+  const float fMultiplier = ctx.m_pSystem->GetSpawnCountMultiplier();
+  const ezUInt32 uiSpawnCountRange = (ezUInt32)(m_uiSpawnCountRange * fMultiplier);
 
-  if (m_uiSpawnCountRange > 0)
-    uiSpawn += GetRNG().UIntInRange(m_uiSpawnCountRange);
+  ezUInt32 uiSpawn = (ezUInt32)(m_uiSpawnCountMin * fMultiplier);
+
+  if (uiSpawnCountRange > 0)
+    uiSpawn += ctx.GetRNG().UIntInRange(uiSpawnCountRange);
 
   uiSpawn = static_cast<ezUInt32>((float)uiSpawn * fSpawnFactor);
 

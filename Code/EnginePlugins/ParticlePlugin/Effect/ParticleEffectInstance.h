@@ -46,7 +46,6 @@ public:
   bool HasActiveParticles() const;
 
   void ClearParticleSystems();
-  void ClearEventReactions();
 
   bool IsContinuous() const;
 
@@ -76,7 +75,7 @@ public:
   void SetOwnerObject(ezGameObjectHandle hOwner) { m_hOwnerObject = hOwner; }
   ezGameObjectHandle GetOwnerObject() const { return m_hOwnerObject; }
 
-  /// Passes a message that the owner object received on to all modules that called ezParticleModule::RequestOwnerMessages().
+  /// Passes a message that the owner object received on to all modules that opted in through ezParticleModule::GetReceiveOwnerMessages().
   ///
   /// Typically called by the particle component for the message types that it forwards (e.g. ezMsgAnimationPoseUpdated).
   /// May be called while the effect is being updated, see ezParticleModule::OnOwnerMessage().
@@ -260,10 +259,12 @@ private:
   ezTime m_PreSimulateDuration;
   ezParticleEffectResourceHandle m_hResource;
 
+  /// The content of the resource that the particle systems use. Stays alive if the resource gets reloaded, until Reconfigure() has switched over.
+  ezSharedPtr<const ezParticleEffectResourceDescriptor> m_pDescriptor;
+
   ezParticleWorldModule* m_pOwnerModule = nullptr;
   ezWorld* m_pWorld = nullptr;
   ezSmallArray<ezParticleSystemInstance*, 4> m_ParticleSystems;
-  ezSmallArray<ezParticleEventReaction*, 4> m_EventReactions;
 
   ezSharedPtr<ezTask> m_pTask;
 
@@ -274,3 +275,25 @@ private:
   /// The update task destroys finished particle systems, while OnOwnerMessage() may be called at the same time.
   ezMutex m_SystemsMutex;
 };
+
+// ezParticleModuleContext is declared in ParticleSystemInstance.h, which can't include this header, but GetRNG() needs ezParticleEffectInstance.
+
+inline ezParticleEffectInstance* ezParticleModuleContext::GetEffect() const
+{
+  return m_pSystem->GetOwnerEffect();
+}
+
+inline ezRandom& ezParticleModuleContext::GetRNG() const
+{
+  return GetEffect()->GetRNG();
+}
+
+inline const ezTime& ezParticleModuleContext::GetTimeDiff() const
+{
+  return m_pSystem->GetUpdateTimeDiff();
+}
+
+inline void ezParticleModuleContext::CreateStream(const ezHashedString& sName, ezProcessingStream::DataType type, ezProcessingStream** pStream, bool bWillInitializeElements) const
+{
+  m_pSystem->CreateStream(sName, type, pStream, bWillInitializeElements);
+}

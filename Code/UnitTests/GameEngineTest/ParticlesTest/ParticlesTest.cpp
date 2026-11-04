@@ -4,9 +4,12 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
+#include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <RendererFoundation/Device/Device.h>
 
 static ezGameEngineTestParticles s_GameEngineTestParticles;
+
+static const char* s_szReloadedEffect = "{ 0881d8a5-3c3f-4868-8950-ee7402daa234 }"; // same as the ContinuousEmitter test
 
 const char* ezGameEngineTestParticles::GetTestName() const
 {
@@ -62,6 +65,7 @@ void ezGameEngineTestParticles::SetupSubTests()
   AddSubTest("MeshPosInitializer", SubTests::MeshPositionInitializer);
   AddSubTest("WindBehavior", SubTests::WindBehavior);
   AddSubTest("ParticleAreas", SubTests::ParticleAreas);
+  AddSubTest("ResourceReload", SubTests::ResourceReload);
 }
 
 ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
@@ -131,6 +135,11 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
     m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/ParticleAreas.ezBinScene");
     return EZ_SUCCESS;
   }
+  else if (iIdentifier == SubTests::ResourceReload)
+  {
+    m_pOwnApplication->SetupParticleSubTest(s_szReloadedEffect);
+    return EZ_SUCCESS;
+  }
   else
   {
     const char* szEffects[] = {
@@ -171,6 +180,11 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
 ezTestAppRun ezGameEngineTestParticles::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
   ++m_iFrame;
+
+  if (iIdentifier == SubTests::ResourceReload)
+  {
+    return m_pOwnApplication->ExecResourceReloadSubTest(m_iFrame, s_szReloadedEffect);
+  }
 
   if (iIdentifier == SubTests::ParticleAreas && m_iFrame == 30)
   {
@@ -310,6 +324,55 @@ ezVec3 ezGameEngineTestApplication_Particles::GetParticleBoundsCenter(ezStringVi
 void ezGameEngineTestApplication_Particles::CheckParticleCount(ezStringView sObjectName, ezUInt64 uiExpectedCount)
 {
   EZ_TEST_INT_MSG((ezInt64)GetParticleCount(sObjectName), (ezInt64)uiExpectedCount, "Object '%s'", ezString(sObjectName).GetData());
+}
+
+ezTestAppRun ezGameEngineTestApplication_Particles::ExecResourceReloadSubTest(ezInt32 iCurFrame, const char* szEffect)
+{
+  Run();
+  if (ShouldApplicationQuit())
+    return ezTestAppRun::Quit;
+
+  ezParticleEffectResourceHandle hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(szEffect);
+
+  auto getNumParticles = [&]() -> ezUInt64
+  {
+    EZ_LOCK(m_pWorld->GetWriteMarker());
+
+    ezParticleComponentManager* pManager = m_pWorld->GetComponentManager<ezParticleComponentManager>();
+    auto it = pManager->GetComponents();
+    return it.IsValid() ? it->m_EffectController.GetNumActiveParticles() : 0;
+  };
+
+  if (iCurFrame == 30)
+  {
+    m_uiParticlesBeforeReload = getNumParticles();
+    EZ_TEST_BOOL(m_uiParticlesBeforeReload > 1);
+
+    {
+      ezResourceLock<ezParticleEffectResource> pResource(hEffect, ezResourceAcquireMode::BlockTillLoaded);
+      m_pReloadedDescriptor = pResource->GetDescriptor();
+    }
+
+    // the resource, the running effect and this test
+    EZ_TEST_INT(m_pReloadedDescriptor->GetRefCount(), 3);
+
+    EZ_TEST_BOOL(ezResourceManager::ReloadResource(hEffect, true));
+  }
+  else if (iCurFrame == 33)
+  {
+    ezResourceLock<ezParticleEffectResource> pResource(hEffect, ezResourceAcquireMode::BlockTillLoaded);
+    EZ_TEST_BOOL(pResource->GetDescriptor() != m_pReloadedDescriptor);
+
+    // both have switched over, so only this reference is left
+    EZ_TEST_INT(m_pReloadedDescriptor->GetRefCount(), 1);
+    m_pReloadedDescriptor.Clear();
+
+    // the system was kept, a recreated one would have only spawned very few particles so far
+    EZ_TEST_BOOL(getNumParticles() >= m_uiParticlesBeforeReload / 2);
+    return ezTestAppRun::Quit;
+  }
+
+  return ezTestAppRun::Continue;
 }
 
 ezTestAppRun ezGameEngineTestApplication_Particles::ExecParticleSubTest(ezInt32 iCurFrame)

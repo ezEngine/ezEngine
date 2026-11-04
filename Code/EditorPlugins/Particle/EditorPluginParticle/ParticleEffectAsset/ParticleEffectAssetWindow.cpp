@@ -349,13 +349,13 @@ ezStatus ezQtParticleEffectAssetDocumentWindow::SetupSystem(ezStringView sName)
     // add emitter
     {
       ezUuid emitterGuid = ezUuid::MakeUuid();
-      EZ_SUCCEED_OR_RETURN(pAccessor->AddObjectByName(pSystemObject, "Emitters", -1, ezGetStaticRTTI<ezParticleEmitterFactory_Continuous>(), emitterGuid));
+      EZ_SUCCEED_OR_RETURN(pAccessor->AddObjectByName(pSystemObject, "Emitters", -1, ezGetStaticRTTI<ezParticleEmitter_Continuous>(), emitterGuid));
     }
 
     // add cone velocity initializer
     {
       ezUuid velocityGuid = ezUuid::MakeUuid();
-      EZ_SUCCEED_OR_RETURN(pAccessor->AddObjectByName(pSystemObject, "Initializers", -1, ezGetStaticRTTI<ezParticleInitializerFactory_VelocityCone>(), velocityGuid));
+      EZ_SUCCEED_OR_RETURN(pAccessor->AddObjectByName(pSystemObject, "Initializers", -1, ezGetStaticRTTI<ezParticleInitializer_VelocityCone>(), velocityGuid));
 
       const ezDocumentObject* pConeObject = pAccessor->GetObject(velocityGuid);
 
@@ -370,7 +370,7 @@ ezStatus ezQtParticleEffectAssetDocumentWindow::SetupSystem(ezStringView sName)
     // add color initializer
     {
       ezUuid colorInitGuid = ezUuid::MakeUuid();
-      EZ_SUCCEED_OR_RETURN(pAccessor->AddObjectByName(pSystemObject, "Initializers", -1, ezGetStaticRTTI<ezParticleInitializerFactory_RandomColor>(), colorInitGuid));
+      EZ_SUCCEED_OR_RETURN(pAccessor->AddObjectByName(pSystemObject, "Initializers", -1, ezGetStaticRTTI<ezParticleInitializer_RandomColor>(), colorInitGuid));
 
       const ezDocumentObject* pColorObject = pAccessor->GetObject(colorInitGuid);
 
@@ -381,13 +381,13 @@ ezStatus ezQtParticleEffectAssetDocumentWindow::SetupSystem(ezStringView sName)
     // add gravity behavior
     {
       ezUuid gravityGuid = ezUuid::MakeUuid();
-      EZ_SUCCEED_OR_RETURN(pAccessor->AddObjectByName(pSystemObject, "Behaviors", -1, ezGetStaticRTTI<ezParticleBehaviorFactory_Gravity>(), gravityGuid));
+      EZ_SUCCEED_OR_RETURN(pAccessor->AddObjectByName(pSystemObject, "Behaviors", -1, ezGetStaticRTTI<ezParticleBehavior_Gravity>(), gravityGuid));
     }
 
     // add quad renderer
     {
       ezUuid quadGuid = ezUuid::MakeUuid();
-      EZ_SUCCEED_OR_RETURN(pAccessor->AddObjectByName(pSystemObject, "Types", -1, ezGetStaticRTTI<ezParticleTypeQuadFactory>(), quadGuid));
+      EZ_SUCCEED_OR_RETURN(pAccessor->AddObjectByName(pSystemObject, "Types", -1, ezGetStaticRTTI<ezParticleTypeQuad>(), quadGuid));
     }
   }
 

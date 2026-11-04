@@ -16,7 +16,7 @@
 #include <RendererCore/Meshes/MeshResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_MeshPosition, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_MeshPosition>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_MeshPosition, 1, ezRTTIDefaultAllocator<ezParticleInitializer_MeshPosition>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -29,30 +29,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_MeshPosition, 1, ez
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_MeshPosition, 1, ezRTTIDefaultAllocator<ezParticleInitializer_MeshPosition>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleInitializerFactory_MeshPosition::ezParticleInitializerFactory_MeshPosition() = default;
+ezParticleInitializer_MeshPosition::ezParticleInitializer_MeshPosition() = default;
 
-const ezRTTI* ezParticleInitializerFactory_MeshPosition::GetInitializerType() const
-{
-  return ezGetStaticRTTI<ezParticleInitializer_MeshPosition>();
-}
-
-void ezParticleInitializerFactory_MeshPosition::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
-{
-  ezParticleInitializer_MeshPosition* pInitializer = static_cast<ezParticleInitializer_MeshPosition*>(pInitializer0);
-
-  pInitializer->m_hMesh = m_hMesh;
-  pInitializer->m_bUseOwnerMesh = m_bUseOwnerMesh;
-  pInitializer->m_bSetVelocity = m_bSetVelocity;
-  pInitializer->m_Speed = m_Speed;
-  pInitializer->m_fReferenceArea = m_fReferenceArea;
-}
-
-void ezParticleInitializerFactory_MeshPosition::Save(ezStreamWriter& inout_stream) const
+void ezParticleInitializer_MeshPosition::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 1;
   inout_stream << uiVersion;
@@ -65,7 +46,7 @@ void ezParticleInitializerFactory_MeshPosition::Save(ezStreamWriter& inout_strea
   inout_stream << m_fReferenceArea;
 }
 
-void ezParticleInitializerFactory_MeshPosition::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleInitializer_MeshPosition::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -87,93 +68,96 @@ void ezParticleInitializerFactory_MeshPosition::Load(ezStreamReader& inout_strea
   }
 }
 
-void ezParticleInitializerFactory_MeshPosition::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
+void ezParticleInitializer_MeshPosition::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
   if (m_bSetVelocity)
   {
-    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizer_ApplyVelocity>());
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezParticleInitializer_MeshPosition::CreateRequiredStreams()
+bool ezParticleInitializer_MeshPosition::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, true);
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
 
-  m_pStreamVelocity = nullptr;
+void ezParticleInitializer_MeshPosition::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, true);
+
+  data.m_pStreamVelocity = nullptr;
 
   if (m_bSetVelocity)
   {
-    CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, true);
+    ctx.CreateStream(ezParticleStreamNames::s_sVelocity, ezProcessingStream::DataType::Half4, &data.m_pStreamVelocity, true);
   }
 }
 
-void ezParticleInitializer_MeshPosition::OnFinalize()
+void ezParticleInitializer_MeshPosition::OnFinalize(const ezParticleModuleContext& ctx) const
 {
-  if (m_bUseOwnerMesh)
-  {
-    RequestUpdateFromWorld();
-    RequestOwnerMessages();
-  }
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  data.m_bOwnerMeshSearched = false;
+  data.m_hOwnerMeshObject.Invalidate();
+  data.m_hOwnerMesh.Invalidate();
+  data.m_OwnerMeshTransform.SetIdentity();
+
+  data.m_pPoseSkeleton = nullptr;
+  data.m_uiPoseMeshChangeCounter = 0;
+  data.m_uiNumPoseBones = 0;
+  data.m_PoseBones.Clear();
+  data.m_bPosePending = false;
+  data.m_bCurrentPoseChecked = false;
+  data.m_PendingSkinningMatrices.Clear();
+  data.m_SkinningMatrices.Clear();
 }
 
-void ezParticleInitializer_MeshPosition::OnReset()
+void ezParticleInitializer_MeshPosition::UpdateFromWorld(const ezParticleModuleContext& ctx, const ezWorld& world, ezGameObjectHandle hOwnerObject) const
 {
-  m_bOwnerMeshSearched = false;
-  m_hOwnerMeshObject.Invalidate();
-  m_hOwnerMesh.Invalidate();
-  m_OwnerMeshTransform.SetIdentity();
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
 
-  m_pPoseSkeleton = nullptr;
-  m_uiPoseMeshChangeCounter = 0;
-  m_uiNumPoseBones = 0;
-  m_PoseBones.Clear();
-  m_bPosePending = false;
-  m_bCurrentPoseChecked = false;
-  m_PendingSkinningMatrices.Clear();
-  m_SkinningMatrices.Clear();
-}
-
-void ezParticleInitializer_MeshPosition::UpdateFromWorld(const ezWorld& world, ezGameObjectHandle hOwnerObject)
-{
-  if (!m_bOwnerMeshSearched)
+  if (!data.m_bOwnerMeshSearched)
   {
-    m_bOwnerMeshSearched = true;
-    FindOwnerMesh(world, hOwnerObject);
+    data.m_bOwnerMeshSearched = true;
+    FindOwnerMesh(ctx, data, world, hOwnerObject);
   }
 
   // the mesh object may move relative to the effect, and with 'IgnoreOwnerRotation' the effect doesn't follow the owner rotation
   const ezGameObject* pMeshObject = nullptr;
-  if (!m_hOwnerMeshObject.IsInvalidated() && world.TryGetObject(m_hOwnerMeshObject, pMeshObject))
+  if (!data.m_hOwnerMeshObject.IsInvalidated() && world.TryGetObject(data.m_hOwnerMeshObject, pMeshObject))
   {
-    m_OwnerMeshTransform = ezTransform::MakeLocalTransform(GetOwnerEffect()->GetTransformForNextFrame(), pMeshObject->GetGlobalTransform());
+    data.m_OwnerMeshTransform = ezTransform::MakeLocalTransform(ctx.GetEffect()->GetTransformForNextFrame(), pMeshObject->GetGlobalTransform());
   }
 
   // the surface data is set during the particle update, which is finished at this point
   // the rest pose skeleton is loaded by then as well, retrieving the pose would otherwise block on it
-  if (m_SkinningMatrices.IsEmpty() && !m_bPosePending && UsesSkinnedOwnerMesh() && !m_hRestPoseSkeleton.IsValid())
+  if (data.m_SkinningMatrices.IsEmpty() && !data.m_bPosePending && data.UsesSkinnedOwnerMesh() && !data.m_hRestPoseSkeleton.IsValid())
   {
     if (pMeshObject != nullptr)
     {
-      RetrieveCurrentPose(*pMeshObject);
+      RetrieveCurrentPose(data, *pMeshObject);
     }
 
-    m_bCurrentPoseChecked = true;
+    data.m_bCurrentPoseChecked = true;
   }
 
-  if (m_bPosePending)
+  if (data.m_bPosePending)
   {
-    m_bPosePending = false;
-    m_SkinningMatrices.Swap(m_PendingSkinningMatrices);
+    data.m_bPosePending = false;
+    data.m_SkinningMatrices.Swap(data.m_PendingSkinningMatrices);
   }
 }
 
-void ezParticleInitializer_MeshPosition::RetrieveCurrentPose(const ezGameObject& meshObject)
+void ezParticleInitializer_MeshPosition::RetrieveCurrentPose(InstanceData& data, const ezGameObject& meshObject)
 {
   ezSkeletonResourceHandle hSkeleton;
   {
-    ezResourceLock<ezCpuMeshResource> pMesh(m_hOwnerMesh, ezResourceAcquireMode::AllowLoadingFallback);
+    ezResourceLock<ezCpuMeshResource> pMesh(data.m_hOwnerMesh, ezResourceAcquireMode::AllowLoadingFallback);
     if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
       return;
 
@@ -213,10 +197,10 @@ void ezParticleInitializer_MeshPosition::RetrieveCurrentPose(const ezGameObject&
   msg.m_pRootTransform = &rootTransform;
   msg.m_ModelTransforms = modelTransforms;
 
-  UpdatePendingPose(msg);
+  UpdatePendingPose(data, msg);
 }
 
-void ezParticleInitializer_MeshPosition::FindOwnerMesh(const ezWorld& world, ezGameObjectHandle hOwnerObject)
+void ezParticleInitializer_MeshPosition::FindOwnerMesh(const ezParticleModuleContext& ctx, InstanceData& data, const ezWorld& world, ezGameObjectHandle hOwnerObject) const
 {
   const ezGameObject* pOwner = nullptr;
   if (!world.TryGetObject(hOwnerObject, pOwner))
@@ -238,48 +222,50 @@ void ezParticleInitializer_MeshPosition::FindOwnerMesh(const ezWorld& world, ezG
       {
         if (!m_hMesh.IsValid())
         {
-          ezLog::Warning("Particle effect '{}': the owner mesh '{}' is procedurally created and can't be used as a spawn surface.", GetOwnerEffect()->GetResource().GetResourceID(), msg.m_hMesh.GetResourceID());
+          ezLog::Warning("Particle effect '{}': the owner mesh '{}' is procedurally created and can't be used as a spawn surface.", ctx.GetEffect()->GetResource().GetResourceID(), msg.m_hMesh.GetResourceID());
         }
         return;
       }
     }
 
-    m_hOwnerMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(msg.m_hMesh.GetResourceID());
-    m_hOwnerMeshObject = pObject->GetHandle();
+    data.m_hOwnerMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(msg.m_hMesh.GetResourceID());
+    data.m_hOwnerMeshObject = pObject->GetHandle();
     return;
   }
 }
 
-void ezParticleInitializer_MeshPosition::OnOwnerMessage(const ezMessage& msg)
+void ezParticleInitializer_MeshPosition::OnOwnerMessage(const ezParticleModuleContext& ctx, const ezMessage& msg) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   if (msg.IsInstanceOf<ezMsgAnimationPoseUpdated>())
   {
     // skinning is the expensive part, while the effect isn't visible, particles keep spawning on the last pose
     // the first pose is always used, otherwise particles would spawn on the rest pose until the effect gets rendered
-    if (!GetOwnerEffect()->IsVisible() && (m_bPosePending || !m_SkinningMatrices.IsEmpty()))
+    if (!ctx.GetEffect()->IsVisible() && (data.m_bPosePending || !data.m_SkinningMatrices.IsEmpty()))
       return;
 
-    UpdatePendingPose(static_cast<const ezMsgAnimationPoseUpdated&>(msg));
+    UpdatePendingPose(data, static_cast<const ezMsgAnimationPoseUpdated&>(msg));
   }
 }
 
-void ezParticleInitializer_MeshPosition::UpdatePendingPose(const ezMsgAnimationPoseUpdated& msg)
+void ezParticleInitializer_MeshPosition::UpdatePendingPose(InstanceData& data, const ezMsgAnimationPoseUpdated& msg)
 {
-  if (!m_hOwnerMesh.IsValid() || msg.m_pSkeleton == nullptr)
+  if (!data.m_hOwnerMesh.IsValid() || msg.m_pSkeleton == nullptr)
     return;
 
-  ezResourceLock<ezCpuMeshResource> pMesh(m_hOwnerMesh, ezResourceAcquireMode::AllowLoadingFallback);
+  ezResourceLock<ezCpuMeshResource> pMesh(data.m_hOwnerMesh, ezResourceAcquireMode::AllowLoadingFallback);
   if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
   const ezSkeleton& skeleton = *msg.m_pSkeleton;
 
-  if (m_pPoseSkeleton != msg.m_pSkeleton || m_uiPoseMeshChangeCounter != pMesh->GetCurrentResourceChangeCounter())
+  if (data.m_pPoseSkeleton != msg.m_pSkeleton || data.m_uiPoseMeshChangeCounter != pMesh->GetCurrentResourceChangeCounter())
   {
-    m_pPoseSkeleton = msg.m_pSkeleton;
-    m_uiPoseMeshChangeCounter = pMesh->GetCurrentResourceChangeCounter();
-    m_uiNumPoseBones = 0;
-    m_PoseBones.Clear();
+    data.m_pPoseSkeleton = msg.m_pSkeleton;
+    data.m_uiPoseMeshChangeCounter = pMesh->GetCurrentResourceChangeCounter();
+    data.m_uiNumPoseBones = 0;
+    data.m_PoseBones.Clear();
 
     for (auto itBone : pMesh->GetDescriptor().m_Bones)
     {
@@ -288,12 +274,12 @@ void ezParticleInitializer_MeshPosition::UpdatePendingPose(const ezMsgAnimationP
       if (uiJointIdx == ezInvalidJointIndex)
         continue;
 
-      PoseBone& bone = m_PoseBones.ExpandAndGetRef();
+      PoseBone& bone = data.m_PoseBones.ExpandAndGetRef();
       bone.m_mInverseRestPose = itBone.Value().m_GlobalInverseRestPoseMatrix;
       bone.m_uiBoneIndex = itBone.Value().m_uiBoneIndex;
       bone.m_uiJointIndex = uiJointIdx;
 
-      m_uiNumPoseBones = ezMath::Max<ezUInt16>(m_uiNumPoseBones, bone.m_uiBoneIndex + 1);
+      data.m_uiNumPoseBones = ezMath::Max<ezUInt16>(data.m_uiNumPoseBones, bone.m_uiBoneIndex + 1);
     }
   }
 
@@ -301,79 +287,83 @@ void ezParticleInitializer_MeshPosition::UpdatePendingPose(const ezMsgAnimationP
   const ezMat4 mRoot = msg.m_pRootTransform ? msg.m_pRootTransform->GetAsMat4() : ezMat4::MakeIdentity();
   const ezUInt32 uiNumJoints = ezMath::Min<ezUInt32>(skeleton.GetJointCount(), msg.m_ModelTransforms.GetCount());
 
-  m_PendingSkinningMatrices.SetCount(m_uiNumPoseBones, ezMat4::MakeIdentity());
+  data.m_PendingSkinningMatrices.SetCount(data.m_uiNumPoseBones, ezMat4::MakeIdentity());
 
-  for (const PoseBone& bone : m_PoseBones)
+  for (const PoseBone& bone : data.m_PoseBones)
   {
     if (bone.m_uiJointIndex < uiNumJoints)
     {
-      m_PendingSkinningMatrices[bone.m_uiBoneIndex] = mRoot * msg.m_ModelTransforms[bone.m_uiJointIndex] * bone.m_mInverseRestPose;
+      data.m_PendingSkinningMatrices[bone.m_uiBoneIndex] = mRoot * msg.m_ModelTransforms[bone.m_uiJointIndex] * bone.m_mInverseRestPose;
     }
   }
 
-  m_bPosePending = true;
+  data.m_bPosePending = true;
 }
 
-bool ezParticleInitializer_MeshPosition::PrepareToSpawn()
+bool ezParticleInitializer_MeshPosition::PrepareToSpawn(const ezParticleModuleContext& ctx) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   // the owner mesh is only known after the first UpdateFromWorld()
-  if (m_bUseOwnerMesh && !m_bOwnerMeshSearched)
+  if (m_bUseOwnerMesh && !data.m_bOwnerMeshSearched)
     return false;
 
-  if (m_hOwnerMesh.IsValid())
+  if (data.m_hOwnerMesh.IsValid())
   {
-    m_hActiveMesh = m_hOwnerMesh;
-    m_ActiveMeshTransform = m_OwnerMeshTransform;
-    m_bActiveMeshIsOwnerMesh = true;
+    data.m_hActiveMesh = data.m_hOwnerMesh;
+    data.m_ActiveMeshTransform = data.m_OwnerMeshTransform;
+    data.m_bActiveMeshIsOwnerMesh = true;
   }
   else
   {
-    m_hActiveMesh = m_hMesh;
-    m_ActiveMeshTransform.SetIdentity();
-    m_bActiveMeshIsOwnerMesh = false;
+    data.m_hActiveMesh = m_hMesh;
+    data.m_ActiveMeshTransform.SetIdentity();
+    data.m_bActiveMeshIsOwnerMesh = false;
   }
 
   // without a mesh, particles spawn at the system origin
-  if (!m_hActiveMesh.IsValid())
+  if (!data.m_hActiveMesh.IsValid())
   {
-    m_pSurfaceDataRef = nullptr;
-    m_pSurfaceData = nullptr;
-    m_bSurfaceDataValid = false;
+    data.m_pSurfaceDataRef = nullptr;
+    data.m_pSurfaceData = nullptr;
+    data.m_bSurfaceDataValid = false;
     return true;
   }
 
-  if (!UpdateSurfaceData())
+  if (!UpdateSurfaceData(ctx, data))
     return false;
 
-  if (!UpdateRestPoseTransform())
+  if (!UpdateRestPoseTransform(data))
     return false;
 
   // A new initializer has no pose yet, and a burst would spawn all its particles right away on the rest pose.
   // This happens every time an effect restarts, so wait for UpdateFromWorld() to get the current pose. A mesh without a pose then uses the rest pose.
-  if (UsesSkinnedOwnerMesh() && m_SkinningMatrices.IsEmpty() && !m_bCurrentPoseChecked)
+  if (data.UsesSkinnedOwnerMesh() && data.m_SkinningMatrices.IsEmpty() && !data.m_bCurrentPoseChecked)
     return false;
 
   return true;
 }
 
-float ezParticleInitializer_MeshPosition::GetSpawnCountMultiplier() const
+float ezParticleInitializer_MeshPosition::GetInstanceSpawnCountMultiplier(const ezParticleModuleContext& ctx) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   // without a usable surface, particles spawn at the origin, scaling the count by zero would be surprising
-  if (m_fReferenceArea <= 0.0f || !HasSurface())
+  if (m_fReferenceArea <= 0.0f || !data.HasSurface())
     return 1.0f;
 
   // the triangles are in the space of the mesh, positions get transformed by all of these, see InitializeElements() and SampleSurface()
   // not the transform of the system, that is the identity when simulating in local space, the effect transform is then applied during rendering
-  const ezTransform meshToWorld = GetOwnerEffect()->GetTransform() * m_ActiveMeshTransform * m_RestPoseTransform;
+  const ezTransform meshToWorld = ctx.GetEffect()->GetTransform() * data.m_ActiveMeshTransform * data.m_RestPoseTransform;
   const ezVec3 vScale = meshToWorld.m_vScale;
   const float fAreaScale = ezMath::Pow(ezMath::Abs(vScale.x * vScale.y * vScale.z), 2.0f / 3.0f);
 
-  return m_pSurfaceData->m_AreaPrefixSum.PeekBack() * fAreaScale / m_fReferenceArea;
+  return data.m_pSurfaceData->m_AreaPrefixSum.PeekBack() * fAreaScale / m_fReferenceArea;
 }
 
-bool ezParticleInitializer_MeshPosition::UpdateSurfaceData()
+bool ezParticleInitializer_MeshPosition::UpdateSurfaceData(const ezParticleModuleContext& ctx, InstanceData& data)
 {
-  ezResourceLock<ezCpuMeshResource> pMesh(m_hActiveMesh, ezResourceAcquireMode::AllowLoadingFallback);
+  ezResourceLock<ezCpuMeshResource> pMesh(data.m_hActiveMesh, ezResourceAcquireMode::AllowLoadingFallback);
 
   if (pMesh.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
     return false;
@@ -381,39 +371,39 @@ bool ezParticleInitializer_MeshPosition::UpdateSurfaceData()
   if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
   {
     // don't block the effect forever, spawn at the origin instead
-    if (!m_bSurfaceDataValid || m_hSurfaceDataMesh != m_hActiveMesh)
+    if (!data.m_bSurfaceDataValid || data.m_hSurfaceDataMesh != data.m_hActiveMesh)
     {
-      ezLog::Warning("Mesh '{}' could not be loaded as a particle spawn area.", m_hActiveMesh.GetResourceID());
-      m_bSurfaceDataValid = true;
-      m_hSurfaceDataMesh = m_hActiveMesh;
-      m_uiSurfaceDataChangeCounter = 0xFFFFFFFF;
-      m_pSurfaceDataRef = nullptr;
-      m_pSurfaceData = nullptr;
+      ezLog::Warning("Mesh '{}' could not be loaded as a particle spawn area.", data.m_hActiveMesh.GetResourceID());
+      data.m_bSurfaceDataValid = true;
+      data.m_hSurfaceDataMesh = data.m_hActiveMesh;
+      data.m_uiSurfaceDataChangeCounter = 0xFFFFFFFF;
+      data.m_pSurfaceDataRef = nullptr;
+      data.m_pSurfaceData = nullptr;
     }
 
     return true;
   }
 
-  if (m_bSurfaceDataValid && m_hSurfaceDataMesh == m_hActiveMesh && m_uiSurfaceDataChangeCounter == pMesh->GetCurrentResourceChangeCounter())
+  if (data.m_bSurfaceDataValid && data.m_hSurfaceDataMesh == data.m_hActiveMesh && data.m_uiSurfaceDataChangeCounter == pMesh->GetCurrentResourceChangeCounter())
     return true;
 
-  m_bSurfaceDataValid = true;
-  m_hSurfaceDataMesh = m_hActiveMesh;
-  m_uiSurfaceDataChangeCounter = pMesh->GetCurrentResourceChangeCounter();
-  m_RestPoseTransform.SetIdentity();
-  m_hRestPoseSkeleton.Invalidate();
+  data.m_bSurfaceDataValid = true;
+  data.m_hSurfaceDataMesh = data.m_hActiveMesh;
+  data.m_uiSurfaceDataChangeCounter = pMesh->GetCurrentResourceChangeCounter();
+  data.m_RestPoseTransform.SetIdentity();
+  data.m_hRestPoseSkeleton.Invalidate();
 
   ezStringBuilder sKey;
-  sKey.SetFormat("MeshPosition|{}|{}", pMesh->GetResourceID(), m_uiSurfaceDataChangeCounter);
+  sKey.SetFormat("MeshPosition|{}|{}", pMesh->GetResourceID(), data.m_uiSurfaceDataChangeCounter);
 
   const ezCpuMeshResource& mesh = *pMesh.GetPointer();
-  m_pSurfaceDataRef = GetOwnerSystem()->GetOwnerWorldModule()->GetOrCreateSharedData(sKey, [&mesh]()
+  data.m_pSurfaceDataRef = ctx.m_pSystem->GetOwnerWorldModule()->GetOrCreateSharedData(sKey, [&mesh]()
     { return CreateSurfaceData(mesh); });
-  m_pSurfaceData = static_cast<const SurfaceData*>(m_pSurfaceDataRef.Borrow());
+  data.m_pSurfaceData = static_cast<const SurfaceData*>(data.m_pSurfaceDataRef.Borrow());
 
-  if (m_pSurfaceData != nullptr && !m_pSurfaceData->m_TriangleSkinning.IsEmpty())
+  if (data.m_pSurfaceData != nullptr && !data.m_pSurfaceData->m_TriangleSkinning.IsEmpty())
   {
-    m_hRestPoseSkeleton = pMesh->GetDescriptor().m_hDefaultSkeleton;
+    data.m_hRestPoseSkeleton = pMesh->GetDescriptor().m_hDefaultSkeleton;
   }
 
   return true;
@@ -509,31 +499,31 @@ ezSharedPtr<ezRefCounted> ezParticleInitializer_MeshPosition::CreateSurfaceData(
   return pData;
 }
 
-bool ezParticleInitializer_MeshPosition::UpdateRestPoseTransform()
+bool ezParticleInitializer_MeshPosition::UpdateRestPoseTransform(InstanceData& data)
 {
-  if (!m_hRestPoseSkeleton.IsValid())
+  if (!data.m_hRestPoseSkeleton.IsValid())
     return true;
 
   ezResourceState state;
   {
-    ezResourceLock<ezSkeletonResource> pSkeleton(m_hRestPoseSkeleton, ezResourceAcquireMode::PointerOnly);
+    ezResourceLock<ezSkeletonResource> pSkeleton(data.m_hRestPoseSkeleton, ezResourceAcquireMode::PointerOnly);
     state = pSkeleton->GetLoadingState();
   }
 
   // skeletons have no loading fallback, acquiring the data before it is loaded would block
   if (state != ezResourceState::Loaded && state != ezResourceState::LoadedResourceMissing)
   {
-    ezResourceManager::PreloadResource(m_hRestPoseSkeleton);
+    ezResourceManager::PreloadResource(data.m_hRestPoseSkeleton);
     return false;
   }
 
   if (state == ezResourceState::Loaded)
   {
-    ezResourceLock<ezSkeletonResource> pSkeleton(m_hRestPoseSkeleton, ezResourceAcquireMode::AllowLoadingFallback);
-    m_RestPoseTransform = pSkeleton->GetDescriptor().m_RootTransform;
+    ezResourceLock<ezSkeletonResource> pSkeleton(data.m_hRestPoseSkeleton, ezResourceAcquireMode::AllowLoadingFallback);
+    data.m_RestPoseTransform = pSkeleton->GetDescriptor().m_RootTransform;
   }
 
-  m_hRestPoseSkeleton.Invalidate();
+  data.m_hRestPoseSkeleton.Invalidate();
   return true;
 }
 
@@ -586,10 +576,10 @@ namespace
   }
 } // namespace
 
-void ezParticleInitializer_MeshPosition::SampleSurface(ezRandom& rng, ezArrayPtr<const ezMat4> skinningMatrices, ezVec3& out_vPosition, ezVec3& out_vNormal) const
+void ezParticleInitializer_MeshPosition::SampleSurface(const InstanceData& data, ezRandom& rng, ezArrayPtr<const ezMat4> skinningMatrices, ezVec3& out_vPosition, ezVec3& out_vNormal)
 {
   // picks each triangle with a probability proportional to its area
-  const SurfaceData& surface = *m_pSurfaceData;
+  const SurfaceData& surface = *data.m_pSurfaceData;
   const ezUInt32 uiTriangle = FindInPrefixSum(surface.m_AreaPrefixSum, rng.FloatZeroToOneExclusive() * surface.m_AreaPrefixSum.PeekBack());
   const Triangle& tri = surface.m_Triangles[uiTriangle];
 
@@ -622,8 +612,8 @@ void ezParticleInitializer_MeshPosition::SampleSurface(ezRandom& rng, ezArrayPtr
   {
     for (ezUInt32 i = 0; i < 3; ++i)
     {
-      vPositions[i] = m_RestPoseTransform * vPositions[i];
-      vNormals[i] = m_RestPoseTransform.m_qRotation * vNormals[i];
+      vPositions[i] = data.m_RestPoseTransform * vPositions[i];
+      vNormals[i] = data.m_RestPoseTransform.m_qRotation * vNormals[i];
     }
   }
 
@@ -631,26 +621,28 @@ void ezParticleInitializer_MeshPosition::SampleSurface(ezRandom& rng, ezArrayPtr
   out_vNormal = vNormals[0] * w + vNormals[1] * u + vNormals[2] * v;
 }
 
-void ezParticleInitializer_MeshPosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleInitializer_MeshPosition::InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Mesh Position");
 
-  const ezVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
+  const ezVec3 startVel = ctx.m_pSystem->GetParticleStartVelocity();
 
-  ezVec4* pPosition = m_pStreamPosition->GetWritableData<ezVec4>();
-  ezFloat16Vec4* pVelocity = m_bSetVelocity ? m_pStreamVelocity->GetWritableData<ezFloat16Vec4>() : nullptr;
+  ezVec4* pPosition = data.m_pStreamPosition->GetWritableData<ezVec4>();
+  ezFloat16Vec4* pVelocity = m_bSetVelocity ? data.m_pStreamVelocity->GetWritableData<ezFloat16Vec4>() : nullptr;
 
-  ezRandom& rng = GetRNG();
+  ezRandom& rng = ctx.GetRNG();
 
-  const ezTransform trans = GetOwnerSystem()->GetTransform();
+  const ezTransform trans = ctx.m_pSystem->GetTransform();
 
-  const bool bSurface = HasSurface();
+  const bool bSurface = data.HasSurface();
 
   // only the owner mesh can be animated, the pose is empty until the first one arrives
   ezArrayPtr<const ezMat4> skinningMatrices;
-  if (bSurface && UsesSkinnedOwnerMesh())
+  if (bSurface && data.UsesSkinnedOwnerMesh())
   {
-    skinningMatrices = m_SkinningMatrices;
+    skinningMatrices = data.m_SkinningMatrices;
   }
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
@@ -660,11 +652,11 @@ void ezParticleInitializer_MeshPosition::InitializeElements(ezUInt64 uiStartInde
 
     if (bSurface)
     {
-      SampleSurface(rng, skinningMatrices, pos, normal);
+      SampleSurface(data, rng, skinningMatrices, pos, normal);
     }
 
-    pos = m_ActiveMeshTransform * pos;
-    normal = m_ActiveMeshTransform.m_qRotation * normal;
+    pos = data.m_ActiveMeshTransform * pos;
+    normal = data.m_ActiveMeshTransform.m_qRotation * normal;
     normal.NormalizeIfNotZero(ezVec3(0, 0, 1)).IgnoreResult();
 
     if (m_bSetVelocity)

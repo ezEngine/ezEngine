@@ -34,6 +34,16 @@ ezParticleEffectDescriptor::~ezParticleEffectDescriptor()
   ClearEventReactions();
 }
 
+const ezRTTI* ezParticleEffectDescriptor::FindModuleType(ezStringView sTypeName)
+{
+  if (const ezRTTI* pRtti = ezRTTI::FindTypeByName(sTypeName))
+    return pRtti;
+
+  ezStringBuilder sNewName = sTypeName;
+  sNewName.ReplaceAll("Factory", "");
+  return ezRTTI::FindTypeByName(sNewName);
+}
+
 void ezParticleEffectDescriptor::ClearSystems()
 {
   for (auto pSystem : m_ParticleSystems)
@@ -218,10 +228,10 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& inout_stream)
   {
     inout_stream >> sType;
 
-    const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
+    const ezRTTI* pRtti = FindModuleType(sType);
     EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle effect event reaction type '{0}'", sType);
 
-    pReaction = pRtti->GetAllocator()->Allocate<ezParticleEventReactionFactory>();
+    pReaction = pRtti->GetAllocator()->Allocate<ezParticleEventReaction>();
 
     pReaction->Load(inout_stream);
   }

@@ -9,7 +9,7 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Burst, 1, ezRTTIDefaultAllocator<ezParticleEmitterFactory_Burst>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitter_Burst, 1, ezRTTIDefaultAllocator<ezParticleEmitter_Burst>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -23,36 +23,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Burst, 1, ezRTTIDefault
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitter_Burst, 1, ezRTTIDefaultAllocator<ezParticleEmitter_Burst>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleEmitterFactory_Burst::ezParticleEmitterFactory_Burst()
+ezParticleEmitter_Burst::ezParticleEmitter_Burst()
 {
   m_uiSpawnCountMin = 10;
   m_uiSpawnCountRange = 0;
 }
 
-const ezRTTI* ezParticleEmitterFactory_Burst::GetEmitterType() const
-{
-  return ezGetStaticRTTI<ezParticleEmitter_Burst>();
-}
-
-void ezParticleEmitterFactory_Burst::CopyEmitterProperties(ezParticleEmitter* pEmitter0, bool bFirstTime) const
-{
-  ezParticleEmitter_Burst* pEmitter = static_cast<ezParticleEmitter_Burst*>(pEmitter0);
-
-  pEmitter->m_Duration = m_Duration;
-  pEmitter->m_StartDelay = m_StartDelay;
-
-  pEmitter->m_uiSpawnCountMin = (ezUInt32)(m_uiSpawnCountMin * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
-  pEmitter->m_uiSpawnCountRange = (ezUInt32)(m_uiSpawnCountRange * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
-  pEmitter->m_sSpawnCountScaleParameter = ezTempHashedString(m_sSpawnCountScaleParameter.GetData());
-}
-
-
-void ezParticleEmitterFactory_Burst::QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const
+void ezParticleEmitter_Burst::QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const
 {
   out_uiMaxParticlesAbs = m_uiSpawnCountMin + m_uiSpawnCountRange;
   out_uiMaxParticlesPerSecond = 0;
@@ -70,7 +49,7 @@ enum class EmitterBurstVersion
 };
 
 
-void ezParticleEmitterFactory_Burst::Save(ezStreamWriter& inout_stream) const
+void ezParticleEmitter_Burst::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)EmitterBurstVersion::Version_Current;
   inout_stream << uiVersion;
@@ -83,7 +62,7 @@ void ezParticleEmitterFactory_Burst::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_sSpawnCountScaleParameter;
 }
 
-void ezParticleEmitterFactory_Burst::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleEmitter_Burst::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -97,39 +76,53 @@ void ezParticleEmitterFactory_Burst::Load(ezStreamReader& inout_stream, const ez
   inout_stream >> m_sSpawnCountScaleParameter;
 }
 
-void ezParticleEmitter_Burst::OnFinalize()
+bool ezParticleEmitter_Burst::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
+
+void ezParticleEmitter_Burst::OnFinalize(const ezParticleModuleContext& ctx) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  data.m_StartDelay = m_StartDelay;
+
   float fSpawnFactor = 1.0f;
 
-  const float spawnCountScale = ezMath::Max(GetOwnerEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f);
+  const float spawnCountScale = ezMath::Max(ctx.GetEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f);
   fSpawnFactor *= spawnCountScale;
 
-  ezRandom& rng = GetRNG();
+  const float fMultiplier = ctx.m_pSystem->GetSpawnCountMultiplier();
+  const ezUInt32 uiSpawnCountMin = (ezUInt32)(m_uiSpawnCountMin * fMultiplier);
+  const ezUInt32 uiSpawnCountRange = (ezUInt32)(m_uiSpawnCountRange * fMultiplier);
 
-  m_uiSpawnCountLeft = (ezUInt32)(rng.IntMinMax(m_uiSpawnCountMin, m_uiSpawnCountMin + m_uiSpawnCountRange) * fSpawnFactor);
+  data.m_uiSpawnCountLeft = (ezUInt32)(ctx.GetRNG().IntMinMax(uiSpawnCountMin, uiSpawnCountMin + uiSpawnCountRange) * fSpawnFactor);
 
-  m_fSpawnAccu = 0;
-  m_fSpawnPerSecond = 0;
+  data.m_fSpawnAccu = 0;
+  data.m_fSpawnPerSecond = 0;
 
   if (!m_Duration.IsZero())
   {
-    m_fSpawnPerSecond = m_uiSpawnCountLeft / (float)m_Duration.GetSeconds();
+    data.m_fSpawnPerSecond = data.m_uiSpawnCountLeft / (float)m_Duration.GetSeconds();
   }
 }
 
-ezParticleEmitterState ezParticleEmitter_Burst::IsFinished()
+ezParticleEmitterState ezParticleEmitter_Burst::IsFinished(const ezParticleModuleContext& ctx) const
 {
-  return (m_uiSpawnCountLeft == 0) ? ezParticleEmitterState::Finished : ezParticleEmitterState::Active;
+  return (ctx.GetInstanceData<InstanceData>().m_uiSpawnCountLeft == 0) ? ezParticleEmitterState::Finished : ezParticleEmitterState::Active;
 }
 
-ezUInt32 ezParticleEmitter_Burst::ComputeSpawnCount(const ezTime& tDiff)
+ezUInt32 ezParticleEmitter_Burst::ComputeSpawnCount(const ezParticleModuleContext& ctx, const ezTime& diff) const
 {
   EZ_PROFILE_SCOPE("PFX: Burst - Spawn Count ");
 
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   // delay before the emitter becomes active
-  if (m_StartDelay.IsPositive())
+  if (data.m_StartDelay.IsPositive())
   {
-    m_StartDelay -= tDiff;
+    data.m_StartDelay -= diff;
     return 0;
   }
 
@@ -137,17 +130,17 @@ ezUInt32 ezParticleEmitter_Burst::ComputeSpawnCount(const ezTime& tDiff)
 
   if (m_Duration.IsZero())
   {
-    uiSpawn = m_uiSpawnCountLeft;
-    m_uiSpawnCountLeft = 0;
+    uiSpawn = data.m_uiSpawnCountLeft;
+    data.m_uiSpawnCountLeft = 0;
   }
   else
   {
-    m_fSpawnAccu += (float)tDiff.GetSeconds() * m_fSpawnPerSecond;
-    uiSpawn = (ezUInt32)m_fSpawnAccu;
-    uiSpawn = ezMath::Min(uiSpawn, m_uiSpawnCountLeft);
+    data.m_fSpawnAccu += (float)diff.GetSeconds() * data.m_fSpawnPerSecond;
+    uiSpawn = (ezUInt32)data.m_fSpawnAccu;
+    uiSpawn = ezMath::Min(uiSpawn, data.m_uiSpawnCountLeft);
 
-    m_fSpawnAccu -= uiSpawn;
-    m_uiSpawnCountLeft -= uiSpawn;
+    data.m_fSpawnAccu -= uiSpawn;
+    data.m_uiSpawnCountLeft -= uiSpawn;
   }
 
   return uiSpawn;

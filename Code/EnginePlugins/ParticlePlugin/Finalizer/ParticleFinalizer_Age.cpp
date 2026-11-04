@@ -10,71 +10,40 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizerFactory_Age, 1, ezRTTIDefaultAllocator<ezParticleFinalizerFactory_Age>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizer_Age, 1, ezRTTIDefaultAllocator<ezParticleFinalizer_Age>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleFinalizerFactory_Age::ezParticleFinalizerFactory_Age() = default;
-
-const ezRTTI* ezParticleFinalizerFactory_Age::GetFinalizerType() const
-{
-  return ezGetStaticRTTI<ezParticleFinalizer_Age>();
-}
-
-void ezParticleFinalizerFactory_Age::CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const
-{
-  ezParticleFinalizer_Age* pFinalizer = static_cast<ezParticleFinalizer_Age*>(pObject);
-
-  pFinalizer->m_LifeTime = m_LifeTime;
-  pFinalizer->m_sOnDeathEvent = ezTempHashedString(m_sOnDeathEvent.GetData());
-  pFinalizer->m_sLifeScaleParameter = ezTempHashedString(m_sLifeScaleParameter.GetData());
-
-  if (pFinalizer->m_bHasOnDeathEventHandler)
-  {
-    pFinalizer->m_bHasOnDeathEventHandler = false;
-    pFinalizer->GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleFinalizer_Age::OnParticleDeath, pFinalizer));
-  }
-
-  if (!pFinalizer->m_sOnDeathEvent.IsEmpty())
-  {
-    pFinalizer->m_bHasOnDeathEventHandler = true;
-    pFinalizer->GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleFinalizer_Age::OnParticleDeath, pFinalizer));
-  }
-}
-
 ezParticleFinalizer_Age::ezParticleFinalizer_Age() = default;
 
-ezParticleFinalizer_Age::~ezParticleFinalizer_Age()
+bool ezParticleFinalizer_Age::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  if (m_bHasOnDeathEventHandler)
-  {
-    GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleFinalizer_Age::OnParticleDeath, this));
-  }
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleFinalizer_Age::CreateRequiredStreams()
+void ezParticleFinalizer_Age::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, true);
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
 
-  m_pStreamPosition = nullptr;
-  m_pStreamVelocity = nullptr;
+  ctx.CreateStream(ezParticleStreamNames::s_sLifeTime, ezProcessingStream::DataType::Half2, &data.m_pStreamLifeTime, true);
+
+  data.m_pStreamPosition = nullptr;
+  data.m_pStreamVelocity = nullptr;
 
   if (!m_sOnDeathEvent.IsEmpty())
   {
-    CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-    CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sVelocity, ezProcessingStream::DataType::Half4, &data.m_pStreamVelocity, false);
   }
 }
 
-void ezParticleFinalizer_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleFinalizer_Age::InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const
 {
   EZ_PROFILE_SCOPE("PFX: Age Init");
 
-  ezFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezFloat16Vec2>();
-  const float fLifeScale = ezMath::Clamp(GetOwnerEffect()->GetFloatParameter(m_sLifeScaleParameter, 1.0f), 0.0f, 2.0f);
+  ezFloat16Vec2* pLifeTime = ctx.GetInstanceData<InstanceData>().m_pStreamLifeTime->GetWritableData<ezFloat16Vec2>();
+  const float fLifeScale = ezMath::Clamp(ctx.GetEffect()->GetFloatParameter(m_sLifeScaleParameter, 1.0f), 0.0f, 2.0f);
 
   if (m_LifeTime.m_fVariance == 0)
   {
@@ -89,7 +58,7 @@ void ezParticleFinalizer_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64
   }
   else // random range
   {
-    ezRandom& rng = GetRNG();
+    ezRandom& rng = ctx.GetRNG();
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
@@ -103,13 +72,13 @@ void ezParticleFinalizer_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64
   }
 }
 
-void ezParticleFinalizer_Age::Process(ezUInt64 uiNumElements)
+void ezParticleFinalizer_Age::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
 {
   EZ_PROFILE_SCOPE("PFX: Age");
 
-  ezFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezFloat16Vec2>();
+  ezFloat16Vec2* pLifeTime = ctx.GetInstanceData<InstanceData>().m_pStreamLifeTime->GetWritableData<ezFloat16Vec2>();
 
-  const float tDiff = (float)m_TimeDiff.GetSeconds();
+  const float tDiff = (float)ctx.GetTimeDiff().GetSeconds();
 
   for (ezUInt32 i = 0; i < uiNumElements; ++i)
   {
@@ -119,27 +88,29 @@ void ezParticleFinalizer_Age::Process(ezUInt64 uiNumElements)
     {
       pLifeTime[i].x = 0;
 
-      m_pStreamGroup->RemoveElement(i);
+      ctx.m_pSystem->RemoveParticle(i);
     }
   }
 }
 
-void ezParticleFinalizer_Age::OnParticleDeath(const ezStreamGroupElementRemovedEvent& e)
+void ezParticleFinalizer_Age::OnParticleDeath(const ezParticleModuleContext& ctx, ezUInt64 uiElementIndex) const
 {
-  const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
-  const ezFloat16Vec4* pVelocity = m_pStreamVelocity->GetData<ezFloat16Vec4>();
+  const InstanceData& data = ctx.GetInstanceData<InstanceData>();
 
-  const ezVec4 vel = pVelocity[e.m_uiElementIndex];
+  const ezVec4* pPosition = data.m_pStreamPosition->GetData<ezVec4>();
+  const ezFloat16Vec4* pVelocity = data.m_pStreamVelocity->GetData<ezFloat16Vec4>();
+
+  const ezVec4 vel = pVelocity[uiElementIndex];
   const ezVec3 dir(vel.x, vel.y, vel.z);
   const float speed = vel.w;
 
   ezParticleEvent pe;
   pe.m_EventType = m_sOnDeathEvent;
-  pe.m_vPosition = pPosition[e.m_uiElementIndex].GetAsVec3();
+  pe.m_vPosition = pPosition[uiElementIndex].GetAsVec3();
   pe.m_vDirection = dir * speed;
   pe.m_vNormal.SetZero();
 
-  GetOwnerEffect()->AddParticleEvent(pe);
+  ctx.GetEffect()->AddParticleEvent(pe);
 }
 
 

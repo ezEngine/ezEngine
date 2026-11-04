@@ -3,25 +3,6 @@
 #include <Foundation/Types/VarianceTypes.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer.h>
 
-class ezPhysicsWorldModuleInterface;
-
-/// Factory for age finalizers.
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_Age final : public ezParticleFinalizerFactory
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizerFactory_Age, ezParticleFinalizerFactory);
-
-public:
-  ezParticleFinalizerFactory_Age();
-
-  virtual const ezRTTI* GetFinalizerType() const override;
-  virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const override;
-
-  ezVarianceTypeTime m_LifeTime;
-  ezString m_sOnDeathEvent;
-  ezString m_sLifeScaleParameter;
-};
-
-
 /// Updates particle age and removes particles that have exceeded their lifetime.
 ///
 /// Each frame, the remaining lifetime is decreased by the time delta. When a particle's
@@ -34,23 +15,25 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_Age final : public ezParticleFin
 
 public:
   ezParticleFinalizer_Age();
-  ~ezParticleFinalizer_Age();
 
-  virtual void CreateRequiredStreams() override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void CreateRequiredStreams(const ezParticleModuleContext& ctx) const override;
+  virtual bool GetReceiveParticleDeath() const override { return !m_sOnDeathEvent.IsEmpty(); }
+  virtual void OnParticleDeath(const ezParticleModuleContext& ctx, ezUInt64 uiElementIndex) const override;
+  virtual void InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const override;
+  virtual void Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const override;
 
   ezVarianceTypeTime m_LifeTime;
-  ezTempHashedString m_sOnDeathEvent;
-  ezTempHashedString m_sLifeScaleParameter;
+  ezHashedString m_sOnDeathEvent;
+  ezHashedString m_sLifeScaleParameter;
 
-protected:
-  friend class ezParticleFinalizerFactory_Age;
+private:
+  struct InstanceData
+  {
+    EZ_DECLARE_POD_TYPE();
 
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
-  virtual void Process(ezUInt64 uiNumElements) override;
-  void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
-
-  bool m_bHasOnDeathEventHandler = false;
-  ezProcessingStream* m_pStreamLifeTime = nullptr;
-  ezProcessingStream* m_pStreamPosition = nullptr;
-  ezProcessingStream* m_pStreamVelocity = nullptr;
+    ezProcessingStream* m_pStreamLifeTime;
+    ezProcessingStream* m_pStreamPosition;
+    ezProcessingStream* m_pStreamVelocity;
+  };
 };

@@ -10,7 +10,7 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrailFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeTrailFactory>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrail, 1, ezRTTIDefaultAllocator<ezParticleTypeTrail>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -31,59 +31,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrailFactory, 1, ezRTTIDefaultAllo
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrail, 1, ezRTTIDefaultAllocator<ezParticleTypeTrail>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
-
-const ezRTTI* ezParticleTypeTrailFactory::GetTypeType() const
-{
-  return ezGetStaticRTTI<ezParticleTypeTrail>();
-}
-
-void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const
-{
-  ezParticleTypeTrail* pType = static_cast<ezParticleTypeTrail*>(pObject);
-
-  pType->m_RenderMode = m_RenderMode;
-  pType->m_uiMaxPoints = m_uiMaxPoints;
-  pType->m_hTexture.Invalidate();
-  pType->m_TextureAtlasType = m_TextureAtlasType;
-  pType->m_TextureAtlasOrientation = m_TextureAtlasOrientation;
-  pType->m_uiNumSpritesX = m_uiNumSpritesX;
-  pType->m_uiNumSpritesY = m_uiNumSpritesY;
-  pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
-  pType->m_LightingMode = m_LightingMode;
-  pType->m_fNormalCurvature = m_fNormalCurvature;
-  pType->m_fLightDirectionality = m_fLightDirectionality;
-  pType->m_hCustomMaterial.Invalidate();
-
-  if (m_bUseCustomMaterial)
-  {
-    pType->m_hCustomMaterial = m_hCustomMaterial;
-  }
-  else
-  {
-    pType->m_hTexture = m_hTexture;
-  }
-
-  // fixed 25 FPS for the update rate
-  pType->m_UpdateDiff = ezTime::MakeFromSeconds(1.0 / 25.0); // m_UpdateDiff;
-
-  if (bFirstTime)
-  {
-    pType->GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeTrail::OnParticleDeath, pType));
-
-    pType->m_LastSnapshot = pType->GetOwnerEffect()->GetTotalEffectLifeTime();
-  }
-
-  // m_uiMaxPoints = ezMath::Min<ezUInt16>(8, m_uiMaxPoints);
-
-  // clamp the number of points to the maximum possible count
-  pType->m_uiMaxPoints = ezMath::Min<ezUInt16>(pType->m_uiMaxPoints, pType->ComputeTrailPointBucketSize(pType->m_uiMaxPoints));
-
-  pType->m_uiCurFirstIndex = 1;
-}
 
 enum class TypeTrailVersion
 {
@@ -102,7 +50,7 @@ enum class TypeTrailVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleTypeTrailFactory::Save(ezStreamWriter& inout_stream) const
+void ezParticleTypeTrail::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)TypeTrailVersion::Version_Current;
   inout_stream << uiVersion;
@@ -139,7 +87,7 @@ void ezParticleTypeTrailFactory::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_TextureAtlasOrientation;
 }
 
-void ezParticleTypeTrailFactory::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
+void ezParticleTypeTrail::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -199,9 +147,12 @@ void ezParticleTypeTrailFactory::Load(ezStreamReader& inout_stream, const ezPart
     inout_stream >> m_TextureAtlasOrientation;
   }
 
-  if (m_bUseCustomMaterial && !m_sCustomMaterial.IsEmpty())
+  if (m_bUseCustomMaterial)
   {
-    m_hCustomMaterial = ezResourceManager::LoadResource<ezMaterialResource>(m_sCustomMaterial);
+    if (!m_sCustomMaterial.IsEmpty())
+    {
+      m_hCustomMaterial = ezResourceManager::LoadResource<ezMaterialResource>(m_sCustomMaterial);
+    }
   }
   else if (!m_sTexture.IsEmpty())
   {
@@ -211,93 +162,108 @@ void ezParticleTypeTrailFactory::Load(ezStreamReader& inout_stream, const ezPart
 
 //////////////////////////////////////////////////////////////////////////
 
-ezParticleTypeTrail::ezParticleTypeTrail() = default;
-
-ezParticleTypeTrail::~ezParticleTypeTrail()
+bool ezParticleTypeTrail::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
 {
-  if (m_pStreamPosition != nullptr)
-  {
-    GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeTrail::OnParticleDeath, this));
-  }
+  out_desc.FillFromType<InstanceData>();
+  return true;
 }
 
-void ezParticleTypeTrail::CreateRequiredStreams()
+void ezParticleTypeTrail::CreateRequiredStreams(const ezParticleModuleContext& ctx) const
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
-  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
-  CreateStream("TrailData", ezProcessingStream::DataType::Short2, &m_pStreamTrailData, true);
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
 
-  m_pStreamVariation = nullptr;
+  ctx.CreateStream(ezParticleStreamNames::s_sLifeTime, ezProcessingStream::DataType::Half2, &data.m_pStreamLifeTime, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sPosition, ezProcessingStream::DataType::Float4, &data.m_pStreamPosition, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sSize, ezProcessingStream::DataType::Half, &data.m_pStreamSize, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sColor, ezProcessingStream::DataType::Half4, &data.m_pStreamColor, false);
+  ctx.CreateStream(ezParticleStreamNames::s_sTrailData, ezProcessingStream::DataType::Short2, &data.m_pStreamTrailData, true);
+
+  data.m_pStreamVariation = nullptr;
 
   if (m_TextureAtlasType == ezParticleTextureAtlasType::RandomVariations || m_TextureAtlasType == ezParticleTextureAtlasType::RandomYAnimatedX || m_TextureAtlasType == ezParticleTextureAtlasType::RandomXAnimatedY)
   {
-    CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, false);
+    ctx.CreateStream(ezParticleStreamNames::s_sVariation, ezProcessingStream::DataType::Int, &data.m_pStreamVariation, false);
   }
 }
 
-void ezParticleTypeTrail::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
+void ezParticleTypeTrail::OnFinalize(const ezParticleModuleContext& ctx) const
 {
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  if (!data.m_bInitialized)
+  {
+    data.m_bInitialized = true;
+    data.m_LastSnapshot = ctx.GetEffect()->GetTotalEffectLifeTime();
+  }
+
+  // clamp the number of points to the maximum possible count
+  data.m_uiMaxPoints = ezMath::Min<ezUInt16>(m_uiMaxPoints, ComputeTrailPointBucketSize(m_uiMaxPoints));
+  data.m_uiCurFirstIndex = 1;
+}
+
+void ezParticleTypeTrail::ExtractTypeRenderData(const ezParticleModuleContext& ctx, ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
+{
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
   EZ_PROFILE_SCOPE("PFX: Trail");
 
   if (!m_hTexture.IsValid() && !m_hCustomMaterial.IsValid())
     return;
 
-  const ezUInt32 numActiveParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
+  const ezUInt32 numActiveParticles = (ezUInt32)ctx.m_pSystem->GetNumActiveParticles();
 
   if (numActiveParticles == 0)
     return;
 
   // don't copy the data multiple times in the same frame, if the effect is instanced
-  if (m_uiLastExtractedFrame != ezRenderWorld::GetFrameCounter())
+  if (data.m_uiLastExtractedFrame != ezRenderWorld::GetFrameCounter())
   {
-    m_uiLastExtractedFrame = ezRenderWorld::GetFrameCounter();
+    data.m_uiLastExtractedFrame = ezRenderWorld::GetFrameCounter();
 
-    const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
+    const ezColor tintColor = ctx.GetEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
 
-    const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
-    const ezColorLinear16f* pColor = m_pStreamColor->GetData<ezColorLinear16f>();
-    const TrailData* pTrailData = m_pStreamTrailData->GetData<TrailData>();
-    const ezFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetData<ezFloat16Vec2>();
-    const ezUInt32* pVariation = m_pStreamVariation ? m_pStreamVariation->GetData<ezUInt32>() : nullptr;
+    const ezFloat16* pSize = data.m_pStreamSize->GetData<ezFloat16>();
+    const ezColorLinear16f* pColor = data.m_pStreamColor->GetData<ezColorLinear16f>();
+    const TrailData* pTrailData = data.m_pStreamTrailData->GetData<TrailData>();
+    const ezFloat16Vec2* pLifeTime = data.m_pStreamLifeTime->GetData<ezFloat16Vec2>();
+    const ezUInt32* pVariation = data.m_pStreamVariation ? data.m_pStreamVariation->GetData<ezUInt32>() : nullptr;
 
-    const ezUInt32 uiBucketSize = ComputeTrailPointBucketSize(m_uiMaxPoints);
+    const ezUInt32 uiBucketSize = ComputeTrailPointBucketSize(data.m_uiMaxPoints);
 
     // this will automatically be deallocated at the end of the frame
-    m_BaseParticleData =
-      EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
-    m_TrailPointsShared =
-      EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezVec4, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles() * uiBucketSize);
-    m_TrailParticleData =
-      EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTrailParticleShaderData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
+    data.m_BaseParticleData =
+      EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData, (ezUInt32)ctx.m_pSystem->GetNumActiveParticles());
+    data.m_TrailPointsShared =
+      EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezVec4, (ezUInt32)ctx.m_pSystem->GetNumActiveParticles() * uiBucketSize);
+    data.m_TrailParticleData =
+      EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTrailParticleShaderData, (ezUInt32)ctx.m_pSystem->GetNumActiveParticles());
 
     for (ezUInt32 p = 0; p < numActiveParticles; ++p)
     {
-      m_BaseParticleData[p].Size = pSize[p];
-      m_BaseParticleData[p].Color = pColor[p].ToLinearFloat() * tintColor;
-      m_BaseParticleData[p].Life = pLifeTime[p].x * pLifeTime[p].y;
-      m_BaseParticleData[p].Variation = (pVariation != nullptr) ? pVariation[p] : 0;
+      data.m_BaseParticleData[p].Size = pSize[p];
+      data.m_BaseParticleData[p].Color = pColor[p].ToLinearFloat() * tintColor;
+      data.m_BaseParticleData[p].Life = pLifeTime[p].x * pLifeTime[p].y;
+      data.m_BaseParticleData[p].Variation = (pVariation != nullptr) ? pVariation[p] : 0;
 
-      m_TrailParticleData[p].NumPoints = pTrailData[p].m_uiNumPoints;
+      data.m_TrailParticleData[p].NumPoints = pTrailData[p].m_uiNumPoints;
     }
 
     for (ezUInt32 p = 0; p < numActiveParticles; ++p)
     {
-      const ezVec4* pTrailPositions = GetTrailPointsPositions(pTrailData[p].m_uiIndexForTrailPoints);
+      const ezVec4* pTrailPositions = data.GetTrailPointsPositions(pTrailData[p].m_uiIndexForTrailPoints);
 
-      ezVec4* pRenderPositions = &m_TrailPointsShared[p * uiBucketSize];
+      ezVec4* pRenderPositions = &data.m_TrailPointsShared[p * uiBucketSize];
 
       /// \todo This loop could be done without a condition
-      for (ezUInt32 i = 0; i < m_uiMaxPoints; ++i)
+      for (ezUInt32 i = 0; i < data.m_uiMaxPoints; ++i)
       {
-        if (i > m_uiCurFirstIndex)
+        if (i > data.m_uiCurFirstIndex)
         {
-          pRenderPositions[i] = pTrailPositions[m_uiCurFirstIndex + m_uiMaxPoints - i];
+          pRenderPositions[i] = pTrailPositions[data.m_uiCurFirstIndex + data.m_uiMaxPoints - i];
         }
         else
         {
-          pRenderPositions[i] = pTrailPositions[m_uiCurFirstIndex - i];
+          pRenderPositions[i] = pTrailPositions[data.m_uiCurFirstIndex - i];
         }
       }
     }
@@ -316,15 +282,15 @@ void ezParticleTypeTrail::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
 
   pRenderData->m_vGlobalPosition = instanceTransform.m_vPosition;
 
-  pRenderData->m_GlobalTransform = GetOwnerEffect()->NeedsToApplyTransform() ? instanceTransform : ezTransform::MakeIdentity();
-  pRenderData->m_TotalEffectLifeTime = GetOwnerEffect()->GetTotalEffectLifeTime();
+  pRenderData->m_GlobalTransform = ctx.GetEffect()->NeedsToApplyTransform() ? instanceTransform : ezTransform::MakeIdentity();
+  pRenderData->m_TotalEffectLifeTime = ctx.GetEffect()->GetTotalEffectLifeTime();
   pRenderData->m_RenderMode = m_RenderMode;
-  pRenderData->m_uiMaxTrailPoints = m_uiMaxPoints;
+  pRenderData->m_uiMaxTrailPoints = data.m_uiMaxPoints;
   pRenderData->m_hTexture = m_hTexture;
-  pRenderData->m_BaseParticleData = m_BaseParticleData;
-  pRenderData->m_TrailParticleData = m_TrailParticleData;
-  pRenderData->m_TrailPointsShared = m_TrailPointsShared;
-  pRenderData->m_fSnapshotFraction = m_fSnapshotFraction;
+  pRenderData->m_BaseParticleData = data.m_BaseParticleData;
+  pRenderData->m_TrailParticleData = data.m_TrailParticleData;
+  pRenderData->m_TrailPointsShared = data.m_TrailPointsShared;
+  pRenderData->m_fSnapshotFraction = data.m_fSnapshotFraction;
   pRenderData->m_LightingMode = m_LightingMode;
   pRenderData->m_TextureAtlasOrientation = m_TextureAtlasOrientation;
   pRenderData->m_fNormalCurvature = m_fNormalCurvature;
@@ -365,14 +331,16 @@ void ezParticleTypeTrail::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
   ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent, ezRenderData::Caching::Never);
 }
 
-void ezParticleTypeTrail::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleTypeTrail::InitializeElements(const ezParticleModuleContext& ctx, ezUInt64 uiStartIndex, ezUInt64 uiNumElements) const
 {
-  TrailData* pTrailData = m_pStreamTrailData->GetWritableData<TrailData>() + uiStartIndex;
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
 
-  const ezVec4* pPosData = m_pStreamPosition->GetData<ezVec4>() + uiStartIndex;
+  TrailData* pTrailData = data.m_pStreamTrailData->GetWritableData<TrailData>() + uiStartIndex;
 
-  const ezUInt32 uiPrevIndex = (m_uiCurFirstIndex > 0) ? (m_uiCurFirstIndex - 1) : (m_uiMaxPoints - 1);
-  const ezUInt32 uiPrevIndex2 = (uiPrevIndex > 0) ? (uiPrevIndex - 1) : (m_uiMaxPoints - 1);
+  const ezVec4* pPosData = data.m_pStreamPosition->GetData<ezVec4>() + uiStartIndex;
+
+  const ezUInt32 uiPrevIndex = (data.m_uiCurFirstIndex > 0) ? (data.m_uiCurFirstIndex - 1) : (data.m_uiMaxPoints - 1);
+  const ezUInt32 uiPrevIndex2 = (uiPrevIndex > 0) ? (uiPrevIndex - 1) : (data.m_uiMaxPoints - 1);
 
   for (ezUInt64 i = 0; i < uiNumElements; ++i)
   {
@@ -380,45 +348,50 @@ void ezParticleTypeTrail::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiN
 
     TrailData& td = pTrailData[i];
     td.m_uiNumPoints = 2;
-    td.m_uiIndexForTrailPoints = GetIndexForTrailPoints();
+    td.m_uiIndexForTrailPoints = data.GetIndexForTrailPoints();
 
-    ezVec4* pPos = GetTrailPointsPositions(td.m_uiIndexForTrailPoints);
-    pPos[m_uiCurFirstIndex] = vStartPos;
+    ezVec4* pPos = data.GetTrailPointsPositions(td.m_uiIndexForTrailPoints);
+    pPos[data.m_uiCurFirstIndex] = vStartPos;
     pPos[uiPrevIndex] = vStartPos;
     pPos[uiPrevIndex2] = vStartPos;
   }
 }
 
 
-void ezParticleTypeTrail::Process(ezUInt64 uiNumElements)
+void ezParticleTypeTrail::Process(const ezParticleModuleContext& ctx, ezUInt64 uiNumElements) const
 {
-  const ezTime tNow = GetOwnerEffect()->GetTotalEffectLifeTime();
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
 
-  TrailData* pTrailData = m_pStreamTrailData->GetWritableData<TrailData>();
-  const ezVec4* pPosData = m_pStreamPosition->GetData<ezVec4>();
+  // fixed 25 FPS for the update rate
+  const ezTime tUpdateDiff = ezTime::MakeFromSeconds(1.0 / 25.0);
 
-  if (tNow - m_LastSnapshot >= m_UpdateDiff)
+  const ezTime tNow = ctx.GetEffect()->GetTotalEffectLifeTime();
+
+  TrailData* pTrailData = data.m_pStreamTrailData->GetWritableData<TrailData>();
+  const ezVec4* pPosData = data.m_pStreamPosition->GetData<ezVec4>();
+
+  if (tNow - data.m_LastSnapshot >= tUpdateDiff)
   {
-    m_LastSnapshot = tNow;
+    data.m_LastSnapshot = tNow;
 
-    m_uiCurFirstIndex = (m_uiCurFirstIndex + 1) == m_uiMaxPoints ? 0 : (m_uiCurFirstIndex + 1);
+    data.m_uiCurFirstIndex = (data.m_uiCurFirstIndex + 1) == data.m_uiMaxPoints ? 0 : (data.m_uiCurFirstIndex + 1);
 
     for (ezUInt64 i = 0; i < uiNumElements; ++i)
     {
-      pTrailData[i].m_uiNumPoints = ezMath::Min<ezUInt16>(pTrailData[i].m_uiNumPoints + 1, m_uiMaxPoints);
+      pTrailData[i].m_uiNumPoints = ezMath::Min<ezUInt16>(pTrailData[i].m_uiNumPoints + 1, data.m_uiMaxPoints);
     }
   }
 
-  m_fSnapshotFraction = 1.0f - (float)((tNow - m_LastSnapshot).GetSeconds() / m_UpdateDiff.GetSeconds());
+  data.m_fSnapshotFraction = 1.0f - (float)((tNow - data.m_LastSnapshot).GetSeconds() / tUpdateDiff.GetSeconds());
 
   for (ezUInt64 i = 0; i < uiNumElements; ++i)
   {
-    ezVec4* pPositions = GetTrailPointsPositions(pTrailData[i].m_uiIndexForTrailPoints);
-    pPositions[m_uiCurFirstIndex] = pPosData[i];
+    ezVec4* pPositions = data.GetTrailPointsPositions(pTrailData[i].m_uiIndexForTrailPoints);
+    pPositions[data.m_uiCurFirstIndex] = pPosData[i];
   }
 }
 
-ezUInt16 ezParticleTypeTrail::GetIndexForTrailPoints()
+ezUInt16 ezParticleTypeTrail::InstanceData::GetIndexForTrailPoints()
 {
   ezUInt16 res = 0;
 
@@ -456,43 +429,43 @@ ezUInt16 ezParticleTypeTrail::GetIndexForTrailPoints()
   return res;
 }
 
-ezVec4* ezParticleTypeTrail::GetTrailPointsPositions(ezUInt32 index)
+ezVec4* ezParticleTypeTrail::InstanceData::GetTrailPointsPositions(ezUInt32 uiIndex)
 {
   // if (m_uiMaxPoints > 32)
   {
-    return &m_TrailPoints64[index].Positions[0];
+    return &m_TrailPoints64[uiIndex].Positions[0];
   }
   // else if (m_uiMaxPoints > 16)
   //{
-  //  return &m_TrailPoints32[index].Positions[0];
+  //  return &m_TrailPoints32[uiIndex].Positions[0];
   //}
   // else if (m_uiMaxPoints > 8)
   //{
-  //  return &m_TrailPoints16[index].Positions[0];
+  //  return &m_TrailPoints16[uiIndex].Positions[0];
   //}
   // else
   //{
-  //  return &m_TrailPoints8[index].Positions[0];
+  //  return &m_TrailPoints8[uiIndex].Positions[0];
   //}
 }
 
-const ezVec4* ezParticleTypeTrail::GetTrailPointsPositions(ezUInt32 index) const
+const ezVec4* ezParticleTypeTrail::InstanceData::GetTrailPointsPositions(ezUInt32 uiIndex) const
 {
   // if (m_uiMaxPoints > 32)
   {
-    return &m_TrailPoints64[index].Positions[0];
+    return &m_TrailPoints64[uiIndex].Positions[0];
   }
   // else if (m_uiMaxPoints > 16)
   //{
-  //  return &m_TrailPoints32[index].Positions[0];
+  //  return &m_TrailPoints32[uiIndex].Positions[0];
   //}
   // else if (m_uiMaxPoints > 8)
   //{
-  //  return &m_TrailPoints16[index].Positions[0];
+  //  return &m_TrailPoints16[uiIndex].Positions[0];
   //}
   // else
   //{
-  //  return &m_TrailPoints8[index].Positions[0];
+  //  return &m_TrailPoints8[uiIndex].Positions[0];
   //}
 }
 
@@ -517,12 +490,14 @@ ezUInt16 ezParticleTypeTrail::ComputeTrailPointBucketSize(ezUInt16 uiMaxTrailPoi
   }
 }
 
-void ezParticleTypeTrail::OnParticleDeath(const ezStreamGroupElementRemovedEvent& e)
+void ezParticleTypeTrail::OnParticleDeath(const ezParticleModuleContext& ctx, ezUInt64 uiElementIndex) const
 {
-  const TrailData* pTrailData = m_pStreamTrailData->GetData<TrailData>();
+  InstanceData& data = ctx.GetInstanceData<InstanceData>();
+
+  const TrailData* pTrailData = data.m_pStreamTrailData->GetData<TrailData>();
 
   // return the trail data to the list of free elements
-  m_FreeTrailData.PushBack(pTrailData[e.m_uiElementIndex].m_uiIndexForTrailPoints);
+  data.m_FreeTrailData.PushBack(pTrailData[uiElementIndex].m_uiIndexForTrailPoints);
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Trail_ParticleTypeTrail);
