@@ -30,6 +30,9 @@ public:
   /// Destructor
   ~ezProcessingStreamGroup();
 
+  /// Removes all streams and processors and frees the stream data.
+  ///
+  /// The stream objects are kept and reused by later AddStream() calls, so an old pointer may end up referencing a different stream.
   void Clear();
 
   /// Adds a stream processor to the stream group.
@@ -47,10 +50,15 @@ public:
   /// attempt to signal an error.
   ///
   /// The returned pointer stays valid until the stream is removed or Clear() is called, also when the group gets resized.
-  /// A pointer to the stream's data doesn't stay valid across a resize.
+  ///
+  /// All streams share one memory block, which gets allocated by the next Process().
+  /// So until then the new stream has no data, and pointers to the data of all other streams become invalid at that point.
+  /// The active elements of the other streams are preserved. For the new stream they are uninitialized.
   ezProcessingStream* AddStream(const ezHashedString& sName, ezProcessingStream::DataType type);
 
   /// Removes the stream with the given name, if it exists.
+  ///
+  /// The memory of the stream stays unused until the memory block gets reallocated. Data pointers of other streams stay valid.
   void RemoveStreamByName(ezTempHashedString sName);
 
   /// Returns the stream by it's name, returns nullptr if not existent. More efficient since direct use of ezHashedString.
@@ -86,15 +94,21 @@ private:
   /// Internal helper function which removes any pending elements and spawns new elements as needed
   void RunPendingDeletions();
 
-  void EnsureStreamAssignmentValid();
-
   void RunPendingSpawns();
 
   void SortProcessorsByPriority();
 
+  /// Allocates one memory block that exactly fits all streams and moves the active elements of the existing streams into it.
+  void UpdateStreamLayout();
+
   ezHybridArray<ezProcessingStreamProcessor*, 8> m_Processors;
 
   ezHybridArray<ezProcessingStream*, 8> m_DataStreams;
+
+  /// Stream objects from removed streams. Those are reused, since the group gets cleared and set up again every time a particle system is reused.
+  ezHybridArray<ezProcessingStream*, 8> m_UnusedStreams;
+
+  void* m_pStreamData = nullptr;
 
   ezHybridArray<ezUInt64, 64> m_PendingRemoveIndices;
 
@@ -106,5 +120,7 @@ private:
 
   ezUInt64 m_uiHighestNumActiveElements;
 
-  bool m_bStreamAssignmentDirty;
+  bool m_bProcessorOrderDirty;
+
+  bool m_bStreamLayoutDirty;
 };

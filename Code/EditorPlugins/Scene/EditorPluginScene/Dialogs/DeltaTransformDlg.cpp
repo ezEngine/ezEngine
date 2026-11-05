@@ -561,7 +561,7 @@ void ezQtDeltaTransformDlg::QueryUI()
       break;
 
     case ezQtDeltaTransformDlg::RotateZDeviation:
-      s_vRotateDeviation.y = (float)Value1->value();
+      s_vRotateDeviation.z = (float)Value1->value();
       break;
 
     case ezQtDeltaTransformDlg::ScaleDeviation:
