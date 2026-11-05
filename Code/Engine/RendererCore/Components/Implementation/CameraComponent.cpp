@@ -605,7 +605,13 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
     pView->SetRenderPipelineResource(m_hCachedRenderPipeline);
   }
 
-  pView->SetBlackboard(m_pBlackboard);
+  // Without a blackboard of its own, the camera falls back to the world's blackboard (see ezBlackboardComponent::FindBlackboard).
+  // Every view already reads the world's blackboard, so do not make it the view's blackboard as well: entries that are written
+  // to the view's blackboard (e.g. editor view settings) would then end up in the world and affect all other views of that world.
+  if (m_pBlackboard == nullptr || m_pBlackboard.Borrow() != GetWorld()->GetBlackboard().Borrow())
+  {
+    pView->SetBlackboard(m_pBlackboard);
+  }
 }
 
 void ezCameraComponent::ResourceChangeEventHandler(const ezResourceEvent& e)
