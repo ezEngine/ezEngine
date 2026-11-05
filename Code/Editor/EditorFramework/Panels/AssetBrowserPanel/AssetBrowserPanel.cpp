@@ -1,5 +1,7 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/Assets/AssetBrowserModel.moc.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h>
@@ -40,7 +42,24 @@ void ezQtAssetBrowserPanel::SlotAssetChosen(ezUuid guid, QString sAssetPathRelat
 {
   if (guid.IsValid())
   {
-    ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAssetPathAbsolute.toUtf8().data());
+    if ((uiAssetBrowserItemFlags & ezAssetBrowserItemFlags::SubAsset) != 0)
+    {
+      // sub-assets have no document of their own, so the document that contains them gets opened and is told which one was meant
+      QMetaObject::invokeMethod(
+        this, [guid, sAssetPathAbsolute]()
+        {
+          ezDocument* pDocument = ezQtEditorApp::GetSingleton()->OpenDocument(sAssetPathAbsolute.toUtf8().data(), ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList);
+
+          if (ezAssetDocument* pAssetDocument = ezDynamicCast<ezAssetDocument*>(pDocument))
+          {
+            pAssetDocument->OnSubAssetChosen(guid);
+          } },
+        Qt::QueuedConnection);
+    }
+    else
+    {
+      ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAssetPathAbsolute.toUtf8().data());
+    }
   }
   else
   {

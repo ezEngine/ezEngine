@@ -88,6 +88,12 @@ public:
     return static_cast<const ezAssetDocumentTypeDescriptor*>(GetDocumentTypeDescriptor());
   }
 
+  /// Called after the user has opened this document by choosing one of its sub-assets in the asset browser.
+  ///
+  /// Sub-assets don't have their own document or window. Document types can use this to focus the sub-asset in their window.
+  /// The window exists at this point, if the document has one. Called again if the document was open already.
+  virtual void OnSubAssetChosen(const ezUuid& subAssetGuid) {}
+
   /// Transforms an asset.
   ///   Typically not called manually but by the curator which takes care of dependencies first.
   ///
