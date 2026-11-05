@@ -118,6 +118,7 @@ void ezQtSubstancePackageAssetWindow::SendRedrawMsg()
       GetEditorEngineConnection()->SendMessage(&msg);
     }
 
+    if (pDoc->m_SelectedOutput.IsValid())
     {
       ezStringBuilder tmp;
 

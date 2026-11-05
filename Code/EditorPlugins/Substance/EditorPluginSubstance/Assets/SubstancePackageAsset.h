@@ -116,6 +116,9 @@ public:
   ezSubstancePackageAssetDocument(ezStringView sDocumentPath);
   ~ezSubstancePackageAssetDocument();
 
+  /// Selects the chosen output texture for the preview.
+  virtual void OnSubAssetChosen(const ezUuid& subAssetGuid) override;
+
   // for previewing purposes
   ezUuid m_SelectedOutput;
   ezEnum<ezTextureChannelMode> m_ChannelMode;

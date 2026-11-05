@@ -608,6 +608,16 @@ ezSubstancePackageAssetDocument::~ezSubstancePackageAssetDocument()
   GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSubstancePackageAssetDocument::OnPropertyChanged, this));
 }
 
+void ezSubstancePackageAssetDocument::OnSubAssetChosen(const ezUuid& subAssetGuid)
+{
+  // the window reads the selected output every frame, so no further notification is needed
+  auto pMetaData = GetAssetDocumentInfo()->GetMetaInfo<ezSubstancePackageAssetMetaData>();
+  if (pMetaData != nullptr && pMetaData->m_OutputUuids.Contains(subAssetGuid))
+  {
+    m_SelectedOutput = subAssetGuid;
+  }
+}
+
 void ezSubstancePackageAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
