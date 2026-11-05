@@ -10,7 +10,7 @@
 namespace
 {
   // Some users access the data of a stream with SIMD types.
-  constexpr size_t s_uiStreamAlignment = 16;
+  constexpr ezUInt64 s_uiStreamAlignment = 16;
 } // namespace
 
 ezProcessingStreamGroup::ezProcessingStreamGroup()
@@ -276,7 +276,7 @@ void ezProcessingStreamGroup::UpdateStreamLayout()
   void* pNewData = nullptr;
   if (uiTotalSize > 0)
   {
-    pNewData = ezFoundation::GetAlignedAllocator()->Allocate(uiTotalSize, s_uiStreamAlignment);
+    pNewData = ezFoundation::GetAlignedAllocator()->Allocate(static_cast<size_t>(uiTotalSize), static_cast<size_t>(s_uiStreamAlignment));
   }
 
   // Elements that don't fit anymore are lost.
