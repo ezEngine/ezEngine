@@ -18,6 +18,7 @@ public:
 
 private Q_SLOTS:
   void on_ButtonLaunch_clicked();
+  void on_HelpButton_clicked();
 
 private:
   virtual void showEvent(QShowEvent* event) override;

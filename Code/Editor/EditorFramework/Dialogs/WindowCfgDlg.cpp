@@ -3,6 +3,7 @@
 #include <EditorFramework/Dialogs/WindowCfgDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
+#include <QDesktopServices>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezQtWindowCfgDlg::ezQtWindowCfgDlg(QWidget* pParent)
@@ -159,4 +160,9 @@ void ezQtWindowCfgDlg::on_m_CheckOverrideDefault_stateChanged(int state)
   m_bOverrideProjectDefault[m_uiCurDesc] = m_CheckOverrideDefault->isChecked();
 
   UpdateUI();
+}
+
+void ezQtWindowCfgDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/projects/project-settings.html#window-configuration"));
 }

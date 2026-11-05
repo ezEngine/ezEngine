@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Dialogs/TagsDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <QDesktopServices>
 
 ezQtTagsDlg::ezQtTagsDlg(const ezVariant& startup, QWidget* pParent)
   : ezQtDialog(pParent)
@@ -249,4 +250,9 @@ QTreeWidgetItem* ezQtTagsDlg::CreateTagItem(QTreeWidgetItem* pParentItem, const 
   }
 
   return pItem;
+}
+
+void ezQtTagsDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/projects/tags.html"));
 }

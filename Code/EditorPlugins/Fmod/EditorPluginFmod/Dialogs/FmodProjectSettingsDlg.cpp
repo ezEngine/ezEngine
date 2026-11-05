@@ -1,6 +1,7 @@
 #include <EditorPluginFmod/EditorPluginFmodPCH.h>
 
 #include <EditorPluginFmod/Dialogs/FmodProjectSettingsDlg.moc.h>
+#include <QDesktopServices>
 #include <QFileDialog>
 #include <QInputDialog>
 
@@ -230,4 +231,9 @@ void ezQtFmodProjectSettingsDlg::on_ButtonMB_clicked()
   }
 
   EditMasterBank->setText(sRelative.GetData());
+}
+
+void ezQtFmodProjectSettingsDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/sound/fmod/fmod-overview.html#fmod-project-settings"));
 }

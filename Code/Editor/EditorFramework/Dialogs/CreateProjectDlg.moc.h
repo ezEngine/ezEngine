@@ -26,6 +26,7 @@ private Q_SLOTS:
   void on_ProjectName_textChanged(QString text);
   void on_Prev_clicked();
   void on_Next_clicked();
+  void on_HelpButton_clicked();
 
 private:
   void UpdateUI();

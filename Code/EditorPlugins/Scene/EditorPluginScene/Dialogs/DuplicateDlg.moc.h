@@ -39,6 +39,7 @@ public Q_SLOTS:
   virtual void on_RevolveX_clicked();
   virtual void on_RevolveY_clicked();
   virtual void on_RevolveZ_clicked();
+  void on_HelpButton_clicked();
 
 private:
   void QueryUI();

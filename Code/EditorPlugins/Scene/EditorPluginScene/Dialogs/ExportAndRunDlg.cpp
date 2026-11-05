@@ -5,6 +5,7 @@
 #include <EditorFramework/Preferences/ProjectPreferences.h>
 #include <EditorPluginScene/Dialogs/ExportAndRunDlg.moc.h>
 #include <Foundation/IO/OSFile.h>
+#include <QDesktopServices>
 #include <QFileDialog>
 
 bool ezQtExportAndRunDlg::s_bTransformAll = true;
@@ -129,4 +130,9 @@ void ezQtExportAndRunDlg::on_RemoveToolButton_clicked()
 void ezQtExportAndRunDlg::on_ToolCombo_currentIndexChanged(int idx)
 {
   RemoveToolButton->setEnabled(idx != 0);
+}
+
+void ezQtExportAndRunDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/editor/run-scene.html#export-and-run"));
 }

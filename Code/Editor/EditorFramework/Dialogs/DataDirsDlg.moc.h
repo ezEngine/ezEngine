@@ -23,6 +23,7 @@ private Q_SLOTS:
   void on_ButtonOpenFolder_clicked();
   void on_ListDataDirs_itemSelectionChanged();
   void on_ListDataDirs_itemDoubleClicked(QListWidgetItem* pItem);
+  void on_HelpButton_clicked();
 
 private:
   void FillList();

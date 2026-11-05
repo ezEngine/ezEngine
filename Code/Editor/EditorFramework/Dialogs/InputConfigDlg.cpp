@@ -5,6 +5,7 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
+#include <QDesktopServices>
 
 void UpdateInputDynamicEnumValues()
 {
@@ -306,4 +307,9 @@ QTreeWidgetItem* ezQtInputConfigDlg::CreateActionItem(QTreeWidgetItem* pParentIt
   }
 
   return pItem;
+}
+
+void ezQtInputConfigDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/input/input-config.html"));
 }

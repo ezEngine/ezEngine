@@ -35,6 +35,7 @@ private Q_SLOTS:
   void on_OverwriteExisting_toggled(bool checked);
   void on_ButtonBox_accepted();
   void on_ButtonBox_rejected();
+  void on_HelpButton_clicked();
 
 private:
   /// Everything both constructors do, before either fills in what is specific to its case.

@@ -3,6 +3,7 @@
 #include <EditorPluginJolt/Dialogs/JoltProjectSettingsDlg.moc.h>
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 #include <QCheckBox>
+#include <QDesktopServices>
 #include <QInputDialog>
 
 void UpdateCollisionLayerDynamicEnumValues();
@@ -899,4 +900,16 @@ void ezQtJoltProjectSettingsDlg::onImpulseOverrideValue(double fValue)
   const ezUInt32 uiWeightKey = sender()->property("WeightKey").toUInt();
 
   m_ImpulseConfig.m_Types[uiImpulseKey].m_WeightOverrides[uiWeightKey] = (float)fValue;
+}
+
+void ezQtJoltProjectSettingsDlg::on_HelpButton_clicked()
+{
+  QString sUrl = "https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-collision-layers.html";
+
+  if (Tabs->currentWidget() == Weights)
+    sUrl = "https://ezengine.net/pages/docs/physics/jolt/concepts/weights-forces.html#weight-categories";
+  else if (Tabs->currentWidget() == Impulses)
+    sUrl = "https://ezengine.net/pages/docs/physics/jolt/concepts/weights-forces.html#impulse-types";
+
+  QDesktopServices::openUrl(QUrl(sUrl));
 }

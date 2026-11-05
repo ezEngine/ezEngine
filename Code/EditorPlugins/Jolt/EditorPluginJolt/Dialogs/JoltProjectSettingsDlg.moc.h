@@ -42,6 +42,7 @@ private Q_SLOTS:
   void on_ButtonAddImpulse_clicked();
   void on_ButtonRemoveImpulse_clicked();
   void on_ButtonRenameImpulse_clicked();
+  void on_HelpButton_clicked();
 
 private:
   static void EnsureFilterConfigFileExists();

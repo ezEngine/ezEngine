@@ -2,6 +2,7 @@
 
 #include <EditorPluginScene/Dialogs/CreateMeshPrefabDlg.moc.h>
 #include <Foundation/IO/OSFile.h>
+#include <QDesktopServices>
 #include <QFileDialog>
 #include <QPushButton>
 #include <ToolsFoundation/Project/ToolsProject.h>
@@ -289,4 +290,9 @@ void ezQtCreateMeshPrefabDlg::on_ButtonBox_accepted()
 void ezQtCreateMeshPrefabDlg::on_ButtonBox_rejected()
 {
   reject();
+}
+
+void ezQtCreateMeshPrefabDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/graphics/meshes/mesh-asset.html#creating-lods-colliders-and-prefabs-from-a-mesh"));
 }

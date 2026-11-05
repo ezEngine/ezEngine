@@ -34,6 +34,7 @@ private Q_SLOTS:
   void on_SurfaceClearButton_clicked();
   void on_ButtonBox_accepted();
   void on_ButtonBox_rejected();
+  void on_HelpButton_clicked();
 
 private:
   /// Everything both constructors do, before either fills in what is specific to its case.

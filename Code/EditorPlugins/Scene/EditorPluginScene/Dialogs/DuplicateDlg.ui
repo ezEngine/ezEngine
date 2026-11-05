@@ -796,12 +796,35 @@
     </item>
    </layout>
   </widget>
-  <widget class="QDialogButtonBox" name="DefaultButtons">
+  <widget class="QPushButton" name="HelpButton">
    <property name="geometry">
     <rect>
      <x>20</x>
      <y>320</y>
-     <width>511</width>
+     <width>31</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Open documentation about the duplicate dialog</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
+     <normaloff>:/GuiFoundation/Icons/Help.svg</normaloff>:/GuiFoundation/Icons/Help.svg</iconset>
+   </property>
+   <property name="autoDefault">
+    <bool>false</bool>
+   </property>
+  </widget>
+  <widget class="QDialogButtonBox" name="DefaultButtons">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>320</y>
+     <width>471</width>
      <height>23</height>
     </rect>
    </property>

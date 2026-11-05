@@ -5,6 +5,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Platform/PlatformDesc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
+#include <QDesktopServices>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
@@ -400,4 +401,9 @@ void ezQtAssetProfilesDlg::ApplyAllChanges()
 
     ObjectToNative(it.Key(), pProfile);
   }
+}
+
+void ezQtAssetProfilesDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/assets/asset-profiles.html"));
 }

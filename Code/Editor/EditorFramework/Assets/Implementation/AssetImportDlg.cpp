@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/AssetImportDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <QDesktopServices>
 
 enum Columns
 {
@@ -96,4 +97,9 @@ void ezQtAssetImportDlg::on_ButtonImport_clicked()
   }
 
   accept();
+}
+
+void ezQtAssetImportDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/assets/import-assets.html"));
 }

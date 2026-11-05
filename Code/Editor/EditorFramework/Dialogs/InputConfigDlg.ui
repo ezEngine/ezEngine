@@ -117,6 +117,23 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
+      <widget class="QPushButton" name="HelpButton">
+       <property name="toolTip">
+        <string>Open documentation about the input configuration</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
+         <normaloff>:/GuiFoundation/Icons/Help.svg</normaloff>:/GuiFoundation/Icons/Help.svg</iconset>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="ButtonReset">
        <property name="text">
         <string>Reset</string>
@@ -164,6 +181,7 @@
   </layout>
  </widget>
  <resources>
+  <include location="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc"/>
   <include location="../QtResources/resources.qrc"/>
  </resources>
  <connections/>

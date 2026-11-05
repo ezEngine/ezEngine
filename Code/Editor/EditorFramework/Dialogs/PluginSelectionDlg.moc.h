@@ -18,6 +18,7 @@ public:
 
 private Q_SLOTS:
   void on_Buttons_clicked(QAbstractButton* pButton);
+  void on_HelpButton_clicked();
 
 private:
   ezPluginBundleSet m_LocalPluginSet;

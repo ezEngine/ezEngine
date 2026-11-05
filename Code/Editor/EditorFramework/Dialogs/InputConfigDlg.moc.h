@@ -25,6 +25,7 @@ private Q_SLOTS:
   void on_ButtonCancel_clicked();
   void on_ButtonReset_clicked();
   void on_TreeActions_itemSelectionChanged();
+  void on_HelpButton_clicked();
 
 private:
   void LoadActions();

@@ -3,6 +3,7 @@
 #include <EditorFramework/Dialogs/PreferencesDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
+#include <QDesktopServices>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 class ezPreferencesObjectManager : public ezDocumentObjectManager
@@ -225,4 +226,9 @@ void ezQtPreferencesDlg::ApplyAllChanges()
   {
     ObjectToNative(it.Key(), it.Value());
   }
+}
+
+void ezQtPreferencesDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/editor/editor-preferences.html"));
 }

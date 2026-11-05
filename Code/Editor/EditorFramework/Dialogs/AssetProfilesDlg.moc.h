@@ -32,6 +32,7 @@ private Q_SLOTS:
   void on_DeleteButton_clicked();
   void on_RenameButton_clicked();
   void on_SwitchToButton_clicked();
+  void on_HelpButton_clicked();
 
 private:
   struct Binding

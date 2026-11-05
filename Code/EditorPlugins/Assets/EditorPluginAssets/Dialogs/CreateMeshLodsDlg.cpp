@@ -2,6 +2,7 @@
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/Dialogs/CreateMeshLodsDlg.moc.h>
+#include <QDesktopServices>
 #include <QPushButton>
 
 ezInt32 ezQtCreateMeshLodsDlg::s_iLodCount = 2;
@@ -164,4 +165,9 @@ void ezQtCreateMeshLodsDlg::on_ButtonBox_accepted()
 void ezQtCreateMeshLodsDlg::on_ButtonBox_rejected()
 {
   reject();
+}
+
+void ezQtCreateMeshLodsDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/graphics/meshes/mesh-asset.html#creating-lods-colliders-and-prefabs-from-a-mesh"));
 }

@@ -4,6 +4,7 @@
 #include <EditorFramework/Dialogs/PluginSelectionDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OpenDdlWriter.h>
+#include <QDesktopServices>
 
 ezQtPluginSelectionDlg::ezQtPluginSelectionDlg(ezPluginBundleSet* pPluginSet, QWidget* pParent)
   : ezQtDialog(pParent)
@@ -39,4 +40,9 @@ void ezQtPluginSelectionDlg::on_Buttons_clicked(QAbstractButton* pButton)
   {
     reject();
   }
+}
+
+void ezQtPluginSelectionDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/projects/plugin-selection.html"));
 }

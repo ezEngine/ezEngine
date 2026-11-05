@@ -16,6 +16,7 @@ public:
 private Q_SLOTS:
   void SelectedOptionChanged(int index);
   void on_ButtonImport_clicked();
+  void on_HelpButton_clicked();
 
 private:
   void InitRow(ezUInt32 uiRow);

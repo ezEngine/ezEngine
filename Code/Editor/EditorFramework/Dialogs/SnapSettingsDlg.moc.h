@@ -15,6 +15,7 @@ public:
 
 private Q_SLOTS:
   void on_ButtonBox_clicked(QAbstractButton* button);
+  void on_HelpButton_clicked();
 
 private:
   struct KeyValue

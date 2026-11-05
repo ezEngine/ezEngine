@@ -23,6 +23,7 @@ private Q_SLOTS:
   void on_ButtonCancel_clicked();
   void on_ButtonReset_clicked();
   void on_TreeTags_itemSelectionChanged();
+  void on_HelpButton_clicked();
 
 private:
   void LoadTags();

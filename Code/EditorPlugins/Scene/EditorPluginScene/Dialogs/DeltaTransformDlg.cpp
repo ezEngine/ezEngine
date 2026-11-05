@@ -5,6 +5,7 @@
 #include <EditorPluginScene/Dialogs/DeltaTransformDlg.moc.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Foundation/Math/Random.h>
+#include <QDesktopServices>
 
 ezQtDeltaTransformDlg::Mode ezQtDeltaTransformDlg::s_Mode = ezQtDeltaTransformDlg::Mode::Translate;
 ezQtDeltaTransformDlg::Space ezQtDeltaTransformDlg::s_Space = ezQtDeltaTransformDlg::Space::World;
@@ -891,4 +892,9 @@ void ezQtDeltaTransformDlg::on_CheckBoxSnapping_stateChanged(int state)
 {
   s_bUseCurrentSnapSettings = (state != 0);
   UpdatePreview();
+}
+
+void ezQtDeltaTransformDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/scenes/advanced-object-transform.html#delta-transform"));
 }

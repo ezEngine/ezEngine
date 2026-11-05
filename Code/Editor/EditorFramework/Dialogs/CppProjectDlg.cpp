@@ -9,6 +9,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/System/Process.h>
+#include <QDesktopServices>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 
@@ -216,4 +217,9 @@ void ezQtCppProjectDlg::on_GenerateSolution_clicked()
   {
     on_OpenSolution_clicked();
   }
+}
+
+void ezQtCppProjectDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/custom-code/cpp/cpp-project-generation.html"));
 }

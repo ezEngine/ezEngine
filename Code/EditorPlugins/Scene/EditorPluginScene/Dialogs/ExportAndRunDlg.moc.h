@@ -29,6 +29,7 @@ private Q_SLOTS:
   void on_AddToolButton_clicked();
   void on_RemoveToolButton_clicked();
   void on_ToolCombo_currentIndexChanged(int);
+  void on_HelpButton_clicked();
 
 private:
   void PullFromUI();

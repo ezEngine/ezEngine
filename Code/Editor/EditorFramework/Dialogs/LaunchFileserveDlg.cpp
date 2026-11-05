@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Dialogs/LaunchFileserveDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <QDesktopServices>
 
 ezQtLaunchFileserveDlg::ezQtLaunchFileserveDlg(QWidget* pParent)
   : ezQtDialog(pParent)
@@ -23,4 +24,9 @@ void ezQtLaunchFileserveDlg::on_ButtonLaunch_clicked()
 {
   ezQtEditorApp::GetSingleton()->RunFileserve();
   accept();
+}
+
+void ezQtLaunchFileserveDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/tools/fileserve.html"));
 }

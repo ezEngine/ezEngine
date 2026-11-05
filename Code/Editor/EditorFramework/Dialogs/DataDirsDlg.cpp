@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Dialogs/DataDirsDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <QDesktopServices>
 
 ezQtDataDirsDlg::ezQtDataDirsDlg(QWidget* pParent)
   : ezQtDialog(pParent)
@@ -162,4 +163,9 @@ void ezQtDataDirsDlg::on_ButtonOpenFolder_clicked()
 void ezQtDataDirsDlg::on_ListDataDirs_itemDoubleClicked(QListWidgetItem* pItem)
 {
   on_ButtonOpenFolder_clicked();
+}
+
+void ezQtDataDirsDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/projects/data-directories.html"));
 }

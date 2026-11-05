@@ -25,6 +25,7 @@ public:
 private Q_SLOTS:
   void on_ButtonOk_clicked();
   void on_ButtonCancel_clicked() { reject(); }
+  void on_HelpButton_clicked();
 
 private:
   void RegisterAllPreferenceTypes();

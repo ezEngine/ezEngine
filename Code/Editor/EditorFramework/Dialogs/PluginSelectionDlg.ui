@@ -22,11 +22,32 @@
     <widget class="ezQtPluginSelectionWidget" name="PluginSelectionWidget" native="true"/>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="Buttons">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="HelpButtonRow">
+     <item>
+      <widget class="QPushButton" name="HelpButton">
+       <property name="toolTip">
+        <string>Open documentation about plugin selection</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
+         <normaloff>:/GuiFoundation/Icons/Help.svg</normaloff>:/GuiFoundation/Icons/Help.svg</iconset>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="Buttons">
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
@@ -39,6 +60,7 @@
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc"/>
   <include location="../QtResources/resources.qrc"/>
  </resources>
  <connections/>

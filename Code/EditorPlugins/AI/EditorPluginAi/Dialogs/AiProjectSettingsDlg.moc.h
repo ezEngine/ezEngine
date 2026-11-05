@@ -25,6 +25,7 @@ private Q_SLOTS:
   void on_AddMeshCfg_clicked();
   void on_RemoveMeshCfg_clicked();
   void on_SelectedMeshCfg_currentIndexChanged(int index);
+  void on_HelpButton_clicked();
 
 
 private:

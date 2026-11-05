@@ -20,6 +20,7 @@ private Q_SLOTS:
   void on_Buttons_rejected();
   void on_Browse_clicked();
   void on_ShaderTemplate_currentIndexChanged(int idx);
+  void on_HelpButton_clicked();
 
 private:
   struct Template

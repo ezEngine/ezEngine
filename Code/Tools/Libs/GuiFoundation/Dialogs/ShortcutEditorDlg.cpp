@@ -3,6 +3,7 @@
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Dialogs/ShortcutEditorDlg.moc.h>
+#include <QDesktopServices>
 #include <QKeySequenceEdit>
 #include <QTableWidget>
 #include <QTreeWidget>
@@ -235,4 +236,9 @@ void ezQtShortcutEditorDlg::on_Search_textChanged(const QString& sText)
 
     pTopItem->setHidden(!bAnyCategoryChildVisible);
   }
+}
+
+void ezQtShortcutEditorDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/editor/editor-settings.html#shortcuts"));
 }

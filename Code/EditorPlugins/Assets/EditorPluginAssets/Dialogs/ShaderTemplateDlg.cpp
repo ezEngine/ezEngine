@@ -2,6 +2,7 @@
 
 #include <EditorPluginAssets/Dialogs/ShaderTemplateDlg.moc.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
+#include <QDesktopServices>
 #include <RendererCore/Shader/ShaderHelper.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
@@ -277,4 +278,9 @@ void ezQtShaderTemplateDlg::on_ShaderTemplate_currentIndexChanged(int idx)
   }
 
   pTable->resizeColumnToContents(0);
+}
+
+void ezQtShaderTemplateDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/graphics/shaders/shader-templates.html"));
 }

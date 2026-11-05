@@ -18,6 +18,7 @@ private Q_SLOTS:
   void on_m_ButtonBox_clicked(QAbstractButton* button);
   void on_m_ComboWnd_currentIndexChanged(int index);
   void on_m_CheckOverrideDefault_stateChanged(int state);
+  void on_HelpButton_clicked();
 
 private:
   void FillUI(const ezWindowCreationDesc& desc);

@@ -51,6 +51,7 @@ private Q_SLOTS:
   void on_Value2_valueChanged(double value);
   void on_Value3_valueChanged(double value);
   void on_CheckBoxSnapping_stateChanged(int state);
+  void on_HelpButton_clicked();
 
 private:
   struct NewTransform

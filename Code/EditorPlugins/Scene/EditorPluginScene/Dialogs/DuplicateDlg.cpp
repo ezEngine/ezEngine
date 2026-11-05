@@ -8,6 +8,7 @@
 #include <Foundation/Math/Random.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <QDesktopServices>
 #include <QPushButton>
 
 ezUInt32 ezQtDuplicateDlg::s_uiNumberOfCopies = 1;
@@ -462,4 +463,9 @@ void ezQtDuplicateDlg::on_RevolveZ_clicked()
     SpinBoxRadius->setEnabled(s_iRevolveAxis != 0);
     UpdatePreview();
   }
+}
+
+void ezQtDuplicateDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/scenes/advanced-object-transform.html#duplicate"));
 }

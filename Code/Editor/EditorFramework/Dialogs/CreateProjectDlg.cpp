@@ -4,6 +4,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Project/ProjectCreation.h>
 #include <Foundation/IO/OpenDdlWriter.h>
+#include <QDesktopServices>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezQtCreateProjectDlg::ezQtCreateProjectDlg(QWidget* pParent)
@@ -308,4 +309,9 @@ ezStatus ezQtCreateProjectDlg::CreateProject()
   options.m_sProjectTemplate = sTemplateName.GetFileName();
 
   return ezProjectCreation::CreateProject(options, m_LocalPluginSet);
+}
+
+void ezQtCreateProjectDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/projects/projects-overview.html#creating-a-project"));
 }

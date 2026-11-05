@@ -19,6 +19,7 @@ private Q_SLOTS:
   void on_ButtonAdd_clicked();
   void on_ButtonRemove_clicked();
   void on_ButtonMB_clicked();
+  void on_HelpButton_clicked();
 
 private:
   ezResult Save();

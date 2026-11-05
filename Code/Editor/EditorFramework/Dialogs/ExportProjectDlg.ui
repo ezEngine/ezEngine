@@ -127,7 +127,7 @@
      <item>
       <widget class="QPushButton" name="HelpButton">
        <property name="toolTip">
-        <string>Opens the documentation about project export in the web browser.</string>
+        <string>Open documentation about project export</string>
        </property>
        <property name="text">
         <string/>

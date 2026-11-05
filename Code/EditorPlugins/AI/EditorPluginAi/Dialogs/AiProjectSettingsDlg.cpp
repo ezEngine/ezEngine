@@ -4,6 +4,7 @@
 #include <GuiFoundation/UIServices/DynamicEnums.h>
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 #include <QCheckBox>
+#include <QDesktopServices>
 #include <QDialogButtonBox>
 #include <QInputDialog>
 #include <QPushButton>
@@ -426,4 +427,9 @@ void ezQtAiProjectSettingsDlg::RetrieveNavmeshConfig(int index)
   cfg.m_fRegionMergeSize = NavRegionMergeSize->value();
   cfg.m_fDetailMeshSampleDistanceFactor = NavDetailSampleDistance->value();
   cfg.m_fDetailMeshSampleErrorFactor = NavDetailSampleError->value();
+}
+
+void ezQtAiProjectSettingsDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/ai/AiPlugin/runtime-navmesh.html#navigation-configuration"));
 }

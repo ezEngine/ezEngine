@@ -5,6 +5,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginJolt/Dialogs/CreateMeshColliderDlg.moc.h>
 #include <Foundation/IO/OSFile.h>
+#include <QDesktopServices>
 #include <QFileDialog>
 #include <QPushButton>
 #include <ToolsFoundation/Project/ToolsProject.h>
@@ -220,4 +221,9 @@ void ezQtCreateMeshColliderDlg::on_ButtonBox_accepted()
 void ezQtCreateMeshColliderDlg::on_ButtonBox_rejected()
 {
   reject();
+}
+
+void ezQtCreateMeshColliderDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/physics/jolt/collision-shapes/jolt-collision-meshes.html"));
 }

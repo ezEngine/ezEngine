@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Dialogs/SnapSettingsDlg.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <QDesktopServices>
 
 ezQtSnapSettingsDlg::ezQtSnapSettingsDlg(QWidget* pParent)
   : ezQtDialog(pParent)
@@ -95,4 +96,9 @@ void ezQtSnapSettingsDlg::on_ButtonBox_clicked(QAbstractButton* button)
     reject();
     return;
   }
+}
+
+void ezQtSnapSettingsDlg::on_HelpButton_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/scenes/gizmos.html#snap-settings"));
 }
