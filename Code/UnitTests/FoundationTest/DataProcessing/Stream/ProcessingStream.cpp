@@ -67,6 +67,149 @@ protected:
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(AddOneStreamProcessor, 1, ezRTTIDefaultAllocator<AddOneStreamProcessor>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_CREATE_SIMPLE_TEST(DataProcessing, ProcessingStreamMemory)
+{
+  const ezHashedString sFloat = ezMakeHashedString("Float");
+  const ezHashedString sByte = ezMakeHashedString("Byte");
+  const ezHashedString sVec4 = ezMakeHashedString("Vec4");
+  const ezHashedString sNew = ezMakeHashedString("New");
+
+  constexpr ezUInt32 uiNumElements = 32;
+  constexpr ezUInt32 uiNumActive = 5;
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Streams share one aligned block")
+  {
+    ezProcessingStreamGroup group;
+    group.SetSize(uiNumElements);
+
+    ezProcessingStream* pFloat = group.AddStream(sFloat, ezProcessingStream::DataType::Float);
+    ezProcessingStream* pByte = group.AddStream(sByte, ezProcessingStream::DataType::Byte);
+    ezProcessingStream* pVec4 = group.AddStream(sVec4, ezProcessingStream::DataType::Float4);
+
+    EZ_TEST_BOOL(pFloat->GetData() == nullptr);
+
+    group.Process();
+
+    EZ_TEST_INT(pFloat->GetDataSize(), uiNumElements * 4);
+    EZ_TEST_INT(pByte->GetDataSize(), uiNumElements);
+    EZ_TEST_INT(pVec4->GetDataSize(), uiNumElements * 16);
+
+    EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pFloat->GetData(), 16));
+    EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pByte->GetData(), 16));
+    EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pVec4->GetData(), 16));
+
+    // 32 bytes of the byte stream already end on the required alignment
+    EZ_TEST_BOOL(pByte->GetData() == ezMemoryUtils::AddByteOffset(pFloat->GetData(), uiNumElements * 4));
+    EZ_TEST_BOOL(pVec4->GetData() == ezMemoryUtils::AddByteOffset(pByte->GetData(), uiNumElements));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Adding a stream keeps active elements")
+  {
+    ezProcessingStreamGroup group;
+    group.SetSize(uiNumElements);
+
+    ezProcessingStream* pFloat = group.AddStream(sFloat, ezProcessingStream::DataType::Float);
+    ezProcessingStream* pVec4 = group.AddStream(sVec4, ezProcessingStream::DataType::Float4);
+
+    group.InitializeElements(uiNumActive);
+    group.Process();
+    EZ_TEST_INT(group.GetNumActiveElements(), uiNumActive);
+
+    for (ezUInt32 i = 0; i < uiNumActive; ++i)
+    {
+      pFloat->GetWritableData<float>()[i] = static_cast<float>(i);
+      pVec4->GetWritableData<ezVec4>()[i] = ezVec4(static_cast<float>(i) * 2.0f);
+    }
+
+    const void* pOldData = pFloat->GetData();
+
+    ezProcessingStream* pNew = group.AddStream(sNew, ezProcessingStream::DataType::Int);
+    EZ_TEST_BOOL(pFloat->GetData() == pOldData);
+    EZ_TEST_BOOL(pNew->GetData() == nullptr);
+
+    group.Process();
+
+    EZ_TEST_BOOL(pNew->GetData() != nullptr);
+    EZ_TEST_INT(group.GetNumActiveElements(), uiNumActive);
+
+    for (ezUInt32 i = 0; i < uiNumActive; ++i)
+    {
+      EZ_TEST_FLOAT(pFloat->GetData<float>()[i], static_cast<float>(i), 0.0f);
+      EZ_TEST_VEC4(pVec4->GetData<ezVec4>()[i], ezVec4(static_cast<float>(i) * 2.0f), 0.0f);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Removing a stream keeps the memory of the others")
+  {
+    ezProcessingStreamGroup group;
+    group.SetSize(uiNumElements);
+
+    group.AddStream(sFloat, ezProcessingStream::DataType::Float);
+    ezProcessingStream* pVec4 = group.AddStream(sVec4, ezProcessingStream::DataType::Float4);
+
+    group.InitializeElements(uiNumActive);
+    group.Process();
+
+    pVec4->GetWritableData<ezVec4>()[3] = ezVec4(3.0f);
+    const void* pOldData = pVec4->GetData();
+
+    group.RemoveStreamByName(sFloat);
+    EZ_TEST_BOOL(group.GetStreamByName(sFloat) == nullptr);
+
+    group.Process();
+
+    EZ_TEST_BOOL(pVec4->GetData() == pOldData);
+    EZ_TEST_VEC4(pVec4->GetData<ezVec4>()[3], ezVec4(3.0f), 0.0f);
+
+    // a removed stream object can be reused, it must not keep its old data
+    ezProcessingStream* pNew = group.AddStream(sNew, ezProcessingStream::DataType::Int);
+    EZ_TEST_BOOL(pNew->GetData() == nullptr);
+    EZ_TEST_BOOL(pNew->GetDataType() == ezProcessingStream::DataType::Int);
+    EZ_TEST_INT(pNew->GetElementSize(), 4);
+    EZ_TEST_INT(pNew->GetElementStride(), 4);
+
+    group.Process();
+
+    EZ_TEST_BOOL(pNew->GetData() != nullptr);
+    EZ_TEST_VEC4(pVec4->GetData<ezVec4>()[3], ezVec4(3.0f), 0.0f);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reuse after Clear")
+  {
+    ezProcessingStreamGroup group;
+
+    for (ezUInt32 uiCycle = 0; uiCycle < 3; ++uiCycle)
+    {
+      group.SetSize(uiNumElements);
+
+      ezProcessingStream* pFloat = group.AddStream(sFloat, ezProcessingStream::DataType::Float);
+      EZ_TEST_BOOL(pFloat->GetData() == nullptr);
+
+      group.InitializeElements(uiNumActive);
+      group.Process();
+
+      EZ_TEST_INT(group.GetNumActiveElements(), uiNumActive);
+      EZ_TEST_INT(pFloat->GetDataSize(), uiNumElements * 4);
+
+      group.Clear();
+
+      EZ_TEST_INT(group.GetNumElements(), 0);
+      EZ_TEST_BOOL(group.GetStreamByName(sFloat) == nullptr);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "No elements")
+  {
+    ezProcessingStreamGroup group;
+    ezProcessingStream* pFloat = group.AddStream(sFloat, ezProcessingStream::DataType::Float);
+
+    group.Process();
+
+    EZ_TEST_BOOL(pFloat->GetData() == nullptr);
+    EZ_TEST_INT(pFloat->GetDataSize(), 0);
+  }
+}
+
 EZ_CREATE_SIMPLE_TEST(DataProcessing, ProcessingStream)
 {
   ezProcessingStreamGroup Group;

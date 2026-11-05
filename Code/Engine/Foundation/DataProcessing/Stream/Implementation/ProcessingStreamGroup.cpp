@@ -7,6 +7,12 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Memory/MemoryUtils.h>
 
+namespace
+{
+  // Some users access the data of a stream with SIMD types.
+  constexpr size_t s_uiStreamAlignment = 16;
+} // namespace
+
 ezProcessingStreamGroup::ezProcessingStreamGroup()
 {
   Clear();
@@ -15,6 +21,11 @@ ezProcessingStreamGroup::ezProcessingStreamGroup()
 ezProcessingStreamGroup::~ezProcessingStreamGroup()
 {
   Clear();
+
+  for (ezProcessingStream* pStream : m_UnusedStreams)
+  {
+    EZ_DEFAULT_DELETE(pStream);
+  }
 }
 
 void ezProcessingStreamGroup::Clear()
@@ -25,14 +36,17 @@ void ezProcessingStreamGroup::Clear()
   m_uiNumElements = 0;
   m_uiNumActiveElements = 0;
   m_uiHighestNumActiveElements = 0;
-  m_bStreamAssignmentDirty = true;
+  m_bProcessorOrderDirty = true;
+  m_bStreamLayoutDirty = false;
 
-  for (ezProcessingStream* pStream : m_DataStreams)
-  {
-    EZ_DEFAULT_DELETE(pStream);
-  }
-
+  m_UnusedStreams.PushBackRange(m_DataStreams);
   m_DataStreams.Clear();
+
+  if (m_pStreamData != nullptr)
+  {
+    ezFoundation::GetAlignedAllocator()->Deallocate(m_pStreamData);
+    m_pStreamData = nullptr;
+  }
 }
 
 void ezProcessingStreamGroup::AddProcessor(ezProcessingStreamProcessor* pProcessor)
@@ -49,7 +63,7 @@ void ezProcessingStreamGroup::AddProcessor(ezProcessingStreamProcessor* pProcess
 
   pProcessor->m_pStreamGroup = this;
 
-  m_bStreamAssignmentDirty = true;
+  m_bProcessorOrderDirty = true;
 }
 
 void ezProcessingStreamGroup::RemoveProcessor(ezProcessingStreamProcessor* pProcessor)
@@ -60,7 +74,7 @@ void ezProcessingStreamGroup::RemoveProcessor(ezProcessingStreamProcessor* pProc
 
 void ezProcessingStreamGroup::ClearProcessors()
 {
-  m_bStreamAssignmentDirty = true;
+  m_bProcessorOrderDirty = true;
 
   for (ezProcessingStreamProcessor* pProcessor : m_Processors)
   {
@@ -76,11 +90,23 @@ ezProcessingStream* ezProcessingStreamGroup::AddStream(const ezHashedString& sNa
   if (GetStreamByName(sName))
     return nullptr;
 
-  ezProcessingStream* pStream = EZ_DEFAULT_NEW(ezProcessingStream, sName, type, ezProcessingStream::GetDataTypeSize(type), 16);
+  ezProcessingStream* pStream = nullptr;
+
+  if (!m_UnusedStreams.IsEmpty())
+  {
+    pStream = m_UnusedStreams.PeekBack();
+    m_UnusedStreams.PopBack();
+
+    *pStream = ezProcessingStream(sName, ezArrayPtr<ezUInt8>(), type);
+  }
+  else
+  {
+    pStream = EZ_DEFAULT_NEW(ezProcessingStream, sName, ezArrayPtr<ezUInt8>(), type);
+  }
 
   m_DataStreams.PushBack(pStream);
 
-  m_bStreamAssignmentDirty = true;
+  m_bStreamLayoutDirty = true;
 
   return pStream;
 }
@@ -91,10 +117,8 @@ void ezProcessingStreamGroup::RemoveStreamByName(ezTempHashedString sName)
   {
     if (m_DataStreams[i]->GetName() == sName)
     {
-      EZ_DEFAULT_DELETE(m_DataStreams[i]);
+      m_UnusedStreams.PushBack(m_DataStreams[i]);
       m_DataStreams.RemoveAtAndSwap(i);
-
-      m_bStreamAssignmentDirty = true;
       break;
     }
   }
@@ -126,8 +150,8 @@ void ezProcessingStreamGroup::SetSize(ezUInt64 uiNumElements)
 
   m_uiHighestNumActiveElements = 0;
 
-  // The streams get resized in EnsureStreamAssignmentValid().
-  m_bStreamAssignmentDirty = true;
+  // The memory gets reallocated in Process().
+  m_bStreamLayoutDirty = true;
 }
 
 /// Removes an element (e.g. due to the death of a particle etc.), this will be enqueued (and thus is safe to be called from within data
@@ -151,7 +175,17 @@ void ezProcessingStreamGroup::InitializeElements(ezUInt64 uiNumElements)
 
 void ezProcessingStreamGroup::Process()
 {
-  EnsureStreamAssignmentValid();
+  if (m_bProcessorOrderDirty)
+  {
+    SortProcessorsByPriority();
+    m_bProcessorOrderDirty = false;
+  }
+
+  if (m_bStreamLayoutDirty)
+  {
+    UpdateStreamLayout();
+    m_bStreamLayoutDirty = false;
+  }
 
   // TODO: Identify which processors work on which streams and find independent groups and use separate tasks for them?
   for (ezProcessingStreamProcessor* pStreamProcessor : m_Processors)
@@ -231,21 +265,51 @@ void ezProcessingStreamGroup::RunPendingDeletions()
   m_PendingRemoveIndices.Clear();
 }
 
-void ezProcessingStreamGroup::EnsureStreamAssignmentValid()
+void ezProcessingStreamGroup::UpdateStreamLayout()
 {
-  // If any stream processors or streams were added, the order and the stream sizes need to be updated.
-  if (m_bStreamAssignmentDirty)
+  ezUInt64 uiTotalSize = 0;
+  for (const ezProcessingStream* pStream : m_DataStreams)
   {
-    SortProcessorsByPriority();
+    uiTotalSize = ezMemoryUtils::AlignSize(uiTotalSize, s_uiStreamAlignment) + m_uiNumElements * pStream->GetElementSize();
+  }
 
-    // Set the new size on all stream.
-    for (ezProcessingStream* Stream : m_DataStreams)
+  void* pNewData = nullptr;
+  if (uiTotalSize > 0)
+  {
+    pNewData = ezFoundation::GetAlignedAllocator()->Allocate(uiTotalSize, s_uiStreamAlignment);
+  }
+
+  // Elements that don't fit anymore are lost.
+  const ezUInt64 uiNumElementsToKeep = ezMath::Min(m_uiNumActiveElements, m_uiNumElements);
+
+  ezUInt64 uiOffset = 0;
+  for (ezProcessingStream* pStream : m_DataStreams)
+  {
+    uiOffset = ezMemoryUtils::AlignSize(uiOffset, s_uiStreamAlignment);
+
+    const ezUInt64 uiElementSize = pStream->GetElementSize();
+    const ezUInt64 uiStreamSize = m_uiNumElements * uiElementSize;
+
+    void* pStreamData = uiStreamSize > 0 ? ezMemoryUtils::AddByteOffset(pNewData, static_cast<std::ptrdiff_t>(uiOffset)) : nullptr;
+
+    // Particles stay alive when a reloaded effect needs a different set of streams. New streams don't have any data yet.
+    if (pStream->m_pData != nullptr && pStreamData != nullptr)
     {
-      Stream->SetSize(m_uiNumElements);
+      ezMemoryUtils::RawByteCopy(pStreamData, pStream->m_pData, static_cast<size_t>(uiNumElementsToKeep * uiElementSize));
     }
 
-    m_bStreamAssignmentDirty = false;
+    pStream->m_pData = pStreamData;
+    pStream->m_uiDataSize = uiStreamSize;
+
+    uiOffset += uiStreamSize;
   }
+
+  if (m_pStreamData != nullptr)
+  {
+    ezFoundation::GetAlignedAllocator()->Deallocate(m_pStreamData);
+  }
+
+  m_pStreamData = pNewData;
 }
 
 void ezProcessingStreamGroup::RunPendingSpawns()

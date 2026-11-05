@@ -3,7 +3,9 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/HashedString.h>
 
-/// A single stream in a stream group holding contiguous data of a given type.
+/// A view onto contiguous data of a given type.
+///
+/// A stream never owns its memory. It either references external data or the block of the ezProcessingStreamGroup that it belongs to.
 class EZ_FOUNDATION_DLL ezProcessingStream
 {
 public:
@@ -41,10 +43,8 @@ public:
 
   ezProcessingStream();
   ezProcessingStream(const ezHashedString& sName, const ezProcessingStream& data);
-  ezProcessingStream(const ezHashedString& sName, DataType type, ezUInt16 uiStride, ezUInt16 uiAlignment);
   ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType type, ezUInt16 uiStride);
   ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType type);
-  ~ezProcessingStream();
 
   /// Returns a const pointer to the data cast to the type T, note that no type check is done!
   template <typename T>
@@ -71,9 +71,6 @@ public:
   /// Returns the name of the stream
   const ezHashedString& GetName() const { return m_sName; }
 
-  /// Returns the alignment which was used to allocate the stream.
-  ezUInt16 GetAlignment() const { return m_uiAlignment; }
-
   /// Returns the data type of the stream.
   DataType GetDataType() const { return m_Type; }
 
@@ -89,17 +86,12 @@ public:
 protected:
   friend class ezProcessingStreamGroup;
 
-  void SetSize(ezUInt64 uiNumElements);
-  void FreeData();
-
   void* m_pData = nullptr;
   ezUInt64 m_uiDataSize = 0; // in bytes
 
-  ezUInt16 m_uiAlignment = 0;
   ezUInt16 m_uiTypeSize = 0;
   ezUInt16 m_uiStride = 0;
   DataType m_Type;
-  bool m_bExternalMemory = false;
 
   ezHashedString m_sName;
 };
