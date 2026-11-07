@@ -75,8 +75,16 @@ void ezTexture3DResource::FillOutDescriptor(ezTexture3DResourceDescriptor& ref_t
   ref_td.m_DescGAL.m_uiArraySize = pImage->GetNumArrayIndices();
   ref_td.m_DescGAL.m_ResourceAccess.m_bImmutable = true;
 
-  if (ref_td.m_DescGAL.m_uiDepth > 1)
-    ref_td.m_DescGAL.m_Type = ezGALTextureType::Texture3D;
+  if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
+  {
+    // DX11 requires block-aligned base dimensions. Round down to fit the source data, keeping at least one block.
+    const ezUInt32 uiBlockWidth = ezImageFormat::GetBlockWidth(pImage->GetImageFormat());
+    const ezUInt32 uiBlockHeight = ezImageFormat::GetBlockHeight(pImage->GetImageFormat());
+    ref_td.m_DescGAL.m_uiWidth = ezMath::Max(uiBlockWidth, ezMath::RoundDown(ref_td.m_DescGAL.m_uiWidth, static_cast<ezUInt16>(uiBlockWidth)));
+    ref_td.m_DescGAL.m_uiHeight = ezMath::Max(uiBlockHeight, ezMath::RoundDown(ref_td.m_DescGAL.m_uiHeight, static_cast<ezUInt16>(uiBlockHeight)));
+  }
+
+  ref_td.m_DescGAL.m_Type = ezGALTextureType::Texture3D;
 
   out_uiMemoryUsed = 0;
 
@@ -91,22 +99,11 @@ void ezTexture3DResource::FillOutDescriptor(ezTexture3DResourceDescriptor& ref_t
         ezGALSystemMemoryDescription& id = ref_initData.ExpandAndGetRef();
 
         id.m_pData = pImage->GetSubImageView(mip, face, array_index).GetByteBlobPtr();
-
-        if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
-        {
-          const ezUInt32 uiMemPitchFactor = ezGALResourceFormat::GetBitsPerElement(format) * 4 / 8;
-
-          id.m_uiRowPitch = ezMath::Max<ezUInt32>(4, pImage->GetWidth(mip)) * uiMemPitchFactor;
-        }
-        else
-        {
-          id.m_uiRowPitch = static_cast<ezUInt32>(pImage->GetRowPitch(mip));
-        }
-
+        id.m_uiRowPitch = static_cast<ezUInt32>(pImage->GetRowPitch(mip));
         EZ_ASSERT_DEV(pImage->GetDepthPitch(mip) < ezMath::MaxValue<ezUInt32>(), "Depth pitch exceeds ezGAL limits.");
         id.m_uiSlicePitch = static_cast<ezUInt32>(pImage->GetDepthPitch(mip));
-
-        out_uiMemoryUsed += id.m_uiSlicePitch;
+        // m_uiSlicePitch is only one layer of the 3D texture, but the out_uiMemoryUsed needs to know the size of all layers.
+        out_uiMemoryUsed += (ezUInt32)id.m_pData.GetCount();
       }
     }
   }

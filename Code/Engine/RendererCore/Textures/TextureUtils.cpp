@@ -432,34 +432,40 @@ void ezTextureUtils::CopySubResourceToImage(const ezGALTextureCreationDescriptio
   headerTemp.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
   headerTemp.SetWidth(desc.m_uiWidth);
   headerTemp.SetHeight(desc.m_uiHeight);
-  // GetWidth/Height assert that the requested mip level is within range, so the helper header must know the texture's full mip chain.
+  headerTemp.SetDepth(desc.m_uiDepth);
+  // The dimension accessors assert that the requested mip level is within range, so the helper header must know the texture's full mip chain.
   headerTemp.SetNumMipLevels(desc.m_uiMipLevelCount);
 
   ezImageHeader header;
   header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
   header.SetWidth(headerTemp.GetWidth(subResource.m_uiMipLevel));
   header.SetHeight(headerTemp.GetHeight(subResource.m_uiMipLevel));
+  header.SetDepth(headerTemp.GetDepth(subResource.m_uiMipLevel));
 
   out_image.ResetAndAlloc(header);
 
-  if (header.GetRowPitch() == memory.m_uiRowPitch)
+  if (header.GetRowPitch() == memory.m_uiRowPitch && header.GetDepthPitch() == memory.m_uiSlicePitch)
   {
     const void* pSource = memory.m_pData.GetPtr();
     ezUInt8* pDest = out_image.GetPixelPointer<ezUInt8>();
-    ezUInt32 uiSize = static_cast<ezUInt32>(header.GetDepthPitch());
+    const ezUInt64 uiSize = header.ComputeDataSize();
     EZ_ASSERT_DEBUG(uiSize <= memory.m_pData.GetCount(), "Not enough data in the buffer to create image");
     memcpy(pDest, pSource, uiSize);
   }
   else
   {
-    // Copy row by row
+    // Copy row by row and slice by slice.
     const ezUInt32 uiHeight = header.GetNumBlocksY();
+    const ezUInt32 uiDepth = header.GetNumBlocksZ();
     const ezUInt32 uiRowSize = static_cast<ezUInt32>(header.GetRowPitch());
-    for (ezUInt32 y = 0; y < uiHeight; ++y)
+    for (ezUInt32 z = 0; z < uiDepth; ++z)
     {
-      const void* pSource = ezMemoryUtils::AddByteOffset(memory.m_pData.GetPtr(), y * memory.m_uiRowPitch);
-      ezUInt8* pDest = out_image.GetPixelPointer<ezUInt8>(0, 0, 0, 0, y);
-      memcpy(pDest, pSource, uiRowSize);
+      for (ezUInt32 y = 0; y < uiHeight; ++y)
+      {
+        const void* pSource = ezMemoryUtils::AddByteOffset(memory.m_pData.GetPtr(), z * memory.m_uiSlicePitch + y * memory.m_uiRowPitch);
+        ezUInt8* pDest = out_image.GetPixelPointer<ezUInt8>(0, 0, 0, 0, y, z);
+        memcpy(pDest, pSource, uiRowSize);
+      }
     }
   }
 }
@@ -471,14 +477,16 @@ ezImageView ezTextureUtils::MakeImageViewFromSubResource(const ezGALTextureCreat
   headerTemp.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
   headerTemp.SetWidth(desc.m_uiWidth);
   headerTemp.SetHeight(desc.m_uiHeight);
+  headerTemp.SetDepth(desc.m_uiDepth);
   headerTemp.SetNumMipLevels(desc.m_uiMipLevelCount);
 
   ezImageHeader header;
   header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
   header.SetWidth(headerTemp.GetWidth(subResource.m_uiMipLevel));
   header.SetHeight(headerTemp.GetHeight(subResource.m_uiMipLevel));
+  header.SetDepth(headerTemp.GetDepth(subResource.m_uiMipLevel));
 
-  if (header.GetRowPitch() == memory.m_uiRowPitch)
+  if (header.GetRowPitch() == memory.m_uiRowPitch && header.GetDepthPitch() == memory.m_uiSlicePitch)
   {
     view.ResetAndViewExternalStorage(header, memory.m_pData);
   }
