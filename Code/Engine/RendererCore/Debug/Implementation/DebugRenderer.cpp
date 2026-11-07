@@ -91,6 +91,18 @@ namespace
 
   static_assert(sizeof(GlyphData) == 16);
 
+  struct alignas(16) ThickLineData
+  {
+    ezVec3 m_start;
+    float m_fThickness;
+    ezVec3 m_end;
+    ezColorLinearUB m_startColor;
+    ezColorLinearUB m_endColor;
+    ezUInt32 m_padding[3];
+  };
+
+  static_assert(sizeof(ThickLineData) == 48);
+
   struct TextLineData2D
   {
     ezString m_text;
@@ -115,6 +127,7 @@ namespace
   {
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_lineVertices;
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_lineOccludedVertices;
+    ezDynamicArray<ThickLineData, ezAlignedAllocatorWrapper> m_thickLines;
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_triangleVertices;
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_triangle2DVertices;
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_line2DVertices;
@@ -171,6 +184,7 @@ namespace
       {
         pData->m_lineVertices.Clear();
         pData->m_lineOccludedVertices.Clear();
+        pData->m_thickLines.Clear();
         pData->m_line2DVertices.Clear();
         pData->m_lineBoxes.Clear();
         pData->m_solidBoxes.Clear();
@@ -210,6 +224,7 @@ namespace
       TexTriangles3D,
       Glyphs,
       Lines2D,
+      ThickLines,
 
       Count
     };
@@ -227,6 +242,7 @@ namespace
   static ezShaderResourceHandle s_hDebugPrimitiveShader;
   static ezShaderResourceHandle s_hDebugTexturedPrimitiveShader;
   static ezShaderResourceHandle s_hDebugTextShader;
+  static ezShaderResourceHandle s_hDebugThickLinesShader;
 
   enum
   {
@@ -236,6 +252,7 @@ namespace
     TRIANGLE_VERTICES_PER_BATCH = (DEBUG_BUFFER_SIZE / sizeof(Vertex) / 3) * 3,
     TEX_TRIANGLE_VERTICES_PER_BATCH = (DEBUG_BUFFER_SIZE / sizeof(TexVertex) / 3) * 3,
     GLYPHS_PER_BATCH = DEBUG_BUFFER_SIZE / sizeof(GlyphData),
+    THICK_LINES_PER_BATCH = DEBUG_BUFFER_SIZE / sizeof(ThickLineData),
   };
 
   static void CreateDataBuffer(BufferType::Enum bufferType, ezUInt32 uiStructSize)
@@ -244,7 +261,8 @@ namespace
     {
       ezGALBufferCreationDescription desc;
       desc.m_uiStructSize = uiStructSize;
-      desc.m_uiTotalSize = DEBUG_BUFFER_SIZE;
+      // A structured buffer must hold a whole number of elements.
+      desc.m_uiTotalSize = (DEBUG_BUFFER_SIZE / uiStructSize) * uiStructSize;
       desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::Transient;
       desc.m_ResourceAccess.m_bImmutable = false;
 
@@ -534,6 +552,29 @@ void ezDebugRenderer::DrawLinesOccluded(const ezDebugRendererContext& context, e
       vertex.m_position = mTransform.m_Mat4.TransformPosition(pPositions[i]);
       vertex.m_color = pColors[i] * color;
     }
+  }
+}
+
+void ezDebugRenderer::DrawThickLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, float fThickness, ezMatOrTransform mTransform /*= ezMat4::MakeIdentity()*/)
+{
+  if (lines.IsEmpty())
+    return;
+
+  EZ_LOCK(s_Mutex);
+
+  auto& data = GetDataForExtraction(context);
+
+  for (auto& line : lines)
+  {
+    auto& lineData = data.m_thickLines.ExpandAndGetRef();
+    lineData.m_start = mTransform.m_Mat4.TransformPosition(line.m_start);
+    lineData.m_end = mTransform.m_Mat4.TransformPosition(line.m_end);
+    lineData.m_fThickness = fThickness;
+    lineData.m_startColor = line.m_startColor * color;
+    lineData.m_endColor = line.m_endColor * color;
+    lineData.m_padding[0] = 0;
+    lineData.m_padding[1] = 0;
+    lineData.m_padding[2] = 0;
   }
 }
 
@@ -1696,6 +1737,34 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
     }
   }
 
+  // Thick lines
+  {
+    ezUInt32 uiNumThickLines = pData->m_thickLines.GetCount();
+    if (uiNumThickLines != 0)
+    {
+      CreateDataBuffer(BufferType::ThickLines, sizeof(ThickLineData));
+
+      renderViewContext.m_pRenderContext->BindShader(s_hDebugThickLinesShader);
+
+      const ThickLineData* pThickLineData = pData->m_thickLines.GetData();
+      while (uiNumThickLines > 0)
+      {
+        ezGALBufferHandle hBuffer = s_DataBuffer[BufferType::ThickLines].GetNewBuffer();
+        const ezUInt32 uiNumThickLinesInBatch = ezMath::Min<ezUInt32>(uiNumThickLines, THICK_LINES_PER_BATCH);
+        bindGroupRenderPass.BindBuffer("lineData", hBuffer);
+        pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pThickLineData, uiNumThickLinesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+
+        // Two triangles per line, the vertex shader expands them from the line data.
+        renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, uiNumThickLinesInBatch * 2);
+
+        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+
+        uiNumThickLines -= uiNumThickLinesInBatch;
+        pThickLineData += THICK_LINES_PER_BATCH;
+      }
+    }
+  }
+
   // LineBoxes
   {
     ezUInt32 uiNumLineBoxes = pData->m_lineBoxes.GetCount();
@@ -2205,6 +2274,7 @@ void ezDebugRenderer::OnEngineStartup()
   s_hDebugPrimitiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugPrimitive.ezShader");
   s_hDebugTexturedPrimitiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugTexturedPrimitive.ezShader");
   s_hDebugTextShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugText.ezShader");
+  s_hDebugThickLinesShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugThickLines.ezShader");
 
   ezRenderWorld::GetRenderEvent().AddEventHandler(&OnRenderEvent);
 }
@@ -2226,6 +2296,7 @@ void ezDebugRenderer::OnEngineShutdown()
   s_hDebugPrimitiveShader.Invalidate();
   s_hDebugTexturedPrimitiveShader.Invalidate();
   s_hDebugTextShader.Invalidate();
+  s_hDebugThickLinesShader.Invalidate();
 
   s_PerContextData.Clear();
 
@@ -2285,6 +2356,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Debug, ezNoBase, 1, ezRTTI
     EZ_SCRIPT_FUNCTION_PROPERTY(DrawLine, In, "World", In, "Start", In, "End", In, "StartColor", In, "EndColor")->AddAttributes(
       new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute()),
       new ezFunctionArgumentAttributes(4, new ezExposeColorAlphaAttribute())),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(DrawThickLine, In, "World", In, "Start", In, "End", In, "StartColor", In, "EndColor", In, "Thickness")->AddAttributes(
+      new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(4.0f))),
 
     EZ_SCRIPT_FUNCTION_PROPERTY(Draw2DLine, In, "World", In, "Start", In, "End", In, "StartColor", In, "EndColor")->AddAttributes(
       new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute()),
@@ -2393,6 +2467,17 @@ void ezScriptExtensionClass_Debug::DrawLine(const ezWorld* pWorld, const ezVec3&
   line[0].m_endColor = endColor;
 
   ezDebugRenderer::DrawLines(pWorld, line, ezColor::White);
+}
+
+void ezScriptExtensionClass_Debug::DrawThickLine(const ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vEnd, const ezColor& startColor, const ezColor& endColor, float fThickness)
+{
+  ezDebugRendererLine line[1];
+  line[0].m_start = vStart;
+  line[0].m_end = vEnd;
+  line[0].m_startColor = startColor;
+  line[0].m_endColor = endColor;
+
+  ezDebugRenderer::DrawThickLines(pWorld, line, ezColor::White, fThickness);
 }
 
 void ezScriptExtensionClass_Debug::Draw2DLine(const ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vEnd, const ezColor& startColor, const ezColor& endColor)

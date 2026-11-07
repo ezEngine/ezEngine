@@ -33,6 +33,7 @@ public:
   const ezGameObjectHandle& GetLineToTarget() const { return m_hTargetObject; } // [ property ]
 
   ezColor m_LineColor;                                                          // [ property ]
+  float m_fThickness = 1.0f;
 
   void Update();
 
