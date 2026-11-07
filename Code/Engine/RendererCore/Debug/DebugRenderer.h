@@ -149,6 +149,20 @@ public:
   /// Rendering of the occluded layer can be disabled globally via the CVar 'Debug.RenderOccluded'.
   static void DrawLinesOccluded(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
 
+  /// Renders the given set of 3D lines with a constant screen-space thickness for one frame.
+  ///
+  /// \param fThickness The line width in pixels at a viewport height of 1080. It scales with the viewport height,
+  /// thus the lines look the same at every resolution. The lines are never thinner than one pixel.
+  ///
+  /// The lines are opaque (the alpha of the color is ignored) and have round caps, thus consecutive segments join
+  /// without gaps. They are depth tested, but do not write depth.
+  ///
+  /// The edges are antialiased. When the render target uses MSAA, this is done through the coverage mask, without blending.
+  /// Otherwise only a one pixel wide band at the edges is alpha blended. Where the caps of two segments overlap, that band
+  /// can blend twice, which makes the outer edge of a sharp joint slightly stronger.
+  /// Note that the default render pipelines render debug geometry after the MSAA resolve, thus they use the blended edges.
+  static void DrawThickLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, float fThickness, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
+
   /// Renders the given set of lines in 2D (screen-space) for one frame.
   static void Draw2DLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color);
 
@@ -322,6 +336,9 @@ public:
   static void AddPersistentLineSphere(const ezWorld* pWorld, const ezVec3& vPosition, float fRadius, const ezColor& color, const ezTransform& transform, ezTime duration);
 
   static void DrawLine(const ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vEnd, const ezColor& startColor, const ezColor& endColor);
+
+  /// See ezDebugRenderer::DrawThickLines() for the meaning of fThickness.
+  static void DrawThickLine(const ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vEnd, const ezColor& startColor, const ezColor& endColor, float fThickness);
 
   static void Draw2DLine(const ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vEnd, const ezColor& startColor, const ezColor& endColor);
 };

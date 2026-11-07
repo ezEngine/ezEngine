@@ -275,6 +275,7 @@ void ezGameEngineTestBasics::SetupSubTests()
   AddSubTest("Skybox", SubTests::Skybox);
   AddSubTest("Debug Rendering", SubTests::DebugRendering);
   AddSubTest("Debug Rendering - No Lines", SubTests::DebugRendering2);
+  AddSubTest("Debug Rendering - Thick Lines", SubTests::DebugRenderingThickLines);
   AddSubTest("Load Scene", SubTests::LoadScene);
   AddSubTest("GameObject References", SubTests::GameObjectReferences);
 }
@@ -297,7 +298,7 @@ ezResult ezGameEngineTestBasics::InitializeSubTest(ezInt32 iIdentifier)
     return EZ_SUCCESS;
   }
 
-  if (iIdentifier == SubTests::DebugRendering || iIdentifier == SubTests::DebugRendering2)
+  if (iIdentifier == SubTests::DebugRendering || iIdentifier == SubTests::DebugRendering2 || iIdentifier == SubTests::DebugRenderingThickLines)
   {
     m_pOwnApplication->SubTestDebugRenderingSetup();
     return EZ_SUCCESS;
@@ -333,6 +334,9 @@ ezTestAppRun ezGameEngineTestBasics::RunSubTest(ezInt32 iIdentifier, ezUInt32 ui
 
   if (iIdentifier == SubTests::DebugRendering2)
     return m_pOwnApplication->SubTestDebugRenderingExec2(m_iFrame);
+
+  if (iIdentifier == SubTests::DebugRenderingThickLines)
+    return m_pOwnApplication->SubTestDebugRenderingThickLinesExec(m_iFrame);
 
   if (iIdentifier == SubTests::LoadScene)
     return m_pOwnApplication->SubTestLoadSceneExec(m_iFrame);
@@ -604,6 +608,141 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec2(ezIn
     ezDebugRenderer::Draw2DText(m_pWorld.Borrow(), ezFmt("Frame# {}", ezRenderWorld::GetFrameCounter()), ezVec2I32(10, 10), ezColor::AntiqueWhite, 24);
     ezDebugRenderer::DrawInfoText(m_pWorld.Borrow(), ezDebugTextPlacement::BottomLeft, "test", ezFmt("Frame# {}", ezRenderWorld::GetFrameCounter()));
     ezDebugRenderer::DrawInfoText(m_pWorld.Borrow(), ezDebugTextPlacement::BottomRight, "test", "| Col 1\t| Col 2\t| Col 3\t|\n| abc\t| 42\t| 11.23\t|");
+  }
+
+  Run();
+  if (ShouldApplicationQuit())
+    return ezTestAppRun::Quit;
+
+  // first frame no image is captured yet
+  if (iCurFrame < 1)
+    return ezTestAppRun::Continue;
+
+  EZ_TEST_IMAGE(0, 150);
+
+  return ezTestAppRun::Quit;
+}
+
+ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingThickLinesExec(ezInt32 iCurFrame)
+{
+  {
+    auto pCamera = ezDynamicCast<ezGameState*>(GetActiveGameState())->GetMainCamera();
+    pCamera->SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 100.0f, 0.1f, 1000.0f);
+    pCamera->LookAt(ezVec3::MakeZero(), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
+  }
+
+  // Line strip with sharp corners: the joints must have no gaps and no visible overlap.
+  {
+    ezTempHybridArray<ezDebugRendererLine, 16> lines;
+    ezVec3 vPrev(10, 9, 6);
+    for (ezUInt32 i = 1; i <= 8; ++i)
+    {
+      const ezVec3 vNext(10, 9.0f - i * 2.0f, (i % 2 == 0) ? 6.0f : 8.0f);
+      lines.PushBack(ezDebugRendererLine(vPrev, vNext));
+      vPrev = vNext;
+    }
+
+    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), lines, ezColor::Orange, 12.0f);
+  }
+
+  // Different thicknesses, including one below a pixel.
+  {
+    const float thicknesses[] = {0.5f, 1.0f, 2.0f, 4.0f, 8.0f, 16.0f, 32.0f};
+
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(thicknesses); ++i)
+    {
+      const float z = 4.0f - i * 1.5f;
+      ezDebugRendererLine line(ezVec3(10, 9, z), ezVec3(10, 1, z - 1.0f));
+      ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::SkyBlue, thicknesses[i]);
+    }
+  }
+
+  // Color gradient along the line.
+  {
+    ezDebugRendererLine line(ezVec3(10, -1, 4), ezVec3(10, -8, 3));
+    line.m_startColor = ezColor::Red;
+    line.m_endColor = ezColor::Yellow;
+    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::White, 20.0f);
+  }
+
+  // Depth test: the line goes through a solid box, the middle part must be hidden.
+  {
+    ezBoundingBox bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3(10, -5, 0), ezVec3(1, 1, 1));
+    ezDebugRenderer::DrawSolidBox(m_pWorld.Borrow(), bbox, ezColor::BurlyWood);
+
+    ezDebugRendererLine line(ezVec3(10, -1.5f, 0), ezVec3(10, -8.5f, 0.5f));
+    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::LawnGreen, 10.0f);
+  }
+
+  // Line that starts behind the camera: must be clipped at the near plane, not flip or explode.
+  {
+    ezDebugRendererLine line(ezVec3(-5, -3, -4), ezVec3(15, -8, -6));
+    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::HotPink, 8.0f);
+  }
+
+  // Line that is completely behind the camera: must not be visible.
+  {
+    ezDebugRendererLine line(ezVec3(-5, -5, 0), ezVec3(-5, 5, 0));
+    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::Red, 50.0f);
+  }
+
+  // Zero length line: renders as a dot.
+  {
+    ezDebugRendererLine line(ezVec3(10, 6, -6), ezVec3(10, 6, -6));
+    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::Cornsilk, 30.0f);
+  }
+
+  // Transform: a square, rotated and moved.
+  {
+    ezDebugRendererLine lines[4] = {
+      ezDebugRendererLine(ezVec3(0, -1, -1), ezVec3(0, 1, -1)),
+      ezDebugRendererLine(ezVec3(0, 1, -1), ezVec3(0, 1, 1)),
+      ezDebugRendererLine(ezVec3(0, 1, 1), ezVec3(0, -1, 1)),
+      ezDebugRendererLine(ezVec3(0, -1, 1), ezVec3(0, -1, -1)),
+    };
+
+    ezTransform t = ezTransform::MakeIdentity();
+    t.m_vPosition.Set(10, 4, -6);
+    t.m_qRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(30));
+    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), ezMakeArrayPtr(lines), ezColor::MediumPurple, 6.0f, t);
+  }
+
+  // Curve: a closed circle from many short segments, the joints must not be visible.
+  {
+    constexpr ezUInt32 uiNumSegments = 40;
+    ezTempHybridArray<ezDebugRendererLine, uiNumSegments> lines;
+
+    for (ezUInt32 i = 0; i < uiNumSegments; ++i)
+    {
+      const ezAngle a0 = ezAngle::MakeFromDegree(360.0f * i / uiNumSegments);
+      const ezAngle a1 = ezAngle::MakeFromDegree(360.0f * (i + 1) / uiNumSegments);
+      lines.PushBack(ezDebugRendererLine(ezVec3(10, 12.5f + 2.5f * ezMath::Cos(a0), 5 + 2.5f * ezMath::Sin(a0)), ezVec3(10, 12.5f + 2.5f * ezMath::Cos(a1), 5 + 2.5f * ezMath::Sin(a1))));
+    }
+
+    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), lines, ezColor::Aquamarine, 6.0f);
+  }
+
+  // Color gradient across multiple joints: each segment continues the color of the previous one.
+  {
+    constexpr ezUInt32 uiNumSegments = 12;
+    ezTempHybridArray<ezDebugRendererLine, uiNumSegments> lines;
+
+    auto GetPoint = [](ezUInt32 i)
+    { return ezVec3(10, 12.5f + 1.5f * ezMath::Sin(ezAngle::MakeFromDegree(90.0f * i)), 0.5f - i * 0.8f); };
+
+    auto GetColor = [](ezUInt32 i)
+    { return ezColor::MakeHSV(300.0f * i / uiNumSegments, 1.0f, 1.0f); };
+
+    for (ezUInt32 i = 0; i < uiNumSegments; ++i)
+    {
+      ezDebugRendererLine& line = lines.ExpandAndGetRef();
+      line.m_start = GetPoint(i);
+      line.m_end = GetPoint(i + 1);
+      line.m_startColor = GetColor(i);
+      line.m_endColor = GetColor(i + 1);
+    }
+
+    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), lines, ezColor::White, 14.0f);
   }
 
   Run();

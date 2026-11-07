@@ -6,7 +6,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezLineToComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezLineToComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -14,6 +14,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezLineToComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Target", GetLineToTargetGuid, SetLineToTargetGuid)->AddAttributes(new ezGameObjectReferenceAttribute()),
     // END-DOCS-CODE-SNIPPET
     EZ_MEMBER_PROPERTY("Color", m_LineColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::Orange)),
+    EZ_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -47,7 +48,7 @@ void ezLineToComponent::Update()
   line.m_end = pTarget->GetGlobalPosition();
 
   ezDebugRenderer::DrawLinesOccluded(GetWorld(), lines, m_LineColor.GetDarker());
-  ezDebugRenderer::DrawLines(GetWorld(), lines, m_LineColor);
+  ezDebugRenderer::DrawThickLines(GetWorld(), lines, m_LineColor, m_fThickness);
 }
 
 void ezLineToComponent::SerializeComponent(ezWorldWriter& inout_stream) const
@@ -57,17 +58,23 @@ void ezLineToComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 
   inout_stream.WriteGameObjectHandle(m_hTargetObject);
   s << m_LineColor;
+  s << m_fThickness;
 }
 
 void ezLineToComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
   m_hTargetObject = inout_stream.ReadGameObjectHandle();
   s >> m_LineColor;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_fThickness;
+  }
 }
 
 void ezLineToComponent::SetLineToTarget(const ezGameObjectHandle& hTargetObject)

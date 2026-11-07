@@ -19,3 +19,4 @@ Code/Engine/ezBuildInfo.h
 as.predefined
 
 ezDefaultAssertHandlerOutput*
+*.pyc
