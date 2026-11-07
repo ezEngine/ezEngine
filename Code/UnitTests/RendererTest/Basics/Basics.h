@@ -16,17 +16,27 @@ private:
     ST_BlendStates,
     ST_Textures2D,
     ST_Textures3D,
+    ST_BlockCompressedMipChain2D,
+    ST_BlockCompressedMipChain3D,
     ST_TexturesCube,
     ST_LineRendering,
   };
 
   virtual void SetupSubTests() override
   {
+    const ezGALDeviceCapabilities& caps = GetDeviceCapabilities();
+
     AddSubTest("Clear Screen", SubTests::ST_ClearScreen);
     AddSubTest("Rasterizer States", SubTests::ST_RasterizerStates);
     AddSubTest("Blend States", SubTests::ST_BlendStates);
     AddSubTest("2D Textures", SubTests::ST_Textures2D);
     // AddSubTest("3D Textures", SubTests::ST_Textures3D); /// \todo 3D Texture support is currently not implemented
+    const auto bc4Support = caps.m_FormatSupport[ezGALResourceFormat::BC4UNormalized];
+    if (bc4Support.IsSet(ezGALResourceFormatSupport::Texture))
+    {
+      AddSubTest("Block-Compressed Mip Chain 2D", SubTests::ST_BlockCompressedMipChain2D);
+      AddSubTest("Block-Compressed Mip Chain 3D", SubTests::ST_BlockCompressedMipChain3D);
+    }
     AddSubTest("Cube Textures", SubTests::ST_TexturesCube);
     AddSubTest("Line Rendering", SubTests::ST_LineRendering);
   }
@@ -41,6 +51,8 @@ private:
   ezTestAppRun SubtestBlendStates();
   ezTestAppRun SubtestTextures2D();
   ezTestAppRun SubtestTextures3D();
+  ezTestAppRun SubtestBlockCompressedMipChain2D();
+  ezTestAppRun SubtestBlockCompressedMipChain3D();
   ezTestAppRun SubtestTexturesCube();
   ezTestAppRun SubtestLineRendering();
 
@@ -66,6 +78,12 @@ private:
     if (iIdentifier == SubTests::ST_Textures3D)
       return SubtestTextures3D();
 
+    if (iIdentifier == SubTests::ST_BlockCompressedMipChain2D)
+      return SubtestBlockCompressedMipChain2D();
+
+    if (iIdentifier == SubTests::ST_BlockCompressedMipChain3D)
+      return SubtestBlockCompressedMipChain3D();
+
     if (iIdentifier == SubTests::ST_TexturesCube)
       return SubtestTexturesCube();
 
@@ -82,4 +100,5 @@ private:
   ezMeshBufferResourceHandle m_hLineBox;
   ezTexture2DResourceHandle m_hTexture2D;
   ezTextureCubeResourceHandle m_hTextureCube;
+  ezGALTextureHandle m_hBlockCompressedTexture;
 };

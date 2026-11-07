@@ -4,7 +4,26 @@
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/Textures/Texture3DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
+#include <Texture/Image/Image.h>
+
+namespace
+{
+  void CreateBlockCompressedMipChain(ezImage& ref_image, ezUInt32 uiDepth)
+  {
+    ezImageHeader header;
+    header.SetWidth(26);
+    header.SetHeight(17);
+    header.SetDepth(uiDepth);
+    header.SetNumMipLevels(2);
+    header.SetImageFormat(ezImageFormat::BC4_UNORM);
+
+    ref_image.ResetAndAlloc(header);
+    ezMemoryUtils::ZeroFill(ref_image.GetByteBlobPtr().GetPtr(), ref_image.GetByteBlobPtr().GetCount());
+  }
+
+} // namespace
 
 ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 {
@@ -132,6 +151,47 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
   return m_iFrame < (iNumFrames - 1) ? ezTestAppRun::Continue : ezTestAppRun::Quit;
 }
 
+ezTestAppRun ezRendererTestBasics::SubtestBlockCompressedMipChain2D()
+{
+  BeginFrame();
+
+  ezImage image;
+  CreateBlockCompressedMipChain(image, 1);
+  ezTexture2DResourceDescriptor descriptor;
+  ezHybridArray<ezGALSystemMemoryDescription, 32> initialData;
+  ezUInt32 uiMemoryUsed = 0;
+  ezTexture2DResource::FillOutDescriptor(descriptor, &image, false, 2, uiMemoryUsed, initialData);
+  EZ_TEST_INT(descriptor.m_DescGAL.m_uiWidth, 24);
+  EZ_TEST_INT(descriptor.m_DescGAL.m_uiHeight, 16);
+  EZ_TEST_INT(initialData.GetCount(), 2);
+  EZ_TEST_INT(initialData[1].m_uiRowPitch, 32);
+  m_hBlockCompressedTexture = m_pDevice->CreateTexture(descriptor.m_DescGAL, descriptor.m_InitialContent);
+  EZ_TEST_BOOL(!m_hBlockCompressedTexture.IsInvalidated());
+
+  EndFrame();
+  return ezTestAppRun::Quit;
+}
+
+ezTestAppRun ezRendererTestBasics::SubtestBlockCompressedMipChain3D()
+{
+  BeginFrame();
+
+  ezImage image;
+  CreateBlockCompressedMipChain(image, 32);
+  ezTexture3DResourceDescriptor descriptor;
+  ezHybridArray<ezGALSystemMemoryDescription, 32> initialData;
+  ezUInt32 uiMemoryUsed = 0;
+  ezTexture3DResource::FillOutDescriptor(descriptor, &image, false, 2, uiMemoryUsed, initialData);
+  EZ_TEST_INT(descriptor.m_DescGAL.m_uiWidth, 24);
+  EZ_TEST_INT(descriptor.m_DescGAL.m_uiHeight, 16);
+  EZ_TEST_INT(initialData.GetCount(), 2);
+  EZ_TEST_INT(initialData[1].m_uiRowPitch, 32);
+  m_hBlockCompressedTexture = m_pDevice->CreateTexture(descriptor.m_DescGAL, descriptor.m_InitialContent);
+  EZ_TEST_BOOL(!m_hBlockCompressedTexture.IsInvalidated());
+
+  EndFrame();
+  return ezTestAppRun::Quit;
+}
 
 ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
 {
