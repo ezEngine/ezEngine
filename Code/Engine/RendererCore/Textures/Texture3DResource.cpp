@@ -103,7 +103,7 @@ void ezTexture3DResource::FillOutDescriptor(ezTexture3DResourceDescriptor& ref_t
         EZ_ASSERT_DEV(pImage->GetDepthPitch(mip) < ezMath::MaxValue<ezUInt32>(), "Depth pitch exceeds ezGAL limits.");
         id.m_uiSlicePitch = static_cast<ezUInt32>(pImage->GetDepthPitch(mip));
         // m_uiSlicePitch is only one layer of the 3D texture, but the out_uiMemoryUsed needs to know the size of all layers.
-        out_uiMemoryUsed += id.m_pData.GetCount();
+        out_uiMemoryUsed += (ezUInt32)id.m_pData.GetCount();
       }
     }
   }
