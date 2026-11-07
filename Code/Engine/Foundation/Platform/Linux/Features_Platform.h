@@ -34,7 +34,7 @@
 #undef EZ_USE_LINUX_POSIX_EXTENSIONS
 #define EZ_USE_LINUX_POSIX_EXTENSIONS EZ_ON
 
-/// Iterating through the file system is not supported
+/// Iterating through the file system is supported
 #undef EZ_SUPPORTS_FILE_ITERATORS
 #define EZ_SUPPORTS_FILE_ITERATORS EZ_ON
 

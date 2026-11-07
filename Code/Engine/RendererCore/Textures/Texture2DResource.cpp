@@ -77,8 +77,11 @@ void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& ref_t
 
   if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
   {
-    ref_td.m_DescGAL.m_uiWidth = ezMath::RoundUp(ref_td.m_DescGAL.m_uiWidth, 4);
-    ref_td.m_DescGAL.m_uiHeight = ezMath::RoundUp(ref_td.m_DescGAL.m_uiHeight, 4);
+    // DX11 requires block-aligned base dimensions. Round down to fit the source data, keeping at least one block.
+    const ezUInt32 uiBlockWidth = ezImageFormat::GetBlockWidth(pImage->GetImageFormat());
+    const ezUInt32 uiBlockHeight = ezImageFormat::GetBlockHeight(pImage->GetImageFormat());
+    ref_td.m_DescGAL.m_uiWidth = ezMath::Max(uiBlockWidth, ezMath::RoundDown(ref_td.m_DescGAL.m_uiWidth, static_cast<ezUInt16>(uiBlockWidth)));
+    ref_td.m_DescGAL.m_uiHeight = ezMath::Max(uiBlockHeight, ezMath::RoundDown(ref_td.m_DescGAL.m_uiHeight, static_cast<ezUInt16>(uiBlockHeight)));
   }
 
   if (ref_td.m_DescGAL.m_uiDepth > 1)
@@ -118,22 +121,10 @@ void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& ref_t
         ezGALSystemMemoryDescription& id = ref_initData.ExpandAndGetRef();
 
         id.m_pData = pImage->GetSubImageView(mip, face, array_index).GetByteBlobPtr();
-
-        if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
-        {
-          const ezUInt32 uiMemPitchFactor = ezGALResourceFormat::GetBitsPerElement(format) * 4 / 8;
-
-          id.m_uiRowPitch = ezMath::RoundUp(pImage->GetWidth(mip), 4) * uiMemPitchFactor;
-        }
-        else
-        {
-          id.m_uiRowPitch = static_cast<ezUInt32>(pImage->GetRowPitch(mip));
-        }
-
+        id.m_uiRowPitch = static_cast<ezUInt32>(pImage->GetRowPitch(mip));
         EZ_ASSERT_DEV(pImage->GetDepthPitch(mip) < ezMath::MaxValue<ezUInt32>(), "Depth pitch exceeds ezGAL limits.");
         id.m_uiSlicePitch = static_cast<ezUInt32>(pImage->GetDepthPitch(mip));
-
-        out_uiMemoryUsed += id.m_uiSlicePitch;
+        out_uiMemoryUsed += (ezUInt32)id.m_pData.GetCount();
       }
     }
   }

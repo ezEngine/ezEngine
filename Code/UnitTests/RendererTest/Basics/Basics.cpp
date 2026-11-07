@@ -44,6 +44,7 @@ ezResult ezRendererTestBasics::DeInitializeSubTest(ezInt32 iIdentifier)
   m_hLineBox.Invalidate();
   m_hTexture2D.Invalidate();
   m_hTextureCube.Invalidate();
+  m_pDevice->DestroyTexture(m_hBlockCompressedTexture);
 
   DestroyWindow();
 
