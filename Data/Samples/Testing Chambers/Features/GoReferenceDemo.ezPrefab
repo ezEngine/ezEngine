@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11281838771480088251,5140108322494537448}}
-		u4 %Hash{13107563746746489338}
+		u4 %Hash{2348439221122027528}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17374589031583292623,5460030219854842637}}
@@ -102,12 +102,13 @@ o
 {
 	Uuid %id{u4{8234004360656017833,4693989548361422723}}
 	s %t{"ezLineToComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x8DB7E63C,0x10F42F3F,0xD4C0403F,0x0000803F}}
 		s %Target{""}
+		f %Thickness{0x00002041}
 	}
 }
 o
@@ -228,12 +229,13 @@ o
 {
 	Uuid %id{u4{14096793959569441183,5598680826661992097}}
 	s %t{"ezLineToComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x86C54A3F,0x0000803F,0x0DB4EE3A,0x0000803F}}
 		s %Target{"{ 66bcb5ce-bf94-4c0f-85a0-9fd4bc354130 }"}
+		f %Thickness{0x00000040}
 	}
 }
 o
@@ -444,6 +446,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{16777807221722236564,3403297235873892448}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{12479135339235689714,16279954497346205701}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Name{"Thickness"}
+		s %Type{"float"}
 	}
 }
 o
@@ -782,9 +802,10 @@ o
 		{
 			Uuid{u4{2208369192415382143,6906888135645689853}}
 			Uuid{u4{8963828211989796836,429565058857181774}}
+			Uuid{u4{16777807221722236564,3403297235873892448}}
 		}
 		s %TypeName{"ezLineToComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -819,6 +840,16 @@ o
 	p
 	{
 		s %Category{"Utilities/Debug"}
+	}
+}
+o
+{
+	Uuid %id{u4{12479135339235689714,16279954497346205701}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
 	}
 }
 o

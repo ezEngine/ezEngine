@@ -1,0 +1,216 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+CAMERA_MODE
+MSAA
+
+[RENDERSTATE]
+
+// The lines are opaque. Blending is only used for the soft edges without MSAA, where alpha is the pixel coverage.
+#if MSAA
+  BlendingEnabled0 = false
+#else
+  BlendingEnabled0 = true
+  DestBlend0 = Blend_InvSrcAlpha
+  SourceBlend0 = Blend_SrcAlpha
+  DestBlendAlpha0 = Blend_InvSrcAlpha
+#endif
+
+DepthTest = true
+DepthWrite = false
+
+// The winding of the expanded quad depends on the line direction.
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#define USE_COLOR0
+#define CUSTOM_INTERPOLATOR \
+  float2 PixelPos : PIXELPOS; \
+  float4 LineEnds : LINEENDS; \
+  float4 ColorEnd : COLOREND; \
+  float HalfWidth : HALFWIDTH;
+
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.h>
+
+struct LineData
+{
+  float3 start;
+  float thickness;
+  float3 end;
+  uint startColor;
+  uint endColor;
+  uint3 padding;
+};
+
+StructuredBuffer<LineData> lineData BIND_GROUP(BG_RENDER_PASS);
+
+VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
+{
+  // x: 0 = start side, 1 = end side. y: side of the line.
+  float2 corners[6] =
+  {
+    float2(0.0, -1.0),
+    float2(1.0, -1.0),
+    float2(1.0, 1.0),
+    float2(0.0, -1.0),
+    float2(1.0, 1.0),
+    float2(0.0, 1.0),
+  };
+
+#if defined(CAMERA_MODE) && CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = InstanceID % 2;
+#endif
+
+  LineData data = lineData[VertexID / 6];
+  float2 corner = corners[VertexID % 6];
+
+  float4 colorA = RGBA8ToFloat4(data.startColor);
+  float4 colorB = RGBA8ToFloat4(data.endColor);
+
+  float4 a = mul(GetWorldToScreenMatrix(), float4(data.start, 1.0));
+  float4 b = mul(GetWorldToScreenMatrix(), float4(data.end, 1.0));
+
+  VS_OUT RetVal;
+#if defined(CAMERA_MODE) && CAMERA_MODE == CAMERA_MODE_STEREO
+  RetVal.RenderTargetArrayIndex = s_ActiveCameraEyeIndex;
+#endif
+
+  // Clip the segment against the near plane before the perspective divide.
+  // Inverse depth: the near plane is at z == w, points in front of it have w - z >= 0.
+  float distA = a.w - a.z;
+  float distB = b.w - b.z;
+
+  if (distA < 0.0 && distB < 0.0)
+  {
+    // Fully behind the near plane: output a degenerate triangle.
+    RetVal.Position = float4(0.0, 0.0, 0.0, 0.0);
+    RetVal.PixelPos = float2(0.0, 0.0);
+    RetVal.LineEnds = float4(0.0, 0.0, 0.0, 0.0);
+    RetVal.Color0 = float4(0.0, 0.0, 0.0, 0.0);
+    RetVal.ColorEnd = float4(0.0, 0.0, 0.0, 0.0);
+    RetVal.HalfWidth = 0.0;
+    return RetVal;
+  }
+
+  if (distA < 0.0)
+  {
+    float t = distA / (distA - distB);
+    a = lerp(a, b, t);
+    colorA = lerp(colorA, colorB, t);
+  }
+  else if (distB < 0.0)
+  {
+    float t = distB / (distB - distA);
+    b = lerp(b, a, t);
+    colorB = lerp(colorB, colorA, t);
+  }
+
+  // Work in pixel units, centered on the viewport. The thickness is given in pixels at a viewport height of 1080.
+  float2 halfViewport = ViewportSize.xy * 0.5;
+  float2 pixA = (a.xy / a.w) * halfViewport;
+  float2 pixB = (b.xy / b.w) * halfViewport;
+
+  // Never get thinner than one pixel, otherwise the line breaks into gaps.
+  float halfWidth = max(data.thickness * ViewportSize.y / 1080.0, 1.0) * 0.5;
+
+  float2 dir = pixB - pixA;
+  float len = length(dir);
+  dir = len > 0.0001 ? dir / len : float2(1.0, 0.0);
+  float2 perp = float2(-dir.y, dir.x);
+
+  // Make the quad one pixel larger than the line, so that the round caps and all edge pixels are covered.
+  float extent = halfWidth + 1.0;
+  float2 pixPos = (corner.x > 0.5 ? pixB : pixA) + dir * ((corner.x * 2.0 - 1.0) * extent) + perp * (corner.y * extent);
+  float depth = corner.x > 0.5 ? (b.z / b.w) : (a.z / a.w);
+
+  // w == 1, thus all interpolators are linear in screen-space, which is what the distance computation needs.
+  RetVal.Position = float4(pixPos / halfViewport, depth, 1.0);
+  RetVal.PixelPos = pixPos;
+  RetVal.LineEnds = float4(pixA, pixB);
+  RetVal.Color0 = colorA;
+  RetVal.ColorEnd = colorB;
+  RetVal.HalfWidth = halfWidth;
+
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+#define USE_COLOR0
+#define CUSTOM_INTERPOLATOR \
+  float2 PixelPos : PIXELPOS; \
+  float4 LineEnds : LINEENDS; \
+  float4 ColorEnd : COLOREND; \
+  float HalfWidth : HALFWIDTH;
+
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.h>
+
+// Soft edges:
+// With MSAA the coverage mask is computed per sample and the color is opaque.
+// Without MSAA the alpha is the coverage of the pixel. It is 1 inside the line, thus only a one pixel wide band at the
+// edges is blended. Where the caps of two segments overlap, the edge bands can blend twice, which makes the outer edge of
+// a joint slightly stronger. The default render pipelines render debug geometry after the MSAA resolve, so they use this path.
+
+struct PS_OUT
+{
+  float4 Color : SV_Target;
+#if MSAA
+  uint Coverage : SV_Coverage;
+#endif
+};
+
+/// Distance from p to the line segment (a capsule, which gives round caps). t is the position along the segment.
+float LineDistance(float2 p, float4 lineEnds, out float t)
+{
+  float2 a = lineEnds.xy;
+  float2 ab = lineEnds.zw - a;
+  float2 ap = p - a;
+
+  t = saturate(dot(ap, ab) / max(dot(ab, ab), 0.000001));
+  return length(ap - ab * t);
+}
+
+PS_OUT main(PS_IN Input)
+{
+  float t;
+  float dist = LineDistance(Input.PixelPos, Input.LineEnds, t);
+
+  PS_OUT Output;
+  Output.Color = float4(lerp(Input.Color0.rgb, Input.ColorEnd.rgb, t), 1.0);
+
+#if MSAA
+
+  uint coverage = 0;
+  for (uint i = 0; i < NumMsaaSamples; ++i)
+  {
+    float2 samplePos = ezEvaluateAttributeAtSample(Input.PixelPos, i, NumMsaaSamples);
+
+    float tSample;
+    if (LineDistance(samplePos, Input.LineEnds, tSample) <= Input.HalfWidth)
+    {
+      coverage |= (1u << i);
+    }
+  }
+
+  if (coverage == 0)
+    discard;
+
+  Output.Coverage = coverage;
+
+#else
+
+  // Approximate fraction of the pixel that is covered: linear across a one pixel wide band centered on the edge.
+  float coverage = saturate(Input.HalfWidth - dist + 0.5);
+  clip(coverage - 0.001);
+
+  Output.Color.a = coverage;
+
+#endif
+
+  return Output;
+}

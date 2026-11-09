@@ -20,6 +20,8 @@ public:
 
   ezTestAppRun SubTestDebugRenderingExec2(ezInt32 iCurFrame);
 
+  ezTestAppRun SubTestDebugRenderingThickLinesExec(ezInt32 iCurFrame);
+
   void SubTestLoadSceneSetup();
   ezTestAppRun SubTestLoadSceneExec(ezInt32 iCurFrame);
 
@@ -42,6 +44,7 @@ private:
     Skybox,
     DebugRendering,
     DebugRendering2,
+    DebugRenderingThickLines,
     LoadScene,
     GameObjectReferences,
   };
