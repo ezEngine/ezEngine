@@ -57,6 +57,27 @@
       }
     },
     {
+      "name": "include-analysis-base",
+      "hidden" : true,
+      "cacheVariables": {
+        "EZ_USE_PCH" : "OFF",
+        "EZ_ENABLE_FOLDER_UNITY_FILES" : "OFF",
+        "CMAKE_EXPORT_COMPILE_COMMANDS" : "ON"
+      }
+    },
+    {
+      "name": "linux-clang-include-analysis",
+      "inherits" : ["linux-base", "include-analysis-base"],
+      "hidden" : false,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER" : "clang++-20",
+        "CMAKE_C_COMPILER" : "clang-20",
+        "CMAKE_CXX_FLAGS" : "-Wno-error=deprecated-literal-operator -Wno-error=nontrivial-memcall",
+        "CMAKE_C_FLAGS" : "-Wno-error=deprecated-literal-operator -Wno-error=nontrivial-memcall"
+      }
+    },
+    {
       "name": "linux-gcc-base",
       "inherits" : ["linux-base"],
       "hidden": true,

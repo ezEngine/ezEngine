@@ -65,6 +65,11 @@ public:
   [[nodiscard]] ezSimdVec4i CompMul(const ezSimdVec4i& v) const;                                                         // [tested]
   [[nodiscard]] ezSimdVec4i CompDiv(const ezSimdVec4i& v) const;                                                         // [tested]
 
+  /// Transposes the 4x4 matrix of bytes stored in the four components, without interpreting their signs.
+  ///
+  /// Each component is one row, with bytes ordered from least to most significant.
+  [[nodiscard]] ezSimdVec4i TransposeBytes() const;                                                                      // [tested]
+
   [[nodiscard]] ezSimdVec4i operator|(const ezSimdVec4i& v) const;                                                       // [tested]
   [[nodiscard]] ezSimdVec4i operator&(const ezSimdVec4i& v) const;                                                       // [tested]
   [[nodiscard]] ezSimdVec4i operator^(const ezSimdVec4i& v) const;                                                       // [tested]
@@ -72,7 +77,11 @@ public:
 
   [[nodiscard]] ezSimdVec4i operator<<(ezUInt32 uiShift) const;                                                          // [tested]
   [[nodiscard]] ezSimdVec4i operator>>(ezUInt32 uiShift) const;                                                          // [tested]
-  [[nodiscard]] ezSimdVec4i operator<<(const ezSimdVec4i& v) const;                                                      // [tested]
+  /// Shifts each component's bit pattern left. Each count must be in [0, 31].
+  [[nodiscard]] ezSimdVec4i operator<<(const ezSimdVec4i& v) const; // [tested]
+
+  /// Shifts each component right arithmetically, preserving its sign.
+  /// Each count must be in [0, 31].
   [[nodiscard]] ezSimdVec4i operator>>(const ezSimdVec4i& v) const;                                                      // [tested]
 
   ezSimdVec4i& operator+=(const ezSimdVec4i& v);                                                                         // [tested]
@@ -97,6 +106,9 @@ public:
   [[nodiscard]] ezSimdVec4b operator>(const ezSimdVec4i& v) const;                                                       // [tested]
 
   [[nodiscard]] static ezSimdVec4i Select(const ezSimdVec4b& vCmp, const ezSimdVec4i& vTrue, const ezSimdVec4i& vFalse); // [tested]
+
+  /// Reinterprets the bit pattern of this integer vector as a float vector. No conversion is performed.
+  [[nodiscard]] ezSimdVec4f ReinterpretAsFloat() const;
 
 public:
   ezInternal::QuadInt m_v;

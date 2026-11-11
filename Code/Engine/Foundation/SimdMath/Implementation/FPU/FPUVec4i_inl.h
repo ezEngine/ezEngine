@@ -252,10 +252,10 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator>>(ezUInt32 uiShift) const
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator<<(const ezSimdVec4i& v) const
 {
   ezSimdVec4i result;
-  result.m_v.x = m_v.x << v.m_v.x;
-  result.m_v.y = m_v.y << v.m_v.y;
-  result.m_v.z = m_v.z << v.m_v.z;
-  result.m_v.w = m_v.w << v.m_v.w;
+  result.m_v.x = static_cast<ezInt32>(static_cast<ezUInt32>(m_v.x) << v.m_v.x);
+  result.m_v.y = static_cast<ezInt32>(static_cast<ezUInt32>(m_v.y) << v.m_v.y);
+  result.m_v.z = static_cast<ezInt32>(static_cast<ezUInt32>(m_v.z) << v.m_v.z);
+  result.m_v.w = static_cast<ezInt32>(static_cast<ezUInt32>(m_v.w) << v.m_v.w);
 
   return result;
 }
@@ -269,6 +269,18 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator>>(const ezSimdVec4i& v) const
   result.m_v.w = m_v.w >> v.m_v.w;
 
   return result;
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::TransposeBytes() const
+{
+  auto TransposeRow = [this](ezUInt32 uiShift) -> ezInt32
+  {
+    return static_cast<ezInt32>(((static_cast<ezUInt32>(m_v.x) >> uiShift) & 0xFF) |
+                                (((static_cast<ezUInt32>(m_v.y) >> uiShift) & 0xFF) << 8) |
+                                (((static_cast<ezUInt32>(m_v.z) >> uiShift) & 0xFF) << 16) |
+                                (((static_cast<ezUInt32>(m_v.w) >> uiShift) & 0xFF) << 24));
+  };
+  return ezSimdVec4i(TransposeRow(0), TransposeRow(8), TransposeRow(16), TransposeRow(24));
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4i& ezSimdVec4i::operator+=(const ezSimdVec4i& v)
@@ -406,5 +418,19 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Select(const ezSimdVec4b& cmp, const e
   result.m_v.z = cmp.m_v.z ? ifTrue.m_v.z : ifFalse.m_v.z;
   result.m_v.w = cmp.m_v.w ? ifTrue.m_v.w : ifFalse.m_v.w;
 
+  return result;
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4i::ReinterpretAsFloat() const
+{
+  ezSimdVec4f result;
+  memcpy(&result.m_v.x, &m_v.x, 16);
+  return result;
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4f::ReinterpretAsInt() const
+{
+  ezSimdVec4i result;
+  memcpy(&result.m_v.x, &m_v.x, 16);
   return result;
 }

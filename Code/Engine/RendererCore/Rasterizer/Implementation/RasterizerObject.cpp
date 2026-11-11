@@ -3,8 +3,11 @@
 #include <Core/Graphics/Geometry.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
 #include <RendererCore/Rasterizer/RasterizerObject.h>
-#include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
-#include <RendererCore/Rasterizer/Thirdparty/VectorMath.h>
+
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+#  include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
+#  include <RendererCore/Rasterizer/Thirdparty/VectorMath.h>
+#endif
 
 ezMutex ezRasterizerObject::s_Mutex;
 ezMap<ezString, ezSharedPtr<ezRasterizerObject>> ezRasterizerObject::s_Objects;
@@ -12,24 +15,22 @@ ezMap<ezString, ezSharedPtr<ezRasterizerObject>> ezRasterizerObject::s_Objects;
 ezRasterizerObject::ezRasterizerObject() = default;
 ezRasterizerObject::~ezRasterizerObject() = default;
 
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-
-// needed for ezHybridArray below
-EZ_DEFINE_AS_POD_TYPE(__m128);
-
 void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 {
-  ezTempHybridArray<__m128, 64> vertices;
+  ezHybridArray<ezSimdVec4f, 64> vertices;
   vertices.Reserve(geo.GetPolygons().GetCount() * 4);
 
-  Aabb bounds;
+  ezSimdVec4f vBoundsMin(ezMath::MaxValue<float>());
+  ezSimdVec4f vBoundsMax(-ezMath::MaxValue<float>());
 
-  auto addVtx = [&](ezVec3 vtxPos)
-  {
-    ezSimdVec4f v;
-    v.Load<4>(vtxPos.GetAsPositionVec4().GetData());
-    vertices.PushBack(v.m_v);
-  };
+  // Also collect raw vertex data for MOC
+  ezDynamicArray<ezVec3> mocVertices;
+  ezDynamicArray<ezUInt32> mocIndices;
+  mocVertices.Reserve(geo.GetVertices().GetCount());
+
+  // Build a mapping from geometry vertex indices to MOC vertex indices (deduplicated)
+  ezDynamicArray<ezUInt32> vtxRemap;
+  vtxRemap.SetCount(geo.GetVertices().GetCount(), ezMath::MaxValue<ezUInt32>());
 
   for (const auto& poly : geo.GetPolygons())
   {
@@ -40,6 +41,38 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
     if (uiNumVertices > 4)
       continue;
 
+    // Collect MOC vertices and generate triangle indices for this polygon
+    {
+      ezUInt32 mocPolyVtx[4];
+      ezUInt32 numPolyVtx = 0;
+
+      for (ezUInt32 i = 0; i < uiNumVertices && i < 4; ++i)
+      {
+        const ezUInt32 vtxIdx = poly.m_Vertices[i];
+        if (vtxRemap[vtxIdx] == ezMath::MaxValue<ezUInt32>())
+        {
+          vtxRemap[vtxIdx] = mocVertices.GetCount();
+          mocVertices.PushBack(geo.GetVertices()[vtxIdx].m_vPosition);
+        }
+        mocPolyVtx[numPolyVtx++] = vtxRemap[vtxIdx];
+      }
+
+      if (numPolyVtx >= 3)
+      {
+        // First triangle
+        mocIndices.PushBack(mocPolyVtx[0]);
+        mocIndices.PushBack(mocPolyVtx[1]);
+        mocIndices.PushBack(mocPolyVtx[2]);
+      }
+      if (numPolyVtx == 4)
+      {
+        // Second triangle for quad
+        mocIndices.PushBack(mocPolyVtx[0]);
+        mocIndices.PushBack(mocPolyVtx[2]);
+        mocIndices.PushBack(mocPolyVtx[3]);
+      }
+    }
+
     for (ezUInt32 i = 0; i < uiNumVertices; ++i)
     {
       if (uiQuadVtx == 4)
@@ -49,10 +82,14 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
       }
 
       const ezUInt32 vtxIdx = poly.m_Vertices[i];
+      const ezVec3& pos = geo.GetVertices()[vtxIdx].m_vPosition;
 
-      addVtx(geo.GetVertices()[vtxIdx].m_vPosition);
+      ezSimdVec4f v;
+      v.Load<4>(pos.GetAsPositionVec4().GetData());
+      vertices.PushBack(v);
 
-      bounds.include(vertices.PeekBack());
+      vBoundsMin = vBoundsMin.CompMin(v);
+      vBoundsMax = vBoundsMax.CompMax(v);
       ++uiQuadVtx;
     }
 
@@ -74,13 +111,17 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
     EZ_ASSERT_DEV(uiQuadVtx == 4, "Degenerate polygon encountered");
   }
 
-  // pad vertices to 32 for proper alignment during baking
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+  // Extend padding to 32 for AVX2 baking
   while (vertices.GetCount() % 32 != 0)
   {
     vertices.PushBack(vertices[0]);
   }
 
-  m_Occluder.bake(vertices.GetData(), vertices.GetCount(), bounds.m_min, bounds.m_max);
+  m_Occluder.bake(reinterpret_cast<const __m128*>(vertices.GetData()), vertices.GetCount(), vBoundsMin.m_v, vBoundsMax.m_v);
+#endif
+
+  m_OccluderMOC.Bake(mocVertices, mocIndices);
 }
 
 ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::GetObject(ezStringView sUniqueName)
@@ -157,31 +198,3 @@ ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateMesh(ezStringVie
 
   return pObj;
 }
-
-#else
-
-void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
-{
-}
-
-ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::GetObject(ezStringView sUniqueName)
-{
-  return nullptr;
-}
-
-ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateBox(const ezVec3& vFullExtents)
-{
-  return nullptr;
-}
-
-ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateQuadX(const ezVec2& vYZExtents)
-{
-  return nullptr;
-}
-
-ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateMesh(ezStringView sUniqueName, const ezGeometry& geometry)
-{
-  return nullptr;
-}
-
-#endif

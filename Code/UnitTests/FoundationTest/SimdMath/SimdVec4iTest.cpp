@@ -183,6 +183,56 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
     EZ_TEST_BOOL(c.x() == a.y() && c.y() == a.y() && c.z() == b.y() && c.w() == b.y());
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransposeBytes")
+  {
+    const ezSimdVec4i vInput(0x03020100, 0x07060504, 0x0B0A0908, 0x0F0E0D0C);
+    EZ_TEST_BOOL((vInput.TransposeBytes() == ezSimdVec4i(0x0C080400, 0x0D090501, 0x0E0A0602, 0x0F0B0703)).AllSet<4>());
+    EZ_TEST_BOOL((vInput.TransposeBytes().TransposeBytes() == vInput).AllSet<4>());
+    EZ_TEST_BOOL((ezSimdVec4i::MakeZero().TransposeBytes() == ezSimdVec4i::MakeZero()).AllSet<4>());
+    EZ_TEST_BOOL((ezSimdVec4i(-1).TransposeBytes() == ezSimdVec4i(-1)).AllSet<4>());
+    const ezSimdVec4i vNegative(-1, static_cast<ezInt32>(0x80000000u), static_cast<ezInt32>(0xFEDCBA98u), -12345);
+    EZ_TEST_BOOL((vNegative.TransposeBytes().TransposeBytes() == vNegative).AllSet<4>());
+
+    for (ezUInt32 uiBit = 0; uiBit < 128; ++uiBit)
+    {
+      ezInt32 input[4] = {};
+      ezInt32 expected[4] = {};
+      input[uiBit / 32] = static_cast<ezInt32>(1u << (uiBit % 32));
+      const ezUInt32 uiRow = uiBit / 32;
+      const ezUInt32 uiColumn = (uiBit % 32) / 8;
+      expected[uiColumn] = static_cast<ezInt32>(1u << (uiRow * 8 + uiBit % 8));
+      const ezSimdVec4i vActual = ezSimdVec4i(input[0], input[1], input[2], input[3]).TransposeBytes();
+      EZ_TEST_BOOL((vActual == ezSimdVec4i(expected[0], expected[1], expected[2], expected[3])).AllSet<4>());
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Per-component shifts")
+  {
+    const ezInt32 values[] = {0, 1, -1, 0x7FFFFFFF, static_cast<ezInt32>(0x80000000u), static_cast<ezInt32>(0x89ABCDEFu)};
+    for (ezInt32 iValue : values)
+    {
+      for (ezInt32 iCount = 0; iCount < 32; ++iCount)
+      {
+        const ezInt32 laneValues[] = {iValue, iValue ^ 0x55555555, ~iValue, iValue ^ 0x2AAAAAAA};
+        const ezInt32 laneCounts[] = {iCount, (iCount + 7) % 32, (iCount + 15) % 32, (iCount + 23) % 32};
+        const ezSimdVec4i vInput(laneValues[0], laneValues[1], laneValues[2], laneValues[3]);
+        const ezSimdVec4i vCounts(laneCounts[0], laneCounts[1], laneCounts[2], laneCounts[3]);
+        const ezSimdVec4i vLeft = vInput << vCounts;
+        const ezSimdVec4i vRight = vInput >> vCounts;
+        const ezInt32 left[] = {vLeft.x(), vLeft.y(), vLeft.z(), vLeft.w()};
+        const ezInt32 right[] = {vRight.x(), vRight.y(), vRight.z(), vRight.w()};
+        for (ezUInt32 lane = 0; lane < 4; ++lane)
+        {
+          const ezUInt32 uiBits = static_cast<ezUInt32>(laneValues[lane]);
+          const ezUInt32 uiCount = static_cast<ezUInt32>(laneCounts[lane]);
+          const ezUInt32 uiSignBits = laneValues[lane] < 0 && uiCount != 0 ? 0xFFFFFFFFu << (32 - uiCount) : 0;
+          EZ_TEST_INT(left[lane], static_cast<ezInt32>(uiBits << uiCount));
+          EZ_TEST_INT(right[lane], static_cast<ezInt32>((uiBits >> uiCount) | uiSignBits));
+        }
+      }
+    }
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operators")
   {
     {

@@ -233,38 +233,45 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator>>(ezUInt32 uiShift) const
   return _mm_srai_epi32(m_v, uiShift);
 }
 
-EZ_FORCE_INLINE ezSimdVec4i ezSimdVec4i::operator<<(const ezSimdVec4i& v) const
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::TransposeBytes() const
 {
-  int a[4];
-  int b[4];
-  Store<4>(a);
-  v.Store<4>(b);
-
-  for (ezUInt32 i = 0; i < 4; ++i)
-  {
-    a[i] = a[i] << b[i];
-  }
-
-  ezSimdVec4i r;
-  r.Load<4>(a);
-  return r;
+#if EZ_SSE_LEVEL >= EZ_SSE_31
+  return _mm_shuffle_epi8(m_v, _mm_setr_epi8(0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15));
+#else
+  const __m128i vMask = _mm_set1_epi16(0x00FF);
+  __m128i vResult = _mm_packus_epi16(_mm_and_si128(m_v, vMask), _mm_srli_epi16(m_v, 8));
+  vResult = _mm_packus_epi16(_mm_and_si128(vResult, vMask), _mm_srli_epi16(vResult, 8));
+  return vResult;
+#endif
 }
 
-EZ_FORCE_INLINE ezSimdVec4i ezSimdVec4i::operator>>(const ezSimdVec4i& v) const
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator<<(const ezSimdVec4i& v) const
 {
-  int a[4];
-  int b[4];
-  Store<4>(a);
-  v.Store<4>(b);
+#if defined(__AVX2__)
+  return _mm_sllv_epi32(m_v, v.m_v);
+#else
+  // SSE2 uses one count from the low 64 bits. Isolate each count and collect its lane.
+  const __m128i vCountMask = _mm_setr_epi32(~0, 0, 0, 0);
+  const __m128i vX = _mm_sll_epi32(m_v, _mm_and_si128(v.m_v, vCountMask));
+  const __m128i vY = _mm_srli_si128(_mm_sll_epi32(m_v, _mm_and_si128(_mm_srli_si128(v.m_v, 4), vCountMask)), 4);
+  const __m128i vZ = _mm_srli_si128(_mm_sll_epi32(m_v, _mm_and_si128(_mm_srli_si128(v.m_v, 8), vCountMask)), 8);
+  const __m128i vW = _mm_srli_si128(_mm_sll_epi32(m_v, _mm_srli_si128(v.m_v, 12)), 12);
+  return _mm_unpacklo_epi64(_mm_unpacklo_epi32(vX, vY), _mm_unpacklo_epi32(vZ, vW));
+#endif
+}
 
-  for (ezUInt32 i = 0; i < 4; ++i)
-  {
-    a[i] = a[i] >> b[i];
-  }
-
-  ezSimdVec4i r;
-  r.Load<4>(a);
-  return r;
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator>>(const ezSimdVec4i& v) const
+{
+#if defined(__AVX2__)
+  return _mm_srav_epi32(m_v, v.m_v);
+#else
+  const __m128i vCountMask = _mm_setr_epi32(~0, 0, 0, 0);
+  const __m128i vX = _mm_sra_epi32(m_v, _mm_and_si128(v.m_v, vCountMask));
+  const __m128i vY = _mm_srli_si128(_mm_sra_epi32(m_v, _mm_and_si128(_mm_srli_si128(v.m_v, 4), vCountMask)), 4);
+  const __m128i vZ = _mm_srli_si128(_mm_sra_epi32(m_v, _mm_and_si128(_mm_srli_si128(v.m_v, 8), vCountMask)), 8);
+  const __m128i vW = _mm_srli_si128(_mm_sra_epi32(m_v, _mm_srli_si128(v.m_v, 12)), 12);
+  return _mm_unpacklo_epi64(_mm_unpacklo_epi32(vX, vY), _mm_unpacklo_epi32(vZ, vW));
+#endif
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4i& ezSimdVec4i::operator+=(const ezSimdVec4i& v)
@@ -378,6 +385,16 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Select(const ezSimdVec4b& vCmp, const 
 #else
   return _mm_castps_si128(_mm_or_ps(_mm_andnot_ps(vCmp.m_v, _mm_castsi128_ps(vFalse.m_v)), _mm_and_ps(vCmp.m_v, _mm_castsi128_ps(vTrue.m_v))));
 #endif
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4i::ReinterpretAsFloat() const
+{
+  return _mm_castsi128_ps(m_v);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4f::ReinterpretAsInt() const
+{
+  return _mm_castps_si128(m_v);
 }
 
 // not needed atm

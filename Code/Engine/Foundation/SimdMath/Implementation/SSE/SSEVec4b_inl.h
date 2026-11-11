@@ -115,3 +115,18 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::Select(const ezSimdVec4b& vCmp, const 
   return _mm_or_ps(_mm_andnot_ps(vCmp.m_v, vFalse.m_v), _mm_and_ps(vCmp.m_v, vTrue.m_v));
 #endif
 }
+
+EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4b::GetMoveMask() const
+{
+  return static_cast<ezUInt32>(_mm_movemask_ps(m_v));
+}
+
+// static
+EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::MakeFromBitMask(ezUInt32 uiMask)
+{
+  // Broadcast mask to all lanes, AND with per-lane bit, compare != 0
+  __m128i vMask = _mm_set1_epi32(static_cast<int>(uiMask));
+  __m128i vBits = _mm_setr_epi32(1, 2, 4, 8);
+  __m128i vResult = _mm_cmpeq_epi32(_mm_and_si128(vMask, vBits), vBits);
+  return _mm_castsi128_ps(vResult);
+}

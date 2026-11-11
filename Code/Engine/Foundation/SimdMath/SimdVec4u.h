@@ -51,6 +51,14 @@ public:
 
   [[nodiscard]] ezSimdVec4u CompMul(const ezSimdVec4u& v) const;   // [tested]
 
+  /// Subtracts eight packed unsigned 16-bit integers independently, clamping each result to zero.
+  [[nodiscard]] ezSimdVec4u SubtractSaturated16(const ezSimdVec4u& v) const; // [tested]
+
+  /// Transposes the 4x4 matrix of bytes stored in the four components.
+  ///
+  /// Each component is one row, with bytes ordered from least to most significant.
+  [[nodiscard]] ezSimdVec4u TransposeBytes() const;                // [tested]
+
   [[nodiscard]] ezSimdVec4u operator|(const ezSimdVec4u& v) const; // [tested]
   [[nodiscard]] ezSimdVec4u operator&(const ezSimdVec4u& v) const; // [tested]
   [[nodiscard]] ezSimdVec4u operator^(const ezSimdVec4u& v) const; // [tested]
@@ -58,6 +66,12 @@ public:
 
   [[nodiscard]] ezSimdVec4u operator<<(ezUInt32 uiShift) const;    // [tested]
   [[nodiscard]] ezSimdVec4u operator>>(ezUInt32 uiShift) const;    // [tested]
+
+  /// Shifts each component left by the corresponding count. Counts >= 32 produce zero.
+  [[nodiscard]] ezSimdVec4u operator<<(const ezSimdVec4u& vShift) const; // [tested]
+
+  /// Shifts each component right logically by the corresponding count. Counts >= 32 produce zero.
+  [[nodiscard]] ezSimdVec4u operator>>(const ezSimdVec4u& vShift) const; // [tested]
 
   ezSimdVec4u& operator+=(const ezSimdVec4u& v);                   // [tested]
   ezSimdVec4u& operator-=(const ezSimdVec4u& v);                   // [tested]

@@ -1,0 +1,56 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+CAMERA_MODE
+
+[RENDERSTATE]
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+[SHADER]
+#define USE_TEXCOORD0
+
+[VERTEXSHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+};
+
+VS_OUT main(uint VertexID : SV_VertexID)
+{
+  // Fullscreen triangle
+  float2 uv = float2((VertexID << 1) & 2, VertexID & 2);
+
+  VS_OUT Output;
+  Output.Position = float4(uv * 2.0 - 1.0, 0.0, 1.0);
+  Output.TexCoord0 = uv;
+  return Output;
+}
+
+[PIXELSHADER]
+
+Texture2D OverlayTexture;
+SamplerState OverlayTexture_AutoSampler;
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+};
+
+float4 main(PS_IN Input) : SV_Target
+{
+  float4 color = OverlayTexture.Sample(OverlayTexture_AutoSampler, Input.TexCoord0);
+
+  // Discard fully black pixels (background) so the debug geometry shows through
+  if (color.r + color.g + color.b < 0.01)
+    discard;
+
+  return color;
+}

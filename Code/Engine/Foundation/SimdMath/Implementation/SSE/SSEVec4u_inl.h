@@ -148,6 +148,16 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator|(const ezSimdVec4u& v) const
   return _mm_or_si128(m_v, v.m_v);
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::SubtractSaturated16(const ezSimdVec4u& v) const
+{
+  return _mm_subs_epu16(m_v, v.m_v);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::TransposeBytes() const
+{
+  return ezSimdVec4u(ezSimdVec4i(*this).TransposeBytes());
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator&(const ezSimdVec4u& v) const
 {
   return _mm_and_si128(m_v, v.m_v);
@@ -172,6 +182,35 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator<<(ezUInt32 uiShift) const
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator>>(ezUInt32 uiShift) const
 {
   return _mm_srli_epi32(m_v, uiShift);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator<<(const ezSimdVec4u& vShift) const
+{
+#if defined(__AVX2__)
+  return _mm_sllv_epi32(m_v, vShift.m_v);
+#else
+  // SSE2 uses one count from the low 64 bits. Isolate each count and collect its lane.
+  const __m128i vCountMask = _mm_setr_epi32(~0, 0, 0, 0);
+  const __m128i vX = _mm_sll_epi32(m_v, _mm_and_si128(vShift.m_v, vCountMask));
+  const __m128i vY = _mm_srli_si128(_mm_sll_epi32(m_v, _mm_and_si128(_mm_srli_si128(vShift.m_v, 4), vCountMask)), 4);
+  const __m128i vZ = _mm_srli_si128(_mm_sll_epi32(m_v, _mm_and_si128(_mm_srli_si128(vShift.m_v, 8), vCountMask)), 8);
+  const __m128i vW = _mm_srli_si128(_mm_sll_epi32(m_v, _mm_srli_si128(vShift.m_v, 12)), 12);
+  return _mm_unpacklo_epi64(_mm_unpacklo_epi32(vX, vY), _mm_unpacklo_epi32(vZ, vW));
+#endif
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator>>(const ezSimdVec4u& vShift) const
+{
+#if defined(__AVX2__)
+  return _mm_srlv_epi32(m_v, vShift.m_v);
+#else
+  const __m128i vCountMask = _mm_setr_epi32(~0, 0, 0, 0);
+  const __m128i vX = _mm_srl_epi32(m_v, _mm_and_si128(vShift.m_v, vCountMask));
+  const __m128i vY = _mm_srli_si128(_mm_srl_epi32(m_v, _mm_and_si128(_mm_srli_si128(vShift.m_v, 4), vCountMask)), 4);
+  const __m128i vZ = _mm_srli_si128(_mm_srl_epi32(m_v, _mm_and_si128(_mm_srli_si128(vShift.m_v, 8), vCountMask)), 8);
+  const __m128i vW = _mm_srli_si128(_mm_srl_epi32(m_v, _mm_srli_si128(vShift.m_v, 12)), 12);
+  return _mm_unpacklo_epi64(_mm_unpacklo_epi32(vX, vY), _mm_unpacklo_epi32(vZ, vW));
+#endif
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator+=(const ezSimdVec4u& v)

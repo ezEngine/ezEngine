@@ -158,6 +158,24 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator|(const ezSimdVec4u& v) const
   return result;
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::SubtractSaturated16(const ezSimdVec4u& v) const
+{
+  auto Subtract = [](ezUInt32 a, ezUInt32 b) -> ezUInt32
+  {
+    const ezUInt32 uiLowA = a & 0xFFFF;
+    const ezUInt32 uiLowB = b & 0xFFFF;
+    const ezUInt32 uiHighA = a >> 16;
+    const ezUInt32 uiHighB = b >> 16;
+    return (uiLowA - ezMath::Min(uiLowA, uiLowB)) | ((uiHighA - ezMath::Min(uiHighA, uiHighB)) << 16);
+  };
+  return ezSimdVec4u(Subtract(m_v.x, v.m_v.x), Subtract(m_v.y, v.m_v.y), Subtract(m_v.z, v.m_v.z), Subtract(m_v.w, v.m_v.w));
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::TransposeBytes() const
+{
+  return ezSimdVec4u(ezSimdVec4i(*this).TransposeBytes());
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator&(const ezSimdVec4u& v) const
 {
   ezSimdVec4u result;
@@ -211,6 +229,22 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator>>(ezUInt32 uiShift) const
   result.m_v.w = m_v.w >> uiShift;
 
   return result;
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator<<(const ezSimdVec4u& vShift) const
+{
+  return ezSimdVec4u(vShift.m_v.x < 32 ? m_v.x << vShift.m_v.x : 0,
+    vShift.m_v.y < 32 ? m_v.y << vShift.m_v.y : 0,
+    vShift.m_v.z < 32 ? m_v.z << vShift.m_v.z : 0,
+    vShift.m_v.w < 32 ? m_v.w << vShift.m_v.w : 0);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator>>(const ezSimdVec4u& vShift) const
+{
+  return ezSimdVec4u(vShift.m_v.x < 32 ? m_v.x >> vShift.m_v.x : 0,
+    vShift.m_v.y < 32 ? m_v.y >> vShift.m_v.y : 0,
+    vShift.m_v.z < 32 ? m_v.z >> vShift.m_v.z : 0,
+    vShift.m_v.w < 32 ? m_v.w >> vShift.m_v.w : 0);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator+=(const ezSimdVec4u& v)

@@ -5,7 +5,7 @@ ez_requires_renderer()
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-ez_create_target(APPLICATION ${PROJECT_NAME})
+ez_create_target(APPLICATION ${PROJECT_NAME} EXCLUDE_FOLDER_FOR_UNITY DataStructures)
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
@@ -32,5 +32,8 @@ endif()
 
 ez_add_renderers(${PROJECT_NAME})
 
-ez_ci_add_test(${PROJECT_NAME} NEEDS_HW_ACCESS)
+if (EZ_3RDPARTY_MOC_SUPPORT)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE EZ_RENDERERTEST_MOC_SUPPORT)
+endif()
 
+ez_ci_add_test(${PROJECT_NAME} NEEDS_HW_ACCESS)
