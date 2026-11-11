@@ -1356,7 +1356,7 @@ void ezJoltBreakableSlabComponent::DebugDraw()
     }
   }
 
-  ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White, trans);
+  ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White, 0.0f, trans);
 
   {
     const ezVec3 vCenter = GetOwner()->GetGlobalPosition() + GetOwner()->GetGlobalRotation() * (ezVec3(m_fWidth * 0.5f, m_fHeight * 0.2f, 0));

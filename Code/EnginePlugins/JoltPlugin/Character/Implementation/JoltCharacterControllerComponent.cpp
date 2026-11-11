@@ -384,7 +384,7 @@ void ezJoltCharacterControllerComponent::VisualizeContact(const ContactPoint& co
   trans.m_qRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), contact.m_vContactNormal);
   trans.m_vScale.Set(1.0f);
 
-  ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.1f, ezColor::MakeZero(), color, trans);
+  ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.1f, ezColor::MakeZero(), color, 0.0f, trans);
 }
 
 void ezJoltCharacterControllerComponent::VisualizeContacts(const ezDynamicArray<ContactPoint>& contacts, const ezColor& color) const

@@ -6,13 +6,19 @@ DataDir
 }
 DataDir
 {
-	string %Path{">project/"}
-	string %RootName{"project"}
-	bool %Writable{true}
+	string %Path{">sdk/Data/Plugins/GameComponentsPlugin"}
+	string %RootName{""}
+	bool %Writable{false}
 }
 DataDir
 {
 	string %Path{">sdk/Data/Plugins/KrautPlugin"}
+	string %RootName{""}
+	bool %Writable{false}
+}
+DataDir
+{
+	string %Path{">sdk/Data/Plugins/ParticlePlugin"}
 	string %RootName{""}
 	bool %Writable{false}
 }
@@ -30,7 +36,7 @@ DataDir
 }
 DataDir
 {
-	string %Path{">sdk/Data/Plugins/ParticlePlugin"}
-	string %RootName{""}
-	bool %Writable{false}
+	string %Path{">project/"}
+	string %RootName{"project"}
+	bool %Writable{true}
 }

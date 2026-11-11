@@ -5,20 +5,22 @@ ALL
 
 CAMERA_MODE
 MSAA
+OCCLUDED_PASS
 
 [RENDERSTATE]
 
-// The lines are opaque. Blending is only used for the soft edges without MSAA, where alpha is the pixel coverage.
-#if MSAA
-  BlendingEnabled0 = false
+// Without MSAA the alpha is also multiplied with the pixel coverage at the soft edges.
+BlendingEnabled0 = true
+DestBlend0 = Blend_InvSrcAlpha
+SourceBlend0 = Blend_SrcAlpha
+DestBlendAlpha0 = Blend_InvSrcAlpha
+
+#if OCCLUDED_PASS
+  DepthTest = false
 #else
-  BlendingEnabled0 = true
-  DestBlend0 = Blend_InvSrcAlpha
-  SourceBlend0 = Blend_SrcAlpha
-  DestBlendAlpha0 = Blend_InvSrcAlpha
+  DepthTest = true
 #endif
 
-DepthTest = true
 DepthWrite = false
 
 // The winding of the expanded quad depends on the line direction.
@@ -109,13 +111,23 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     colorB = lerp(colorB, colorA, t);
   }
 
-  // Work in pixel units, centered on the viewport. The thickness is given in pixels at a viewport height of 1080.
+#if OCCLUDED_PASS
+  // Same distance fade as in DebugPrimitive.ezShader, but per line end. w is the view distance for perspective cameras.
+  {
+    const float fadeStart = 30.0;
+    const float fadeDist = 70.0;
+    colorA.a *= saturate(1.0 - (a.w - fadeStart) / fadeDist);
+    colorB.a *= saturate(1.0 - (b.w - fadeStart) / fadeDist);
+  }
+#endif
+
+  // Work in pixel units, centered on the viewport. The thickness is in pixels, the CPU already applied the display and render scale.
   float2 halfViewport = ViewportSize.xy * 0.5;
   float2 pixA = (a.xy / a.w) * halfViewport;
   float2 pixB = (b.xy / b.w) * halfViewport;
 
   // Never get thinner than one pixel, otherwise the line breaks into gaps.
-  float halfWidth = max(data.thickness * ViewportSize.y / 1080.0, 1.0) * 0.5;
+  float halfWidth = max(data.thickness, 1.0) * 0.5;
 
   float2 dir = pixB - pixA;
   float len = length(dir);
@@ -151,10 +163,11 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 #include <Shaders/Materials/MaterialInterpolator.h>
 
 // Soft edges:
-// With MSAA the coverage mask is computed per sample and the color is opaque.
-// Without MSAA the alpha is the coverage of the pixel. It is 1 inside the line, thus only a one pixel wide band at the
-// edges is blended. Where the caps of two segments overlap, the edge bands can blend twice, which makes the outer edge of
-// a joint slightly stronger. The default render pipelines render debug geometry after the MSAA resolve, so they use this path.
+// With MSAA the coverage mask is computed per sample and the alpha is the one of the line color.
+// Without MSAA the alpha is additionally multiplied with the coverage of the pixel. That is 1 inside the line, thus only a one pixel
+// wide band at the edges is blended. Where the caps of two segments overlap, that area is blended twice, which makes the outer edge of
+// a joint slightly stronger and transparent lines less transparent at the joints.
+// The default render pipelines render debug geometry after the MSAA resolve, so they use the path without MSAA.
 
 struct PS_OUT
 {
@@ -181,7 +194,7 @@ PS_OUT main(PS_IN Input)
   float dist = LineDistance(Input.PixelPos, Input.LineEnds, t);
 
   PS_OUT Output;
-  Output.Color = float4(lerp(Input.Color0.rgb, Input.ColorEnd.rgb, t), 1.0);
+  Output.Color = lerp(Input.Color0, Input.ColorEnd, t);
 
 #if MSAA
 
@@ -208,7 +221,7 @@ PS_OUT main(PS_IN Input)
   float coverage = saturate(Input.HalfWidth - dist + 0.5);
   clip(coverage - 0.001);
 
-  Output.Color.a = coverage;
+  Output.Color.a *= coverage;
 
 #endif
 

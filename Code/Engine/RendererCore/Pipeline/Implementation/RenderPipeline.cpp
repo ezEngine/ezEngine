@@ -478,7 +478,7 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
   if (cvar_SpatialCullingVis && bIsMainView)
   {
-    ezDebugRenderer::DrawLineFrustum(view.GetWorld(), frustum, ezColor::LimeGreen, false);
+    ezDebugRenderer::DrawLineFrustum(view.GetWorld(), frustum, ezColor::LimeGreen, 0.0f, false);
   }
 
   if (bRecordStats)

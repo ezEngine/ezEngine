@@ -506,7 +506,7 @@ void ezJoltDefaultCharacterComponent::DebugVisualizations()
     {
       ezQuat rot = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), gnom);
 
-      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::MakeZero(), ezColor::Aquamarine, ezTransform(gpos, rot));
+      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::MakeZero(), ezColor::Aquamarine, 0.0f, ezTransform(gpos, rot));
     }
   }
 
@@ -516,7 +516,7 @@ void ezJoltDefaultCharacterComponent::DebugVisualizations()
 
     shapeTrans.m_vPosition.z += GetCurrentCapsuleHeight() * 0.5f;
 
-    ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), GetCurrentCylinderHeight(), GetShapeRadius(), ezColor::CornflowerBlue, shapeTrans);
+    ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), GetCurrentCylinderHeight(), GetShapeRadius(), ezColor::CornflowerBlue, 0.0f, shapeTrans);
   }
 }
 
@@ -577,13 +577,13 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
 
     if (m_DebugFlags.IsAnySet(ezJoltCharacterDebugFlags::VisFootCheck))
     {
-      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::MakeZero(), color, ezTransform(gpos, rot));
+      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::MakeZero(), color, 0.0f, ezTransform(gpos, rot));
     }
   }
 
   if (m_DebugFlags.IsAnySet(ezJoltCharacterDebugFlags::VisFootCheck))
   {
-    ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), halfHeight * 2.0f, radius, ezColor::YellowGreen, ezTransform(shapeTrans.m_vPosition));
+    ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), halfHeight * 2.0f, radius, ezColor::YellowGreen, 0.0f, ezTransform(shapeTrans.m_vPosition));
   }
 }
 

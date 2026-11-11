@@ -66,8 +66,8 @@ void ezGizmoComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
       l.m_end = m_Lines[v + 1];
     }
 
-    ezDebugRenderer::DrawLinesOccluded(ezDebugRendererContext(msg.m_pView->GetHandle()), lines, m_GizmoColor.GetDarker(), GetOwner()->GetGlobalTransform());
-    ezDebugRenderer::DrawLines(ezDebugRendererContext(msg.m_pView->GetHandle()), lines, m_GizmoColor, GetOwner()->GetGlobalTransform());
+    ezDebugRenderer::DrawLinesOccluded(ezDebugRendererContext(msg.m_pView->GetHandle()), lines, m_GizmoColor.GetDarker(), 0.0f, GetOwner()->GetGlobalTransform());
+    ezDebugRenderer::DrawLines(ezDebugRendererContext(msg.m_pView->GetHandle()), lines, m_GizmoColor, 0.0f, GetOwner()->GetGlobalTransform());
 
     if (!m_hMesh.IsValid())
       return;

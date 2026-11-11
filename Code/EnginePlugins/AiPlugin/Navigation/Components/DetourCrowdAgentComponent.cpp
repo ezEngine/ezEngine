@@ -492,9 +492,9 @@ void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx
         line.m_start = pAgent->GetOwner()->GetGlobalPosition();
         line.m_end = pAgent->m_vActualDestination;
 
-        ezDebugRenderer::DrawLines(GetWorld(), ezArrayPtr(&line, 1), ezColor::DarkSalmon, ezTransform::Make(ezVec3(0.0f, 0.0f, 0.1f)));
+        ezDebugRenderer::DrawLines(GetWorld(), ezArrayPtr(&line, 1), ezColor::DarkSalmon, 0.0f, ezTransform::Make(ezVec3(0.0f, 0.0f, 0.1f)));
 
-        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), 0.2f), ezColor::DarkSalmon, ezTransform::Make(pAgent->m_vActualDestination));
+        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), 0.2f), ezColor::DarkSalmon, 0.0f, ezTransform::Make(pAgent->m_vActualDestination));
       }
     }
   }
@@ -517,7 +517,7 @@ void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx
           transform.m_vPosition.z += fHeight * 0.5f;
 
           // Draw agent cylinder
-          ezDebugRenderer::DrawLineCylinderZ(GetWorld(), fHeight, fRadius, ezColor::BlueViolet, transform);
+          ezDebugRenderer::DrawLineCylinderZ(GetWorld(), fHeight, fRadius, ezColor::BlueViolet, 0.0f, transform);
 
           // Draw velocity arrow
           ezVec3 vVelocity = ezRcPos(pDtAgent->vel);
@@ -526,7 +526,7 @@ void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx
           {
             vVelocity.Normalize();
             transform.m_qRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vVelocity);
-            ezDebugRenderer::DrawArrow(GetWorld(), 1.0f, ezColor::BlueViolet, transform);
+            ezDebugRenderer::DrawArrow(GetWorld(), 1.0f, ezColor::BlueViolet, 0.0f, transform);
           }
 
           // Draw path corners
@@ -543,7 +543,7 @@ void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx
               lines[i].m_end = ezRcPos(pDtAgent->cornerVerts + 3 * i + 3);
             }
 
-            ezDebugRenderer::DrawLines(GetWorld(), ezArrayPtr(lines, pDtAgent->ncorners), ezColor::Cyan, ezTransform::Make(ezVec3(0.0f, 0.0f, 0.1f)));
+            ezDebugRenderer::DrawLines(GetWorld(), ezArrayPtr(lines, pDtAgent->ncorners), ezColor::Cyan, 0.0f, ezTransform::Make(ezVec3(0.0f, 0.0f, 0.1f)));
           }
         }
       }

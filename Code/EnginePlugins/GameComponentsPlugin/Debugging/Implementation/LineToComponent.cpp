@@ -47,8 +47,8 @@ void ezLineToComponent::Update()
   line.m_start = GetOwner()->GetGlobalPosition();
   line.m_end = pTarget->GetGlobalPosition();
 
-  ezDebugRenderer::DrawLinesOccluded(GetWorld(), lines, m_LineColor.GetDarker());
-  ezDebugRenderer::DrawThickLines(GetWorld(), lines, m_LineColor, m_fThickness);
+  ezDebugRenderer::DrawLinesOccluded(GetWorld(), lines, m_LineColor.GetDarker(), m_fThickness);
+  ezDebugRenderer::DrawLines(GetWorld(), lines, m_LineColor, m_fThickness);
 }
 
 void ezLineToComponent::SerializeComponent(ezWorldWriter& inout_stream) const

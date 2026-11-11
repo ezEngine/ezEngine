@@ -74,37 +74,37 @@ void ezSkeletonComponent::Update()
     const ezVec3 vBoneDir = qBoneDir * ezVec3(1, 0, 0);
     const ezVec3 vBoneTangent = qBoneDir * ezVec3(0, 1, 0);
 
-    ezDebugRenderer::DrawLinesOccluded(GetWorld(), m_LinesSkeleton, ezColor::White, GetOwner()->GetGlobalTransform());
-    ezDebugRenderer::DrawLines(GetWorld(), m_LinesSkeleton, ezColor::White, GetOwner()->GetGlobalTransform());
+    ezDebugRenderer::DrawLinesOccluded(GetWorld(), m_LinesSkeleton, ezColor::White, 0.0f, GetOwner()->GetGlobalTransform());
+    ezDebugRenderer::DrawLines(GetWorld(), m_LinesSkeleton, ezColor::White, 0.0f, GetOwner()->GetGlobalTransform());
 
     for (const auto& shape : m_SpheresShapes)
     {
-      ezDebugRenderer::DrawLineSphere(GetWorld(), shape.m_Shape, shape.m_Color, GetOwner()->GetGlobalTransform() * shape.m_Transform);
+      ezDebugRenderer::DrawLineSphere(GetWorld(), shape.m_Shape, shape.m_Color, 0.0f, GetOwner()->GetGlobalTransform() * shape.m_Transform);
     }
 
     for (const auto& shape : m_BoxShapes)
     {
-      ezDebugRenderer::DrawLineBox(GetWorld(), shape.m_Shape, shape.m_Color, GetOwner()->GetGlobalTransform() * shape.m_Transform);
+      ezDebugRenderer::DrawLineBox(GetWorld(), shape.m_Shape, shape.m_Color, 0.0f, GetOwner()->GetGlobalTransform() * shape.m_Transform);
     }
 
     for (const auto& shape : m_CapsuleShapes)
     {
-      ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), shape.m_fLength, shape.m_fRadius, shape.m_Color, GetOwner()->GetGlobalTransform() * shape.m_Transform);
+      ezDebugRenderer::DrawLineCapsuleZ(GetWorld(), shape.m_fLength, shape.m_fRadius, shape.m_Color, 0.0f, GetOwner()->GetGlobalTransform() * shape.m_Transform);
     }
 
     for (const auto& shape : m_AngleShapes)
     {
-      ezDebugRenderer::DrawAngle(GetWorld(), shape.m_StartAngle, shape.m_EndAngle, ezColor::MakeZero(), shape.m_Color, GetOwner()->GetGlobalTransform() * shape.m_Transform, vBoneTangent, vBoneDir);
+      ezDebugRenderer::DrawAngle(GetWorld(), shape.m_StartAngle, shape.m_EndAngle, ezColor::MakeZero(), shape.m_Color, 0.0f, GetOwner()->GetGlobalTransform() * shape.m_Transform, vBoneTangent, vBoneDir);
     }
 
     for (const auto& shape : m_ConeLimitShapes)
     {
-      ezDebugRenderer::DrawLimitCone(GetWorld(), shape.m_Angle1, shape.m_Angle2, ezColor::MakeZero(), shape.m_Color, GetOwner()->GetGlobalTransform() * shape.m_Transform);
+      ezDebugRenderer::DrawLimitCone(GetWorld(), shape.m_Angle1, shape.m_Angle2, ezColor::MakeZero(), shape.m_Color, 0.0f, GetOwner()->GetGlobalTransform() * shape.m_Transform);
     }
 
     for (const auto& shape : m_CylinderShapes)
     {
-      ezDebugRenderer::DrawCylinder(GetWorld(), shape.m_fRadius1, shape.m_fRadius2, shape.m_fLength, shape.m_Color, ezColor::MakeZero(), GetOwner()->GetGlobalTransform() * shape.m_Transform, false, false);
+      ezDebugRenderer::DrawCylinder(GetWorld(), shape.m_fRadius1, shape.m_fRadius2, shape.m_fLength, shape.m_Color, ezColor::MakeZero(), 0.0f, GetOwner()->GetGlobalTransform() * shape.m_Transform, false, false);
     }
   }
 }

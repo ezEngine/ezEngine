@@ -163,7 +163,7 @@ void ezParticleBehavior_Wind::UpdateFromWorld(const ezParticleModuleContext& ctx
         if (fWindStrength > 0.01f)
         {
           const ezQuat q = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), vWind);
-          ezDebugRenderer::DrawArrow(&world, fWindStrength, c, ezTransform::Make(samplePos0, q));
+          ezDebugRenderer::DrawArrow(&world, fWindStrength, c, 0.0f, ezTransform::Make(samplePos0, q));
         }
       }
 #endif

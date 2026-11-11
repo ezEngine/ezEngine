@@ -517,7 +517,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
     ezTransform t;
     t.SetIdentity();
     t.m_qRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(25));
-    ezDebugRenderer::DrawLineBox(m_pWorld.Borrow(), bbox, ezColor::HotPink, t);
+    ezDebugRenderer::DrawLineBox(m_pWorld.Borrow(), bbox, ezColor::HotPink, 0.0f, t);
   }
 
   // line box
@@ -528,7 +528,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
     t.SetIdentity();
     t.m_vPosition.Set(0, 5, -2);
     t.m_qRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(25));
-    ezDebugRenderer::DrawLineBoxCorners(m_pWorld.Borrow(), bbox, 0.5f, ezColor::DeepPink, t);
+    ezDebugRenderer::DrawLineBoxCorners(m_pWorld.Borrow(), bbox, 0.5f, ezColor::DeepPink, 0.0f, t);
   }
 
   // 2D Rect
@@ -642,18 +642,18 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingThickLines
       vPrev = vNext;
     }
 
-    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), lines, ezColor::Orange, 12.0f);
+    ezDebugRenderer::DrawLines(m_pWorld.Borrow(), lines, ezColor::Orange, 3.0f);
   }
 
   // Different thicknesses, including one below a pixel.
   {
-    const float thicknesses[] = {0.5f, 1.0f, 2.0f, 4.0f, 8.0f, 16.0f, 32.0f};
+    const float thicknesses[] = {0.5f, 1.0f, 1.5f, 2.0f, 3.0f, 4.0f, 6.0f};
 
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(thicknesses); ++i)
     {
       const float z = 4.0f - i * 1.5f;
       ezDebugRendererLine line(ezVec3(10, 9, z), ezVec3(10, 1, z - 1.0f));
-      ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::SkyBlue, thicknesses[i]);
+      ezDebugRenderer::DrawLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::SkyBlue, thicknesses[i]);
     }
   }
 
@@ -662,7 +662,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingThickLines
     ezDebugRendererLine line(ezVec3(10, -1, 4), ezVec3(10, -8, 3));
     line.m_startColor = ezColor::Red;
     line.m_endColor = ezColor::Yellow;
-    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::White, 20.0f);
+    ezDebugRenderer::DrawLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::White, 5.0f);
   }
 
   // Depth test: the line goes through a solid box, the middle part must be hidden.
@@ -671,25 +671,25 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingThickLines
     ezDebugRenderer::DrawSolidBox(m_pWorld.Borrow(), bbox, ezColor::BurlyWood);
 
     ezDebugRendererLine line(ezVec3(10, -1.5f, 0), ezVec3(10, -8.5f, 0.5f));
-    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::LawnGreen, 10.0f);
+    ezDebugRenderer::DrawLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::LawnGreen, 3.0f);
   }
 
   // Line that starts behind the camera: must be clipped at the near plane, not flip or explode.
   {
     ezDebugRendererLine line(ezVec3(-5, -3, -4), ezVec3(15, -8, -6));
-    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::HotPink, 8.0f);
+    ezDebugRenderer::DrawLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::HotPink, 2.0f);
   }
 
   // Line that is completely behind the camera: must not be visible.
   {
     ezDebugRendererLine line(ezVec3(-5, -5, 0), ezVec3(-5, 5, 0));
-    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::Red, 50.0f);
+    ezDebugRenderer::DrawLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::Red, 12.0f);
   }
 
   // Zero length line: renders as a dot.
   {
     ezDebugRendererLine line(ezVec3(10, 6, -6), ezVec3(10, 6, -6));
-    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::Cornsilk, 30.0f);
+    ezDebugRenderer::DrawLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::Cornsilk, 8.0f);
   }
 
   // Transform: a square, rotated and moved.
@@ -704,7 +704,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingThickLines
     ezTransform t = ezTransform::MakeIdentity();
     t.m_vPosition.Set(10, 4, -6);
     t.m_qRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(30));
-    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), ezMakeArrayPtr(lines), ezColor::MediumPurple, 6.0f, t);
+    ezDebugRenderer::DrawLines(m_pWorld.Borrow(), ezMakeArrayPtr(lines), ezColor::MediumPurple, 2.0f, t);
   }
 
   // Curve: a closed circle from many short segments, the joints must not be visible.
@@ -719,7 +719,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingThickLines
       lines.PushBack(ezDebugRendererLine(ezVec3(10, 12.5f + 2.5f * ezMath::Cos(a0), 5 + 2.5f * ezMath::Sin(a0)), ezVec3(10, 12.5f + 2.5f * ezMath::Cos(a1), 5 + 2.5f * ezMath::Sin(a1))));
     }
 
-    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), lines, ezColor::Aquamarine, 6.0f);
+    ezDebugRenderer::DrawLines(m_pWorld.Borrow(), lines, ezColor::Aquamarine, 2.0f);
   }
 
   // Color gradient across multiple joints: each segment continues the color of the previous one.
@@ -742,7 +742,27 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingThickLines
       line.m_endColor = GetColor(i + 1);
     }
 
-    ezDebugRenderer::DrawThickLines(m_pWorld.Borrow(), lines, ezColor::White, 14.0f);
+    ezDebugRenderer::DrawLines(m_pWorld.Borrow(), lines, ezColor::White, 4.0f);
+  }
+
+  // Occluded thick lines: the part inside the box is rendered by the occluded pass, the rest by the depth tested pass.
+  {
+    ezDebugRendererLine line(ezVec3(10, -1.5f, -0.6f), ezVec3(10, -8.5f, -0.6f));
+    ezDebugRenderer::DrawLinesOccluded(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::Orange, 3.0f);
+    ezDebugRenderer::DrawLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor::RoyalBlue, 3.0f);
+  }
+
+  // Transparent thick line in front of the box.
+  {
+    ezDebugRendererLine line(ezVec3(8.5f, -3, 0.4f), ezVec3(8.5f, -7, 0.4f));
+    ezDebugRenderer::DrawLines(m_pWorld.Borrow(), ezMakeArrayPtr(&line, 1), ezColor(1, 1, 1, 0.5f), 6.0f);
+  }
+
+  // Shapes with thick lines.
+  {
+    ezDebugRenderer::DrawLineBox(m_pWorld.Borrow(), ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3(10, -11, 4), ezVec3(1.5f)), ezColor::Yellow, 2.0f);
+    ezDebugRenderer::DrawLineSphere(m_pWorld.Borrow(), ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(10, -11, -1.5f), 1.5f), ezColor::Coral, 2.0f);
+    ezDebugRenderer::DrawArrow(m_pWorld.Borrow(), 3.0f, ezColor::Cyan, 2.0f, ezTransform(ezVec3(10, -9.5f, -6)), ezVec3(0, -1, 0));
   }
 
   Run();

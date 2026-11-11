@@ -220,7 +220,7 @@ void ezProcVolumeSplineComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
   }
 
   ezColor c = ezColorScheme::GetCategoryColor("Construction", ezColorScheme::CategoryColorUsage::ViewportIcon);
-  ezDebugRenderer::DrawLines(GetWorld(), m_DebugLines, c, GetOwner()->GetGlobalTransform());
+  ezDebugRenderer::DrawLines(GetWorld(), m_DebugLines, c, 0.0f, GetOwner()->GetGlobalTransform());
 }
 
 const ezSplineComponent* ezProcVolumeSplineComponent::GetSplineComponent() const

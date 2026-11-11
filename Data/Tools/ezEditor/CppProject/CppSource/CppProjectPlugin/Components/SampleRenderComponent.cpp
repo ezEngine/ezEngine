@@ -120,18 +120,18 @@ void SampleRenderComponent::Update()
   {
     ezBoundingBox bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(m_fSize));
 
-    ezDebugRenderer::DrawLineBox(GetWorld(), bbox, m_Color, ownerTransform);
+    ezDebugRenderer::DrawLineBox(GetWorld(), bbox, m_Color, 0, ownerTransform);
   }
 
   if (m_RenderTypes.IsSet(SampleRenderComponentMask::Cross))
   {
-    ezDebugRenderer::DrawCross(GetWorld(), ezVec3::MakeZero(), m_fSize, m_Color, ownerTransform);
+    ezDebugRenderer::DrawCross(GetWorld(), ezVec3::MakeZero(), m_fSize, m_Color, 0, ownerTransform);
   }
 
   if (m_RenderTypes.IsSet(SampleRenderComponentMask::Sphere))
   {
     ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fSize);
-    ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_Color, ownerTransform);
+    ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_Color, 0, ownerTransform);
   }
 
   if (m_RenderTypes.IsSet(SampleRenderComponentMask::Quad) && m_hTexture.IsValid())

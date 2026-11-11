@@ -151,7 +151,7 @@ void ezPointLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
     rotXtoZ.SetColumn(1, ezVec3(0, 1, 0));
     rotXtoZ.SetColumn(2, ezVec3(-1, 0, 0));
     capsuleMat.SetRotationalPart(t.m_qRotation.GetAsMat3() * rotXtoZ);
-    ezDebugRenderer::DrawLineCapsuleZ(msg.m_pView->GetHandle(), fEffectiveLength, fEffectiveRadius, ezColorScheme::LightUI(ezColorScheme::Yellow), capsuleMat);
+    ezDebugRenderer::DrawLineCapsuleZ(msg.m_pView->GetHandle(), fEffectiveLength, fEffectiveRadius, ezColorScheme::LightUI(ezColorScheme::Yellow), 0.0f, capsuleMat);
   }
 #endif
 

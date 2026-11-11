@@ -533,7 +533,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
       {
         ezDebugRenderer::DrawLineSphere(referenceView.GetHandle(), ezBoundingSphere::MakeFromCenterAndRadius(center, radius), ezColorScheme::LightUI(ezColorScheme::Orange));
 
-        ezDebugRenderer::DrawLineSphere(referenceView.GetHandle(), ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, fCameraToCenterDistance), radius), ezColorScheme::LightUI(ezColorScheme::Red), ezTransform::MakeFromMat4(camera.GetViewMatrix().GetInverse()));
+        ezDebugRenderer::DrawLineSphere(referenceView.GetHandle(), ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, fCameraToCenterDistance), radius), ezColorScheme::LightUI(ezColorScheme::Red), 0.0f, ezTransform::MakeFromMat4(camera.GetViewMatrix().GetInverse()));
       }
 #endif
     }

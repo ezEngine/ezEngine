@@ -607,7 +607,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
             transform.m_vPosition += transform.m_qRotation * vFullScale.CompMul(probeData.InfluenceShift.GetAsVec3());
 
             // const ezBoundingBox aabb(ezVec3(-1.0f), ezVec3(1.0f));
-            // ezDebugRenderer::DrawLineBox(view.GetHandle(), aabb, ezColor::DarkBlue, transform);
+            // ezDebugRenderer::DrawLineBox(view.GetHandle(), aabb, ezColor::DarkBlue, 0.0f, transform);
 
             RasterizeBox(transform, uiProbeIndex, viewMatrix, viewProjectionMatrix, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheres.GetData(), m_DepthSlicing);
 
