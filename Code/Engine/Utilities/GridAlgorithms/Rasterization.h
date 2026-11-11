@@ -153,7 +153,7 @@ namespace ez2DGridUtils
 
   struct TraceLinePoint
   {
-    EZ_DECLARE_POD_TYPE(TraceLinePoint);
+    EZ_DECLARE_POD_TYPE();
 
     /// A coordinate, relative to the center position.
     ezVec2I32 m_vCellCoordOffset;
