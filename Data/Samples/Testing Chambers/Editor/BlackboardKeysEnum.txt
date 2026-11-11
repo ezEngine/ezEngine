@@ -14,6 +14,7 @@ Shoot
 StrafeLeft
 StrafeRight
 TonemapPass.Contrast
+TonemapPass.Mode
 TonemapPass.MoodColor
 TonemapPass.MoodStrength
 TouchingGround
