@@ -27,6 +27,16 @@ EZ_BEGIN_COMPONENT_TYPE(ezColorAnimationComponent, 2, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+struct ColorAnimCompFlags
+{
+  enum Enum
+  {
+    Recursive = 0,   ///< [ property ] whether to apply the color to child objects as well
+    RandomStart = 1, ///< [ property ] whether to start at a random time within the gradient
+    Reverse = 2,     ///< runtime state: the animation is currently playing backwards
+  };
+};
+
 ezColorAnimationComponent::ezColorAnimationComponent() = default;
 
 void ezColorAnimationComponent::SerializeComponent(ezWorldWriter& inout_stream) const
@@ -73,6 +83,10 @@ void ezColorAnimationComponent::OnSimulationStarted()
   {
     m_CurAnimTime = ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleMinMax(0.0, m_Duration.GetSeconds()));
   }
+  else
+  {
+    m_CurAnimTime = ezTime::MakeZero();
+  }
 }
 
 void ezColorAnimationComponent::SetColorGradient(const ezColorGradientResourceHandle& hResource)
@@ -82,22 +96,22 @@ void ezColorAnimationComponent::SetColorGradient(const ezColorGradientResourceHa
 
 bool ezColorAnimationComponent::GetApplyRecursive() const
 {
-  return GetUserFlag(0);
+  return GetUserFlag(ColorAnimCompFlags::Recursive);
 }
 
 void ezColorAnimationComponent::SetApplyRecursive(bool value)
 {
-  SetUserFlag(0, value);
+  SetUserFlag(ColorAnimCompFlags::Recursive, value);
 }
 
 bool ezColorAnimationComponent::GetRandomStartOffset() const
 {
-  return GetUserFlag(1);
+  return GetUserFlag(ColorAnimCompFlags::RandomStart);
 }
 
 void ezColorAnimationComponent::SetRandomStartOffset(bool value)
 {
-  SetUserFlag(1, value);
+  SetUserFlag(ColorAnimCompFlags::RandomStart, value);
 }
 
 void ezColorAnimationComponent::Update()
@@ -107,7 +121,7 @@ void ezColorAnimationComponent::Update()
 
   ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
 
-  const bool bReverse = GetUserFlag(0);
+  const bool bReverse = GetUserFlag(ColorAnimCompFlags::Reverse);
 
   if (bReverse)
     m_CurAnimTime -= tDiff;
@@ -134,7 +148,7 @@ void ezColorAnimationComponent::Update()
     {
       if (m_CurAnimTime > m_Duration)
       {
-        SetUserFlag(0, !bReverse);
+        SetUserFlag(ColorAnimCompFlags::Reverse, !bReverse);
 
         const ezTime tOver = m_Duration - m_CurAnimTime;
 
@@ -142,7 +156,7 @@ void ezColorAnimationComponent::Update()
       }
       else if (m_CurAnimTime < ezTime::MakeZero())
       {
-        SetUserFlag(0, !bReverse);
+        SetUserFlag(ColorAnimCompFlags::Reverse, !bReverse);
 
         m_CurAnimTime = -m_CurAnimTime;
       }

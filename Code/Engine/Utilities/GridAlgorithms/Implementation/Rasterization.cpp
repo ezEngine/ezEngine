@@ -1,5 +1,7 @@
 #include <Utilities/UtilitiesPCH.h>
 
+#include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Memory/TempAllocator.h>
 #include <Utilities/GridAlgorithms/Rasterization.h>
 
 ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnLine(ezInt32 iStartX, ezInt32 iStartY, ezInt32 iEndX, ezInt32 iEndY, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough /* = nullptr */)
@@ -162,7 +164,8 @@ ezUInt32 ez2DGridUtils::FloodFill(ezInt32 iStartX, ezInt32 iStartY, EZ_RASTERIZE
 {
   ezUInt32 uiFilled = 0;
 
-  ezDeque<ezVec2I32> FallbackQueue;
+  // a deque grows in fixed size chunks, so even for very large fills it doesn't have to copy the pending cells around
+  ezDeque<ezVec2I32> FallbackQueue(ezTempAllocator::Get());
 
   if (pTempArray == nullptr)
     pTempArray = &FallbackQueue;
@@ -195,7 +198,7 @@ ezUInt32 ez2DGridUtils::FloodFillDiag(ezInt32 iStartX, ezInt32 iStartY, EZ_RASTE
 {
   ezUInt32 uiFilled = 0;
 
-  ezDeque<ezVec2I32> FallbackQueue;
+  ezDeque<ezVec2I32> FallbackQueue(ezTempAllocator::Get());
 
   if (pTempArray == nullptr)
     pTempArray = &FallbackQueue;
@@ -406,7 +409,8 @@ void ez2DGridUtils::ComputeVisibleArea(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 ui
 {
   const ezUInt32 uiSize = uiRadius * 2 + 1;
 
-  ezDynamicArray<ezUInt8> VisiblityFlags;
+  // two bits per cell, so the in-place storage is enough for radii up to 15
+  ezTempHybridArray<ezUInt8, 256> VisiblityFlags;
 
   // if we don't get a temp array, use our own array, with blackjack etc.
   if (pTempArray == nullptr)
@@ -454,7 +458,8 @@ void ez2DGridUtils::ComputeVisibleAreaInCone(ezInt32 iPosX, ezInt32 iPosY, ezUIn
 {
   const ezUInt32 uiSize = uiRadius * 2 + 1;
 
-  ezDynamicArray<ezUInt8> VisiblityFlags;
+  // two bits per cell, so the in-place storage is enough for radii up to 15
+  ezTempHybridArray<ezUInt8, 256> VisiblityFlags;
 
   // if we don't get a temp array, use our own array, with blackjack etc.
   if (pTempArray == nullptr)
@@ -496,12 +501,12 @@ static void SortTraceLines(ezDynamicArray<ez2DGridUtils::TraceLinePoint>& out_re
       bFound = true;
 
       const ezUInt32 uiStartIdx = out_result.GetCount();
-      auto& newPt = out_result.ExpandAndGetRef();
-      newPt.m_vCellCoordOffset = pt.ptOuter;
+      out_result.ExpandAndGetRef().m_vCellCoordOffset = pt.ptOuter;
 
       SortTraceLines(out_result, pt.ptOuter, pairs);
 
-      newPt.m_uiSkipCount = static_cast<ezUInt16>(out_result.GetCount() - uiStartIdx - 1);
+      // index instead of a reference, because the recursive call appends to the array and may reallocate it
+      out_result[uiStartIdx].m_uiSkipCount = out_result.GetCount() - uiStartIdx - 1;
     }
     else if (bFound)
     {
@@ -514,7 +519,7 @@ void ez2DGridUtils::CalculateVisibilityTraceLines(float fRadius, ezDynamicArray<
 {
   out_result.Clear();
 
-  ezDynamicArray<PointPair> pairs;
+  ezDynamicArray<PointPair> pairs(ezTempAllocator::Get());
   pairs.Reserve(static_cast<ezUInt32>(fRadius * fRadius * 3.2f));
 
   ez2DGridUtils::RasterizeCircle(0, 0, fRadius, [](ezInt32 x, ezInt32 y, void* pPassThrough) -> ezCallbackResult::Enum
@@ -564,7 +569,9 @@ void ez2DGridUtils::CalculateVisibilityTraceLines(float fRadius, ezDynamicArray<
   out_result.Reserve(pairs.GetCount() + 1);
   out_result.ExpandAndGetRef().m_vCellCoordOffset.Set(0, 0);
   SortTraceLines(out_result, ezVec2I32(0, 0), pairs);
-  out_result[0].m_uiSkipCount = 0xFFFF;
+
+  // the center is the root of the tree, its subtree is everything else
+  out_result[0].m_uiSkipCount = out_result.GetCount() - 1;
 }
 
 void ez2DGridUtils::VisitVisibilityTraceLines(const ezDynamicArray<TraceLinePoint>& traces, const ezVec2I32& vCenter, EZ_TRACELINE_CHECK check)
@@ -584,5 +591,43 @@ void ez2DGridUtils::VisitVisibilityTraceLines(const ezDynamicArray<TraceLinePoin
     {
       i += trace.m_uiSkipCount;
     }
+  }
+}
+
+void ez2DGridUtils::VisitVisibilityTraceLinesWithParent(const ezDynamicArray<TraceLinePoint>& traces, const ezVec2I32& vCenter, EZ_TRACELINE_VISIT visit)
+{
+  struct Ancestor
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezUInt32 m_uiIndex;
+    ezUInt32 m_uiSubtreeEnd;
+  };
+
+  // The points are stored in depth-first order and each point's skip count is the size of its subtree. Thus after
+  // removing all ancestors whose subtree ended before the current point, the top of the stack is its parent.
+  // The depth is the length of the longest line, which is the radius.
+  ezTempHybridArray<Ancestor, 64> ancestors;
+
+  for (ezUInt32 i = 0; i < traces.GetCount(); ++i)
+  {
+    const auto& trace = traces[i];
+
+    const ezUInt32 uiSubtreeEnd = i + trace.m_uiSkipCount;
+
+    while (!ancestors.IsEmpty() && ancestors.PeekBack().m_uiSubtreeEnd < i)
+    {
+      ancestors.PopBack();
+    }
+
+    const ezUInt32 uiParent = ancestors.IsEmpty() ? ezInvalidIndex : ancestors.PeekBack().m_uiIndex;
+
+    if (visit(vCenter.x + trace.m_vCellCoordOffset.x, vCenter.y + trace.m_vCellCoordOffset.y, i, uiParent) == ezCallbackResult::Stop)
+    {
+      i = uiSubtreeEnd;
+      continue;
+    }
+
+    ancestors.PushBack({i, uiSubtreeEnd});
   }
 }

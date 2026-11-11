@@ -78,9 +78,11 @@ namespace ez2DGridUtils
   /// The function returns the number of cells that were visited and returned ezCallbackResult::Continue (ie. which were not classified as
   /// border cells).
   ///
-  /// Note that the FloodFill function requires an internal queue to store which cells still need to be visited, as such it will do
-  /// dynamic memory allocations. You can pass in a queue that will be used as the temp buffer, thus you can reuse the same container for
-  /// several operations, which will reduce the amount of memory allocations that need to be done.
+  /// Note that the FloodFill function requires an internal stack to store which cells still need to be visited, as such it will do
+  /// dynamic memory allocations. The number of pending cells is not bounded by the size of the filled area, so for large fills this can
+  /// grow quite big. You can pass in a container that will be used as the temp buffer, thus you can reuse the same container for
+  /// several operations, which will reduce the amount of memory allocations that need to be done. If none is given, a deque using the
+  /// temp allocator is used, which grows in fixed size chunks and therefore never has to copy or abandon large blocks.
   EZ_UTILITIES_DLL ezUInt32 FloodFill(ezInt32 iStartX, ezInt32 iStartY, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough = nullptr, ezDeque<ezVec2I32>* pTempArray = nullptr);
 
   /// Same as FloodFill() but also visits the diagonal neighbors, ie. all eight neighboring cells.
@@ -151,11 +153,15 @@ namespace ez2DGridUtils
 
   struct TraceLinePoint
   {
+    EZ_DECLARE_POD_TYPE(TraceLinePoint);
+
     /// A coordinate, relative to the center position.
     ezVec2I32 m_vCellCoordOffset;
     /// If the coordinate is occluded, this many next points will also be occluded.
     /// Otherwise continue with the next point.
-    ezUInt16 m_uiSkipCount;
+    /// This is the number of points in this point's subtree, so for points close to the center it can be
+    /// nearly as large as the entire array.
+    ezUInt32 m_uiSkipCount;
   };
 
   /// Precomputes points on a circle for checking visibility.
@@ -165,7 +171,8 @@ namespace ez2DGridUtils
   /// by that occluded point.
   /// Every point only needs to be checked once and in case of occlusion, many points can be skipped.
   ///
-  /// The center point (0, 0) is implied (not part of the array) and assumed to be not occluded.
+  /// The center point (0, 0) is the first element of the array and the root of the tree that the points form.
+  /// Its skip count covers all other points, so if the center is occluded, every point is.
   /// Points are given relative to the center, so to position the visibility traces somewhere else, add an
   /// offset to each point.
   EZ_UTILITIES_DLL void CalculateVisibilityTraceLines(float fRadius, ezDynamicArray<TraceLinePoint>& out_result);
@@ -174,5 +181,17 @@ namespace ez2DGridUtils
   using EZ_TRACELINE_CHECK = ezDelegate<ezCallbackResult::Enum(ezInt32, ezInt32, ezUInt32, ezUInt32)>;
 
   EZ_UTILITIES_DLL void VisitVisibilityTraceLines(const ezDynamicArray<TraceLinePoint>& traces, const ezVec2I32& vCenter, EZ_TRACELINE_CHECK check);
+
+  /// Args: iCoordX, iCoordY, uiIndex, uiParentIndex
+  using EZ_TRACELINE_VISIT = ezDelegate<ezCallbackResult::Enum(ezInt32, ezInt32, ezUInt32, ezUInt32)>;
+
+  /// Same as VisitVisibilityTraceLines(), but tells the callback which point is in front of the current one.
+  ///
+  /// The trace lines form a tree with the center as the root. uiIndex is the index of the current point in 'traces',
+  /// uiParentIndex is the index of the point that comes before it on the line towards the center (ezInvalidIndex for
+  /// the center itself). The parent is always visited before its children, so the callback can store a value per index
+  /// (in an array of size traces.GetCount()) and propagate it outwards, for example to diminish a value while it
+  /// travels through a medium. Returning Stop skips all points behind the current one.
+  EZ_UTILITIES_DLL void VisitVisibilityTraceLinesWithParent(const ezDynamicArray<TraceLinePoint>& traces, const ezVec2I32& vCenter, EZ_TRACELINE_VISIT visit);
 
 } // namespace ez2DGridUtils
