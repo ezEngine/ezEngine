@@ -13,12 +13,15 @@ MSAA
 CAMERA_MODE
 SHADING_QUALITY
 VERTEX_SKINNING
+SHADER_WRITE_DEPTH
+POM_MODE
 
 [MATERIALPARAMETER]
 
 Permutation BLEND_MODE;
 Permutation SHADING_MODE;
 Permutation TWO_SIDED;
+Permutation SHADER_WRITE_DEPTH;
 
 Color BaseColor @Default(Color(1.0, 1.0, 1.0));
 bool UseBaseTexture;
@@ -49,9 +52,18 @@ bool UseEmissiveTexture;
 Texture2D EmissiveTexture;
 
 bool UseHeightTexture;
+Permutation POM_MODE;
+bool PomWriteDepth;
 Texture2D HeightTexture;
 float HeightScale @Default(0.05) @Clamp(-0.3, 0.3);
 int PomMaxSteps @Default(16) @Clamp(4, 64);
+float PomFixedPointRelaxation @Default(0.2) @Clamp(0.1, 1.0);
+// PomFixedPointThreshold controls the angle between view vector and surface at which fixed point resolver is switched into linear search
+// For smooth height maps and moderate angles fixed point is much more stable than linear search, but it may not converge for large angles
+// Thus when viewDirTS.z < PomFixedPointThreshold it is switched to linear search. This parameter takes effect only for POM Hybrid Mode
+// For value 0.0 the result almost coincides with pure fixed point mode, except a very extreme angles where the result is averaged with linear search
+// For value 0.9 the result almost coincides with pure linear search mode, except a very small angles where the result is averaged with fixed point iterations
+float PomFixedPointThreshold @Default(0.1) @Clamp(0.0, 0.9);
 
 [MATERIALCONFIG]
 
@@ -76,8 +88,11 @@ BOOL1(UseEmissiveTexture);
 BOOL1(UseOcclusionTexture);
 BOOL1(UseOrmTexture);
 BOOL1(UseHeightTexture);
+BOOL1(PomWriteDepth);
 FLOAT1(HeightScale);
 INT1(PomMaxSteps);
+FLOAT1(PomFixedPointRelaxation);
+FLOAT1(PomFixedPointThreshold);
 
 [SHADER]
 
@@ -111,6 +126,11 @@ VS_OUT main(VS_IN Input)
 #define USE_DECALS
 #define USE_FOG
 #define USE_CUSTOM_DITHER_NOISE
+
+#if SHADER_WRITE_DEPTH
+  #define USE_SHADER_WRITE_DEPTH
+#endif
+
 #define CUSTOM_GLOBALS float2 ParallaxTexCoord;
 
 #include <Shaders/Materials/MaterialPixelShader.h>
@@ -153,10 +173,51 @@ void FillCustomGlobals()
     float3 viewDirWS = normalize(GetCameraPosition() - G.Input.WorldPosition);
     float3 viewDirTS = WorldToTangentSpace(viewDirWS);
 
-    G.ParallaxTexCoord = ParallaxOcclusionMapping(
+    float2 uvInput = G.Input.TexCoord0.xy;
+    float depth = 0.0;
+#if POM_MODE == POM_MODE_HYBRID
+    G.ParallaxTexCoord = ParallaxOcclusionMappingHybrid(
       HeightTexture, HeightTexture_AutoSampler,
-      G.Input.TexCoord0.xy, viewDirTS,
-      GetMaterialData(HeightScale), GetMaterialData(PomMaxSteps));
+      uvInput, viewDirTS,
+      GetMaterialData(HeightScale), GetMaterialData(PomMaxSteps),
+      GetMaterialData(PomFixedPointRelaxation), GetMaterialData(PomFixedPointThreshold),
+      depth);
+#elif POM_MODE == POM_MODE_FIXED_POINT
+    G.ParallaxTexCoord = ParallaxOcclusionMappingFixedPoint(
+      HeightTexture, HeightTexture_AutoSampler,
+      uvInput, viewDirTS,
+      GetMaterialData(HeightScale),
+      GetMaterialData(PomFixedPointRelaxation),
+      depth);
+#elif POM_MODE == POM_MODE_LINEAR_SEARCH
+    G.ParallaxTexCoord = ParallaxOcclusionMappingLinearSearch(
+      HeightTexture, HeightTexture_AutoSampler,
+      uvInput, viewDirTS,
+      GetMaterialData(HeightScale), GetMaterialData(PomMaxSteps),
+      depth);
+#endif
+
+#if SHADER_WRITE_DEPTH
+    [branch]
+    if (GetMaterialData(PomWriteDepth))
+    {
+      float2 uvDx = ddx(uvInput);
+      float2 uvDy = ddy(uvInput);
+      float3 pDx = ddx(G.Input.WorldPosition);
+      float3 pDy = ddy(G.Input.WorldPosition);
+
+      // world units per UV unit
+      float uvToWorld = (length(pDx) + length(pDy)) / max(length(uvDx) + length(uvDy), 1e-6);
+
+      // Offset only goes into the surface: the highest point of the relief stays on the polygon
+      // It allows to keep early depth test exit 
+      float heightScale = GetMaterialData(HeightScale);
+      float d = heightScale >= 0.0 ? depth : 1.0 - depth;
+      float s = d * abs(heightScale) * uvToWorld / max(viewDirTS.z, 0.001);
+
+      G.Input.WorldPosition -= viewDirWS * s;
+    }
+#endif
   }
 }
 
@@ -188,7 +249,7 @@ float3 GetBaseColor()
   {
     baseColor *= BaseTexture.Sample(BaseTexture_AutoSampler, G.ParallaxTexCoord).rgb;
   }
-
+  
   return baseColor;
 }
 
