@@ -49,6 +49,7 @@ CONSTANT_BUFFER(ezTonemapConstants, 3)
 #  define saturate(x) ezMath::Saturate(x)
 #  define lerp(a, b, t) ezMath::Lerp(a, b, t)
 #  define max(a, b) ezMath::Max(a, b)
+#  define select(condition, yes, no) ((condition) ? (yes) : (no))
 #endif
 
 COLOR_TYPE ReinhardFunction(COLOR_TYPE color, float normalization)
@@ -121,8 +122,8 @@ COLOR_TYPE ACESFunction(COLOR_TYPE x, float toe, float slope, float shoulder)
   COLOR_TYPE toeColor = (-blackClip) + (2 * toeScale) / (1 + exp((-2 * slope / toeScale) * (logColor - toeCutoff)));
   COLOR_TYPE shoulderColor = (1 + whiteClip) - (2 * shoulderScale) / (1 + exp((2 * slope / shoulderScale) * (logColor - shoulderCutoff)));
 
-  toeColor = logColor < toeCutoff ? toeColor : StraightColor;
-  shoulderColor = logColor > shoulderCutoff ? shoulderColor : StraightColor;
+  toeColor = select(logColor < toeCutoff, toeColor, StraightColor);
+  shoulderColor = select(logColor > shoulderCutoff, shoulderColor, StraightColor);
 
   COLOR_TYPE t = saturate((logColor - toeCutoff) / (shoulderCutoff - toeCutoff));
   t = shoulderCutoff < toeCutoff ? 1 - t : t;
@@ -160,7 +161,7 @@ COLOR_TYPE AllenwpCurve(COLOR_TYPE x, float awp_contrast, float awp_outCrossover
   COLOR_TYPE t = pow(x, awp_contrast);
   t = t / (t + awp_toe_a);
 
-  return x < inCrossover ? t : s;
+  return select(x < inCrossover, t, s);
 }
 
 
@@ -177,4 +178,8 @@ COLOR_TYPE AllenwpCurve(COLOR_TYPE x, float awp_contrast, float awp_outCrossover
 
 #ifdef max
 #  undef max
+#endif
+
+#ifdef select
+#  undef select
 #endif

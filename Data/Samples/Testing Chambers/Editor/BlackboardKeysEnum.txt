@@ -17,6 +17,7 @@ TonemapPass.Contrast
 TonemapPass.Mode
 TonemapPass.MoodColor
 TonemapPass.MoodStrength
+TonemapPass.VisualizeCurve
 TouchingGround
 Use
 Wave

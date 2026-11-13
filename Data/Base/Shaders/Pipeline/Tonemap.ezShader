@@ -148,7 +148,7 @@ float4 main(PS_IN Input) : SV_Target
 
   // Tonemapping
   float3 tonemappedColor = 0;
-  if (TonemapMode == TONEMAPMODE_LINEAR)
+  if (TonemapMode == TONEMAPMODE_NONE|| TonemapMode == TONEMAPMODE_LINEAR)
   {
     tonemappedColor = sceneColor * TonemapNormalization;
   }
@@ -174,11 +174,11 @@ float4 main(PS_IN Input) : SV_Target
   // Color grading with LUTs if enabled
   if (NumLUTs > 0)
   {
-    color = lerp(color, Lut1Texture.Sample(LinearClampSampler, color), Lut1Strength);
+    color = lerp(color, Lut1Texture.Sample(LinearClampSampler, color).rgb, Lut1Strength);
 
     if (NumLUTs > 1)
     {
-      color = lerp(color, Lut2Texture.Sample(LinearClampSampler, color), Lut2Strength);
+      color = lerp(color, Lut2Texture.Sample(LinearClampSampler, color).rgb, Lut2Strength);
     }
   }
 

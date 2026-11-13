@@ -20,6 +20,8 @@ struct ezTonemapMode
     ACES,
     AgX,
 
+    COUNT,
+
     Default = AgX
   };
 };
@@ -42,6 +44,9 @@ public:
   virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+
+  void SetMode(ezEnum<ezTonemapMode> mode);                                 // [ property ]
+  ezEnum<ezTonemapMode> GetMode() const { return m_Mode; }                  // [ property ]
 
   void SetFilmicToe(float fToe);                                            // [ property ]
   float GetFilmicToe() const { return m_fFilmicToe; }                       // [ property ]

@@ -45,12 +45,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTonemapPass, 3, ezRTTIDefaultAllocator<ezTonem
 
     EZ_MEMBER_PROPERTY("WhitePoint", m_fWhitePoint)->AddAttributes(new ezClampValueAttribute(0.0f, 50.0f), new ezDefaultValueAttribute(11.2f)),
 
-    EZ_ENUM_MEMBER_PROPERTY("Mode", ezTonemapMode, m_Mode),
+    EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezTonemapMode, GetMode, SetMode),
 
-    EZ_ACCESSOR_PROPERTY("FilmicToe", GetFilmicToe, SetFilmicToe)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.2f)),
-    EZ_ACCESSOR_PROPERTY("FilmicLinearStrength", GetFilmicLinearStrength, SetFilmicLinearStrength)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.35f)),
-    EZ_ACCESSOR_PROPERTY("FilmicLinearAngle", GetFilmicLinearAngle, SetFilmicLinearAngle)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.1f)),
-    EZ_ACCESSOR_PROPERTY("FilmicShoulder", GetFilmicShoulder, SetFilmicShoulder)->AddAttributes(new ezClampValueAttribute(0.01f, 1.0f), new ezDefaultValueAttribute(0.15f)),
+    EZ_ACCESSOR_PROPERTY("FilmicToe", GetFilmicToe, SetFilmicToe)->AddAttributes(new ezClampValueAttribute(0.0f, 100.0f), new ezDefaultValueAttribute(0.2f)),
+    EZ_ACCESSOR_PROPERTY("FilmicLinearStrength", GetFilmicLinearStrength, SetFilmicLinearStrength)->AddAttributes(new ezClampValueAttribute(0.0f, 100.0f), new ezDefaultValueAttribute(0.35f)),
+    EZ_ACCESSOR_PROPERTY("FilmicLinearAngle", GetFilmicLinearAngle, SetFilmicLinearAngle)->AddAttributes(new ezClampValueAttribute(0.0f, 100.0f), new ezDefaultValueAttribute(0.1f)),
+    EZ_ACCESSOR_PROPERTY("FilmicShoulder", GetFilmicShoulder, SetFilmicShoulder)->AddAttributes(new ezClampValueAttribute(0.01f, 100.0f), new ezDefaultValueAttribute(0.15f)),
 
     EZ_ACCESSOR_PROPERTY("AcesToe", GetAcesToe, SetAcesToe)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.55f)),
     EZ_ACCESSOR_PROPERTY("AcesSlope", GetAcesSlope, SetAcesSlope)->AddAttributes(new ezClampValueAttribute(0.1f, 1.0f), new ezDefaultValueAttribute(0.71f)),
@@ -154,7 +154,7 @@ ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCame
         constants->Lut2Strength = lutStrengths[1];
 
         constants->NumLUTs = numLUTs;
-        constants->TonemapMode = m_Mode != ezTonemapMode::None ? m_Mode.GetValue() : ezTonemapMode::Linear;
+        constants->TonemapMode = m_Mode.GetValue();
         constants->WhitePoint = m_fWhitePoint;
         constants->TonemapNormalization = CalculateTonemapNormalization(m_Mode);
 
@@ -287,24 +287,29 @@ ezResult ezTonemapPass::Deserialize(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
+void ezTonemapPass::SetMode(ezEnum<ezTonemapMode> mode)
+{
+  m_Mode = static_cast<ezTonemapMode::Enum>(ezMath::Clamp<int>(mode, ezTonemapMode::None, ezTonemapMode::COUNT - 1));
+}
+
 void ezTonemapPass::SetFilmicToe(float fToe)
 {
-  m_fFilmicToe = ezMath::Saturate(fToe);
+  m_fFilmicToe = ezMath::Clamp(fToe, 0.0f, 100.0f);
 }
 
 void ezTonemapPass::SetFilmicLinearStrength(float fStrength)
 {
-  m_fFilmicLinearStrength = ezMath::Saturate(fStrength);
+  m_fFilmicLinearStrength = ezMath::Clamp(fStrength, 0.0f, 100.0f);
 }
 
 void ezTonemapPass::SetFilmicLinearAngle(float fAngle)
 {
-  m_fFilmicLinearAngle = ezMath::Saturate(fAngle);
+  m_fFilmicLinearAngle = ezMath::Clamp(fAngle, 0.0f, 100.0f);
 }
 
 void ezTonemapPass::SetFilmicShoulder(float fShoulder)
 {
-  m_fFilmicShoulder = ezMath::Clamp(fShoulder, 0.01f, 1.0f);
+  m_fFilmicShoulder = ezMath::Clamp(fShoulder, 0.01f, 100.0f);
 }
 
 void ezTonemapPass::SetAcesToe(float fToe)
@@ -468,9 +473,6 @@ void ezTonemapPass::VisualizeCurve(const ezRenderViewContext& renderViewContext)
   // The x-axis is quadratic (like the labels), the output is clamped to the graph area.
   auto PlotCurve = [&](ezTonemapMode::Enum mode, const ezColor& color)
   {
-    if (mode == ezTonemapMode::None)
-      mode = ezTonemapMode::Linear;
-
     const float fNormalization = CalculateTonemapNormalization(mode);
 
     float awp_toe_a, awp_slope, awp_w;
@@ -480,6 +482,8 @@ void ezTonemapPass::VisualizeCurve(const ezRenderViewContext& renderViewContext)
     {
       switch (mode)
       {
+        case ezTonemapMode::None:
+          return x;
         case ezTonemapMode::Linear:
           return x * fNormalization;
         case ezTonemapMode::Reinhard:
