@@ -58,6 +58,13 @@
 
 #include <Shaders/Materials/MaterialHelper.h>
 
+#if defined(USE_SHADER_WRITE_DEPTH) && \
+    (RENDER_PASS == RENDER_PASS_DEPTH_ONLY || \
+     RENDER_PASS == RENDER_PASS_FORWARD || \
+     RENDER_PASS == RENDER_PASS_EDITOR)
+  #define HAS_DEPTH_CHANNEL
+#endif
+
 struct PS_OUT
 {
 #if RENDER_PASS != RENDER_PASS_DEPTH_ONLY
@@ -66,6 +73,10 @@ struct PS_OUT
 
 #if defined(WRITE_COVERAGE)
   uint Coverage : SV_Coverage;
+#endif
+
+#if defined(HAS_DEPTH_CHANNEL)
+  float Depth : SV_DepthLessEqual;
 #endif
 };
 
@@ -93,12 +104,23 @@ PS_OUT main(PS_IN Input)
   Output.Coverage = coverage;
 #  endif
 #endif
+  
+#if defined(HAS_DEPTH_CHANNEL) || defined(USE_SHADER_WRITE_DEPTH)
+  float4 displacedClip = mul(GetWorldToScreenMatrix(), float4(G.Input.WorldPosition, 1.0));
+  float3 screenPos = float3(Input.Position.xy, displacedClip.w);
+#else
+  float3 screenPos = Input.Position.xyw;
+#endif
+
+#if defined(HAS_DEPTH_CHANNEL)
+  Output.Depth = displacedClip.z / displacedClip.w;
+#endif
 
   ezMaterialData matData = FillMaterialData();
 
   uint gameObjectId = GetInstanceData().GameObjectID;
 #if SHADING_QUALITY == SHADING_QUALITY_NORMAL
-  ezPerClusterData clusterData = GetClusterData(Input.Position.xyw);
+  ezPerClusterData clusterData = GetClusterData(screenPos);
 #  if defined(USE_DECALS)
   ApplyDecals(matData, clusterData, gameObjectId);
 #  endif
@@ -123,7 +145,7 @@ PS_OUT main(PS_IN Input)
   bool useScreenSpaceTechniques = false;
 #    endif
 
-  AccumulatedLight light = CalculateLighting(matData, clusterData, Input.Position.xyw, useScreenSpaceTechniques);
+  AccumulatedLight light = CalculateLighting(matData, clusterData, screenPos, useScreenSpaceTechniques);
 #  elif SHADING_QUALITY == SHADING_QUALITY_SIMPLIFIED
   AccumulatedLight light = CalculateLightingSimplified(matData);
 #  endif
