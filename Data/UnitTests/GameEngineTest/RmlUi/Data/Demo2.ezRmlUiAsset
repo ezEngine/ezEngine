@@ -23,8 +23,10 @@ o
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
+			s{"Data/alien_small.png"}
 			s{"Data/demo.rcss"}
 			s{"Data/demo2.rml"}
+			s{"Data/high_scores_alien_1.png"}
 			s{"Data/invader.png"}
 			s{"Data/invader.rcss"}
 			s{"Data/rml.rcss"}
@@ -32,8 +34,10 @@ o
 		}
 		VarArray %References
 		{
+			s{"Data/alien_small.png"}
 			s{"Data/demo.rcss"}
 			s{"Data/demo2.rml"}
+			s{"Data/high_scores_alien_1.png"}
 			s{"Data/invader.png"}
 			s{"Data/invader.rcss"}
 			s{"Data/rml.rcss"}

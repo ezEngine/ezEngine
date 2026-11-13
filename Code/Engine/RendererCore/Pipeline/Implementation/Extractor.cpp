@@ -54,7 +54,7 @@ namespace
       const ezBoundingBoxSphere& localBounds = pObject->GetLocalBounds();
       if (localBounds.IsValid())
       {
-        ezDebugRenderer::DrawLineBox(view.GetHandle(), localBounds.GetBox(), ezColor::Yellow, pObject->GetGlobalTransform());
+        ezDebugRenderer::DrawLineBox(view.GetHandle(), localBounds.GetBox(), ezColor::Yellow, 0.0f, pObject->GetGlobalTransform());
       }
     }
 

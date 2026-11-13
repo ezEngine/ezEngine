@@ -225,7 +225,7 @@ void PlacementTask::FindPlacementPoints()
 
   if (m_pData->m_bDebugVisualization && !debugLines.IsEmpty())
   {
-    ezDebugRenderer::AddPersistentLines(m_pData->m_pWorld, debugLines, ezColor::White, ezTransform::MakeIdentity(), ezTime::MakeFromSeconds(20.0f));
+    ezDebugRenderer::AddPersistentLines(m_pData->m_pWorld, debugLines, ezColor::White, 0.0f, ezTransform::MakeIdentity(), ezTime::MakeFromSeconds(20.0f));
 
     if (cvar_ProcGenVisTilePointIndex >= 0)
     {

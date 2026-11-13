@@ -698,23 +698,40 @@ function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)
 	endif()
 
 	# if the "URL" is actually a file path
+	set(PKG_IS_DOWNLOADED ON)
 	if(NOT "${URL}" MATCHES "http*")
 		set(PKG_FILE "${URL}")
+		set(PKG_IS_DOWNLOADED OFF)
 	endif()
 
 	if(NOT EXISTS "${PKG_FILE}")
+		# Download into a temporary file and only rename it once the download succeeded.
+		# That way an interrupted download (e.g. a killed CI job) never leaves a truncated package
+		# at the final location, which would otherwise be considered valid by the next run.
+		set(PKG_DOWNLOAD_FILE "${PKG_FILE}.download")
+		file(REMOVE "${PKG_DOWNLOAD_FILE}")
+
 		message(STATUS "Downloading '${FULL_FILENAME}'...")
-		file(DOWNLOAD ${URL} "${PKG_FILE}" SHOW_PROGRESS STATUS DOWNLOAD_STATUS)
+		file(DOWNLOAD ${URL} "${PKG_DOWNLOAD_FILE}" SHOW_PROGRESS STATUS DOWNLOAD_STATUS)
 
 		list(GET DOWNLOAD_STATUS 0 DOWNLOAD_STATUS_CODE)
 
 		if(NOT DOWNLOAD_STATUS_CODE EQUAL 0)
-			message(FATAL_ERROR "Download failed: ${DOWNLOAD_STATUS}")
+			file(REMOVE "${PKG_DOWNLOAD_FILE}")
+			message(FATAL_ERROR "Download of '${URL}' failed: ${DOWNLOAD_STATUS}")
 			return()
 		endif()
+
+		file(RENAME "${PKG_DOWNLOAD_FILE}" "${PKG_FILE}")
 	endif()
 
 	ez_pull_config_vars()
+
+	# Extract into an empty staging folder first and only move the content into DEST_FOLDER once that succeeded.
+	# DEST_FOLDER may be shared with other content (e.g. the Workspace folder for the Qt package), so it can't just be cleared.
+	set(STAGING_FOLDER "${DEST_FOLDER}/${DEST_FILENAME}.extracting")
+	file(REMOVE_RECURSE "${STAGING_FOLDER}")
+	file(MAKE_DIRECTORY "${STAGING_FOLDER}")
 
 	message(STATUS "Extracting '${FULL_FILENAME}'...")
 
@@ -723,21 +740,38 @@ function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)
 		execute_process(COMMAND "${FULL_7ZA_PATH}"
 			x "${PKG_FILE}"
 			-aoa
-			WORKING_DIRECTORY "${DEST_FOLDER}"
-			COMMAND_ERROR_IS_FATAL ANY
+			WORKING_DIRECTORY "${STAGING_FOLDER}"
 			RESULT_VARIABLE CMD_STATUS)
 	else()
 		execute_process(COMMAND ${CMAKE_COMMAND}
 			-E tar -xf "${PKG_FILE}"
-			WORKING_DIRECTORY "${DEST_FOLDER}"
-			COMMAND_ERROR_IS_FATAL ANY
+			WORKING_DIRECTORY "${STAGING_FOLDER}"
 			RESULT_VARIABLE CMD_STATUS)
 	endif()
 
 	if(NOT CMD_STATUS EQUAL 0)
-		message(FATAL_ERROR "Extracting package '${FULL_FILENAME}' failed.")
+		file(REMOVE_RECURSE "${STAGING_FOLDER}")
+
+		if(PKG_IS_DOWNLOADED)
+			# The package is most likely corrupted, delete it so that the next run downloads it again.
+			file(REMOVE "${PKG_FILE}")
+			message(FATAL_ERROR "Extracting package '${FULL_FILENAME}' failed (${CMD_STATUS}). The package file was deleted and will be downloaded again on the next run.")
+		else()
+			message(FATAL_ERROR "Extracting package '${PKG_FILE}' failed (${CMD_STATUS}).")
+		endif()
+
 		return()
 	endif()
+
+	# Move the extracted content into the destination folder, replacing leftovers from earlier incomplete extractions.
+	file(GLOB EXTRACTED_ENTRIES LIST_DIRECTORIES true RELATIVE "${STAGING_FOLDER}" "${STAGING_FOLDER}/*")
+
+	foreach(ENTRY ${EXTRACTED_ENTRIES})
+		file(REMOVE_RECURSE "${DEST_FOLDER}/${ENTRY}")
+		file(RENAME "${STAGING_FOLDER}/${ENTRY}" "${DEST_FOLDER}/${ENTRY}")
+	endforeach()
+
+	file(REMOVE_RECURSE "${STAGING_FOLDER}")
 
 	file(TOUCH ${EXTRACT_MARKER})
 endfunction()

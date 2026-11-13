@@ -291,7 +291,7 @@ void ezAiNavigationComponent::Update()
 
     if (m_DebugFlags.IsSet(ezAiNavigationDebugFlags::VisTarget))
     {
-      ezDebugRenderer::DrawArrow(GetWorld(), 1.0f, ezColor::Lime, ezTransform(m_Navigation.GetTargetPosition() + ezVec3(0, 0, 1.5f)), -ezVec3::MakeAxisZ());
+      ezDebugRenderer::DrawArrow(GetWorld(), 1.0f, ezColor::Lime, 0.0f, ezTransform(m_Navigation.GetTargetPosition() + ezVec3(0, 0, 1.5f)), -ezVec3::MakeAxisZ());
     }
   }
 }

@@ -1414,12 +1414,12 @@ void ezSceneContext::DrawIndicators(const ezViewHandle& hView)
     {
       case Indicator::Type::Arrow:
       {
-        ezDebugRenderer::DrawArrow(hView, 1.0f, ind.m_Color, ind.m_Transform);
+        ezDebugRenderer::DrawArrow(hView, 1.0f, ind.m_Color, 0.0f, ind.m_Transform);
       }
       break;
       case Indicator::Type::Box:
       {
-        ezDebugRenderer::DrawLineBox(hView, ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(1.0f)), ind.m_Color, ind.m_Transform);
+        ezDebugRenderer::DrawLineBox(hView, ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(1.0f)), ind.m_Color, 0.0f, ind.m_Transform);
       }
       break;
     }

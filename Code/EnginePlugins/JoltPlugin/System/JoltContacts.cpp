@@ -264,7 +264,7 @@ void ezJoltContactEvents::SpawnPhysicsImpactReactions()
 
         if (cvar_PhysicsReactionsVisImpacts)
         {
-          ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::LightGreen, ezTransform(ic.m_vPosition), ezTime::MakeFromSeconds(3));
+          ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::LightGreen, 0.0f, ezTransform(ic.m_vPosition), ezTime::MakeFromSeconds(3));
           ezDebugRenderer::AddPersistentInfoText(m_pWorld, ezDebugTextPlacement::BottomLeft, ezFmt("Impact: {}", ezMath::Sqrt(ic.m_fImpulseSqr)), ezTime::Seconds(3), ezColor::White);
         }
       }
@@ -272,7 +272,7 @@ void ezJoltContactEvents::SpawnPhysicsImpactReactions()
       {
         if (cvar_PhysicsReactionsVisDiscardedImpacts)
         {
-          ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DarkGray, ezTransform(ic.m_vPosition), ezTime::MakeFromSeconds(1));
+          ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DarkGray, 0.0f, ezTransform(ic.m_vPosition), ezTime::MakeFromSeconds(1));
         }
       }
     }
@@ -325,7 +325,7 @@ void ezJoltContactEvents::UpdatePhysicsSlideReactions()
 
       if (cvar_PhysicsReactionsVisSlides)
       {
-        ezDebugRenderer::DrawLineBox(m_pWorld, ezBoundingBox::MakeFromMinMax(ezVec3(-0.5f), ezVec3(0.5f)), ezColor::BlueViolet, ezTransform(slideInfo.m_vContactPosition));
+        ezDebugRenderer::DrawLineBox(m_pWorld, ezBoundingBox::MakeFromMinMax(ezVec3(-0.5f), ezVec3(0.5f)), ezColor::BlueViolet, 0.0f, ezTransform(slideInfo.m_vContactPosition));
       }
 
       slideInfo.m_bStillSliding = false;
@@ -385,7 +385,7 @@ void ezJoltContactEvents::UpdatePhysicsRollReactions()
 
       if (cvar_PhysicsReactionsVisRolls)
       {
-        ezDebugRenderer::DrawLineCapsuleZ(m_pWorld, 0.4f, 0.2f, ezColor::GreenYellow, ezTransform(rollInfo.m_vContactPosition));
+        ezDebugRenderer::DrawLineCapsuleZ(m_pWorld, 0.4f, 0.2f, ezColor::GreenYellow, 0.0f, ezTransform(rollInfo.m_vContactPosition));
       }
 
       rollInfo.m_bStillRolling = false;
@@ -442,7 +442,7 @@ void ezJoltContactEvents::OnContact_ImpactReaction(const ezVec3& vAvgPos, const 
     {
       if (cvar_PhysicsReactionsVisDiscardedImpacts)
       {
-        ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DimGrey, ezTransform(vAvgPos), ezTime::MakeFromSeconds(3));
+        ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DimGrey, 0.0f, ezTransform(vAvgPos), ezTime::MakeFromSeconds(3));
       }
 
       return;
@@ -451,7 +451,7 @@ void ezJoltContactEvents::OnContact_ImpactReaction(const ezVec3& vAvgPos, const 
     {
       if (cvar_PhysicsReactionsVisDiscardedImpacts)
       {
-        ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DimGrey, ezTransform(m_InteractionContacts[uiBestScore].m_vPosition), ezTime::MakeFromSeconds(3));
+        ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DimGrey, 0.0f, ezTransform(m_InteractionContacts[uiBestScore].m_vPosition), ezTime::MakeFromSeconds(3));
       }
     }
 
@@ -490,7 +490,7 @@ void ezJoltContactEvents::OnContact_ImpactReaction(const ezVec3& vAvgPos, const 
 
   if (cvar_PhysicsReactionsVisDiscardedImpacts)
   {
-    ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DarkOrange, ezTransform(vAvgPos), ezTime::MakeFromSeconds(10));
+    ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DarkOrange, 0.0f, ezTransform(vAvgPos), ezTime::MakeFromSeconds(10));
   }
 }
 

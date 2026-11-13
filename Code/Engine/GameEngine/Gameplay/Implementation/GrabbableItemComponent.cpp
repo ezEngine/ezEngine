@@ -108,9 +108,9 @@ bool ezGrabbableItemComponent::GetDebugShowPoints() const
 
 void ezGrabbableItemComponent::DebugDrawGrabPoint(const ezWorld& world, const ezTransform& globalGrabPointTransform)
 {
-  ezDebugRenderer::DrawArrow(&world, 0.75f, ezColorScheme::LightUI(ezColorScheme::Red), globalGrabPointTransform, ezVec3::MakeAxisX());
-  ezDebugRenderer::DrawArrow(&world, 0.3f, ezColorScheme::LightUI(ezColorScheme::Green), globalGrabPointTransform, ezVec3::MakeAxisY());
-  ezDebugRenderer::DrawArrow(&world, 0.3f, ezColorScheme::LightUI(ezColorScheme::Blue), globalGrabPointTransform, ezVec3::MakeAxisZ());
+  ezDebugRenderer::DrawArrow(&world, 0.75f, ezColorScheme::LightUI(ezColorScheme::Red), 0.0f, globalGrabPointTransform, ezVec3::MakeAxisX());
+  ezDebugRenderer::DrawArrow(&world, 0.3f, ezColorScheme::LightUI(ezColorScheme::Green), 0.0f, globalGrabPointTransform, ezVec3::MakeAxisY());
+  ezDebugRenderer::DrawArrow(&world, 0.3f, ezColorScheme::LightUI(ezColorScheme::Blue), 0.0f, globalGrabPointTransform, ezVec3::MakeAxisZ());
 }
 
 void ezGrabbableItemComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const

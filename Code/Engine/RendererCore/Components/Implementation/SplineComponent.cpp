@@ -605,8 +605,8 @@ void ezSplineComponent::DrawDebugVisualizations(ezBitflags<ezSplineComponentFlag
     fLastKey = fKey;
   }
 
-  ezDebugRenderer::DrawLinesOccluded(GetWorld(), lines, ezColor::White.GetDarker(), GetOwner()->GetGlobalTransform());
-  ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White, GetOwner()->GetGlobalTransform());
+  ezDebugRenderer::DrawLinesOccluded(GetWorld(), lines, ezColor::White.GetDarker(), 0.0f, GetOwner()->GetGlobalTransform());
+  ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White, 0.0f, GetOwner()->GetGlobalTransform());
 
   const bool bVisTangents = flags.IsSet(ezSplineComponentFlags::VisualizeTangents);
   if (bVisTangents)
@@ -632,13 +632,13 @@ void ezSplineComponent::DrawDebugTangents(ezUInt32 uiPointIndex, ezSplineTangent
     const ezVec3 vGlobalPos = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().TransformPosition(cp.m_vPos));
     const ezTransform t = ezTransform::Make(vGlobalPos, GetOwner()->GetGlobalRotation(), GetOwner()->GetGlobalScaling());
 
-    ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(vTangentIn, 0.05f), tInColor, t);
-    ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(vTangentOut, 0.05f), tOutColor, t);
+    ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(vTangentIn, 0.05f), tInColor, 0.0f, t);
+    ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(vTangentOut, 0.05f), tOutColor, 0.0f, t);
 
     ezTempHybridArray<ezDebugRendererLine, 2> lines;
     lines.PushBack(ezDebugRendererLine(ezVec3::MakeZero(), vTangentIn, tInColor));
     lines.PushBack(ezDebugRendererLine(ezVec3::MakeZero(), vTangentOut, tOutColor));
-    ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White, t);
+    ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White, 0.0f, t);
   }
 }
 

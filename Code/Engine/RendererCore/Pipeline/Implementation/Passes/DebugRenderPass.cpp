@@ -71,7 +71,7 @@ ezStatus ezDebugWorldRenderPass::AddRenderPasses(const ezViewData& viewData, con
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
     renderViewContext.SetViewportIfSupported();
 
-    ezDebugRenderer::RenderWorldSpace(renderViewContext); });
+    ezDebugRendererInternal::RenderWorldSpace(renderViewContext); });
 
   return EZ_SUCCESS;
 }
@@ -107,7 +107,7 @@ ezStatus ezDebugScreenRenderPass::AddRenderPasses(const ezViewData& viewData, co
       ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, m_sMessage.GetData(), ezVec2I32(20, 20), ezColor::OrangeRed);
     }
 
-    ezDebugRenderer::RenderScreenSpace(renderViewContext); });
+    ezDebugRendererInternal::RenderScreenSpace(renderViewContext); });
 
   return EZ_SUCCESS;
 }

@@ -774,17 +774,17 @@ void ezGameApplication::RenderWorldDebugInfos(const ezWorld& world)
       if (!it->IsActive())
       {
         ++uiInactive;
-        ezDebugRenderer::DrawCross(&world, ezVec3::MakeZero(), 0.25f, ezColor::DarkGrey, tObj);
+        ezDebugRenderer::DrawCross(&world, ezVec3::MakeZero(), 0.25f, ezColor::DarkGrey, 0.0f, tObj);
       }
       else if (it->IsDynamic())
       {
         ++uiDynamic;
-        ezDebugRenderer::DrawCross(&world, ezVec3::MakeZero(), 0.25f, ezColor::DeepPink, tObj);
+        ezDebugRenderer::DrawCross(&world, ezVec3::MakeZero(), 0.25f, ezColor::DeepPink, 0.0f, tObj);
       }
       else
       {
         ++uiStatic;
-        ezDebugRenderer::DrawCross(&world, ezVec3::MakeZero(), 0.4f, ezColor::DeepSkyBlue, tObj);
+        ezDebugRenderer::DrawCross(&world, ezVec3::MakeZero(), 0.4f, ezColor::DeepSkyBlue, 0.0f, tObj);
       }
     }
 
