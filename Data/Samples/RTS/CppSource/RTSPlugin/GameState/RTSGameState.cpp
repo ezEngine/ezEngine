@@ -302,7 +302,7 @@ void RTSGameState::RenderUnitSelection() const
     t.m_qRotation.SetIdentity();
 
     bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(fRadius, fRadius, 0));
-    ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::White, t);
+    ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::White, 1.0f, t);
 
     RenderUnitHealthbar(pObject, fRadius);
   }
@@ -322,7 +322,7 @@ void RTSGameState::RenderUnitSelection() const
         t.m_qRotation.SetIdentity();
 
         bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(fRadius, fRadius, 0));
-        ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::DodgerBlue, t);
+        ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::DodgerBlue, 1.0f, t);
 
         RenderUnitHealthbar(pObject, fRadius);
       }
