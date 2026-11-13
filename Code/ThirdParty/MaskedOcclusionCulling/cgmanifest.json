@@ -1,0 +1,14 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "version": "1.4.0",
+          "repositoryUrl": "https://github.com/GameTechDev/MaskedOcclusionCulling",
+          "commitHash": "1fd7974456cffa481a1a534328a1d02523d19ce8"
+        }
+      }
+    }
+  ]
+}
