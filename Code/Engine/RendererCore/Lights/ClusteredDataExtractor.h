@@ -8,6 +8,21 @@ struct ezPerDecalData;
 struct ezPerReflectionProbeData;
 struct ezPerClusterData;
 
+/// Describes how the view depth is divided into the depth slices of the light clusters.
+///
+/// The slices are distributed logarithmically between a minimum distance and the end of the slice range.
+/// The last slice always extends to the camera's far plane, so that all lights in front of the far plane are in some cluster.
+/// Scale and bias are also passed to the shader, which uses them to compute the slice index from the linear depth.
+struct ezClusterDepthSlicing
+{
+  float m_fScale = 0.0f;
+  float m_fBias = 0.0f;
+  float m_fFarPlane = 0.0f; ///< The far side of the last slice.
+
+  bool operator==(const ezClusterDepthSlicing& rhs) const { return m_fScale == rhs.m_fScale && m_fBias == rhs.m_fBias && m_fFarPlane == rhs.m_fFarPlane; }
+  bool operator!=(const ezClusterDepthSlicing& rhs) const { return !(*this == rhs); }
+};
+
 /// CPU-side data for clustered rendering containing lights, decals, and reflection probes.
 ///
 /// Used by the clustered rendering system to organize lights, decals, and probes into spatial clusters
@@ -127,6 +142,7 @@ private:
   ezDynamicArray<ezSimdBSphere, ezAlignedAllocatorWrapper> m_ClusterBoundingSpheresRightEye;
   ezMat4 m_mProjection = ezMat4::MakeZero();
   ezMat4 m_mProjectionRightEye = ezMat4::MakeZero();
+  ezClusterDepthSlicing m_DepthSlicing; ///< The depth slicing that the cluster bounding spheres were computed for.
 
   ezClusteredDataGPU m_DataGPU;
 };

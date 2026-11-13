@@ -1,6 +1,7 @@
 #pragma once
 
 #include <RendererCore/Decals/DecalComponent.h>
+#include <RendererCore/Lights/ClusteredDataExtractor.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/FillLightComponent.h>
 #include <RendererCore/Lights/Implementation/ReflectionProbeData.h>
@@ -22,21 +23,42 @@ EZ_DEFINE_AS_POD_TYPE(ezPerClusterData);
 
 namespace
 {
-  ///\todo Make this configurable.
-  static float s_fMinLightDistance = 5.0f;
-  static float s_fMaxLightDistance = 500.0f;
+  /// The last slice extends to the camera's far plane, but at most to this distance.
+  /// This keeps the cluster bounding spheres finite for cameras with an infinite far plane.
+  static constexpr float s_fMaxClusterFarPlane = 1000000.0f;
 
-  static float s_fDepthSliceScale = (NUM_CLUSTERS_Z - 1) / (ezMath::Log2(s_fMaxLightDistance) - ezMath::Log2(s_fMinLightDistance));
-  static float s_fDepthSliceBias = -s_fDepthSliceScale * ezMath::Log2(s_fMinLightDistance) + 1.0f;
-
-  EZ_ALWAYS_INLINE float GetDepthFromSliceIndex(ezUInt32 uiSliceIndex)
+  /// Computes the depth slicing for NUM_CLUSTERS_Z slices.
+  ///
+  /// The first slice covers [0; fMinSliceDistance]. The slices are distributed logarithmically up to the camera's far plane, but at most up to
+  /// fMaxSliceDistance, since beyond that the slices would get very coarse. Everything further away goes into the last slice instead.
+  /// fMinSliceDistance is clamped to a small positive value and the slice range is at least twice fMinSliceDistance,
+  /// so invalid values (for example from CVars) still produce a usable slicing.
+  EZ_FORCE_INLINE ezClusterDepthSlicing MakeClusterDepthSlicing(float fCameraFarPlane, float fMinSliceDistance, float fMaxSliceDistance)
   {
-    return ezMath::Pow(2.0f, (uiSliceIndex - s_fDepthSliceBias + 1.0f) / s_fDepthSliceScale);
+    fMinSliceDistance = ezMath::Max(fMinSliceDistance, 0.01f);
+    const float fSliceRangeEnd = ezMath::Clamp(fCameraFarPlane, fMinSliceDistance * 2.0f, ezMath::Max(fMaxSliceDistance, fMinSliceDistance * 2.0f));
+
+    ezClusterDepthSlicing slicing;
+    slicing.m_fScale = (NUM_CLUSTERS_Z - 1) / (ezMath::Log2(fSliceRangeEnd) - ezMath::Log2(fMinSliceDistance));
+    slicing.m_fBias = -slicing.m_fScale * ezMath::Log2(fMinSliceDistance) + 1.0f;
+    // the far plane may be infinite, but the bounding spheres of the last slice need finite (and not too large) values
+    slicing.m_fFarPlane = ezMath::Clamp(fCameraFarPlane, fSliceRangeEnd, s_fMaxClusterFarPlane);
+    return slicing;
   }
 
-  EZ_ALWAYS_INLINE ezUInt32 GetSliceIndexFromDepth(float fLinearDepth)
+  /// Returns the far side of the given depth slice.
+  EZ_ALWAYS_INLINE float GetDepthFromSliceIndex(const ezClusterDepthSlicing& slicing, ezUInt32 uiSliceIndex)
   {
-    return ezMath::Clamp((ezInt32)(ezMath::Log2(fLinearDepth) * s_fDepthSliceScale + s_fDepthSliceBias), 0, NUM_CLUSTERS_Z - 1);
+    if (uiSliceIndex >= NUM_CLUSTERS_Z - 1)
+      return slicing.m_fFarPlane;
+
+    return ezMath::Pow(2.0f, (uiSliceIndex - slicing.m_fBias + 1.0f) / slicing.m_fScale);
+  }
+
+  /// Must match the computation in the shader (Lighting.h), which uses the same scale and bias.
+  EZ_ALWAYS_INLINE ezUInt32 GetSliceIndexFromDepth(const ezClusterDepthSlicing& slicing, float fLinearDepth)
+  {
+    return ezMath::Clamp((ezInt32)(ezMath::Log2(fLinearDepth) * slicing.m_fScale + slicing.m_fBias), 0, NUM_CLUSTERS_Z - 1);
   }
 
   EZ_ALWAYS_INLINE ezUInt32 GetClusterIndexFromCoord(ezUInt32 x, ezUInt32 y, ezUInt32 z)
@@ -85,7 +107,7 @@ namespace
     out_pCorners[7] = out_pCorners[6] + dirRight * fStepXn;
   }
 
-  void FillClusterBoundingSpheres(const ezCamera& camera, const ezMat4& mProj, ezArrayPtr<ezSimdBSphere> clusterBoundingSpheres)
+  void FillClusterBoundingSpheres(const ezCamera& camera, const ezMat4& mProj, const ezClusterDepthSlicing& slicing, ezArrayPtr<ezSimdBSphere> clusterBoundingSpheres)
   {
     EZ_PROFILE_SCOPE("FillClusterBoundingSpheres");
 
@@ -124,7 +146,7 @@ namespace
 
     for (ezInt32 z = 0; z < NUM_CLUSTERS_Z; z++)
     {
-      ezSimdVec4f fZf = ezSimdVec4f(GetDepthFromSliceIndex(z));
+      ezSimdVec4f fZf = ezSimdVec4f(GetDepthFromSliceIndex(slicing, z));
       ezSimdVec4f zff_znn = fZf.GetCombined<ezSwizzle::XXXX>(fZn);
       ezSimdVec4f steps = zff_znn.CompMul(stepScale);
 
@@ -357,7 +379,7 @@ namespace
   }
 
   template <typename Cluster, typename IntersectionFunc>
-  EZ_FORCE_INLINE void FillCluster(const ezSimdBBox& screenSpaceBounds, ezUInt32 uiBlockIndex, ezUInt32 uiMask, Cluster* pClusters, IntersectionFunc func)
+  EZ_FORCE_INLINE void FillCluster(const ezSimdBBox& screenSpaceBounds, ezUInt32 uiBlockIndex, ezUInt32 uiMask, Cluster* pClusters, const ezClusterDepthSlicing& slicing, IntersectionFunc func)
   {
     ezSimdVec4f scale = ezSimdVec4f(0.5f * NUM_CLUSTERS_X, -0.5f * NUM_CLUSTERS_Y, 1.0f, 1.0f);
     ezSimdVec4f bias = ezSimdVec4f(0.5f * NUM_CLUSTERS_X, 0.5f * NUM_CLUSTERS_Y, 0.0f, 0.0f);
@@ -377,8 +399,8 @@ namespace
     ezUInt32 xMax = minXY_maxXY.z();
     ezUInt32 yMax = minXY_maxXY.y();
 
-    ezUInt32 zMin = GetSliceIndexFromDepth(screenSpaceBounds.m_Min.z());
-    ezUInt32 zMax = GetSliceIndexFromDepth(screenSpaceBounds.m_Max.z());
+    ezUInt32 zMin = GetSliceIndexFromDepth(slicing, screenSpaceBounds.m_Min.z());
+    ezUInt32 zMax = GetSliceIndexFromDepth(slicing, screenSpaceBounds.m_Max.z());
 
     for (ezUInt32 z = zMin; z <= zMax; ++z)
     {
@@ -398,7 +420,7 @@ namespace
 
   template <typename Cluster>
   void RasterizeSphere(const ezSimdBSphere& pointLightSphere, ezUInt32 uiLightIndex, const ezSimdMat4f& mViewMatrix,
-    const ezSimdMat4f& mProjectionMatrix, Cluster* pClusters, ezSimdBSphere* pClusterBoundingSpheres)
+    const ezSimdMat4f& mProjectionMatrix, Cluster* pClusters, ezSimdBSphere* pClusterBoundingSpheres, const ezClusterDepthSlicing& slicing)
   {
     ezSimdBSphere viewSpaceSphere(mViewMatrix.TransformPosition(pointLightSphere.GetCenter()), pointLightSphere.GetRadius());
 
@@ -407,7 +429,7 @@ namespace
     const ezUInt32 uiBlockIndex = uiLightIndex / 32;
     const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
 
-    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, pClusters,
+    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, pClusters, slicing,
       [&](ezUInt32 uiClusterIndex)
       { return viewSpaceSphere.Overlaps(pClusterBoundingSpheres[uiClusterIndex]); });
   }
@@ -421,7 +443,7 @@ namespace
   };
 
   template <typename Cluster>
-  void RasterizeSpotLight(const BoundingCone& spotLightCone, ezUInt32 uiLightIndex, const ezSimdMat4f& mViewMatrix, const ezSimdMat4f& mProjectionMatrix, Cluster* pClusters, const ezSimdBSphere* pClusterBoundingSpheres)
+  void RasterizeSpotLight(const BoundingCone& spotLightCone, ezUInt32 uiLightIndex, const ezSimdMat4f& mViewMatrix, const ezSimdMat4f& mProjectionMatrix, Cluster* pClusters, const ezSimdBSphere* pClusterBoundingSpheres, const ezClusterDepthSlicing& slicing)
   {
     ezSimdVec4f position = mViewMatrix.TransformPosition(spotLightCone.m_PositionAndRange);
     ezSimdFloat range = spotLightCone.m_PositionAndRange.w();
@@ -449,7 +471,7 @@ namespace
     const ezUInt32 uiBlockIndex = uiLightIndex / 32;
     const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
 
-    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, pClusters,
+    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, pClusters, slicing,
       [&](ezUInt32 uiClusterIndex)
       {
         ezSimdBSphere clusterSphere = pClusterBoundingSpheres[uiClusterIndex];
@@ -481,7 +503,7 @@ namespace
   }
 
   template <typename Cluster>
-  void RasterizeBox(const ezTransform& transform, ezUInt32 uiDecalIndex, const ezSimdMat4f& mView, const ezSimdMat4f& mViewProjection, Cluster* pClusters, const ezSimdBSphere* pClusterBoundingSpheres)
+  void RasterizeBox(const ezTransform& transform, ezUInt32 uiDecalIndex, const ezSimdMat4f& mView, const ezSimdMat4f& mViewProjection, Cluster* pClusters, const ezSimdBSphere* pClusterBoundingSpheres, const ezClusterDepthSlicing& slicing)
   {
     const ezSimdVec4f decalHalfExtents = ezSimdConversion::ToVec3(transform.m_vScale);
     ezSimdBBox localDecalBounds = ezSimdBBox(-decalHalfExtents, decalHalfExtents);
@@ -520,7 +542,7 @@ namespace
 
     const ezSimdMat4f viewToBox = (mView * boxToWorld).GetInverse();
 
-    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, pClusters,
+    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, pClusters, slicing,
       [&](ezUInt32 uiClusterIndex)
       {
         ezSimdBSphere clusterSphere = pClusterBoundingSpheres[uiClusterIndex];

@@ -21,13 +21,16 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 
+ezCVarFloat cvar_RenderingLightingClusterMinSliceDistance("Rendering.Lighting.ClusterMinSliceDistance", 5.0f, ezCVarFlags::Default, "Far side of the first depth slice of the light clusters");
+ezCVarFloat cvar_RenderingLightingClusterMaxSliceDistance("Rendering.Lighting.ClusterMaxSliceDistance", 500.0f, ezCVarFlags::Default, "Max distance up to which the depth slices of the light clusters are distributed. Everything further away ends up in the last slice.");
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool cvar_RenderingLightingVisClusterData("Rendering.Lighting.VisClusterData", false, ezCVarFlags::Default, "Enables debug visualization of clustered light data");
 ezCVarInt cvar_RenderingLightingVisClusterDepthSlice("Rendering.Lighting.VisClusterDepthSlice", -1, ezCVarFlags::Default, "Show the debug visualization only for the given depth slice");
 
 namespace
 {
-  void VisualizeClusteredData(const ezView& view, const ezClusteredDataCPU* pData, ezArrayPtr<ezSimdBSphere> boundingSpheres)
+  void VisualizeClusteredData(const ezView& view, const ezClusteredDataCPU* pData, const ezClusterDepthSlicing& slicing, ezArrayPtr<ezSimdBSphere> boundingSpheres)
   {
     if (!cvar_RenderingLightingVisClusterData)
       return;
@@ -67,8 +70,8 @@ namespace
 
     for (ezUInt32 z = maxSlice; z-- > minSlice;)
     {
-      float fZf = GetDepthFromSliceIndex(z);
-      float fZn = (z > 0) ? GetDepthFromSliceIndex(z - 1) : 0.0f;
+      float fZf = GetDepthFromSliceIndex(slicing, z);
+      float fZn = (z > 0) ? GetDepthFromSliceIndex(slicing, z - 1) : 0.0f;
       for (ezInt32 y = 0; y < NUM_CLUSTERS_Y; ++y)
       {
         for (ezInt32 x = 0; x < NUM_CLUSTERS_X; ++x)
@@ -302,13 +305,18 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
   const float fAspectRatio = view.GetViewport().width / view.GetViewport().height;
   const bool bIsStereo = pCamera->IsStereoscopic();
 
+  // the depth slices follow the camera range (and the CVars), so a different slicing requires new cluster bounding spheres
+  const ezClusterDepthSlicing depthSlicing = MakeClusterDepthSlicing(pCamera->GetFarPlane(), cvar_RenderingLightingClusterMinSliceDistance, cvar_RenderingLightingClusterMaxSliceDistance);
+  const bool bSlicingChanged = (m_DepthSlicing != depthSlicing);
+  m_DepthSlicing = depthSlicing;
+
   ezMat4 mProj;
   pCamera->GetProjectionMatrix(fAspectRatio, mProj, ezCameraEye::Left);
-  if (m_mProjection != mProj)
+  if (m_mProjection != mProj || bSlicingChanged)
   {
     m_mProjection = mProj;
 
-    FillClusterBoundingSpheres(*pCamera, mProj, m_ClusterBoundingSpheres);
+    FillClusterBoundingSpheres(*pCamera, mProj, m_DepthSlicing, m_ClusterBoundingSpheres);
   }
 
   // For stereo rendering, also compute right eye cluster bounding spheres
@@ -316,11 +324,11 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
   if (bIsStereo)
   {
     pCamera->GetProjectionMatrix(fAspectRatio, mProjRight, ezCameraEye::Right);
-    if (m_mProjectionRightEye != mProjRight)
+    if (m_mProjectionRightEye != mProjRight || bSlicingChanged)
     {
       m_mProjectionRightEye = mProjRight;
 
-      FillClusterBoundingSpheres(*pCamera, mProjRight, m_ClusterBoundingSpheresRightEye);
+      FillClusterBoundingSpheres(*pCamera, mProjRight, m_DepthSlicing, m_ClusterBoundingSpheresRightEye);
     }
   }
 
@@ -377,12 +385,12 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
           FillPointLightData(m_TempLightData.ExpandAndGetRef(), pPointLightRenderData);
 
           ezSimdBSphere pointLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pPointLightRenderData->m_vGlobalPosition), pPointLightRenderData->m_fRange + pPointLightRenderData->m_fLength * 0.5f);
-          RasterizeSphere(pointLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+          RasterizeSphere(pointLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData(), m_DepthSlicing);
 
           // For stereo, also rasterize against right eye clusters (union of both eyes)
           if (bIsStereo)
           {
-            RasterizeSphere(pointLightSphere, uiLightIndex, viewMatrixRight, projectionMatrixRight, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
+            RasterizeSphere(pointLightSphere, uiLightIndex, viewMatrixRight, projectionMatrixRight, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData(), m_DepthSlicing);
           }
 
           if (false)
@@ -409,12 +417,12 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
           cone.m_PositionAndRange.SetW(pSpotLightRenderData->m_fRange);
           cone.m_ForwardDir = ezSimdConversion::ToVec3(pSpotLightRenderData->m_qGlobalRotation * ezVec3(1.0f, 0.0f, 0.0f));
           cone.m_SinCosAngle = ezSimdVec4f(ezMath::Sin(halfAngle), ezMath::Cos(halfAngle), 0.0f);
-          RasterizeSpotLight(cone, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+          RasterizeSpotLight(cone, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData(), m_DepthSlicing);
 
           // For stereo, also rasterize against right eye clusters (union of both eyes)
           if (bIsStereo)
           {
-            RasterizeSpotLight(cone, uiLightIndex, viewMatrixRight, projectionMatrixRight, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
+            RasterizeSpotLight(cone, uiLightIndex, viewMatrixRight, projectionMatrixRight, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData(), m_DepthSlicing);
           }
         }
         else if (auto pDirLightRenderData = ezDynamicCast<const ezDirectionalLightRenderData*>(it))
@@ -436,12 +444,12 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
           FillFillLightData(m_TempLightData.ExpandAndGetRef(), pFillLightRenderData);
 
           ezSimdBSphere fillLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pFillLightRenderData->m_vGlobalPosition), pFillLightRenderData->m_fRange);
-          RasterizeSphere(fillLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+          RasterizeSphere(fillLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData(), m_DepthSlicing);
 
           // For stereo, also rasterize against right eye clusters (union of both eyes)
           if (bIsStereo)
           {
-            RasterizeSphere(fillLightSphere, uiLightIndex, viewMatrixRight, projectionMatrixRight, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
+            RasterizeSphere(fillLightSphere, uiLightIndex, viewMatrixRight, projectionMatrixRight, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData(), m_DepthSlicing);
           }
         }
         else if (auto pFogRenderData = ezDynamicCast<const ezFogRenderData*>(it))
@@ -516,12 +524,12 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
           const ezVec4 rotationValues = pDecalRenderData->m_qGlobalRotation;
           const ezQuat rotation(rotationValues.x, rotationValues.y, rotationValues.z, rotationValues.w);
           const ezTransform decalTransform = ezTransform::Make(pDecalRenderData->m_vGlobalPosition, rotation, pDecalRenderData->m_vGlobalScale);
-          RasterizeBox(decalTransform, uiDecalIndex, viewMatrix, viewProjectionMatrix, m_TempDecalsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+          RasterizeBox(decalTransform, uiDecalIndex, viewMatrix, viewProjectionMatrix, m_TempDecalsClusters.GetData(), m_ClusterBoundingSpheres.GetData(), m_DepthSlicing);
 
           // For stereo, also rasterize against right eye clusters (union of both eyes)
           if (bIsStereo)
           {
-            RasterizeBox(decalTransform, uiDecalIndex, viewMatrixRight, viewProjectionMatrixRight, m_TempDecalsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
+            RasterizeBox(decalTransform, uiDecalIndex, viewMatrixRight, viewProjectionMatrixRight, m_TempDecalsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData(), m_DepthSlicing);
           }
         }
         else
@@ -583,13 +591,13 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
             ezSimdBSphere pointLightSphere =
               ezSimdBSphere(ezSimdConversion::ToVec3(pReflectionProbeRenderData->m_GlobalTransform.m_vPosition), fMaxRadius);
             RasterizeSphere(
-              pointLightSphere, uiProbeIndex, viewMatrix, projectionMatrix, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+              pointLightSphere, uiProbeIndex, viewMatrix, projectionMatrix, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheres.GetData(), m_DepthSlicing);
 
             // For stereo, also rasterize against right eye clusters (union of both eyes)
             if (bIsStereo)
             {
               RasterizeSphere(
-                pointLightSphere, uiProbeIndex, viewMatrixRight, projectionMatrixRight, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
+                pointLightSphere, uiProbeIndex, viewMatrixRight, projectionMatrixRight, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData(), m_DepthSlicing);
             }
           }
           else
@@ -601,12 +609,12 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
             // const ezBoundingBox aabb(ezVec3(-1.0f), ezVec3(1.0f));
             // ezDebugRenderer::DrawLineBox(view.GetHandle(), aabb, ezColor::DarkBlue, transform);
 
-            RasterizeBox(transform, uiProbeIndex, viewMatrix, viewProjectionMatrix, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+            RasterizeBox(transform, uiProbeIndex, viewMatrix, viewProjectionMatrix, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheres.GetData(), m_DepthSlicing);
 
             // For stereo, also rasterize against right eye clusters (union of both eyes)
             if (bIsStereo)
             {
-              RasterizeBox(transform, uiProbeIndex, viewMatrixRight, viewProjectionMatrixRight, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
+              RasterizeBox(transform, uiProbeIndex, viewMatrixRight, viewProjectionMatrixRight, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData(), m_DepthSlicing);
             }
           }
         }
@@ -630,7 +638,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  VisualizeClusteredData(view, pData, m_ClusterBoundingSpheres);
+  VisualizeClusteredData(view, pData, m_DepthSlicing, m_ClusterBoundingSpheres);
 #endif
 }
 
@@ -825,8 +833,8 @@ void ezClusteredDataExtractor::UpdateGpuData(const ezView& view, const ezCluster
   const ezSizeFloat scaledViewportSize = view.GetScaledViewportSize();
 
   ezClusteredDataConstants constants = {};
-  constants.DepthSliceScale = s_fDepthSliceScale;
-  constants.DepthSliceBias = s_fDepthSliceBias;
+  constants.DepthSliceScale = m_DepthSlicing.m_fScale;
+  constants.DepthSliceBias = m_DepthSlicing.m_fBias;
   constants.InvTileSize = ezVec2(NUM_CLUSTERS_X / scaledViewportSize.width, NUM_CLUSTERS_Y / scaledViewportSize.height);
   constants.NumLights = pData->m_LightData.GetCount();
   constants.NumDecals = pData->m_DecalData.GetCount();
