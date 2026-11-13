@@ -11,7 +11,7 @@ namespace
   }
 
   /// The tip of the cone is the first point, followed by the 33 points of the (closed) rim.
-  void ComputeLimitConePoints(ezVec3* out_pPoints, ezAngle halfAngle1, ezAngle halfAngle2, const ezMat4& transform)
+  void ComputeLimitConePoints(ezVec3* out_pPoints, ezAngle halfAngle1, ezAngle halfAngle2, const ezMat4& mTransform)
   {
     constexpr ezUInt32 NUM_SEGMENTS = 32;
 
@@ -19,7 +19,7 @@ namespace
     const float tanQSwingZ = ezMath::Tan(halfAngle1 / 4.0f);
     const float tanQSwingY = ezMath::Tan(halfAngle2 / 4.0f);
 
-    out_pPoints[0] = transform.GetTranslationVector();
+    out_pPoints[0] = mTransform.GetTranslationVector();
 
     for (ezUInt32 i = 0; i <= NUM_SEGMENTS; i++)
     {
@@ -30,7 +30,7 @@ namespace
       const float rv2 = rv.GetLengthSquared();
       const float r = (1 / (1 + rv2));
       const ezQuat q = ezQuat(0, r * 2 * rv.y, r * 2 * rv.z, r * (1 - rv2));
-      out_pPoints[1 + i] = transform.TransformPosition(q * ezVec3(1.0f, 0, 0));
+      out_pPoints[1 + i] = mTransform.TransformPosition(q * ezVec3(1.0f, 0, 0));
     }
   }
 

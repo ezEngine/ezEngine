@@ -477,7 +477,7 @@ namespace
   }
 
   /// Adds lines to the thin or thick line buffers of the context, depending on the thickness.
-  static void AddLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, const ezMat4& transform, float fLineThickness, bool bOccluded)
+  static void AddLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, const ezMat4& mTransform, float fLineThickness, bool bOccluded)
   {
     if (lines.IsEmpty())
       return;
@@ -494,8 +494,8 @@ namespace
       for (auto& line : lines)
       {
         auto& lineData = thickLines.ExpandAndGetRef();
-        lineData.m_start = transform.TransformPosition(line.m_start);
-        lineData.m_end = transform.TransformPosition(line.m_end);
+        lineData.m_start = mTransform.TransformPosition(line.m_start);
+        lineData.m_end = mTransform.TransformPosition(line.m_end);
         lineData.m_fThickness = fLineThickness;
         lineData.m_startColor = line.m_startColor * color;
         lineData.m_endColor = line.m_endColor * color;
@@ -511,8 +511,8 @@ namespace
 
       for (auto& line : lines)
       {
-        vertices.PushBack({transform.TransformPosition(line.m_start), line.m_startColor * color});
-        vertices.PushBack({transform.TransformPosition(line.m_end), line.m_endColor * color});
+        vertices.PushBack({mTransform.TransformPosition(line.m_start), line.m_startColor * color});
+        vertices.PushBack({mTransform.TransformPosition(line.m_end), line.m_endColor * color});
       }
     }
   }
@@ -583,6 +583,7 @@ void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezV
   ezHybridArray<ezDebugRendererLine, 3> lines;
   ezDebugShapes::AppendLineCross(lines, vGlobalPosition, fLineLength, mTransform);
   DrawLines(context, lines, color, fLineThickness);
+  EZ_ASSERT_DEBUG(lines.GetCapacity() == 3, "Incorrect in-place buffer size");
 }
 
 void ezDebugRenderer::DrawLineBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, float fLineThickness /*= 0.0f*/, ezMatOrTransform mTransform /*= ezMat4::MakeIdentity()*/)
@@ -592,6 +593,7 @@ void ezDebugRenderer::DrawLineBox(const ezDebugRendererContext& context, const e
     ezHybridArray<ezDebugRendererLine, 12> lines;
     ezDebugShapes::AppendLineBox(lines, box, mTransform);
     DrawLines(context, lines, color, fLineThickness);
+    EZ_ASSERT_DEBUG(lines.GetCapacity() == 12, "Incorrect in-place buffer size");
     return;
   }
 
@@ -613,6 +615,7 @@ void ezDebugRenderer::DrawLineBoxCorners(const ezDebugRendererContext& context, 
   ezHybridArray<ezDebugRendererLine, 24> lines;
   ezDebugShapes::AppendLineBoxCorners(lines, box, fCornerFraction, mTransform);
   DrawLines(context, lines, color, fLineThickness);
+  EZ_ASSERT_DEBUG(lines.GetCapacity() == 24, "Incorrect in-place buffer size");
 }
 
 void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color, float fLineThickness /*= 0.0f*/, ezMatOrTransform mTransform /*= ezMat4::MakeIdentity()*/)
@@ -620,6 +623,7 @@ void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, cons
   ezHybridArray<ezDebugRendererLine, 96> lines;
   ezDebugShapes::AppendLineSphere(lines, sphere, mTransform);
   DrawLines(context, lines, color, fLineThickness);
+  EZ_ASSERT_DEBUG(lines.GetCapacity() == 96, "Incorrect in-place buffer size");
 }
 
 void ezDebugRenderer::DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color, float fLineThickness /*= 0.0f*/, ezMatOrTransform mTransform /*= ezMat4::MakeIdentity()*/)
@@ -627,6 +631,7 @@ void ezDebugRenderer::DrawLineCapsuleZ(const ezDebugRendererContext& context, fl
   ezHybridArray<ezDebugRendererLine, 132> lines;
   ezDebugShapes::AppendLineCapsuleZ(lines, fLength, fRadius, mTransform);
   DrawLines(context, lines, color, fLineThickness);
+  EZ_ASSERT_DEBUG(lines.GetCapacity() == 132, "Incorrect in-place buffer size");
 }
 
 void ezDebugRenderer::DrawLineCylinderZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color, float fLineThickness /*= 0.0f*/, ezMatOrTransform mTransform /*= ezMat4::MakeIdentity()*/)
@@ -634,6 +639,7 @@ void ezDebugRenderer::DrawLineCylinderZ(const ezDebugRendererContext& context, f
   ezHybridArray<ezDebugRendererLine, 68> lines;
   ezDebugShapes::AppendLineCylinderZ(lines, fLength, fRadius, mTransform);
   DrawLines(context, lines, color, fLineThickness);
+  EZ_ASSERT_DEBUG(lines.GetCapacity() == 68, "Incorrect in-place buffer size");
 }
 
 void ezDebugRenderer::DrawLineFrustum(const ezDebugRendererContext& context, const ezFrustum& frustum, const ezColor& color, float fLineThickness /*= 0.0f*/, bool bDrawPlaneNormals /*= false*/)
@@ -645,6 +651,7 @@ void ezDebugRenderer::DrawLineFrustum(const ezDebugRendererContext& context, con
   ezHybridArray<ezDebugRendererLine, 12> lines;
   ezDebugShapes::AppendLineFrustum(lines, frustum);
   DrawLines(context, lines, color, fLineThickness);
+  EZ_ASSERT_DEBUG(lines.GetCapacity() == 12, "Incorrect in-place buffer size");
 
   if (bDrawPlaneNormals)
   {
@@ -1105,6 +1112,7 @@ void ezDebugRenderer::DrawArrow(const ezDebugRendererContext& context, float fSi
   ezHybridArray<ezDebugRendererLine, 9> lines;
   ezDebugShapes::AppendLineArrow(lines, fSize, mTransform, vForwardAxis);
   DrawLines(context, lines, color, fLineThickness);
+  EZ_ASSERT_DEBUG(lines.GetCapacity() == 9, "Incorrect in-place buffer size");
 }
 
 float ezDebugRenderer::GetTextGlyphWidth(ezUInt32 uiSizeInPixel /*= 16*/)
