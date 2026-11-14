@@ -115,3 +115,8 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::Select(const ezSimdVec4b& vCmp, const 
   return _mm_or_ps(_mm_andnot_ps(vCmp.m_v, vFalse.m_v), _mm_and_ps(vCmp.m_v, vTrue.m_v));
 #endif
 }
+
+EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4b::GetMoveMask() const
+{
+  return static_cast<ezUInt32>(_mm_movemask_ps(m_v));
+}
