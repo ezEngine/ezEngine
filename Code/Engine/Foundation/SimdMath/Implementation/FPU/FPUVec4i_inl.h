@@ -408,3 +408,17 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Select(const ezSimdVec4b& cmp, const e
 
   return result;
 }
+
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4i::ReinterpretAsFloat() const
+{
+  ezSimdVec4f result;
+  memcpy(&result.m_v.x, &m_v.x, 16);
+  return result;
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4f::ReinterpretAsInt() const
+{
+  ezSimdVec4i result;
+  memcpy(&result.m_v.x, &m_v.x, 16);
+  return result;
+}

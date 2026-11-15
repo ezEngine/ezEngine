@@ -202,7 +202,7 @@ template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4f::IsZero() const
 {
   const int mask = EZ_BIT(N) - 1;
-  return (ezInternal::NeonMoveMask(vceqzq_f32(m_v)) & mask) == mask;
+  return (ezSimdVec4b(vceqzq_f32(m_v)).GetMoveMask() & mask) == mask;
 }
 
 template <int N>
@@ -210,14 +210,14 @@ EZ_ALWAYS_INLINE bool ezSimdVec4f::IsZero(const ezSimdFloat& fEpsilon) const
 {
   const int mask = EZ_BIT(N) - 1;
   float32x4_t absVal = Abs().m_v;
-  return (ezInternal::NeonMoveMask(vcltq_f32(absVal, fEpsilon.m_v)) & mask) == mask;
+  return (ezSimdVec4b(vcltq_f32(absVal, fEpsilon.m_v)).GetMoveMask() & mask) == mask;
 }
 
 template <int N>
 inline bool ezSimdVec4f::IsNaN() const
 {
   const int mask = EZ_BIT(N) - 1;
-  return (ezInternal::NeonMoveMask(vceqq_f32(m_v, m_v)) & mask) != mask;
+  return (ezSimdVec4b(vceqq_f32(m_v, m_v)).GetMoveMask() & mask) != mask;
 }
 
 template <int N>
@@ -232,7 +232,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4f::IsValid() const
   uint32x4_t exponentIs1 = vceqq_u32(vandq_u32(vreinterpretq_u32_f32(m_v), exponentMask), exponentMask);
 
   const int mask = EZ_BIT(N) - 1;
-  return (ezInternal::NeonMoveMask(exponentIs1) & mask) == 0;
+  return (ezSimdVec4b(exponentIs1).GetMoveMask() & mask) == 0;
 }
 
 template <int N>

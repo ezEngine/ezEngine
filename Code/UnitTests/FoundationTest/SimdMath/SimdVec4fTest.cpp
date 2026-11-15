@@ -2,6 +2,7 @@
 
 #include <Foundation/Math/Vec4.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
+#include <Foundation/SimdMath/SimdVec4i.h>
 
 namespace
 {
@@ -288,6 +289,27 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       memcpy(mem, testBlock, 16);
       b2.Store<4>(mem);
       EZ_TEST_BOOL(mem[0] == 1.0f && mem[1] == 2.0f && mem[2] == 3.0f && mem[3] == 4.0f);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReinterpretAsInt")
+  {
+    constexpr ezUInt32 patterns[][4] = {
+      {0x7F800000u, 0xFF800000u, 0x7FC12345u, 0xFFC54321u}, // inf, -inf, nan, -nan
+      {0x00000001u, 0x80000001u, 0x007FFFFFu, 0x807FFFFFu}, // Subnormals.
+      {0x00800000u, 0x80800000u, 0x7F7FFFFFu, 0xFF7FFFFFu}  // Normal range boundaries.
+    };
+
+    for (const auto& pattern : patterns)
+    {
+      ezSimdVec4f vBits;
+      vBits.Load<4>(reinterpret_cast<const float*>(&pattern[0]));
+      ezInt32 result[4];
+      vBits.ReinterpretAsInt().Store<4>(result);
+      for (ezUInt32 uiLane = 0; uiLane < 4; ++uiLane)
+      {
+        EZ_TEST_INT(result[uiLane], reinterpret_cast<const ezInt32&>(pattern[uiLane]));
+      }
     }
   }
 

@@ -133,6 +133,28 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
     EZ_TEST_INT(b.w(), 2147483520);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReinterpretAsFloat")
+  {
+    constexpr ezUInt32 patterns[][4] = {
+      {0x7F800000u, 0xFF800000u, 0x7FC12345u, 0xFFC54321u}, // inf, -inf, nan, -nan
+      {0x00000001u, 0x80000001u, 0x007FFFFFu, 0x807FFFFFu}, // Subnormals.
+      {0x00800000u, 0x80800000u, 0x7F7FFFFFu, 0xFF7FFFFFu}  // Normal range boundaries.
+    };
+
+    for (const auto& pattern : patterns)
+    {
+      ezSimdVec4i vBits;
+      vBits.Load<4>(reinterpret_cast<const ezInt32*>(&pattern[0]));
+      float result[4];
+      vBits.ReinterpretAsFloat().Store<4>(result);
+      for (ezUInt32 uiLane = 0; uiLane < 4; ++uiLane)
+      {
+        EZ_TEST_INT(reinterpret_cast<const ezUInt32&>(result[uiLane]), pattern[uiLane]);
+      }
+      EZ_TEST_BOOL((vBits.ReinterpretAsFloat().ReinterpretAsInt() == vBits).AllSet<4>());
+    }
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swizzle")
   {
     ezSimdVec4i a(3, 5, 7, 9);
