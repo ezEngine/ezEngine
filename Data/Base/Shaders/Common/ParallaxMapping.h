@@ -1,6 +1,6 @@
 #pragma once
 
-float PomDepthFixedPoint(Texture2D heightTex, SamplerState samp, float2 texCoords, float2 delta, float relax)
+float PomDepthIterative(Texture2D heightTex, SamplerState samp, float2 texCoords, float2 delta, float relax)
 {
   float t = 0.0;
   // Hard-coded value 10, because this value should be neither too small nor too large
@@ -74,10 +74,10 @@ float2 PomDelta(float3 viewDirTS, float heightScale)
 /// The height map convention is white (1.0) = deepest point, black (0.0) = surface.
 /// viewDirTS must be normalized. heightScale controls maximum displacement depth in UV space.
 /// relax controls fixed point relaxation, changing it may affect convergence and accuracy
-float2 ParallaxOcclusionMappingFixedPoint(Texture2D heightTex, SamplerState samp, float2 texCoords, float3 viewDirTS, float heightScale, float relax, out float depth)
+float2 ParallaxOcclusionMappingIterative(Texture2D heightTex, SamplerState samp, float2 texCoords, float3 viewDirTS, float heightScale, float relax, out float depth)
 {
   float2 delta = PomDelta(viewDirTS, heightScale);
-  depth = PomDepthFixedPoint(heightTex, samp, texCoords, delta, relax);
+  depth = PomDepthIterative(heightTex, samp, texCoords, delta, relax);
   return texCoords - depth * delta;
 }
 
@@ -105,17 +105,17 @@ float2 ParallaxOcclusionMappingLinearSearch(Texture2D heightTex, SamplerState sa
 float2 ParallaxOcclusionMappingHybrid(Texture2D heightTex, SamplerState samp, float2 texCoords, float3 viewDirTS, float heightScale, int maxSteps, float relax, float linearBelow, out float depth)
 {
   // linearBelow should be strictly less than 1.0 otherwise the denominator in "w" may blow up
-  const float fixedPointAbove = saturate(linearBelow + 0.1); // viewDirTS.z above this: fixed point only
+  const float IterativeAbove = saturate(linearBelow + 0.1); // viewDirTS.z above this: fixed point only
   float2 delta = PomDelta(viewDirTS, heightScale);
   // Blend weight: 0 = fixed point, 1 = linear search
-  float w = saturate((fixedPointAbove - viewDirTS.z) / (fixedPointAbove - linearBelow));
+  float w = saturate((IterativeAbove - viewDirTS.z) / (IterativeAbove - linearBelow));
 
   float tFP = 0.0;
   float tLS = 0.0;
 
   [branch] if (w < 1.0)
   {
-    tFP = PomDepthFixedPoint(heightTex, samp, texCoords, delta, relax);
+    tFP = PomDepthIterative(heightTex, samp, texCoords, delta, relax);
   }
 
   [branch] if (w > 0.0)
