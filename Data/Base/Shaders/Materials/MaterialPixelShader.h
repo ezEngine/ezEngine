@@ -105,7 +105,7 @@ PS_OUT main(PS_IN Input)
 #  endif
 #endif
   
-#if defined(HAS_DEPTH_CHANNEL) || defined(USE_SHADER_WRITE_DEPTH)
+#if defined(USE_SHADER_WRITE_DEPTH)
   float4 displacedClip = mul(GetWorldToScreenMatrix(), float4(G.Input.WorldPosition, 1.0));
   float3 screenPos = float3(Input.Position.xy, displacedClip.w);
 #else
@@ -286,14 +286,14 @@ PS_OUT main(PS_IN Input)
   }
   else if (RenderPass == EDITOR_RENDER_PASS_OCCLUSION)
   {
-    float ssao = SampleSSAO(Input.Position.xyw);
+    float ssao = SampleSSAO(screenPos);
     float occlusion = matData.occlusion * ssao;
 
     Output.Color = float4(SrgbToLinear(occlusion), matData.opacity);
   }
   else if (RenderPass == EDITOR_RENDER_PASS_DEPTH)
   {
-    float depth = Input.Position.w * ClipPlanes.z;
+    float depth = screenPos.z * ClipPlanes.z;
     Output.Color = float4(SrgbToLinear(depth), 1);
   }
   else if (RenderPass == EDITOR_RENDER_PASS_STATIC_VS_DYNAMIC)
