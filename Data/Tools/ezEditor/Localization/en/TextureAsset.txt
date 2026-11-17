@@ -30,6 +30,8 @@ CubemapImport.SkyboxAuto;Skybox
 ezTexConvUsage::Hdr;HDR
 ezTexConvUsage::NormalMap; Normal Map (DX)
 ezTexConvUsage::NormalMap_Inverted; Normal Map (GL)
+ezTexConvUsage::BumpMap;Bump Map
+ezTexConvUsage::ConeMap;Cone Map
 
 ezRenderTargetFormat::RGBA8;RGBA8 (linear)
 ezRenderTargetFormat::RGBA8sRgb;RGBA8 (sRGB)
@@ -115,6 +117,7 @@ ezTextureCubeUsageEnum::Other_Linear;Other Linear
 
 ezTextureAssetProperties::MipmapMode;Mipmaps
 ezTextureAssetProperties::CompressionMode;Compression
+ezTextureAssetProperties::Downscale;Downscale Steps
 ezTextureAssetProperties::TextureFilter;Filtering
 ezTextureAssetProperties::PremultipliedAlpha;Premultiply Alpha
 ezTextureAssetProperties::CVarResScale;CVar Resolution Scale

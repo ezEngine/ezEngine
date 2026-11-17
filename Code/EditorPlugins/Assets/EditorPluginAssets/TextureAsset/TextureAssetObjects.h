@@ -143,6 +143,10 @@ public:
   float m_fHdrExposureBias = 0;
   float m_fAlphaThreshold = 0.25f;
 
+  /// How often the input resolution is halved before processing. Useful for data that doesn't need the resolution
+  /// of the source, e.g. height or cone maps that are used alongside full resolution color and normal maps.
+  ezUInt8 m_uiDownscaleSteps = 0;
+
   ezEnum<ezTextureFilterSetting> m_TextureFilter;
   ezEnum<ezImageAddressMode> m_AddressModeU;
   ezEnum<ezImageAddressMode> m_AddressModeV;

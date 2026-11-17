@@ -249,6 +249,11 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   arguments << "-maxRes" << QString::number(pAssetConfig->m_uiMaxResolution);
 
+  if (pProp->m_uiDownscaleSteps > 0)
+  {
+    arguments << "-downscale" << QString::number(pProp->m_uiDownscaleSteps);
+  }
+
   arguments << "-addressU" << ToWrapMode(pProp->m_AddressModeU);
   arguments << "-addressV" << ToWrapMode(pProp->m_AddressModeV);
   arguments << "-addressW" << ToWrapMode(pProp->m_AddressModeW);
