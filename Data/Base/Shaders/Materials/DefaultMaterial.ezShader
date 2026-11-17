@@ -13,12 +13,14 @@ MSAA
 CAMERA_MODE
 SHADING_QUALITY
 VERTEX_SKINNING
+PARALLAX_WRITE_DEPTH
 
 [MATERIALPARAMETER]
 
 Permutation BLEND_MODE;
 Permutation SHADING_MODE;
 Permutation TWO_SIDED;
+Permutation PARALLAX_WRITE_DEPTH;
 
 Color BaseColor @Default(Color(1.0, 1.0, 1.0));
 bool UseBaseTexture;
@@ -51,7 +53,7 @@ Texture2D EmissiveTexture;
 enum ParallaxMode
 {
   None,
-  Pom,
+  LinearSearch,
   ConeStep,
   FixedPoint,
   Hybrid
@@ -128,6 +130,10 @@ VS_OUT main(VS_IN Input)
 #define USE_CUSTOM_DITHER_NOISE
 #define CUSTOM_GLOBALS float2 ParallaxTexCoord;
 
+#if PARALLAX_WRITE_DEPTH
+#  define USE_SHADER_WRITE_DEPTH
+#endif
+
 #include <Shaders/Materials/MaterialPixelShader.h>
 
 Texture2D BaseTexture BIND_GROUP(BG_MATERIAL);
@@ -163,7 +169,8 @@ void FillCustomGlobals()
   G.ParallaxTexCoord = G.Input.TexCoord0.xy;
 
   // values of the ParallaxMode enum
-  const int ParallaxMode_Pom = 1;
+  const int ParallaxMode_None = 0;
+  const int ParallaxMode_LinearSearch = 1;
   const int ParallaxMode_ConeStep = 2;
   const int ParallaxMode_FixedPoint = 3;
   const int ParallaxMode_Hybrid = 4;
@@ -171,47 +178,45 @@ void FillCustomGlobals()
   const int parallaxMode = GetMaterialData(ParallaxMode);
 
   [branch]
-  if (parallaxMode == ParallaxMode_Pom)
-  {
-    float3 viewDirWS = normalize(GetCameraPosition() - G.Input.WorldPosition);
-    float3 viewDirTS = WorldToTangentSpace(viewDirWS);
+  if (parallaxMode == ParallaxMode_None)
+    return;
 
-    G.ParallaxTexCoord = ParallaxOcclusionMapping(
-      HeightTexture, HeightTexture_AutoSampler,
-      G.Input.TexCoord0.xy, viewDirTS,
-      GetMaterialData(HeightScale), GetMaterialData(PomMaxSteps));
+  // orthographic cameras (e.g. directional light shadow maps) look along their forward direction everywhere
+  const float3 viewDirWS = IsOrthographicCamera ? -GetCameraDirForwards() : normalize(GetCameraPosition() - G.Input.WorldPosition);
+  const float3 viewDirTS = WorldToTangentSpace(viewDirWS);
+  const float2 texCoords = G.Input.TexCoord0.xy;
+  const float heightScale = GetMaterialData(HeightScale);
+
+  // see ParallaxDepthOffset()
+  float depth = 0.0;
+  float2 texCoordsToUnits = float2(1.0, 1.0);
+
+  [branch]
+  if (parallaxMode == ParallaxMode_LinearSearch)
+  {
+    G.ParallaxTexCoord = ParallaxOcclusionMapping(HeightTexture, HeightTexture_AutoSampler, texCoords, viewDirTS, heightScale, GetMaterialData(PomMaxSteps), depth);
   }
   else if (parallaxMode == ParallaxMode_ConeStep)
   {
-    float3 viewDirWS = normalize(GetCameraPosition() - G.Input.WorldPosition);
-    float3 viewDirTS = WorldToTangentSpace(viewDirWS);
+    G.ParallaxTexCoord = ParallaxConeStepMapping(HeightTexture, HeightTexture_AutoSampler, texCoords, viewDirTS, heightScale, GetMaterialData(HeightOffset), GetMaterialData(PomMaxSteps), depth);
 
-    G.ParallaxTexCoord = ParallaxConeStepMapping(
-      HeightTexture, HeightTexture_AutoSampler,
-      G.Input.TexCoord0.xy, viewDirTS,
-      GetMaterialData(HeightScale), GetMaterialData(HeightOffset), GetMaterialData(PomMaxSteps));
+    float2 texSize;
+    HeightTexture.GetDimensions(texSize.x, texSize.y);
+    texCoordsToUnits = texSize / max(texSize.x, texSize.y);
   }
   else if (parallaxMode == ParallaxMode_FixedPoint)
   {
-    float3 viewDirWS = normalize(GetCameraPosition() - G.Input.WorldPosition);
-    float3 viewDirTS = WorldToTangentSpace(viewDirWS);
-
-    G.ParallaxTexCoord = ParallaxFixedPointMapping(
-      HeightTexture, HeightTexture_AutoSampler,
-      G.Input.TexCoord0.xy, viewDirTS,
-      GetMaterialData(HeightScale), GetMaterialData(PomRelaxation));
+    G.ParallaxTexCoord = ParallaxFixedPointMapping(HeightTexture, HeightTexture_AutoSampler, texCoords, viewDirTS, heightScale, GetMaterialData(PomRelaxation), depth);
   }
   else if (parallaxMode == ParallaxMode_Hybrid)
   {
-    float3 viewDirWS = normalize(GetCameraPosition() - G.Input.WorldPosition);
-    float3 viewDirTS = WorldToTangentSpace(viewDirWS);
-
-    G.ParallaxTexCoord = ParallaxHybridMapping(
-      HeightTexture, HeightTexture_AutoSampler,
-      G.Input.TexCoord0.xy, viewDirTS,
-      GetMaterialData(HeightScale), GetMaterialData(PomMaxSteps),
-      GetMaterialData(PomRelaxation), GetMaterialData(PomHybridThreshold));
+    G.ParallaxTexCoord = ParallaxHybridMapping(HeightTexture, HeightTexture_AutoSampler, texCoords, viewDirTS, heightScale, GetMaterialData(PomMaxSteps), GetMaterialData(PomRelaxation), GetMaterialData(PomHybridThreshold), depth);
   }
+
+#if PARALLAX_WRITE_DEPTH
+  // move the pixel onto the found intersection, MaterialPixelShader.h writes its depth and uses it for lighting
+  G.Input.WorldPosition -= viewDirWS * ParallaxDepthOffset(depth, heightScale, texCoords, texCoordsToUnits, G.Input.WorldPosition, viewDirTS.z);
+#endif
 }
 
 float3 GetNormal()

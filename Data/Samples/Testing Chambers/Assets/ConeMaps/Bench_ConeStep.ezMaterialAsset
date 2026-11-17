@@ -14,7 +14,7 @@ o
 			s{"{ 7c71fc2d-2a1a-4938-9305-f3a0f26d73cc }"}
 		}
 		Uuid %DocumentID{u4{15134850545332387749,4643702464927525042}}
-		u4 %Hash{9757118424478028260}
+		u4 %Hash{8531680449249473674}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -991,7 +991,7 @@ o
 		s %Category{"ezPropertyCategory::Constant"}
 		i3 %ConstantValue{1}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"ParallaxMode::Pom"}
+		s %Name{"ParallaxMode::LinearSearch"}
 		s %Type{"ezInt32"}
 	}
 }

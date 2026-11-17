@@ -14,7 +14,7 @@ o
 			s{"{ 7c71fc2d-2a1a-4938-9305-f3a0f26d73cc }"}
 		}
 		Uuid %DocumentID{u4{1528524246006798721,5366979952878104574}}
-		u4 %Hash{9107322254901614422}
+		u4 %Hash{233488628039417565}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -59,7 +59,7 @@ o
 		s %NormalTexture{"{ bcb29c7e-9bac-4eb6-895f-10f32be41aa9 }"}
 		s %OcclusionTexture{""}
 		s %OrmTexture{""}
-		s %ParallaxMode{"ParallaxMode::Pom"}
+		s %ParallaxMode{"ParallaxMode::LinearSearch"}
 		i3 %PomMaxSteps{16}
 		s %RoughnessTexture{""}
 		f %RoughnessValue{0xCDCC4C3F}
@@ -991,7 +991,7 @@ o
 		s %Category{"ezPropertyCategory::Constant"}
 		i3 %ConstantValue{1}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"ParallaxMode::Pom"}
+		s %Name{"ParallaxMode::LinearSearch"}
 		s %Type{"ezInt32"}
 	}
 }

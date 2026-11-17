@@ -1,12 +1,16 @@
 #pragma once
 
+// All functions return the shifted texture coordinate and output 'depth', the depth of the found intersection below the
+// polygon, as a fraction of heightScale. It is used to offset the pixel depth (see ParallaxDepthOffset()).
+// For ParallaxConeStepMapping it can be negative, where the relief sticks out in front of the polygon due to heightOffset.
+
 /// Performs parallax occlusion mapping using steep parallax with binary search refinement.
 ///
 /// The height map convention is white (1.0) = surface, black (0.0) = deepest point.
 /// viewDirTS must be normalized. heightScale controls maximum displacement depth in UV space.
 /// maxSteps is an upper bound; actual step count is reduced at near-perpendicular view angles.
 /// The linear search is followed by the same number of binary search steps as in ParallaxConeStepMapping, to allow a fair comparison.
-float2 ParallaxOcclusionMapping(Texture2D heightTex, SamplerState samp, float2 texCoords, float3 viewDirTS, float heightScale, int maxSteps)
+float2 ParallaxOcclusionMapping(Texture2D heightTex, SamplerState samp, float2 texCoords, float3 viewDirTS, float heightScale, int maxSteps, out float depth)
 {
   // Fewer steps when looking straight down (viewDirTS.z close to 1), more at grazing angles
   int numSteps = (int)lerp((float)maxSteps, (float)max(maxSteps / 4, 4), abs(viewDirTS.z));
@@ -56,6 +60,7 @@ float2 ParallaxOcclusionMapping(Texture2D heightTex, SamplerState samp, float2 t
     }
   }
 
+  depth = currentLayerDepth;
   return currentUV;
 }
 
@@ -69,7 +74,7 @@ float2 ParallaxOcclusionMapping(Texture2D heightTex, SamplerState samp, float2 t
 /// viewDirTS must be normalized. heightScale is the maximum displacement depth, in units of the larger texture dimension.
 /// heightOffset moves the zero plane into the height map (0 = the brightest texels are at the surface, 0.5 = mid gray is at the surface).
 /// maxSteps is the number of cone steps, which is followed by a fixed number of binary search steps.
-float2 ParallaxConeStepMapping(Texture2D coneTex, SamplerState samp, float2 texCoords, float3 viewDirTS, float heightScale, float heightOffset, int maxSteps)
+float2 ParallaxConeStepMapping(Texture2D coneTex, SamplerState samp, float2 texCoords, float3 viewDirTS, float heightScale, float heightOffset, int maxSteps, out float depth)
 {
   float2 texSize;
   coneTex.GetDimensions(texSize.x, texSize.y);
@@ -116,6 +121,7 @@ float2 ParallaxConeStepMapping(Texture2D coneTex, SamplerState samp, float2 texC
       pos = mid;
   }
 
+  depth = pos.z - heightOffset;
   return pos.xy;
 }
 
@@ -125,7 +131,7 @@ float2 ParallaxConeStepMapping(Texture2D coneTex, SamplerState samp, float2 texC
 /// Converges for smooth height maps at moderate view angles. Across sharp height steps and at grazing angles it may not converge.
 /// Uses the same height convention (white = surface) and mip selection as the other functions here.
 /// relax is the weight of each new estimate, smaller values converge slower but more reliably.
-float2 ParallaxFixedPointMapping(Texture2D heightTex, SamplerState samp, float2 texCoords, float3 viewDirTS, float heightScale, float relax)
+float2 ParallaxFixedPointMapping(Texture2D heightTex, SamplerState samp, float2 texCoords, float3 viewDirTS, float heightScale, float relax, out float depth)
 {
   // full UV offset at depth 1
   const float2 delta = (viewDirTS.xy / max(viewDirTS.z, 0.001)) * heightScale;
@@ -133,7 +139,7 @@ float2 ParallaxFixedPointMapping(Texture2D heightTex, SamplerState samp, float2 
   const float2 dx = ddx(texCoords);
   const float2 dy = ddy(texCoords);
 
-  float depth = 0.0;
+  depth = 0.0;
 
   [unroll] for (int i = 0; i < 10; ++i)
   {
@@ -148,7 +154,7 @@ float2 ParallaxFixedPointMapping(Texture2D heightTex, SamplerState samp, float2 
 ///
 /// Uses the fixed point solver when viewDirTS.z is above linearBelow + 0.1, linear search (ParallaxOcclusionMapping) when it is below linearBelow,
 /// and blends both in between. Blending the texture coordinates is the same as blending the depths, since both move along the same line.
-float2 ParallaxHybridMapping(Texture2D heightTex, SamplerState samp, float2 texCoords, float3 viewDirTS, float heightScale, int maxSteps, float relax, float linearBelow)
+float2 ParallaxHybridMapping(Texture2D heightTex, SamplerState samp, float2 texCoords, float3 viewDirTS, float heightScale, int maxSteps, float relax, float linearBelow, out float depth)
 {
   const float iterativeAbove = saturate(linearBelow + 0.1);
 
@@ -157,16 +163,37 @@ float2 ParallaxHybridMapping(Texture2D heightTex, SamplerState samp, float2 texC
 
   float2 uvFixedPoint = texCoords;
   float2 uvLinear = texCoords;
+  float depthFixedPoint = 0.0;
+  float depthLinear = 0.0;
 
   [branch] if (w < 1.0)
   {
-    uvFixedPoint = ParallaxFixedPointMapping(heightTex, samp, texCoords, viewDirTS, heightScale, relax);
+    uvFixedPoint = ParallaxFixedPointMapping(heightTex, samp, texCoords, viewDirTS, heightScale, relax, depthFixedPoint);
   }
 
   [branch] if (w > 0.0)
   {
-    uvLinear = ParallaxOcclusionMapping(heightTex, samp, texCoords, viewDirTS, heightScale, maxSteps);
+    uvLinear = ParallaxOcclusionMapping(heightTex, samp, texCoords, viewDirTS, heightScale, maxSteps, depthLinear);
   }
 
+  depth = lerp(depthFixedPoint, depthLinear, w);
   return lerp(uvFixedPoint, uvLinear, w);
+}
+
+/// Computes how far the pixel has to be moved away from the camera, along the view ray, to lie on the found intersection.
+///
+/// Based on the pixel depth offset from PR #2156. depth and heightScale are the values used for and returned by the parallax functions.
+/// texCoordsToUnits converts texture coordinates into the units heightScale is measured in: 1 for the linear search, fixed point
+/// and hybrid functions, and 'textureSize / max(textureSize.x, textureSize.y)' for ParallaxConeStepMapping.
+/// The world scale of the texture is estimated from screen space derivatives, so it is only correct for roughly uniform texel density.
+/// The result is never negative: relief in front of the polygon (negative depth or heightScale) stays at the polygon's depth,
+/// because the depth may only be moved away from the camera (SV_DepthLessEqual).
+float ParallaxDepthOffset(float depth, float heightScale, float2 texCoords, float2 texCoordsToUnits, float3 worldPosition, float viewDirZ)
+{
+  const float2 dUnitsDx = ddx(texCoords) * texCoordsToUnits;
+  const float2 dUnitsDy = ddy(texCoords) * texCoordsToUnits;
+  const float worldPerUnit = (length(ddx(worldPosition)) + length(ddy(worldPosition))) / max(length(dUnitsDx) + length(dUnitsDy), 1e-6);
+
+  // depth below the polygon in world units, converted to a distance along the view ray
+  return max(0.0, depth * heightScale * worldPerUnit / max(viewDirZ, 0.001));
 }
