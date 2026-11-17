@@ -48,9 +48,17 @@ Color EmissiveColor @Default(Color(0.0, 0.0, 0.0));
 bool UseEmissiveTexture;
 Texture2D EmissiveTexture;
 
-bool UseHeightTexture;
+enum ParallaxMode
+{
+  None,
+  Pom,
+  ConeStep
+};
+
+ParallaxMode ParallaxMode;
 Texture2D HeightTexture;
 float HeightScale @Default(0.05) @Clamp(-0.3, 0.3);
+float HeightOffset @Default(0.0) @Clamp(0.0, 1.0);
 int PomMaxSteps @Default(16) @Clamp(4, 64);
 
 [MATERIALCONFIG]
@@ -75,8 +83,9 @@ BOOL1(UseMetallicTexture);
 BOOL1(UseEmissiveTexture);
 BOOL1(UseOcclusionTexture);
 BOOL1(UseOrmTexture);
-BOOL1(UseHeightTexture);
+INT1(ParallaxMode);
 FLOAT1(HeightScale);
+FLOAT1(HeightOffset);
 INT1(PomMaxSteps);
 
 [SHADER]
@@ -147,8 +156,14 @@ void FillCustomGlobals()
 {
   G.ParallaxTexCoord = G.Input.TexCoord0.xy;
 
+  // values of the ParallaxMode enum
+  const int ParallaxMode_Pom = 1;
+  const int ParallaxMode_ConeStep = 2;
+
+  const int parallaxMode = GetMaterialData(ParallaxMode);
+
   [branch]
-  if (GetMaterialData(UseHeightTexture))
+  if (parallaxMode == ParallaxMode_Pom)
   {
     float3 viewDirWS = normalize(GetCameraPosition() - G.Input.WorldPosition);
     float3 viewDirTS = WorldToTangentSpace(viewDirWS);
@@ -157,6 +172,16 @@ void FillCustomGlobals()
       HeightTexture, HeightTexture_AutoSampler,
       G.Input.TexCoord0.xy, viewDirTS,
       GetMaterialData(HeightScale), GetMaterialData(PomMaxSteps));
+  }
+  else if (parallaxMode == ParallaxMode_ConeStep)
+  {
+    float3 viewDirWS = normalize(GetCameraPosition() - G.Input.WorldPosition);
+    float3 viewDirTS = WorldToTangentSpace(viewDirWS);
+
+    G.ParallaxTexCoord = ParallaxConeStepMapping(
+      HeightTexture, HeightTexture_AutoSampler,
+      G.Input.TexCoord0.xy, viewDirTS,
+      GetMaterialData(HeightScale), GetMaterialData(HeightOffset), GetMaterialData(PomMaxSteps));
   }
 }
 
