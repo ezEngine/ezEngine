@@ -2,7 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{7189753179372793750,4695159006461947946}}
+	Uuid %id{u4{13169943210760686497,4860525906830209401}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -11,10 +11,10 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"Assets/ConeMaps/Set1_WallL2_Height.png"}
+			s{"Assets/ConeMaps/Set2_WallL1_Height.png"}
 		}
-		Uuid %DocumentID{u4{7189753179372793750,4695159006461947946}}
-		u4 %Hash{9848645548106418626}
+		Uuid %DocumentID{u4{13169943210760686497,4860525906830209401}}
+		u4 %Hash{13894113580490305290}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -23,7 +23,7 @@ o
 		VarArray %PackageDeps{}
 		VarArray %References
 		{
-			s{"Assets/ConeMaps/Set1_WallL2_Height.png"}
+			s{"Assets/ConeMaps/Set2_WallL1_Height.png"}
 		}
 		s %Tags{""}
 	}
@@ -33,7 +33,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{16748286515553548175,5088036811134823340}}
+	Uuid %id{u4{12831837687502034841,5223097402335909864}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{6}
 	p
@@ -48,10 +48,11 @@ o
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::R1"}
 		s %CompressionMode{"ezTexConvCompressionMode::None"}
 		b %DilateColor{0}
+		u1 %Downscale{1}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
 		f %HdrExposureBias{0}
-		s %Input1{"Assets/ConeMaps/Set1_WallL2_Height.png"}
+		s %Input1{"Assets/ConeMaps/Set2_WallL1_Height.png"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
@@ -61,7 +62,7 @@ o
 		b %PremultipliedAlpha{0}
 		b %PreserveAlphaCoverage{0}
 		s %Resolution{"ezTexture2DResolution::Fixed256x256"}
-		s %TextureFilter{"ezTextureFilterSetting::LowQuality"}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
 		s %Usage{"ezTexConvUsage::ConeMap"}
 	}
 }
@@ -75,7 +76,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{16748286515553548175,5088036811134823340}}
+			Uuid{u4{12831837687502034841,5223097402335909864}}
 		}
 	}
 }

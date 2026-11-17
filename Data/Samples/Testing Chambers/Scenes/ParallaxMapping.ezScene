@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9709847537249330462,10672722855380012073}}
-		u4 %Hash{15872182217903486301}
+		u4 %Hash{16946223626292496864}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -23,10 +23,10 @@ o
 			s{"{ 0d8b2174-f882-4a4e-bb75-d7740758f745 }"}
 			s{"{ 242f61ac-0740-4e4f-a892-b0c93b00f782 }"}
 			s{"{ 28c46448-7529-4093-beb1-a22a2a82215e }"}
+			s{"{ 2d982a4d-1348-49e9-8b52-874962274b0d }"}
 			s{"{ 2fda8a19-492a-4771-8b56-234437e6eb7e }"}
 			s{"{ 3534b40b-875f-4e62-9e5d-ee9074bc3f41 }"}
 			s{"{ 3a9bab77-49ed-4c58-8323-d4c231cb7694 }"}
-			s{"{ 3c8f6b02-6806-400d-baba-53e2fd5b58a3 }"}
 			s{"{ 4d4a6bda-6b1b-4411-90a1-f1c8ec47d689 }"}
 			s{"{ 4d6b496b-b32c-4e9a-a5a2-8665e2c4b773 }"}
 			s{"{ 5afd4920-fb7e-4c70-be13-8a66e90784ec }"}
@@ -38,10 +38,12 @@ o
 			s{"{ 9896ed97-6aaa-4085-8a51-74cbf440d7dc }"}
 			s{"{ 99ab6827-3875-4d09-962d-0b7312682785 }"}
 			s{"{ a1d974aa-7773-42e8-b835-25f242bb230a }"}
+			s{"{ a2edc616-d475-407a-ad46-b22315092b52 }"}
 			s{"{ bea40205-3c93-4f70-9419-516c0136cc25 }"}
 			s{"{ c0ae7fe2-da1b-4219-aade-6ada66130b39 }"}
 			s{"{ c60b80c0-1834-4698-adb7-b32dd8135c3e }"}
 			s{"{ dd20a153-f695-4a27-ad18-119beb937592 }"}
+			s{"{ de2fc47f-d045-4bab-ba50-865c85c392f7 }"}
 			s{"{ df14b2ca-fd3b-4406-a4d9-2d280f57be8b }"}
 			s{"{ f0c70620-5f78-4d66-b9d5-01d90d0a61e8 }"}
 			s{"{ fa74e2c5-954a-4dc2-a3fe-c913a77e907f }"}
@@ -56,10 +58,10 @@ o
 			s{"{ 0d8b2174-f882-4a4e-bb75-d7740758f745 }"}
 			s{"{ 242f61ac-0740-4e4f-a892-b0c93b00f782 }"}
 			s{"{ 28c46448-7529-4093-beb1-a22a2a82215e }"}
+			s{"{ 2d982a4d-1348-49e9-8b52-874962274b0d }"}
 			s{"{ 2fda8a19-492a-4771-8b56-234437e6eb7e }"}
 			s{"{ 3534b40b-875f-4e62-9e5d-ee9074bc3f41 }"}
 			s{"{ 3a9bab77-49ed-4c58-8323-d4c231cb7694 }"}
-			s{"{ 3c8f6b02-6806-400d-baba-53e2fd5b58a3 }"}
 			s{"{ 4d4a6bda-6b1b-4411-90a1-f1c8ec47d689 }"}
 			s{"{ 4d6b496b-b32c-4e9a-a5a2-8665e2c4b773 }"}
 			s{"{ 5afd4920-fb7e-4c70-be13-8a66e90784ec }"}
@@ -71,10 +73,12 @@ o
 			s{"{ 9896ed97-6aaa-4085-8a51-74cbf440d7dc }"}
 			s{"{ 99ab6827-3875-4d09-962d-0b7312682785 }"}
 			s{"{ a1d974aa-7773-42e8-b835-25f242bb230a }"}
+			s{"{ a2edc616-d475-407a-ad46-b22315092b52 }"}
 			s{"{ bea40205-3c93-4f70-9419-516c0136cc25 }"}
 			s{"{ c0ae7fe2-da1b-4219-aade-6ada66130b39 }"}
 			s{"{ c60b80c0-1834-4698-adb7-b32dd8135c3e }"}
 			s{"{ dd20a153-f695-4a27-ad18-119beb937592 }"}
+			s{"{ de2fc47f-d045-4bab-ba50-865c85c392f7 }"}
 			s{"{ df14b2ca-fd3b-4406-a4d9-2d280f57be8b }"}
 			s{"{ f0c70620-5f78-4d66-b9d5-01d90d0a61e8 }"}
 			s{"{ fa74e2c5-954a-4dc2-a3fe-c913a77e907f }"}
@@ -105,11 +109,29 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x00000040,0x00000040}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Basement1_Pom"}
+		s %Name{"Basement1_LinearSearch"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{2881865232458205327,4616808304590289088}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
+		VarArray %Materials
+		{
+			s{"{ de2fc47f-d045-4bab-ba50-865c85c392f7 }"}
+		}
+		s %Mesh{"{ a1d974aa-7773-42e8-b835-25f242bb230a }"}
+		f %SortingDepthOffset{0}
 	}
 }
 o
@@ -128,32 +150,6 @@ o
 		}
 		s %Mesh{"{ a1d974aa-7773-42e8-b835-25f242bb230a }"}
 		f %SortingDepthOffset{0}
-	}
-}
-o
-{
-	Uuid %id{u4{8172350581701115570,4690310645829192961}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{16410159897649050293,4853280287563881650}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0xCDCC0CC0,0x00000040}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x00000040,0x00008040}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Set1_WallL2_Gen"}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
 	}
 }
 o
@@ -194,7 +190,6 @@ o
 			Uuid{u4{13449234021198833598,5591111043598348262}}
 			Uuid{u4{13271733014306718887,5346532576309509490}}
 			Uuid{u4{3175896448017205915,5714751850250706433}}
-			Uuid{u4{8172350581701115570,4690310645829192961}}
 			Uuid{u4{1104458340850523528,5193077082099012351}}
 			Uuid{u4{12785744948228336827,4846756555918652937}}
 			Uuid{u4{6210010547408473745,5511679257337488831}}
@@ -212,6 +207,9 @@ o
 			Uuid{u4{15140513580086278827,5149024437154833164}}
 			Uuid{u4{121481545855140766,5032761056546770213}}
 			Uuid{u4{17055891956971237250,5144948363672568573}}
+			Uuid{u4{11711866145775345574,5566544688084428283}}
+			Uuid{u4{14377162679102689211,4983826521566267367}}
+			Uuid{u4{4883447370062707374,5669316119274585577}}
 		}
 		VarArray %Components{}
 		s %GlobalKey{""}
@@ -264,29 +262,11 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x00000040,0x00008040}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Bistro_Pom"}
+		s %Name{"Bistro_LinearSearch"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{16410159897649050293,4853280287563881650}}
-	s %t{"ezMeshComponent"}
-	u3 %v{3}
-	p
-	{
-		b %Active{1}
-		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
-		VarArray %Materials
-		{
-			s{"{ 3c8f6b02-6806-400d-baba-53e2fd5b58a3 }"}
-		}
-		s %Mesh{"{ a1d974aa-7773-42e8-b835-25f242bb230a }"}
-		f %SortingDepthOffset{0}
 	}
 }
 o
@@ -327,6 +307,24 @@ o
 }
 o
 {
+	Uuid %id{u4{13768883341816773512,4904420293709807355}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
+		VarArray %Materials
+		{
+			s{"{ a2edc616-d475-407a-ad46-b22315092b52 }"}
+		}
+		s %Mesh{"{ a1d974aa-7773-42e8-b835-25f242bb230a }"}
+		f %SortingDepthOffset{0}
+	}
+}
+o
+{
 	Uuid %id{u4{10690504935584902036,4932190626489137852}}
 	s %t{"ezMeshComponent"}
 	u3 %v{3}
@@ -338,6 +336,24 @@ o
 		VarArray %Materials
 		{
 			s{"{ 99ab6827-3875-4d09-962d-0b7312682785 }"}
+		}
+		s %Mesh{"{ a1d974aa-7773-42e8-b835-25f242bb230a }"}
+		f %SortingDepthOffset{0}
+	}
+}
+o
+{
+	Uuid %id{u4{18042794723013810319,4946416577172144991}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
+		VarArray %Materials
+		{
+			s{"{ 2d982a4d-1348-49e9-8b52-874962274b0d }"}
 		}
 		s %Mesh{"{ a1d974aa-7773-42e8-b835-25f242bb230a }"}
 		f %SortingDepthOffset{0}
@@ -359,6 +375,32 @@ o
 		}
 		s %Mesh{"{ a1d974aa-7773-42e8-b835-25f242bb230a }"}
 		f %SortingDepthOffset{0}
+	}
+}
+o
+{
+	Uuid %id{u4{14377162679102689211,4983826521566267367}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{13768883341816773512,4904420293709807355}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0x33333342,0x0000803F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x00000040,0x00000040}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"RoofFlat2b_ConeStepHalf"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -797,8 +839,8 @@ o
 			Uuid{u4{3015202031383980202,5439371812245522179}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000C0C0,0x00006242,0x66662640}}
-		Quat %LocalRotation{f{0xC0F05BBC,0x089DDD3C,0xCE7BE33E,0xC536653F}}
+		Vec3 %LocalPosition{f{0x0000A0C0,0x00001841,0x66662640}}
+		Quat %LocalRotation{f{0x82DA82BC,0x9F35003D,0x8095E83E,0x60E2633F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -952,7 +994,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x00000040,0x00008040}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Set2_WallL1_Pom"}
+		s %Name{"Set2_WallL1_LinearSearch"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -996,7 +1038,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x00000040,0x00008040}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Set1_WallL2_Pom"}
+		s %Name{"Set1_WallL2_LinearSearch"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -1174,6 +1216,32 @@ o
 }
 o
 {
+	Uuid %id{u4{11711866145775345574,5566544688084428283}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{18042794723013810319,4946416577172144991}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0x6666A641,0x00000040}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x00000040,0x00008040}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Set2_WallL1_ConeStepHalf"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{13449234021198833598,5591111043598348262}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -1191,7 +1259,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x00000040,0x00000040}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"RoofFlat2b_Pom"}
+		s %Name{"RoofFlat2b_LinearSearch"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -1258,6 +1326,32 @@ o
 		}
 		s %Mesh{"{ a1d974aa-7773-42e8-b835-25f242bb230a }"}
 		f %SortingDepthOffset{0}
+	}
+}
+o
+{
+	Uuid %id{u4{4883447370062707374,5669316119274585577}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{2881865232458205327,4616808304590289088}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0x33336342,0x0000803F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x00000040,0x00000040}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"RoofTile1_ConeStepHalf"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -1349,7 +1443,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x00000040,0x00000040}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"RoofTile1_Pom"}
+		s %Name{"RoofTile1_LinearSearch"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
