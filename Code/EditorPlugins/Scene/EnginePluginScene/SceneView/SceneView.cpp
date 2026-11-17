@@ -142,6 +142,17 @@ void ezSceneViewContext::Redraw(bool bRenderEditorGizmos)
   ezView* pView = nullptr;
   if (ezRenderWorld::TryGetView(m_hView, pView))
   {
+    // A camera component with the 'EditorView' usage hint replaces all tags of this view (see ezCameraComponent::ApplySettingsToView()).
+    // Thus set the tags that the editor needs on every redraw, not only when they change.
+    {
+      pView->m_ExcludeTags.SetByName("EditorHidden");
+
+      for (const ezTag& tag : m_pSceneContext->GetInvisibleLayerTags())
+      {
+        pView->m_ExcludeTags.Set(tag);
+      }
+    }
+
     const ezTag& tagNoOrtho = ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode");
 
     if (pView->GetCamera()->IsOrthographic())

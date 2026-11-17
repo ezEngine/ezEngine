@@ -15,8 +15,135 @@
 #include <QSettings>
 #include <QStatusBar>
 #include <ToolsFoundation/Document/Document.h>
+#include <QGuiApplication>
+#include <QScreen>
+#include <ads/DockAreaWidget.h>
 #include <ads/DockManager.h>
 #include <ads/DockWidget.h>
+#include <ads/FloatingDockContainer.h>
+
+namespace
+{
+  /// The place of a dock widget in the default layout that the window creates in code.
+  struct DefaultDockWidgetPlacement
+  {
+    QString m_sNeighbor; ///< Another dock widget in the same dock area, empty if there is none.
+    bool m_bOpen = true;
+  };
+
+  QMap<QString, DefaultDockWidgetPlacement> RecordDefaultPlacements(ads::CDockManager* pDockManager)
+  {
+    QMap<QString, DefaultDockWidgetPlacement> placements;
+
+    const auto dockWidgets = pDockManager->dockWidgetsMap();
+    for (auto it = dockWidgets.begin(); it != dockWidgets.end(); ++it)
+    {
+      ads::CDockWidget* pDockWidget = it.value();
+
+      DefaultDockWidgetPlacement& placement = placements[it.key()];
+      placement.m_bOpen = !pDockWidget->isClosed();
+
+      if (ads::CDockAreaWidget* pArea = pDockWidget->dockAreaWidget())
+      {
+        for (ads::CDockWidget* pOther : pArea->dockWidgets())
+        {
+          if (pOther != pDockWidget)
+          {
+            placement.m_sNeighbor = pOther->objectName();
+            break;
+          }
+        }
+      }
+    }
+
+    return placements;
+  }
+
+  /// A saved layout can be from an older version of the window, or from another window of the same class that has fewer panels.
+  /// ADS makes every dock widget that is not in the saved layout "unassigned": closed and in no dock area.
+  /// Document panels cannot be closed by the user, so there is no UI to bring such a panel back. Put them back into their default place.
+  bool RepairUnassignedDockWidgets(ads::CDockManager* pDockManager, const QMap<QString, DefaultDockWidgetPlacement>& defaultPlacements)
+  {
+    bool bRepaired = false;
+
+    const auto dockWidgets = pDockManager->dockWidgetsMap();
+    for (auto it = dockWidgets.begin(); it != dockWidgets.end(); ++it)
+    {
+      ads::CDockWidget* pDockWidget = it.value();
+
+      if (pDockWidget->dockAreaWidget() != nullptr || pDockWidget->isCentralWidget())
+        continue;
+
+      // The user can bring closable widgets back through their toggle view action.
+      if (pDockWidget->features().testFlag(ads::CDockWidget::DockWidgetClosable))
+        continue;
+
+      const DefaultDockWidgetPlacement placement = defaultPlacements.value(it.key());
+
+      ads::CDockWidget* pNeighbor = placement.m_sNeighbor.isEmpty() ? nullptr : pDockManager->findDockWidget(placement.m_sNeighbor);
+      if (pNeighbor != nullptr && pNeighbor->dockAreaWidget() != nullptr && !pNeighbor->isAutoHide())
+      {
+        pDockManager->addDockWidgetTabToArea(pDockWidget, pNeighbor->dockAreaWidget());
+      }
+      else
+      {
+        pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pDockWidget);
+      }
+
+      // Some windows hide panels in code (for example when a feature is not in use). Keep that state.
+      pDockWidget->toggleView(placement.m_bOpen);
+
+      bRepaired = true;
+    }
+
+    return bRepaired;
+  }
+
+  /// A floating panel can end up outside of all screens, for example after a change of monitors or resolution. Move it back onto the screen of the window.
+  bool RepairOffscreenFloatingWidgets(ads::CDockManager* pDockManager, QWidget* pWindow)
+  {
+    bool bRepaired = false;
+
+    // A floating widget must show at least this many pixels on one screen, so that the user can grab it.
+    constexpr int iMinVisiblePixels = 50;
+
+    for (ads::CFloatingDockContainer* pFloating : pDockManager->floatingWidgets())
+    {
+      if (pFloating == nullptr)
+        continue;
+
+      const QRect frame = pFloating->frameGeometry();
+
+      bool bOnScreen = false;
+      for (QScreen* pScreen : QGuiApplication::screens())
+      {
+        const QRect visible = pScreen->availableGeometry().intersected(frame);
+        if (visible.width() >= iMinVisiblePixels && visible.height() >= iMinVisiblePixels)
+        {
+          bOnScreen = true;
+          break;
+        }
+      }
+
+      if (bOnScreen)
+        continue;
+
+      QScreen* pTargetScreen = pWindow->screen() != nullptr ? pWindow->screen() : QGuiApplication::primaryScreen();
+      if (pTargetScreen == nullptr)
+        continue;
+
+      const QRect target = pTargetScreen->availableGeometry();
+      const QSize size = pFloating->size().boundedTo(target.size());
+
+      pFloating->resize(size);
+      pFloating->move(target.center() - QPoint(size.width() / 2, size.height() / 2));
+
+      bRepaired = true;
+    }
+
+    return bRepaired;
+  }
+} // namespace
 
 ezEvent<const ezQtDocumentWindowEvent&> ezQtDocumentWindow::s_Events;
 ezDynamicArray<ezQtDocumentWindow*> ezQtDocumentWindow::s_AllDocumentWindows;
@@ -526,6 +653,8 @@ void ezQtDocumentWindow::SlotRestoreDocumentLayout()
 
   if (!state.isEmpty())
   {
+    const QMap<QString, DefaultDockWidgetPlacement> defaultPlacements = RecordDefaultPlacements(m_pDockManager);
+
     if (!m_pDockManager->restoreState(state) && !m_pDockManager->isRestoringState())
     {
       // The saved layout doesn't fit this window anymore, for example because a central widget was added.
@@ -533,6 +662,19 @@ void ezQtDocumentWindow::SlotRestoreDocumentLayout()
       settings.beginGroup("DocumentWindowLayouts");
       settings.remove(szTypeName);
       settings.endGroup();
+    }
+    else
+    {
+      bool bRepaired = RepairUnassignedDockWidgets(m_pDockManager, defaultPlacements);
+      bRepaired |= RepairOffscreenFloatingWidgets(m_pDockManager, this);
+
+      if (bRepaired)
+      {
+        // Store the repaired layout immediately. Otherwise the broken layout stays in the settings, because the layout is only saved when the user changes it.
+        settings.beginGroup("DocumentWindowLayouts");
+        settings.setValue(szTypeName, m_pDockManager->saveState());
+        settings.endGroup();
+      }
     }
 
     OnAfterDocumentLayoutRestored();

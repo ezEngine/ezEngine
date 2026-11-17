@@ -50,12 +50,18 @@ void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& contex
       continue;
     }
 
+    pCameraComponent->m_bIsModified = false;
+
+    // An inactive camera must not control a view. OnActivated() marks it as modified again.
+    if (!pCameraComponent->IsActiveAndInitialized())
+    {
+      continue;
+    }
+
     if (ezView* pView = ezRenderWorld::GetViewByUsageHint(pCameraComponent->GetUsageHint(), ezCameraUsageHint::None, GetWorld()))
     {
       pCameraComponent->ApplySettingsToView(pView);
     }
-
-    pCameraComponent->m_bIsModified = false;
   }
 
   m_ModifiedCameras.Clear();
@@ -373,6 +379,11 @@ void ezCameraComponent::SetUsageHint(ezEnum<ezCameraUsageHint> val)
 
   DeactivateRenderToTexture();
 
+  if (IsActiveAndInitialized())
+  {
+    ReleaseUsageHintView();
+  }
+
   m_UsageHint = val;
 
   ActivateRenderToTexture();
@@ -594,6 +605,7 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
   pCamera->SetCameraMode(m_Mode, fFovOrDim, m_fNearPlane, ezMath::Max(m_fNearPlane + 0.00001f, m_fFarPlane));
   pCamera->SetExposure(GetExposure());
 
+  // This replaces all tags of the view. Code that owns a view and needs tags of its own (for example the editor) must set them again.
   pView->m_IncludeTags = m_IncludeTags;
   pView->m_ExcludeTags = m_ExcludeTags;
 
@@ -752,13 +764,45 @@ void ezCameraComponent::OnActivated()
   ActivateRenderToTexture();
 
   m_pBlackboard = ezBlackboardComponent::FindBlackboard(*GetOwner(), m_sBlackboardName);
+
+  // The settings are not applied while the camera is inactive, so apply them now.
+  MarkAsModified();
 }
 
 void ezCameraComponent::OnDeactivated()
 {
   DeactivateRenderToTexture();
 
+  ReleaseUsageHintView();
+
   SUPER::OnDeactivated();
+}
+
+void ezCameraComponent::ReleaseUsageHintView()
+{
+  if (m_UsageHint == ezCameraUsageHint::None || m_UsageHint == ezCameraUsageHint::RenderTarget)
+    return;
+
+  if (ezView* pView = ezRenderWorld::GetViewByUsageHint(m_UsageHint, ezCameraUsageHint::None, GetWorld()))
+  {
+    // Remove this camera's tags from the view, the same as a camera without tags would do.
+    pView->m_IncludeTags.Clear();
+    pView->m_ExcludeTags.Clear();
+
+    const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+    pView->m_ExcludeTags.Set(tagEditor);
+  }
+
+  // Another active camera with the same usage hint takes over the view.
+  ezCameraComponentManager* pManager = GetWorld()->GetComponentManager<ezCameraComponentManager>();
+  for (auto it = pManager->GetComponents(); it.IsValid(); ++it)
+  {
+    ezCameraComponent* pOther = it;
+    if (pOther != this && pOther->IsActiveAndInitialized() && pOther->GetUsageHint() == m_UsageHint)
+    {
+      pOther->MarkAsModified(pManager);
+    }
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

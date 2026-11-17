@@ -184,6 +184,10 @@ private:
   void ActivateRenderToTexture();
   void DeactivateRenderToTexture();
 
+  /// Removes this camera's tags from the view that its usage hint selects, and lets other active cameras with the same usage hint apply their settings again.
+  /// Like ApplySettingsToView(), this replaces all tags of the view.
+  void ReleaseUsageHintView();
+
   ezViewHandle m_hRenderTargetView;
   ezVec2 m_vRenderTargetRectOffset = ezVec2(0.0f);
   ezVec2 m_vRenderTargetRectSize = ezVec2(1.0f);
