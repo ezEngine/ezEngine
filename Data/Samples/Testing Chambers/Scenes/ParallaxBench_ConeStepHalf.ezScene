@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9233593701690789144,11157072042331678565}}
-		u4 %Hash{13877043643218193116}
+		u4 %Hash{3584902878441029449}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -63,6 +63,35 @@ o
 }
 o
 {
+	Uuid %id{u4{16097610925176822954,4762712002679815054}}
+	s %t{"ezCameraComponent"}
+	u3 %v{11}
+	p
+	{
+		b %Active{1}
+		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
+		s %CameraRenderPipeline{""}
+		f %Dimensions{0x00002041}
+		i1 %EditorShortcut{-1}
+		VarArray %ExcludeTags{}
+		f %ExposureCompensation{0}
+		f %FOV{0x00007042}
+		f %FarPlane{0x00007A44}
+		f %ISO{0x0000C842}
+		VarArray %IncludeTags{}
+		s %Mode{"ezCameraMode::PerspectiveFixedFovY"}
+		f %NearPlane{0xCDCC4C3D}
+		s %RenderTarget{""}
+		Vec2 %RenderTargetOffset{f{0,0}}
+		Vec2 %RenderTargetSize{f{0x0000803F,0x0000803F}}
+		b %ShowStats{0}
+		Time %ShutterTime{d{0x000000000000F03F}}
+		s %UsageHint{"ezCameraUsageHint::None"}
+	}
+}
+o
+{
 	Uuid %id{u4{810022362804733335,4868970179251017443}}
 	s %t{"ezMeshComponent"}
 	u3 %v{3}
@@ -99,6 +128,32 @@ o
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"MainCamera"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{8467605654193841310,5314420191593084619}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{16097610925176822954,4762712002679815054}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xD22704C1,0x2CD570C0,0x9291033E}}
+		Quat %LocalRotation{f{0xFC7E38BD,0x8DC0563E,0xF805523E,0x6077743F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Camera2"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -144,6 +199,7 @@ o
 			Uuid{u4{10020134379178492942,10503748862969839262}}
 			Uuid{u4{17190232029945274040,5394743431241233455}}
 			Uuid{u4{3403114188283101072,4921978170357375794}}
+			Uuid{u4{8467605654193841310,5314420191593084619}}
 		}
 		Uuid %Settings{u4{5143874615127948334,10685933645057934674}}
 	}

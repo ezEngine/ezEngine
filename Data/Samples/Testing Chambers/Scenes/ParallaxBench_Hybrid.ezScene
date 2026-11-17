@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13991466878934965526,10856856622271669912}}
-		u4 %Hash{16920411935088146094}
+		u4 %Hash{245938199191836049}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -34,6 +34,32 @@ Objects
 {
 o
 {
+	Uuid %id{u4{9764376697736263083,4695247076343991236}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{6668794612020580754,5222317614655677113}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xD22704C1,0x2CD570C0,0x9291033E}}
+		Quat %LocalRotation{f{0xFC7E38BD,0x8DC0563E,0xF805523E,0x6077743F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Camera2"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{13481964477695712412,4859667822962523375}}
 	s %t{"ezMeshComponent"}
 	u3 %v{3}
@@ -48,6 +74,35 @@ o
 		}
 		s %Mesh{"{ 3fbcc2b8-284e-43ba-b792-a349b723163b }"}
 		f %SortingDepthOffset{0}
+	}
+}
+o
+{
+	Uuid %id{u4{6668794612020580754,5222317614655677113}}
+	s %t{"ezCameraComponent"}
+	u3 %v{11}
+	p
+	{
+		b %Active{1}
+		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
+		s %CameraRenderPipeline{""}
+		f %Dimensions{0x00002041}
+		i1 %EditorShortcut{-1}
+		VarArray %ExcludeTags{}
+		f %ExposureCompensation{0}
+		f %FOV{0x00007042}
+		f %FarPlane{0x00007A44}
+		f %ISO{0x0000C842}
+		VarArray %IncludeTags{}
+		s %Mode{"ezCameraMode::PerspectiveFixedFovY"}
+		f %NearPlane{0xCDCC4C3D}
+		s %RenderTarget{""}
+		Vec2 %RenderTargetOffset{f{0,0}}
+		Vec2 %RenderTargetSize{f{0x0000803F,0x0000803F}}
+		b %ShowStats{0}
+		Time %ShutterTime{d{0x000000000000F03F}}
+		s %UsageHint{"ezCameraUsageHint::None"}
 	}
 }
 o
@@ -144,6 +199,7 @@ o
 			Uuid{u4{14778007556422669324,10203533442909830609}}
 			Uuid{u4{2627736272119775913,5594191632855513072}}
 			Uuid{u4{4524326009714697390,5578807868275385244}}
+			Uuid{u4{9764376697736263083,4695247076343991236}}
 		}
 		Uuid %Settings{u4{9901747792372124716,10385718224997926021}}
 	}

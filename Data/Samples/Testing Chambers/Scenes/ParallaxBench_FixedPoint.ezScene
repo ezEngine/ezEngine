@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9776074880502420040,10258392568018532666}}
-		u4 %Hash{6454017943737291054}
+		u4 %Hash{4449575093566986042}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -32,6 +32,32 @@ o
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{8392816439633425310,4708819175967940576}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7592126151324331707,5744677270643237054}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xD22704C1,0x2CD570C0,0x9291033E}}
+		Quat %LocalRotation{f{0xFC7E38BD,0x8DC0563E,0xF805523E,0x6077743F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Camera2"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
 o
 {
 	Uuid %id{u4{11719618876905020825,4933320610405900854}}
@@ -133,6 +159,35 @@ o
 }
 o
 {
+	Uuid %id{u4{7592126151324331707,5744677270643237054}}
+	s %t{"ezCameraComponent"}
+	u3 %v{11}
+	p
+	{
+		b %Active{1}
+		f %Aperture{0x0000803F}
+		s %BlackboardName{""}
+		s %CameraRenderPipeline{""}
+		f %Dimensions{0x00002041}
+		i1 %EditorShortcut{-1}
+		VarArray %ExcludeTags{}
+		f %ExposureCompensation{0}
+		f %FOV{0x00007042}
+		f %FarPlane{0x00007A44}
+		f %ISO{0x0000C842}
+		VarArray %IncludeTags{}
+		s %Mode{"ezCameraMode::PerspectiveFixedFovY"}
+		f %NearPlane{0xCDCC4C3D}
+		s %RenderTarget{""}
+		Vec2 %RenderTargetOffset{f{0,0}}
+		Vec2 %RenderTargetSize{f{0x0000803F,0x0000803F}}
+		b %ShowStats{0}
+		Time %ShutterTime{d{0x000000000000F03F}}
+		s %UsageHint{"ezCameraUsageHint::None"}
+	}
+}
+o
+{
 	Uuid %id{u4{18096612296587978288,6449934965513159559}}
 	s %t{"ezSceneDocumentRoot"}
 	u3 %v{2}
@@ -144,6 +199,7 @@ o
 			Uuid{u4{10562615557990123838,9605069388656693363}}
 			Uuid{u4{18376015662502099892,5510511503932526307}}
 			Uuid{u4{9305471625359834786,5249428906694542291}}
+			Uuid{u4{8392816439633425310,4708819175967940576}}
 		}
 		Uuid %Settings{u4{5686355793939579230,9787254170744788775}}
 	}
