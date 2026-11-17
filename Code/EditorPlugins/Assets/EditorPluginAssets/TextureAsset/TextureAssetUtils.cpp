@@ -74,6 +74,10 @@ const char* ToUsageMode(ezTexConvUsage::Enum mode)
       return "NormalMap_Inverted";
     case ezTexConvUsage::BumpMap:
       return "BumpMap";
+    case ezTexConvUsage::ConeMap:
+      return "ConeMap";
+    case ezTexConvUsage::ConeMapFast:
+      return "ConeMapFast";
   }
 
   EZ_ASSERT_NOT_IMPLEMENTED;

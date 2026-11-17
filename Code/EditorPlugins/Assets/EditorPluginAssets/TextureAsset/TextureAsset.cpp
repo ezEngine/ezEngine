@@ -552,6 +552,14 @@ ezTextureAssetDocumentGenerator::TextureType ezTextureAssetDocumentGenerator::De
 
     return TextureType::NormalDX;
   }
+  else if (baseFilename.EndsWith_NoCase("normalGL"))
+  {
+      return TextureType::NormalGL;
+  }
+  else if (baseFilename.EndsWith_NoCase("normalDX"))
+  {
+      return TextureType::NormalDX;
+  }
   else if (baseFilename.EndsWith_NoCase("_arm") || baseFilename.EndsWith_NoCase("_orm"))
   {
     return TextureType::ORM;
@@ -560,11 +568,11 @@ ezTextureAssetDocumentGenerator::TextureType ezTextureAssetDocumentGenerator::De
   {
     return TextureType::Roughness;
   }
-  else if (baseFilename.EndsWith_NoCase("_ao"))
+  else if (baseFilename.EndsWith_NoCase("_ao") || baseFilename.EndsWith_NoCase("occlusion"))
   {
     return TextureType::Occlusion;
   }
-  else if (baseFilename.EndsWith_NoCase("_height") || baseFilename.EndsWith_NoCase("_disp"))
+  else if (baseFilename.EndsWith_NoCase("_height") || baseFilename.EndsWith_NoCase("_disp") || baseFilename.EndsWith_NoCase("displacement"))
   {
     return TextureType::Height;
   }
@@ -839,6 +847,7 @@ ezStatus ezTextureAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, e
   {
     accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::R1);
     accessor.SetValue("TextureFilter", (int)ezTextureFilterSetting::LowQuality);
+    accessor.SetValue("Usage", (int)ezTexConvUsage::ConeMap);
   }
   else if (sMode == "TextureImport.Roughness")
   {

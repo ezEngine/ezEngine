@@ -37,6 +37,9 @@ Texture3DAsset.PreviewMode;Preview Mode
 ezTexConvUsage::Hdr;HDR
 ezTexConvUsage::NormalMap; Normal Map (DX)
 ezTexConvUsage::NormalMap_Inverted; Normal Map (GL)
+ezTexConvUsage::BumpMap;Bumpmap
+ezTexConvUsage::ConeMap;Conemap
+ezTexConvUsage::ConeMapFast;Conemap (Fast)
 
 ezRenderTargetFormat::RGBA8;RGBA8 (linear)
 ezRenderTargetFormat::RGBA8sRgb;RGBA8 (sRGB)
