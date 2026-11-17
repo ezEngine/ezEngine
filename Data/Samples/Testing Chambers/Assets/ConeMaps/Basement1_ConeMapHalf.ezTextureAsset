@@ -14,7 +14,7 @@ o
 			s{"Assets/ConeMaps/Basement1_Height.png"}
 		}
 		Uuid %DocumentID{u4{3711381927674349450,5442929577124943753}}
-		u4 %Hash{4990760795568244713}
+		u4 %Hash{3017643274868918772}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -46,7 +46,7 @@ o
 		VarArray %ArraySlices{}
 		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::R1"}
-		s %CompressionMode{"ezTexConvCompressionMode::None"}
+		s %CompressionMode{"ezTexConvCompressionMode::Medium"}
 		b %DilateColor{0}
 		u1 %Downscale{1}
 		b %FlipHorizontal{0}
