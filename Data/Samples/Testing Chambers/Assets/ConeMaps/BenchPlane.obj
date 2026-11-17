@@ -1,0 +1,11 @@
+# 40 x 40 m plane, y up, texture repeats every meter
+v -20 0 -20
+v 20 0 -20
+v 20 0 20
+v -20 0 20
+vt 0 0
+vt 40 0
+vt 40 40
+vt 0 40
+vn 0 1 0
+f 1/1/1 4/4/1 3/3/1 2/2/1

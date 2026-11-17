@@ -5,6 +5,7 @@
 /// The height map convention is white (1.0) = surface, black (0.0) = deepest point.
 /// viewDirTS must be normalized. heightScale controls maximum displacement depth in UV space.
 /// maxSteps is an upper bound; actual step count is reduced at near-perpendicular view angles.
+/// The linear search is followed by the same number of binary search steps as in ParallaxConeStepMapping, to allow a fair comparison.
 float2 ParallaxOcclusionMapping(Texture2D heightTex, SamplerState samp, float2 texCoords, float3 viewDirTS, float heightScale, int maxSteps)
 {
   // Fewer steps when looking straight down (viewDirTS.z close to 1), more at grazing angles
@@ -16,14 +17,18 @@ float2 ParallaxOcclusionMapping(Texture2D heightTex, SamplerState samp, float2 t
   // UV offset per step, scaled by height and projected by view angle
   float2 deltaUV = (viewDirTS.xy / max(viewDirTS.z, 0.001)) * heightScale / (float)numSteps;
 
+  // mip selection based on the original texture coordinate, the shifted coordinates are continuous anyway
+  const float2 dx = ddx(texCoords);
+  const float2 dy = ddy(texCoords);
+
   float2 currentUV = texCoords;
-  float currentDepth = 1.0 - heightTex.SampleLevel(samp, currentUV, 0).r;
+  float currentDepth = 1.0 - heightTex.SampleGrad(samp, currentUV, dx, dy).r;
 
   // Steep parallax: march until we go below the surface
   [loop] for (int i = 0; i < numSteps && currentLayerDepth < currentDepth; ++i)
   {
     currentUV -= deltaUV;
-    currentDepth = 1.0 - heightTex.SampleLevel(samp, currentUV, 0).r;
+    currentDepth = 1.0 - heightTex.SampleGrad(samp, currentUV, dx, dy).r;
     currentLayerDepth += layerDepth;
   }
 
@@ -31,11 +36,11 @@ float2 ParallaxOcclusionMapping(Texture2D heightTex, SamplerState samp, float2 t
   float2 prevUV = currentUV + deltaUV;
   float prevLayerDepth = currentLayerDepth - layerDepth;
 
-  [unroll] for (int j = 0; j < 4; ++j)
+  [unroll] for (int j = 0; j < 6; ++j)
   {
     float2 midUV = (prevUV + currentUV) * 0.5;
     float midLayerDepth = (prevLayerDepth + currentLayerDepth) * 0.5;
-    float midDepth = 1.0 - heightTex.SampleLevel(samp, midUV, 0).r;
+    float midDepth = 1.0 - heightTex.SampleGrad(samp, midUV, dx, dy).r;
 
     if (midDepth > midLayerDepth)
     {
