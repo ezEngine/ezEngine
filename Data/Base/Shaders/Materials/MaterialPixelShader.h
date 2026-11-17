@@ -103,7 +103,8 @@ PS_OUT main(PS_IN Input)
 #endif
 
 #if defined(WRITE_SHADER_DEPTH)
-  Output.Depth = shaderClipPos.z / shaderClipPos.w;
+  // the clamp guarantees the conservative depth contract, even where rounding makes the recomputed depth slightly closer
+  Output.Depth = min(Input.Position.z, shaderClipPos.z / shaderClipPos.w);
 #endif
 
 #if defined(USE_ALPHA_TEST)
