@@ -20,6 +20,15 @@ static ezImageFormat::Enum DetermineOutputFormatPC(
     return ezImageFormat::R8G8_UNORM;
   }
 
+  if (targetFormat == ezTexConvUsage::ConeMap)
+  {
+    // the cone ratio is sensitive to compression errors, too large values produce artifacts
+    if (compressionMode >= ezTexConvCompressionMode::High)
+      return ezImageFormat::BC5_UNORM;
+
+    return ezImageFormat::R8G8_UNORM;
+  }
+
   if (targetFormat == ezTexConvUsage::Color)
   {
     if (compressionMode >= ezTexConvCompressionMode::High && uiNumChannels < 4)

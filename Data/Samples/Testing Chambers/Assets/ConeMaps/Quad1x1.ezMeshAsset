@@ -11,7 +11,7 @@ o
 		s %AssetType{"Mesh"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{730633460768912824,4821234739620443306}}
-		u4 %Hash{7374195229661143779}
+		u4 %Hash{2896762359921467692}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -50,7 +50,7 @@ o
 		f %Height{0x0000803F}
 		b %HighPrecision{0}
 		b %ImportMaterials{0}
-		s %ImportTransform{"ezMeshImportTransform::Blender_YUp"}
+		s %ImportTransform{"ezMeshImportTransform::Custom"}
 		VarArray %Materials
 		{
 			Uuid{u4{6385608086689013928,4616633217421630324}}
@@ -67,10 +67,10 @@ o
 		f %Radius2{0x0000003F}
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
-		s %RightDir{"ezBasisAxis::NegativeX"}
+		s %RightDir{"ezBasisAxis::PositiveX"}
 		b %SimplifyMesh{0}
 		f %UniformScaling{0x0000803F}
-		s %UpDir{"ezBasisAxis::PositiveY"}
+		s %UpDir{"ezBasisAxis::NegativeY"}
 		s %VertexColorConversion{"ezMeshVertexColorConversion::None"}
 	}
 }

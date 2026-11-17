@@ -16,7 +16,7 @@ EZ_END_STATIC_REFLECTED_ENUM;
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvUsage, 1)
   EZ_ENUM_CONSTANT(ezTexConvUsage::Auto), EZ_ENUM_CONSTANT(ezTexConvUsage::Color), EZ_ENUM_CONSTANT(ezTexConvUsage::Linear),
   EZ_ENUM_CONSTANT(ezTexConvUsage::Hdr), EZ_ENUM_CONSTANT(ezTexConvUsage::NormalMap), EZ_ENUM_CONSTANT(ezTexConvUsage::NormalMap_Inverted),
-  EZ_ENUM_CONSTANT(ezTexConvUsage::BumpMap),
+  EZ_ENUM_CONSTANT(ezTexConvUsage::BumpMap), EZ_ENUM_CONSTANT(ezTexConvUsage::ConeMap),
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
@@ -43,6 +43,18 @@ ezResult ezTexConvProcessor::Process()
 
     ezUInt32 uiNumChannelsUsed = 0;
     EZ_SUCCEED_OR_RETURN(DetectNumChannels(m_Descriptor.m_ChannelMappings, uiNumChannelsUsed));
+
+    if (m_Descriptor.m_Usage == ezTexConvUsage::ConeMap)
+    {
+      if (m_Descriptor.m_OutputType != ezTexConvOutputType::Texture2D && m_Descriptor.m_OutputType != ezTexConvOutputType::None)
+      {
+        ezLog::Error("Cone maps are only supported for 2D textures.");
+        return EZ_FAILURE;
+      }
+
+      // height and cone ratio
+      uiNumChannelsUsed = 2;
+    }
 
     ezEnum<ezImageFormat> OutputImageFormat;
 
@@ -71,6 +83,11 @@ ezResult ezTexConvProcessor::Process()
     if (m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D || m_Descriptor.m_OutputType == ezTexConvOutputType::None)
     {
       EZ_SUCCEED_OR_RETURN(Assemble2DTexture(m_Descriptor.m_InputImages[0].GetHeader(), assembledImg));
+
+      if (m_Descriptor.m_Usage == ezTexConvUsage::ConeMap)
+      {
+        EZ_SUCCEED_OR_RETURN(GenerateConeMap(assembledImg));
+      }
 
       EZ_SUCCEED_OR_RETURN(InvertNormalMap(assembledImg));
 

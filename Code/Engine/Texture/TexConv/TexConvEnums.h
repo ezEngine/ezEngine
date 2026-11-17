@@ -55,6 +55,11 @@ struct ezTexConvUsage
 
     BumpMap,
 
+    /// The input is a height map (red channel, white = top). The output stores the height in red and the
+    /// relaxed cone ratio in green, for relaxed cone step parallax mapping. Only supported for 2D textures.
+    /// Generating the cone ratios is expensive for large textures.
+    ConeMap,
+
     Default = Auto
   };
 
