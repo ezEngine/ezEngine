@@ -119,6 +119,16 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator|(const ezSimdVec4u& v) const
   return vorrq_u32(m_v, v.m_v);
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::SubtractSaturated16(const ezSimdVec4u& v) const
+{
+  return vreinterpretq_u32_u16(vqsubq_u16(vreinterpretq_u16_u32(m_v), vreinterpretq_u16_u32(v.m_v)));
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::TransposeBytes() const
+{
+  return ezSimdVec4u(ezSimdVec4i(*this).TransposeBytes());
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator&(const ezSimdVec4u& v) const
 {
   return vandq_u32(m_v, v.m_v);
@@ -142,6 +152,18 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator<<(ezUInt32 uiShift) const
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator>>(ezUInt32 uiShift) const
 {
   return vshlq_u32(m_v, vmovq_n_u32(-uiShift));
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator<<(const ezSimdVec4u& vShift) const
+{
+  // NEON uses signed 8-bit shift counts, so clamp before reinterpreting.
+  return vshlq_u32(m_v, vreinterpretq_s32_u32(vminq_u32(vShift.m_v, vdupq_n_u32(32))));
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator>>(const ezSimdVec4u& vShift) const
+{
+  const int32x4_t vCounts = vreinterpretq_s32_u32(vminq_u32(vShift.m_v, vdupq_n_u32(32)));
+  return vshlq_u32(m_v, vnegq_s32(vCounts));
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator+=(const ezSimdVec4u& v)

@@ -1,7 +1,9 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Core/ResourceManager/Implementation/ResourceLock.h>
 #include <Core/ResourceManager/ResourceManager.h>
+
+#include <Core/ResourceManager/Implementation/ResourceLock.h>
+
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderGraph/RenderGraph.h>
 #include <RendererCore/RenderGraph/RenderGraphManager.h>

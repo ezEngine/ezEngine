@@ -200,6 +200,80 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4u)
     }
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Per-component logical shifts")
+  {
+    const ezUInt32 counts[] = {0, 1, 7, 15, 16, 24, 31, 32, 33, 63, 64, 127, 128, 255, 256, 257, 65536, 0x80000000u, 0xFFFFFFFFu};
+    const ezUInt32 values[] = {0, 1, 0xFFFFFFFFu, 0x80000000u, 0x89ABCDEFu, 0x76543210u};
+    for (ezUInt32 uiValue : values)
+    {
+      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(counts); ++i)
+      {
+        const ezUInt32 laneValues[] = {uiValue, uiValue ^ 0x55555555u, ~uiValue, uiValue ^ 0xAAAAAAAAu};
+        const ezUInt32 laneCounts[] = {counts[i], counts[(i + 1) % EZ_ARRAY_SIZE(counts)],
+          counts[(i + 2) % EZ_ARRAY_SIZE(counts)], counts[(i + 3) % EZ_ARRAY_SIZE(counts)]};
+        const ezSimdVec4u vInput(laneValues[0], laneValues[1], laneValues[2], laneValues[3]);
+        const ezSimdVec4u vCounts(laneCounts[0], laneCounts[1], laneCounts[2], laneCounts[3]);
+        const ezSimdVec4u vLeft = vInput << vCounts;
+        const ezSimdVec4u vRight = vInput >> vCounts;
+        const ezUInt32 left[] = {vLeft.x(), vLeft.y(), vLeft.z(), vLeft.w()};
+        const ezUInt32 right[] = {vRight.x(), vRight.y(), vRight.z(), vRight.w()};
+        for (ezUInt32 lane = 0; lane < 4; ++lane)
+        {
+          EZ_TEST_INT(left[lane], laneCounts[lane] < 32 ? laneValues[lane] << laneCounts[lane] : 0);
+          EZ_TEST_INT(right[lane], laneCounts[lane] < 32 ? laneValues[lane] >> laneCounts[lane] : 0);
+        }
+      }
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransposeBytes")
+  {
+    const ezSimdVec4u vInput(0x03020100u, 0x07060504u, 0x0B0A0908u, 0x0F0E0D0Cu);
+    EZ_TEST_BOOL((vInput.TransposeBytes() == ezSimdVec4u(0x0C080400u, 0x0D090501u, 0x0E0A0602u, 0x0F0B0703u)).AllSet<4>());
+    EZ_TEST_BOOL((vInput.TransposeBytes().TransposeBytes() == vInput).AllSet<4>());
+    EZ_TEST_BOOL((ezSimdVec4u::MakeZero().TransposeBytes() == ezSimdVec4u::MakeZero()).AllSet<4>());
+    EZ_TEST_BOOL((ezSimdVec4u(0xFFFFFFFFu).TransposeBytes() == ezSimdVec4u(0xFFFFFFFFu)).AllSet<4>());
+
+    for (ezUInt32 uiBit = 0; uiBit < 128; ++uiBit)
+    {
+      ezUInt32 input[4] = {};
+      ezUInt32 expected[4] = {};
+      input[uiBit / 32] = 1u << (uiBit % 32);
+      const ezUInt32 uiRow = uiBit / 32;
+      const ezUInt32 uiColumn = (uiBit % 32) / 8;
+      expected[uiColumn] = 1u << (uiRow * 8 + uiBit % 8);
+      const ezSimdVec4u vActual = ezSimdVec4u(input[0], input[1], input[2], input[3]).TransposeBytes();
+      EZ_TEST_BOOL((vActual == ezSimdVec4u(expected[0], expected[1], expected[2], expected[3])).AllSet<4>());
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SubtractSaturated16")
+  {
+    const ezSimdVec4u vA(0xFFFF0000u, 0x0000FFFFu, 0x80007FFFu, 0x12345678u);
+    const ezSimdVec4u vB(0x0000FFFFu, 0xFFFF0000u, 0x7FFF8000u, 0x12345678u);
+    EZ_TEST_BOOL((vA.SubtractSaturated16(vB) == ezSimdVec4u(0xFFFF0000u, 0x0000FFFFu, 0x00010000u, 0)).AllSet<4>());
+    EZ_TEST_BOOL((vA.SubtractSaturated16(ezSimdVec4u::MakeZero()) == vA).AllSet<4>());
+    EZ_TEST_BOOL((ezSimdVec4u::MakeZero().SubtractSaturated16(vA) == ezSimdVec4u::MakeZero()).AllSet<4>());
+
+    ezUInt32 uiSeed = 123;
+    for (ezUInt32 i = 0; i < 1024; ++i)
+    {
+      ezUInt32 a[4], b[4], expected[4];
+      for (ezUInt32 lane = 0; lane < 4; ++lane)
+      {
+        uiSeed = uiSeed * 1664525u + 1013904223u;
+        a[lane] = uiSeed;
+        uiSeed = uiSeed * 1664525u + 1013904223u;
+        b[lane] = uiSeed;
+        const ezInt32 iLow = static_cast<ezInt32>(a[lane] & 0xFFFF) - static_cast<ezInt32>(b[lane] & 0xFFFF);
+        const ezInt32 iHigh = static_cast<ezInt32>(a[lane] >> 16) - static_cast<ezInt32>(b[lane] >> 16);
+        expected[lane] = static_cast<ezUInt32>(ezMath::Max(iLow, 0)) | (static_cast<ezUInt32>(ezMath::Max(iHigh, 0)) << 16);
+      }
+      const ezSimdVec4u vActual = ezSimdVec4u(a[0], a[1], a[2], a[3]).SubtractSaturated16(ezSimdVec4u(b[0], b[1], b[2], b[3]));
+      EZ_TEST_BOOL((vActual == ezSimdVec4u(expected[0], expected[1], expected[2], expected[3])).AllSet<4>());
+    }
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Comparison")
   {
     ezSimdVec4u a(-7, 5, 4, 3);

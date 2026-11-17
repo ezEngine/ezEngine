@@ -5,20 +5,61 @@
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Types/ArrayPtr.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #include <RendererCore/RendererCoreDLL.h>
 
 class Rasterizer;
+class MaskedOcclusionCulling;
 class ezRasterizerObject;
 class ezColorLinearUB;
 class ezCamera;
 class ezSimdBBox;
+
+/// Selects which software rasterizer implementation to use.
+enum class ezRasterizerImplementation
+{
+  ThirdParty,                   ///< AVX2-optimized rasterizer.
+  MaskedOcclusionCullingSSE2,   ///< Intel's Masked Occlusion Culling library (native SIMD), SSE2 instruction set.
+  MaskedOcclusionCullingSSE41,  ///< Intel's Masked Occlusion Culling library (native SIMD), SSE4.1 instruction set.
+  MaskedOcclusionCullingAVX2,   ///< Intel's Masked Occlusion Culling library (native SIMD), AVX2 instruction set.
+  MaskedOcclusionCullingEZ,     ///< Intel's MOC algorithm ported to ezSimdVec4f (portable).
+};
+
+/// The SIMD variants of the native MaskedOcclusionCulling implementations, ordered from the lowest to the highest instruction set.
+inline constexpr ezRasterizerImplementation ezMOCInstructionSets[] = {
+  ezRasterizerImplementation::MaskedOcclusionCullingSSE2,
+  ezRasterizerImplementation::MaskedOcclusionCullingSSE41,
+  ezRasterizerImplementation::MaskedOcclusionCullingAVX2};
+
+/// Index into ezMOCInstructionSets of a native MaskedOcclusionCulling implementation, or -1 for any other implementation.
+/// The indices match the values of MaskedOcclusionCulling::Implementation, so the result can be cast to that type.
+constexpr ezInt32 ezMOCInstructionSetIndex(ezRasterizerImplementation impl)
+{
+  for (ezInt32 i = 0; i < (ezInt32)sizeof(ezMOCInstructionSets) / sizeof(ezMOCInstructionSets[0]); ++i)
+  {
+    if (ezMOCInstructionSets[i] == impl)
+      return i;
+  }
+
+  return -1;
+}
+
+/// True for the native MaskedOcclusionCulling implementations and for the portable GenericMOC port.
+constexpr bool ezIsMaskedOcclusionCullingImplementation(ezRasterizerImplementation impl)
+{
+  return ezMOCInstructionSetIndex(impl) >= 0 || impl == ezRasterizerImplementation::MaskedOcclusionCullingEZ;
+}
 
 class EZ_RENDERERCORE_DLL ezRasterizerView final
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRasterizerView);
 
 public:
-  ezRasterizerView();
+  /// \param bUseOptimized If true and the platform supports it, uses the AVX2-optimized rasterizer. Otherwise uses GenericMOC when available.
+  explicit ezRasterizerView(bool bUseOptimized = true);
+
+  /// On platforms without the native x86 rasterizers, requests fall back to GenericMOC when MOC support is enabled.
+  explicit ezRasterizerView(ezRasterizerImplementation impl);
   ~ezRasterizerView();
 
   /// Changes the resolution of the view. Has to be called at least once before starting to render anything.
@@ -26,6 +67,22 @@ public:
 
   ezUInt32 GetResolutionX() const { return m_uiResolutionX; }
   ezUInt32 GetResolutionY() const { return m_uiResolutionY; }
+
+  bool IsUsingOptimizedRasterizer() const
+  {
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+    return m_Implementation == ezRasterizerImplementation::ThirdParty;
+#else
+    return false;
+#endif
+  }
+  ezRasterizerImplementation GetImplementation() const { return m_Implementation; }
+
+  /// The instruction set that is actually in use for a MaskedOcclusionCulling view.
+  ///
+  /// Requesting an instruction set that the current CPU doesn't support falls back to a lower one, so this
+  /// can differ from GetImplementation(). For every other implementation this simply returns GetImplementation().
+  ezRasterizerImplementation GetMOCInstructionSet() const;
 
   /// Prepares the view to rasterize a new scene.
   void BeginScene();
@@ -37,6 +94,13 @@ public:
   ///
   /// The buffer must be large enough for the chosen resolution.
   void ReadBackFrame(ezArrayPtr<ezColorLinearUB> targetBuffer) const;
+
+  /// Writes the raw depth value of every pixel to targetBuffer, row by row starting at the top of the image.
+  ///
+  /// Only supported by the MaskedOcclusionCulling implementations, returns EZ_FAILURE otherwise.
+  /// Values are 1 / view space distance, pixels that no occluder covered are negative.
+  /// The depth is decoded per pixel, so this is only meant for debugging and tests.
+  ezResult ReadBackDepth(ezArrayPtr<float> targetBuffer) const;
 
   /// Sets the camera from which to extract the rendering position, direction and field-of-view.
   void SetCamera(const ezCamera* pCamera)
@@ -68,13 +132,18 @@ private:
   void RasterizeObjects(ezUInt32 uiMaxObjects);
   void UpdateViewProjectionMatrix();
   void ApplyModelViewProjectionMatrix(const ezTransform& modelTransform);
+  bool IsVisibleMOC(const ezBoundingBox& bounds, const ezMat4& mModelViewProjection) const;
 
   bool m_bAnyOccludersRasterized = false;
   const ezCamera* m_pCamera = nullptr;
   ezUInt32 m_uiResolutionX = 0;
   ezUInt32 m_uiResolutionY = 0;
   float m_fAspectRation = 1.0f;
+
+  ezRasterizerImplementation m_Implementation = ezRasterizerImplementation::ThirdParty;
+
   ezUniquePtr<Rasterizer> m_pRasterizer;
+  MaskedOcclusionCulling* m_pMOC = nullptr;
 
   struct Instance
   {
@@ -82,21 +151,27 @@ private:
     const ezRasterizerObject* m_pObject;
   };
 
-  ezDeque<Instance> m_Instances;
+  ezDynamicArray<Instance> m_Instances;
+
+  /// For MOC this is the unmodified engine view-projection. For ThirdParty, row 2 is flipped to produce near depth 0 and far depth 1.
   ezMat4 m_mViewProjection;
+
+  /// Clip space w of the MOC near clip plane, 0 for orthographic cameras.
+  float m_fNearClipW = 0.0f;
 };
 
 class ezRasterizerViewPool
 {
 public:
-  ezRasterizerView* GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio);
+  ezRasterizerView* GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio, bool bUseOptimized = true);
+  ezRasterizerView* GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio, ezRasterizerImplementation impl);
   void ReturnRasterizerView(ezRasterizerView* pView);
 
 private:
   struct PoolEntry
   {
     bool m_bInUse = false;
-    ezRasterizerView m_RasterizerView;
+    ezUniquePtr<ezRasterizerView> m_pRasterizerView;
   };
 
   ezMutex m_Mutex;

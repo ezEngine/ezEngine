@@ -6,6 +6,7 @@
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/SharedPtr.h>
+#include <RendererCore/Rasterizer/MaskedOcclusionCulling/OccluderMOC.h>
 #include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #include <RendererCore/RendererCoreDLL.h>
 
@@ -14,7 +15,7 @@ class ezGeometry;
 /// Represents a mesh for CPU-based software rasterization and occlusion culling.
 ///
 /// Used for occlusion testing in ezRasterizerView. Objects are cached by name and shared across users.
-/// Internally uses a software rasterizer to determine if objects are occluded by other geometry.
+/// Bakes the object data used by the available rasterizer implementations.
 class EZ_RENDERERCORE_DLL ezRasterizerObject : public ezRefCounted
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRasterizerObject);
@@ -43,7 +44,11 @@ private:
   void CreateMesh(const ezGeometry& geometry);
 
   friend class ezRasterizerView;
+
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   Occluder m_Occluder;
+#endif
+  OccluderMOC m_OccluderMOC;
 
   static ezMutex s_Mutex;
   static ezMap<ezString, ezSharedPtr<ezRasterizerObject>> s_Objects;
