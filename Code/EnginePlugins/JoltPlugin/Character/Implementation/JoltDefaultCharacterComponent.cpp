@@ -773,5 +773,12 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
   ResetInputState();
 }
 
+void ezJoltDefaultCharacterComponent::UpdateCharacterWithoutSimulationStep()
+{
+  // The rotation doesn't affect the (rotationally symmetric) shape, so it can be applied without a simulation step.
+  // Otherwise, at high frame rates the rotation is only applied every second or third frame, which looks very choppy.
+  // The other input is kept until the next simulation step.
+  ApplyRotationZ();
+}
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Character_Implementation_JoltDefaultCharacterComponent);

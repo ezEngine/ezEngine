@@ -810,7 +810,14 @@ void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context
 
   // Nothing to fetch if no simulation step was executed
   if (m_UpdateSteps.IsEmpty())
+  {
+    for (auto pCharacter : m_ActiveCharacters)
+    {
+      pCharacter->UpdateCharacterWithoutSimulationStep();
+    }
+
     return;
+  }
 
   ++m_uiJoltUpdateCounter;
 
