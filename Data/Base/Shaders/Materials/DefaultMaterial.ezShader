@@ -52,7 +52,9 @@ enum ParallaxMode
 {
   None,
   Pom,
-  ConeStep
+  ConeStep,
+  FixedPoint,
+  Hybrid
 };
 
 ParallaxMode ParallaxMode;
@@ -60,6 +62,8 @@ Texture2D HeightTexture;
 float HeightScale @Default(0.05) @Clamp(-0.3, 0.3);
 float HeightOffset @Default(0.0) @Clamp(0.0, 1.0);
 int PomMaxSteps @Default(16) @Clamp(4, 64);
+float PomRelaxation @Default(0.2) @Clamp(0.1, 1.0);
+float PomHybridThreshold @Default(0.1) @Clamp(0.0, 0.9);
 
 [MATERIALCONFIG]
 
@@ -87,6 +91,8 @@ INT1(ParallaxMode);
 FLOAT1(HeightScale);
 FLOAT1(HeightOffset);
 INT1(PomMaxSteps);
+FLOAT1(PomRelaxation);
+FLOAT1(PomHybridThreshold);
 
 [SHADER]
 
@@ -159,6 +165,8 @@ void FillCustomGlobals()
   // values of the ParallaxMode enum
   const int ParallaxMode_Pom = 1;
   const int ParallaxMode_ConeStep = 2;
+  const int ParallaxMode_FixedPoint = 3;
+  const int ParallaxMode_Hybrid = 4;
 
   const int parallaxMode = GetMaterialData(ParallaxMode);
 
@@ -182,6 +190,27 @@ void FillCustomGlobals()
       HeightTexture, HeightTexture_AutoSampler,
       G.Input.TexCoord0.xy, viewDirTS,
       GetMaterialData(HeightScale), GetMaterialData(HeightOffset), GetMaterialData(PomMaxSteps));
+  }
+  else if (parallaxMode == ParallaxMode_FixedPoint)
+  {
+    float3 viewDirWS = normalize(GetCameraPosition() - G.Input.WorldPosition);
+    float3 viewDirTS = WorldToTangentSpace(viewDirWS);
+
+    G.ParallaxTexCoord = ParallaxFixedPointMapping(
+      HeightTexture, HeightTexture_AutoSampler,
+      G.Input.TexCoord0.xy, viewDirTS,
+      GetMaterialData(HeightScale), GetMaterialData(PomRelaxation));
+  }
+  else if (parallaxMode == ParallaxMode_Hybrid)
+  {
+    float3 viewDirWS = normalize(GetCameraPosition() - G.Input.WorldPosition);
+    float3 viewDirTS = WorldToTangentSpace(viewDirWS);
+
+    G.ParallaxTexCoord = ParallaxHybridMapping(
+      HeightTexture, HeightTexture_AutoSampler,
+      G.Input.TexCoord0.xy, viewDirTS,
+      GetMaterialData(HeightScale), GetMaterialData(PomMaxSteps),
+      GetMaterialData(PomRelaxation), GetMaterialData(PomHybridThreshold));
   }
 }
 

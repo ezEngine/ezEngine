@@ -118,3 +118,55 @@ float2 ParallaxConeStepMapping(Texture2D coneTex, SamplerState samp, float2 texC
 
   return pos.xy;
 }
+
+/// Fixed point solver from PR #2156 (https://github.com/ezEngine/ezEngine/pull/2156), ported for comparison.
+///
+/// Solves depth = heightDepth(texCoords - depth * delta) with 10 relaxed fixed point iterations.
+/// Converges for smooth height maps at moderate view angles. Across sharp height steps and at grazing angles it may not converge.
+/// Uses the same height convention (white = surface) and mip selection as the other functions here.
+/// relax is the weight of each new estimate, smaller values converge slower but more reliably.
+float2 ParallaxFixedPointMapping(Texture2D heightTex, SamplerState samp, float2 texCoords, float3 viewDirTS, float heightScale, float relax)
+{
+  // full UV offset at depth 1
+  const float2 delta = (viewDirTS.xy / max(viewDirTS.z, 0.001)) * heightScale;
+
+  const float2 dx = ddx(texCoords);
+  const float2 dy = ddy(texCoords);
+
+  float depth = 0.0;
+
+  [unroll] for (int i = 0; i < 10; ++i)
+  {
+    const float d = 1.0 - heightTex.SampleGrad(samp, texCoords - depth * delta, dx, dy).r;
+    depth = lerp(depth, d, relax);
+  }
+
+  return texCoords - depth * delta;
+}
+
+/// Hybrid solver from PR #2156, ported for comparison.
+///
+/// Uses the fixed point solver when viewDirTS.z is above linearBelow + 0.1, linear search (ParallaxOcclusionMapping) when it is below linearBelow,
+/// and blends both in between. Blending the texture coordinates is the same as blending the depths, since both move along the same line.
+float2 ParallaxHybridMapping(Texture2D heightTex, SamplerState samp, float2 texCoords, float3 viewDirTS, float heightScale, int maxSteps, float relax, float linearBelow)
+{
+  const float iterativeAbove = saturate(linearBelow + 0.1);
+
+  // 0 = fixed point, 1 = linear search
+  const float w = saturate((iterativeAbove - viewDirTS.z) / (iterativeAbove - linearBelow));
+
+  float2 uvFixedPoint = texCoords;
+  float2 uvLinear = texCoords;
+
+  [branch] if (w < 1.0)
+  {
+    uvFixedPoint = ParallaxFixedPointMapping(heightTex, samp, texCoords, viewDirTS, heightScale, relax);
+  }
+
+  [branch] if (w > 0.0)
+  {
+    uvLinear = ParallaxOcclusionMapping(heightTex, samp, texCoords, viewDirTS, heightScale, maxSteps);
+  }
+
+  return lerp(uvFixedPoint, uvLinear, w);
+}
