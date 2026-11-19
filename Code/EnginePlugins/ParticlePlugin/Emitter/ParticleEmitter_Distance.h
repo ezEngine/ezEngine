@@ -40,7 +40,7 @@ public:
   ezUInt32 m_uiSpawnCountMin = 1;       ///< Minimum particles per spawn
   ezUInt32 m_uiSpawnCountRange = 0;     ///< Random range added to spawn count
   ezHashedString m_sSpawnCountScaleParameter; ///< Optional parameter to scale spawn count
-  ezUInt32 m_uiMaxParticles = 0;        ///< How many particles of this system can be alive at the same time. 0 estimates it.
+  ezUInt32 m_uiMaxParticles = 0;              ///< How many particles of this system can be alive at the same time. 0 estimates it.
 
 private:
   static constexpr ezUInt32 MaxSpawnPerUpdate = 64;
@@ -50,7 +50,7 @@ private:
     EZ_DECLARE_POD_TYPE();
 
     bool m_bFirstUpdate;
-    ezVec3 m_vLastSpawnPosition;  ///< Where the last batch was placed.
+    ezVec3 m_vLastSpawnPosition; ///< Where the last batch was placed.
 
     // what ComputeSpawnCount() decided, for InitializeElements() of the same update
     ezVec3 m_vEffectPosition;     ///< Where the initializers place the new particles.
