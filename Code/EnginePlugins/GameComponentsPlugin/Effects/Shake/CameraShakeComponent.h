@@ -44,7 +44,7 @@ public:
 protected:
   void Update();
 
-  void GenerateKeyframe();
+  void GenerateKeyframe(ezTime tNow);
   float GetStrengthAtPosition() const;
 
   float m_fLastStrength = 0.0f;

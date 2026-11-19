@@ -32,12 +32,14 @@ void ezCameraShakeComponent::Update()
 {
   const ezTime tDuration = ezTime::MakeFromSeconds(1.0 / 30.0); // 30 Hz vibration seems to work well
 
-  const ezTime tNow = ezTime::Now();
+  // Use the world clock, so that the shake slows down, speeds up and pauses together with the rest of the world.
+  // The shake volumes also use the world clock for their burst duration.
+  const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
 
   if (tNow >= m_ReferenceTime + tDuration)
   {
     GetOwner()->SetLocalRotation(m_qNextTarget);
-    GenerateKeyframe();
+    GenerateKeyframe(tNow);
   }
   else
   {
@@ -49,16 +51,17 @@ void ezCameraShakeComponent::Update()
   }
 }
 
-void ezCameraShakeComponent::GenerateKeyframe()
+void ezCameraShakeComponent::GenerateKeyframe(ezTime tNow)
 {
   m_qPrevTarget = m_qNextTarget;
 
-  m_ReferenceTime = ezTime::Now();
+  // fade out shaking over a second, if the vibration stopped
+  // use the time since the previous keyframe, not the last frame's time diff, so that the fade does not depend on the frame rate
+  m_fLastStrength -= (tNow - m_ReferenceTime).AsFloatInSeconds();
+
+  m_ReferenceTime = tNow;
 
   ezWorld* pWorld = GetWorld();
-
-  // fade out shaking over a second, if the vibration stopped
-  m_fLastStrength -= pWorld->GetClock().GetTimeDiff().AsFloatInSeconds();
 
   const float fShake = ezMath::Clamp(GetStrengthAtPosition(), 0.0f, 1.0f);
 
