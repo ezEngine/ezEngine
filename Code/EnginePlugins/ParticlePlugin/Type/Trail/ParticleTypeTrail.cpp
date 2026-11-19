@@ -283,6 +283,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezParticleModuleContext& c
   pRenderData->m_vGlobalPosition = instanceTransform.m_vPosition;
 
   pRenderData->m_GlobalTransform = ctx.GetEffect()->NeedsToApplyTransform() ? instanceTransform : ezTransform::MakeIdentity();
+  pRenderData->m_fSizeScale = instanceTransform.GetMaxScale(); // the trail width is not affected by m_GlobalTransform
   pRenderData->m_TotalEffectLifeTime = ctx.GetEffect()->GetTotalEffectLifeTime();
   pRenderData->m_RenderMode = m_RenderMode;
   pRenderData->m_uiMaxTrailPoints = data.m_uiMaxPoints;

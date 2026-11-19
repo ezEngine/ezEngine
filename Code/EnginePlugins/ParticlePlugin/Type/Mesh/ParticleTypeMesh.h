@@ -8,10 +8,26 @@
 using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 
+/// Orientation modes for mesh particles.
+struct EZ_PARTICLEPLUGIN_DLL ezMeshParticleOrientation
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Random,     ///< The mesh keeps its own orientation. Rotation speed and offset rotate it around a random axis per particle.
+    EmitterDir, ///< The mesh's Z axis points into the effect's Z direction at spawn time. Rotation speed and offset rotate it around that axis.
+
+    Default = Random
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezMeshParticleOrientation);
+
 /// Renders particles as instanced 3D meshes.
 ///
 /// Each particle renders a full 3D mesh at its position, oriented according to
-/// its rotation axis. Materials can be overridden globally or use the mesh's
+/// its rotation axis and the 'Orientation' mode. Materials can be overridden globally or use the mesh's
 /// default materials. Uses instanced rendering for performance when many particles
 /// share the same mesh.
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeMesh final : public ezParticleType
@@ -33,6 +49,7 @@ public:
   ezHashedString m_sMaterial;
   float m_fScale = 1.0f;
   ezHashedString m_sTintColorParameter;
+  ezEnum<ezMeshParticleOrientation> m_Orientation;
 
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;

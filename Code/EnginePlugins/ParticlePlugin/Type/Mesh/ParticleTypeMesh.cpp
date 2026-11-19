@@ -13,6 +13,10 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 
 // clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshParticleOrientation, 1)
+  EZ_ENUM_CONSTANTS(ezMeshParticleOrientation::Random, ezMeshParticleOrientation::EmitterDir)
+EZ_END_STATIC_REFLECTED_ENUM;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeMesh, 1, ezRTTIDefaultAllocator<ezParticleTypeMesh>)
 {
   EZ_BEGIN_PROPERTIES
@@ -21,6 +25,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeMesh, 1, ezRTTIDefaultAllocator<ez
     EZ_MEMBER_PROPERTY("Material", m_sMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
     EZ_MEMBER_PROPERTY("Scale", m_fScale)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
+    EZ_ENUM_MEMBER_PROPERTY("Orientation", ezMeshParticleOrientation, m_Orientation),
   }
   EZ_END_PROPERTIES;
 }
@@ -33,6 +38,7 @@ enum class TypeMeshVersion
   Version_1,
   Version_2, // added material
   Version_3, // added scale
+  Version_4, // added orientation
 
   // insert new version numbers above
   Version_Count,
@@ -52,6 +58,9 @@ void ezParticleTypeMesh::Save(ezStreamWriter& inout_stream) const
 
   // Version 3
   inout_stream << m_fScale;
+
+  // Version 4
+  inout_stream << m_Orientation;
 }
 
 void ezParticleTypeMesh::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
@@ -72,6 +81,11 @@ void ezParticleTypeMesh::Load(ezStreamReader& inout_stream, const ezParticleEffe
   if (uiVersion >= 3)
   {
     inout_stream >> m_fScale;
+  }
+
+  if (uiVersion >= 4)
+  {
+    inout_stream >> m_Orientation;
   }
 
   if (!m_sMesh.IsEmpty())
@@ -136,13 +150,24 @@ void ezParticleTypeMesh::InitializeElements(const ezParticleModuleContext& ctx, 
   InstanceData& data = ctx.GetInstanceData<InstanceData>();
 
   ezVec3* pAxis = data.m_pStreamAxis->GetWritableData<ezVec3>();
-  ezRandom& rng = ctx.GetRNG();
 
-  for (ezUInt32 i = 0; i < uiNumElements; ++i)
+  if (m_Orientation == ezMeshParticleOrientation::EmitterDir)
   {
-    const ezUInt64 uiElementIdx = uiStartIndex + i;
+    const ezVec3 vEmitterDir = ctx.m_pSystem->GetTransform().m_qRotation * ezVec3(0, 0, 1);
 
-    pAxis[uiElementIdx] = ezVec3::MakeRandomDirection(rng);
+    for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+    {
+      pAxis[i] = vEmitterDir;
+    }
+  }
+  else
+  {
+    ezRandom& rng = ctx.GetRNG();
+
+    for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+    {
+      pAxis[i] = ezVec3::MakeRandomDirection(rng);
+    }
   }
 }
 
@@ -254,6 +279,33 @@ void ezParticleTypeMesh::ExtractTypeRenderData(const ezParticleModuleContext& ct
   const ezVec3* pAxis = data.m_pStreamAxis->GetData<ezVec3>();
   const ezInt32* pVariation = (data.m_pStreamVariation != nullptr) ? data.m_pStreamVariation->GetData<ezInt32>() : nullptr;
 
+  const bool bEmitterDir = m_Orientation == ezMeshParticleOrientation::EmitterDir;
+
+  // In local space (and for shared effects) the particles are relative to the effect, so its transform (including its scale) applies.
+  // In world space the particles are placed already, then only their size gets the scale of the effect.
+  const bool bApplyTransform = ctx.GetEffect()->NeedsToApplyTransform();
+  const float fEffectScale = instanceTransform.GetMaxScale();
+
+  auto ToRenderSpace = [&](ezTransform t) -> ezTransform
+  {
+    if (bApplyTransform)
+      return instanceTransform * t;
+
+    t.m_vScale *= fEffectScale;
+    return t;
+  };
+
+  auto ComputeRotation = [bEmitterDir](const ezVec3& vAxis, ezAngle angle) -> ezQuat
+  {
+    const ezQuat qSpin = ezQuat::MakeFromAxisAndAngle(vAxis, angle);
+
+    if (!bEmitterDir)
+      return qSpin;
+
+    // turn the mesh's Z axis into the stored direction, then spin around it
+    return qSpin * ezQuat::MakeShortestRotation(ezVec3(0, 0, 1), vAxis);
+  };
+
   const bool bIsOpaque = data.m_RenderCategory == ezDefaultRenderDataCategories::LitOpaque ||
                          data.m_RenderCategory == ezDefaultRenderDataCategories::LitMasked ||
                          data.m_RenderCategory == ezDefaultRenderDataCategories::SimpleOpaque;
@@ -274,15 +326,16 @@ void ezParticleTypeMesh::ExtractTypeRenderData(const ezParticleModuleContext& ct
         const ezUInt32 idx = p;
 
         ezTransform trans;
-        trans.m_qRotation = ezQuat::MakeFromAxisAndAngle(pAxis[p], ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[idx]) + pRotationOffset[idx]));
+        trans.m_qRotation = ComputeRotation(pAxis[p], ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[idx]) + pRotationOffset[idx]));
         trans.m_vPosition = pPosition[idx].GetAsVec3();
         trans.m_vScale.Set(pSize[idx] * m_fScale);
+        trans = ToRenderSpace(trans);
 
         ezRenderDataManager::FillPerInstanceData(instanceData[p], nullptr, trans, ezInvalidIndex, pColor[idx].ToLinearFloat() * tintColor);
       }
 
       ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(nullptr);
-      pRenderData->m_vGlobalPosition = ctx.m_pSystem->GetTransform().m_vPosition;
+      pRenderData->m_vGlobalPosition = bApplyTransform ? instanceTransform.m_vPosition : ctx.m_pSystem->GetTransform().m_vPosition;
       pRenderData->Fill(data.m_InstanceDataOffset, hInstanceDataBuffer, data.m_hMaterial, m_hMesh, 0, 0, numParticles);
 
       ref_msg.AddRenderData(pRenderData, data.m_RenderCategory, ezRenderData::Caching::Never);
@@ -295,9 +348,10 @@ void ezParticleTypeMesh::ExtractTypeRenderData(const ezParticleModuleContext& ct
         const ezUInt32 idx = p;
 
         ezTransform trans;
-        trans.m_qRotation = ezQuat::MakeFromAxisAndAngle(pAxis[p], ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[idx]) + pRotationOffset[idx]));
+        trans.m_qRotation = ComputeRotation(pAxis[p], ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[idx]) + pRotationOffset[idx]));
         trans.m_vPosition = pPosition[idx].GetAsVec3();
         trans.m_vScale.Set(pSize[idx] * m_fScale);
+        trans = ToRenderSpace(trans);
 
         ezRenderDataManager::FillPerInstanceData(instanceData[p], nullptr, trans, ezInvalidIndex, pColor[idx].ToLinearFloat() * tintColor);
 

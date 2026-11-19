@@ -38,6 +38,13 @@ void ezParticleRenderer::TempSystemCB::SetGenericData(const ezTransform& objectT
   cb.GeometryProximityFadeOut = fGeometryProximityFadeOut;
   cb.CameraProximityFadeOut = fCameraProximityFadeOut;
   cb.TextureAtlasOrientation = uiTextureAtlasOrientation;
+  cb.ParticleSizeScale = 1.0f;
+}
+
+void ezParticleRenderer::TempSystemCB::SetSizeScale(float fSizeScale)
+{
+  ezParticleSystemConstants& cb = m_pConstants->GetDataForWriting();
+  cb.ParticleSizeScale = fSizeScale;
 }
 
 

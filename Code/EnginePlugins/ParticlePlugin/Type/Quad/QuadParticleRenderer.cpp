@@ -98,6 +98,7 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
     ConfigureRenderMode(pRenderData, pRenderContext);
 
     systemConstants.SetGenericData(pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime, pRenderData->m_uiNumVariationsX, pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX, pRenderData->m_uiNumFlipbookAnimationsY, pRenderData->m_fNormalCurvature, pRenderData->m_fLightDirectionality, pRenderData->m_fGeometryProximityFadeOut, pRenderData->m_fCameraProximityFadeOut, pRenderData->m_TextureAtlasOrientation.GetValue());
+    systemConstants.SetSizeScale(pRenderData->m_fSizeScale);
 
     pRenderContext->SetShaderPermutationVariable("PARTICLE_QUAD_MODE", pRenderData->m_QuadModePermutation);
 

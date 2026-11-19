@@ -158,6 +158,7 @@ void ezParticleBehavior_Velocity::Process(const ezParticleModuleContext& ctx, ez
     fMaxX = ezMath::Max(fMaxX, 1.0);
 
     ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(data.m_pStreamLifeTime, uiNumElements, 0);
+    const float fSimulationScale = ctx.m_pSystem->GetSimulationScale();
 
     while (!itVelocity.HasReachedEnd())
     {
@@ -167,7 +168,7 @@ void ezParticleBehavior_Velocity::Process(const ezParticleModuleContext& ctx, ez
       const float val = (float)m_RuntimeSpeedCurve.Evaluate(evalPos);
 
       ezVec4 vel = itVelocity.Current();
-      vel.w = m_fSpeedCurveOffset + val * m_fSpeedCurveScale;
+      vel.w = (m_fSpeedCurveOffset + val * m_fSpeedCurveScale) * fSimulationScale;
       itVelocity.Current() = vel;
 
       itVelocity.Advance();

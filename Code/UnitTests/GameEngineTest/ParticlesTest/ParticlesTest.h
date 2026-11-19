@@ -11,6 +11,12 @@ public:
 
   void SetupSceneSubTest(const char* szFile);
   void SetupParticleSubTest(const char* szFile);
+
+  /// Places several effects twice, at two different uniform scales.
+  void SetupScaleSubTest();
+
+  /// Checks that each effect of SetupScaleSubTest() has the same bounds in its local space at both scales.
+  void CheckScaledBounds();
   ezTestAppRun ExecParticleSubTest(ezInt32 iCurFrame);
 
   /// Reloads the effect resource while the effect is running and checks that the effect switches over to the new content and keeps its particles.
@@ -18,6 +24,9 @@ public:
 
   /// Returns the number of particles of the effect on the object with the given name. Reports a test failure if there is no such object.
   ezUInt64 GetParticleCount(ezStringView sObjectName);
+
+  /// Returns the bounding volume of the effect on the object with the given name, in the local space of the effect.
+  ezBoundingBoxSphere GetParticleBounds(ezStringView sObjectName);
 
   /// Returns the center of the bounding volume of the effect on the object with the given name, in the local space of the effect.
   ezVec3 GetParticleBoundsCenter(ezStringView sObjectName);
@@ -88,6 +97,7 @@ private:
     WindBehavior,
     ParticleAreas,
     ResourceReload,
+    EffectScale,
   };
 
   virtual void SetupSubTests() override;

@@ -478,6 +478,11 @@ void ezParticleTypeQuad::AddParticleRenderData(const ezParticleModuleContext& ct
   pRenderData->m_GlobalTransform = ctx.GetEffect()->NeedsToApplyTransform() ? instanceTransform : ezTransform::MakeIdentity();
   pRenderData->m_TotalEffectLifeTime = ctx.GetEffect()->GetTotalEffectLifeTime();
   pRenderData->m_RenderMode = m_RenderMode;
+
+  // Scale the particle size with the effect. Quads that are spanned by tangents get it from m_GlobalTransform already, if that is used.
+  const bool bTangentsGetScaled = ctx.GetEffect()->NeedsToApplyTransform() && m_Orientation != ezQuadParticleOrientation::Billboard &&
+                                  m_Orientation != ezQuadParticleOrientation::FixedAxis_EmitterDir && m_Orientation != ezQuadParticleOrientation::FixedAxis_ParticleDir;
+  pRenderData->m_fSizeScale = bTangentsGetScaled ? 1.0f : instanceTransform.GetMaxScale();
   pRenderData->m_hTexture = m_hTexture;
   pRenderData->m_BaseParticleData = data.m_BaseParticleData;
   pRenderData->m_BillboardParticleData = data.m_BillboardParticleData;

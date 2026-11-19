@@ -190,7 +190,8 @@ void ezParticleBehavior_Move::Process(const ezParticleModuleContext& ctx, ezUInt
 
   EZ_PROFILE_SCOPE("PFX: Move");
 
-  const float tDiff = (float)ctx.GetTimeDiff().GetSeconds();
+  // the speeds are in meters per second and scale with the effect, thus the scale is applied to the time step
+  const float tDiff = (float)ctx.GetTimeDiff().GetSeconds() * ctx.m_pSystem->GetSimulationScale();
 
   // Early exit if no movement on any axis
   const bool bHasXMovement = (m_MoveX_Mode == ezMovementMode::Constant && m_fMoveX_Speed != 0.0f) ||

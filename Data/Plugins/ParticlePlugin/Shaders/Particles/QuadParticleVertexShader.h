@@ -59,6 +59,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 
   ezBaseParticleShaderData baseParticle = particleBaseData[dataIndex];
   UNPACKHALF2(particleLife, particleSize, baseParticle.LifeAndSize);
+  particleSize *= ParticleSizeScale;
   ret.Color0 = UNPACKCOLOR4H(baseParticle.Color);
 
   Quad quad;
