@@ -215,6 +215,7 @@ void ezParticleInitializer_SpherePosition::InitializeElements(const ezParticleMo
   EZ_PROFILE_SCOPE("PFX: Sphere Position");
 
   const ezVec3 startVel = ctx.m_pSystem->GetParticleStartVelocity();
+  const float fSimulationScale = ctx.m_pSystem->GetSimulationScale();
   const float fStartSpeed = startVel.GetLength();
   const ezVec3 startDir = fStartSpeed > 0.0f ? startVel / fStartSpeed : ezVec3(0, 0, 1);
 
@@ -244,7 +245,7 @@ void ezParticleInitializer_SpherePosition::InitializeElements(const ezParticleMo
 
     if (m_bSetVelocity)
     {
-      const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
+      const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance) * fSimulationScale;
 
       const ezVec3 vel = startVel + trans.m_qRotation * normalPos * fSpeed;
       const float fVelLength = vel.GetLength();

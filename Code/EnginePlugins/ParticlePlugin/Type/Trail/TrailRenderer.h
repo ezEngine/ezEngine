@@ -26,6 +26,7 @@ public:
   ezArrayPtr<ezVec4> m_TrailPointsShared;
   ezTransform m_GlobalTransform;
   ezTime m_TotalEffectLifeTime;
+  float m_fSizeScale = 1.0f; ///< The uniform scale of the effect, for the particle size, where m_GlobalTransform doesn't apply it.
   ezUInt8 m_uiNumVariationsX = 1;
   ezUInt8 m_uiNumVariationsY = 1;
   ezUInt8 m_uiNumFlipbookAnimationsX = 1;

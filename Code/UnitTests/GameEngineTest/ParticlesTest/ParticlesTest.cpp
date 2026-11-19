@@ -66,6 +66,7 @@ void ezGameEngineTestParticles::SetupSubTests()
   AddSubTest("WindBehavior", SubTests::WindBehavior);
   AddSubTest("ParticleAreas", SubTests::ParticleAreas);
   AddSubTest("ResourceReload", SubTests::ResourceReload);
+  AddSubTest("EffectScale", SubTests::EffectScale);
 }
 
 ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
@@ -140,6 +141,11 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
     m_pOwnApplication->SetupParticleSubTest(s_szReloadedEffect);
     return EZ_SUCCESS;
   }
+  else if (iIdentifier == SubTests::EffectScale)
+  {
+    m_pOwnApplication->SetupScaleSubTest();
+    return EZ_SUCCESS;
+  }
   else
   {
     const char* szEffects[] = {
@@ -206,6 +212,11 @@ ezTestAppRun ezGameEngineTestParticles::RunSubTest(ezInt32 iIdentifier, ezUInt32
     // the area is twice as large relative to the effect, its scale must not affect the position offset of 1 along Z
     m_pOwnApplication->CheckParticleCount("Offset", 4000);
     EZ_TEST_VEC3(m_pOwnApplication->GetParticleBoundsCenter("Offset"), ezVec3(0, 0, 1), 0.1f);
+  }
+
+  if (iIdentifier == SubTests::EffectScale && m_iFrame == 30)
+  {
+    m_pOwnApplication->CheckScaledBounds();
   }
 
   return m_pOwnApplication->ExecParticleSubTest(m_iFrame);
@@ -281,6 +292,69 @@ void ezGameEngineTestApplication_Particles::SetupParticleSubTest(const char* szF
   }
 }
 
+namespace
+{
+  struct ScaledEffect
+  {
+    const char* m_szName;
+    const char* m_szEffect;
+    float m_fPosY;
+    float m_fScale;
+  };
+
+  // each effect is placed twice, once at m_fScale and once at twice that scale
+  // Velocity: world space, trails, box positions, velocity cone and speed curve
+  // MeshRenderer: world space, meshes, sphere positions with speed, move behavior
+  // LocalSpaceSim: local space, quads
+  constexpr ScaledEffect s_ScaledEffects[] = {
+    {"Velocity", "{ ba82b712-3af7-430d-91a6-492aa836dffb }", 1.6f, 0.2f},
+    {"Mesh", "{ 54f8f8f5-15e4-46c3-a80e-d5a6e2d6b693 }", 0.0f, 0.3f},
+    {"LocalSpace", "{ b2416284-6da2-40af-a1a8-d58dc8ca5d64 }", -1.6f, 0.5f},
+  };
+} // namespace
+
+void ezGameEngineTestApplication_Particles::SetupScaleSubTest()
+{
+  LoadScene("Particles/AssetCache/Common/Particles1.ezBinScene").IgnoreResult();
+
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  for (const ScaledEffect& effect : s_ScaledEffects)
+  {
+    for (ezUInt32 i = 0; i < 2; ++i)
+    {
+      const ezStringBuilder sName(effect.m_szName, i == 0 ? "Small" : "Large");
+
+      ezGameObjectDesc desc;
+      desc.m_sName.Assign(sName);
+      desc.m_LocalPosition.Set(0, effect.m_fPosY + (i == 0 ? 0.45f : -0.45f), 1.0f);
+      desc.m_LocalUniformScaling = (i == 0) ? effect.m_fScale : effect.m_fScale * 2.0f;
+
+      ezGameObject* pObject;
+      m_pWorld->CreateObject(desc, pObject);
+
+      ezParticleComponent* pEffect;
+      m_pWorld->GetOrCreateComponentManager<ezParticleComponentManager>()->CreateComponent(pObject, pEffect);
+      pEffect->SetParticleEffectFile(effect.m_szEffect);
+      pEffect->m_uiRandomSeed = 42; // the same random values for both scales
+    }
+  }
+}
+
+void ezGameEngineTestApplication_Particles::CheckScaledBounds()
+{
+  for (const ScaledEffect& effect : s_ScaledEffects)
+  {
+    const ezBoundingBoxSphere small = GetParticleBounds(ezStringBuilder(effect.m_szName, "Small"));
+    const ezBoundingBoxSphere large = GetParticleBounds(ezStringBuilder(effect.m_szName, "Large"));
+
+    // positions, speeds and particle sizes all scale with the effect, so in the local space of the effect nothing changes
+    EZ_TEST_BOOL_MSG(small.m_fSphereRadius > 0.1f, "Effect '%s' has no particles", effect.m_szName);
+    EZ_TEST_VEC3_MSG(large.m_vCenter, small.m_vCenter, 0.02f, "Effect '%s'", effect.m_szName);
+    EZ_TEST_VEC3_MSG(large.m_vBoxHalfExtents, small.m_vBoxHalfExtents, 0.02f, "Effect '%s'", effect.m_szName);
+  }
+}
+
 ezParticleComponent* ezGameEngineTestApplication_Particles::FindParticleComponent(ezStringView sObjectName)
 {
   ezParticleComponentManager* pManager = m_pWorld->GetComponentManager<ezParticleComponentManager>();
@@ -307,7 +381,7 @@ ezUInt64 ezGameEngineTestApplication_Particles::GetParticleCount(ezStringView sO
   return pComponent != nullptr ? pComponent->m_EffectController.GetNumActiveParticles() : 0;
 }
 
-ezVec3 ezGameEngineTestApplication_Particles::GetParticleBoundsCenter(ezStringView sObjectName)
+ezBoundingBoxSphere ezGameEngineTestApplication_Particles::GetParticleBounds(ezStringView sObjectName)
 {
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
@@ -318,7 +392,12 @@ ezVec3 ezGameEngineTestApplication_Particles::GetParticleBoundsCenter(ezStringVi
     pComponent->m_EffectController.GetBoundingVolume(bounds);
   }
 
-  return bounds.m_vCenter;
+  return bounds;
+}
+
+ezVec3 ezGameEngineTestApplication_Particles::GetParticleBoundsCenter(ezStringView sObjectName)
+{
+  return GetParticleBounds(sObjectName).m_vCenter;
 }
 
 void ezGameEngineTestApplication_Particles::CheckParticleCount(ezStringView sObjectName, ezUInt64 uiExpectedCount)

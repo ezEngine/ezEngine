@@ -145,7 +145,8 @@ void ezParticleTypeLight::ExtractTypeRenderData(const ezParticleModuleContext& c
   const float intensityScale = ctx.GetEffect()->GetFloatParameter(m_sIntensityParameter, 1.0f);
   const float sizeScale = ctx.GetEffect()->GetFloatParameter(m_sSizeScaleParameter, 1.0f);
 
-  const float sizeFactor = m_fSizeFactor * sizeScale;
+  // the light range is not affected by the transform, so apply the scale of the effect here
+  const float sizeFactor = m_fSizeFactor * sizeScale * instanceTransform.GetMaxScale();
   const float intensity = intensityScale * m_fIntensity;
 
   ezTransform transform;

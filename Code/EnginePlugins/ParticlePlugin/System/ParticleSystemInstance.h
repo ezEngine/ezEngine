@@ -80,6 +80,12 @@ public:
 
   void SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity);
   const ezTransform& GetTransform() const { return m_Transform; }
+
+  /// The uniform scale of the effect, that the simulation itself has to apply to speeds and sizes of the bounding volume.
+  ///
+  /// In world space this is the scale of the effect. In local space it is 1, because then the render transform scales the
+  /// positions (and thus the velocities) of the particles. Positions don't need this, the position initializers use GetTransform().
+  float GetSimulationScale() const { return m_Transform.GetMaxScale(); }
   const ezVec3& GetParticleStartVelocity() const { return m_vParticleStartVelocity; }
 
   ezParticleSystemState::Enum Update(const ezTime& diff);

@@ -31,4 +31,7 @@ CONSTANT_BUFFER2(ezParticleSystemConstants, 2, BG_DRAW_CALL)
   FLOAT1(CameraProximityFadeOut);
 
   UINT1(TextureAtlasOrientation); // 0=Up,1=Right,2=Down,3=Left
+
+  // the uniform scale of the effect, for the particle size, where ObjectToWorldMatrix doesn't apply it already
+  FLOAT1(ParticleSizeScale);
 };

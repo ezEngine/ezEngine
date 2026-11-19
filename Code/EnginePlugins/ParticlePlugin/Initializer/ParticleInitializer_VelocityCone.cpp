@@ -95,6 +95,7 @@ void ezParticleInitializer_VelocityCone::InitializeElements(const ezParticleModu
   ezRandom& rng = ctx.GetRNG();
 
   const float fSpeedScale = ezMath::Max(ctx.GetEffect()->GetFloatParameter(m_sSpeedScaleParameter, 1.0f), 0.0f);
+  const float fSimulationScale = ctx.m_pSystem->GetSimulationScale();
 
   const ezAngle angle = ezMath::Clamp(m_Angle, ezAngle::MakeFromDegree(1), ezAngle::MakeFromDegree(89));
 
@@ -119,7 +120,7 @@ void ezParticleInitializer_VelocityCone::InitializeElements(const ezParticleModu
     // dir.z = dist;
     // dir.Normalize();
 
-    const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance) * fSpeedScale;
+    const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance) * fSpeedScale * fSimulationScale;
 
     const ezVec3 vel = startVel + ctx.m_pSystem->GetTransform().m_qRotation * dir * fSpeed;
     const float fVelLength = vel.GetLength();

@@ -559,6 +559,9 @@ void ezParticleSystemInstance::SetBoundingVolume(const ezBoundingBoxSphere& volu
     fExpand = ezMath::Max(fExpand, GetType(type)->GetMaxParticleRadius(type.m_Context, fMaxParticleSize));
   }
 
+  // the particle size gets the scale of the effect at render time
+  fExpand *= GetSimulationScale();
+
   m_BoundingVolume.m_vBoxHalfExtents += ezVec3(fExpand);
   m_BoundingVolume.m_fSphereRadius += fExpand;
 }
