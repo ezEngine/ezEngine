@@ -64,8 +64,8 @@ public:
   ///
   /// Without a target object: the beam goes along the owner's X axis and is exactly this long. A negative value makes it go
   /// along -X, for example for a trail behind a projectile that flies along +X. Zero means no beam.
-  void SetMaxLength(float fMaxLength); // [ property ]
-  float GetMaxLength() const;          // [ property ]
+  void SetMaxLength(float fMaxLength);                         // [ property ]
+  float GetMaxLength() const;                                  // [ property ]
 
   void SetMaterial(const ezMaterialResourceHandle& hMaterial); // [ property ]
   const ezMaterialResourceHandle& GetMaterial() const;         // [ property ]
@@ -99,7 +99,7 @@ protected:
   /// Which material asset to use for rendering the beam geometry.
   ezMaterialResourceHandle m_hMaterial; // [ property ]
 
-  ezColor m_Color = ezColor::White;           // [ property ]
+  ezColor m_Color = ezColor::White;     // [ property ]
   ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1); // [ property ]
 
   /// The end point in the owner's local space, from the last bounds update.
