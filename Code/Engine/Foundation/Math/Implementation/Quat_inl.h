@@ -368,12 +368,17 @@ ezQuatTemplate<Type> ezQuatTemplate<Type>::MakeShortestRotation(const ezVec3Temp
 
   const Type fDot = v0.Dot(v1);
 
+  // Due to rounding, the dot product of two normalized vectors can be slightly outside [-1; 1].
+  // Below -1 the general case computes the square root of a negative number, and close to -1 the cross product is too
+  // imprecise to give a rotation axis. Therefore compare one-sided, with a tolerance.
+  const Type fEpsilon = (Type)0.000001;
+
   // if both vectors are identical -> no rotation needed
-  if (ezMath::IsEqual(fDot, (Type)1, (Type)0.0000001))
+  if (fDot >= (Type)1 - fEpsilon)
   {
     return MakeIdentity();
   }
-  else if (ezMath::IsEqual(fDot, (Type)-1, (Type)0.0000001)) // if both vectors are opposing
+  else if (fDot <= (Type)-1 + fEpsilon) // if both vectors are opposing
   {
     // find an axis, that is not identical and not opposing, ezVec3Template::Cross-product to find perpendicular vector, rotate around that
     if (ezMath::Abs(v0.Dot(ezVec3Template<Type>(1, 0, 0))) < (Type)0.8)
