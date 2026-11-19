@@ -97,6 +97,31 @@ void TestQuat()
     EZ_TEST_BOOL(q1.IsEqualRotation(q2, ezMath::LargeEpsilon<Type>()));
     EZ_TEST_BOOL(q1.IsEqualRotation(q3, ezMath::LargeEpsilon<Type>()));
 
+    // (nearly) opposite directions, where rounding can push the dot product below -1
+    {
+      const ezVec3Type vDirs[] = {
+        ezVec3Type((Type)1, (Type)0, (Type)0),
+        ezVec3Type((Type)0, (Type)1, (Type)0),
+        ezVec3Type((Type)0, (Type)0, (Type)1),
+        ezVec3Type((Type)0.3, (Type)-0.7, (Type)0.2).GetNormalized(),
+        ezVec3Type((Type)-0.123, (Type)0.456, (Type)0.789).GetNormalized(),
+      };
+
+      for (const ezVec3Type& vDir : vDirs)
+      {
+        const ezQuatType q = ezQuatType::MakeShortestRotation(vDir, -vDir);
+        EZ_TEST_BOOL(q.IsValid(ezMath::DefaultEpsilon<Type>()));
+        EZ_TEST_VEC3(q * vDir, -vDir, (Type)0.0001);
+
+        // rotated a tiny bit, so it is not exactly opposite
+        const ezQuatType qTiny = ezQuatType::MakeFromAxisAndAngle(vDir.GetOrthogonalVector().GetNormalized(), ezAngleTemplate<Type>::MakeFromDegree((Type)0.0001));
+        const ezVec3Type vAlmostOpposite = qTiny * -vDir;
+        const ezQuatType q2 = ezQuatType::MakeShortestRotation(vDir, vAlmostOpposite);
+        EZ_TEST_BOOL(q2.IsValid(ezMath::DefaultEpsilon<Type>()));
+        EZ_TEST_VEC3(q2 * vDir, vAlmostOpposite, (Type)0.001);
+      }
+    }
+
     EZ_TEST_BOOL(ezQuatType::MakeIdentity().IsEqualRotation(ezQuatType::MakeIdentity(), ezMath::LargeEpsilon<Type>()));
     EZ_TEST_BOOL(ezQuatType::MakeIdentity().IsEqualRotation(ezQuatType((Type)0, (Type)0, (Type)0, (Type)-1), ezMath::LargeEpsilon<Type>()));
 
