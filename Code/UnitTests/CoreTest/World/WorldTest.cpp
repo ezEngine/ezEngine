@@ -843,6 +843,90 @@ EZ_CREATE_SIMPLE_TEST(World, World)
       EZ_TEST_VEC3(pObject->GetLinearVelocity(), expectedLinearVelocity, ezMath::DefaultEpsilon<float>());
     }
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Velocity of new objects")
+  {
+    ezWorldDesc worldDesc("Test");
+    ezWorld world(worldDesc);
+    EZ_LOCK(world.GetWriteMarker());
+
+    world.GetClock().SetFixedTimeStep(ezTime::MakeFromMilliseconds(100));
+
+    ezGameObjectDesc parentDesc;
+    parentDesc.m_bDynamic = true;
+    parentDesc.m_LocalRotation = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromDegree(90));
+
+    ezGameObject* pParent = nullptr;
+    world.CreateObject(parentDesc, pParent);
+
+    ezGameObject* pStaticParent = nullptr;
+    world.CreateObject(ezGameObjectDesc(), pStaticParent);
+
+    world.Update();
+
+    // the parent moves 1 unit along X during the next update, thus its velocity is 10 units per second
+    pParent->SetLocalPosition(ezVec3(1, 0, 0));
+    world.Update();
+    EZ_TEST_VEC3(pParent->GetLinearVelocity(), ezVec3(10, 0, 0), ezMath::DefaultEpsilon<float>());
+
+    // a new object without a parent has not moved yet
+    {
+      ezGameObjectDesc desc;
+      desc.m_bDynamic = true;
+      desc.m_LocalPosition = ezVec3(5, 5, 5);
+
+      ezGameObject* pObject = nullptr;
+      world.CreateObject(desc, pObject);
+      EZ_TEST_VEC3(pObject->GetLinearVelocity(), ezVec3::MakeZero(), ezMath::DefaultEpsilon<float>());
+    }
+
+    // a new child of a static object has not moved yet
+    {
+      ezGameObjectDesc desc;
+      desc.m_hParent = pStaticParent->GetHandle();
+      desc.m_LocalPosition = ezVec3(5, 5, 5);
+
+      ezGameObject* pObject = nullptr;
+      world.CreateObject(desc, pObject);
+      EZ_TEST_VEC3(pObject->GetLinearVelocity(), ezVec3::MakeZero(), ezMath::DefaultEpsilon<float>());
+    }
+
+    // a new child of a moving object has the velocity of its parent right away
+    ezGameObject* pChild = nullptr;
+    {
+      ezGameObjectDesc desc;
+      desc.m_hParent = pParent->GetHandle();
+      desc.m_LocalPosition = ezVec3(2, 0, 0); // the parent is rotated, thus this is (0, 2, 0) in global space
+
+      world.CreateObject(desc, pChild);
+      EZ_TEST_VEC3(pChild->GetGlobalPosition(), ezVec3(1, 2, 0), ezMath::DefaultEpsilon<float>());
+      EZ_TEST_VEC3(pChild->GetLastGlobalTransform().m_vPosition, ezVec3(0, 2, 0), ezMath::DefaultEpsilon<float>());
+      EZ_TEST_VEC3(pChild->GetLinearVelocity(), ezVec3(10, 0, 0), ezMath::DefaultEpsilon<float>());
+    }
+
+    // during the next update, the parent and the child move on together
+    pParent->SetLocalPosition(ezVec3(3, 0, 0));
+    world.Update();
+    EZ_TEST_VEC3(pChild->GetLastGlobalTransform().m_vPosition, ezVec3(1, 2, 0), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_VEC3(pChild->GetGlobalPosition(), ezVec3(3, 2, 0), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_VEC3(pChild->GetLinearVelocity(), ezVec3(20, 0, 0), ezMath::DefaultEpsilon<float>());
+
+    // an object that is moved between two updates (e.g. by a game state) keeps its velocity during the next update,
+    // and so does a child that is created in between
+    pParent->SetGlobalPosition(ezVec3(4, 0, 0));
+
+    ezGameObject* pChild2 = nullptr;
+    {
+      ezGameObjectDesc desc;
+      desc.m_hParent = pParent->GetHandle();
+      world.CreateObject(desc, pChild2);
+    }
+
+    world.Update();
+    EZ_TEST_VEC3(pParent->GetLinearVelocity(), ezVec3(10, 0, 0), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_VEC3(pChild->GetLinearVelocity(), ezVec3(10, 0, 0), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_VEC3(pChild2->GetLinearVelocity(), ezVec3(10, 0, 0), ezMath::DefaultEpsilon<float>());
+  }
 #endif
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindChildByName / FindChildByPath / SearchForChildByNameSequence")

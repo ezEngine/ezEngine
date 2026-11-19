@@ -221,6 +221,23 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
 
   pTransformationData->UpdateGlobalTransformNonRecursive(0);
 
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
+  // A new object has not moved yet, but a child of a dynamic object moves with its parent from the start.
+  // Thus the last global transform of a child is where it was relative to the last global transform of its parent,
+  // and the child has the velocity of its parent right away, e.g. for a particle effect that is spawned on a moving object.
+  // The update counter is the one of the parent, so that the next transform update advances both of them the same way.
+  if (pParentObject != nullptr && pParentObject->IsDynamic())
+  {
+    const ezSimdTransform localTransform(pTransformationData->m_localPosition, pTransformationData->m_localRotation, pTransformationData->m_localScaling * pTransformationData->m_localScaling.w());
+    pTransformationData->m_lastGlobalTransform = ezSimdTransform::MakeGlobalTransform(pParentData->m_lastGlobalTransform, localTransform);
+    pTransformationData->m_uiLastGlobalTransformUpdateCounter = pParentData->m_uiLastGlobalTransformUpdateCounter;
+  }
+  else
+  {
+    pTransformationData->m_lastGlobalTransform = pTransformationData->m_globalTransform;
+  }
+#endif
+
   // link the transformation data to the game object
   pNewObject->m_pTransformationData = pTransformationData;
 
@@ -478,8 +495,6 @@ void ezWorld::Update()
     ezStats::SetStat(sStatName, GetObjectCount());
   }
 
-  ++m_Data.m_uiUpdateCounter;
-
   if (!m_Data.m_bSimulateWorld)
   {
     // only change the pause mode temporarily
@@ -578,6 +593,11 @@ void ezWorld::Update()
 
   // Swap our double buffered stack allocator
   m_Data.m_LinearAllocator.Swap();
+
+  // Incremented at the end, so that changes between two updates (e.g. objects that a game state moves before the update) count
+  // toward the next update. Otherwise the transform update would overwrite the last global transforms, and the velocity of such objects
+  // would be zero for the rest of the update.
+  ++m_Data.m_uiUpdateCounter;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
