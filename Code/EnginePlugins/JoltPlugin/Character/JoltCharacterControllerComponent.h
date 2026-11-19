@@ -124,6 +124,13 @@ protected:
   /// The given deltaTime should be used, rather than the world's time diff.
   virtual void UpdateCharacter() = 0;
 
+  /// Called in frames in which UpdateCharacter() is skipped, because no physics step was executed.
+  ///
+  /// At high frame rates the physics simulation doesn't step every frame. Changes that are purely driven by input and
+  /// don't need the simulation, such as turning the character around its up axis, can be applied here, so that they are
+  /// visible every frame. Must not move the character or change its shape.
+  virtual void UpdateCharacterWithoutSimulationStep() {}
+
   /// Gives access to the internally used JPH::CharacterVirtual.
   JPH::CharacterVirtual* GetJoltCharacter() { return m_pCharacter; }
   const JPH::CharacterVirtual* GetJoltCharacter() const { return m_pCharacter; }

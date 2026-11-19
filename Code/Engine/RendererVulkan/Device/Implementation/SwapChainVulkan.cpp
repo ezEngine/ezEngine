@@ -8,6 +8,7 @@
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/InitContext.h>
 #include <RendererVulkan/Device/SwapChainVulkan.h>
+#include <RendererVulkan/Pools/FencePoolVulkan.h>
 #include <RendererVulkan/Pools/SemaphorePoolVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Utils/BarrierUtilsVulkan.h>
@@ -86,11 +87,20 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
   }
   */
 
+  // acquireNextImageKHR usually returns right away and the GPU waits on the semaphore for the image to become available.
+  // Without a CPU wait, the CPU is only throttled by the per-frame fences in ezGALDeviceVulkan::BeginFramePlatform, which
+  // allow several frames in flight. With FIFO presentation the presentation engine then releases images in bursts, so the
+  // CPU frames alternate between very short and very long ones, while the display still shows one image per vblank.
+  // Everything sampled at the start of a CPU frame (input, frame time) then no longer matches the presentation timing,
+  // which is very visible as stuttering mouse look, and it also skews the time step smoothing.
+  // Waiting here until the presentation engine is actually done with the image paces the CPU to the display.
+  vk::Fence imageAvailableFence = ezFencePoolVulkan::RequestFence();
+
+  vk::Result result = vk::Result::eSuccess;
   int retryCount = 0;
   while (true)
   {
-    // #TODO_VULKAN We leave the fence parameter blank as we do not care on the CPU whether a swap chain image is still in use or not. Currently, we daisy-chain each frame to the previous frame's semaphore. Not sure if this won't break if we stop doing that. If we call acquireNextImageKHR, can we be sure that the image is no longer in use?
-    vk::Result result = m_pVulkanDevice->GetVulkanDevice().acquireNextImageKHR(m_VulkanSwapChain, std::numeric_limits<uint64_t>::max(), m_CurrentPipelineImageAvailableSemaphore, nullptr, &m_uiCurrentSwapChainImage);
+    result = m_pVulkanDevice->GetVulkanDevice().acquireNextImageKHR(m_VulkanSwapChain, std::numeric_limits<uint64_t>::max(), m_CurrentPipelineImageAvailableSemaphore, imageAvailableFence, &m_uiCurrentSwapChainImage);
     if (result == vk::Result::eSuboptimalKHR)
     {
       const vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_VulkanSurface);
@@ -131,6 +141,14 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
       break;
     }
   }
+
+  if (result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR)
+  {
+    // the fence is only signaled when the image was acquired, otherwise it is still unsignaled and can't be waited on
+    EZ_PROFILE_SCOPE("WaitForSwapChainImage");
+    VK_ASSERT_DEV(m_pVulkanDevice->GetVulkanDevice().waitForFences(1, &imageAvailableFence, true, std::numeric_limits<uint64_t>::max()));
+  }
+  pVulkanDevice->ReclaimLater(imageAvailableFence);
 
 #ifdef VK_LOG_LAYOUT_CHANGES
   ezLog::Warning("AcquireNextRenderTarget {}", ezArgP(static_cast<void*>(m_SwapChainImages[m_uiCurrentSwapChainImage])));

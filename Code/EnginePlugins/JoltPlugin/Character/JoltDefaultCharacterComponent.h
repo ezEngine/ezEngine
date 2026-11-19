@@ -169,6 +169,7 @@ protected:
   virtual void DetermineConfig(Config& out_inputs);
 
   virtual void UpdateCharacter() override;
+  virtual void UpdateCharacterWithoutSimulationStep() override;
   virtual void ApplyRotationZ();
 
   /// Clears the input states to neutral values
