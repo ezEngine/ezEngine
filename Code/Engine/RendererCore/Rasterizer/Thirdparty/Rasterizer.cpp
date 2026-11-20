@@ -600,7 +600,7 @@ bool Rasterizer::query2D(uint32_t minX, uint32_t maxX, uint32_t minY, uint32_t m
   return false;
 }
 
-void Rasterizer::readBackDepth(void* target) const
+void Rasterizer::readBackDepth(float* target) const
 {
   const float bias = 3.9623753e+28f; // 1.0f / floatCompressionBias
 
@@ -612,8 +612,8 @@ void Rasterizer::readBackDepth(void* target) const
       {
         for (uint32_t y = 0; y < 8; ++y)
         {
-          uint8_t* dest = (uint8_t*)target + 4 * (8 * blockX + m_width * (8 * blockY + y));
-          memset(dest, 0, 32);
+          float* dest = target + 8 * blockX + m_width * (8 * blockY + y);
+          memset(dest, 0, 8 * sizeof(float));
         }
         continue;
       }
@@ -621,30 +621,14 @@ void Rasterizer::readBackDepth(void* target) const
       const __m128i* source = &m_depthBuffer[8 * (blockY * m_blocksX + blockX)];
       for (uint32_t y = 0; y < 8; ++y)
       {
-        uint8_t* dest = (uint8_t*)target + 4 * (8 * blockX + m_width * (8 * blockY + y));
+        float* dest = target + 8 * blockX + m_width * (8 * blockY + y);
 
         __m128i depthI = _mm_load_si128(source++);
 
         __m256i depthI256 = _mm256_slli_epi32(_mm256_cvtepu16_epi32(depthI), 12);
         __m256 depth = _mm256_mul_ps(_mm256_castsi256_ps(depthI256), _mm256_set1_ps(bias));
 
-        __m256 linDepth = _mm256_div_ps(_mm256_set1_ps(2 * 0.25f), _mm256_sub_ps(_mm256_set1_ps(0.25f + 1000.0f), _mm256_mul_ps(_mm256_sub_ps(_mm256_set1_ps(1.0f), depth), _mm256_set1_ps(1000.0f - 0.25f))));
-
-        float linDepthA[16];
-        _mm256_storeu_ps(linDepthA, linDepth);
-
-        for (uint32_t x = 0; x < 8; ++x)
-        {
-          float l = linDepthA[x];
-          uint32_t d = static_cast<uint32_t>(100 * 256 * l);
-          uint8_t v0 = uint8_t(d / 100);
-          uint8_t v1 = d % 256;
-
-          dest[4 * x + 0] = v0;
-          dest[4 * x + 1] = v1;
-          dest[4 * x + 2] = 0;
-          dest[4 * x + 3] = 255;
-        }
+        _mm256_storeu_ps(dest, depth);
       }
     }
   }

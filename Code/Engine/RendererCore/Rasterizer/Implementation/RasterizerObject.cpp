@@ -1,6 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Graphics/Geometry.h>
+#include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
 #include <RendererCore/Rasterizer/RasterizerObject.h>
 
@@ -17,7 +18,7 @@ ezRasterizerObject::~ezRasterizerObject() = default;
 
 void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 {
-  ezHybridArray<ezSimdVec4f, 64> vertices;
+  ezHybridArray<ezSimdVec4f, 64, ezAlignedAllocatorWrapper> vertices;
   vertices.Reserve(geo.GetPolygons().GetCount() * 4);
 
   ezSimdVec4f vBoundsMin(ezMath::MaxValue<float>());
@@ -122,6 +123,11 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 #endif
 
   m_OccluderMOC.Bake(mocVertices, mocIndices);
+
+  if (!vertices.IsEmpty())
+  {
+    m_LocalBounds = ezBoundingBox::MakeFromMinMax(ezSimdConversion::ToVec3(vBoundsMin), ezSimdConversion::ToVec3(vBoundsMax));
+  }
 }
 
 ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::GetObject(ezStringView sUniqueName)

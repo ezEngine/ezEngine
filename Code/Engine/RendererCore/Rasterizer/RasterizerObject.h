@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Math/BoundingBox.h>
 #include <Foundation/Math/Mat4.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Threading/Mutex.h>
@@ -49,6 +50,9 @@ private:
   Occluder m_Occluder;
 #endif
   OccluderMOC m_OccluderMOC;
+
+  /// Object space bounds of all rasterized vertices, used to sort objects front to back.
+  ezBoundingBox m_LocalBounds = ezBoundingBox::MakeInvalid();
 
   static ezMutex s_Mutex;
   static ezMap<ezString, ezSharedPtr<ezRasterizerObject>> s_Objects;

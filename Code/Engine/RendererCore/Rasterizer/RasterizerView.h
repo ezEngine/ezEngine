@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Communication/Event.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Math/Transform.h>
 #include <Foundation/Threading/Mutex.h>
@@ -7,6 +8,8 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #include <RendererCore/RendererCoreDLL.h>
+
+struct ezCVarEvent;
 
 class Rasterizer;
 class MaskedOcclusionCulling;
@@ -23,7 +26,13 @@ enum class ezRasterizerImplementation
   MaskedOcclusionCullingSSE41,  ///< Intel's Masked Occlusion Culling library (native SIMD), SSE4.1 instruction set.
   MaskedOcclusionCullingAVX2,   ///< Intel's Masked Occlusion Culling library (native SIMD), AVX2 instruction set.
   MaskedOcclusionCullingEZ,     ///< Intel's MOC algorithm ported to ezSimdVec4f (portable).
+  Auto
 };
+
+/// Returns whether a concrete implementation can run on this build and CPU without falling back.
+///
+/// Auto is a selection policy, not an implementation, and returns false.
+EZ_RENDERERCORE_DLL bool ezIsRasterizerImplementationSupported(ezRasterizerImplementation impl);
 
 /// The SIMD variants of the native MaskedOcclusionCulling implementations, ordered from the lowest to the highest instruction set.
 inline constexpr ezRasterizerImplementation ezMOCInstructionSets[] = {
@@ -55,14 +64,15 @@ class EZ_RENDERERCORE_DLL ezRasterizerView final
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRasterizerView);
 
 public:
-  /// \param bUseOptimized If true and the platform supports it, uses the AVX2-optimized rasterizer. Otherwise uses GenericMOC when available.
-  explicit ezRasterizerView(bool bUseOptimized = true);
-
   /// On platforms without the native x86 rasterizers, requests fall back to GenericMOC when MOC support is enabled.
+  ///
+  /// A view created with `Auto` keeps following `Spatial.Occlusion.Implementation` whenever that CVar changes.
+  /// Views created with a concrete implementation are not affected by it.
   explicit ezRasterizerView(ezRasterizerImplementation impl);
   ~ezRasterizerView();
 
   /// Changes the resolution of the view. Has to be called at least once before starting to render anything.
+  /// Both dimensions must be multiples of 4; individual rasterizers may have stricter requirements.
   void SetResolution(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio);
 
   ezUInt32 GetResolutionX() const { return m_uiResolutionX; }
@@ -76,6 +86,7 @@ public:
     return false;
 #endif
   }
+  /// The rasterizer implementation currently in use. For a view created with `Auto` this can change at runtime.
   ezRasterizerImplementation GetImplementation() const { return m_Implementation; }
 
   /// The instruction set that is actually in use for a MaskedOcclusionCulling view.
@@ -90,9 +101,16 @@ public:
   /// Finishes rasterizing the scene. Visibility queries only work after this.
   void EndScene();
 
-  /// Writes an RGBA8 representation of the depth values to targetBuffer.
+  /// Writes a grayscale image of the depth buffer to targetBuffer, starting with the bottom row.
   ///
   /// The buffer must be large enough for the chosen resolution.
+  /// Brightness falls off linearly with view distance, from white at the camera near plane to black at
+  /// `Spatial.Occlusion.ReadbackFarDistance` (100 meters by default) and beyond.
+  /// Uncovered pixels are transparent black (all channels zero).
+  /// MOC stores inverse clip W, so with orthographic cameras all covered pixels are white.
+  /// With QUICK_MASK enabled, MOC only shows the reference layer that occlusion queries use, so subtiles that are only partially
+  /// covered can appear uncovered or farther away than the rasterized geometry.
+  /// The depth is decoded per pixel, so this is only meant for debugging.
   void ReadBackFrame(ezArrayPtr<ezColorLinearUB> targetBuffer) const;
 
   /// Writes the raw depth value of every pixel to targetBuffer, row by row starting at the top of the image.
@@ -134,6 +152,17 @@ private:
   void ApplyModelViewProjectionMatrix(const ezTransform& modelTransform);
   bool IsVisibleMOC(const ezBoundingBox& bounds, const ezMat4& mModelViewProjection) const;
 
+  /// Switches to a different rasterizer implementation and recreates the rasterizer instance for the current resolution.
+  void ApplyImplementation(ezRasterizerImplementation impl);
+
+  /// Creates the rasterizer instance for m_Implementation and the current resolution, reusing an existing instance if it already matches.
+  void CreateRasterizer();
+
+  /// Destroys the rasterizer instance, its type is determined by m_Implementation.
+  void DestroyRasterizer();
+
+  void OnOcclusionImplementationChanged(const ezCVarEvent& event);
+
   bool m_bAnyOccludersRasterized = false;
   const ezCamera* m_pCamera = nullptr;
   ezUInt32 m_uiResolutionX = 0;
@@ -142,13 +171,18 @@ private:
 
   ezRasterizerImplementation m_Implementation = ezRasterizerImplementation::ThirdParty;
 
+  /// Subscription to `Spatial.Occlusion.Implementation`, only set for views created with `Auto`. Zero when not subscribed.
+  ezEventSubscriptionID m_uiImplementationSubscription = 0;
+
   ezUniquePtr<Rasterizer> m_pRasterizer;
-  MaskedOcclusionCulling* m_pMOC = nullptr;
+  ezUniquePtr<MaskedOcclusionCulling> m_pMOC;
 
   struct Instance
   {
     ezTransform m_Transform;
     const ezRasterizerObject* m_pObject;
+    float m_fSortDistanceSq = 0.0f;
+    float m_fSortOriginDistanceSq = 0.0f;
   };
 
   ezDynamicArray<Instance> m_Instances;
@@ -158,13 +192,18 @@ private:
 
   /// Clip space w of the MOC near clip plane, 0 for orthographic cameras.
   float m_fNearClipW = 0.0f;
+
+  /// Used by ReadBackFrame to convert the stored depth to a view distance. Depth row of the unmodified engine projection.
+  bool m_bReadbackPerspective = true;
+  float m_fReadbackDepthRowZ = 0.0f;
+  float m_fReadbackDepthRowW = 0.0f;
+  float m_fReadbackNearDistance = 0.0f;
 };
 
 class ezRasterizerViewPool
 {
 public:
-  ezRasterizerView* GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio, bool bUseOptimized = true);
-  ezRasterizerView* GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio, ezRasterizerImplementation impl);
+  ezRasterizerView* GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio);
   void ReturnRasterizerView(ezRasterizerView* pView);
 
 private:

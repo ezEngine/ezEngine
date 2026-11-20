@@ -130,6 +130,8 @@ class FrameRecorder;
 
 class MaskedOcclusionCulling 
 {
+	friend class ezMemoryUtils;
+
 public:
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -480,6 +482,9 @@ public:
 	 *        Intended for visualizing the hierarchical depth buffer for debugging. The 
 	 *        buffer is written in scanline order, from the top to bottom (D3D) or bottom to 
 	 *        top (OGL) of the surface. See the USE_D3D define.
+	 *        With QUICK_MASK enabled only the reference layer is returned, since occlusion
+	 *        queries ignore the working layer. Pixels that are only covered by the working
+	 *        layer therefore show the older (farther or cleared) reference depth.
 	 *
 	 * \param depthData Pointer to memory where the per-pixel depth data is written. Must
 	 *        hold storage for atleast width*height elements as set by setResolution.

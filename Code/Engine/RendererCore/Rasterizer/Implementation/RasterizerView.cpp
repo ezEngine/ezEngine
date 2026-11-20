@@ -8,6 +8,8 @@
 #include <RendererCore/Rasterizer/RasterizerObject.h>
 #include <RendererCore/Rasterizer/RasterizerView.h>
 
+#include <Foundation/System/SystemInformation.h>
+
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
 #  include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #endif
@@ -21,100 +23,217 @@
 
 ezCVarInt cvar_SpatialCullingOcclusionMaxResolution("Spatial.Occlusion.MaxResolution", 512, ezCVarFlags::Default, "Max resolution for occlusion buffers.");
 ezCVarInt cvar_SpatialCullingOcclusionMaxOccluders("Spatial.Occlusion.MaxOccluders", 64, ezCVarFlags::Default, "Max number of occluders to rasterize per frame.");
+ezCVarInt cvar_SpatialCullingOcclusionImplementation("Spatial.Occlusion.Implementation", 5, ezCVarFlags::Default, "Actual ezRasterizerImplementation to use for ezRasterizerView set to `Auto`");
+ezCVarFloat cvar_SpatialCullingOcclusionReadbackFarDistance("Spatial.Occlusion.ReadbackFarDistance", 100.0f, ezCVarFlags::Default, "View distance in meters at which the occlusion buffer debug view reaches black.");
 
-ezRasterizerView::ezRasterizerView(bool bUseOptimized)
+bool ezIsRasterizerImplementationSupported(ezRasterizerImplementation impl)
 {
+  switch (impl)
+  {
+    case ezRasterizerImplementation::ThirdParty:
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-  if (bUseOptimized)
-    m_Implementation = ezRasterizerImplementation::ThirdParty;
-#  if defined(BUILDSYSTEM_ENABLE_MOC_SUPPORT)
-  else
-    m_Implementation = ezRasterizerImplementation::MaskedOcclusionCullingEZ;
-#  endif
+    {
+      const ezCpuFeatures& cpuFeatures = ezSystemInformation::Get().GetCpuFeatures();
+      return cpuFeatures.IsAvx2Available() && cpuFeatures.HW_FMA3;
+    }
 #else
-  EZ_IGNORE_UNUSED(bUseOptimized);
-#  if defined(BUILDSYSTEM_ENABLE_MOC_SUPPORT)
-  m_Implementation = ezRasterizerImplementation::MaskedOcclusionCullingEZ;
-#  endif
+      return false;
 #endif
+
+    case ezRasterizerImplementation::MaskedOcclusionCullingSSE2:
+    case ezRasterizerImplementation::MaskedOcclusionCullingSSE41:
+    case ezRasterizerImplementation::MaskedOcclusionCullingAVX2:
+#if defined(BUILDSYSTEM_ENABLE_MOC_SUPPORT) && EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+    {
+      const ezCpuFeatures& cpuFeatures = ezSystemInformation::Get().GetCpuFeatures();
+      if (impl == ezRasterizerImplementation::MaskedOcclusionCullingSSE2)
+        return cpuFeatures.HW_SSE2;
+      if (impl == ezRasterizerImplementation::MaskedOcclusionCullingSSE41)
+        return cpuFeatures.HW_SSE41;
+      return cpuFeatures.IsAvx2Available();
+    }
+#else
+      return false;
+#endif
+
+    case ezRasterizerImplementation::MaskedOcclusionCullingEZ:
+#if defined(BUILDSYSTEM_ENABLE_MOC_SUPPORT)
+      return true;
+#else
+      return false;
+#endif
+
+    case ezRasterizerImplementation::Auto:
+      return false;
+  }
+
+  return false;
 }
 
-ezRasterizerView::ezRasterizerView(ezRasterizerImplementation impl)
+namespace
 {
-  m_Implementation = impl;
-
+  /// Adjusts a requested implementation to one that is actually available in this build.
+  ezRasterizerImplementation NormalizeRasterizerImplementation(ezRasterizerImplementation impl)
+  {
 #if EZ_DISABLED(EZ_RASTERIZER_SUPPORTED) && defined(BUILDSYSTEM_ENABLE_MOC_SUPPORT)
-  if (m_Implementation != ezRasterizerImplementation::MaskedOcclusionCullingEZ)
-    m_Implementation = ezRasterizerImplementation::MaskedOcclusionCullingEZ;
+    if (impl != ezRasterizerImplementation::MaskedOcclusionCullingEZ)
+      impl = ezRasterizerImplementation::MaskedOcclusionCullingEZ;
 #endif
 
 #if !defined(BUILDSYSTEM_ENABLE_MOC_SUPPORT)
-  if (m_Implementation == ezRasterizerImplementation::MaskedOcclusionCullingEZ ||
-      m_Implementation == ezRasterizerImplementation::MaskedOcclusionCullingSSE2 ||
-      m_Implementation == ezRasterizerImplementation::MaskedOcclusionCullingSSE41 ||
-      m_Implementation == ezRasterizerImplementation::MaskedOcclusionCullingAVX2)
-    m_Implementation = ezRasterizerImplementation::ThirdParty;
+    if (ezIsMaskedOcclusionCullingImplementation(impl))
+      impl = ezRasterizerImplementation::ThirdParty;
 #endif
+
+    // The native MaskedOcclusionCulling implementations are only compiled for x86.
+#if defined(BUILDSYSTEM_ENABLE_MOC_SUPPORT) && EZ_DISABLED(EZ_PLATFORM_ARCH_X86)
+    if (ezMOCInstructionSetIndex(impl) >= 0)
+      impl = ezRasterizerImplementation::MaskedOcclusionCullingEZ;
+#endif
+
+    return impl;
+  }
+
+  /// Turns the `Spatial.Occlusion.Implementation` CVar into a concrete rasterizer implementation.
+  ///
+  /// Values 0 to 4 map directly to ezRasterizerImplementation. Any other value, in particular Auto,
+  /// selects the fastest MaskedOcclusionCulling implementation that this CPU supports.
+  ezRasterizerImplementation ResolveAutoRasterizerImplementation()
+  {
+    const ezInt32 cvarValue = cvar_SpatialCullingOcclusionImplementation.GetValue();
+
+    if (cvarValue >= 0 && cvarValue <= (ezInt32)ezRasterizerImplementation::MaskedOcclusionCullingEZ)
+      return static_cast<ezRasterizerImplementation>(cvarValue);
+
+    for (ezInt32 i = EZ_ARRAY_SIZE(ezMOCInstructionSets) - 1; i >= 0; --i)
+    {
+      if (ezIsRasterizerImplementationSupported(ezMOCInstructionSets[i]))
+        return ezMOCInstructionSets[i];
+    }
+
+    return ezRasterizerImplementation::MaskedOcclusionCullingEZ;
+  }
+} // namespace
+
+ezRasterizerView::ezRasterizerView(ezRasterizerImplementation impl)
+{
+  const bool bResolveFromCVar = impl == ezRasterizerImplementation::Auto;
+  if (bResolveFromCVar)
+    impl = ResolveAutoRasterizerImplementation();
+
+  m_Implementation = NormalizeRasterizerImplementation(impl);
+
+  if (bResolveFromCVar)
+  {
+    m_uiImplementationSubscription = cvar_SpatialCullingOcclusionImplementation.m_CVarEvents.AddEventHandler(
+        ezDelegate<void(const ezCVarEvent&)>(&ezRasterizerView::OnOcclusionImplementationChanged, this));
+  }
 }
 
 ezRasterizerView::~ezRasterizerView()
 {
+  cvar_SpatialCullingOcclusionImplementation.m_CVarEvents.RemoveEventHandler(m_uiImplementationSubscription);
+
+  DestroyRasterizer();
+}
+
+void ezRasterizerView::OnOcclusionImplementationChanged(const ezCVarEvent& event)
+{
+  if (event.m_EventType != ezCVarEvent::ValueChanged)
+    return;
+
+  // Applied immediately, so the view must not be in the middle of a scene when the CVar changes.
+  // The pool hands out a view only between BeginScene() and EndScene(), and CVars are changed on the main thread.
+  ApplyImplementation(ResolveAutoRasterizerImplementation());
+}
+
+void ezRasterizerView::ApplyImplementation(ezRasterizerImplementation impl)
+{
+  impl = NormalizeRasterizerImplementation(impl);
+  if (impl == m_Implementation)
+    return;
+
+  // m_Implementation identifies how the existing instance has to be destroyed,
+  // therefore it may only be changed after that instance is gone.
+  DestroyRasterizer();
+  m_Implementation = impl;
+
+  if (m_uiResolutionX > 0 && m_uiResolutionY > 0)
+    CreateRasterizer();
+
+  // The new instance has an empty depth buffer, so nothing is occluded yet.
+  m_bAnyOccludersRasterized = false;
+}
+
+void ezRasterizerView::CreateRasterizer()
+{
+#if defined(BUILDSYSTEM_ENABLE_MOC_SUPPORT)
+  if (ezIsMaskedOcclusionCullingImplementation(m_Implementation))
+  {
+    if (!m_pMOC)
+    {
+      if (m_Implementation == ezRasterizerImplementation::MaskedOcclusionCullingEZ)
+        m_pMOC = ezUniquePtr<MaskedOcclusionCulling>(ezCreateGenericMOC(), nullptr);
+#if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
+      else
+      {
+        // The indices match the values of MaskedOcclusionCulling::Implementation.
+        // A requested instruction set that the CPU doesn't support is downgraded by the library.
+        m_pMOC = ezUniquePtr<MaskedOcclusionCulling>(
+          MaskedOcclusionCulling::Create(
+            static_cast<MaskedOcclusionCulling::Implementation>(ezMOCInstructionSetIndex(m_Implementation))),
+          nullptr);
+      }
+#endif
+    }
+
+    EZ_ASSERT_DEV(m_pMOC != nullptr, "No rasterizer instance available for implementation %d.", (ezInt32)m_Implementation);
+
+    m_pMOC->SetResolution(m_uiResolutionX, m_uiResolutionY);
+    m_pMOC->SetNearClipPlane(m_fNearClipW);
+
+    m_pRasterizer.Clear();
+  }
+  else
+#endif
+  {
+    m_pRasterizer = EZ_DEFAULT_NEW(Rasterizer, m_uiResolutionX, m_uiResolutionY);
+  }
+}
+
+void ezRasterizerView::DestroyRasterizer()
+{
+  m_pRasterizer.Clear();
+
 #if defined(BUILDSYSTEM_ENABLE_MOC_SUPPORT)
   if (m_pMOC)
   {
+    MaskedOcclusionCulling* pMOC = m_pMOC.Release();
     if (m_Implementation == ezRasterizerImplementation::MaskedOcclusionCullingEZ)
-      ezDestroyGenericMOC(m_pMOC);
-#  if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
+      ezDestroyGenericMOC(pMOC);
+#if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
     else
-      MaskedOcclusionCulling::Destroy(m_pMOC);
-#  endif
-    m_pMOC = nullptr;
+      MaskedOcclusionCulling::Destroy(pMOC);
+#endif
   }
 #endif
 }
 
 void ezRasterizerView::SetResolution(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio)
 {
+  EZ_ASSERT_DEV(uiWidth % 4 == 0 && uiHeight % 4 == 0, "Rasterizer resolution must be a multiple of 4 in both dimensions.");
+
   if (m_uiResolutionX != uiWidth || m_uiResolutionY != uiHeight)
   {
     m_uiResolutionX = uiWidth;
     m_uiResolutionY = uiHeight;
 
 #if defined(BUILDSYSTEM_ENABLE_MOC_SUPPORT)
-    if (ezIsMaskedOcclusionCullingImplementation(m_Implementation))
-    {
-      if (!m_pMOC)
-      {
-        if (m_Implementation == ezRasterizerImplementation::MaskedOcclusionCullingEZ)
-          m_pMOC = ezCreateGenericMOC();
-        else
-        {
-#  if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
-          // The indices match the values of MaskedOcclusionCulling::Implementation.
-          m_pMOC = MaskedOcclusionCulling::Create(static_cast<MaskedOcclusionCulling::Implementation>(ezMOCInstructionSetIndex(m_Implementation)));
-#  endif
-        }
-      }
-
-      m_pMOC->SetResolution(uiWidth, uiHeight);
-
-      m_pRasterizer.Clear();
-    }
-    else
+    if (!ezIsMaskedOcclusionCullingImplementation(m_Implementation) && m_pMOC)
+      DestroyRasterizer();
 #endif
-    {
-      m_pRasterizer = EZ_DEFAULT_NEW(Rasterizer, uiWidth, uiHeight);
 
-#if defined(BUILDSYSTEM_ENABLE_MOC_SUPPORT)
-      if (m_pMOC)
-      {
-#  if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
-        MaskedOcclusionCulling::Destroy(m_pMOC);
-#  endif
-        m_pMOC = nullptr;
-      }
-#endif
-    }
+    CreateRasterizer();
   }
 
   if (fAspectRatio == 0.0f)
@@ -161,33 +280,73 @@ void ezRasterizerView::BeginScene()
   m_bAnyOccludersRasterized = false;
 }
 
+namespace
+{
+  EZ_ALWAYS_INLINE ezColorLinearUB DistanceToGray(float fDistance, float fNearDistance, float fFarDistance)
+  {
+    const float fRange = ezMath::Max(fFarDistance - fNearDistance, 0.001f);
+    const float fBrightness = 1.0f - ezMath::Saturate((fDistance - fNearDistance) / fRange);
+    const ezUInt8 uiGray = static_cast<ezUInt8>(fBrightness * 255.0f + 0.5f);
+    return ezColorLinearUB(uiGray, uiGray, uiGray, 255);
+  }
+} // namespace
+
 void ezRasterizerView::ReadBackFrame(ezArrayPtr<ezColorLinearUB> targetBuffer) const
 {
   EZ_PROFILE_SCOPE("ezRasterizerView::ReadBackFrame");
 
   EZ_ASSERT_DEV(targetBuffer.GetCount() >= m_uiResolutionX * m_uiResolutionY, "Target buffer is too small.");
 
+  const float fFarDistance = cvar_SpatialCullingOcclusionReadbackFarDistance;
+  const ezUInt32 uiNumPixels = m_uiResolutionX * m_uiResolutionY;
+  ezDynamicArray<float> depthData;
+  depthData.SetCountUninitialized(uiNumPixels);
+
 #if defined(BUILDSYSTEM_ENABLE_MOC_SUPPORT)
   if (ezIsMaskedOcclusionCullingImplementation(m_Implementation))
   {
     EZ_ASSERT_DEV(m_pMOC != nullptr, "Call SetResolution() first.");
 
-    const ezUInt32 numPixels = m_uiResolutionX * m_uiResolutionY;
-    ezDynamicArray<float> depthData;
-    depthData.SetCountUninitialized(numPixels);
+    // Flip the MOC buffer to match the ThirdParty readback orientation. Negative values are uncovered pixels.
     m_pMOC->ComputePixelDepthBuffer(depthData.GetData(), true);
 
-    for (ezUInt32 i = 0; i < numPixels; ++i)
+    for (ezUInt32 i = 0; i < uiNumPixels; ++i)
     {
-      ezUInt8 v = static_cast<ezUInt8>(ezMath::Clamp(depthData[i] * 255.0f, 0.0f, 255.0f));
-      targetBuffer[i] = ezColorLinearUB(v, v, v, 255);
+      const float fInverseW = depthData[i];
+
+      if (fInverseW < 0.0f)
+        targetBuffer[i] = ezColorLinearUB(0, 0, 0, 0);
+      else if (!m_bReadbackPerspective || fInverseW == 0.0f)
+        targetBuffer[i] = ezColorLinearUB(255, 255, 255, 255); // Orthographic clip W is always one, so there is no depth information.
+      else
+        targetBuffer[i] = DistanceToGray(1.0f / fInverseW, m_fReadbackNearDistance, fFarDistance);
     }
   }
   else
 #endif
   {
     EZ_ASSERT_DEV(m_pRasterizer != nullptr, "Call SetResolution() first.");
-    m_pRasterizer->readBackDepth(targetBuffer.GetPtr());
+    m_pRasterizer->readBackDepth(depthData.GetData());
+
+    for (ezUInt32 i = 0; i < uiNumPixels; ++i)
+    {
+      // The ThirdParty depth is half the reversed projected depth of the unmodified engine projection.
+      const float fDepth2 = 2.0f * depthData[i];
+
+      if (depthData[i] <= 0.0f)
+      {
+        targetBuffer[i] = ezColorLinearUB(0, 0, 0, 0);
+        continue;
+      }
+
+      float fDistance;
+      if (m_bReadbackPerspective)
+        fDistance = m_fReadbackDepthRowW / (fDepth2 - m_fReadbackDepthRowZ);
+      else
+        fDistance = ezMath::Abs((fDepth2 - m_fReadbackDepthRowW) / m_fReadbackDepthRowZ);
+
+      targetBuffer[i] = DistanceToGray(fDistance, m_fReadbackNearDistance, fFarDistance);
+    }
   }
 }
 
@@ -314,6 +473,13 @@ void ezRasterizerView::UpdateViewProjectionMatrix()
   ezMat4 mProjection;
   m_pCamera->GetProjectionMatrix(m_fAspectRation, mProjection, ezCameraEye::Left, ezClipSpaceDepthRange::ZeroToOne);
 
+  // ReadBackFrame converts the stored depth back to a view distance with the unmodified projection.
+  const ezVec4 vDepthRow = mProjection.GetRow(2);
+  m_bReadbackPerspective = m_pCamera->IsPerspective();
+  m_fReadbackDepthRowZ = vDepthRow.z;
+  m_fReadbackDepthRowW = vDepthRow.w;
+  m_fReadbackNearDistance = m_pCamera->GetNearPlane();
+
 #if defined(BUILDSYSTEM_ENABLE_MOC_SUPPORT)
   if (ezIsMaskedOcclusionCullingImplementation(m_Implementation))
   {
@@ -322,6 +488,7 @@ void ezRasterizerView::UpdateViewProjectionMatrix()
     // Orthographic projections have a constant w of 1 and keep the clip plane at w = 0.
     m_fNearClipW = m_pCamera->IsPerspective() ? m_pCamera->GetNearPlane() : 0.0f;
     m_pMOC->SetNearClipPlane(m_fNearClipW);
+
   }
   else
 #endif
@@ -351,14 +518,32 @@ void ezRasterizerView::SortObjectsFrontToBack()
 {
   EZ_PROFILE_SCOPE("ezRasterizerView::SortObjectsFrontToBack");
 
-  const ezVec3 camPos = m_pCamera->GetCenterPosition();
+  const ezVec3 vCamPos = m_pCamera->GetCenterPosition();
 
-  m_Instances.Sort([&](const Instance& i1, const Instance& i2)
+  for (Instance& inst : m_Instances)
+  {
+    const ezTransform& t = inst.m_Transform;
+    inst.m_fSortOriginDistanceSq = (t.m_vPosition - vCamPos).GetLengthSquared();
+    inst.m_fSortDistanceSq = inst.m_fSortOriginDistanceSq;
+
+    const ezBoundingBox& localBounds = inst.m_pObject->m_LocalBounds;
+    if (!localBounds.IsValid() || t.m_vScale.x == 0.0f || t.m_vScale.y == 0.0f || t.m_vScale.z == 0.0f)
+      continue;
+
+    // Closest point on the oriented box: clamp the camera position in object space and transform it back.
+    // This is exact for any rotation and non-uniform scale, and zero when the camera is inside the box.
+    const ezVec3 vLocalCam = (t.m_qRotation.GetInverse() * (vCamPos - t.m_vPosition)).CompDiv(t.m_vScale);
+    const ezVec3 vClosest = t.TransformPosition(localBounds.GetClampedPoint(vLocalCam));
+    inst.m_fSortDistanceSq = (vClosest - vCamPos).GetLengthSquared();
+  }
+
+  m_Instances.Sort([](const Instance& i1, const Instance& i2)
     {
-      const float d1 = (i1.m_Transform.m_vPosition - camPos).GetLengthSquared();
-      const float d2 = (i2.m_Transform.m_vPosition - camPos).GetLengthSquared();
+      if (i1.m_fSortDistanceSq != i2.m_fSortDistanceSq)
+        return i1.m_fSortDistanceSq < i2.m_fSortDistanceSq;
 
-      return d1 < d2; });
+      // Objects that contain the camera all have distance zero, prefer the ones whose center is closer.
+      return i1.m_fSortOriginDistanceSq < i2.m_fSortOriginDistanceSq; });
 }
 
 bool ezRasterizerView::IsVisible(const ezSimdBBox& aabb) const
@@ -438,26 +623,7 @@ bool ezRasterizerView::IsVisibleMOC(const ezBoundingBox& bounds, const ezMat4& m
 }
 #endif
 
-ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio, bool bUseOptimized)
-{
-  ezRasterizerImplementation impl = ezRasterizerImplementation::ThirdParty;
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-  if (!bUseOptimized)
-  {
-#  if defined(BUILDSYSTEM_ENABLE_MOC_SUPPORT)
-    impl = ezRasterizerImplementation::MaskedOcclusionCullingEZ;
-#  endif
-  }
-#else
-  EZ_IGNORE_UNUSED(bUseOptimized);
-#  if defined(BUILDSYSTEM_ENABLE_MOC_SUPPORT)
-  impl = ezRasterizerImplementation::MaskedOcclusionCullingEZ;
-#  endif
-#endif
-  return GetRasterizerView(uiWidth, uiHeight, fAspectRatio, impl);
-}
-
-ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio, ezRasterizerImplementation impl)
+ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio)
 {
   EZ_PROFILE_SCOPE("ezRasterizerViewPool::GetRasterizerView");
 
@@ -485,8 +651,7 @@ ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 uiWidth, ezUI
       continue;
 
     if (entry.m_pRasterizerView->GetResolutionX() == uiWidth &&
-        entry.m_pRasterizerView->GetResolutionY() == uiHeight &&
-        entry.m_pRasterizerView->GetImplementation() == impl)
+        entry.m_pRasterizerView->GetResolutionY() == uiHeight)
     {
       entry.m_bInUse = true;
       entry.m_pRasterizerView->SetResolution(uiWidth, uiHeight, fAspectRatio);
@@ -495,7 +660,7 @@ ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 uiWidth, ezUI
   }
 
   auto& ne = m_Entries.ExpandAndGetRef();
-  ne.m_pRasterizerView = EZ_DEFAULT_NEW(ezRasterizerView, impl);
+  ne.m_pRasterizerView = EZ_DEFAULT_NEW(ezRasterizerView, ezRasterizerImplementation::Auto);
   ne.m_pRasterizerView->SetResolution(uiWidth, uiHeight, fAspectRatio);
   ne.m_bInUse = true;
 

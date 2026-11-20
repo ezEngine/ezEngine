@@ -69,7 +69,10 @@ public:
 
   bool query2D(uint32_t minX, uint32_t maxX, uint32_t minY, uint32_t maxY, uint32_t maxZ) const;
 
-  void readBackDepth(void* target) const;
+  /// Writes the decompressed depth of every pixel to target, starting with the bottom row.
+  ///
+  /// Values are half the projected depth, which is 0 at the far plane and grows towards the camera. Uncovered pixels are 0.
+  void readBackDepth(float* target) const;
 #else
   Rasterizer(uint32_t width, uint32_t height)
   {
@@ -93,7 +96,7 @@ public:
     return true;
   }
 
-  void readBackDepth(void* pTarget) const {}
+  void readBackDepth(float* pTarget) const {}
 #endif
 
 private:

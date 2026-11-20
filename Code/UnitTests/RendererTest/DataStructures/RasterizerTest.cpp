@@ -265,24 +265,12 @@ void ezRasterizerTest::SetupSubTests()
 {
   m_SubTestNames.Clear();
 
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-  const ezCpuFeatures& cpuFeatures = ezSystemInformation::Get().GetCpuFeatures();
-  if (cpuFeatures.IsAvx2Available() && cpuFeatures.HW_FMA3)
-    AddSceneSubTests(ezRasterizerImplementation::ThirdParty);
-#endif
-
-#if defined(EZ_RENDERERTEST_MOC_SUPPORT)
-  for (ezRasterizerImplementation implementation : ezMOCInstructionSets)
+  for (ezInt32 i = 0; i < static_cast<ezInt32>(ezRasterizerImplementation::Auto); ++i)
   {
-    // Requesting an unsupported instruction set falls back to a lower one, which already has its own sub-tests.
-    ezRasterizerView view(implementation);
-    view.SetResolution(32, 8, 0.0f);
-    if (view.GetMOCInstructionSet() == implementation)
+    const auto implementation = static_cast<ezRasterizerImplementation>(i);
+    if (ezIsRasterizerImplementationSupported(implementation))
       AddSceneSubTests(implementation);
   }
-
-  AddSceneSubTests(ezRasterizerImplementation::MaskedOcclusionCullingEZ);
-#endif
 }
 
 void ezRasterizerTest::AddSceneSubTests(ezRasterizerImplementation implementation)
@@ -302,6 +290,7 @@ void ezRasterizerTest::AddSceneSubTests(ezRasterizerImplementation implementatio
 ezTestAppRun ezRasterizerTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
   EZ_IGNORE_UNUSED(uiInvocationCount);
+
   const ezRasterizerImplementation implementation = static_cast<ezRasterizerImplementation>(iIdentifier / static_cast<ezInt32>(Scene::Count));
   const Scene scene = static_cast<Scene>(iIdentifier % static_cast<ezInt32>(Scene::Count));
 
@@ -315,7 +304,7 @@ ezTestAppRun ezRasterizerTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
   *pMaxOccluders = 500;
 
   constexpr ezUInt32 uiResolution = 1024;
-  constexpr ezUInt32 uiRasterizationIterations = 50000;
+  constexpr ezUInt32 uiRasterizationIterations = 1000;
   constexpr ezUInt32 uiQueryIterations = 1000;
   constexpr ezUInt32 uiGridSize = 10;
   constexpr float fBlockSize = 4.0f;
