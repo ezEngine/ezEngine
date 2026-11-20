@@ -225,6 +225,18 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator>>(const ezSimdVec4i& v) const
   return vshlq_s32(m_v, vnegq_s32(v.m_v));
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::TransposeBytes() const
+{
+  const uint8x16_t vBytes = vreinterpretq_u8_s32(m_v);
+  const ezUInt8 indices[16] = {0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15};
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+  return vreinterpretq_s32_u8(vqtbl1q_u8(vBytes, vld1q_u8(indices)));
+#else
+  const uint8x8x2_t table = {{vget_low_u8(vBytes), vget_high_u8(vBytes)}};
+  return vreinterpretq_s32_u8(vcombine_u8(vtbl2_u8(table, vld1_u8(indices)), vtbl2_u8(table, vld1_u8(indices + 8))));
+#endif
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4i& ezSimdVec4i::operator+=(const ezSimdVec4i& v)
 {
   m_v = vaddq_s32(m_v, v.m_v);
@@ -316,6 +328,16 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator>(const ezSimdVec4i& v) const
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Select(const ezSimdVec4b& vCmp, const ezSimdVec4i& vTrue, const ezSimdVec4i& vFalse)
 {
   return vbslq_s32(vCmp.m_v, vTrue.m_v, vFalse.m_v);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4i::ReinterpretAsFloat() const
+{
+  return vreinterpretq_f32_s32(m_v);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4f::ReinterpretAsInt() const
+{
+  return vreinterpretq_s32_f32(m_v);
 }
 
 // not needed atm

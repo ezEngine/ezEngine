@@ -86,25 +86,31 @@ template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4b::AllSet() const
 {
   const int mask = EZ_BIT(N) - 1;
-  return (ezInternal::NeonMoveMask(m_v) & mask) == mask;
+  return (GetMoveMask() & mask) == mask;
 }
 
 template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4b::AnySet() const
 {
   const int mask = EZ_BIT(N) - 1;
-  return (ezInternal::NeonMoveMask(m_v) & mask) != 0;
+  return (GetMoveMask() & mask) != 0;
 }
 
 template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4b::NoneSet() const
 {
   const int mask = EZ_BIT(N) - 1;
-  return (ezInternal::NeonMoveMask(m_v) & mask) == 0;
+  return (GetMoveMask() & mask) == 0;
 }
 
 // static
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::Select(const ezSimdVec4b& vCmp, const ezSimdVec4b& vTrue, const ezSimdVec4b& vFalse)
 {
   return vbslq_u32(vCmp.m_v, vTrue.m_v, vFalse.m_v);
+}
+
+EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4b::GetMoveMask() const
+{
+  alignas(16) static const int32_t shift[4] = {0, 1, 2, 3};
+  return vaddvq_u32(vshlq_u32(vshrq_n_u32(m_v, 31), vld1q_s32(shift)));
 }

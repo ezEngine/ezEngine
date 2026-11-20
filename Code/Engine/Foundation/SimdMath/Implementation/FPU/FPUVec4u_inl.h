@@ -37,6 +37,25 @@ EZ_ALWAYS_INLINE void ezSimdVec4u::SetZero()
   m_v.SetZero();
 }
 
+template <int N>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Load(const ezUInt32* pUInts)
+{
+  m_v.SetZero();
+  for (int i = 0; i < N; ++i)
+  {
+    (&m_v.x)[i] = pUInts[i];
+  }
+}
+
+template <int N>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Store(ezUInt32* pUInts) const
+{
+  for (int i = 0; i < N; ++i)
+  {
+    pUInts[i] = (&m_v.x)[i];
+  }
+}
+
 // needs to be implemented here because of include dependencies
 EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(const ezSimdVec4u& u)
   : m_v(u.m_v.x, u.m_v.y, u.m_v.z, u.m_v.w)
@@ -132,6 +151,21 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Get() const
   return result;
 }
 
+template <ezSwizzle::Enum s>
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::GetCombined(const ezSimdVec4u& other) const
+{
+  ezSimdVec4u result;
+
+  const ezUInt32* v = &m_v.x;
+  const ezUInt32* o = &other.m_v.x;
+  result.m_v.x = v[(s & 0x3000) >> 12];
+  result.m_v.y = v[(s & 0x0300) >> 8];
+  result.m_v.z = o[(s & 0x0030) >> 4];
+  result.m_v.w = o[(s & 0x0003)];
+
+  return result;
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator+(const ezSimdVec4u& v) const
 {
   return m_v + v.m_v;
@@ -147,6 +181,11 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::CompMul(const ezSimdVec4u& v) const
   return m_v.CompMul(v.m_v);
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::CompDiv(const ezSimdVec4u& v) const
+{
+  return ezSimdVec4u(m_v.x / v.m_v.x, m_v.y / v.m_v.y, m_v.z / v.m_v.z, m_v.w / v.m_v.w);
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator|(const ezSimdVec4u& v) const
 {
   ezSimdVec4u result;
@@ -156,6 +195,24 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator|(const ezSimdVec4u& v) const
   result.m_v.w = m_v.w | v.m_v.w;
 
   return result;
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::SubtractSaturated16(const ezSimdVec4u& v) const
+{
+  auto Subtract = [](ezUInt32 a, ezUInt32 b) -> ezUInt32
+  {
+    const ezUInt32 uiLowA = a & 0xFFFF;
+    const ezUInt32 uiLowB = b & 0xFFFF;
+    const ezUInt32 uiHighA = a >> 16;
+    const ezUInt32 uiHighB = b >> 16;
+    return (uiLowA - ezMath::Min(uiLowA, uiLowB)) | ((uiHighA - ezMath::Min(uiHighA, uiHighB)) << 16);
+  };
+  return ezSimdVec4u(Subtract(m_v.x, v.m_v.x), Subtract(m_v.y, v.m_v.y), Subtract(m_v.z, v.m_v.z), Subtract(m_v.w, v.m_v.w));
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::TransposeBytes() const
+{
+  return ezSimdVec4u(ezSimdVec4i(*this).TransposeBytes());
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator&(const ezSimdVec4u& v) const
@@ -211,6 +268,22 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator>>(ezUInt32 uiShift) const
   result.m_v.w = m_v.w >> uiShift;
 
   return result;
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator<<(const ezSimdVec4u& vShift) const
+{
+  return ezSimdVec4u(vShift.m_v.x < 32 ? m_v.x << vShift.m_v.x : 0,
+    vShift.m_v.y < 32 ? m_v.y << vShift.m_v.y : 0,
+    vShift.m_v.z < 32 ? m_v.z << vShift.m_v.z : 0,
+    vShift.m_v.w < 32 ? m_v.w << vShift.m_v.w : 0);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator>>(const ezSimdVec4u& vShift) const
+{
+  return ezSimdVec4u(vShift.m_v.x < 32 ? m_v.x >> vShift.m_v.x : 0,
+    vShift.m_v.y < 32 ? m_v.y >> vShift.m_v.y : 0,
+    vShift.m_v.z < 32 ? m_v.z >> vShift.m_v.z : 0,
+    vShift.m_v.w < 32 ? m_v.w >> vShift.m_v.w : 0);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator+=(const ezSimdVec4u& v)
@@ -326,6 +399,24 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator>(const ezSimdVec4u& v) const
   result[3] = m_v.w > v.m_v.w;
 
   return ezSimdVec4b(result[0], result[1], result[2], result[3]);
+}
+
+// static
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Select(const ezSimdVec4b& cmp, const ezSimdVec4u& ifTrue, const ezSimdVec4u& ifFalse)
+{
+  ezSimdVec4u result;
+  result.m_v.x = cmp.m_v.x ? ifTrue.m_v.x : ifFalse.m_v.x;
+  result.m_v.y = cmp.m_v.y ? ifTrue.m_v.y : ifFalse.m_v.y;
+  result.m_v.z = cmp.m_v.z ? ifTrue.m_v.z : ifFalse.m_v.z;
+  result.m_v.w = cmp.m_v.w ? ifTrue.m_v.w : ifFalse.m_v.w;
+  return result;
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4u::ReinterpretAsFloat() const
+{
+  ezSimdVec4f result;
+  memcpy(&result.m_v.x, &m_v.x, 16);
+  return result;
 }
 
 // static

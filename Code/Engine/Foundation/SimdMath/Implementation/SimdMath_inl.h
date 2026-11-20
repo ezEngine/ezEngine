@@ -5,6 +5,7 @@
 // static
 EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::Exp(const ezSimdVec4f& f)
 {
+  // MSVC exposes the SVML exponential intrinsic for SSE. GCC and Clang do not support Intel's proprietary SVML library.
 #if EZ_ENABLED(EZ_COMPILER_MSVC_PURE) && EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
   return _mm_exp_ps(f.m_v);
 #else
@@ -15,6 +16,7 @@ EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::Exp(const ezSimdVec4f& f)
 // static
 EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::Ln(const ezSimdVec4f& f)
 {
+  // MSVC exposes the SVML natural logarithm intrinsic for SSE. GCC and Clang do not support Intel's proprietary SVML library.
 #if EZ_ENABLED(EZ_COMPILER_MSVC_PURE) && EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
   return _mm_log_ps(f.m_v);
 #else
@@ -25,6 +27,7 @@ EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::Ln(const ezSimdVec4f& f)
 // static
 EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::Log2(const ezSimdVec4f& f)
 {
+  // MSVC exposes the SVML base-2 logarithm intrinsic for SSE. GCC and Clang do not support Intel's proprietary SVML library.
 #if EZ_ENABLED(EZ_COMPILER_MSVC_PURE) && EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
   return _mm_log2_ps(f.m_v);
 #else
@@ -41,6 +44,7 @@ EZ_FORCE_INLINE ezSimdVec4i ezSimdMath::Log2i(const ezSimdVec4i& i)
 // static
 EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::Log10(const ezSimdVec4f& f)
 {
+  // MSVC exposes the SVML base-10 logarithm intrinsic for SSE. GCC and Clang do not support Intel's proprietary SVML library.
 #if EZ_ENABLED(EZ_COMPILER_MSVC_PURE) && EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
   return _mm_log10_ps(f.m_v);
 #else
@@ -51,6 +55,7 @@ EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::Log10(const ezSimdVec4f& f)
 // static
 EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::Pow2(const ezSimdVec4f& f)
 {
+  // MSVC exposes the SVML power-of-two intrinsic for SSE. GCC and Clang do not support Intel's proprietary SVML library.
 #if EZ_ENABLED(EZ_COMPILER_MSVC_PURE) && EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
   return _mm_exp2_ps(f.m_v);
 #else
@@ -61,6 +66,7 @@ EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::Pow2(const ezSimdVec4f& f)
 // static
 EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::Sin(const ezSimdVec4f& f)
 {
+  // MSVC exposes the SVML sine intrinsic for SSE. GCC and Clang do not support Intel's proprietary SVML library.
 #if EZ_ENABLED(EZ_COMPILER_MSVC_PURE) && EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
   return _mm_sin_ps(f.m_v);
 #else
@@ -72,6 +78,7 @@ EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::Sin(const ezSimdVec4f& f)
 // static
 EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::Cos(const ezSimdVec4f& f)
 {
+  // MSVC exposes the SVML cosine intrinsic for SSE. GCC and Clang do not support Intel's proprietary SVML library.
 #if EZ_ENABLED(EZ_COMPILER_MSVC_PURE) && EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
   return _mm_cos_ps(f.m_v);
 #else
@@ -83,6 +90,7 @@ EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::Cos(const ezSimdVec4f& f)
 // static
 EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::Tan(const ezSimdVec4f& f)
 {
+  // MSVC exposes the SVML tangent intrinsic for SSE. GCC and Clang do not support Intel's proprietary SVML library.
 #if EZ_ENABLED(EZ_COMPILER_MSVC_PURE) && EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
   return _mm_tan_ps(f.m_v);
 #else
