@@ -61,6 +61,18 @@ Texture3D Lut1Texture;
 Texture3D Lut2Texture;
 #endif
 
+#if LUT_MODE != LUT_MODE_NONE
+// Maps a color in the 0-1 range onto the texel centers of the LUT, so that 0 and 1 hit the
+// first and last entry exactly, instead of being off by half a texel.
+float3 GetLutCoordinates(Texture3D lut, float3 color)
+{
+  uint width, height, depth;
+  lut.GetDimensions(width, height, depth);
+  float3 size = float3(width, height, depth);
+  return color * ((size - 1.0) / size) + 0.5 / size;
+}
+#endif
+
 float3 ScreenSpaceDither( float2 texCoords )
 {
   float t = frac( GlobalTime );
@@ -95,11 +107,11 @@ float4 main(PS_IN Input) : SV_Target
   // Color grading with LUTs if enabled
   #if LUT_MODE != LUT_MODE_NONE
 
-    color = lerp(color, Lut1Texture.Sample(LinearClampSampler, color), Lut1Strength);
+    color = lerp(color, Lut1Texture.Sample(LinearClampSampler, GetLutCoordinates(Lut1Texture, color)).rgb, Lut1Strength);
 
     #if LUT_MODE == LUT_MODE_TWO
 
-      color = lerp(color, Lut2Texture.Sample(LinearClampSampler, color), Lut2Strength);
+      color = lerp(color, Lut2Texture.Sample(LinearClampSampler, GetLutCoordinates(Lut2Texture, color)).rgb, Lut2Strength);
 
     #endif
 

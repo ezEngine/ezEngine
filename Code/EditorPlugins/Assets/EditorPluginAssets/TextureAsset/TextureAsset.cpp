@@ -3,6 +3,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetManager.h>
+#include <EditorPluginAssets/TextureAsset/TextureAssetUtils.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
 // clang-format off
@@ -34,114 +35,6 @@ ezTextureAssetDocument::ezTextureAssetDocument(ezStringView sDocumentPath)
 {
 }
 
-static const char* ToWrapMode(ezImageAddressMode::Enum mode)
-{
-  switch (mode)
-  {
-    case ezImageAddressMode::Repeat:
-      return "Repeat";
-    case ezImageAddressMode::Clamp:
-      return "Clamp";
-    case ezImageAddressMode::ClampBorder:
-      return "ClampBorder";
-    case ezImageAddressMode::Mirror:
-      return "Mirror";
-    default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-      return "";
-  }
-}
-
-const char* ToFilterMode(ezTextureFilterSetting::Enum mode)
-{
-  switch (mode)
-  {
-    case ezTextureFilterSetting::FixedNearest:
-      return "Nearest";
-    case ezTextureFilterSetting::FixedBilinear:
-      return "Bilinear";
-    case ezTextureFilterSetting::FixedTrilinear:
-      return "Trilinear";
-    case ezTextureFilterSetting::FixedAnisotropic2x:
-      return "Aniso2x";
-    case ezTextureFilterSetting::FixedAnisotropic4x:
-      return "Aniso4x";
-    case ezTextureFilterSetting::FixedAnisotropic8x:
-      return "Aniso8x";
-    case ezTextureFilterSetting::FixedAnisotropic16x:
-      return "Aniso16x";
-    case ezTextureFilterSetting::LowestQuality:
-      return "Lowest";
-    case ezTextureFilterSetting::LowQuality:
-      return "Low";
-    case ezTextureFilterSetting::DefaultQuality:
-      return "Default";
-    case ezTextureFilterSetting::HighQuality:
-      return "High";
-    case ezTextureFilterSetting::HighestQuality:
-      return "Highest";
-  }
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return "";
-}
-
-const char* ToUsageMode(ezTexConvUsage::Enum mode)
-{
-  switch (mode)
-  {
-    case ezTexConvUsage::Auto:
-      return "Auto";
-    case ezTexConvUsage::Color:
-      return "Color";
-    case ezTexConvUsage::Linear:
-      return "Linear";
-    case ezTexConvUsage::Hdr:
-      return "Hdr";
-    case ezTexConvUsage::NormalMap:
-      return "NormalMap";
-    case ezTexConvUsage::NormalMap_Inverted:
-      return "NormalMap_Inverted";
-    case ezTexConvUsage::BumpMap:
-      return "BumpMap";
-  }
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return "";
-}
-
-const char* ToMipmapMode(ezTexConvMipmapMode::Enum mode)
-{
-  switch (mode)
-  {
-    case ezTexConvMipmapMode::None:
-      return "None";
-    case ezTexConvMipmapMode::Linear:
-      return "Linear";
-    case ezTexConvMipmapMode::Kaiser:
-      return "Kaiser";
-  }
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return "";
-}
-
-const char* ToCompressionMode(ezTexConvCompressionMode::Enum mode)
-{
-  switch (mode)
-  {
-    case ezTexConvCompressionMode::None:
-      return "None";
-    case ezTexConvCompressionMode::Medium:
-      return "Medium";
-    case ezTexConvCompressionMode::High:
-      return "High";
-  }
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return "";
-}
-
 ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail, const ezTextureAssetProfileConfig* pAssetConfig)
 {
   const ezTextureAssetProperties* pProp = GetProperties();
@@ -149,51 +42,20 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   QStringList arguments;
   ezStringBuilder temp;
 
-  // Asset Version
-  {
-    arguments << "-assetVersion";
-    arguments << ezConversionUtils::ToString(AssetHeader.GetFileVersion(), temp).GetData();
-  }
-
-  // Asset Hash
-  {
-    const ezUInt64 uiHash64 = AssetHeader.GetFileHash();
-    const ezUInt32 uiHashLow32 = uiHash64 & 0xFFFFFFFF;
-    const ezUInt32 uiHashHigh32 = (uiHash64 >> 32) & 0xFFFFFFFF;
-
-    temp.SetFormat("{0}", ezArgU(uiHashLow32, 8, true, 16, true));
-    arguments << "-assetHashLow";
-    arguments << temp.GetData();
-
-    temp.SetFormat("{0}", ezArgU(uiHashHigh32, 8, true, 16, true));
-    arguments << "-assetHashHigh";
-    arguments << temp.GetData();
-  }
-
-
-  arguments << "-out";
-  arguments << szTargetFile;
-
-  // TexConv writes this itself, because only it knows the resolution and format it chose.
-  {
-    const ezStringBuilder sInfoFile = ezAssetInfoFile::GetInfoFilePathForOutput(szTargetFile);
-    arguments << "-assetInfoOut";
-    arguments << sInfoFile.GetData();
-  }
-
   const ezStringBuilder sThumbnail = GetThumbnailFilePath();
-  if (bUpdateThumbnail)
-  {
-    // Thumbnail
-    const ezStringBuilder sDir = sThumbnail.GetFileDirectory();
-    ezOSFile::CreateDirectoryStructure(sDir).IgnoreResult();
 
-    arguments << "-thumbnailRes";
-    arguments << "256";
-    arguments << "-thumbnailOut";
+  ezTexConvCommonSettings commonSettings;
+  commonSettings.m_MipmapMode = pProp->m_MipmapMode;
+  commonSettings.m_CompressionMode = pProp->m_CompressionMode;
+  commonSettings.m_TextureUsage = pProp->m_TextureUsage;
+  commonSettings.m_fHdrExposureBias = pProp->m_fHdrExposureBias;
+  commonSettings.m_uiMaxResolution = pAssetConfig->m_uiMaxResolution;
+  commonSettings.m_AddressModeU = pProp->m_AddressModeU;
+  commonSettings.m_AddressModeV = pProp->m_AddressModeV;
+  commonSettings.m_AddressModeW = pProp->m_AddressModeW;
+  commonSettings.m_TextureFilter = pProp->m_TextureFilter;
 
-    arguments << QString::fromUtf8(sThumbnail.GetData());
-  }
+  AppendCommonTexConvArguments(arguments, temp, AssetHeader, szTargetFile, sThumbnail, bUpdateThumbnail, commonSettings);
 
   // low resolution data
   {
@@ -208,15 +70,6 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
     arguments << QString::fromUtf8(lowResPath.GetData());
   }
-
-  arguments << "-mipmaps";
-  arguments << ToMipmapMode(pProp->m_MipmapMode);
-
-  arguments << "-compression";
-  arguments << ToCompressionMode(pProp->m_CompressionMode);
-
-  arguments << "-usage";
-  arguments << ToUsageMode(pProp->m_TextureUsage);
 
   if (pProp->m_bPremultipliedAlpha)
     arguments << "-premulalpha";
@@ -237,20 +90,6 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
     temp.SetFormat("{0}", ezArgF(pProp->m_fAlphaThreshold, 2));
     arguments << temp.GetData();
   }
-
-  if (pProp->m_TextureUsage == ezTexConvUsage::Hdr)
-  {
-    arguments << "-hdrExposure";
-    temp.SetFormat("{0}", ezArgF(pProp->m_fHdrExposureBias, 2));
-    arguments << temp.GetData();
-  }
-
-  arguments << "-maxRes" << QString::number(pAssetConfig->m_uiMaxResolution);
-
-  arguments << "-addressU" << ToWrapMode(pProp->m_AddressModeU);
-  arguments << "-addressV" << ToWrapMode(pProp->m_AddressModeV);
-  arguments << "-addressW" << ToWrapMode(pProp->m_AddressModeW);
-  arguments << "-filter" << ToFilterMode(pProp->m_TextureFilter);
 
   if (pProp->m_bIsArrayTexture)
   {
