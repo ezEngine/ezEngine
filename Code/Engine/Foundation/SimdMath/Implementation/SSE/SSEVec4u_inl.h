@@ -43,6 +43,55 @@ EZ_ALWAYS_INLINE void ezSimdVec4u::SetZero()
   m_v = _mm_setzero_si128();
 }
 
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Load<1>(const ezUInt32* pUInts)
+{
+  m_v = _mm_loadu_si32(pUInts);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Load<2>(const ezUInt32* pUInts)
+{
+  m_v = _mm_loadu_si64(pUInts);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Load<3>(const ezUInt32* pUInts)
+{
+  m_v = _mm_setr_epi32(pUInts[0], pUInts[1], pUInts[2], 0);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Load<4>(const ezUInt32* pUInts)
+{
+  m_v = _mm_loadu_si128(reinterpret_cast<const __m128i*>(pUInts));
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Store<1>(ezUInt32* pUInts) const
+{
+  _mm_storeu_si32(pUInts, m_v);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Store<2>(ezUInt32* pUInts) const
+{
+  _mm_storeu_si64(pUInts, m_v);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Store<3>(ezUInt32* pUInts) const
+{
+  _mm_storeu_si64(pUInts, m_v);
+  _mm_storeu_si32(pUInts + 2, _mm_castps_si128(_mm_movehl_ps(_mm_castsi128_ps(m_v), _mm_castsi128_ps(m_v))));
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Store<4>(ezUInt32* pUInts) const
+{
+  _mm_storeu_si128(reinterpret_cast<__m128i*>(pUInts), m_v);
+}
+
 // needs to be implemented here because of include dependencies
 EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(const ezSimdVec4u& u)
   : m_v(u.m_v)
@@ -121,6 +170,12 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Get() const
   return _mm_shuffle_epi32(m_v, EZ_TO_SHUFFLE(s));
 }
 
+template <ezSwizzle::Enum s>
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::GetCombined(const ezSimdVec4u& other) const
+{
+  return _mm_castps_si128(_mm_shuffle_ps(_mm_castsi128_ps(m_v), _mm_castsi128_ps(other.m_v), EZ_TO_SHUFFLE(s)));
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator+(const ezSimdVec4u& v) const
 {
   return _mm_add_epi32(m_v, v.m_v);
@@ -143,9 +198,36 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::CompMul(const ezSimdVec4u& v) const
 #endif
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::CompDiv(const ezSimdVec4u& v) const
+{
+  ezUInt32 a[4];
+  ezUInt32 b[4];
+  Store<4>(a);
+  v.Store<4>(b);
+
+  for (ezUInt32 i = 0; i < 4; ++i)
+  {
+    a[i] = a[i] / b[i];
+  }
+
+  ezSimdVec4u r;
+  r.Load<4>(a);
+  return r;
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator|(const ezSimdVec4u& v) const
 {
   return _mm_or_si128(m_v, v.m_v);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::SubtractSaturated16(const ezSimdVec4u& v) const
+{
+  return _mm_subs_epu16(m_v, v.m_v);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::TransposeBytes() const
+{
+  return ezSimdVec4u(ezSimdVec4i(*this).TransposeBytes());
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator&(const ezSimdVec4u& v) const
@@ -172,6 +254,39 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator<<(ezUInt32 uiShift) const
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator>>(ezUInt32 uiShift) const
 {
   return _mm_srli_epi32(m_v, uiShift);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator<<(const ezSimdVec4u& vShift) const
+{
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX2
+  return _mm_sllv_epi32(m_v, vShift.m_v);
+#else
+  // SSE2/SSE4.1 provide only one scalar 32-bit shift count per instruction.
+  // Isolate each lane's count, shift the complete vector once, then extract that lane's result.
+  // The final unpack operations place X/Y/Z/W into separate 32-bit lanes.
+  const __m128i vCountMask = _mm_setr_epi32(~0, 0, 0, 0);
+  const __m128i vX = _mm_sll_epi32(m_v, _mm_and_si128(vShift.m_v, vCountMask));
+  const __m128i vY = _mm_srli_si128(_mm_sll_epi32(m_v, _mm_and_si128(_mm_srli_si128(vShift.m_v, 4), vCountMask)), 4);
+  const __m128i vZ = _mm_srli_si128(_mm_sll_epi32(m_v, _mm_and_si128(_mm_srli_si128(vShift.m_v, 8), vCountMask)), 8);
+  const __m128i vW = _mm_srli_si128(_mm_sll_epi32(m_v, _mm_srli_si128(vShift.m_v, 12)), 12);
+  return _mm_unpacklo_epi64(_mm_unpacklo_epi32(vX, vY), _mm_unpacklo_epi32(vZ, vW));
+#endif
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator>>(const ezSimdVec4u& vShift) const
+{
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX2
+  return _mm_srlv_epi32(m_v, vShift.m_v);
+#else
+  // SSE2/SSE4.1 provide only one scalar 32-bit shift count per instruction.
+  // Isolate each lane's count, logically shift the complete vector once, then extract and pack the lanes.
+  const __m128i vCountMask = _mm_setr_epi32(~0, 0, 0, 0);
+  const __m128i vX = _mm_srl_epi32(m_v, _mm_and_si128(vShift.m_v, vCountMask));
+  const __m128i vY = _mm_srli_si128(_mm_srl_epi32(m_v, _mm_and_si128(_mm_srli_si128(vShift.m_v, 4), vCountMask)), 4);
+  const __m128i vZ = _mm_srli_si128(_mm_srl_epi32(m_v, _mm_and_si128(_mm_srli_si128(vShift.m_v, 8), vCountMask)), 8);
+  const __m128i vW = _mm_srli_si128(_mm_srl_epi32(m_v, _mm_srli_si128(vShift.m_v, 12)), 12);
+  return _mm_unpacklo_epi64(_mm_unpacklo_epi32(vX, vY), _mm_unpacklo_epi32(vZ, vW));
+#endif
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator+=(const ezSimdVec4u& v)
@@ -280,6 +395,21 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator>(const ezSimdVec4u& v) const
   __m128i a = _mm_sub_epi32(m_v, signBit);
   __m128i b = _mm_sub_epi32(v.m_v, signBit);
   return _mm_castsi128_ps(_mm_cmpgt_epi32(a, b));
+}
+
+// static
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Select(const ezSimdVec4b& vCmp, const ezSimdVec4u& vTrue, const ezSimdVec4u& vFalse)
+{
+#if EZ_SSE_LEVEL >= EZ_SSE_41
+  return _mm_castps_si128(_mm_blendv_ps(_mm_castsi128_ps(vFalse.m_v), _mm_castsi128_ps(vTrue.m_v), vCmp.m_v));
+#else
+  return _mm_castps_si128(_mm_or_ps(_mm_andnot_ps(vCmp.m_v, _mm_castsi128_ps(vFalse.m_v)), _mm_and_ps(vCmp.m_v, _mm_castsi128_ps(vTrue.m_v))));
+#endif
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4u::ReinterpretAsFloat() const
+{
+  return _mm_castsi128_ps(m_v);
 }
 
 // static

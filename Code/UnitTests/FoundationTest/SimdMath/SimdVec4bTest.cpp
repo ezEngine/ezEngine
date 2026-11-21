@@ -44,6 +44,17 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4b)
       vCopy.GetComponent<0>() == false && vCopy.GetComponent<1>() == true && vCopy.GetComponent<2>() == false && vCopy.GetComponent<3>() == true);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetMoveMask")
+  {
+    EZ_TEST_INT(ezSimdVec4b(false).GetMoveMask(), 0);
+    EZ_TEST_INT(ezSimdVec4b(true).GetMoveMask(), 15);
+    for (ezUInt32 uiMask = 0; uiMask < 16; ++uiMask)
+    {
+      const ezSimdVec4b vMask((uiMask & EZ_BIT(0)) != 0, (uiMask & EZ_BIT(1)) != 0, (uiMask & EZ_BIT(2)) != 0, (uiMask & EZ_BIT(3)) != 0);
+      EZ_TEST_INT(vMask.GetMoveMask(), uiMask);
+    }
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swizzle")
   {
     ezSimdVec4b a(true, false, true, false);

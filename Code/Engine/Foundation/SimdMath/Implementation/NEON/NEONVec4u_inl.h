@@ -45,6 +45,55 @@ EZ_ALWAYS_INLINE void ezSimdVec4u::SetZero()
   m_v = vmovq_n_u32(0);
 }
 
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Load<1>(const ezUInt32* pUInts)
+{
+  m_v = vld1q_lane_u32(pUInts, vmovq_n_u32(0), 0);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Load<2>(const ezUInt32* pUInts)
+{
+  m_v = vreinterpretq_u32_u64(vld1q_lane_u64(reinterpret_cast<const uint64_t*>(pUInts), vmovq_n_u64(0), 0));
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Load<3>(const ezUInt32* pUInts)
+{
+  m_v = vcombine_u32(vld1_u32(pUInts), vld1_lane_u32(pUInts + 2, vmov_n_u32(0), 0));
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Load<4>(const ezUInt32* pUInts)
+{
+  m_v = vld1q_u32(pUInts);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Store<1>(ezUInt32* pUInts) const
+{
+  vst1q_lane_u32(pUInts, m_v, 0);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Store<2>(ezUInt32* pUInts) const
+{
+  vst1q_lane_u64(reinterpret_cast<uint64_t*>(pUInts), vreinterpretq_u64_u32(m_v), 0);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Store<3>(ezUInt32* pUInts) const
+{
+  vst1q_lane_u64(reinterpret_cast<uint64_t*>(pUInts), vreinterpretq_u64_u32(m_v), 0);
+  vst1q_lane_u32(pUInts + 2, m_v, 2);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4u::Store<4>(ezUInt32* pUInts) const
+{
+  vst1q_u32(pUInts, m_v);
+}
+
 // needs to be implemented here because of include dependencies
 EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(const ezSimdVec4u& u)
   : m_v(u.m_v)
@@ -99,6 +148,12 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Get() const
   return __builtin_shufflevector(m_v, m_v, EZ_TO_SHUFFLE(s));
 }
 
+template <ezSwizzle::Enum s>
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::GetCombined(const ezSimdVec4u& other) const
+{
+  return __builtin_shufflevector(m_v, other.m_v, EZ_TO_SHUFFLE(s));
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator+(const ezSimdVec4u& v) const
 {
   return vaddq_u32(m_v, v.m_v);
@@ -114,9 +169,36 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::CompMul(const ezSimdVec4u& v) const
   return vmulq_u32(m_v, v.m_v);
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::CompDiv(const ezSimdVec4u& v) const
+{
+  ezUInt32 a[4];
+  ezUInt32 b[4];
+  Store<4>(a);
+  v.Store<4>(b);
+
+  for (ezUInt32 i = 0; i < 4; ++i)
+  {
+    a[i] = a[i] / b[i];
+  }
+
+  ezSimdVec4u r;
+  r.Load<4>(a);
+  return r;
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator|(const ezSimdVec4u& v) const
 {
   return vorrq_u32(m_v, v.m_v);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::SubtractSaturated16(const ezSimdVec4u& v) const
+{
+  return vreinterpretq_u32_u16(vqsubq_u16(vreinterpretq_u16_u32(m_v), vreinterpretq_u16_u32(v.m_v)));
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::TransposeBytes() const
+{
+  return ezSimdVec4u(ezSimdVec4i(*this).TransposeBytes());
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator&(const ezSimdVec4u& v) const
@@ -142,6 +224,18 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator<<(ezUInt32 uiShift) const
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator>>(ezUInt32 uiShift) const
 {
   return vshlq_u32(m_v, vmovq_n_u32(-uiShift));
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator<<(const ezSimdVec4u& vShift) const
+{
+  // NEON uses signed 8-bit shift counts, so clamp before reinterpreting.
+  return vshlq_u32(m_v, vreinterpretq_s32_u32(vminq_u32(vShift.m_v, vdupq_n_u32(32))));
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator>>(const ezSimdVec4u& vShift) const
+{
+  const int32x4_t vCounts = vreinterpretq_s32_u32(vminq_u32(vShift.m_v, vdupq_n_u32(32)));
+  return vshlq_u32(m_v, vnegq_s32(vCounts));
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator+=(const ezSimdVec4u& v)
@@ -224,6 +318,17 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator>=(const ezSimdVec4u& v) const
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator>(const ezSimdVec4u& v) const
 {
   return vcgtq_u32(m_v, v.m_v);
+}
+
+// static
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Select(const ezSimdVec4b& vCmp, const ezSimdVec4u& vTrue, const ezSimdVec4u& vFalse)
+{
+  return vbslq_u32(vCmp.m_v, vTrue.m_v, vFalse.m_v);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4u::ReinterpretAsFloat() const
+{
+  return vreinterpretq_f32_u32(m_v);
 }
 
 // static
