@@ -2,7 +2,11 @@
 
 struct STAGE_TEMPLATE
 {
+#if defined(PIXEL_SHADER) && defined(USE_SHADER_WRITE_DEPTH)
+  centroid float4 Position : SV_Position;
+#else
   float4 Position : SV_Position;
+#endif
 
 #if defined(USE_WORLDPOS)
   float3 WorldPosition : WORLDPOS;
