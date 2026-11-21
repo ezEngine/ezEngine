@@ -62,7 +62,6 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("Decal", ezGetStaticRTTI<ezDecalResource>());
   ezResourceManager::RegisterResourceForAssetType("Decal Atlas", ezGetStaticRTTI<ezDecalAtlasResource>());
   ezResourceManager::RegisterResourceForAssetType("Image Data", ezGetStaticRTTI<ezImageDataResource>());
-  ezResourceManager::RegisterResourceForAssetType("LUT", ezGetStaticRTTI<ezTexture3DResource>());
   ezResourceManager::RegisterResourceForAssetType("Material", ezGetStaticRTTI<ezMaterialResource>());
   ezResourceManager::RegisterResourceForAssetType("Mesh", ezGetStaticRTTI<ezMeshResource>());
   ezResourceManager::RegisterResourceForAssetType("Prefab", ezGetStaticRTTI<ezPrefabResource>());
@@ -75,6 +74,7 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("Substance Texture", ezGetStaticRTTI<ezTexture2DResource>());
   ezResourceManager::RegisterResourceForAssetType("Surface", ezGetStaticRTTI<ezSurfaceResource>());
   ezResourceManager::RegisterResourceForAssetType("Texture 2D", ezGetStaticRTTI<ezTexture2DResource>());
+  ezResourceManager::RegisterResourceForAssetType("Texture 3D", ezGetStaticRTTI<ezTexture3DResource>());
   ezResourceManager::RegisterResourceForAssetType("Texture Cube", ezGetStaticRTTI<ezTextureCubeResource>());
 }
 
@@ -133,6 +133,38 @@ void ezGameApplication::Init_SetupDefaultResources()
 
     ezResourceManager::SetResourceTypeLoadingFallback<ezTextureCubeResource>(hFallbackTexture);
     ezResourceManager::SetResourceTypeMissingFallback<ezTextureCubeResource>(hMissingTexture);
+  }
+
+  // 3D Textures
+  {
+    // Identity color lookup table (RGB = texel coordinate), used whenever a 3D texture resource is missing or still loading.
+    // 3D textures are mostly used as color grading LUTs, where this fallback leaves the image unchanged,
+    // instead of tinting the entire screen like a 'missing' checkerboard would.
+    ezUInt8 uiMissingTextureData[2 * 2 * 2 * 4] = {
+      0, 0, 0, 255, 255, 0, 0, 255,         //
+      0, 255, 0, 255, 255, 255, 0, 255,     //
+
+      0, 0, 255, 255, 255, 0, 255, 255,     //
+      0, 255, 255, 255, 255, 255, 255, 255, //
+    };
+
+    ezGALSystemMemoryDescription memDesc;
+    memDesc.m_pData = ezMakeByteBlobPtr(uiMissingTextureData, sizeof(uiMissingTextureData));
+    memDesc.m_uiRowPitch = 2 * 4;
+    memDesc.m_uiSlicePitch = 2 * 2 * 4;
+
+    ezTexture3DResourceDescriptor desc;
+    desc.m_DescGAL.m_uiWidth = 2;
+    desc.m_DescGAL.m_uiHeight = 2;
+    desc.m_DescGAL.m_uiDepth = 2;
+    desc.m_DescGAL.m_Type = ezGALTextureType::Texture3D;
+    desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+    desc.m_InitialContent = ezMakeArrayPtr(&memDesc, 1);
+
+    ezTexture3DResourceHandle hMissingTexture = ezResourceManager::CreateResource<ezTexture3DResource>("Texture3D_Missing", std::move(desc), "Texture3D_Missing");
+
+    ezResourceManager::SetResourceTypeLoadingFallback<ezTexture3DResource>(hMissingTexture);
+    ezResourceManager::SetResourceTypeMissingFallback<ezTexture3DResource>(hMissingTexture);
   }
 
   // Materials

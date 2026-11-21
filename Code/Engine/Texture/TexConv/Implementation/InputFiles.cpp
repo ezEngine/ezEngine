@@ -128,8 +128,10 @@ ezResult ezTexConvProcessor::ConvertAndScaleImage(ezStringView sImageName, ezIma
   }
 
   // some scale operations fail when they are done in place, so use a scratch image as destination for now
+  // ezImageUtils::Scale() always targets a depth of 1, which would silently flatten an already-3D (volume) input,
+  // so for those we go through Scale3D() directly and keep the original depth.
   ezImage scratch;
-  if (ezImageUtils::Scale(inout_Image, scratch, uiResolutionX, uiResolutionY, nullptr, ezImageAddressMode::Clamp, ezImageAddressMode::Clamp).Failed())
+  if (ezImageUtils::Scale3D(inout_Image, scratch, uiResolutionX, uiResolutionY, inout_Image.GetDepth(), nullptr, ezImageAddressMode::Clamp, ezImageAddressMode::Clamp, ezImageAddressMode::Clamp).Failed())
   {
     ezLog::Error("Could not resize '{}' to {}x{}", sImageName, uiResolutionX, uiResolutionY);
     return EZ_FAILURE;
