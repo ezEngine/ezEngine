@@ -1,0 +1,25 @@
+string %Shader { "Shaders/Editor/Texture3DPreviewSlice.ezShader" }
+
+Permutation
+{
+  string %Variable { "TWO_SIDED" }
+  string %Value { "TRUE" }
+}
+
+Permutation
+{
+  string %Variable { "SHADING_MODE" }
+  string %Value { "SHADING_MODE_FULLBRIGHT" }
+}
+
+Permutation
+{
+  string %Variable { "BLEND_MODE" }
+  string %Value { "BLEND_MODE_OPAQUE" }
+}
+
+Constant
+{
+  string %Variable { "SliceCoordinate" }
+  float %Value { 0.5 }
+}

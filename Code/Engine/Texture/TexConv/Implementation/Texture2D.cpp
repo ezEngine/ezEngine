@@ -126,6 +126,19 @@ ezResult ezTexConvProcessor::DetermineTargetResolution(const ezImage& image, ezE
   out_uiTargetResolutionX = uiOrgResX;
   out_uiTargetResolutionY = uiOrgResY;
 
+  if (image.GetDepth() > 1)
+  {
+    // A genuine volume input (e.g. a 3D DDS or a CUBE LUT). The input is only scaled in X and Y (see ConvertAndScaleImage()),
+    // so applying the min / max resolution and downscale steps would distort it. LUTs also typically are smaller than the min resolution
+    // and must not be resampled at all. Therefore the original resolution is kept.
+    if (uiOrgResX > m_Descriptor.m_uiMaxResolution || uiOrgResY > m_Descriptor.m_uiMaxResolution || m_Descriptor.m_uiDownscaleSteps > 0)
+    {
+      ezLog::Warning("Max resolution and downscale steps are not applied to volume textures, keeping the resolution of {}x{}x{}.", uiOrgResX, uiOrgResY, image.GetDepth());
+    }
+
+    return EZ_SUCCESS;
+  }
+
   out_uiTargetResolutionX /= (1 << m_Descriptor.m_uiDownscaleSteps);
   out_uiTargetResolutionY /= (1 << m_Descriptor.m_uiDownscaleSteps);
 
@@ -144,7 +157,10 @@ ezResult ezTexConvProcessor::DetermineTargetResolution(const ezImage& image, ezE
 
   if (m_Descriptor.m_OutputType == ezTexConvOutputType::Volume)
   {
-    ezUInt32 uiScaleFactor = uiOrgResY / out_uiTargetResolutionY;
+    // slices stored side by side in a 2D image, the depth is uiOrgResX / uiOrgResY
+    // the factor is 0 when the min resolution would upscale the image, which then keeps its resolution
+    const ezUInt32 uiScaleFactor = ezMath::Max(1u, uiOrgResY / ezMath::Max(1u, out_uiTargetResolutionY));
+    out_uiTargetResolutionY = uiOrgResY / uiScaleFactor;
     out_uiTargetResolutionX = uiOrgResX / uiScaleFactor;
   }
 

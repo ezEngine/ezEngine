@@ -19,13 +19,13 @@
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
 #include <EditorPluginAssets/Dialogs/ShaderTemplateDlg.moc.h>
-#include <EditorPluginAssets/LUTAsset/LUTAssetObjects.h>
-#include <EditorPluginAssets/LUTAsset/LUTAssetWindow.moc.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonActions.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
+#include <EditorPluginAssets/Texture3DAsset/Texture3DAssetObjects.h>
+#include <EditorPluginAssets/Texture3DAsset/Texture3DAssetWindow.moc.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
@@ -85,20 +85,19 @@ static void ConfigureTextureCubeAsset()
   }
 }
 
-static void ConfigureLUTAsset()
+static void ConfigureTexture3DAsset()
 {
-  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezLUTAssetProperties::PropertyMetaStateEventHandler);
-
-  ezLUTAssetActions::RegisterActions();
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezTexture3DAssetProperties::PropertyMetaStateEventHandler);
 
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("LUTAssetMenuBar", "AssetMenuBar");
+    ezActionMapManager::RegisterActionMap("Texture3DAssetMenuBar", "AssetMenuBar");
   }
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("LUTAssetToolBar", "AssetToolbar");
+    ezActionMapManager::RegisterActionMap("Texture3DAssetToolBar", "AssetToolbar");
+    ezTexture3DAssetActions::MapToolbarActions("Texture3DAssetToolBar");
   }
 }
 
@@ -438,7 +437,10 @@ void OnLoadPlugin()
   ConfigureAnimationGraphAsset();
   ConfigureTexture2DAsset();
   ConfigureTextureCubeAsset();
-  ConfigureLUTAsset();
+
+  // ConfigureTexture3DAsset() maps the ezTexture3DAssetActions, so they must be registered first.
+  ezTexture3DAssetActions::RegisterActions();
+  ConfigureTexture3DAsset();
   ConfigureMaterialAsset();
   ConfigureRenderPipelineAsset();
   ConfigureMeshAsset();
@@ -474,12 +476,13 @@ void OnUnloadPlugin()
 {
   ezMeshLodActions::UnregisterActions();
   ezTextureAssetActions::UnregisterActions();
-  ezLUTAssetActions::UnregisterActions();
+  ezTexture3DAssetActions::UnregisterActions();
   ezVisualShaderActions::UnregisterActions();
   ezMaterialAssetActions::UnregisterActions();
   ezSkeletonActions::UnregisterActions();
   ezAnimationClipActions::UnregisterActions();
 
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezTexture3DAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezAnimatedMeshAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMeshAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezTextureAssetProperties::PropertyMetaStateEventHandler);
