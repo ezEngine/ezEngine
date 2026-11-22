@@ -112,12 +112,12 @@ const char* ToCompressionMode(ezTexConvCompressionMode::Enum mode)
   return "";
 }
 
-void AppendCommonTexConvArguments(QStringList& inout_arguments, ezStringBuilder& ref_temp, const ezAssetFileHeader& assetHeader, const char* szTargetFile, ezStringView sThumbnailFile, bool bUpdateThumbnail, const ezTexConvCommonSettings& settings)
+void AppendCommonTexConvArguments(QStringList& inout_arguments, ezStringBuilder& ref_sTemp, const ezAssetFileHeader& assetHeader, const char* szTargetFile, ezStringView sThumbnailFile, bool bUpdateThumbnail, const ezTexConvCommonSettings& settings)
 {
   // Asset Version
   {
     inout_arguments << "-assetVersion";
-    inout_arguments << ezConversionUtils::ToString(assetHeader.GetFileVersion(), ref_temp).GetData();
+    inout_arguments << ezConversionUtils::ToString(assetHeader.GetFileVersion(), ref_sTemp).GetData();
   }
 
   // Asset Hash
@@ -126,13 +126,13 @@ void AppendCommonTexConvArguments(QStringList& inout_arguments, ezStringBuilder&
     const ezUInt32 uiHashLow32 = uiHash64 & 0xFFFFFFFF;
     const ezUInt32 uiHashHigh32 = (uiHash64 >> 32) & 0xFFFFFFFF;
 
-    ref_temp.SetFormat("{0}", ezArgU(uiHashLow32, 8, true, 16, true));
+    ref_sTemp.SetFormat("{0}", ezArgU(uiHashLow32, 8, true, 16, true));
     inout_arguments << "-assetHashLow";
-    inout_arguments << ref_temp.GetData();
+    inout_arguments << ref_sTemp.GetData();
 
-    ref_temp.SetFormat("{0}", ezArgU(uiHashHigh32, 8, true, 16, true));
+    ref_sTemp.SetFormat("{0}", ezArgU(uiHashHigh32, 8, true, 16, true));
     inout_arguments << "-assetHashHigh";
-    inout_arguments << ref_temp.GetData();
+    inout_arguments << ref_sTemp.GetData();
   }
 
   inout_arguments << "-out";
@@ -169,8 +169,8 @@ void AppendCommonTexConvArguments(QStringList& inout_arguments, ezStringBuilder&
   if (settings.m_TextureUsage == ezTexConvUsage::Hdr)
   {
     inout_arguments << "-hdrExposure";
-    ref_temp.SetFormat("{0}", ezArgF(settings.m_fHdrExposureBias, 2));
-    inout_arguments << ref_temp.GetData();
+    ref_sTemp.SetFormat("{0}", ezArgF(settings.m_fHdrExposureBias, 2));
+    inout_arguments << ref_sTemp.GetData();
   }
 
   inout_arguments << "-maxRes" << QString::number(settings.m_uiMaxResolution);

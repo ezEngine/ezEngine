@@ -1219,6 +1219,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
       for (auto pProp : Textures3D)
       {
         const char* szName = pProp->GetPropertyName();
+        EZ_ASSERT_DEBUG(pObject != nullptr, "Need object to write out texture 3d");
         sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
 
         stream << szName;

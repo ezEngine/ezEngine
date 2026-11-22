@@ -38,4 +38,4 @@ struct ezTexConvCommonSettings
 /// HDR exposure bias, max resolution, address modes and texture filtering.
 /// The caller has to append the type specific arguments (-type, input files, channel mapping) itself.
 /// The thumbnail directory is created when bUpdateThumbnail is set.
-void AppendCommonTexConvArguments(QStringList& inout_arguments, ezStringBuilder& ref_temp, const ezAssetFileHeader& assetHeader, const char* szTargetFile, ezStringView sThumbnailFile, bool bUpdateThumbnail, const ezTexConvCommonSettings& settings);
+void AppendCommonTexConvArguments(QStringList& inout_arguments, ezStringBuilder& ref_sTemp, const ezAssetFileHeader& assetHeader, const char* szTargetFile, ezStringView sThumbnailFile, bool bUpdateThumbnail, const ezTexConvCommonSettings& settings);
