@@ -157,9 +157,21 @@ void ezQtContainerWindow::closeEvent(QCloseEvent* e)
   // do not close the documents in the main container window here,
   // as that would remove them from the recently-open documents list and not restore them when opening the editor again
   ezDynamicArray<ezQtDocumentWindow*> windows = m_DocumentWindows;
-  for (ezQtDocumentWindow* pWindow : windows)
+  for (ezQtDocumentWindow*& pWindow : windows)
   {
-    pWindow->ShutdownDocumentWindow();
+    if (!pWindow->IsVisibleInContainer())
+    {
+      pWindow->ShutdownDocumentWindow();
+      pWindow = nullptr;
+    }
+  }
+
+  for (ezQtDocumentWindow*& pWindow : windows)
+  {
+    if (pWindow)
+    {
+      pWindow->ShutdownDocumentWindow();
+    }
   }
 
   // We need to destroy the dock manager here, doing it in the constructor leads to an access violation.
@@ -362,6 +374,7 @@ void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)
 
   iCurIdx = pDockArea->currentIndex();
 
+  ads::CDockWidget* pCurrent = pDockArea->currentDockWidget();
   m_pDockManager->removeDockWidget(dock);
 
   m_DocumentWindows.RemoveAtAndSwap(uiListIndex);
@@ -381,8 +394,15 @@ void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)
 
   if (bIsTabbed)
   {
-    iCurIdx = ezMath::Min(iCurIdx, pDockArea->openDockWidgetsCount() - 1);
-    pDockArea->setCurrentIndex(iCurIdx);
+    if (pCurrent != dock && pCurrent->dockAreaWidget() == pDockArea)
+    {
+      pDockArea->setCurrentDockWidget(pCurrent); // the visible tab stays, no other tab gets shown
+    }
+    else
+    {
+      iCurIdx = ezMath::Min(iCurIdx, pDockArea->openDockWidgetsCount() - 1);
+      pDockArea->setCurrentIndex(iCurIdx);
+    }
     pDockArea->currentDockWidget()->update();
   }
 
