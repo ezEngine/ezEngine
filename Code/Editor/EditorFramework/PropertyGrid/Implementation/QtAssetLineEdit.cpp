@@ -8,8 +8,37 @@ ezQtAssetLineEdit::ezQtAssetLineEdit(QWidget* pParent /*= nullptr*/)
 {
 }
 
+/// Returns the first asset GUID from asset browser drag data, or an empty string.
+///
+/// The asset browser also provides the file path as a URL, but for sub-assets (e.g. FMOD sound events)
+/// that path points to the main asset (the sound bank), so the GUID has to be preferred.
+static QString GetDraggedAssetGuid(const QMimeData* pMimeData)
+{
+  if (!pMimeData->hasFormat("application/ezEditor.AssetGuid"))
+    return QString();
+
+  QByteArray encodedData = pMimeData->data("application/ezEditor.AssetGuid");
+  QDataStream stream(&encodedData, QIODevice::ReadOnly);
+  QStringList guids;
+  stream >> guids;
+
+  if (guids.isEmpty())
+    return QString();
+
+  return guids[0];
+}
+
 void ezQtAssetLineEdit::dragMoveEvent(QDragMoveEvent* e)
 {
+  const QString sGuid = GetDraggedAssetGuid(e->mimeData());
+  if (!sGuid.isEmpty())
+  {
+    if (m_pOwner->IsValidAssetType(sGuid.toUtf8().data()))
+      e->acceptProposedAction();
+
+    return;
+  }
+
   if (e->mimeData()->hasUrls() && !e->mimeData()->urls().isEmpty())
   {
     QString str = e->mimeData()->urls()[0].toLocalFile();
@@ -25,6 +54,15 @@ void ezQtAssetLineEdit::dragMoveEvent(QDragMoveEvent* e)
 
 void ezQtAssetLineEdit::dragEnterEvent(QDragEnterEvent* e)
 {
+  const QString sGuid = GetDraggedAssetGuid(e->mimeData());
+  if (!sGuid.isEmpty())
+  {
+    if (m_pOwner->IsValidAssetType(sGuid.toUtf8().data()))
+      e->acceptProposedAction();
+
+    return;
+  }
+
   if (e->mimeData()->hasUrls() && !e->mimeData()->urls().isEmpty())
   {
     QString str = e->mimeData()->urls()[0].toLocalFile();
@@ -43,6 +81,13 @@ void ezQtAssetLineEdit::dropEvent(QDropEvent* e)
   if (e->source() == this)
   {
     QLineEdit::dropEvent(e);
+    return;
+  }
+
+  const QString sGuid = GetDraggedAssetGuid(e->mimeData());
+  if (!sGuid.isEmpty())
+  {
+    setText(sGuid);
     return;
   }
 
