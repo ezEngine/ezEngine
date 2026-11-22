@@ -25,7 +25,7 @@ ezMiniAudioSoundAssetDocumentManager::ezMiniAudioSoundAssetDocumentManager()
   m_DocTypeDesc.m_sResourceFileExtension = "ezBinMiniAudioSound";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound", QPixmap(":/AssetIcons/MiniAudioSound.svg"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("MiniAudioSound", QPixmap(":/AssetIcons/MiniAudioSound.svg"));
 }
 
 ezMiniAudioSoundAssetDocumentManager::~ezMiniAudioSoundAssetDocumentManager()
