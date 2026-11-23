@@ -859,8 +859,9 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     ezGameObject* pParent = nullptr;
     world.CreateObject(parentDesc, pParent);
 
+    parentDesc.m_bDynamic = false;
     ezGameObject* pStaticParent = nullptr;
-    world.CreateObject(ezGameObjectDesc(), pStaticParent);
+    world.CreateObject(parentDesc, pStaticParent);
 
     world.Update();
 

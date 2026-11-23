@@ -340,8 +340,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezGameObject::GetLocalUniformScalingSimd() const
 
 EZ_ALWAYS_INLINE ezSimdTransform ezGameObject::GetLocalTransformSimd() const
 {
-  const ezSimdVec4f vScale = m_pTransformationData->m_localScaling * m_pTransformationData->m_localScaling.w();
-  return ezSimdTransform(m_pTransformationData->m_localPosition, m_pTransformationData->m_localRotation, vScale);
+  return m_pTransformationData->GetLocalTransform();
 }
 
 
@@ -581,22 +580,24 @@ EZ_ALWAYS_INLINE void ezGameObject::SetStableRandomSeed(ezUInt32 uiSeed)
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_ALWAYS_INLINE ezSimdTransform ezGameObject::TransformationData::GetLocalTransform() const
+{
+  const ezSimdVec4f vScale = m_localScaling * m_localScaling.w();
+  return ezSimdTransform(m_localPosition, m_localRotation, vScale);
+}
+
 EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateGlobalTransformWithoutParent(ezUInt32 uiUpdateCounter)
 {
   UpdateLastGlobalTransform(uiUpdateCounter);
 
-  m_globalTransform.m_Position = m_localPosition;
-  m_globalTransform.m_Rotation = m_localRotation;
-  m_globalTransform.m_Scale = m_localScaling * m_localScaling.w();
+  m_globalTransform = GetLocalTransform();
 }
 
 EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateGlobalTransformWithParent(ezUInt32 uiUpdateCounter)
 {
   UpdateLastGlobalTransform(uiUpdateCounter);
 
-  const ezSimdVec4f vScale = m_localScaling * m_localScaling.w();
-  const ezSimdTransform localTransform(m_localPosition, m_localRotation, vScale);
-  m_globalTransform = ezSimdTransform::MakeGlobalTransform(m_pParentData->m_globalTransform, localTransform);
+  m_globalTransform = ezSimdTransform::MakeGlobalTransform(m_pParentData->m_globalTransform, GetLocalTransform());
 }
 
 EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBounds()

@@ -189,11 +189,35 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pTransformationData->m_localPosition = ezSimdConversion::ToVec3(desc.m_LocalPosition);
   pTransformationData->m_localRotation = ezSimdConversion::ToQuat(desc.m_LocalRotation);
   pTransformationData->m_localScaling = ezSimdConversion::ToVec4(desc.m_LocalScaling.GetAsVec4(desc.m_LocalUniformScaling));
-  pTransformationData->m_globalTransform = ezSimdTransform::MakeIdentity();
+
+  const ezSimdTransform localTransform = pTransformationData->GetLocalTransform();
+
+  if (pParentData != nullptr)
+  {
+    pTransformationData->m_globalTransform = ezSimdTransform::MakeGlobalTransform(pParentData->m_globalTransform, localTransform);
+  }
+  else
+  {
+    pTransformationData->m_globalTransform = localTransform;
+  }
+
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-  pTransformationData->m_lastGlobalTransform = ezSimdTransform::MakeIdentity();
-  pTransformationData->m_uiLastGlobalTransformUpdateCounter = ezInvalidIndex;
+  // A new object has not moved yet, but a child of a dynamic object moves with its parent from the start.
+  // Thus the last global transform of a child is where it was relative to the last global transform of its parent,
+  // and the child has the velocity of its parent right away, e.g. for a particle effect that is spawned on a moving object.
+  // The update counter is the one of the parent, so that the next transform update advances both of them the same way.
+  if (pParentData != nullptr && pParentObject->IsDynamic())
+  {
+    pTransformationData->m_lastGlobalTransform = ezSimdTransform::MakeGlobalTransform(pParentData->m_lastGlobalTransform, localTransform);
+    pTransformationData->m_uiLastGlobalTransformUpdateCounter = pParentData->m_uiLastGlobalTransformUpdateCounter;
+  }
+  else
+  {
+    pTransformationData->m_lastGlobalTransform = pTransformationData->m_globalTransform;
+    pTransformationData->m_uiLastGlobalTransformUpdateCounter = 0;
+  }
 #endif
+
   pTransformationData->m_localBounds = ezSimdBBoxSphere::MakeInvalid();
   pTransformationData->m_localBounds.m_BoxHalfExtents.SetW(ezSimdFloat::MakeZero());
   pTransformationData->m_globalBounds = pTransformationData->m_localBounds;
@@ -218,25 +242,6 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   {
     pTransformationData->m_uiStableRandomSeed = GetRandomNumberGenerator().UInt();
   }
-
-  pTransformationData->UpdateGlobalTransformNonRecursive(0);
-
-#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-  // A new object has not moved yet, but a child of a dynamic object moves with its parent from the start.
-  // Thus the last global transform of a child is where it was relative to the last global transform of its parent,
-  // and the child has the velocity of its parent right away, e.g. for a particle effect that is spawned on a moving object.
-  // The update counter is the one of the parent, so that the next transform update advances both of them the same way.
-  if (pParentObject != nullptr && pParentObject->IsDynamic())
-  {
-    const ezSimdTransform localTransform(pTransformationData->m_localPosition, pTransformationData->m_localRotation, pTransformationData->m_localScaling * pTransformationData->m_localScaling.w());
-    pTransformationData->m_lastGlobalTransform = ezSimdTransform::MakeGlobalTransform(pParentData->m_lastGlobalTransform, localTransform);
-    pTransformationData->m_uiLastGlobalTransformUpdateCounter = pParentData->m_uiLastGlobalTransformUpdateCounter;
-  }
-  else
-  {
-    pTransformationData->m_lastGlobalTransform = pTransformationData->m_globalTransform;
-  }
-#endif
 
   // link the transformation data to the game object
   pNewObject->m_pTransformationData = pTransformationData;
