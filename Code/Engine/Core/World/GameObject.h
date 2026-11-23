@@ -646,6 +646,8 @@ private:
     ezUInt32 m_uiPadding2[1];
 #endif
 
+    ezSimdTransform GetLocalTransform() const;
+
     /// Recomputes the local transform from this object's global transform and, if available, the parent's global transform.
     void UpdateLocalTransform();
 
