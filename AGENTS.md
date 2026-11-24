@@ -106,13 +106,14 @@ Workspace/agent-build-output/Bin/WinVs2026Debug64/FoundationTest.exe -agent -fil
 ## Code Style
 
 - Follow [CodingGuidelines.md](CodingGuidelines.md), in particular the mandatory type prefixes for member variables and function parameters (`m_uiCount`, `fScale`, `szName`, ...). Match the style of the surrounding code.
-- Format the lines you changed with the clang-format version shipped in the repository (formatting whole files would also reformat unrelated code). CI rejects unformatted changes. On Windows (the backslashes in the `-binary` path are required there):
+- Before finishing a task that changed C++ code, format it with `Utilities/ClangFormatBranch.ps1`. CI runs the same script and commits its changes, so unformatted code leads to extra commits.
 
 ```shell
-git diff -U0 --no-color HEAD -- "*.cpp" "*.h" "*.inl" | python Data/Tools/Precompiled/clang-format/clang-format-diff.py -p1 -i -style file -binary "Data\Tools\Precompiled\clang-format\clang-format.exe"
+pwsh Utilities/ClangFormatBranch.ps1          # format in place
+pwsh Utilities/ClangFormatBranch.ps1 -Check   # only report, exit code 1 if formatting is needed
 ```
 
-On Linux pass `-binary clang-format-18` (a different clang-format version formats some constructs differently).
+The script formats only the lines that changed since the merge-base with `origin/dev` (committed, uncommitted and new untracked `.cpp`/`.h`/`.inl` files), so unrelated code is not touched. It uses the clang-format 18 binary checked into the repository (Windows and Linux x64), otherwise `clang-format-18`/`clang-format` from `PATH`. Use `-BaseRef <ref>` to diff against something else. Don't format whole files with clang-format directly.
 
 ## Engine Data (Scenes, Prefabs, Assets)
 

@@ -23,22 +23,15 @@ jobs:
 
           git checkout --track "origin/${env:GITHUB_HEAD_REF}"
 
-          $baseCommit = git merge-base HEAD origin/${env:GITHUB_BASE_REF}
-
-          $codeDiff = git diff "$baseCommit..HEAD" -U0 --no-color -- "*.cpp" "*.h" "*.inl"
-
-          & chmod +x ${env:GITHUB_WORKSPACE}/Utilities/Ubuntu/clang-format
-
           echo "Running ClangFormat"
 
-          # run it once to detect whether there are any changes
-          $clangDiff = $codeDiff | python "${env:GITHUB_WORKSPACE}/Utilities/clang-format-diff.py" -style file -p1 -binary "${env:GITHUB_WORKSPACE}/Utilities/Ubuntu/clang-format" -iregex ".*\.(cpp|h|inl)"
+          # same script that is used for formatting locally
+          & "${env:GITHUB_WORKSPACE}/Utilities/ClangFormatBranch.ps1" -BaseRef "origin/${env:GITHUB_BASE_REF}"
+
+          $clangDiff = git diff --no-color
 
           if($clangDiff.Length -gt 0)
-          {        
-            # run it a second time, and let it modify the files itself, because applying the patch appears to be impossible
-            $codeDiff | python "${env:GITHUB_WORKSPACE}/Utilities/clang-format-diff.py" -style file -p1 -i -binary "${env:GITHUB_WORKSPACE}/Utilities/Ubuntu/clang-format" -iregex ".*\.(cpp|h|inl)"
-
+          {
             #Convert to linux line ending as required for a correct patch file
             $clangDiff = $clangDiff -join "`n"
 
@@ -47,9 +40,6 @@ jobs:
             [System.IO.File]::WriteAllText("${env:GITHUB_WORKSPACE}/clangFormat.patch", "$clangDiff`n", $Utf8NoBomEncoding)
             
             echo "hasPatch=true" >> $env:GITHUB_OUTPUT
-            
-            # this doesn't work
-            #git apply -p0 "${env:GITHUB_WORKSPACE}/clangFormat.patch"
 
             echo "Committing ClangFormat patch"
             git config --global user.email "ezEngineProject@gmail.com"
@@ -102,7 +92,7 @@ jobs:
         run: |
           echo "This PR comes from the forked repository '${{ github.event.pull_request.head.repo.full_name }}'"
           echo "Formatting changes can't be applied automatically."
-          echo "Please download the attached patch file and apply it manually using:"
-          echo "git apply -p0 clangFormat.patch"
-          echo "You can also run ClangFormat on the necessary files (see patch) from within Visual Studio."
+          echo "Please run 'pwsh Utilities/ClangFormatBranch.ps1' locally and commit the result."
+          echo "Alternatively download the attached patch file and apply it using:"
+          echo "git apply clangFormat.patch"
           exit 1
