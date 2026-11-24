@@ -76,9 +76,9 @@ public:
   ezEnum<ezTexConvCompressionMode> m_CompressionMode; ///< Quality vs file size trade-off
 
   // Resolution control
-  ezUInt32 m_uiMinResolution = 16;       ///< Minimum texture dimension (prevents over-downscaling)
-  ezUInt32 m_uiMaxResolution = 1024 * 8; ///< Maximum texture dimension (prevents excessive memory usage)
-  ezUInt32 m_uiDownscaleSteps = 0;       ///< Number of 2x downscaling steps to apply
+  ezUInt16 m_uiMinResolution = 16;       ///< Minimum texture dimension (prevents over-downscaling)
+  ezUInt16 m_uiMaxResolution = 1024 * 8; ///< Maximum texture dimension (prevents excessive memory usage)
+  ezUInt8 m_uiDownscaleSteps = 0;        ///< Number of 2x downscaling steps to apply
 
   // Mipmap generation
   ezEnum<ezTexConvMipmapMode> m_MipmapMode;    ///< Mipmap generation strategy

@@ -35,6 +35,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 6, ezRTTIDefaultAlloca
     EZ_MEMBER_PROPERTY("IsRenderTarget", m_bIsRenderTarget)->AddAttributes(new ezHiddenAttribute),
     EZ_ENUM_MEMBER_PROPERTY("Usage", ezTexConvUsage, m_TextureUsage),
     EZ_ENUM_MEMBER_PROPERTY("CompressionMode", ezTexConvCompressionMode, m_CompressionMode),
+    EZ_MEMBER_PROPERTY("Downscale", m_uiDownscaleSteps)->AddAttributes(new ezClampValueAttribute(0, 4)),
 
     EZ_ENUM_MEMBER_PROPERTY("Format", ezRenderTargetFormat, m_RtFormat),
     EZ_ENUM_MEMBER_PROPERTY("Resolution", ezTexture2DResolution, m_Resolution),
@@ -90,6 +91,7 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
 
       props["CVarResScale"].m_Visibility = resIsCVar ? ezPropertyUiState::Default : ezPropertyUiState::Disabled;
       props["Usage"].m_Visibility = ezPropertyUiState::Invisible;
+      props["Downscale"].m_Visibility = ezPropertyUiState::Invisible;
       props["MipmapMode"].m_Visibility = ezPropertyUiState::Invisible;
       props["CompressionMode"].m_Visibility = ezPropertyUiState::Invisible;
       props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Invisible;
