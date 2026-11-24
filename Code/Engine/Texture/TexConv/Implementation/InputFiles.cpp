@@ -1,6 +1,7 @@
 #include <Texture/TexturePCH.h>
 
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 
@@ -47,7 +48,57 @@ namespace
     inout_image.ResetAndMove(std::move(cropped));
     return EZ_SUCCESS;
   }
+
+  // Makes a small image filled with one color, for an input file such as 'White.color' or '#FF8000.color'.
+  // The file name (without the extension) is the color name, the same as for solid color texture resources.
+  // The file does not have to exist. All inputs are scaled to the target resolution later, thus the size does not matter.
+  ezResult CreateSolidColorImage(ezStringView sFile, ezImage& out_image)
+  {
+    const ezStringView sName = ezPathUtils::GetFileName(sFile);
+
+    bool bValidColor = false;
+    const ezColorGammaUB color = ezConversionUtils::GetColorByName(sName, &bValidColor);
+
+    if (!bValidColor)
+    {
+      ezLog::Error("'{}' is not a valid color name.", sName);
+      return EZ_FAILURE;
+    }
+
+    ezImageHeader header;
+    header.SetWidth(4);
+    header.SetHeight(4);
+    header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM_SRGB);
+    out_image.ResetAndAlloc(header);
+
+    ezUInt8* pPixels = out_image.GetPixelPointer<ezUInt8>();
+    for (ezUInt32 px = 0; px < 4 * 4 * 4; px += 4)
+    {
+      pPixels[px + 0] = color.r;
+      pPixels[px + 1] = color.g;
+      pPixels[px + 2] = color.b;
+      pPixels[px + 3] = color.a;
+    }
+
+    return EZ_SUCCESS;
+  }
 } // namespace
+
+bool ezTexConvProcessor::IsSolidColorInput(ezStringView sFile)
+{
+  return ezPathUtils::HasExtension(sFile, "color");
+}
+
+ezUInt32 ezTexConvProcessor::GetReferenceInputIndex() const
+{
+  for (ezUInt32 i = 0; i < m_Descriptor.m_InputFiles.GetCount(); ++i)
+  {
+    if (!IsSolidColorInput(m_Descriptor.m_InputFiles[i]))
+      return i;
+  }
+
+  return 0;
+}
 
 ezResult ezTexConvProcessor::LoadInputImages()
 {
@@ -84,6 +135,13 @@ ezResult ezTexConvProcessor::LoadInputImages()
     for (const auto& file : m_Descriptor.m_InputFiles)
     {
       auto& img = m_Descriptor.m_InputImages.ExpandAndGetRef();
+
+      if (IsSolidColorInput(file))
+      {
+        EZ_SUCCEED_OR_RETURN(CreateSolidColorImage(file, img));
+        continue;
+      }
+
       if (img.LoadFrom(file).Failed())
       {
         ezLog::Error("Could not load input file '{0}'.", ezArgSensitive(file, "File"));
@@ -110,6 +168,10 @@ ezResult ezTexConvProcessor::LoadInputImages()
   {
     for (ezUInt32 i = 0; i < m_Descriptor.m_InputImages.GetCount(); ++i)
     {
+      // a solid color is the same in every grid cell
+      if (IsSolidColorInput(m_Descriptor.m_InputFiles[i]))
+        continue;
+
       EZ_SUCCEED_OR_RETURN(CropToGridCell(m_Descriptor.m_InputImages[i], m_Descriptor.m_InputFiles[i], uiGridX, uiGridY, m_Descriptor.m_uiSourceGridCell));
     }
   }

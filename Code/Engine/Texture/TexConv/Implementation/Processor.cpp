@@ -35,7 +35,9 @@ ezResult ezTexConvProcessor::Process()
   {
     EZ_SUCCEED_OR_RETURN(LoadInputImages());
 
-    EZ_SUCCEED_OR_RETURN(AdjustUsage(m_Descriptor.m_InputFiles[0], m_Descriptor.m_InputImages[0], m_Descriptor.m_Usage));
+    const ezUInt32 uiRefInput = GetReferenceInputIndex();
+
+    EZ_SUCCEED_OR_RETURN(AdjustUsage(m_Descriptor.m_InputFiles[uiRefInput], m_Descriptor.m_InputImages[uiRefInput], m_Descriptor.m_Usage));
 
     ezLog::Info("-usage is '{}'", ezArgEnum(m_Descriptor.m_Usage));
 
@@ -53,7 +55,7 @@ ezResult ezTexConvProcessor::Process()
     ezUInt32 uiTargetResolutionX = 0;
     ezUInt32 uiTargetResolutionY = 0;
 
-    EZ_SUCCEED_OR_RETURN(DetermineTargetResolution(m_Descriptor.m_InputImages[0], OutputImageFormat, uiTargetResolutionX, uiTargetResolutionY));
+    EZ_SUCCEED_OR_RETURN(DetermineTargetResolution(m_Descriptor.m_InputImages[uiRefInput],OutputImageFormat, uiTargetResolutionX, uiTargetResolutionY));
 
     ezLog::Info("Target resolution is '{} x {}'", uiTargetResolutionX, uiTargetResolutionY);
 

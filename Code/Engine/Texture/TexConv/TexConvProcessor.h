@@ -58,8 +58,16 @@ private:
   ezResult Assemble2DSlice(const ezTexConvSliceChannelMapping& mapping, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezColor* pPixelOut) const;
   ezResult GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips /* =0 */, MipmapChannelMode channelMode = MipmapChannelMode::AllChannels) const;
 
+  /// The input whose file name and resolution decide the usage and the target resolution.
+  /// This is the first input that is not a solid color ('White.color'), or input 0 if all of them are.
+  ezUInt32 GetReferenceInputIndex() const;
+
   //////////////////////////////////////////////////////////////////////////
   // Purely functional
+
+  /// An input file with the '.color' extension (for example 'White.color' or '#FF8000.color') is not loaded from disk.
+  /// Instead it is a solid color image, using the same color names as solid color texture resources.
+  static bool IsSolidColorInput(ezStringView sFile);
   static ezResult AdjustUsage(ezStringView sFilename, const ezImage& srcImg, ezEnum<ezTexConvUsage>& inout_Usage);
   static ezResult ConvertAndScaleImage(ezStringView sImageName, ezImage& inout_Image, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezEnum<ezTexConvUsage> usage);
 
