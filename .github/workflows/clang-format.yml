@@ -28,7 +28,7 @@ jobs:
           # same script that is used for formatting locally
           & "${env:GITHUB_WORKSPACE}/Utilities/ClangFormatBranch.ps1" -BaseRef "origin/${env:GITHUB_BASE_REF}"
 
-          $clangDiff = git diff --no-color
+          $clangDiff = git diff --no-color -- "*.cpp" "*.h" "*.inl"
 
           if($clangDiff.Length -gt 0)
           {

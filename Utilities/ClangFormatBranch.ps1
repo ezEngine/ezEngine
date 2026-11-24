@@ -89,8 +89,13 @@ function Find-ClangFormat
 
     if (Test-Path $linuxBinary)
     {
-      # git may check the file out without the executable bit
-      & chmod +x $linuxBinary 2>&1 | Out-Null
+      # the file is committed as executable, but a checkout with core.fileMode=false may lose the bit
+      # only touch it when necessary, since changing the mode shows up as a modification in git
+      & test -x $linuxBinary
+      if ($LASTEXITCODE -ne 0)
+      {
+        & chmod +x $linuxBinary 2>&1 | Out-Null
+      }
       $candidates += $linuxBinary
     }
   }
