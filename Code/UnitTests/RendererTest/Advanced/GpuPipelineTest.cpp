@@ -1194,6 +1194,7 @@ void ezGpuPipelineTest::ViewBlackboard()
 
   ezWorldDesc worldDesc("ViewBlackboardTestWorld");
   ezWorld world(worldDesc);
+  ezCamera camera;
 
   ezView* pView = nullptr;
   const ezViewHandle hView = ezRenderWorld::CreateView("ViewBlackboardTest", pView);
@@ -1209,7 +1210,11 @@ void ezGpuPipelineTest::ViewBlackboard()
   pWorldBlackboard->SetEntryValue("Sink.Value", 1);
   pWorldBlackboard->SetEntryValue("Quality", 20);
 
+  // Blackboards are only applied to valid views.
+  const ezRectFloat viewport(0.0f, 0.0f, 64.0f, 64.0f);
   pView->SetWorld(&world);
+  pView->SetCamera(&camera);
+  pView->SetViewport(viewport);
   pView->SetBlackboard(pViewBlackboard);
   pView->SetRenderPipelineResource(hPipeline);
 
@@ -1305,6 +1310,44 @@ void ezGpuPipelineTest::ViewBlackboard()
 
     pView->EnsureUpToDate();
     EZ_TEST_INT(GetPropertyValue(), 0);
+    EZ_TEST_INT(GetSwitchIndex(), 0);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Invalid view keeps its values")
+  {
+    pWorldBlackboard->SetEntryValue("Sink.Value", 5);
+    pWorldBlackboard->SetEntryValue("Quality", 20);
+
+    pView->EnsureUpToDate();
+    EZ_TEST_INT(GetPropertyValue(), 5);
+    EZ_TEST_INT(GetSwitchIndex(), 1);
+
+    // Without a world the switch would fall back to its default, but an invalid view can't rebuild its pipeline.
+    pView->SetWorld(nullptr);
+    pView->EnsureUpToDate();
+    EZ_TEST_INT(GetPropertyValue(), 5);
+    EZ_TEST_INT(GetSwitchIndex(), 1);
+
+    pView->SetWorld(&world);
+    pView->EnsureUpToDate();
+    EZ_TEST_INT(GetPropertyValue(), 5);
+    EZ_TEST_INT(GetSwitchIndex(), 1);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Changes while invalid are applied once valid")
+  {
+    pView->SetViewport(ezRectFloat(0.0f, 0.0f, 0.0f, 0.0f));
+
+    pWorldBlackboard->SetEntryValue("Sink.Value", 6);
+    pWorldBlackboard->SetEntryValue("Quality", 10);
+
+    pView->EnsureUpToDate();
+    EZ_TEST_INT(GetPropertyValue(), 5);
+    EZ_TEST_INT(GetSwitchIndex(), 1);
+
+    pView->SetViewport(viewport);
+    pView->EnsureUpToDate();
+    EZ_TEST_INT(GetPropertyValue(), 6);
     EZ_TEST_INT(GetSwitchIndex(), 0);
   }
 }

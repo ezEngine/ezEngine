@@ -326,7 +326,10 @@ void ezView::ApplyPermutationVars()
 
 void ezView::ApplyPropertiesFromBlackboard()
 {
-  if (m_pRenderPipeline == nullptr)
+  // An invalid view can't queue a pipeline rebuild (see ForceUpdate), so changing switch values now would leave the culled pass graph out of sync with the switches.
+  // The pipeline may still be rendered with previously extracted data, e.g. while the world is temporarily removed during a scene change.
+  // The change counters are not updated either, so all changes are picked up once the view is valid again.
+  if (!IsValid())
     return;
 
   const ezBlackboard* pBlackboards[SourceBlackboard::COUNT];

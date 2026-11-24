@@ -246,7 +246,7 @@ private:
 
   struct SwitchMapping
   {
-    // Entries are stored in a hash table, so this pointer is only valid as long as the blackboard's structure does not change. ApplyPropertiesFromBlackboard detects such a change in the same frame it happens and rebuilds the mappings before they are read again.
+    // Entries are stored in a hash table, so this pointer is only valid as long as the blackboard's structure does not change. ApplyPropertiesFromBlackboard detects such a change and rebuilds the mappings before they are read again.
     const ezBlackboard::Entry* m_pEntry = nullptr;
     ezUInt32 m_uiEntryChangeCounter = 0;
     SourceBlackboard m_SourceIndex = SourceBlackboard::World;
