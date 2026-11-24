@@ -142,8 +142,8 @@ ezResult ezTexConvProcessor::DetermineTargetResolution(const ezImage& image, ezE
   out_uiTargetResolutionX /= (1 << m_Descriptor.m_uiDownscaleSteps);
   out_uiTargetResolutionY /= (1 << m_Descriptor.m_uiDownscaleSteps);
 
-  out_uiTargetResolutionX = ezMath::Clamp(out_uiTargetResolutionX, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution);
-  out_uiTargetResolutionY = ezMath::Clamp(out_uiTargetResolutionY, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution);
+  out_uiTargetResolutionX = ezMath::Clamp<ezUInt32>(out_uiTargetResolutionX, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution);
+  out_uiTargetResolutionY = ezMath::Clamp<ezUInt32>(out_uiTargetResolutionY, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution);
 
   // keep original aspect ratio
   if (uiOrgResX > uiOrgResY)

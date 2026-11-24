@@ -143,6 +143,9 @@ public:
   float m_fHdrExposureBias = 0;
   float m_fAlphaThreshold = 0.25f;
 
+  /// How often the input resolution is halved before processing.
+  ezUInt8 m_uiDownscaleSteps = 0;
+
   ezEnum<ezTextureFilterSetting> m_TextureFilter;
   ezEnum<ezImageAddressMode> m_AddressModeU;
   ezEnum<ezImageAddressMode> m_AddressModeV;

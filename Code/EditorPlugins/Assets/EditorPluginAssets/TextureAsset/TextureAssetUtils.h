@@ -25,7 +25,8 @@ struct ezTexConvCommonSettings
   ezEnum<ezTexConvCompressionMode> m_CompressionMode;
   ezEnum<ezTexConvUsage> m_TextureUsage;
   float m_fHdrExposureBias = 0;
-  ezUInt32 m_uiMaxResolution = 0;
+  ezUInt16 m_uiMaxResolution = 0;
+  ezUInt8 m_uiDownscaleSteps = 0;
   ezEnum<ezImageAddressMode> m_AddressModeU;
   ezEnum<ezImageAddressMode> m_AddressModeV;
   ezEnum<ezImageAddressMode> m_AddressModeW;

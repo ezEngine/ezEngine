@@ -54,6 +54,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   commonSettings.m_AddressModeV = pProp->m_AddressModeV;
   commonSettings.m_AddressModeW = pProp->m_AddressModeW;
   commonSettings.m_TextureFilter = pProp->m_TextureFilter;
+  commonSettings.m_uiDownscaleSteps = pProp->m_uiDownscaleSteps;
 
   AppendCommonTexConvArguments(arguments, temp, AssetHeader, szTargetFile, sThumbnail, bUpdateThumbnail, commonSettings);
 

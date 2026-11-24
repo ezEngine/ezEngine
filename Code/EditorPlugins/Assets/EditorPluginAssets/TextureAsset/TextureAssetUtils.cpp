@@ -179,4 +179,9 @@ void AppendCommonTexConvArguments(QStringList& inout_arguments, ezStringBuilder&
   inout_arguments << "-addressV" << ToWrapMode(settings.m_AddressModeV);
   inout_arguments << "-addressW" << ToWrapMode(settings.m_AddressModeW);
   inout_arguments << "-filter" << ToFilterMode(settings.m_TextureFilter);
+
+  if (settings.m_uiDownscaleSteps > 0)
+  {
+    inout_arguments << "-downscale" << QString::number(settings.m_uiDownscaleSteps);
+  }
 }
