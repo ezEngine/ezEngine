@@ -184,7 +184,7 @@ try
 
   $python = Find-Python
   $clangFormat = Find-ClangFormat
-  $diffScript = Join-Path $repoRoot "Data/Tools/Precompiled/clang-format/clang-format-diff.py"
+  $diffScript = Join-Path $repoRoot "Utilities/clang-format-diff.py"
 
   $formatArgs = @("-style", "file", "-p1", "-binary", $clangFormat, "-iregex", $sourceRegex)
   if (-not $Check)
