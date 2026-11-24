@@ -457,7 +457,6 @@ namespace
 
   struct PersistentPerContextData
   {
-    ezTime m_Now;
     ezDeque<PersistentShapeData> m_Shapes;
     ezDeque<PersistentInfoTextData> m_InfoText;
   };
@@ -472,7 +471,7 @@ namespace
     item.m_LineColor = lineColor;
     item.m_SolidColor = solidColor;
     item.m_fLineThickness = fLineThickness;
-    item.m_Timeout = data.m_Now + duration;
+    item.m_Timeout = ezClock::GetGlobalClock()->GetLastUpdateTime() + duration;
     return item;
   }
 
@@ -1011,7 +1010,8 @@ void ezDebugRenderer::AddPersistentInfoText(const ezDebugRendererContext& contex
   item.m_sText = text.GetText(tmp);
   item.m_Placement = placement;
   item.m_Color = color;
-  item.m_Timeout = data.m_Now + duration;
+  // Don't use a time that is only updated during rendering, the context might not have been rendered for a while (or ever).
+  item.m_Timeout = ezClock::GetGlobalClock()->GetLastUpdateTime() + duration;
 }
 
 void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, float fLineThickness, ezMatOrTransform mTransform, ezVec3 vForwardAxis /*= ezVec3::MakeAxisX()*/, ezVec3 vRotationAxis /*= ezVec3::MakeAxisZ()*/)
@@ -1200,13 +1200,13 @@ static void RenderInternalWorldSpace(const ezDebugRendererContext& context, cons
     EZ_LOCK(s_Mutex);
 
     auto& data = s_PersistentPerContextData[context];
-    data.m_Now = ezClock::GetGlobalClock()->GetLastUpdateTime();
+    const ezTime now = ezClock::GetGlobalClock()->GetLastUpdateTime();
 
     for (ezUInt32 i = 0; i < data.m_Shapes.GetCount();)
     {
       const auto& item = data.m_Shapes[i];
 
-      if (data.m_Now > item.m_Timeout)
+      if (now > item.m_Timeout)
       {
         data.m_Shapes.RemoveAtAndSwap(i);
         continue;
@@ -1504,7 +1504,7 @@ static void RenderInternalScreenSpace(const ezDebugRendererContext& context, con
     EZ_LOCK(s_Mutex);
 
     auto& data = s_PersistentPerContextData[context];
-    data.m_Now = ezClock::GetGlobalClock()->GetLastUpdateTime();
+    const ezTime now = ezClock::GetGlobalClock()->GetLastUpdateTime();
 
     // persistent info text
     {
@@ -1513,7 +1513,7 @@ static void RenderInternalScreenSpace(const ezDebugRendererContext& context, con
       {
         const auto& item = data.m_InfoText[i];
 
-        if (data.m_Now > item.m_Timeout)
+        if (now > item.m_Timeout)
         {
           data.m_InfoText.RemoveAtAndSwap(i);
           --uiNumItems;
