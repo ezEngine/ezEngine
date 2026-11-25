@@ -53,15 +53,15 @@ namespace
       EZ_ALWAYS_INLINE float Get(ezInt32 x, ezInt32 y) const { return m_Depth[WrapY(y) * m_iWidth + WrapX(x)]; }
 
       /// Bilinear sample between texel (x, y) and (x + 1, y + 1). x and y must already be wrapped into the texture.
-      EZ_ALWAYS_INLINE float Sample(ezInt32 x, ezInt32 y, float tx, float ty) const
+      EZ_ALWAYS_INLINE float Sample(ezInt32 x, ezInt32 y, float fTx, float fTy) const
       {
         const ezInt32 x1 = (x + 1 < m_iWidth) ? x + 1 : 0;
         const float* pRow0 = &m_Depth[y * m_iWidth];
         const float* pRow1 = &m_Depth[((y + 1 < m_iHeight) ? y + 1 : 0) * m_iWidth];
 
-        const float d0 = ezMath::Lerp(pRow0[x], pRow0[x1], tx);
-        const float d1 = ezMath::Lerp(pRow1[x], pRow1[x1], tx);
-        return ezMath::Lerp(d0, d1, ty);
+        const float d0 = ezMath::Lerp(pRow0[x], pRow0[x1], fTx);
+        const float d1 = ezMath::Lerp(pRow1[x], pRow1[x1], fTx);
+        return ezMath::Lerp(d0, d1, fTy);
       }
 
       /// The block that contains texel (x, y), which must already be wrapped into the texture.
@@ -280,7 +280,7 @@ namespace
                 const float fFloorY = ezMath::Floor(fSampleY);
                 const ezInt32 iSampleX = field.WrapX(static_cast<ezInt32>(fFloorX));
                 const ezInt32 iSampleY = field.WrapY(static_cast<ezInt32>(fFloorY));
-                const DepthField::Block& block = field.GetBlock(iSampleX, iSampleY);
+                const DepthField::Block& sampleBlock = field.GetBlock(iSampleX, iSampleY);
 
                 // the number of following steps that sample inside the same block, with a margin of one step for rounding errors
                 ezInt32 iStepsInBlock = 0;
@@ -305,7 +305,7 @@ namespace
                 constexpr float fMargin = 1e-5f;
 
                 // the ray is deeper than any surface depth that a sample in this block could return
-                if (fRayDepth > block.m_fMaxDepth + fMargin)
+                if (fRayDepth > sampleBlock.m_fMaxDepth + fMargin)
                 {
                   if (!SkipSteps(iStepsInBlock, fWalked, fRayDepth, fDepthPerStep, fDist, fSrcDepth, fRatio * fMaxDim))
                     break;
@@ -324,7 +324,7 @@ namespace
 
                 // within the block, the surface descends at most this much per texel along the ray,
                 // so the distance between the ray and the surface shrinks at most by the difference to the ray's descent
-                const float fSurfaceDescent = ezMath::Abs(fStepX) * block.m_fMaxSlopeX + ezMath::Abs(fStepY) * block.m_fMaxSlopeY;
+                const float fSurfaceDescent = ezMath::Abs(fStepX) * sampleBlock.m_fMaxSlopeX + ezMath::Abs(fStepY) * sampleBlock.m_fMaxSlopeY;
                 const float fShrinkPerStep = (fSurfaceDescent - fRayDescent) * fStepLength;
                 const float fDistToSurface = fRayDepth - fSurfaceDepth;
 
@@ -593,14 +593,14 @@ namespace
 
   /// Fills R with the height and G with the cone ratio of every texel.
   template <typename DepthField>
-  void ComputeConeMap(ezImage& img, float (*computeRatio)(const DepthField&, ezInt32, ezInt32, float))
+  void ComputeConeMap(ezImage& inout_img, float (*computeRatio)(const DepthField&, ezInt32, ezInt32, float))
   {
     DepthField field;
-    field.m_iWidth = static_cast<ezInt32>(img.GetWidth());
-    field.m_iHeight = static_cast<ezInt32>(img.GetHeight());
+    field.m_iWidth = static_cast<ezInt32>(inout_img.GetWidth());
+    field.m_iHeight = static_cast<ezInt32>(inout_img.GetHeight());
     field.m_Depth.SetCountUninitialized(field.m_iWidth * field.m_iHeight);
 
-    ezColor* pPixels = img.GetPixelPointer<ezColor>();
+    ezColor* pPixels = inout_img.GetPixelPointer<ezColor>();
 
     for (ezUInt32 i = 0; i < field.m_Depth.GetCount(); ++i)
     {
