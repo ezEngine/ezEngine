@@ -1,6 +1,6 @@
 ---
 name: ez-ddl
-description: Read and edit ezEngine documents on disk - scenes (.ezScene), prefabs (.ezPrefab) and assets (.ez*Asset) are OpenDDL text. Use Utilities/Scripts/ezddl.py to convert GUIDs ('{ xxxxxxxx-... }' <-> 'u4{low,high}') and hex floats (0x0000803F), resolve asset GUIDs to paths, find which documents use an asset, print a scene hierarchy, add game objects and components, set properties, validate a document, and make the editor re-transform a hand-edited asset. Triggers - ezScene, ezPrefab, ezMaterialAsset, ezTextureAsset, DDL, OpenDDL, asset GUID, Uuid u4, asset reference, hex float, edit scene file, add object to scene, which asset is this GUID, who references this asset, HeaderV2, Types section, type version.
+description: Read and edit ezEngine documents on disk - scenes (.ezScene), prefabs (.ezPrefab) and assets (.ez*Asset) are OpenDDL text. Use Utilities/Scripts/ezddl.py to convert GUIDs ('{ xxxxxxxx-... }' <-> 'u4{low,high}') and hex floats (0x0000803F), resolve asset GUIDs to paths, find which documents use an asset, print a scene hierarchy, add game objects and components, set properties, validate a document, and make the editor re-transform a hand-edited asset. To create or change documents, prefer the editor over MCP (ez-mcp skill). Triggers - ezScene, ezPrefab, ezMaterialAsset, ezTextureAsset, DDL, OpenDDL, asset GUID, Uuid u4, asset reference, hex float, edit scene file, add object to scene, which asset is this GUID, who references this asset, HeaderV2, Types section, type version.
 ---
 
 # Editing ezEngine documents as text
@@ -30,12 +30,17 @@ Asset lookups index the data directories of the project that contains the file (
 
 ## Files or MCP?
 
-- **Editor running with the document open** -> use MCP (`ez-mcp` skill). The editor does not reload a document
-  that changes on disk; its next save silently overwrites the edit. If it must be a file edit, `document_close`
-  first and `document_open` afterwards.
-- **Editor not running, many documents, or mechanical changes** (rename a reference everywhere, add the same
-  component to many prefabs) -> edit the files.
-- `show`/`tree`/`uses`/`asset` are usually the fastest way to *understand* data even when the editor runs.
+**Use MCP (`ez-mcp` skill) to create or change documents whenever possible.** If no editor is running, start one
+with `-editor-mcpport`. Only the editor writes a document correctly: its header (asset hash, dependencies,
+references) and its `Types` section.
+
+- **Never generate whole documents by script**, and never assemble them from parts of other documents (for example
+  copying `Types` descriptors between files). To make a new asset, use `document_create` and `object_modify`.
+- **Edit the files only for small mechanical changes that MCP can't do**, for example the same rename of a reference
+  across many documents. If the editor has the document open, `document_close` it first and `document_open` it
+  afterwards: the editor does not reload a document that changes on disk, and its next save overwrites the edit.
+- **Reading is always fine.** `show`/`tree`/`uses`/`asset` are usually the fastest way to *understand* data, also
+  when the editor runs.
 
 ## Format facts
 

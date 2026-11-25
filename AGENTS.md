@@ -117,6 +117,10 @@ The script formats only the lines that changed since the merge-base with `origin
 
 ## Engine Data (Scenes, Prefabs, Assets)
 
+**Create and change documents through the editor over MCP (`ez-mcp` skill) whenever possible**: `document_create`, `object_modify`, `document_save`, `asset_transform`. Start an editor with `-editor-mcpport` for that. Only the editor writes a document correctly: its header (asset hash, dependencies, references) and its `Types` section. Never generate whole documents by script, and never assemble them from parts of other documents (for example copying `Types` descriptors between files).
+
+Edit the files directly only to read them, or for small mechanical changes that MCP can't do (for example, the same rename across many documents).
+
 Documents (`.ezScene`, `.ezPrefab`, `.ez*Asset`) are OpenDDL text. Don't write ad-hoc code to decode GUIDs or hex floats; use `python Utilities/Scripts/ezddl.py` (`guid`, `float`, `asset`, `uses`, `show`, `tree`, `check`, `set`, `new-object`, `type`, `example`, `touch`; Python 3.8+, standard library only). The `ez-ddl` skill describes the format and its pitfalls, most importantly:
 
 - After editing a document on disk, run `ezddl.py touch` on it, otherwise the editor considers the asset up to date and does not transform it.
