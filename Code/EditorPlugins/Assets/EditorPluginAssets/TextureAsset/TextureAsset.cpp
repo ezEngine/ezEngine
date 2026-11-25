@@ -554,11 +554,11 @@ ezTextureAssetDocumentGenerator::TextureType ezTextureAssetDocumentGenerator::De
   }
   else if (baseFilename.EndsWith_NoCase("normalGL"))
   {
-      return TextureType::NormalGL;
+    return TextureType::NormalGL;
   }
   else if (baseFilename.EndsWith_NoCase("normalDX"))
   {
-      return TextureType::NormalDX;
+    return TextureType::NormalDX;
   }
   else if (baseFilename.EndsWith_NoCase("_arm") || baseFilename.EndsWith_NoCase("_orm"))
   {
