@@ -3,11 +3,16 @@
 /// Performs parallax occlusion mapping with relaxed cone stepping.
 ///
 /// The cone map stores the height in R (white = surface, black = deepest point) and the relaxed cone ratio in G.
-/// The cone ratio is the horizontal distance per unit of depth, measured in units of the larger texture dimension.
-/// Stepping is done in that normalized texel space, so non-square textures need no extra aspect ratio correction,
+/// The cone ratio is the horizontal distance per unit of depth, both measured in a normalized texture space,
+/// in which the longer texture axis spans 0 to 1 (for square textures this is the same as UV space).
+/// Stepping is done in that normalized space, so non-square textures need no extra aspect ratio correction,
 /// as long as the texture is mapped with the same texel density along U and V.
+/// The texture resolution has no effect, only the aspect ratio matters.
 ///
-/// viewDirTS must be normalized. heightScale is the maximum displacement depth, in units of the larger texture dimension.
+/// viewDirTS must be normalized. heightScale is the maximum displacement depth, relative to the world space length that
+/// one UV unit covers along the longer texture axis. For example, on a 1x1m quad with UVs from 0 to 1, a heightScale of 0.05
+/// results in a depth of 5cm. With UVs from 0 to 4 (4x tiling) the same value results in 1.25cm.
+/// Consequently the depth scales with the mesh and with the UV mapping.
 /// heightOffset moves the zero plane into the height map (0 = the brightest texels are at the surface, 0.5 = mid gray is at the surface).
 /// Returns the shifted texture coordinate. 'depth' receives the depth of the found intersection below the polygon, as a fraction of heightScale,
 /// for ParallaxDepthOffset(). It is negative where the relief sticks out in front of the polygon due to heightOffset.
@@ -100,7 +105,7 @@ float2 ParallaxConeStepMapping(Texture2D coneTex, SamplerState samp, float2 texC
 /// because the depth may only be moved away from the camera (SV_DepthLessEqual).
 float ParallaxDepthOffset(Texture2D coneTex, float depth, float heightScale, float2 texCoords, float3 worldPosition, float viewDirZ)
 {
-  // heightScale is measured in units of the larger texture dimension
+  // heightScale is relative to one UV unit along the longer texture axis, see ParallaxConeStepMapping()
   float2 texSize;
   coneTex.GetDimensions(texSize.x, texSize.y);
   const float2 texCoordsToUnits = texSize / max(texSize.x, texSize.y);
