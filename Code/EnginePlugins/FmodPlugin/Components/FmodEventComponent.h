@@ -16,6 +16,7 @@ private:
 
 class ezPhysicsWorldModuleInterface;
 struct ezMsgSetFloatParameter;
+struct ezMsgSetPlaying;
 
 class ezFmodEventComponentManager : public ezComponentManager<class ezFmodEventComponent, ezBlockStorageType::FreeList>
 {
@@ -186,6 +187,7 @@ public:
 
 protected:
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);       // [ msg handler ]
+  void OnMsgSetPlaying(ezMsgSetPlaying& ref_msg);               // [ msg handler ]
 
   void Update();
   void UpdateParameters(FMOD::Studio::EventInstance* pInstance);

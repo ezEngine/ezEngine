@@ -255,6 +255,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 4, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
     EZ_MESSAGE_HANDLER(ezMsgSetFloatParameter, OnMsgSetFloatParameter),
+    EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnMsgSetPlaying),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_MESSAGESENDERS
@@ -626,6 +627,14 @@ void ezFmodEventComponent::SoundCue()
 void ezFmodEventComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
 {
   ezOnComponentFinishedAction::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
+}
+
+void ezFmodEventComponent::OnMsgSetPlaying(ezMsgSetPlaying& ref_msg)
+{
+  if (ref_msg.m_bPlay)
+    Play();
+  else
+    Stop();
 }
 
 ezFmodParameterId ezFmodEventComponent::FindParameter(const char* szName) const

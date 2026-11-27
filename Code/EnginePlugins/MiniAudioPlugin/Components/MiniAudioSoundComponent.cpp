@@ -1,5 +1,6 @@
 #include <MiniAudioPlugin/MiniAudioPluginPCH.h>
 
+#include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/ResourceManager/Implementation/ResourceHandleReflection.h>
 #include <Core/World/GameObject.h>
@@ -84,6 +85,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezMiniAudioSoundComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
+    EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnMsgSetPlaying),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_FUNCTIONS
@@ -294,6 +296,14 @@ void ezMiniAudioSoundComponent::StartOneShot()
 void ezMiniAudioSoundComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
 {
   ezOnComponentFinishedAction2::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
+}
+
+void ezMiniAudioSoundComponent::OnMsgSetPlaying(ezMsgSetPlaying& ref_msg)
+{
+  if (ref_msg.m_bPlay)
+    Play();
+  else
+    Stop();
 }
 
 void ezMiniAudioSoundComponent::Update()

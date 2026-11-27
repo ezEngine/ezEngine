@@ -6,6 +6,7 @@
 #include <MiniAudioPlugin/MiniAudioPluginDLL.h>
 
 struct ezMiniAudioSoundInstance;
+struct ezMsgSetPlaying;
 using ezMiniAudioSoundResourceHandle = ezTypedResourceHandle<class ezMiniAudioSoundResource>;
 
 class ezMiniAudioSoundComponentManager : public ezComponentManager<class ezMiniAudioSoundComponent, ezBlockStorageType::FreeList>
@@ -105,6 +106,7 @@ public:
 
 protected:
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg); // [ msg handler ]
+  void OnMsgSetPlaying(ezMsgSetPlaying& ref_msg);         // [ msg handler ]
 
   void Update();
   void UpdateParameters(ezMiniAudioSoundInstance* pInstance, float fVolume, float fPitch) const;
