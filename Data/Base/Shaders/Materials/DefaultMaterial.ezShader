@@ -13,12 +13,14 @@ MSAA
 CAMERA_MODE
 SHADING_QUALITY
 VERTEX_SKINNING
+PARALLAX_MAPPING
 
 [MATERIALPARAMETER]
 
 Permutation BLEND_MODE;
 Permutation SHADING_MODE;
 Permutation TWO_SIDED;
+Permutation PARALLAX_MAPPING;
 
 Color BaseColor @Default(Color(1.0, 1.0, 1.0));
 bool UseBaseTexture;
@@ -48,9 +50,9 @@ Color EmissiveColor @Default(Color(0.0, 0.0, 0.0));
 bool UseEmissiveTexture;
 Texture2D EmissiveTexture;
 
-bool UseHeightTexture;
-Texture2D HeightTexture;
-float HeightScale @Default(0.05) @Clamp(-0.3, 0.3);
+Texture2D ConeMapTexture;
+float HeightScale @Default(0.05) @Clamp(0.0, 0.3);
+float HeightOffset @Default(0.0) @Clamp(0.0, 1.0);
 int PomMaxSteps @Default(16) @Clamp(4, 64);
 
 [MATERIALCONFIG]
@@ -75,8 +77,8 @@ BOOL1(UseMetallicTexture);
 BOOL1(UseEmissiveTexture);
 BOOL1(UseOcclusionTexture);
 BOOL1(UseOrmTexture);
-BOOL1(UseHeightTexture);
 FLOAT1(HeightScale);
+FLOAT1(HeightOffset);
 INT1(PomMaxSteps);
 
 [SHADER]
@@ -113,6 +115,10 @@ VS_OUT main(VS_IN Input)
 #define USE_CUSTOM_DITHER_NOISE
 #define CUSTOM_GLOBALS float2 ParallaxTexCoord;
 
+#if PARALLAX_MAPPING
+#  define USE_SHADER_WRITE_DEPTH
+#endif
+
 #include <Shaders/Materials/MaterialPixelShader.h>
 
 Texture2D BaseTexture BIND_GROUP(BG_MATERIAL);
@@ -138,8 +144,8 @@ SamplerState OrmTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 Texture2D DitherNoiseTexture BIND_GROUP(BG_MATERIAL);
 
-Texture2D HeightTexture BIND_GROUP(BG_MATERIAL);
-SamplerState HeightTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
+Texture2D ConeMapTexture BIND_GROUP(BG_MATERIAL);
+SamplerState ConeMapTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 #include <Shaders/Common/ParallaxMapping.h>
 
@@ -147,17 +153,19 @@ void FillCustomGlobals()
 {
   G.ParallaxTexCoord = G.Input.TexCoord0.xy;
 
-  [branch]
-  if (GetMaterialData(UseHeightTexture))
-  {
-    float3 viewDirWS = normalize(GetCameraPosition() - G.Input.WorldPosition);
-    float3 viewDirTS = WorldToTangentSpace(viewDirWS);
+#if PARALLAX_MAPPING
+  // orthographic cameras (e.g. directional light shadow maps) look along their forward direction everywhere
+  const float3 viewDirWS = IsOrthographicCamera ? -GetCameraDirForwards() : normalize(GetCameraPosition() - G.Input.WorldPosition);
+  const float3 viewDirTS = WorldToTangentSpace(viewDirWS);
+  const float2 texCoords = G.Input.TexCoord0.xy;
+  const float heightScale = GetMaterialData(HeightScale);
 
-    G.ParallaxTexCoord = ParallaxOcclusionMapping(
-      HeightTexture, HeightTexture_AutoSampler,
-      G.Input.TexCoord0.xy, viewDirTS,
-      GetMaterialData(HeightScale), GetMaterialData(PomMaxSteps));
-  }
+  float depth = 0.0;
+  G.ParallaxTexCoord = ParallaxConeStepMapping(ConeMapTexture, ConeMapTexture_AutoSampler, texCoords, viewDirTS, heightScale, GetMaterialData(HeightOffset), GetMaterialData(PomMaxSteps), depth);
+
+  // move the pixel onto the found intersection, MaterialPixelShader.h writes its depth and uses it for lighting
+  G.Input.WorldPosition -= viewDirWS * ParallaxDepthOffset(ConeMapTexture, depth, heightScale, texCoords, G.Input.WorldPosition, viewDirTS.z);
+#endif
 }
 
 float3 GetNormal()

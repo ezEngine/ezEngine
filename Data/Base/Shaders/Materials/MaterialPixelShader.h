@@ -58,6 +58,12 @@
 
 #include <Shaders/Materials/MaterialHelper.h>
 
+// USE_SHADER_WRITE_DEPTH: FillCustomGlobals() may move G.Input.WorldPosition away from the camera along the view ray
+// (e.g. for parallax mapping). The moved position is used for lighting and written as the pixel depth.
+#if defined(USE_SHADER_WRITE_DEPTH) && (RENDER_PASS == RENDER_PASS_DEPTH_ONLY || RENDER_PASS == RENDER_PASS_FORWARD || RENDER_PASS == RENDER_PASS_EDITOR)
+#  define WRITE_SHADER_DEPTH
+#endif
+
 struct PS_OUT
 {
 #if RENDER_PASS != RENDER_PASS_DEPTH_ONLY
@@ -66,6 +72,12 @@ struct PS_OUT
 
 #if defined(WRITE_COVERAGE)
   uint Coverage : SV_Coverage;
+#endif
+
+#if defined(WRITE_SHADER_DEPTH)
+  // conservative depth: the depth may only move away from the camera, which keeps early depth rejection working
+  // (reversed-Z, so further away means smaller values)
+  float Depth : SV_DepthLessEqual;
 #endif
 };
 
@@ -81,6 +93,19 @@ PS_OUT main(PS_IN Input)
 #endif
 
   PS_OUT Output;
+
+#if defined(USE_SHADER_WRITE_DEPTH)
+  const float4 shaderClipPos = mul(GetWorldToScreenMatrix(), float4(G.Input.WorldPosition, 1.0));
+  // screen position with the (possibly moved) view space depth in w
+  const float3 screenPos = float3(Input.Position.xy, shaderClipPos.w);
+#else
+  const float3 screenPos = Input.Position.xyw;
+#endif
+
+#if defined(WRITE_SHADER_DEPTH)
+  // the clamp guarantees the conservative depth contract, even where rounding makes the recomputed depth slightly closer
+  Output.Depth = min(Input.Position.z, shaderClipPos.z / shaderClipPos.w);
+#endif
 
 #if defined(USE_ALPHA_TEST)
   uint coverage = CalculateCoverage();
@@ -98,7 +123,7 @@ PS_OUT main(PS_IN Input)
 
   uint gameObjectId = GetInstanceData().GameObjectID;
 #if SHADING_QUALITY == SHADING_QUALITY_NORMAL
-  ezPerClusterData clusterData = GetClusterData(Input.Position.xyw);
+  ezPerClusterData clusterData = GetClusterData(screenPos);
 #  if defined(USE_DECALS)
   ApplyDecals(matData, clusterData, gameObjectId);
 #  endif
@@ -123,7 +148,7 @@ PS_OUT main(PS_IN Input)
   bool useScreenSpaceTechniques = false;
 #    endif
 
-  AccumulatedLight light = CalculateLighting(matData, clusterData, Input.Position.xyw, useScreenSpaceTechniques);
+  AccumulatedLight light = CalculateLighting(matData, clusterData, screenPos, useScreenSpaceTechniques);
 #  elif SHADING_QUALITY == SHADING_QUALITY_SIMPLIFIED
   AccumulatedLight light = CalculateLightingSimplified(matData);
 #  endif
@@ -264,14 +289,14 @@ PS_OUT main(PS_IN Input)
   }
   else if (RenderPass == EDITOR_RENDER_PASS_OCCLUSION)
   {
-    float ssao = SampleSSAO(Input.Position.xyw);
+    float ssao = SampleSSAO(screenPos);
     float occlusion = matData.occlusion * ssao;
 
     Output.Color = float4(SrgbToLinear(occlusion), matData.opacity);
   }
   else if (RenderPass == EDITOR_RENDER_PASS_DEPTH)
   {
-    float depth = Input.Position.w * ClipPlanes.z;
+    float depth = screenPos.z * ClipPlanes.z;
     Output.Color = float4(SrgbToLinear(depth), 1);
   }
   else if (RenderPass == EDITOR_RENDER_PASS_STATIC_VS_DYNAMIC)

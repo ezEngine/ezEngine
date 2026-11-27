@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{8356037211178534933}
+		u4 %Hash{10327840210714995900}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -3848,7 +3848,7 @@ o
 		Vec3 %LocalPosition{f{0xF0FAE7BD,0x677885BC,0x03F72B3E}}
 		Quat %LocalRotation{f{0x319A80BC,0xC4897ABE,0xD88F8D3D,0x2C8E773F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
+		f %LocalUniformScaling{0xCDCC4C3E}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
@@ -13106,7 +13106,7 @@ o
 		Vec3 %LocalPosition{f{0xCDCE7B3D,0xE77EA1BD,0x33BC07BC}}
 		Quat %LocalRotation{f{0x97052F3E,0xCDDECB3E,0xD802543F,0xBC02B63E}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
+		f %LocalUniformScaling{0xCDCC4C3E}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
@@ -24215,7 +24215,7 @@ o
 		Vec3 %LocalPosition{f{0x80308BBE,0x40AC7A3D,0x6762693B}}
 		Quat %LocalRotation{f{0x57D3D63E,0x815D00BE,0x37C483BE,0x87845C3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
+		f %LocalUniformScaling{0xCDCC4C3E}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
@@ -27219,7 +27219,7 @@ o
 		Vec3 %LocalPosition{f{0xD7EFB1BD,0x9365F6BD,0xF34186BC}}
 		Quat %LocalRotation{f{0xB450AF3E,0x4EFB94BE,0xC6B99B3E,0x4F09573F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
+		f %LocalUniformScaling{0xCDCC4C3E}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
@@ -36587,7 +36587,7 @@ o
 		Vec3 %LocalPosition{f{0x2B4E383E,0xE342D8BD,0x40FD1F3D}}
 		Quat %LocalRotation{f{0xB4F2603D,0xF2E8273F,0x8B65E1BE,0x41581C3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
+		f %LocalUniformScaling{0xCDCC4C3E}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
@@ -38470,7 +38470,7 @@ o
 		Vec3 %LocalPosition{f{0x67721A3D,0xAA7D48BE,0xA726B63C}}
 		Quat %LocalRotation{f{0x14C6353D,0x231A443F,0xB5901FBF,0xA1641ABE}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
+		f %LocalUniformScaling{0xCDCC4C3E}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
